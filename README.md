@@ -10,7 +10,7 @@ The full product spec is the "D&D 5e Player Companion — Phase 0 Specification"
 | --- | --- |
 | `packages/schema` | Zod schemas and types: characters, content definitions, modifiers, operations |
 | `packages/engine` | The rules engine. `derive(character, content)` returns the whole sheet with a breakdown for every number. Pure TypeScript, no UI |
-| `content/packs` | Content packs. `table-2014.json` holds the group's private entries |
+| `content/packs/table-2014` | The group's private pack, one file per area: `pack.json` is the header, the other files hold definitions (classes, races, feats, items, table rules) |
 | `content/fixtures` | Reference characters from the table, used as test fixtures |
 
 ## Commands
@@ -36,10 +36,15 @@ Definitions carry mechanics, a short summary in our own words, and a book and pa
 
 | Phase | State |
 | --- | --- |
-| 1 · Engine core | In progress: schema, sources, abilities, saves, skills, passives, AC, initiative, speed, HP, weapon attacks, spellcasting, slots and resources work for Μπέρεν |
-| 1 · Remaining | Operation log and undo, local storage (IndexedDB), JSON export, the sheet UI, the other three reference characters |
+| 1 · Engine core | Done for all four reference characters (Μπέρεν, Αριστοτέλης, Ελισσαίος, Αγακλής): abilities, saves, skills, passives, AC, initiative, speed, HP, weapon and feature attacks (melee and thrown), spellcasting, slots and Pact Magic, resources, level scaling, table rules |
+| 1 · Remaining | Operation log and undo, local storage (IndexedDB), JSON export, the sheet UI |
 
 ### Shortcuts to revisit
+
+- Variant human ability bonuses aren't recorded for Ελισσαίος and Αγακλής, so their base scores are the final scores.
+- Ελισσαίος's homebrew feat (the source of his extra spells) isn't entered yet.
+- Αγακλής's Dual Wielder is the table version from his sheet (+2 AC while wielding two melee weapons, switched on with the `dual-wielding` toggle).
+- Mage Armor is a manual entry with a toggle until the effects system (Phase 4).
 
 - The ranger class in `table-2014.json` already uses the Tasha's optional features. A general "optional class features" switch comes with the character builder.
 - Μπέρεν's Acrobatics, Medicine and History proficiencies and his Druidic language are kept as the player's own entries (a manual grant), by the DM's decision.

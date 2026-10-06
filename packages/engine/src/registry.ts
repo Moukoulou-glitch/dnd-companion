@@ -19,6 +19,20 @@ export class ContentRegistry {
     for (const d of parsed.definitions) this.defs.set(d.id, d);
   }
 
+  /**
+   * Joins a pack kept as several files (a header plus files of definitions)
+   * into one pack object. Duplicate ids across files are an error.
+   */
+  static mergePack(header: object, parts: { definitions: unknown[] }[]): unknown {
+    const definitions = parts.flatMap((p) => p.definitions);
+    const seen = new Set<string>();
+    for (const d of definitions as { id?: string }[]) {
+      if (d.id && seen.has(d.id)) throw new Error(`Duplicate definition id "${d.id}"`);
+      if (d.id) seen.add(d.id);
+    }
+    return { ...header, definitions };
+  }
+
   has(id: string): boolean {
     return this.defs.has(id);
   }

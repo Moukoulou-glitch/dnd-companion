@@ -5,13 +5,14 @@ import {
   SKILL_ABILITY,
   SKILL_NAMES,
   type Ability,
+  type AttackDef,
   type Character,
   type Condition,
-  type ItemDef,
   type Modifier,
   type Proficiency,
   type Skill,
   type SpellcastingDef,
+  type ValueExpr,
 } from "@dnd/schema";
 import { sum, signed, type Breakdown, type DicePart, type Part, type RollBreakdown, type Suggestion } from "./breakdown.js";
 import { evalExpr, evalFlat, type ExprContext } from "./expr.js";
@@ -35,9 +36,14 @@ export interface SkillResult extends RollBreakdown {
 }
 
 export interface WeaponAttack {
-  itemInstanceId: string;
+  /** Item definition id or feature attack id; selectors "attack.<id>" target it. */
+  attackId: string;
+  /** Inventory instance, when the attack comes from an item. */
+  itemInstanceId?: string;
   name: string;
-  kind: "melee" | "ranged";
+  /** "thrown" is a melee weapon thrown at range. */
+  mode: "melee" | "ranged" | "thrown";
+  action: "attack" | "bonus";
   ability: Ability;
   proficient: boolean;
   attack: RollBreakdown;
@@ -46,8 +52,10 @@ export interface WeaponAttack {
     versatileDice?: string;
     type: string;
     bonus: RollBreakdown;
-    /** Extra damage only on a critical hit, e.g. Vicious +7. */
+    /** Flat damage only on a critical hit / natural 20, e.g. Vicious +7. */
     onCrit: Part[];
+    /** Extra weapon dice rolled on a critical hit, e.g. Brutal Critical. */
+    critExtraDice: Part[];
   };
   properties: string[];
   range?: [number, number];
@@ -101,16 +109,16 @@ interface ActiveMod {
   source: Source;
 }
 
-/** Every proficiency target resolved from fixed values and the player's choices. */
-interface Profs {
-  save: Set<string>;
-  skill: Set<string>;
-  expertise: Set<string>;
-  armor: Set<string>;
-  weapon: Set<string>;
-  tool: Set<string>;
-  language: Set<string>;
-}
+type WeaponLike = {
+  category: "simple" | "martial";
+  kind: "melee" | "ranged";
+  group?: string;
+  damage: string;
+  damageType: string;
+  versatileDamage?: string;
+  properties: string[];
+  range?: [number, number];
+};
 
 function proficiencyBonus(level: number): number {
   return 2 + Math.floor((level - 1) / 4);
@@ -158,8 +166,25 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
   const mods = Object.fromEntries(ABILITIES.map((a) => [a, abilities[a].modifier])) as Record<Ability, number>;
   const ctx: ExprContext = { pb, mods, level, classLevels };
 
+  /** Expression context for one source: its level tables resolved at the character's class level. */
+  const ctxCache = new Map<Source, ExprContext>();
+  const ctxFor = (s: Source): ExprContext => {
+    if (!s.scaling) return ctx;
+    const cached = ctxCache.get(s);
+    if (cached) return cached;
+    const scale: Record<string, ValueExpr> = {};
+    for (const [name, sc] of Object.entries(s.scaling)) {
+      const lvl = classLevels[sc.class] ?? 0;
+      const row = [...sc.table].sort((a, b) => a[0] - b[0]).filter(([at]) => at <= lvl).at(-1);
+      scale[name] = row ? row[1] : 0;
+    }
+    const result = { ...ctx, scale };
+    ctxCache.set(s, result);
+    return result;
+  };
+
   // Proficiencies.
-  const profs: Profs = {
+  const profs: Record<Proficiency["kind"], Set<string>> = {
     save: new Set(),
     skill: new Set(),
     expertise: new Set(),
@@ -197,6 +222,7 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
   };
 
   const labelOf = (a: ActiveMod) => a.mod.label ?? a.source.label;
+  const flatOf = (a: ActiveMod) => (a.mod.value === undefined ? 0 : evalFlat(a.mod.value, ctxFor(a.source)));
 
   /** Modifiers that touch any of `keys`. Item-scoped selectors only count for that item. */
   const modsFor = (keys: string[], itemInstanceId?: string): ActiveMod[] => {
@@ -209,6 +235,13 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
     // Same stacking key: keep the strongest flat value, else the first.
     const best = new Map<string, ActiveMod>();
     const rest: ActiveMod[] = [];
+    const strength = (m: ActiveMod) => {
+      try {
+        return flatOf(m);
+      } catch {
+        return 0;
+      }
+    };
     for (const a of found) {
       const key = a.mod.stackingKey;
       if (!key) {
@@ -216,26 +249,21 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
         continue;
       }
       const current = best.get(key);
-      const strength = (m: ActiveMod) => {
-        try {
-          return m.mod.value === undefined ? 0 : evalFlat(m.mod.value, ctx);
-        } catch {
-          return 0;
-        }
-      };
       if (!current || strength(a) > strength(current)) best.set(key, a);
     }
     return [...rest, ...best.values()];
   };
 
-  const describeEffect = (m: Modifier): string => {
-    if (m.op === "advantage") return "advantage";
-    if (m.op === "disadvantage") return "disadvantage";
+  const describeEffect = (a: ActiveMod): string => {
+    const m = a.mod;
+    if (m.op === "advantage" || m.op === "disadvantage") return m.op;
     if (m.value === undefined) return m.op;
-    return typeof m.value === "number" ? signed(m.value) : `+${m.value}`;
+    return evalExpr(m.value, ctxFor(a.source))
+      .map((t) => (t.kind === "dice" ? `+${t.dice}` : signed(t.value)))
+      .join(" ");
   };
 
-  /** Builds a d20-roll breakdown from base parts plus every matching modifier. */
+  /** Builds a d20-roll (or damage) breakdown from base parts plus every matching modifier. */
   const roll = (keys: string[], base: Part[], itemInstanceId?: string): RollBreakdown => {
     const parts = [...base];
     const dice: DicePart[] = [];
@@ -249,7 +277,7 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
       const state = conditionState(mod.when);
       if (state === "fail") continue;
       if (state === "unknown" || mod.mode === "suggested") {
-        const s: Suggestion = { label: labelOf(a), effect: describeEffect(mod) };
+        const s: Suggestion = { label: labelOf(a), effect: describeEffect(a) };
         if (mod.when?.text) s.reason = mod.when.text;
         suggestions.push(s);
         continue;
@@ -257,9 +285,12 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
       if (mod.op === "advantage") advantage.push(labelOf(a));
       else if (mod.op === "disadvantage") disadvantage.push(labelOf(a));
       else if (mod.value !== undefined) {
-        for (const term of evalExpr(mod.value, ctx)) {
-          if (term.kind === "dice") dice.push({ label: labelOf(a), dice: term.dice });
-          else parts.push({ label: term.label ? `${labelOf(a)} (${term.label})` : labelOf(a), value: term.value });
+        for (const term of evalExpr(mod.value, ctxFor(a.source))) {
+          if (term.kind === "dice") {
+            const d: DicePart = { label: labelOf(a), dice: term.dice };
+            if (mod.damageType) d.damageType = mod.damageType;
+            dice.push(d);
+          } else parts.push({ label: term.label ? `${labelOf(a)} (${term.label})` : labelOf(a), value: term.value });
         }
       }
     }
@@ -272,7 +303,7 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
     for (const a of modsFor([key])) {
       if (a.mod.op !== "add" || a.mod.value === undefined) continue;
       if (conditionState(a.mod.when) !== "pass" || a.mod.mode === "suggested") continue;
-      parts.push({ label: labelOf(a), value: evalFlat(a.mod.value, ctx) });
+      parts.push({ label: labelOf(a), value: flatOf(a) });
     }
     return parts;
   };
@@ -313,11 +344,12 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
   const acCandidates: Part[][] = [];
   if (armorWorn?.def.armor) {
     const a = armorWorn.def.armor;
-    const dex = a.category === "light" ? mods.dex : a.category === "medium" ? Math.min(mods.dex, 2) : 0;
     const parts: Part[] = [{ label: armorWorn.inst.name ?? armorWorn.def.name, value: a.base }];
     if (armorWorn.def.magic?.bonus) parts.push({ label: "Magic armor", value: armorWorn.def.magic.bonus });
-    if (a.category !== "heavy") parts.push(abilityPart("dex"));
-    if (a.category === "medium" && mods.dex > 2) parts[parts.length - 1] = { label: "Dexterity modifier (max 2)", value: dex };
+    if (a.category === "light") parts.push(abilityPart("dex"));
+    if (a.category === "medium") {
+      parts.push(mods.dex > 2 ? { label: "Dexterity modifier (max 2)", value: 2 } : abilityPart("dex"));
+    }
     acCandidates.push(parts);
   } else {
     acCandidates.push([{ label: "Unarmored", value: 10 }, abilityPart("dex")]);
@@ -326,7 +358,7 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
     if (a.mod.op !== "acBase" || a.mod.value === undefined) continue;
     if (conditionState(a.mod.when) !== "pass" || a.mod.mode === "suggested") continue;
     acCandidates.push(
-      evalExpr(a.mod.value, ctx).map((t) => {
+      evalExpr(a.mod.value, ctxFor(a.source)).map((t) => {
         if (t.kind === "dice") throw new Error(`AC formula cannot contain dice (${labelOf(a)})`);
         return { label: t.label ?? labelOf(a), value: t.value };
       }),
@@ -363,7 +395,8 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
       const rolls = cl.hpRolls ?? [];
       const total = Array.from({ length: levelsLeft }, (_, i) => rolls[i] ?? avg).reduce((t, v) => t + v, 0);
       const how = rolls.length >= levelsLeft ? "rolled" : rolls.length === 0 ? `average ${avg} each` : "rolled and average";
-      hpParts.push({ label: `${def.name} ${levelsLeft} more level${levelsLeft > 1 ? "s" : ""} (${how})`, value: total });
+      const more = index === 0 ? ` ${levelsLeft} more level${levelsLeft > 1 ? "s" : ""}` : ` ${levelsLeft} level${levelsLeft > 1 ? "s" : ""}`;
+      hpParts.push({ label: `${def.name}${more} (${how})`, value: total });
     }
     const die = `d${def.hitDie}`;
     const existing = hitDice.find((h) => h.die === die);
@@ -374,43 +407,64 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
   hpParts.push(...statAdds("stat.hp.max"));
   const hpMax = sum(hpParts);
 
-  // Weapon attacks: every weapon carried, so switching weapons needs no edit.
-  const weaponProficient = (w: NonNullable<ItemDef["weapon"]>) => profs.weapon.has(w.category) || profs.weapon.has(w.group);
+  // Attacks: every weapon carried (switching weapons needs no edit), plus attacks features grant.
   const attacks: WeaponAttack[] = [];
+  const buildAttacks = (
+    w: WeaponLike,
+    o: { attackId: string; name: string; proficient: boolean; magicBonus?: number; itemInstanceId?: string; action: "attack" | "bonus" },
+  ) => {
+    const ability: Ability = w.kind === "ranged" ? "dex" : w.properties.includes("finesse") && mods.dex > mods.str ? "dex" : "str";
+    const magic = o.magicBonus ? [{ label: "Magic weapon", value: o.magicBonus }] : [];
+    const modes: WeaponAttack["mode"][] = [w.kind];
+    if (w.kind === "melee" && w.properties.includes("thrown")) modes.push("thrown");
+
+    for (const mode of modes) {
+      const thrown = mode === "thrown";
+      const attackKeys = [`roll.attack.weapon.${mode}`, "item.attack", `attack.${o.attackId}`];
+      const damageKeys = [`roll.damage.weapon.${mode}`, "item.damage", `damage.${o.attackId}`];
+      if (thrown) {
+        attackKeys.push(`attack.${o.attackId}.thrown`);
+        damageKeys.push(`damage.${o.attackId}.thrown`);
+      }
+      const attack = roll(attackKeys, [abilityPart(ability), ...(o.proficient ? [pbPart()] : []), ...magic], o.itemInstanceId);
+      const bonus = roll(damageKeys, [abilityPart(ability), ...magic], o.itemInstanceId);
+      const critMods = modsFor(damageKeys, o.itemInstanceId).filter((a) => conditionState(a.mod.when) === "pass");
+      const onCrit = critMods.filter((a) => a.mod.op === "critBonusDamage").map((a) => ({ label: labelOf(a), value: flatOf(a) }));
+      const critExtraDice = critMods.filter((a) => a.mod.op === "extraCritDice").map((a) => ({ label: labelOf(a), value: flatOf(a) }));
+
+      const entry: WeaponAttack = {
+        attackId: o.attackId,
+        name: thrown ? `${o.name} (thrown)` : o.name,
+        mode,
+        action: o.action,
+        ability,
+        proficient: o.proficient,
+        attack,
+        damage: { dice: w.damage, type: w.damageType, bonus, onCrit, critExtraDice },
+        properties: w.properties,
+      };
+      if (o.itemInstanceId) entry.itemInstanceId = o.itemInstanceId;
+      if (w.versatileDamage && !thrown) entry.damage.versatileDice = w.versatileDamage;
+      if (w.range && mode !== "melee") entry.range = w.range;
+      attacks.push(entry);
+    }
+  };
+
   for (const inst of c.inventory) {
     const def = reg.get(inst.item, "item");
     const w = def.weapon;
     if (!w) continue;
-    const ability: Ability =
-      w.kind === "ranged" ? "dex" : w.properties.includes("finesse") && mods.dex > mods.str ? "dex" : "str";
-    const proficient = weaponProficient(w);
-    const magic = def.magic?.bonus ? [{ label: "Magic weapon", value: def.magic.bonus }] : [];
-
-    const attack = roll(
-      [`roll.attack.weapon.${w.kind}`, "item.attack"],
-      [abilityPart(ability), ...(proficient ? [pbPart()] : []), ...magic],
-      inst.id,
-    );
-    const bonus = roll([`roll.damage.weapon.${w.kind}`, "item.damage"], [abilityPart(ability), ...magic], inst.id);
-    const onCrit: Part[] = modsFor([`roll.damage.weapon.${w.kind}`, "item.damage"], inst.id)
-      .filter((a) => a.mod.op === "critBonusDamage" && a.mod.value !== undefined && conditionState(a.mod.when) === "pass")
-      .map((a) => ({ label: labelOf(a), value: evalFlat(a.mod.value!, ctx) }));
-
+    const proficient = profs.weapon.has(w.category) || profs.weapon.has(w.group);
     if (!proficient) warnings.push(`${inst.name ?? def.name}: not proficient, so no proficiency bonus on attacks.`);
-
-    const entry: WeaponAttack = {
-      itemInstanceId: inst.id,
-      name: inst.name ?? def.name,
-      kind: w.kind,
-      ability,
-      proficient,
-      attack,
-      damage: { dice: w.damage, type: w.damageType, bonus, onCrit },
-      properties: w.properties,
-    };
-    if (w.versatileDamage) entry.damage.versatileDice = w.versatileDamage;
-    if (w.range) entry.range = w.range;
-    attacks.push(entry);
+    const o: Parameters<typeof buildAttacks>[1] = { attackId: def.id, name: inst.name ?? def.name, proficient, itemInstanceId: inst.id, action: "attack" };
+    if (def.magic?.bonus) o.magicBonus = def.magic.bonus;
+    buildAttacks(w, o);
+  }
+  for (const s of sources) {
+    for (const a of s.grant.attacks ?? []) {
+      const w: AttackDef = a;
+      buildAttacks(w, { attackId: a.id, name: a.name, proficient: true, action: a.action });
+    }
   }
 
   // Spellcasting: classes that have reached their casting level, plus feats and features.
@@ -438,10 +492,14 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
   const resources: ResourceResult[] = [];
   for (const s of sources) {
     for (const r of s.grant.resources ?? []) {
-      const max = evalFlat(r.max, ctx);
+      const max = evalFlat(r.max, ctxFor(s));
       const used = Math.min(c.resourcesUsed[r.id] ?? 0, max);
       const entry: ResourceResult = { id: r.id, name: r.name, max, used, remaining: max - used, reset: r.reset, source: s.label };
-      if (r.die) entry.die = r.die;
+      if (r.die) {
+        const terms = evalExpr(r.die, ctxFor(s));
+        const die = terms[0];
+        entry.die = die && die.kind === "dice" ? die.dice.replace(/^1d/, "d") : r.die;
+      }
       resources.push(entry);
     }
   }

@@ -1,0 +1,38 @@
+{
+  "definitions": [
+    {
+      "kind": "background",
+      "id": "background:folk-hero",
+      "name": "Ντόπιος Ήρωας (Folk Hero)",
+      "summary": "A commoner who stood up for their village.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 131
+      },
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "skill",
+            "target": "animalHandling"
+          },
+          {
+            "kind": "skill",
+            "target": "survival"
+          },
+          {
+            "kind": "tool",
+            "target": {
+              "choice": "artisan-tools"
+            }
+          },
+          {
+            "kind": "tool",
+            "target": "Vehicles (land)"
+          }
+        ]
+      },
+      "features": []
+    }
+  ]
+}

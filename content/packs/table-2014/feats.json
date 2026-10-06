@@ -1,0 +1,210 @@
+{
+  "definitions": [
+    {
+      "kind": "feat",
+      "id": "feat:magic-initiate",
+      "name": "Magic Initiate",
+      "summary": "Two cantrips and one 1st-level spell from one class's list; the 1st-level spell is free once per long rest.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 168
+      },
+      "features": [],
+      "choices": [
+        {
+          "id": "class",
+          "label": "Spell list",
+          "kind": "feature",
+          "count": 1,
+          "from": [
+            "feature:magic-initiate-cleric"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:magic-initiate-cleric",
+      "name": "Magic Initiate (Cleric)",
+      "summary": "Cleric spells cast with Wisdom.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 168
+      },
+      "choices": [
+        {
+          "id": "cantrips",
+          "label": "Cantrips",
+          "kind": "spell",
+          "count": 2
+        },
+        {
+          "id": "spell",
+          "label": "1st-level spell",
+          "kind": "spell",
+          "count": 1
+        }
+      ],
+      "grant": {
+        "spellcasting": {
+          "id": "magic-initiate-cleric",
+          "label": "Magic Initiate (Cleric)",
+          "ability": "wis",
+          "progression": "none"
+        },
+        "resources": [
+          {
+            "id": "magic-initiate-spell",
+            "name": "Magic Initiate: free 1st-level spell",
+            "max": 1,
+            "reset": "long"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feat",
+      "id": "feat:fey-touched",
+      "name": "Fey Touched",
+      "summary": "+1 to Intelligence, Wisdom or Charisma; learn Misty Step and one 1st-level divination or enchantment spell, each free once per long rest.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 79
+      },
+      "features": [],
+      "choices": [
+        {
+          "id": "ability",
+          "label": "Ability",
+          "kind": "feature",
+          "count": 1,
+          "from": [
+            "feature:fey-touched-int"
+          ]
+        },
+        {
+          "id": "spell",
+          "label": "1st-level spell",
+          "kind": "spell",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:fey-touched-int",
+      "name": "Fey Touched (Intelligence)",
+      "summary": "+1 Intelligence; Fey Touched spells use Intelligence.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 79
+      },
+      "grant": {
+        "abilityBonuses": {
+          "int": 1
+        },
+        "spellcasting": {
+          "id": "fey-touched",
+          "label": "Fey Touched",
+          "ability": "int",
+          "progression": "none"
+        },
+        "resources": [
+          {
+            "id": "fey-touched-misty-step",
+            "name": "Fey Touched: Misty Step",
+            "max": 1,
+            "reset": "long"
+          },
+          {
+            "id": "fey-touched-spell",
+            "name": "Fey Touched: 1st-level spell",
+            "max": 1,
+            "reset": "long"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feat",
+      "id": "feat:sharpshooter",
+      "name": "Sharpshooter",
+      "summary": "No disadvantage at long range, ignore half and three-quarters cover, and optionally take -5 to hit for +10 damage with ranged weapons you're proficient with.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 170
+      },
+      "features": [],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.attack.weapon.ranged",
+            "op": "add",
+            "value": -5,
+            "mode": "suggested",
+            "label": "Sharpshooter (-5 / +10)"
+          },
+          {
+            "selector": "roll.damage.weapon.ranged",
+            "op": "add",
+            "value": 10,
+            "mode": "suggested",
+            "label": "Sharpshooter (-5 / +10)"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feat",
+      "id": "feat:athlete-remastered",
+      "name": "Athlete (Remastered)",
+      "summary": "Homebrew. Athletics proficiency, or expertise if already proficient; standing up costs 5 ft; climbing costs no extra movement; running jumps after 5 ft; add proficiency bonus to jump distance.",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew"
+      },
+      "features": [],
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "skill",
+            "target": "athletics"
+          },
+          {
+            "kind": "expertise",
+            "target": "athletics"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feat",
+      "id": "feat:dual-wielder-homebrew",
+      "name": "Dual Wielder (table version)",
+      "summary": "Homebrew version on the sheet: +2 AC while wielding a melee weapon in each hand, two-weapon fighting with non-light weapons, draw or stow two weapons, and proficiency bonus on the off-hand attack's damage.",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew"
+      },
+      "features": [],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.ac",
+            "op": "add",
+            "value": 2,
+            "label": "Dual Wielder",
+            "when": {
+              "toggle": "dual-wielding"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

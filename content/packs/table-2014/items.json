@@ -1,0 +1,570 @@
+{
+  "definitions": [
+    {
+      "kind": "item",
+      "id": "item:leather-armor",
+      "name": "Leather Armor",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 145
+      },
+      "category": "armor",
+      "weight": 10,
+      "armor": {
+        "category": "light",
+        "base": 11
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:shortsword",
+      "name": "Shortsword",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 149
+      },
+      "category": "weapon",
+      "weight": 2,
+      "weapon": {
+        "category": "martial",
+        "kind": "melee",
+        "group": "shortsword",
+        "damage": "1d6",
+        "damageType": "piercing",
+        "properties": [
+          "finesse",
+          "light"
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:vicious-longbow",
+      "name": "Vicious Longbow",
+      "summary": "On a natural 20 attack roll, the target takes 7 extra damage of the weapon's type.",
+      "source": {
+        "pack": "table-2014",
+        "book": "DMG",
+        "page": 209
+      },
+      "category": "weapon",
+      "weight": 2,
+      "weapon": {
+        "category": "martial",
+        "kind": "ranged",
+        "group": "longbow",
+        "damage": "1d8",
+        "damageType": "piercing",
+        "properties": [
+          "ammunition",
+          "heavy",
+          "two-handed"
+        ],
+        "range": [
+          150,
+          600
+        ]
+      },
+      "magic": {
+        "rarity": "rare"
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "item.damage",
+            "op": "critBonusDamage",
+            "value": 7,
+            "label": "Vicious (natural 20)"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:arrows",
+      "name": "Arrows",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 150
+      },
+      "category": "ammunition",
+      "weight": 0.05
+    },
+    {
+      "kind": "item",
+      "id": "item:silvered-arrows",
+      "name": "Silvered Arrows",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 148
+      },
+      "category": "ammunition",
+      "weight": 0.05
+    },
+    {
+      "kind": "item",
+      "id": "item:natures-mantle",
+      "name": "Nature's Mantle",
+      "summary": "Druid or ranger spellcasting focus. While in light obscurement you can Hide as a bonus action, even while observed.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 129
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "requiresAttunement": true
+    },
+    {
+      "kind": "item",
+      "id": "item:chime-of-opening",
+      "name": "Chime of Opening",
+      "summary": "Strike it to open one lock or latch within 120 ft; limited charges.",
+      "source": {
+        "pack": "table-2014",
+        "book": "DMG",
+        "page": 158
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "rare"
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:druidic-focus",
+      "name": "Druidic Focus",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 151
+      },
+      "category": "focus"
+    },
+    {
+      "kind": "item",
+      "id": "item:explorers-gear",
+      "name": "Adventuring gear",
+      "summary": "Backpack, bedroll, mess kit, tinderbox, torches, rations, waterskin, rope, quiver.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 151
+      },
+      "category": "gear"
+    },
+    {
+      "kind": "item",
+      "id": "item:dagger",
+      "name": "Dagger",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 149
+      },
+      "category": "weapon",
+      "weight": 1,
+      "weapon": {
+        "category": "simple",
+        "kind": "melee",
+        "group": "dagger",
+        "damage": "1d4",
+        "damageType": "piercing",
+        "properties": [
+          "finesse",
+          "light",
+          "thrown"
+        ],
+        "range": [
+          20,
+          60
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:rapier",
+      "name": "Rapier",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 149
+      },
+      "category": "weapon",
+      "weight": 2,
+      "weapon": {
+        "category": "martial",
+        "kind": "melee",
+        "group": "rapier",
+        "damage": "1d8",
+        "damageType": "piercing",
+        "properties": [
+          "finesse"
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:shortbow",
+      "name": "Shortbow",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 149
+      },
+      "category": "weapon",
+      "weight": 2,
+      "weapon": {
+        "category": "simple",
+        "kind": "ranged",
+        "group": "shortbow",
+        "damage": "1d6",
+        "damageType": "piercing",
+        "properties": [
+          "ammunition",
+          "two-handed"
+        ],
+        "range": [
+          80,
+          320
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:shortbow-of-warning",
+      "name": "Shortbow of Warning",
+      "summary": "While attuned: advantage on initiative, and you and nearby allies can't be surprised.",
+      "source": {
+        "pack": "table-2014",
+        "book": "DMG",
+        "page": 213
+      },
+      "category": "weapon",
+      "weight": 2,
+      "weapon": {
+        "category": "simple",
+        "kind": "ranged",
+        "group": "shortbow",
+        "damage": "1d6",
+        "damageType": "piercing",
+        "properties": [
+          "ammunition",
+          "two-handed"
+        ],
+        "range": [
+          80,
+          320
+        ]
+      },
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.initiative",
+            "op": "advantage",
+            "label": "Weapon of Warning"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:warhammer",
+      "name": "Warhammer",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 149
+      },
+      "category": "weapon",
+      "weight": 2,
+      "weapon": {
+        "category": "martial",
+        "kind": "melee",
+        "group": "warhammer",
+        "damage": "1d8",
+        "damageType": "bludgeoning",
+        "versatileDamage": "1d10",
+        "properties": [
+          "versatile"
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:handaxe",
+      "name": "Handaxe",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 149
+      },
+      "category": "weapon",
+      "weight": 2,
+      "weapon": {
+        "category": "simple",
+        "kind": "melee",
+        "group": "handaxe",
+        "damage": "1d6",
+        "damageType": "slashing",
+        "properties": [
+          "light",
+          "thrown"
+        ],
+        "range": [
+          20,
+          60
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:javelin",
+      "name": "Javelin",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 149
+      },
+      "category": "weapon",
+      "weight": 2,
+      "weapon": {
+        "category": "simple",
+        "kind": "melee",
+        "group": "javelin",
+        "damage": "1d6",
+        "damageType": "piercing",
+        "properties": [
+          "thrown"
+        ],
+        "range": [
+          30,
+          120
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:flame-tongue-shortsword",
+      "name": "Flame Tongue Shortsword",
+      "summary": "Bonus action to ignite: while lit it deals 2d6 extra fire damage and sheds light.",
+      "source": {
+        "pack": "table-2014",
+        "book": "DMG",
+        "page": 170
+      },
+      "category": "weapon",
+      "weight": 2,
+      "weapon": {
+        "category": "martial",
+        "kind": "melee",
+        "group": "shortsword",
+        "damage": "1d6",
+        "damageType": "piercing",
+        "properties": [
+          "finesse",
+          "light"
+        ]
+      },
+      "magic": {
+        "rarity": "rare"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "item.damage",
+            "op": "add",
+            "value": "2d6",
+            "damageType": "fire",
+            "label": "Flame Tongue (lit)",
+            "when": {
+              "toggle": "flame-tongue-lit"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:shield",
+      "name": "Shield",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 145
+      },
+      "category": "shield",
+      "weight": 6,
+      "shieldBonus": 2
+    },
+    {
+      "kind": "item",
+      "id": "item:stone-of-good-luck",
+      "name": "Stone of Good Luck",
+      "summary": "+1 to ability checks and saving throws.",
+      "source": {
+        "pack": "table-2014",
+        "book": "DMG",
+        "page": 205
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.check.*",
+            "op": "add",
+            "value": 1,
+            "label": "Stone of Good Luck"
+          },
+          {
+            "selector": "roll.save.*",
+            "op": "add",
+            "value": 1,
+            "label": "Stone of Good Luck"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:arcane-focus",
+      "name": "Arcane Focus",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 151
+      },
+      "category": "focus"
+    },
+    {
+      "kind": "item",
+      "id": "item:spellbook",
+      "name": "Spellbook",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 153
+      },
+      "category": "gear",
+      "weight": 3
+    },
+    {
+      "kind": "item",
+      "id": "item:thieves-tools",
+      "name": "Thieves' Tools",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 154
+      },
+      "category": "tool",
+      "weight": 1
+    },
+    {
+      "kind": "item",
+      "id": "item:smiths-tools",
+      "name": "Smith's Tools",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 154
+      },
+      "category": "tool",
+      "weight": 8
+    },
+    {
+      "kind": "item",
+      "id": "item:potters-tools",
+      "name": "Potter's Tools",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 154
+      },
+      "category": "tool",
+      "weight": 3
+    },
+    {
+      "kind": "item",
+      "id": "item:amulet-of-proof",
+      "name": "Amulet of Proof against Detection and Location",
+      "summary": "Hidden from divination magic.",
+      "source": {
+        "pack": "table-2014",
+        "book": "DMG",
+        "page": 150
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "requiresAttunement": true
+    },
+    {
+      "kind": "item",
+      "id": "item:goggles-of-night",
+      "name": "Goggles of Night",
+      "summary": "Darkvision 60 ft, or +60 ft if you already have it.",
+      "source": {
+        "pack": "table-2014",
+        "book": "DMG",
+        "page": 172
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "uncommon"
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:horn-of-silent-alarm",
+      "name": "Horn of Silent Alarm",
+      "summary": "A blast only one chosen creature can hear.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 137
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "common"
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:amulet-of-sunlight",
+      "name": "Φυλαχτό του Ηλιακού Φωτός",
+      "summary": "Campaign reward. Once every 10 days, a variant of Daylight: sunlight in a 10 ft radius from an intangible crown that moves with the wearer; counts as a 5th-level spell.",
+      "source": {
+        "pack": "table-2014",
+        "book": "Campaign"
+      },
+      "category": "wondrous",
+      "grant": {
+        "resources": [
+          {
+            "id": "amulet-of-sunlight",
+            "name": "Φυλαχτό του Ηλιακού Φωτός",
+            "max": 1,
+            "reset": "manual"
+          }
+        ]
+      }
+    }
+  ]
+}

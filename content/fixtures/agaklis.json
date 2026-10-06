@@ -1,0 +1,31 @@
+{
+  "id": "fixture-agaklis",
+  "schemaVersion": 1,
+  "ruleset": "5e-2014",
+  "name": "Αγακλής",
+  "alignment": "CG",
+  "abilities": { "str": 18, "dex": 14, "con": 16, "int": 8, "wis": 10, "cha": 10 },
+  "race": "race:variant-human",
+  "background": "background:folk-hero",
+  "classes": [{ "class": "class:barbarian", "subclass": "subclass:ancestral-guardian", "level": 9 }],
+  "feats": [
+    { "feat": "feat:athlete-remastered", "from": "Variant human" },
+    { "feat": "feat:dual-wielder-homebrew", "from": "Ability Score Improvement" }
+  ],
+  "choices": {
+    "race:variant-human": { "language": ["Gnomish"], "skill": ["persuasion"] },
+    "background:folk-hero": { "artisan-tools": ["Potter's tools"] },
+    "class:barbarian": { "skills": ["athletics", "nature"] }
+  },
+  "inventory": [
+    { "id": "i1", "item": "item:flame-tongue-shortsword", "equipped": true, "attuned": true },
+    { "id": "i2", "item": "item:warhammer" },
+    { "id": "i3", "item": "item:handaxe", "quantity": 2 },
+    { "id": "i4", "item": "item:javelin", "quantity": 5 },
+    { "id": "i5", "item": "item:shield", "name": "Stefanor's Shield" },
+    { "id": "i6", "item": "item:potters-tools" },
+    { "id": "i7", "item": "item:explorers-gear" }
+  ],
+  "currency": { "cp": 40, "sp": 28, "gp": 6 },
+  "hp": { "current": 95, "temp": 0 }
+}

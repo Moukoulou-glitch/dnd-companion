@@ -1,0 +1,46 @@
+{
+  "definitions": [
+    {
+      "kind": "feature",
+      "id": "rule:sharpshooter-psychic-blades",
+      "name": "Table ruling: Sharpshooter with Psychic Blades",
+      "summary": "Sharpshooter's -5 / +10 option also works with thrown Psychic Blades.",
+      "source": {
+        "pack": "table-2014",
+        "book": "Table ruling"
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "attack.attack:psychic-blade.thrown",
+            "op": "add",
+            "value": -5,
+            "mode": "suggested",
+            "label": "Sharpshooter (-5 / +10)"
+          },
+          {
+            "selector": "damage.attack:psychic-blade.thrown",
+            "op": "add",
+            "value": 10,
+            "mode": "suggested",
+            "label": "Sharpshooter (-5 / +10)"
+          },
+          {
+            "selector": "attack.attack:psychic-blade-bonus.thrown",
+            "op": "add",
+            "value": -5,
+            "mode": "suggested",
+            "label": "Sharpshooter (-5 / +10)"
+          },
+          {
+            "selector": "damage.attack:psychic-blade-bonus.thrown",
+            "op": "add",
+            "value": 10,
+            "mode": "suggested",
+            "label": "Sharpshooter (-5 / +10)"
+          }
+        ]
+      }
+    }
+  ]
+}

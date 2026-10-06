@@ -8,6 +8,8 @@ export interface Part {
 export interface DicePart {
   label: string;
   dice: string;
+  /** For damage dice of their own type, e.g. Flame Tongue's fire. */
+  damageType?: string;
 }
 
 /** A modifier the engine offers as a toggle instead of applying it. */

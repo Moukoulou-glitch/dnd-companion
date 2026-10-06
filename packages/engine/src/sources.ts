@@ -1,4 +1,4 @@
-import type { Character, ChoiceDef, ChoiceValues, Grant } from "@dnd/schema";
+import type { Character, ChoiceDef, ChoiceValues, Grant, Scaling } from "@dnd/schema";
 import type { ContentRegistry } from "./registry.js";
 
 /** Something active on the character that grants things: a race, a class feature, an item, a manual entry. */
@@ -9,6 +9,8 @@ export interface Source {
   grant: Grant;
   /** The player's choices for this definition. */
   choices: ChoiceValues;
+  /** Level tables for "scale.<name>" values in this source's grant. */
+  scaling?: Record<string, Scaling>;
   /** Set when the source is an item, so item-scoped modifiers stay on that item. */
   itemInstanceId?: string;
 }
@@ -28,7 +30,9 @@ export function collectSources(c: Character, reg: ContentRegistry): Source[] {
 
   const pushFeature = (featureId: string): void => {
     const f = reg.get(featureId, "feature");
-    out.push({ id: f.id, label: f.name, grant: f.grant ?? {}, choices: choicesFor(f.id) });
+    const source: Source = { id: f.id, label: f.name, grant: f.grant ?? {}, choices: choicesFor(f.id) };
+    if (f.scaling) source.scaling = f.scaling;
+    out.push(source);
     pushChosenFeatures(f.id, f.choices);
   };
 
@@ -79,6 +83,8 @@ export function collectSources(c: Character, reg: ContentRegistry): Source[] {
       itemInstanceId: inst.id,
     });
   }
+
+  c.rules.forEach(pushFeature);
 
   c.manualGrants.forEach((m, i) => {
     out.push({ id: `manual:${i}`, label: m.label, grant: m.grant, choices: {} });

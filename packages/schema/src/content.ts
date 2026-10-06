@@ -24,12 +24,26 @@ const base = {
   source: SourceRef,
 };
 
+/**
+ * A value that grows with class level, read with "scale.<name>". The value at
+ * the highest listed level not above the character's level in `class` wins.
+ * Example: Sneak Attack { class: "class:rogue", table: [[1,"1d6"],[3,"2d6"],...] }.
+ */
+export const Scaling = z
+  .object({
+    class: DefId,
+    table: z.array(z.tuple([z.number().int().min(1).max(20), z.union([z.number(), z.string()])])).min(1),
+  })
+  .strict();
+export type Scaling = z.infer<typeof Scaling>;
+
 export const FeatureDef = z
   .object({
     ...base,
     kind: z.literal("feature"),
     grant: Grant.optional(),
     choices: z.array(ChoiceDef).optional(),
+    scaling: z.record(z.string(), Scaling).optional(),
   })
   .strict();
 export type FeatureDef = z.infer<typeof FeatureDef>;

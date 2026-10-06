@@ -27,6 +27,13 @@ describe("value expressions", () => {
     ]);
   });
 
+  it("reads level-table values through scale.<name>", () => {
+    const scaled: ExprContext = { ...ctx, scale: { dice: "4d6", damage: 3 } };
+    expect(evalExpr("scale.dice", scaled)).toEqual([{ kind: "dice", dice: "4d6" }]);
+    expect(evalFlat("scale.damage + 1", scaled)).toBe(4);
+    expect(() => evalFlat("scale.missing", scaled)).toThrow(/No scaling value/);
+  });
+
   it("rejects unknown terms instead of guessing", () => {
     expect(() => evalFlat("mod.luck", ctx)).toThrow(/Unknown term/);
     expect(() => evalFlat("1d4", ctx)).toThrow(/Expected a number/);

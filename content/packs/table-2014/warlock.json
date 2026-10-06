@@ -1,0 +1,58 @@
+{
+  "definitions": [
+    {
+      "kind": "class",
+      "id": "class:warlock",
+      "name": "Warlock",
+      "summary": "Charisma caster with few spell slots that come back on a short rest.",
+      "source": { "pack": "table-2014", "book": "PHB", "page": 105 },
+      "hitDie": 8,
+      "saves": ["wis", "cha"],
+      "startingGrant": {
+        "proficiencies": [
+          { "kind": "armor", "target": "light" },
+          { "kind": "weapon", "target": "simple" },
+          { "kind": "skill", "target": { "choice": "skills" } }
+        ]
+      },
+      "multiclassGrant": {
+        "proficiencies": [
+          { "kind": "armor", "target": "light" },
+          { "kind": "weapon", "target": "simple" }
+        ]
+      },
+      "spellcasting": { "id": "warlock", "label": "Warlock (Pact Magic)", "ability": "cha", "progression": "pact" },
+      "subclassLevel": 1,
+      "features": []
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:the-undead",
+      "name": "The Undead",
+      "summary": "Patron that has escaped the cycle of life and death.",
+      "source": { "pack": "table-2014", "book": "VRGtR", "page": 30 },
+      "class": "class:warlock",
+      "features": [
+        { "level": 1, "feature": "feature:undead-expanded-spells" },
+        { "level": 1, "feature": "feature:form-of-dread" }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:undead-expanded-spells",
+      "name": "Expanded Spell List (Undead)",
+      "summary": "Extra spells added to your warlock list, starting with Bane and False Life.",
+      "source": { "pack": "table-2014", "book": "VRGtR", "page": 30 }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:form-of-dread",
+      "name": "Form of Dread",
+      "summary": "Bonus action, 1 minute: temp HP equal to 1d10 + warlock level, immunity to frightened, and once per turn a hit can force a Wisdom save or the target is frightened of you.",
+      "source": { "pack": "table-2014", "book": "VRGtR", "page": 30 },
+      "grant": {
+        "resources": [{ "id": "form-of-dread", "name": "Form of Dread", "max": "pb", "reset": "long" }]
+      }
+    }
+  ]
+}

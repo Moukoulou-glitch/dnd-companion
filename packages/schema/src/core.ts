@@ -85,8 +85,9 @@ export type Ruleset = z.infer<typeof Ruleset>;
  * A value expression. Either a plain number, or a string the engine evaluates:
  * terms joined by + or -, where a term is a number, dice ("1d4", "2d6"),
  * "pb" (proficiency bonus), "mod.<ability>", "level" (character level),
- * or "classLevel.<classId>".
- * Examples: 2, "1d4", "pb", "13 + mod.dex", "classLevel.ranger".
+ * "classLevel.<classId>", or "scale.<name>" (a level table on the feature
+ * that holds the modifier, e.g. Sneak Attack dice or Rage damage).
+ * Examples: 2, "1d4", "pb", "13 + mod.dex", "classLevel.ranger", "scale.dice".
  */
 export const ValueExpr = z.union([z.number(), z.string().min(1)]);
 export type ValueExpr = z.infer<typeof ValueExpr>;

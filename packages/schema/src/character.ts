@@ -83,6 +83,8 @@ export const Character = z
     /** Choices keyed by the definition that asked for them. */
     choices: z.record(DefId, ChoiceValues).default({}),
     manualGrants: z.array(ManualGrant).default([]),
+    /** Table rules (house rules, rulings) active for this character: feature ids from a pack. */
+    rules: z.array(DefId).default([]),
     inventory: z.array(ItemInstance).default([]),
     currency: z
       .object({ cp: z.number(), sp: z.number(), ep: z.number(), gp: z.number(), pp: z.number() })

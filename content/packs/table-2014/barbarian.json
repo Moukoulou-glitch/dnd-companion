@@ -1,0 +1,175 @@
+{
+  "definitions": [
+    {
+      "kind": "class",
+      "id": "class:barbarian",
+      "name": "Barbarian",
+      "summary": "Tough melee warrior who fights in a rage.",
+      "source": { "pack": "table-2014", "book": "PHB", "page": 46 },
+      "hitDie": 12,
+      "saves": ["str", "con"],
+      "startingGrant": {
+        "proficiencies": [
+          { "kind": "armor", "target": "light" },
+          { "kind": "armor", "target": "medium" },
+          { "kind": "armor", "target": "shields" },
+          { "kind": "weapon", "target": "simple" },
+          { "kind": "weapon", "target": "martial" },
+          { "kind": "skill", "target": { "choice": "skills" } }
+        ]
+      },
+      "multiclassGrant": {
+        "proficiencies": [
+          { "kind": "armor", "target": "shields" },
+          { "kind": "weapon", "target": "simple" },
+          { "kind": "weapon", "target": "martial" }
+        ]
+      },
+      "subclassLevel": 3,
+      "features": [
+        { "level": 1, "feature": "feature:rage" },
+        { "level": 1, "feature": "feature:unarmored-defense-barbarian" },
+        { "level": 2, "feature": "feature:reckless-attack" },
+        { "level": 2, "feature": "feature:danger-sense" },
+        { "level": 5, "feature": "feature:extra-attack" },
+        { "level": 5, "feature": "feature:fast-movement" },
+        { "level": 7, "feature": "feature:feral-instinct" },
+        { "level": 9, "feature": "feature:brutal-critical" }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:rage",
+      "name": "Rage",
+      "summary": "Bonus action, 1 minute, not in heavy armor: advantage on Strength checks and saves, bonus damage on Strength melee weapon attacks, resistance to bludgeoning, piercing and slashing. No spellcasting while raging.",
+      "source": { "pack": "table-2014", "book": "PHB", "page": 48 },
+      "scaling": {
+        "uses": { "class": "class:barbarian", "table": [[1, 2], [3, 3], [6, 4], [12, 5], [17, 6]] },
+        "damage": { "class": "class:barbarian", "table": [[1, 2], [9, 3], [16, 4]] }
+      },
+      "grant": {
+        "resources": [{ "id": "rage", "name": "Rage", "max": "scale.uses", "reset": "long" }],
+        "modifiers": [
+          { "selector": "roll.damage.weapon.melee", "op": "add", "value": "scale.damage", "label": "Rage", "when": { "toggle": "raging", "noHeavyArmor": true } },
+          { "selector": "roll.damage.weapon.thrown", "op": "add", "value": "scale.damage", "label": "Rage", "when": { "toggle": "raging", "noHeavyArmor": true } },
+          { "selector": "roll.check.str", "op": "advantage", "label": "Rage", "when": { "toggle": "raging", "noHeavyArmor": true } },
+          { "selector": "roll.save.str", "op": "advantage", "label": "Rage", "when": { "toggle": "raging", "noHeavyArmor": true } },
+          { "selector": "defense.resist.bludgeoning", "op": "resist", "label": "Rage", "when": { "toggle": "raging", "noHeavyArmor": true } },
+          { "selector": "defense.resist.piercing", "op": "resist", "label": "Rage", "when": { "toggle": "raging", "noHeavyArmor": true } },
+          { "selector": "defense.resist.slashing", "op": "resist", "label": "Rage", "when": { "toggle": "raging", "noHeavyArmor": true } }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:unarmored-defense-barbarian",
+      "name": "Unarmored Defense",
+      "summary": "Without armor, AC is 10 + Dexterity modifier + Constitution modifier. A shield still counts.",
+      "source": { "pack": "table-2014", "book": "PHB", "page": 48 },
+      "grant": {
+        "modifiers": [
+          { "selector": "stat.ac", "op": "acBase", "value": "10 + mod.dex + mod.con", "label": "Unarmored Defense", "when": { "noArmor": true } }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:reckless-attack",
+      "name": "Reckless Attack",
+      "summary": "On your first attack of the turn, take advantage on Strength melee weapon attacks this turn; attacks against you have advantage until your next turn.",
+      "source": { "pack": "table-2014", "book": "PHB", "page": 48 },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.attack.weapon.melee",
+            "op": "advantage",
+            "mode": "suggested",
+            "label": "Reckless Attack",
+            "when": { "text": "Strength melee attacks this turn; attacks against you have advantage until your next turn" }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:danger-sense",
+      "name": "Danger Sense",
+      "summary": "Advantage on Dexterity saves against effects you can see, unless blinded, deafened or incapacitated.",
+      "source": { "pack": "table-2014", "book": "PHB", "page": 48 },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.save.dex",
+            "op": "advantage",
+            "label": "Danger Sense",
+            "when": { "text": "against an effect you can see; not blinded, deafened or incapacitated" }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:extra-attack",
+      "name": "Extra Attack",
+      "summary": "Attack twice when you take the Attack action.",
+      "source": { "pack": "table-2014", "book": "PHB", "page": 49 }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:fast-movement",
+      "name": "Fast Movement",
+      "summary": "+10 ft speed while not in heavy armor.",
+      "source": { "pack": "table-2014", "book": "PHB", "page": 49 },
+      "grant": {
+        "modifiers": [{ "selector": "stat.speed.walk", "op": "add", "value": 10, "label": "Fast Movement", "when": { "noHeavyArmor": true } }]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:feral-instinct",
+      "name": "Feral Instinct",
+      "summary": "Advantage on initiative. If surprised, you can still act on your first turn if you rage first.",
+      "source": { "pack": "table-2014", "book": "PHB", "page": 49 },
+      "grant": {
+        "modifiers": [{ "selector": "roll.initiative", "op": "advantage", "label": "Feral Instinct" }]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:brutal-critical",
+      "name": "Brutal Critical",
+      "summary": "Extra weapon damage dice on a critical hit with a melee attack (1 at 9th level, 2 at 13th, 3 at 17th).",
+      "source": { "pack": "table-2014", "book": "PHB", "page": 49 },
+      "scaling": { "dice": { "class": "class:barbarian", "table": [[9, 1], [13, 2], [17, 3]] } },
+      "grant": {
+        "modifiers": [{ "selector": "roll.damage.weapon.melee", "op": "extraCritDice", "value": "scale.dice", "label": "Brutal Critical" }]
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:ancestral-guardian",
+      "name": "Path of the Ancestral Guardian",
+      "summary": "Ancestral spirits protect the barbarian's allies.",
+      "source": { "pack": "table-2014", "book": "XGtE", "page": 9 },
+      "class": "class:barbarian",
+      "features": [
+        { "level": 3, "feature": "feature:ancestral-protectors" },
+        { "level": 6, "feature": "feature:spirit-shield" }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:ancestral-protectors",
+      "name": "Ancestral Protectors",
+      "summary": "While raging, the first creature you hit each turn has disadvantage on attacks against anyone but you, and its hits on others are resisted, until your next turn.",
+      "source": { "pack": "table-2014", "book": "XGtE", "page": 10 }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:spirit-shield",
+      "name": "Spirit Shield",
+      "summary": "While raging, reaction: reduce damage to a creature you can see within 30 ft (2d6, rising at 10th and 14th level).",
+      "source": { "pack": "table-2014", "book": "XGtE", "page": 10 }
+    }
+  ]
+}

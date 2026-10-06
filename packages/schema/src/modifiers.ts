@@ -19,6 +19,10 @@ import { Ability, DamageType, DefId, ValueExpr } from "./core.js";
  *   defense.resist.<damageType> | defense.immune.<damageType> | defense.vulnerable.<damageType>
  * Item-scoped (only inside an item's own grant; applies to rolls made with that item)
  *   item.attack | item.damage
+ * One attack, from anywhere (house rules, features)
+ *   attack.<attackId> | damage.<attackId>           (attackId = item definition id or AttackDef id)
+ *   attack.<attackId>.thrown | damage.<attackId>.thrown
+ *   roll.attack.weapon.thrown | roll.damage.weapon.thrown   (any melee weapon thrown at range)
  *
  * Examples: "roll.attack.*", "roll.save.*", "roll.check.skill.stealth", "stat.ac".
  */
@@ -146,10 +150,33 @@ export const GrantedSpell = z
   .strict();
 export type GrantedSpell = z.infer<typeof GrantedSpell>;
 
+/**
+ * An attack a feature gives directly, with no inventory item (Psychic Blades,
+ * natural weapons, unarmed strikes). Built and rolled exactly like a weapon.
+ */
+export const AttackDef = z
+  .object({
+    id: z.string(),
+    name: z.string(),
+    category: z.enum(["simple", "martial"]),
+    kind: z.enum(["melee", "ranged"]),
+    damage: z.string(),
+    damageType: DamageType,
+    properties: z
+      .array(z.enum(["ammunition", "finesse", "heavy", "light", "loading", "reach", "special", "thrown", "two-handed", "versatile"]))
+      .default([]),
+    range: z.tuple([z.number(), z.number()]).optional(),
+    /** Action used to make it, when not a normal Attack action. */
+    action: z.enum(["attack", "bonus"]).default("attack"),
+  })
+  .strict();
+export type AttackDef = z.infer<typeof AttackDef>;
+
 /** Everything a source (race, class level, feat, item, manual entry) gives a character. */
 export const Grant = z
   .object({
     abilityBonuses: z.record(Ability, z.number()).optional(),
+    attacks: z.array(AttackDef).optional(),
     modifiers: z.array(Modifier).optional(),
     proficiencies: z.array(Proficiency).optional(),
     resources: z.array(ResourceDef).optional(),

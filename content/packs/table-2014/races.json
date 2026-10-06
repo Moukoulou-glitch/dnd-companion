@@ -1,0 +1,232 @@
+{
+  "definitions": [
+    {
+      "kind": "race",
+      "id": "race:eladrin",
+      "name": "Eladrin",
+      "summary": "Fey elf tied to the seasons. Darkvision, trance, and a short-range teleport.",
+      "source": {
+        "pack": "table-2014",
+        "book": "MToF",
+        "page": 61
+      },
+      "size": "medium",
+      "speed": 30,
+      "grant": {
+        "abilityBonuses": {
+          "dex": 2,
+          "cha": 1
+        },
+        "senses": {
+          "darkvision": 60
+        },
+        "proficiencies": [
+          {
+            "kind": "language",
+            "target": "Common"
+          },
+          {
+            "kind": "language",
+            "target": "Elvish"
+          }
+        ]
+      },
+      "features": [
+        "feature:keen-senses",
+        "feature:fey-ancestry",
+        "feature:trance",
+        "feature:fey-step"
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:keen-senses",
+      "name": "Keen Senses",
+      "summary": "Proficiency in Perception.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 23
+      },
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "skill",
+            "target": "perception"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:fey-ancestry",
+      "name": "Fey Ancestry",
+      "summary": "Advantage on saves against being charmed; magic can't put you to sleep.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 23
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.save.*",
+            "op": "advantage",
+            "label": "Fey Ancestry",
+            "when": {
+              "text": "against being charmed"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:trance",
+      "name": "Trance",
+      "summary": "Meditate 4 hours instead of sleeping; a long rest takes 4 hours.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 23
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:fey-step",
+      "name": "Fey Step (Summer)",
+      "summary": "Bonus action: teleport up to 30 ft. From 3rd level, Summer adds fire damage equal to your Charisma modifier (minimum 1) to creatures of your choice within 5 ft after the step.",
+      "source": {
+        "pack": "table-2014",
+        "book": "MToF",
+        "page": 62
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "fey-step",
+            "name": "Fey Step",
+            "max": 1,
+            "reset": "short"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "race",
+      "id": "race:tiefling",
+      "name": "Tiefling",
+      "summary": "Infernal heritage: darkvision, fire resistance and a little innate magic.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 42
+      },
+      "size": "medium",
+      "speed": 30,
+      "grant": {
+        "abilityBonuses": {
+          "cha": 2,
+          "int": 1
+        },
+        "senses": {
+          "darkvision": 60
+        },
+        "modifiers": [
+          {
+            "selector": "defense.resist.fire",
+            "op": "resist",
+            "label": "Hellish Resistance"
+          }
+        ],
+        "proficiencies": [
+          {
+            "kind": "language",
+            "target": "Common"
+          },
+          {
+            "kind": "language",
+            "target": "Infernal"
+          }
+        ]
+      },
+      "features": [
+        "feature:infernal-legacy"
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:infernal-legacy",
+      "name": "Infernal Legacy",
+      "summary": "Thaumaturgy cantrip; from 3rd level Hellish Rebuke as a 2nd-level spell once per long rest; from 5th level Darkness once per long rest. Charisma is the casting ability.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 43
+      },
+      "grant": {
+        "spellcasting": {
+          "id": "infernal-legacy",
+          "label": "Infernal Legacy",
+          "ability": "cha",
+          "progression": "none"
+        },
+        "spells": [
+          {
+            "spell": "spell:thaumaturgy",
+            "name": "Thaumaturgy",
+            "casting": "At will"
+          },
+          {
+            "spell": "spell:hellish-rebuke",
+            "name": "Hellish Rebuke (2nd level)",
+            "casting": "Once per long rest",
+            "resource": "infernal-legacy-rebuke"
+          }
+        ],
+        "resources": [
+          {
+            "id": "infernal-legacy-rebuke",
+            "name": "Infernal Legacy: Hellish Rebuke",
+            "max": 1,
+            "reset": "long"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "race",
+      "id": "race:variant-human",
+      "name": "Variant Human",
+      "summary": "+1 to two abilities, one skill, one feat, and an extra language.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 31
+      },
+      "size": "medium",
+      "speed": 30,
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "language",
+            "target": "Common"
+          },
+          {
+            "kind": "language",
+            "target": {
+              "choice": "language"
+            }
+          },
+          {
+            "kind": "skill",
+            "target": {
+              "choice": "skill"
+            }
+          }
+        ]
+      },
+      "features": []
+    }
+  ]
+}

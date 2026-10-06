@@ -5,6 +5,8 @@ export interface ExprContext {
   mods: Record<Ability, number>;
   level: number;
   classLevels: Record<string, number>;
+  /** Level-table values of the feature being evaluated, already resolved for the character's level. */
+  scale?: Record<string, ValueExpr>;
 }
 
 export type Term = { kind: "flat"; value: number; label?: string } | { kind: "dice"; dice: string };
@@ -22,10 +24,21 @@ export function evalExpr(expr: ValueExpr, ctx: ExprContext): Term[] {
   const tokens = expr.replace(/\s+/g, "").match(/[+-]?[^+-]+/g);
   if (!tokens) throw new Error(`Empty expression "${expr}"`);
 
-  return tokens.map((raw): Term => {
+  return tokens.flatMap((raw): Term[] => {
     const sign = raw.startsWith("-") ? -1 : 1;
     const t = raw.replace(/^[+-]/, "");
 
+    const sc = /^scale\.(.+)$/.exec(t);
+    if (sc) {
+      const value = ctx.scale?.[sc[1] as string];
+      if (value === undefined) throw new Error(`No scaling value "${sc[1]}" for expression "${expr}"`);
+      if (typeof value === "string" && value.includes("scale.")) throw new Error(`Scaling values cannot refer to scaling: "${value}"`);
+      return evalExpr(value, ctx).map((term) => (term.kind === "flat" ? { ...term, value: sign * term.value } : term));
+    }
+    return [single(sign, t)];
+  });
+
+  function single(sign: number, t: string): Term {
     if (/^\d+$/.test(t)) return { kind: "flat", value: sign * Number(t) };
 
     const dice = DICE.exec(t);
@@ -49,7 +62,7 @@ export function evalExpr(expr: ValueExpr, ctx: ExprContext): Term[] {
     }
 
     throw new Error(`Unknown term "${t}" in expression "${expr}"`);
-  });
+  }
 }
 
 /** Evaluates an expression that must be a plain number (resource maximums, AC formulas). */
