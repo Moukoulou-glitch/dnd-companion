@@ -1,0 +1,708 @@
+{
+  "definitions": [
+    {
+      "kind": "feat",
+      "id": "feat:haunted-by-the-shadows",
+      "name": "Haunted by the Shadows",
+      "summary": "Table homebrew. +1 to Intelligence, Wisdom or Charisma. Invisibility and Cause Fear once each per long rest without a slot, using the chosen ability. Vengeance: advantage on attacks against non-lawful evil creatures that haven't acted yet this combat. Curse: after killing a non-evil creature that isn't undead or a construct, -5 to attacks, checks and saves for 1d6 rounds; only a celestial of CR 10+ can lift it.",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew"
+      },
+      "features": [],
+      "grant": {
+        "abilityChoice": {
+          "choice": "ability",
+          "amount": 1
+        },
+        "spellcasting": {
+          "id": "haunted-by-the-shadows",
+          "label": "Haunted by the Shadows",
+          "ability": {
+            "choice": "ability"
+          },
+          "progression": "none"
+        },
+        "spells": [
+          {
+            "spell": "spell:invisibility",
+            "name": "Invisibility",
+            "casting": "Free once per long rest",
+            "resource": "haunted-invisibility"
+          },
+          {
+            "spell": "spell:cause-fear",
+            "name": "Cause Fear",
+            "casting": "Free once per long rest",
+            "resource": "haunted-fear"
+          }
+        ],
+        "resources": [
+          {
+            "id": "haunted-invisibility",
+            "name": "Haunted: Invisibility",
+            "max": 1,
+            "reset": "long"
+          },
+          {
+            "id": "haunted-fear",
+            "name": "Haunted: Cause Fear",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.attack.*",
+            "op": "advantage",
+            "mode": "suggested",
+            "when": {
+              "text": "target is non-lawful, evil, and hasn't taken a turn in this combat yet"
+            },
+            "label": "Vengeance"
+          },
+          {
+            "selector": "roll.attack.*",
+            "op": "add",
+            "value": -5,
+            "label": "Curse of the shadows",
+            "when": {
+              "toggle": "haunting-whispers"
+            }
+          },
+          {
+            "selector": "roll.check.*",
+            "op": "add",
+            "value": -5,
+            "label": "Curse of the shadows",
+            "when": {
+              "toggle": "haunting-whispers"
+            }
+          },
+          {
+            "selector": "roll.save.*",
+            "op": "add",
+            "value": -5,
+            "label": "Curse of the shadows",
+            "when": {
+              "toggle": "haunting-whispers"
+            }
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "ability",
+          "label": "Ability +1",
+          "kind": "ability",
+          "count": 1,
+          "from": [
+            "int",
+            "wis",
+            "cha"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "feat",
+      "id": "feat:actor",
+      "name": "Actor",
+      "summary": "+1 Charisma. Advantage on Deception and Performance checks to pass as someone else. Mimic voices and sounds (Insight vs. your Deception to spot it). Disguise kit proficiency, or expertise if already proficient.",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (remastered feats)"
+      },
+      "features": [],
+      "grant": {
+        "abilityBonuses": {
+          "cha": 1
+        },
+        "proficiencies": [
+          {
+            "kind": "tool",
+            "target": "Disguise kit"
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.check.skill.deception",
+            "op": "advantage",
+            "mode": "suggested",
+            "when": {
+              "text": "passing yourself off as a different person"
+            }
+          },
+          {
+            "selector": "roll.check.skill.performance",
+            "op": "advantage",
+            "mode": "suggested",
+            "when": {
+              "text": "passing yourself off as a different person"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feat",
+      "id": "feat:athlete",
+      "name": "Athlete",
+      "summary": "+1 Strength or Dexterity. Athletics proficiency, or expertise if already proficient. Standing up costs 5 ft, climbing costs no extra movement, running jumps after 5 ft, and add proficiency bonus to jump distance.",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (remastered feats)"
+      },
+      "features": [],
+      "grant": {
+        "abilityChoice": {
+          "choice": "ability",
+          "amount": 1
+        },
+        "proficiencies": [
+          {
+            "kind": "skillOrExpertise",
+            "target": "athletics"
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "ability",
+          "label": "Ability +1",
+          "kind": "ability",
+          "count": 1,
+          "from": [
+            "str",
+            "dex"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "feat",
+      "id": "feat:charger",
+      "name": "Charger",
+      "summary": "Dash as a bonus action. Once per round, after Dashing and moving 10+ ft straight at a target: +5 + proficiency bonus to a melee hit's damage, or push 10 ft with a shove (target at most two sizes larger; two sizes larger has advantage to resist).",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (remastered feats)"
+      },
+      "features": [],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.damage.weapon.melee",
+            "op": "add",
+            "mode": "suggested",
+            "when": {
+              "text": "after Dash and 10 ft straight-line move; once per round"
+            },
+            "value": "5 + pb"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feat",
+      "id": "feat:defensive-duelist",
+      "name": "Defensive Duelist",
+      "summary": "Reaction when hit in melee while wielding a proficient finesse weapon: +proficiency bonus + half Dexterity modifier (rounded up, minimum 1) to AC against that attack; full Dexterity modifier if you took the Dodge action.",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (remastered feats)"
+      },
+      "features": []
+    },
+    {
+      "kind": "feat",
+      "id": "feat:dual-wielder",
+      "name": "Dual Wielder (table version)",
+      "summary": "As on Αγακλής's sheet: +2 AC while wielding a separate melee weapon in each hand, two-weapon fighting with non-light one-handed weapons, draw or stow two weapons, and proficiency bonus on the off-hand attack's damage (not combined with the Two-Weapon Fighting style).",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (remastered feats)"
+      },
+      "features": [],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.ac",
+            "op": "add",
+            "value": 2,
+            "label": "Dual Wielder",
+            "when": {
+              "toggle": "dual-wielding"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feat",
+      "id": "feat:dungeon-delver",
+      "name": "Dungeon Delver",
+      "summary": "Advantage on Perception and Investigation checks to find secret doors, traps and hazards, and on saves against traps and hazards. Resistance to trap damage. Fast pace doesn't lower passive Perception.",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (remastered feats)"
+      },
+      "features": [],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.check.skill.perception",
+            "op": "advantage",
+            "mode": "suggested",
+            "when": {
+              "text": "to find secret doors, traps and hazards"
+            }
+          },
+          {
+            "selector": "roll.check.skill.investigation",
+            "op": "advantage",
+            "mode": "suggested",
+            "when": {
+              "text": "to find secret doors, traps and hazards"
+            }
+          },
+          {
+            "selector": "roll.save.*",
+            "op": "advantage",
+            "mode": "suggested",
+            "when": {
+              "text": "against traps and hazards"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feat",
+      "id": "feat:durable",
+      "name": "Durable",
+      "summary": "+1 Constitution. Hit Dice heal at least twice your Constitution modifier (minimum 2). Reaction when damaged: spend a Hit Die to reduce the damage by the die + Constitution modifier (minimum 3), before resistances. Regain all Hit Dice on a long rest.",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (remastered feats)"
+      },
+      "features": [],
+      "grant": {
+        "abilityBonuses": {
+          "con": 1
+        }
+      }
+    },
+    {
+      "kind": "feat",
+      "id": "feat:elemental-adept",
+      "name": "Elemental Adept",
+      "summary": "Requires spellcasting. Pick acid, cold, fire, lightning or thunder: your spells ignore resistance to it, and its damage dice roll at least your proficiency bonus. Can be taken again for another type.",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (remastered feats)"
+      },
+      "features": [],
+      "choices": [
+        {
+          "id": "type",
+          "label": "Damage type",
+          "kind": "option",
+          "count": 1,
+          "from": [
+            "acid",
+            "cold",
+            "fire",
+            "lightning",
+            "thunder"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "feat",
+      "id": "feat:grappler",
+      "name": "Grappler",
+      "summary": "Requires Strength 13. Advantage on attacks against a creature you grapple. Action: pin a grappled creature (both restrained). While pinning a non-undead, non-construct: action to injure it (Con save vs. 8 + proficiency + Strength); on a failure it must pass a DC 10 Con save each time it acts in combat or lose the action and reactions. Heals with magical healing or ten days of rest.",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (remastered feats)"
+      },
+      "features": [],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.attack.*",
+            "op": "advantage",
+            "mode": "suggested",
+            "when": {
+              "text": "against a creature you are grappling"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feat",
+      "id": "feat:healer",
+      "name": "Healer",
+      "summary": "Stabilizing with a healer's kit also restores 1 + proficiency bonus HP. Action: spend a kit use to restore 1d12 + 4 + the creature's maximum Hit Dice in HP, once per short or long rest per creature.",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (remastered feats)"
+      },
+      "features": []
+    },
+    {
+      "kind": "feat",
+      "id": "feat:heavily-armored",
+      "name": "Heavily Armored",
+      "summary": "Requires medium armor proficiency. +1 Strength; proficiency with heavy armor and shields.",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (remastered feats)"
+      },
+      "features": [],
+      "grant": {
+        "abilityBonuses": {
+          "str": 1
+        },
+        "proficiencies": [
+          {
+            "kind": "armor",
+            "target": "heavy"
+          },
+          {
+            "kind": "armor",
+            "target": "shields"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feat",
+      "id": "feat:keen-mind",
+      "name": "Keen Mind",
+      "summary": "+1 Intelligence. Always know north and the hours until sunrise or sunset; perfect recall of the past month. Investigation and Survival proficiency, or expertise in each one already known.",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (remastered feats)"
+      },
+      "features": [],
+      "grant": {
+        "abilityBonuses": {
+          "int": 1
+        },
+        "proficiencies": [
+          {
+            "kind": "skillOrExpertise",
+            "target": "investigation"
+          },
+          {
+            "kind": "skillOrExpertise",
+            "target": "survival"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feat",
+      "id": "feat:linguist",
+      "name": "Linguist",
+      "summary": "+1 Intelligence, four languages, and ciphers others can't read without a check (DC Intelligence score + proficiency bonus). DC 15 Intelligence check to get the gist of an unknown language, repeatable each hour.",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (remastered feats)"
+      },
+      "features": [],
+      "grant": {
+        "abilityBonuses": {
+          "int": 1
+        },
+        "proficiencies": [
+          {
+            "kind": "language",
+            "target": {
+              "choice": "languages"
+            }
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "languages",
+          "label": "Languages",
+          "kind": "language",
+          "count": 4
+        }
+      ]
+    },
+    {
+      "kind": "feat",
+      "id": "feat:mage-slayer",
+      "name": "Mage Slayer",
+      "summary": "Reaction: melee attack a creature within 5 ft that casts a spell. Creatures you damage have disadvantage on concentration saves, and take 2 + proficiency bonus psychic damage if they lose it. Advantage on saves against spells and magical effects from creatures within 15 ft.",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (remastered feats)"
+      },
+      "features": [],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.save.*",
+            "op": "advantage",
+            "mode": "suggested",
+            "when": {
+              "text": "against a spell or magical effect from a creature within 15 ft"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feat",
+      "id": "feat:medium-armor-master",
+      "name": "Medium Armor Master",
+      "summary": "+1 Strength or Dexterity. Medium armor doesn't hurt Stealth, and allows up to +3 Dexterity to AC with Dexterity 16 or higher.",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (remastered feats)"
+      },
+      "features": [],
+      "grant": {
+        "abilityChoice": {
+          "choice": "ability",
+          "amount": 1
+        },
+        "modifiers": [
+          {
+            "selector": "stat.ac",
+            "op": "mediumArmorDexCap",
+            "value": 3,
+            "label": "Medium Armor Master",
+            "when": {
+              "minScore": {
+                "dex": 16
+              }
+            }
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "ability",
+          "label": "Ability +1",
+          "kind": "ability",
+          "count": 1,
+          "from": [
+            "str",
+            "dex"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "feat",
+      "id": "feat:polearm-master",
+      "name": "Polearm Master",
+      "summary": "+1 Strength. With a glaive, halberd, quarterstaff or spear: bonus-action butt-end attack (d4 bludgeoning, same ability). With those or a pike, creatures entering your reach provoke opportunity attacks.",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (remastered feats)"
+      },
+      "features": [],
+      "grant": {
+        "abilityBonuses": {
+          "str": 1
+        }
+      }
+    },
+    {
+      "kind": "feat",
+      "id": "feat:ritual-caster",
+      "name": "Ritual Caster",
+      "summary": "Requires Intelligence or Wisdom 13. A ritual book with two 1st-level ritual spells from one class list, using that class's ability. Copy more ritual spells found (2 hours and 50 gp per level, up to half your level rounded up); two free ones at each Ability Score Improvement level.",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (remastered feats)"
+      },
+      "features": [],
+      "choices": [
+        {
+          "id": "class",
+          "label": "Class list",
+          "kind": "option",
+          "count": 1,
+          "from": [
+            "bard",
+            "cleric",
+            "druid",
+            "sorcerer",
+            "warlock",
+            "wizard"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "feat",
+      "id": "feat:savage-attacker",
+      "name": "Savage Attacker",
+      "summary": "Once per turn on melee weapon damage, replace the weapon dice with 1d12, 2d6 or 3d4; if it already uses one of those, add proficiency bonus instead. Uses: 3 + proficiency bonus per long rest. On a critical hit you may add your Strength or Dexterity modifier twice.",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (remastered feats)"
+      },
+      "features": [],
+      "grant": {
+        "resources": [
+          {
+            "id": "savage-attacker",
+            "name": "Savage Attacker",
+            "max": "3 + pb",
+            "reset": "long"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feat",
+      "id": "feat:shield-master",
+      "name": "Shield Master",
+      "summary": "While wielding a shield: shove as part of the Attack action; add the shield's AC bonus to Strength and Dexterity saves against spells and harmful effects; reaction to take no damage on a successful half-damage save.",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (remastered feats)"
+      },
+      "features": [],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.save.dex",
+            "op": "add",
+            "value": 2,
+            "mode": "suggested",
+            "label": "Shield Master",
+            "when": {
+              "withShield": true,
+              "text": "against a spell or harmful effect"
+            }
+          },
+          {
+            "selector": "roll.save.str",
+            "op": "add",
+            "value": 2,
+            "mode": "suggested",
+            "label": "Shield Master",
+            "when": {
+              "withShield": true,
+              "text": "against a spell or harmful effect"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feat",
+      "id": "feat:skilled",
+      "name": "Skilled",
+      "summary": "Proficiency in any four skills or tools. Skills are picked here; tools taken instead are entered as manual proficiencies.",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (remastered feats)"
+      },
+      "features": [],
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "skill",
+            "target": {
+              "choice": "skills"
+            }
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "skills",
+          "label": "Skills",
+          "kind": "skill",
+          "count": 4
+        }
+      ]
+    },
+    {
+      "kind": "feat",
+      "id": "feat:spell-sniper",
+      "name": "Spell Sniper",
+      "summary": "Attack-roll spells have double range and ignore half and three-quarters cover. Two attack cantrips from one class list (that class's ability). Once per short or long rest, bonus action if you haven't moved: advantage on your next spell attack this turn; speed becomes 0.",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (remastered feats)"
+      },
+      "features": [],
+      "grant": {
+        "resources": [
+          {
+            "id": "spell-sniper-aim",
+            "name": "Spell Sniper: steady aim",
+            "max": 1,
+            "reset": "short"
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "class",
+          "label": "Class list",
+          "kind": "option",
+          "count": 1,
+          "from": [
+            "bard",
+            "cleric",
+            "druid",
+            "sorcerer",
+            "warlock",
+            "wizard"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "feat",
+      "id": "feat:tavern-brawler",
+      "name": "Tavern Brawler",
+      "summary": "+1 Strength or Constitution. Proficient with improvised weapons (d6 damage); unarmed strikes deal d4. On a hit with either, attempt a grapple as part of the attack.",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (remastered feats)"
+      },
+      "features": [],
+      "grant": {
+        "abilityChoice": {
+          "choice": "ability",
+          "amount": 1
+        },
+        "proficiencies": [
+          {
+            "kind": "weapon",
+            "target": "improvised"
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "ability",
+          "label": "Ability +1",
+          "kind": "ability",
+          "count": 1,
+          "from": [
+            "str",
+            "con"
+          ]
+        }
+      ]
+    }
+  ]
+}

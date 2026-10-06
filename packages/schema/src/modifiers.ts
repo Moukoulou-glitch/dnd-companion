@@ -42,6 +42,10 @@ export const Condition = z
     noHeavyArmor: z.boolean().optional(),
     /** Not holding a shield. */
     noShield: z.boolean().optional(),
+    /** Holding a shield. */
+    withShield: z.boolean().optional(),
+    /** Final ability scores at least these values, e.g. { "dex": 16 }. */
+    minScore: z.record(Ability, z.number().int()).optional(),
     /** A named on/off state on the character, e.g. "raging", "sharpshooter". */
     toggle: z.string().optional(),
     /** Human-readable condition the engine cannot verify. */
@@ -68,6 +72,8 @@ export const ModifierOp = z.enum([
   "extraCritDice",
   /** Extra flat damage added only on a natural 20 (Vicious weapon). */
   "critBonusDamage",
+  /** Raise the Dexterity cap of medium armor to `value` (Medium Armor Master: 3). Selector stat.ac. */
+  "mediumArmorDexCap",
   "resist",
   "vulnerable",
   "immune",
@@ -101,7 +107,11 @@ export type Target = z.infer<typeof Target>;
 
 export const Proficiency = z
   .object({
-    kind: z.enum(["save", "skill", "expertise", "armor", "weapon", "tool", "language"]),
+    /**
+     * "skillOrExpertise": proficiency in the skill, or expertise if another
+     * source already makes the character proficient (Athlete, Keen Mind).
+     */
+    kind: z.enum(["save", "skill", "expertise", "skillOrExpertise", "armor", "weapon", "tool", "language"]),
     target: Target,
   })
   .strict();
@@ -131,7 +141,8 @@ export const SpellcastingDef = z
   .object({
     id: z.string(),
     label: z.string(),
-    ability: Ability,
+    /** Fixed, or the ability the player picked on the granting feat ({ choice: "ability" }). */
+    ability: z.union([Ability, ChoiceRef]),
     progression: Progression,
   })
   .strict();
@@ -176,6 +187,8 @@ export type AttackDef = z.infer<typeof AttackDef>;
 export const Grant = z
   .object({
     abilityBonuses: z.record(Ability, z.number()).optional(),
+    /** +amount to each ability the player picked for `choice` (Athlete: +1 to STR or DEX). */
+    abilityChoice: z.object({ choice: z.string(), amount: z.number().int() }).strict().optional(),
     attacks: z.array(AttackDef).optional(),
     modifiers: z.array(Modifier).optional(),
     proficiencies: z.array(Proficiency).optional(),

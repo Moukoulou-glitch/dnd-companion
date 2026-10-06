@@ -66,71 +66,6 @@
     },
     {
       "kind": "feat",
-      "id": "feat:fey-touched",
-      "name": "Fey Touched",
-      "summary": "+1 to Intelligence, Wisdom or Charisma; learn Misty Step and one 1st-level divination or enchantment spell, each free once per long rest.",
-      "source": {
-        "pack": "table-2014",
-        "book": "TCoE",
-        "page": 79
-      },
-      "features": [],
-      "choices": [
-        {
-          "id": "ability",
-          "label": "Ability",
-          "kind": "feature",
-          "count": 1,
-          "from": [
-            "feature:fey-touched-int"
-          ]
-        },
-        {
-          "id": "spell",
-          "label": "1st-level spell",
-          "kind": "spell",
-          "count": 1
-        }
-      ]
-    },
-    {
-      "kind": "feature",
-      "id": "feature:fey-touched-int",
-      "name": "Fey Touched (Intelligence)",
-      "summary": "+1 Intelligence; Fey Touched spells use Intelligence.",
-      "source": {
-        "pack": "table-2014",
-        "book": "TCoE",
-        "page": 79
-      },
-      "grant": {
-        "abilityBonuses": {
-          "int": 1
-        },
-        "spellcasting": {
-          "id": "fey-touched",
-          "label": "Fey Touched",
-          "ability": "int",
-          "progression": "none"
-        },
-        "resources": [
-          {
-            "id": "fey-touched-misty-step",
-            "name": "Fey Touched: Misty Step",
-            "max": 1,
-            "reset": "long"
-          },
-          {
-            "id": "fey-touched-spell",
-            "name": "Fey Touched: 1st-level spell",
-            "max": 1,
-            "reset": "long"
-          }
-        ]
-      }
-    },
-    {
-      "kind": "feat",
       "id": "feat:sharpshooter",
       "name": "Sharpshooter",
       "summary": "No disadvantage at long range, ignore half and three-quarters cover, and optionally take -5 to hit for +10 damage with ranged weapons you're proficient with.",
@@ -161,50 +96,62 @@
     },
     {
       "kind": "feat",
-      "id": "feat:athlete-remastered",
-      "name": "Athlete (Remastered)",
-      "summary": "Homebrew. Athletics proficiency, or expertise if already proficient; standing up costs 5 ft; climbing costs no extra movement; running jumps after 5 ft; add proficiency bonus to jump distance.",
+      "id": "feat:fey-touched",
+      "name": "Fey Touched",
+      "summary": "+1 to Intelligence, Wisdom or Charisma; learn Misty Step and one 1st-level divination or enchantment spell, each free once per long rest, cast with the chosen ability.",
       "source": {
         "pack": "table-2014",
-        "book": "Homebrew"
+        "book": "TCoE",
+        "page": 79
       },
       "features": [],
       "grant": {
-        "proficiencies": [
+        "abilityChoice": {
+          "choice": "ability",
+          "amount": 1
+        },
+        "spellcasting": {
+          "id": "fey-touched",
+          "label": "Fey Touched",
+          "ability": {
+            "choice": "ability"
+          },
+          "progression": "none"
+        },
+        "resources": [
           {
-            "kind": "skill",
-            "target": "athletics"
+            "id": "fey-touched-misty-step",
+            "name": "Fey Touched: Misty Step",
+            "max": 1,
+            "reset": "long"
           },
           {
-            "kind": "expertise",
-            "target": "athletics"
+            "id": "fey-touched-spell",
+            "name": "Fey Touched: 1st-level spell",
+            "max": 1,
+            "reset": "long"
           }
         ]
-      }
-    },
-    {
-      "kind": "feat",
-      "id": "feat:dual-wielder-homebrew",
-      "name": "Dual Wielder (table version)",
-      "summary": "Homebrew version on the sheet: +2 AC while wielding a melee weapon in each hand, two-weapon fighting with non-light weapons, draw or stow two weapons, and proficiency bonus on the off-hand attack's damage.",
-      "source": {
-        "pack": "table-2014",
-        "book": "Homebrew"
       },
-      "features": [],
-      "grant": {
-        "modifiers": [
-          {
-            "selector": "stat.ac",
-            "op": "add",
-            "value": 2,
-            "label": "Dual Wielder",
-            "when": {
-              "toggle": "dual-wielding"
-            }
-          }
-        ]
-      }
+      "choices": [
+        {
+          "id": "ability",
+          "label": "Ability +1",
+          "kind": "ability",
+          "count": 1,
+          "from": [
+            "int",
+            "wis",
+            "cha"
+          ]
+        },
+        {
+          "id": "spell",
+          "label": "1st-level spell",
+          "kind": "spell",
+          "count": 1
+        }
+      ]
     }
   ]
 }

@@ -19,8 +19,8 @@ const attack = (s: typeof sheet, name: string) => {
 };
 
 describe("Αγακλής (Barbarian 9)", () => {
-  it("has no data warnings", () => {
-    expect(sheet.warnings).toEqual([]);
+  it("only warning: Athlete's +1 (Strength or Dexterity) is not chosen yet", () => {
+    expect(sheet.warnings).toEqual(['Athlete: choice "ability" has not been made.']);
   });
 
   it("saving throws", () => {

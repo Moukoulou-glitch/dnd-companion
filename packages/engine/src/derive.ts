@@ -152,15 +152,26 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
   const attunedCount = c.inventory.filter((i) => i.attuned).length;
   if (attunedCount > 3) warnings.push(`${attunedCount} items attuned; the limit is 3.`);
 
-  // Ability scores.
+  // Ability scores: base, fixed bonuses, then bonuses to abilities the player picked.
+  const chosenBonus = (s: Source, ab: Ability): number => {
+    const ch = s.grant.abilityChoice;
+    if (!ch) return 0;
+    const picked = s.choices[ch.choice] ?? [];
+    return picked.includes(ab) ? ch.amount : 0;
+  };
+  for (const s of sources) {
+    const ch = s.grant.abilityChoice;
+    if (ch && !(s.choices[ch.choice]?.length)) warnings.push(`${s.label}: choice "${ch.choice}" has not been made.`);
+  }
   const abilities = {} as Record<Ability, AbilityResult>;
   for (const ab of ABILITIES) {
     const parts: Part[] = [{ label: "Base score", value: c.abilities[ab] ?? 10 }];
     for (const s of sources) {
-      const bonus = s.grant.abilityBonuses?.[ab];
+      const bonus = (s.grant.abilityBonuses?.[ab] ?? 0) + chosenBonus(s, ab);
       if (bonus) parts.push({ label: s.label, value: bonus });
     }
     const score = sum(parts);
+    if (score.total > 20) warnings.push(`${ABILITY_NAMES[ab]} is ${score.total}, above the usual maximum of 20.`);
     abilities[ab] = { score, modifier: Math.floor((score.total - 10) / 2) };
   }
   const mods = Object.fromEntries(ABILITIES.map((a) => [a, abilities[a].modifier])) as Record<Ability, number>;
@@ -184,7 +195,7 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
   };
 
   // Proficiencies.
-  const profs: Record<Proficiency["kind"], Set<string>> = {
+  const profs: Record<Exclude<Proficiency["kind"], "skillOrExpertise">, Set<string>> = {
     save: new Set(),
     skill: new Set(),
     expertise: new Set(),
@@ -202,10 +213,19 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
     }
     return chosen;
   };
+  const upgrades: string[] = [];
   for (const s of sources) {
     for (const p of s.grant.proficiencies ?? []) {
-      for (const t of resolveTargets(p, s)) profs[p.kind].add(t);
+      for (const t of resolveTargets(p, s)) {
+        if (p.kind === "skillOrExpertise") upgrades.push(t);
+        else profs[p.kind].add(t);
+      }
     }
+  }
+  // Proficiency, or expertise when another source already gives proficiency.
+  for (const t of upgrades) {
+    if (profs.skill.has(t)) profs.expertise.add(t);
+    else profs.skill.add(t);
   }
 
   // Modifiers.
@@ -216,6 +236,10 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
     if (when.noArmor && armorWorn) return "fail";
     if (when.noHeavyArmor && armorWorn?.def.armor?.category === "heavy") return "fail";
     if (when.noShield && shieldHeld) return "fail";
+    if (when.withShield && !shieldHeld) return "fail";
+    for (const [ab, min] of Object.entries(when.minScore ?? {})) {
+      if (abilities[ab as Ability].score.total < (min ?? 0)) return "fail";
+    }
     if (when.toggle && !c.toggles.includes(when.toggle)) return "fail";
     if (when.text) return "unknown";
     return "pass";
@@ -348,7 +372,11 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
     if (armorWorn.def.magic?.bonus) parts.push({ label: "Magic armor", value: armorWorn.def.magic.bonus });
     if (a.category === "light") parts.push(abilityPart("dex"));
     if (a.category === "medium") {
-      parts.push(mods.dex > 2 ? { label: "Dexterity modifier (max 2)", value: 2 } : abilityPart("dex"));
+      const caps = modsFor(["stat.ac"]).filter(
+        (m) => m.mod.op === "mediumArmorDexCap" && m.mod.value !== undefined && conditionState(m.mod.when) === "pass",
+      );
+      const cap = Math.max(2, ...caps.map(flatOf));
+      parts.push(mods.dex > cap ? { label: `Dexterity modifier (max ${cap})`, value: cap } : abilityPart("dex"));
     }
     acCandidates.push(parts);
   } else {
@@ -468,16 +496,26 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
   }
 
   // Spellcasting: classes that have reached their casting level, plus feats and features.
-  const casters: SpellcastingDef[] = [];
+  const casters: { id: string; label: string; ability: Ability }[] = [];
   const casterLevels: { progression: SpellcastingDef["progression"]; level: number }[] = [];
+  const resolveAbility = (sc: SpellcastingDef, s?: Source): Ability | undefined => {
+    if (typeof sc.ability === "string") return sc.ability;
+    const picked = s?.choices[sc.ability.choice]?.[0];
+    if (!picked) warnings.push(`${s?.label ?? sc.label}: choose the spellcasting ability ("${sc.ability.choice}").`);
+    return picked as Ability | undefined;
+  };
   for (const cl of c.classes) {
     const def = reg.get(cl.class, "class");
     if (!def.spellcasting) continue;
     casterLevels.push({ progression: def.spellcasting.progression, level: cl.level });
-    if (cl.level >= (def.spellcastingFromLevel ?? 1)) casters.push(def.spellcasting);
+    const ability = resolveAbility(def.spellcasting);
+    if (ability && cl.level >= (def.spellcastingFromLevel ?? 1)) casters.push({ ...def.spellcasting, ability });
   }
   for (const s of sources) {
-    if (s.grant.spellcasting && !casters.some((x) => x.id === s.grant.spellcasting!.id)) casters.push(s.grant.spellcasting);
+    const sc = s.grant.spellcasting;
+    if (!sc || casters.some((x) => x.id === sc.id)) continue;
+    const ability = resolveAbility(sc, s);
+    if (ability) casters.push({ id: sc.id, label: sc.label, ability });
   }
   const spellcasting: SpellcastingResult[] = casters.map((sc) => ({
     id: sc.id,

@@ -4,45 +4,156 @@
   "ruleset": "5e-2014",
   "name": "Ελισσαίος Μόντα",
   "alignment": "CN",
-  "abilities": { "str": 10, "dex": 18, "con": 14, "int": 14, "wis": 12, "cha": 16 },
+  "abilities": {
+    "str": 10,
+    "dex": 18,
+    "con": 14,
+    "int": 13,
+    "wis": 12,
+    "cha": 16
+  },
   "race": "race:variant-human",
   "classes": [
-    { "class": "class:rogue", "subclass": "subclass:soulknife", "level": 8 },
-    { "class": "class:warlock", "subclass": "subclass:the-undead", "level": 1 }
+    {
+      "class": "class:rogue",
+      "subclass": "subclass:soulknife",
+      "level": 8
+    },
+    {
+      "class": "class:warlock",
+      "subclass": "subclass:the-undead",
+      "level": 1
+    }
   ],
-  "feats": [{ "feat": "feat:sharpshooter", "from": "Variant human" }],
+  "feats": [
+    {
+      "feat": "feat:sharpshooter",
+      "from": "Variant human"
+    },
+    {
+      "feat": "feat:haunted-by-the-shadows",
+      "from": "Ability Score Improvement"
+    }
+  ],
   "choices": {
-    "race:variant-human": { "language": ["Dwarvish"], "skill": ["persuasion"] },
-    "class:rogue": { "skills": ["acrobatics", "sleightOfHand", "stealth", "investigation"] },
-    "feature:rogue-expertise-1": { "skills": ["stealth", "sleightOfHand"] },
-    "feature:rogue-expertise-6": { "skills": ["acrobatics", "investigation"] }
+    "race:variant-human": {
+      "language": [
+        "Dwarvish"
+      ],
+      "skill": [
+        "persuasion"
+      ]
+    },
+    "class:rogue": {
+      "skills": [
+        "acrobatics",
+        "sleightOfHand",
+        "stealth",
+        "investigation"
+      ]
+    },
+    "feature:rogue-expertise-1": {
+      "skills": [
+        "stealth",
+        "sleightOfHand"
+      ]
+    },
+    "feature:rogue-expertise-6": {
+      "skills": [
+        "acrobatics",
+        "investigation"
+      ]
+    },
+    "feat:haunted-by-the-shadows": {
+      "ability": [
+        "int"
+      ]
+    }
   },
-  "rules": ["rule:sharpshooter-psychic-blades"],
+  "rules": [
+    "rule:sharpshooter-psychic-blades"
+  ],
   "manualGrants": [
     {
       "label": "Background: Δεύτερη Ευκαιρία",
       "grant": {
         "proficiencies": [
-          { "kind": "skill", "target": "deception" },
-          { "kind": "skill", "target": "intimidation" },
-          { "kind": "language", "target": "Elvish" }
+          {
+            "kind": "skill",
+            "target": "deception"
+          },
+          {
+            "kind": "skill",
+            "target": "intimidation"
+          },
+          {
+            "kind": "language",
+            "target": "Elvish"
+          }
         ]
       }
     }
   ],
   "inventory": [
-    { "id": "i1", "item": "item:dagger", "quantity": 2 },
-    { "id": "i2", "item": "item:rapier" },
-    { "id": "i3", "item": "item:shortbow" },
-    { "id": "i4", "item": "item:shortbow-of-warning", "equipped": true, "attuned": true },
-    { "id": "i5", "item": "item:leather-armor", "equipped": true },
-    { "id": "i6", "item": "item:thieves-tools" },
-    { "id": "i7", "item": "item:arrows", "quantity": 20 },
-    { "id": "i8", "item": "item:amulet-of-proof", "equipped": true, "attuned": true },
-    { "id": "i9", "item": "item:goggles-of-night" },
-    { "id": "i10", "item": "item:horn-of-silent-alarm" }
+    {
+      "id": "i1",
+      "item": "item:dagger",
+      "quantity": 2
+    },
+    {
+      "id": "i2",
+      "item": "item:rapier"
+    },
+    {
+      "id": "i3",
+      "item": "item:shortbow"
+    },
+    {
+      "id": "i4",
+      "item": "item:shortbow-of-warning",
+      "equipped": true,
+      "attuned": true
+    },
+    {
+      "id": "i5",
+      "item": "item:leather-armor",
+      "equipped": true
+    },
+    {
+      "id": "i6",
+      "item": "item:thieves-tools"
+    },
+    {
+      "id": "i7",
+      "item": "item:arrows",
+      "quantity": 20
+    },
+    {
+      "id": "i8",
+      "item": "item:amulet-of-proof",
+      "equipped": true,
+      "attuned": true
+    },
+    {
+      "id": "i9",
+      "item": "item:goggles-of-night"
+    },
+    {
+      "id": "i10",
+      "item": "item:horn-of-silent-alarm"
+    }
   ],
-  "currency": { "cp": 31, "sp": 28, "gp": 50 },
-  "hp": { "current": 66, "temp": 0 },
-  "resourcesUsed": { "psionic-energy": 2, "form-of-dread": 1 }
+  "currency": {
+    "cp": 31,
+    "sp": 28,
+    "gp": 50
+  },
+  "hp": {
+    "current": 66,
+    "temp": 0
+  },
+  "resourcesUsed": {
+    "psionic-energy": 2,
+    "form-of-dread": 1
+  }
 }

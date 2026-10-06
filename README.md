@@ -10,7 +10,7 @@ The full product spec is the "D&D 5e Player Companion — Phase 0 Specification"
 | --- | --- |
 | `packages/schema` | Zod schemas and types: characters, content definitions, modifiers, operations |
 | `packages/engine` | The rules engine. `derive(character, content)` returns the whole sheet with a breakdown for every number. Pure TypeScript, no UI |
-| `content/packs/table-2014` | The group's private pack, one file per area: `pack.json` is the header, the other files hold definitions (classes, races, feats, items, table rules) |
+| `content/packs/table-2014` | The group's private pack, one file per area: `pack.json` is the header, the other files hold definitions (classes, races, feats, items, table rules). `feats-remastered.json` holds the table's own versions of the feats, which replace the book ones |
 | `content/fixtures` | Reference characters from the table, used as test fixtures |
 
 ## Commands
@@ -42,7 +42,7 @@ Definitions carry mechanics, a short summary in our own words, and a book and pa
 ### Shortcuts to revisit
 
 - Variant human ability bonuses aren't recorded for Ελισσαίος and Αγακλής, so their base scores are the final scores.
-- Ελισσαίος's homebrew feat (the source of his extra spells) isn't entered yet.
+- Αγακλής's Athlete +1 (Strength or Dexterity) isn't chosen yet; the engine shows it as a warning.
 - Αγακλής's Dual Wielder is the table version from his sheet (+2 AC while wielding two melee weapons, switched on with the `dual-wielding` toggle).
 - Mage Armor is a manual entry with a toggle until the effects system (Phase 4).
 

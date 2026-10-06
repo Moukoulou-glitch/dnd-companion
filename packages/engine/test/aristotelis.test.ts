@@ -21,7 +21,7 @@ describe("Αριστοτέλης (Wizard 4)", () => {
   it("ability scores: Tiefling and Fey Touched bonuses", () => {
     const scores = Object.fromEntries(Object.entries(sheet.abilities).map(([k, v]) => [k, v.score.total]));
     expect(scores).toEqual({ str: 8, dex: 14, con: 14, int: 18, wis: 12, cha: 10 });
-    expect(sheet.abilities.int.score.parts.map((p) => p.label)).toEqual(["Base score", "Tiefling", "Fey Touched (Intelligence)"]);
+    expect(sheet.abilities.int.score.parts.map((p) => p.label)).toEqual(["Base score", "Tiefling", "Fey Touched"]);
   });
 
   it("saving throws include the Stone of Good Luck", () => {

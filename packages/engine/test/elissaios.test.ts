@@ -9,7 +9,9 @@ import { loadCharacter, tableRegistry } from "./helpers.js";
  * shortbows are +8 (proficient), no Soul Blades at Rogue 8, and by table
  * ruling Sharpshooter works with thrown Psychic Blades.
  */
-const sheet = derive(loadCharacter("elissaios"), tableRegistry());
+const reg = tableRegistry();
+const character = loadCharacter("elissaios");
+const sheet = derive(character, reg);
 const attack = (name: string) => {
   const a = sheet.attacks.find((x) => x.name === name);
   if (!a) throw new Error(`No attack "${name}"; have ${sheet.attacks.map((x) => x.name).join(", ")}`);
@@ -98,16 +100,33 @@ describe("Ελισσαίος (Rogue 8 / Warlock 1)", () => {
     expect(rapier.damage.bonus.suggestions.find((s) => s.label === "Sneak Attack")?.effect).toBe("+4d6");
   });
 
-  it("Pact Magic: one 1st-level slot, DC 15, +7; no other slots", () => {
+  it("Pact Magic: one 1st-level slot, DC 15, +7; Haunted by the Shadows uses Intelligence: DC 14, +6", () => {
     expect(sheet.pactSlots).toEqual({ count: 1, level: 1 });
     expect(sheet.spellSlots).toEqual([]);
-    expect(sheet.spellcasting.map((s) => [s.label, s.saveDc.total, s.attack.total])).toEqual([["Warlock (Pact Magic)", 15, 7]]);
+    expect(sheet.spellcasting.map((s) => [s.label, s.saveDc.total, s.attack.total])).toEqual([
+      ["Warlock (Pact Magic)", 15, 7],
+      ["Haunted by the Shadows", 14, 6],
+    ]);
   });
 
-  it("resources: Psionic Energy 6 of 8 d8, Form of Dread 3 of 4", () => {
+  it("Haunted by the Shadows: +1 Intelligence, Vengeance offered, the curse is a toggle", () => {
+    expect(sheet.abilities.int.score.parts).toEqual([
+      { label: "Base score", value: 13 },
+      { label: "Haunted by the Shadows", value: 1 },
+    ]);
+    expect(attack("Rapier").attack.suggestions.map((s) => s.label)).toContain("Vengeance");
+    const cursed = derive({ ...character, toggles: ["haunting-whispers"] }, reg);
+    expect(cursed.saves.dex.total).toBe(3);
+    expect(cursed.skills.stealth.total).toBe(7);
+    expect(cursed.attacks.find((a) => a.name === "Rapier")!.attack.total).toBe(3);
+  });
+
+  it("resources: Psionic Energy 6 of 8 d8, Form of Dread 3 of 4, Haunted spells", () => {
     expect(sheet.resources.map((r) => [r.name, r.remaining, r.max, r.die])).toEqual([
       ["Psionic Energy dice", 6, 8, "d8"],
       ["Form of Dread", 3, 4, undefined],
+      ["Haunted: Invisibility", 1, 1, undefined],
+      ["Haunted: Cause Fear", 1, 1, undefined],
     ]);
   });
 });
