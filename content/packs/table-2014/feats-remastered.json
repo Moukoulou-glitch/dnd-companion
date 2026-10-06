@@ -217,8 +217,8 @@
     {
       "kind": "feat",
       "id": "feat:dual-wielder",
-      "name": "Dual Wielder (table version)",
-      "summary": "As on Αγακλής's sheet: +2 AC while wielding a separate melee weapon in each hand, two-weapon fighting with non-light one-handed weapons, draw or stow two weapons, and proficiency bonus on the off-hand attack's damage (not combined with the Two-Weapon Fighting style).",
+      "name": "Dual Wielder",
+      "summary": "+2 AC while wielding a separate melee weapon in each hand. Two-weapon fighting with non-light one-handed melee weapons. Draw or stow two one-handed weapons at once. Add proficiency bonus to the off-hand attack's damage; with the Two-Weapon Fighting style, use either bonus, not both.",
       "source": {
         "pack": "table-2014",
         "book": "Homebrew (remastered feats)"

@@ -43,7 +43,7 @@ Definitions carry mechanics, a short summary in our own words, and a book and pa
 
 - Variant human ability bonuses aren't recorded for Ελισσαίος and Αγακλής, so their base scores are the final scores.
 - Αγακλής's Athlete +1 (Strength or Dexterity) isn't chosen yet; the engine shows it as a warning.
-- Αγακλής's Dual Wielder is the table version from his sheet (+2 AC while wielding two melee weapons, switched on with the `dual-wielding` toggle).
+- Dual Wielder's +2 AC is switched on with the `dual-wielding` toggle until the app can tell what is in each hand.
 - Mage Armor is a manual entry with a toggle until the effects system (Phase 4).
 
 - The ranger class in `table-2014.json` already uses the Tasha's optional features. A general "optional class features" switch comes with the character builder.
