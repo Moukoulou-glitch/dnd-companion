@@ -40,6 +40,11 @@ export class CharacterLog {
     return this.replay().history;
   }
 
+  /** The starting snapshot the log is replayed on. */
+  get base(): Character {
+    return this.snapshot;
+  }
+
   get operations(): readonly Operation[] {
     return this.ops;
   }

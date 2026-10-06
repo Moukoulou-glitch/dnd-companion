@@ -8,9 +8,11 @@
     "packages/*"
   ],
   "scripts": {
-    "typecheck": "tsc -b",
+    "typecheck": "tsc -b && tsc -p packages/app",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "dev": "npm run dev -w @dnd/app",
+    "build": "npm run build -w @dnd/app"
   },
   "devDependencies": {
     "@types/node": "^22.20.5",

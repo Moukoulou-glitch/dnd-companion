@@ -100,6 +100,8 @@ export interface DerivedSheet {
   proficiencies: { armor: string[]; weapons: string[]; tools: string[]; languages: string[] };
   defenses: { resist: string[]; immune: string[]; vulnerable: string[] };
   senses: Record<string, number>;
+  /** On/off states some active feature reads (Rage, Mage Armor, a lit Flame Tongue), for the UI to offer as switches. */
+  toggles: { name: string; label: string; on: boolean }[];
   /** Data problems found while deriving (missing choices, too many attuned items). */
   warnings: string[];
 }
@@ -555,7 +557,14 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
     for (const [sense, range] of Object.entries(s.grant.senses ?? {})) senses[sense] = Math.max(senses[sense] ?? 0, range);
   }
 
+  const toggles: DerivedSheet["toggles"] = [];
+  for (const a of active) {
+    const name = a.mod.when?.toggle;
+    if (name && !toggles.some((t) => t.name === name)) toggles.push({ name, label: labelOf(a), on: c.toggles.includes(name) });
+  }
+
   const sheet: DerivedSheet = {
+    toggles,
     level,
     proficiencyBonus: pb,
     abilities,
