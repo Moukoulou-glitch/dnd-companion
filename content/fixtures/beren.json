@@ -20,7 +20,7 @@
   },
   "manualGrants": [
     {
-      "label": "From the sheet (source not recorded)",
+      "label": "Player's own entries",
       "grant": {
         "proficiencies": [
           { "kind": "skill", "target": "acrobatics" },

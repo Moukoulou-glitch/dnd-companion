@@ -42,4 +42,4 @@ Definitions carry mechanics, a short summary in our own words, and a book and pa
 ### Shortcuts to revisit
 
 - The ranger class in `table-2014.json` already uses the Tasha's optional features. A general "optional class features" switch comes with the character builder.
-- Μπέρεν's Acrobatics, Medicine and History proficiencies and his Druidic language sit in a manual grant, because the sheet doesn't record their source.
+- Μπέρεν's Acrobatics, Medicine and History proficiencies and his Druidic language are kept as the player's own entries (a manual grant), by the DM's decision.
