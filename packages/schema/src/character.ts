@@ -103,6 +103,10 @@ export const Character = z
       .default({ successes: 0, failures: 0 }),
     /** Uses spent per resource id. */
     resourcesUsed: z.record(z.string(), z.number().int().min(0)).default({}),
+    /** Spell slots spent, keyed by slot level ("1".."9"). */
+    slotsUsed: z.record(z.string(), z.number().int().min(0)).default({}),
+    /** Pact Magic slots spent. */
+    pactSlotsUsed: z.number().int().min(0).default(0),
     /** Named on/off states the engine reads, e.g. "raging". */
     toggles: z.array(z.string()).default([]),
     inspiration: z.boolean().default(false),

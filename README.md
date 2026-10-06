@@ -9,6 +9,7 @@ The full product spec is the "D&D 5e Player Companion — Phase 0 Specification"
 | Path | What it is |
 | --- | --- |
 | `packages/schema` | Zod schemas and types: characters, content definitions, modifiers, operations |
+| `packages/store` | The operation log: every change (damage, a spent slot, a rest) is an operation; the character is the snapshot with the log replayed. Gives undo, redo, history and merging between devices |
 | `packages/engine` | The rules engine. `derive(character, content)` returns the whole sheet with a breakdown for every number. Pure TypeScript, no UI |
 | `content/packs/table-2014` | The group's private pack, one file per area: `pack.json` is the header, the other files hold definitions (classes, races, feats, items, table rules). `feats-remastered.json` holds the table's own versions of the feats, which replace the book ones |
 | `content/fixtures` | Reference characters from the table, used as test fixtures |
@@ -37,7 +38,8 @@ Definitions carry mechanics, a short summary in our own words, and a book and pa
 | Phase | State |
 | --- | --- |
 | 1 · Engine core | Done for all four reference characters (Μπέρεν, Αριστοτέλης, Ελισσαίος, Αγακλής): abilities, saves, skills, passives, AC, initiative, speed, HP, weapon and feature attacks (melee and thrown), spellcasting, slots and Pact Magic, resources, level scaling, table rules |
-| 1 · Remaining | Operation log and undo, local storage (IndexedDB), JSON export, the sheet UI |
+| 1 · Operation log | Done: damage (resistances, temp HP, 0 HP, massive damage), healing, temp HP, death saves, resources, spell and Pact slots, Hit Dice, short and long rests, toggles, validated field edits, undo/redo, offline merge |
+| 1 · Remaining | Local storage (IndexedDB), JSON export, the sheet UI |
 
 ### Shortcuts to revisit
 
