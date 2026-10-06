@@ -5,7 +5,7 @@
   "name": "Αγακλής",
   "alignment": "CG",
   "abilities": {
-    "str": 18,
+    "str": 17,
     "dex": 14,
     "con": 16,
     "int": 8,
@@ -49,6 +49,11 @@
       "skills": [
         "athletics",
         "nature"
+      ]
+    },
+    "feat:athlete": {
+      "ability": [
+        "str"
       ]
     }
   },

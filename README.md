@@ -41,8 +41,7 @@ Definitions carry mechanics, a short summary in our own words, and a book and pa
 
 ### Shortcuts to revisit
 
-- Variant human ability bonuses aren't recorded for Ελισσαίος and Αγακλής, so their base scores are the final scores.
-- Αγακλής's Athlete +1 (Strength or Dexterity) isn't chosen yet; the engine shows it as a warning.
+- Variant human ability bonuses aren't recorded for Ελισσαίος and Αγακλής, so those +1s are folded into their base scores.
 - Dual Wielder's +2 AC is switched on with the `dual-wielding` toggle until the app can tell what is in each hand.
 - Mage Armor is a manual entry with a toggle until the effects system (Phase 4).
 
