@@ -1,0 +1,88 @@
+import type { Character, ChoiceDef, ChoiceValues, Grant } from "@dnd/schema";
+import type { ContentRegistry } from "./registry.js";
+
+/** Something active on the character that grants things: a race, a class feature, an item, a manual entry. */
+export interface Source {
+  /** Definition id, or "manual:<n>" for hand-entered grants. */
+  id: string;
+  label: string;
+  grant: Grant;
+  /** The player's choices for this definition. */
+  choices: ChoiceValues;
+  /** Set when the source is an item, so item-scoped modifiers stay on that item. */
+  itemInstanceId?: string;
+}
+
+/** Walks the character and returns every active source, in sheet order. */
+export function collectSources(c: Character, reg: ContentRegistry): Source[] {
+  const out: Source[] = [];
+  const choicesFor = (id: string): ChoiceValues => c.choices[id] ?? {};
+
+  /** Activates the features the player picked for any "feature" choice on a definition. */
+  const pushChosenFeatures = (defId: string, choiceDefs: ChoiceDef[] | undefined) => {
+    for (const ch of choiceDefs ?? []) {
+      if (ch.kind !== "feature") continue;
+      for (const picked of choicesFor(defId)[ch.id] ?? []) pushFeature(picked);
+    }
+  };
+
+  const pushFeature = (featureId: string): void => {
+    const f = reg.get(featureId, "feature");
+    out.push({ id: f.id, label: f.name, grant: f.grant ?? {}, choices: choicesFor(f.id) });
+    pushChosenFeatures(f.id, f.choices);
+  };
+
+  const race = reg.get(c.race, "race");
+  out.push({ id: race.id, label: race.name, grant: race.grant ?? {}, choices: choicesFor(race.id) });
+  race.features.forEach(pushFeature);
+
+  if (c.background) {
+    const bg = reg.get(c.background, "background");
+    out.push({ id: bg.id, label: bg.name, grant: bg.grant ?? {}, choices: choicesFor(bg.id) });
+    bg.features.forEach(pushFeature);
+  }
+
+  c.classes.forEach((cl, index) => {
+    const def = reg.get(cl.class, "class");
+    const entryGrant = index === 0 ? def.startingGrant : def.multiclassGrant;
+    const saves = index === 0 ? def.saves.map((a) => ({ kind: "save" as const, target: a })) : [];
+    const grant: Grant = {
+      ...entryGrant,
+      proficiencies: [...saves, ...(entryGrant?.proficiencies ?? [])],
+    };
+    out.push({ id: def.id, label: def.name, grant, choices: choicesFor(def.id) });
+
+    def.features.filter((f) => f.level <= cl.level).forEach((f) => pushFeature(f.feature));
+
+    if (cl.subclass) {
+      const sub = reg.get(cl.subclass, "subclass");
+      sub.features.filter((f) => f.level <= cl.level).forEach((f) => pushFeature(f.feature));
+    }
+  });
+
+  for (const feat of c.feats) {
+    const def = reg.get(feat.feat, "feat");
+    out.push({ id: def.id, label: def.name, grant: def.grant ?? {}, choices: choicesFor(def.id) });
+    def.features.forEach(pushFeature);
+    pushChosenFeatures(def.id, def.choices);
+  }
+
+  for (const inst of c.inventory) {
+    const def = reg.get(inst.item, "item");
+    if (!def.grant || !inst.equipped) continue;
+    if (def.requiresAttunement && !inst.attuned) continue;
+    out.push({
+      id: def.id,
+      label: inst.name ?? def.name,
+      grant: def.grant,
+      choices: choicesFor(def.id),
+      itemInstanceId: inst.id,
+    });
+  }
+
+  c.manualGrants.forEach((m, i) => {
+    out.push({ id: `manual:${i}`, label: m.label, grant: m.grant, choices: {} });
+  });
+
+  return out;
+}
