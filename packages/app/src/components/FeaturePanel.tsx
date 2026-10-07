@@ -1,3 +1,4 @@
+import { RichText } from "./Conditions";
 import { useState } from "react";
 import { roll } from "@dnd/dice";
 import type { ActionResult } from "@dnd/engine";
@@ -44,12 +45,18 @@ export function FeaturePanel({
       <p className="row-sub">
         {economyLabel(a.economy)}, from {a.source}
       </p>
-      {a.note && <p>{a.note}</p>}
+      {a.note && (
+        <p>
+          <RichText text={a.note} />
+        </p>
+      )}
       {text && text.length > 0 && (
         <details className="book-text">
           <summary>Full text</summary>
           {text.map((p, i) => (
-            <p key={i}>{p}</p>
+            <p key={i}>
+              <RichText text={p} />
+            </p>
           ))}
         </details>
       )}

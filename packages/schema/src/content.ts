@@ -206,6 +206,15 @@ export const EffectDef = z
     choice: z.object({ label: z.string(), options: z.array(z.string()).min(1) }).strict().optional(),
     /** Cast at a higher level: modifiers may use "slotLevel" (Aid: 5*slotLevel - 5). */
     upcast: z.object({ baseLevel: z.number().int().min(1).max(9) }).strict().optional(),
+    /** What each level does (Exhaustion), shown on its card. */
+    levelNotes: z.array(z.string()).optional(),
+    /**
+     * Only ever on the caster (Hex, Hunter's Mark, Shield): left out of
+     * "Add an effect", which is for effects someone or something else puts on you.
+     */
+    selfOnly: z.boolean().optional(),
+    /** Ends when you do one of these (Invisibility: attack or cast a spell); the app asks. */
+    endsOn: z.array(z.enum(["attack", "cast"])).optional(),
     /** Current HP gained when applied (Aid). May use "slotLevel". */
     hpGain: z.union([z.number(), z.string()]).optional(),
     /** Ends if the caster loses concentration. */

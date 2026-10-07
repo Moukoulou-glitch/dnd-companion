@@ -310,6 +310,15 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
         c.resourcesUsed[a.cost.resource] = Math.min(max, used + a.cost.amount);
       }
       if (a.toggles.length) c.toggles = [...new Set([...c.toggles, ...a.toggles])];
+      if (a.restores) {
+        const target = sheet.resources.find((r) => r.id === a.restores!.resource);
+        const used = c.resourcesUsed[a.restores.resource] ?? 0;
+        if (!target || used === 0) notes.push(`${target?.name ?? a.restores.resource}: none spent, nothing to regain.`);
+        else {
+          c.resourcesUsed[a.restores.resource] = Math.max(0, used - a.restores.amount);
+          notes.push(`${target.name}: ${Math.min(used, a.restores.amount)} regained.`);
+        }
+      }
       if (!free) spendTurn(a.economy, (cb) => {
         if (a.notAfterMoving && cb.moved > 0) notes.push(`You had moved ${cb.moved} ft this turn: ${a.name} needs you not to have moved.`);
         if (a.stopsMovement) cb.moved = Math.max(cb.moved, sheet.speed.total * (1 + cb.dashes));
@@ -508,7 +517,13 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
       if (def?.upcast && !entry.castLevel) notes.push(`Cast at a higher level? Set it on ${def.name}'s card.`);
       if (def) gainHp(def, entry.castLevel);
       // Incapacitating conditions break concentration.
-      const incapacitates = def && (def.id === "condition:incapacitated" || def.includes.includes("condition:incapacitated"));
+      const brings = (id: string, seen = new Set<string>()): boolean => {
+        if (id === "condition:incapacitated") return true;
+        if (seen.has(id)) return false;
+        seen.add(id);
+        return (reg.find(id, "effect")?.includes ?? []).some((x) => brings(x, seen));
+      };
+      const incapacitates = def && brings(def.id);
       if (incapacitates) endConcentration(c, notes, `${def!.name}.`);
       break;
     }
@@ -539,6 +554,21 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
           if (diff && c.hp.current > 0) c.hp.current = Math.max(1, c.hp.current + diff);
         }
       }
+      break;
+    }
+
+    case "setConcentration": {
+      const conc = c.concentration;
+      if (!conc) {
+        notes.push("Not concentrating on anything.");
+        break;
+      }
+      const { rounds, minutes } = op.payload;
+      if (rounds === null) delete conc.rounds;
+      else if (rounds !== undefined) conc.rounds = rounds;
+      if (minutes === null) delete conc.minutes;
+      else if (minutes !== undefined) conc.minutes = minutes;
+      if (conc.rounds === 0 || conc.minutes === 0) endConcentration(c, notes, `${conc.name} has run its course.`);
       break;
     }
 
@@ -632,6 +662,7 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
       } else if (kind === "move") cb.moved = add(cb.moved);
       else cb[kind] = add(cb[kind]);
       if (dash) cb.dashes = Math.max(0, cb.dashes + Math.sign(amount));
+      if (op.payload.attackWith && amount > 0) cb.attackedWith = [...cb.attackedWith, op.payload.attackWith];
       break;
     }
 

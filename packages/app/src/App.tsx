@@ -5,6 +5,7 @@ import type { ActionResult, EffectResult, SpellResult, WeaponAttack } from "@dnd
 import { ActionsTab } from "./components/ActionsTab";
 import { CompanionPanel, MovePanel } from "./components/Combat";
 import { SwipeAway } from "./components/Swipe";
+import { ConditionLinks, RichText } from "./components/Conditions";
 import { Composer, ResultView } from "./components/Composer";
 import { AddEffectPanel, EffectChips, EffectPanel } from "./components/Effects";
 import { FeaturePanel } from "./components/FeaturePanel";
@@ -42,9 +43,13 @@ export function App() {
   live.current = s;
   const [tab, setTab] = useState<Tab>("play");
   // A panel's body is rendered on every app render, so it always shows the current character.
-  const [panel, setPanel] = useState<{ title: string; body: ReactNode | (() => ReactNode) } | null>(null);
-  const open = useCallback((title: string, body: ReactNode | (() => ReactNode)) => setPanel({ title, body }), []);
-  const close = useCallback(() => setPanel(null), []);
+  // Panels stack: a condition opened from inside another panel goes back to it when closed.
+  const [panels, setPanels] = useState<{ title: string; body: ReactNode | (() => ReactNode) }[]>([]);
+  const panel = panels.at(-1) ?? null;
+  const open = useCallback((title: string, body: ReactNode | (() => ReactNode)) => setPanels([{ title, body }]), []);
+  const push = useCallback((title: string, body: ReactNode | (() => ReactNode)) => setPanels((p) => [...p, { title, body }]), []);
+  const close = useCallback(() => setPanels([]), []);
+  const back = useCallback(() => setPanels((p) => p.slice(0, -1)), []);
 
   // Toasts disappear after a few seconds; undo stays reachable in the meantime.
   useEffect(() => {
@@ -170,13 +175,19 @@ export function App() {
     }
   };
 
-  const openRoll = (title: string, base: ComposerBase, attack?: WeaponAttack, opts: { notes?: string[]; onTotal?: (n: number) => void } = {}) =>
+  const openRoll = (
+    title: string,
+    base: ComposerBase,
+    attack?: WeaponAttack,
+    opts: { notes?: string[]; onTotal?: (n: number) => void; conflicts?: { label: string; warning: string }[] } = {},
+  ) =>
     open(title, () => (
       <Composer
         title={title}
         base={base}
         {...(attack ? { attack } : {})}
         {...(opts.notes ? { notes: opts.notes } : {})}
+        {...(opts.conflicts ? { conflicts: opts.conflicts } : {})}
         {...(portentFor() ? { portent: portentFor()! } : {})}
         onOptionsUsed={recordOptions}
         physical={live.current.character?.settings.physicalDice ?? true}
@@ -190,7 +201,10 @@ export function App() {
       />
     ));
 
-  const openFeature = (a: ActionResult) =>
+  const openFeature = (a: ActionResult) => {
+    // A free cast (Haunted: Invisibility) opens the spell itself, where the free use casts it.
+    const free = a.spells?.[0] && live.current.sheet?.spells.find((x) => x.id === a.spells![0]!.id && x.list.id === a.spells![0]!.list);
+    if (free) return openSpell(free);
     open(a.name, () => {
       const current = live.current.sheet?.actions.find((x) => x.id === a.id) ?? a;
       const feature = live.current.sheet?.features.find((f) => f.id === current.featureId);
@@ -214,6 +228,7 @@ export function App() {
         />
       );
     });
+  };
 
   const openItem = (instanceId: string) => {
     const first = c.inventory.find((i) => i.id === instanceId);
@@ -225,19 +240,66 @@ export function App() {
     });
   };
 
+  /**
+   * Effects that end when you attack or cast (Invisibility): ask before going
+   * ahead. The roll still gets the effect's benefit (you were invisible when
+   * you attacked); ending it is recorded right after.
+   */
+  const askEndsOn = (kind: "attack" | "cast", proceed: () => boolean | void, after?: () => void) => {
+    const ending = live.current.sheet?.effects.filter((e) => e.endsOn?.includes(kind)) ?? [];
+    if (!ending.length) return void proceed();
+    const go = () => {
+      if (proceed() !== false) after?.();
+    };
+    const names = ending.map((e) => e.name).join(", ");
+    open(`${names} ends?`, () => (
+      <Confirm
+        question={`Does ${names} end?`}
+        detail={`${names} ends for a target that ${kind === "attack" ? "attacks" : "casts a spell"}. You still have it for this ${kind === "attack" ? "attack" : "spell"}.`}
+        no="No, keep it"
+        yes={`Yes, end ${names}`}
+        onNo={go}
+        onYes={() => {
+          go();
+          for (const e of ending) {
+            live.current.act("removeEffect", { instanceId: e.instanceId }, `${e.name} ended.`);
+            if (e.concentration && live.current.character?.concentration?.name === e.name) live.current.act("endConcentration", {}, `Concentration on ${e.name} ended.`);
+          }
+        }}
+      />
+    ));
+  };
+
   /** Weapon attacks on your turn use the Attack action (Extra Attack counts); off your turn they're a reaction (opportunity attack). */
   const openAttack = (a: WeaponAttack) => {
     const cb = live.current.character?.combat;
     const reaction = !!cb && !cb.myTurn && a.action === "attack";
     const economy = reaction ? "reaction" : a.action === "bonus" ? "bonus" : "action";
-    guard({ name: a.name, economy, attack: economy === "action" }, () => {
-      if (cb) {
-        const kind = economy === "action" ? "attack" : economy;
-        const label = kind === "attack" ? `Attack ${cb.attacks + 1} of ${live.current.sheet?.attacksPerAction ?? 1}.` : reaction ? "Reaction used (opportunity attack)." : "Bonus action used.";
-        live.current.act("useEconomy", { kind }, label);
-      }
-      openRoll(a.name, a.attack, a);
-    });
+    const melee = a.mode === "melee" || a.mode === "thrown";
+    const light = a.properties.includes("light");
+    const weapon: NonNullable<TurnIntent["weapon"]> = { attackId: a.attackId, light };
+    if (a.itemInstanceId) weapon.itemInstanceId = a.itemInstanceId;
+    if (a.offHand) weapon.offHand = true;
+    if (a.requires) weapon.requires = a.requires;
+    // Bonus-action features that can't share the turn with this bonus attack (Steady Aim).
+    const conflicts =
+      a.action === "bonus"
+        ? (live.current.sheet?.actions ?? [])
+            .filter((x) => x.economy === "bonus" && a.attack.suggestions.some((sg) => sg.label === x.name))
+            .map((x) => ({ label: x.name, warning: `${x.name} is a bonus action too: with ${a.name} you've already used it this turn. Keep it only if your DM allows.` }))
+        : [];
+    askEndsOn("attack", () =>
+      guard({ name: a.name, economy, attack: economy === "action", weapon }, () => {
+        if (cb) {
+          const kind = economy === "action" ? "attack" : economy;
+          const label = kind === "attack" ? `Attack ${cb.attacks + 1} of ${live.current.sheet?.attacksPerAction ?? 1}.` : reaction ? "Reaction used (opportunity attack)." : "Bonus action used.";
+          const attackWith: Record<string, unknown> = { attackId: a.attackId, melee, light };
+          if (a.itemInstanceId) attackWith.itemInstanceId = a.itemInstanceId;
+          live.current.act("useEconomy", { kind, attackWith }, label);
+        }
+        openRoll(a.name, a.attack, a, conflicts.length ? { conflicts } : {});
+      }),
+    );
   };
 
   /** Initiative during a combat is kept on the combat card until the combat ends. */
@@ -449,7 +511,28 @@ export function App() {
       const timer = live.current.character?.effects.find((e) => e.toggles?.includes(name));
       return (
         <>
-          {timer?.rounds !== undefined && <p className="sub-head">{timer.rounds} {timer.rounds === 1 ? "round" : "rounds"} left</p>}
+          {timer?.rounds !== undefined && (
+            <div className="row timer-row">
+              <div className="row-main row-title">
+                {timer.rounds} {timer.rounds === 1 ? "round" : "rounds"} left
+              </div>
+              <div className="stepper">
+                <button
+                  aria-label="One round less"
+                  onClick={() =>
+                    timer.rounds! <= 1
+                      ? live.current.act("removeEffect", { instanceId: timer.id }, `${t.label} ended.`)
+                      : live.current.act("updateEffect", { instanceId: timer.id, rounds: timer.rounds! - 1 }, `${t.label}: ${timer.rounds! - 1} rounds.`)
+                  }
+                >
+                  −
+                </button>
+                <button aria-label="One round more" onClick={() => live.current.act("updateEffect", { instanceId: timer.id, rounds: timer.rounds! + 1 }, `${t.label}: ${timer.rounds! + 1} rounds.`)}>
+                  +
+                </button>
+              </div>
+            </div>
+          )}
           {feature ? <BookText text={feature.text} summary={feature.summary} /> : action?.note && <p>{action.note}</p>}
           {on ? (
             <button
@@ -484,6 +567,59 @@ export function App() {
                 <span className="sub">forgot to switch it on: nothing is spent</span>
               </button>
             </div>
+          )}
+        </>
+      );
+    });
+  };
+
+  /** A condition's card, on top of whatever is open. */
+  const showCondition = (id: string) => {
+    const def = registry.find(id, "effect");
+    if (!def) return;
+    push(def.name, () => {
+      const on = live.current.character?.effects.some((e) => e.effect === id);
+      return (
+        <>
+          {def.summary && (
+            <p>
+              <RichText text={def.summary} />
+            </p>
+          )}
+          {def.levelNotes && (
+            <ol className="levels">
+              {def.levelNotes.map((n) => (
+                <li key={n} data-on="true">
+                  {n}
+                </li>
+              ))}
+            </ol>
+          )}
+          {def.reminders.length > 0 && (
+            <ul className="reminders">
+              {def.reminders.map((r) => (
+                <li key={r}>
+                  <RichText text={r} />
+                </li>
+              ))}
+            </ul>
+          )}
+          {def.includes.length > 0 && (
+            <p className="note">
+              Also: <RichText text={def.includes.map((x) => registry.find(x, "effect")?.name ?? x).join(", ")} />
+            </p>
+          )}
+          {!on && (
+            <button
+              className="big wide"
+              style={{ marginTop: 12 }}
+              onClick={() => {
+                live.current.act("addEffect", { instanceId: crypto.randomUUID(), effect: id }, `${def.name}.`);
+                back();
+              }}
+            >
+              I'm {def.name.toLowerCase()} now
+            </button>
           )}
         </>
       );
@@ -538,8 +674,16 @@ export function App() {
       const sp = live.current.sheet?.spells.find((x) => x.id === cur?.spell && (x.damage || x.heal));
       const level = cur?.level ?? sp?.level ?? 0;
       const timer = cur?.rounds !== undefined ? `${cur.rounds} ${cur.rounds === 1 ? "round" : "rounds"} left.` : cur?.minutes !== undefined ? `${formatMinutes(cur.minutes)} left.` : "";
+      const step = cur?.rounds !== undefined ? 1 : cur?.minutes !== undefined && cur.minutes > 60 ? 60 : 10;
+      const adjust = cur && (cur.rounds !== undefined || cur.minutes !== undefined)
+        ? (dir: 1 | -1) =>
+            cur.rounds !== undefined
+              ? live.current.act("setConcentration", { rounds: Math.max(0, cur.rounds + dir * step) }, `${cur.name}: ${Math.max(0, cur.rounds + dir * step)} rounds.`)
+              : live.current.act("setConcentration", { minutes: Math.max(0, cur.minutes! + dir * step) }, `${cur.name}: ${formatMinutes(Math.max(0, cur.minutes! + dir * step))}.`)
+        : undefined;
       return (
         <ConcentrationPanel
+          {...(adjust ? { adjust } : {})}
           timer={timer}
           {...(sp ? { onDamage: () => rollSpell(sp, level, true), damageLabel: `Roll ${sp.name} ${sp.heal && !sp.damage ? "healing" : "damage"}${level > sp.level ? ` (level ${level})` : ""}` } : {})}
           onCheck={openConcentrationCheck}
@@ -588,11 +732,11 @@ export function App() {
           hasSelfEffect={registry.has(sp.id.replace(/^spell:/, "effect:"))}
           initialCast={castAt}
           onCast={(level, using, selfEffect) =>
-            guard(
+            askEndsOn("cast", () => guard(
               { name: sp.name, economy: using === "ritual" ? "free" : castingEconomy(sp.castingTime), spell: { level: sp.level, concentration: sp.concentration } },
               () => live.current.act("castSpell", { spell: sp.id, list: sp.list.id, level, using, selfEffect }, `${sp.name} cast.`),
               { cancelled: () => openSpell(sp), done: () => openSpell(sp, level) },
-            )
+            ), () => openSpell(sp, level))
           }
           onPrepare={(prepared) => live.current.act("setPrepared", { spell: sp.id, list: sp.list.id, prepared }, `${sp.name} ${prepared ? "prepared" : "unprepared"}.`)}
           onRollAttack={(level) => roller(level, false)}
@@ -654,6 +798,7 @@ export function App() {
     );
 
   return (
+    <ConditionLinks.Provider value={showCondition}>
     <div className="app">
       <header className="strip">
         <button className="who" onClick={openRoster} aria-label={`${c.name}. Switch character`}>
@@ -688,7 +833,7 @@ export function App() {
           </button>
         </div>
 
-        <EffectChips effects={sheet.effects.filter((e) => !c.effects.find((x) => x.id === e.instanceId)?.toggles?.length)} onOpen={openEffect} onAdd={openAddEffect} concentration={sheet.concentration} onConcentration={openConcentration} />
+        <EffectChips onCondition={showCondition} effects={sheet.effects.filter((e) => !c.effects.find((x) => x.id === e.instanceId)?.toggles?.length)} onOpen={openEffect} onAdd={openAddEffect} concentration={sheet.concentration} onConcentration={openConcentration} />
 
         {sheet.toggles.length > 0 && (
           <div className="switches" role="group" aria-label="Active states">
@@ -744,7 +889,7 @@ export function App() {
       </nav>
 
       {panel && (
-        <BottomSheet title={panel.title} onClose={close}>
+        <BottomSheet title={panel.title} onClose={back} {...(panels.length > 1 ? { onBack: back } : {})}>
           {typeof panel.body === "function" ? panel.body() : panel.body}
         </BottomSheet>
       )}
@@ -756,6 +901,7 @@ export function App() {
         </SwipeAway>
       )}
     </div>
+    </ConditionLinks.Provider>
   );
 }
 
@@ -766,17 +912,33 @@ function ConcentrationPanel({
   onDamage,
   damageLabel,
   timer,
+  adjust,
 }: {
   onCheck: (dc: number) => void;
   onEnd: () => void;
   onDamage?: () => void;
   damageLabel?: string;
   timer: string;
+  adjust?: (dir: 1 | -1) => void;
 }) {
   const [dc, setDc] = useState(10);
   return (
     <>
-      {timer && <p className="sub-head">{timer}</p>}
+      {timer && (
+        <div className="row timer-row">
+          <div className="row-main row-title">{timer}</div>
+          {adjust && (
+            <div className="stepper">
+              <button aria-label="Less time" onClick={() => adjust(-1)}>
+                −
+              </button>
+              <button aria-label="More time" onClick={() => adjust(1)}>
+                +
+              </button>
+            </div>
+          )}
+        </div>
+      )}
       {onDamage && (
         <button className="big primary wide" style={{ marginBottom: 12 }} onClick={onDamage}>
           {damageLabel}

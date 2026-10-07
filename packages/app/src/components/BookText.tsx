@@ -1,3 +1,4 @@
+import { RichText } from "./Conditions";
 import { useState } from "react";
 import type { BookReport } from "@dnd/engine";
 import { bookReport } from "../content";
@@ -9,14 +10,20 @@ export function BookText({ text, summary, source }: { text?: string[] | undefine
     return (
       <div className="spell-text">
         {text.map((p, i) => (
-          <p key={i}>{p}</p>
+          <p key={i}>
+            <RichText text={p} />
+          </p>
         ))}
       </div>
     );
   }
   return (
     <>
-      {summary && <p>{summary}</p>}
+      {summary && (
+        <p>
+          <RichText text={summary} />
+        </p>
+      )}
       {source && !/homebrew|ruling|campaign|srd/i.test(source) && (
         <p className="note">
           {bookReport

@@ -3,7 +3,7 @@ import { useDrag } from "./Swipe";
 import { signed, signedDice, type Breakdown, type RollBreakdown } from "@dnd/engine";
 
 /** A bottom sheet over the current screen. Closes on the scrim, Escape, or `onClose`. */
-export function BottomSheet({ title, onClose, children }: { title: string; onClose: () => void; children: ReactNode }) {
+export function BottomSheet({ title, onClose, onBack, children }: { title: string; onClose: () => void; onBack?: () => void; children: ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
@@ -31,7 +31,14 @@ export function BottomSheet({ title, onClose, children }: { title: string; onClo
         <div className="grab-zone" {...drag.handlers} aria-hidden="true">
           <div className="grabber" />
         </div>
-        <h3>{title}</h3>
+        <h3>
+          {onBack && (
+            <button className="back" onClick={onBack} aria-label="Back">
+              ‹
+            </button>
+          )}
+          {title}
+        </h3>
         {children}
       </div>
     </div>

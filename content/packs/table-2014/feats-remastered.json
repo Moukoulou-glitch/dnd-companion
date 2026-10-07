@@ -254,6 +254,21 @@
             "when": {
               "toggle": "dual-wielding"
             }
+          },
+          {
+            "selector": "rule.twoWeapon.nonLight",
+            "op": "allow",
+            "label": "Dual Wielder"
+          },
+          {
+            "selector": "roll.damage.weapon.offhand",
+            "op": "add",
+            "value": "pb",
+            "label": "Dual Wielder (off-hand)",
+            "mode": "suggested",
+            "when": {
+              "text": "instead of the Two-Weapon Fighting style bonus, not both"
+            }
           }
         ]
       }

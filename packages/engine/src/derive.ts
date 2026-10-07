@@ -60,6 +60,10 @@ export interface WeaponAttack {
   };
   properties: string[];
   range?: [number, number];
+  /** The second weapon of two-weapon fighting, attacked with a bonus action. */
+  offHand?: boolean;
+  /** Only after attacking with another attack this turn (the second Psychic Blade). */
+  requires?: { attack: string; text: string };
 }
 
 export interface SpellcastingResult {
@@ -136,6 +140,9 @@ export interface ActionResult {
   duration?: { rounds?: number; minutes?: number; fromRoll?: "rounds" | "minutes" | "hours" };
   notAfterMoving?: boolean;
   stopsMovement?: boolean;
+  restores?: { resource: string; amount: number };
+  /** Spells this use casts for free (Haunted: Invisibility): using it opens the spell. */
+  spells?: { id: string; list: string }[];
   tempHp?: Amount;
   heal?: Amount;
 }
@@ -169,6 +176,12 @@ export interface EffectResult {
   choice?: { label: string; options: string[]; value?: string };
   /** Upcast effects: the lowest level and the level it was cast at. */
   upcast?: { baseLevel: number; castLevel: number };
+  /** What each level does (Exhaustion). */
+  levelNotes?: string[];
+  /** Conditions it brings with it (Hold Person: Paralyzed; Invisibility: Invisible). */
+  includes: { id: string; name: string }[];
+  /** Ends when you attack or cast a spell (Invisibility). */
+  endsOn?: ("attack" | "cast")[];
 }
 
 export interface ResourceResult {
@@ -220,6 +233,8 @@ export interface DerivedSheet {
   companions: CompanionResult[];
   /** Attacks per Attack action: 2 with Extra Attack. */
   attacksPerAction: number;
+  /** Rule permissions: two-weapon fighting with non-light weapons (Dual Wielder), ability modifier on off-hand damage (the style). */
+  rules: { twoWeaponNonLight: boolean; twoWeaponAbility: boolean };
   /** Data problems found while deriving (missing choices, too many attuned items). */
   warnings: string[];
 }
@@ -609,11 +624,24 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
   hpParts.push({ label: `Constitution modifier × ${level} levels`, value: mods.con * level });
   const hpMax = statWith("stat.hp.max", hpParts);
 
+  // Rule permissions (Dual Wielder, Two-Weapon Fighting style).
+  const allowed = (key: string) => modsFor([key]).some((a) => a.mod.op === "allow" && conditionState(a.mod.when) === "pass");
+  const rules = { twoWeaponNonLight: allowed("rule.twoWeapon.nonLight"), twoWeaponAbility: allowed("rule.twoWeapon.ability") };
+
   // Attacks: every weapon carried (switching weapons needs no edit), plus attacks features grant.
   const attacks: WeaponAttack[] = [];
   const buildAttacks = (
     w: WeaponLike,
-    o: { attackId: string; name: string; proficient: boolean; magicBonus?: number; itemInstanceId?: string; action: "attack" | "bonus" },
+    o: {
+      attackId: string;
+      name: string;
+      proficient: boolean;
+      magicBonus?: number;
+      itemInstanceId?: string;
+      action: "attack" | "bonus";
+      offHand?: boolean;
+      requires?: { attack: string; text: string };
+    },
   ) => {
     const ability: Ability = w.kind === "ranged" ? "dex" : w.properties.includes("finesse") && mods.dex > mods.str ? "dex" : "str";
     const magic = o.magicBonus ? [{ label: "Magic weapon", value: o.magicBonus }] : [];
@@ -624,19 +652,25 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
       const thrown = mode === "thrown";
       const attackKeys = [`roll.attack.weapon.${mode}`, "item.attack", `attack.${o.attackId}`];
       const damageKeys = [`roll.damage.weapon.${mode}`, "item.damage", `damage.${o.attackId}`];
+      if (o.offHand) {
+        attackKeys.push("roll.attack.weapon.offhand");
+        damageKeys.push("roll.damage.weapon.offhand");
+      }
       if (thrown) {
         attackKeys.push(`attack.${o.attackId}.thrown`);
         damageKeys.push(`damage.${o.attackId}.thrown`);
       }
       const attack = roll(attackKeys, [abilityPart(ability), ...(o.proficient ? [pbPart()] : []), ...magic], o.itemInstanceId);
-      const bonus = roll(damageKeys, [abilityPart(ability), ...magic], o.itemInstanceId);
+      // Two-weapon fighting: no ability modifier on the off-hand damage unless it's negative, or with the Two-Weapon Fighting style.
+      const offHandAbility = !o.offHand || mods[ability] < 0 || rules.twoWeaponAbility;
+      const bonus = roll(damageKeys, [...(offHandAbility ? [abilityPart(ability)] : []), ...magic], o.itemInstanceId);
       const critMods = modsFor(damageKeys, o.itemInstanceId).filter((a) => conditionState(a.mod.when) === "pass");
       const onCrit = critMods.filter((a) => a.mod.op === "critBonusDamage").map((a) => ({ label: labelOf(a), value: flatOf(a) }));
       const critExtraDice = critMods.filter((a) => a.mod.op === "extraCritDice").map((a) => ({ label: labelOf(a), value: flatOf(a) }));
 
       const entry: WeaponAttack = {
         attackId: o.attackId,
-        name: thrown ? `${o.name} (thrown)` : o.name,
+        name: o.offHand ? `${o.name} (off-hand${thrown ? ", thrown" : ""})` : thrown ? `${o.name} (thrown)` : o.name,
         mode,
         action: o.action,
         ability,
@@ -648,6 +682,8 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
       if (o.itemInstanceId) entry.itemInstanceId = o.itemInstanceId;
       if (w.versatileDamage && !thrown) entry.damage.versatileDice = w.versatileDamage;
       if (w.range && mode !== "melee") entry.range = w.range;
+      if (o.offHand) entry.offHand = true;
+      if (o.requires) entry.requires = o.requires;
       attacks.push(entry);
     }
   };
@@ -661,11 +697,15 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
     const o: Parameters<typeof buildAttacks>[1] = { attackId: def.id, name: inst.name ?? def.name, proficient, itemInstanceId: inst.id, action: "attack" };
     if (def.magic?.bonus) o.magicBonus = def.magic.bonus;
     buildAttacks(w, o);
+    // Every one-handed melee weapon can be the off-hand weapon of two-weapon fighting (bonus action).
+    if (w.kind === "melee" && !w.properties.includes("two-handed")) buildAttacks(w, { ...o, action: "bonus", offHand: true });
   }
   for (const s of sources) {
     for (const a of s.grant.attacks ?? []) {
       const w: AttackDef = a;
-      buildAttacks(w, { attackId: a.id, name: a.name, proficient: true, action: a.action });
+      const o: Parameters<typeof buildAttacks>[1] = { attackId: a.id, name: a.name, proficient: true, action: a.action };
+      if (a.requires) o.requires = a.requires;
+      buildAttacks(w, o);
     }
   }
 
@@ -851,6 +891,11 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
       if (a.roll) entry.roll = { ...amountOf(a.roll.dice, s), label: a.roll.label };
       if (a.duration) entry.duration = a.duration;
       if (a.notAfterMoving) entry.notAfterMoving = true;
+      if (a.restores) entry.restores = a.restores;
+      if (a.cost) {
+        const free = spells.filter((sp) => sp.cast.free?.resource === a.cost!.resource).map((sp) => ({ id: sp.id, list: sp.list.id }));
+        if (free.length) entry.spells = free;
+      }
       if (a.stopsMovement) entry.stopsMovement = true;
       if (a.note) entry.note = a.note;
       if (a.cost) {
@@ -878,7 +923,7 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
   }
 
   const effects: EffectResult[] = c.effects.map((e) => {
-    const base = { instanceId: e.id, reminders: [] as string[], concentration: false };
+    const base = { instanceId: e.id, reminders: [] as string[], concentration: false, includes: [] as { id: string; name: string }[] };
     let r: EffectResult;
     const def = e.effect === "custom" ? undefined : reg.find(reg.effectId(e.effect), "effect");
     if (!def) {
@@ -902,13 +947,30 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
       if (e.choice) r.choice.value = e.choice;
     }
     if (def?.upcast) r.upcast = { baseLevel: def.upcast.baseLevel, castLevel: e.castLevel ?? def.upcast.baseLevel };
+    if (def?.levelNotes) r.levelNotes = def.levelNotes;
+    if (def?.endsOn) r.endsOn = def.endsOn;
+    if (def) {
+      const walk = (ids: string[]) => {
+        for (const id of ids) {
+          const inc = reg.find(id, "effect");
+          if (!inc || r.includes.some((x) => x.id === id)) continue;
+          r.includes.push({ id, name: inc.name });
+          walk(inc.includes);
+        }
+      };
+      walk(def.includes);
+    }
     return r;
   });
 
   const toggles: DerivedSheet["toggles"] = [];
   for (const a of active) {
     const name = a.mod.when?.toggle;
-    if (name && !toggles.some((t) => t.name === name)) toggles.push({ name, label: labelOf(a), on: c.toggles.includes(name) });
+    if (!name || toggles.some((t) => t.name === name)) continue;
+    // The action that switches it on names it best ("Form of Dread"); a note's label is a sentence, so fall back to the source.
+    const byAction = actions.find((x) => x.toggles.includes(name))?.name;
+    const label = byAction ?? (a.mod.op === "note" ? a.source.label : labelOf(a));
+    toggles.push({ name, label, on: c.toggles.includes(name) });
   }
 
   const sheet: DerivedSheet = {
@@ -941,6 +1003,7 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
     senses,
     features: featureEntries(sources, reg),
     companions: sources.flatMap((s) => (s.grant.companions ?? []).map((d) => deriveCompanion(d, s.label, c.companions[d.id], ctxFor(s), spellcasting))),
+    rules,
     attacksPerAction: sources.some((s) => /^feature:extra-attack/.test(s.id)) ? 2 : 1,
     warnings,
   };

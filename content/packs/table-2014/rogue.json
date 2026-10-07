@@ -410,6 +410,12 @@
             "max": "pb + pb",
             "reset": "long",
             "die": "scale.die"
+          },
+          {
+            "id": "psionic-recover",
+            "name": "Regain a Psionic Energy die",
+            "max": 1,
+            "reset": "long"
           }
         ],
         "actions": [
@@ -447,7 +453,15 @@
             "name": "Regain a Psionic Energy die",
             "economy": "bonus",
             "toggles": [],
-            "note": "Once per short or long rest: regain one spent die."
+            "note": "Bonus action: regain one spent Psionic Energy die. Once per long rest (table ruling).",
+            "cost": {
+              "resource": "psionic-recover",
+              "amount": 1
+            },
+            "restores": {
+              "resource": "psionic-energy",
+              "amount": 1
+            }
           }
         ]
       }
@@ -495,7 +509,11 @@
               60,
               60
             ],
-            "action": "bonus"
+            "action": "bonus",
+            "requires": {
+              "attack": "attack:psychic-blade",
+              "text": "The second Psychic Blade comes after you've attacked with a Psychic Blade this turn (Attack action), with your other hand free."
+            }
           }
         ]
       }

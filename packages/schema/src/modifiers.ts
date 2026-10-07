@@ -85,6 +85,12 @@ export const ModifierOp = z.enum([
   "immune",
   /** Rolls: a reminder shown with the roll; `label` is the text (Ancestral Protectors on your first hit). */
   "note",
+  /**
+   * A rule permission, no number: "rule.twoWeapon.nonLight" (Dual Wielder:
+   * two-weapon fighting with weapons that aren't light), "rule.twoWeapon.ability"
+   * (Two-Weapon Fighting style: ability modifier on the off-hand damage).
+   */
+  "allow",
 ]);
 export type ModifierOp = z.infer<typeof ModifierOp>;
 
@@ -194,6 +200,8 @@ export const AttackDef = z
     range: z.tuple([z.number(), z.number()]).optional(),
     /** Action used to make it, when not a normal Attack action. */
     action: z.enum(["attack", "bonus"]).default("attack"),
+    /** Only after attacking with another attack this turn (the second Psychic Blade). */
+    requires: z.object({ attack: z.string(), text: z.string() }).strict().optional(),
   })
   .strict();
 export type AttackDef = z.infer<typeof AttackDef>;
@@ -226,6 +234,8 @@ export const ActionDef = z
       .object({ rounds: z.number().int().min(1).optional(), minutes: z.number().int().min(1).optional(), fromRoll: z.enum(["rounds", "minutes", "hours"]).optional() })
       .strict()
       .optional(),
+    /** Gives back uses of another resource (Psionic Power: regain one die). */
+    restores: z.object({ resource: z.string(), amount: z.number().int().min(1).default(1) }).strict().optional(),
     /** Only if you haven't moved this turn (Steady Aim). */
     notAfterMoving: z.boolean().optional(),
     /** Your speed becomes 0 for the rest of the turn (Steady Aim). */

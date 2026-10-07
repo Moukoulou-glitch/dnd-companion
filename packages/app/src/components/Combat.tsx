@@ -1,3 +1,4 @@
+import { RichText } from "./Conditions";
 import { ABILITIES, ABILITY_NAMES, type Character, type OperationType } from "@dnd/schema";
 import { formatBonus, signed, turnReminders, type CompanionResult, type DerivedSheet, type RollBreakdown, type WeaponAttack } from "@dnd/engine";
 import { damageText } from "./ActionsTab";
@@ -84,7 +85,9 @@ export function CombatCard({
       {reminders.length > 0 && (
         <ul className="reminders">
           {reminders.map((r) => (
-            <li key={r}>{r}</li>
+            <li key={r}>
+              <RichText text={r} />
+            </li>
           ))}
         </ul>
       )}
@@ -314,7 +317,7 @@ export function CompanionPanel({
       <div className="spell-text">
         {f.traits.map((t) => (
           <p key={t.name}>
-            <b>{t.name}.</b> {t.summary}
+            <b>{t.name}.</b> <RichText text={t.summary} />
           </p>
         ))}
         {f.saveDc !== undefined && <p className="note">Its save DC is your spell save DC, {f.saveDc}.</p>}

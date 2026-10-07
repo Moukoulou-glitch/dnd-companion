@@ -116,7 +116,23 @@
               "resource": "form-of-dread"
             },
             "tempHp": "1d10 + classLevel.class:warlock",
-            "note": "1 minute: temp HP, immune to frightened, once per turn a hit can frighten (Wisdom save)."
+            "note": "1 minute: temp HP, immune to frightened, and once per turn a hit can frighten the target.",
+            "duration": {
+              "rounds": 10
+            },
+            "toggles": [
+              "form-of-dread"
+            ]
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.attack.*",
+            "op": "note",
+            "label": "Form of Dread: once during each of your turns, when you hit a creature with an attack roll, you can force it to make a Wisdom saving throw (your spell save DC). If it fails, it's frightened of you until the end of your next turn.",
+            "when": {
+              "toggle": "form-of-dread"
+            }
           }
         ]
       }

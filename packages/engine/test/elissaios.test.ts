@@ -124,6 +124,7 @@ describe("Ελισσαίος (Rogue 8 / Warlock 1)", () => {
   it("resources: Psionic Energy 6 of 8 d8, Form of Dread 3 of 4, Haunted spells", () => {
     expect(sheet.resources.map((r) => [r.name, r.remaining, r.max, r.die])).toEqual([
       ["Psionic Energy dice", 6, 8, "d8"],
+      ["Regain a Psionic Energy die", 1, 1, undefined],
       ["Form of Dread", 3, 4, undefined],
       ["Haunted: Invisibility", 1, 1, undefined],
       ["Haunted: Cause Fear", 1, 1, undefined],

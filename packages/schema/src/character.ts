@@ -126,6 +126,10 @@ export const CombatState = z
     dashes: z.number().int().min(0).default(0),
     /** Your initiative roll for this combat. */
     initiative: z.number().int().optional(),
+    /** Attacks made this turn, for the second Psychic Blade and two-weapon fighting. */
+    attackedWith: z
+      .array(z.object({ attackId: z.string(), itemInstanceId: z.string().optional(), melee: z.boolean(), light: z.boolean() }).strict())
+      .default([]),
     /** Features used this turn, by action id (so Steady Aim isn't spent twice). */
     usedThisTurn: z.array(z.string()).default([]),
     /** 2014: after a bonus-action spell, the only other spell this turn is an action cantrip. */

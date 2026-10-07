@@ -1,3 +1,4 @@
+import { RichText } from "./Conditions";
 import { useMemo, useState } from "react";
 import type { ContentRegistry } from "@dnd/engine";
 import type { Character, ItemDef, OperationType } from "@dnd/schema";
@@ -35,7 +36,9 @@ export function ItemPanel({ inst, def, act, close }: { inst: Inst; def: ItemDef;
         <details className="book-text" open={!def.summary}>
           <summary>Full text</summary>
           {def.text.map((p, i) => (
-            <p key={i}>{p}</p>
+            <p key={i}>
+              <RichText text={p} />
+            </p>
           ))}
         </details>
       )}

@@ -128,8 +128,12 @@ export const OPERATION_PAYLOADS = {
       kind: z.enum(["action", "bonus", "reaction", "attack", "move"]),
       amount: z.number().int().default(1),
       dash: z.boolean().default(false),
+      /** The attack made, remembered for the rest of the turn. */
+      attackWith: z.object({ attackId: z.string(), itemInstanceId: z.string().optional(), melee: z.boolean(), light: z.boolean() }).strict().optional(),
     })
     .strict(),
+  /** Change how long concentration has left, by hand. null clears the timer. */
+  setConcentration: z.object({ rounds: z.number().int().min(0).nullable().optional(), minutes: z.number().int().min(0).nullable().optional() }).strict(),
   /** Choose a companion's form or name; a new form arrives with full HP. */
   setCompanion: z.object({ companion: z.string(), form: z.string().optional(), name: z.string().optional() }).strict(),
   /** Bring a companion back with full HP, spending a spell slot of `level`. */
@@ -175,6 +179,7 @@ export const Operation = z.discriminatedUnion("type", [
   OperationBase.extend({ type: z.literal("setInitiative"), payload: OPERATION_PAYLOADS.setInitiative }),
   OperationBase.extend({ type: z.literal("setPool"), payload: OPERATION_PAYLOADS.setPool }),
   OperationBase.extend({ type: z.literal("usePool"), payload: OPERATION_PAYLOADS.usePool }),
+  OperationBase.extend({ type: z.literal("setConcentration"), payload: OPERATION_PAYLOADS.setConcentration }),
   OperationBase.extend({ type: z.literal("deathSave"), payload: OPERATION_PAYLOADS.deathSave }),
   OperationBase.extend({ type: z.literal("toggle"), payload: OPERATION_PAYLOADS.toggle }),
   OperationBase.extend({ type: z.literal("setField"), payload: OPERATION_PAYLOADS.setField }),

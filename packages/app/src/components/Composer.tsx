@@ -1,3 +1,4 @@
+import { RichText } from "./Conditions";
 import { useMemo, useState } from "react";
 import {
   composeD20,
@@ -37,6 +38,8 @@ interface Props {
   notes?: string[];
   /** Foretelling rolls that can replace the d20 (Portent). */
   portent?: { values: number[]; onUse: (index: number) => void };
+  /** Options that clash with this roll, with the warning shown when turned on (Steady Aim with a bonus-action attack). */
+  conflicts?: { label: string; warning: string }[];
   /** The optional modifiers that were on when the d20 was rolled (Steady Aim spends its bonus action). */
   onOptionsUsed?: (labels: string[]) => void;
 }
@@ -225,7 +228,7 @@ export function ResultView({ r }: { r: RollRecord }) {
   );
 }
 
-export function Composer({ title, base, attack, physical, onPhysicalChange, onRolled, damageOnly, healing, onHealSelf, dc, onCheck, notes, portent, onOptionsUsed }: Props) {
+export function Composer({ title, base, attack, physical, onPhysicalChange, onRolled, damageOnly, healing, onHealSelf, dc, onCheck, notes, portent, onOptionsUsed, conflicts }: Props) {
   const [choices, setChoices] = useState<ComposerChoices>({ enabled: [], manual: "none", extra: 0 });
   const [damageChoices, setDamageChoices] = useState<ComposerChoices>({ enabled: [], manual: "none", extra: 0 });
   const [stage, setStage] = useState<Stage>(damageOnly ? { step: "damage-setup", crit: false } : { step: "setup" });
@@ -310,7 +313,7 @@ export function Composer({ title, base, attack, physical, onPhysicalChange, onRo
         )}
         {[...(notes ?? []), ...(base.notes ?? [])].map((n) => (
           <p className="note reminder" key={n}>
-            {n}
+            <RichText text={n} />
           </p>
         ))}
         <FormulaLines c={d20} />
@@ -328,6 +331,13 @@ export function Composer({ title, base, attack, physical, onPhysicalChange, onRo
           </p>
         )}
         <Options base={base} choices={choices} setChoices={setChoices} withManual />
+        {(conflicts ?? [])
+          .filter((x) => choices.enabled.includes(x.label))
+          .map((x) => (
+            <p className="warn" key={x.label}>
+              {x.warning}
+            </p>
+          ))}
         {attack?.range && (
           <p className="note">Range {attack.range[0] === attack.range[1] ? `${attack.range[0]} ft` : `${attack.range[0]}/${attack.range[1]} ft`}.</p>
         )}
@@ -403,7 +413,7 @@ export function Composer({ title, base, attack, physical, onPhysicalChange, onRo
         {dc === undefined && attack?.saveNote && <p className="note">{attack.saveNote}</p>}
         {(damageBase.notes ?? []).map((n) => (
           <p className="note reminder" key={n}>
-            {n}
+            <RichText text={n} />
           </p>
         ))}
         {stage.attackMode === "disadvantage" && damageChoices.enabled.some((l) => /sneak attack/i.test(l)) && (

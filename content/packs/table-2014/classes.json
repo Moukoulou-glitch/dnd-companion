@@ -202,7 +202,8 @@
           "kind": "feature",
           "count": 1,
           "from": [
-            "feature:style-archery"
+            "feature:style-archery",
+            "feature:style-two-weapon-fighting"
           ]
         }
       ]
@@ -453,6 +454,26 @@
                 ]
               }
             ]
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:style-two-weapon-fighting",
+      "name": "Two-Weapon Fighting",
+      "summary": "Fighting style: when you fight with two weapons, your ability modifier is added to the damage of the off-hand attack.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 72
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "rule.twoWeapon.ability",
+            "op": "allow",
+            "label": "Two-Weapon Fighting"
           }
         ]
       }

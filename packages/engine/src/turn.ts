@@ -13,6 +13,14 @@ export interface TurnIntent {
   notAfterMoving?: boolean;
   /** Feature id, to notice it was already used this turn. */
   actionId?: string;
+  /** A weapon or feature attack, for two-weapon fighting and attacks that need another first. */
+  weapon?: {
+    attackId: string;
+    itemInstanceId?: string;
+    offHand?: boolean;
+    light: boolean;
+    requires?: { attack: string; text: string };
+  };
 }
 
 const INCAPACITATING = ["incapacitated", "paralyzed", "petrified", "stunned", "unconscious"];
@@ -33,7 +41,9 @@ export function castingEconomy(castingTime: string): TurnIntent["economy"] {
 export function turnWarnings(c: Character, sheet: DerivedSheet, intent: TurnIntent): string[] {
   const out: string[] = [];
   // Paralyzed, Stunned, Unconscious and Petrified include Incapacitated.
-  const incapacitated = sheet.effects.find((e) => INCAPACITATING.includes(e.id.replace(/^(condition|effect):/, "")));
+  // Hold Person brings Paralyzed, which brings Incapacitated: look through what effects include too.
+  const states = sheet.effects.flatMap((e) => [{ id: e.id, name: e.name }, ...e.includes]);
+  const incapacitated = states.find((e) => INCAPACITATING.includes(e.id.replace(/^(condition|effect):/, "")));
   if (incapacitated && intent.economy !== "free") {
     out.push(`You're ${incapacitated.name.toLowerCase()}: you can't take actions or reactions.`);
   }
@@ -45,8 +55,20 @@ export function turnWarnings(c: Character, sheet: DerivedSheet, intent: TurnInte
     }
   }
 
+  const w = intent.weapon;
+  if (w?.offHand && !w.light && !sheet.rules.twoWeaponNonLight) {
+    out.push(`${intent.name.replace(/ \(off-hand.*$/, "")} isn't a light weapon: two-weapon fighting needs light weapons in both hands (Dual Wielder lifts this).`);
+  }
+
   const cb = c.combat;
   if (!cb) return out;
+
+  if (w?.requires && !cb.attackedWith.some((a) => a.attackId === w.requires!.attack)) out.push(w.requires.text);
+  if (w?.offHand) {
+    const first = cb.attackedWith.filter((a) => a.melee && a.itemInstanceId && a.itemInstanceId !== w.itemInstanceId);
+    if (!first.length) out.push("Two-weapon fighting: first attack with a melee weapon in your other hand, using the Attack action.");
+    else if (!sheet.rules.twoWeaponNonLight && !first.some((a) => a.light)) out.push("The weapon you attacked with first isn't light: two-weapon fighting needs light weapons in both hands.");
+  }
 
   if (!cb.myTurn && (intent.economy === "action" || intent.economy === "bonus")) {
     out.push("It isn't your turn: actions and bonus actions happen on your turn. Tap Start my turn first.");

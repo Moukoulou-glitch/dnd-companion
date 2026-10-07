@@ -147,3 +147,82 @@ describe("turn rules", () => {
     }
   });
 });
+
+describe("second round of table feedback", () => {
+  it("Regain a Psionic Energy die gives one back, once per long rest", () => {
+    const log = logFor("elissaios");
+    const dice = () => sheetOf(log).resources.find((r) => r.id === "psionic-energy")!.remaining;
+    const before = dice();
+    log.record("useAction", { action: "psionic-recover" });
+    expect(dice()).toBe(before + 1);
+    expect(sheetOf(log).resources.find((r) => r.id === "psionic-recover")!.remaining).toBe(0);
+  });
+
+  it("the second Psychic Blade needs a Psychic Blade attack first this turn", () => {
+    const log = logFor("elissaios");
+    log.record("startCombat", {});
+    log.record("startTurn", {});
+    const s = sheetOf(log);
+    const bonus = s.attacks.find((a) => a.attackId === "attack:psychic-blade-bonus" && a.mode === "melee")!;
+    const intent = { name: bonus.name, economy: "bonus" as const, weapon: { attackId: bonus.attackId, light: false, requires: bonus.requires! } };
+    expect(turnWarnings(log.character, s, intent)[0]).toMatch(/after you've attacked with a Psychic Blade/);
+    log.record("useEconomy", { kind: "attack", attackWith: { attackId: "attack:psychic-blade", melee: true, light: false } });
+    expect(turnWarnings(log.character, sheetOf(log), intent)).toEqual([]);
+  });
+
+  it("off-hand attacks: no ability modifier, light weapons only, unless Dual Wielder", () => {
+    const beren = sheetOf(logFor("beren"));
+    const offSword = beren.attacks.find((a) => a.offHand && a.name.startsWith("Shortsword"))!;
+    expect(offSword.name).toBe("Shortsword (off-hand)");
+    expect(offSword.action).toBe("bonus");
+    expect(offSword.damage.bonus.total).toBe(0);
+
+    const log = logFor("agaklis");
+    log.record("startCombat", {});
+    log.record("startTurn", {});
+    const s = sheetOf(log);
+    expect(s.rules.twoWeaponNonLight).toBe(true);
+    const off = s.attacks.find((a) => a.offHand)!;
+    const intent = { name: off.name, economy: "bonus" as const, weapon: { attackId: off.attackId, itemInstanceId: off.itemInstanceId!, offHand: true, light: false } };
+    expect(turnWarnings(log.character, s, intent)).toEqual(["Two-weapon fighting: first attack with a melee weapon in your other hand, using the Attack action."]);
+    const other = s.attacks.find((a) => !a.offHand && a.mode === "melee" && a.itemInstanceId && a.itemInstanceId !== off.itemInstanceId)!;
+    log.record("useEconomy", { kind: "attack", attackWith: { attackId: other.attackId, itemInstanceId: other.itemInstanceId!, melee: true, light: false } });
+    expect(turnWarnings(log.character, sheetOf(log), intent)).toEqual([]);
+    expect(off.damage.bonus.suggestions.map((x) => x.label)).toContain("Dual Wielder (off-hand)");
+  });
+
+  it("Hold Person on you brings Paralyzed, and with it Incapacitated", () => {
+    const log = logFor("beren");
+    log.record("addEffect", { instanceId: "hp", effect: "effect:hold-person" });
+    const e = sheetOf(log).effects[0]!;
+    expect(e.includes.map((x) => x.name)).toEqual(["Paralyzed", "Incapacitated"]);
+    expect(turnWarnings(log.character, sheetOf(log), { name: "Attack", economy: "action" })[0]).toMatch(/can't take actions/);
+    expect(sheetOf(log).saves.dex.autoFail).toBeDefined();
+  });
+
+  it("caster-only effects are marked so they stay out of Add an effect", () => {
+    expect(reg.get("effect:hex", "effect").selfOnly).toBe(true);
+    expect(reg.get("effect:hexed", "effect").selfOnly).toBeUndefined();
+  });
+
+  it("free casts point at their spell; Form of Dread runs 10 rounds with its reminder", () => {
+    const log = logFor("elissaios");
+    expect(sheetOf(log).actions.find((a) => a.id === "haunted-invisibility")!.spells).toEqual([{ id: "spell:invisibility", list: "haunted-by-the-shadows" }]);
+    log.record("useAction", { action: "form-of-dread", rolled: 7 });
+    expect(log.character.effects.find((e) => e.custom?.name === "Form of Dread")).toMatchObject({ rounds: 10, toggles: ["form-of-dread"] });
+    expect(sheetOf(log).attacks[0]!.attack.notes![0]).toMatch(/^Form of Dread/);
+  });
+
+  it("concentration time can be changed by hand", () => {
+    const log = logFor("beren");
+    log.record("castSpell", { spell: "spell:entangle", list: "ranger", level: 1, using: "slot" });
+    log.record("setConcentration", { rounds: 4 });
+    expect(log.character.concentration!.rounds).toBe(4);
+    log.record("setConcentration", { rounds: 0 });
+    expect(log.character.concentration).toBeUndefined();
+  });
+
+  it("Exhaustion knows what each level does", () => {
+    expect(reg.get("condition:exhaustion", "effect").levelNotes![2]).toBe("Disadvantage on attack rolls and saving throws");
+  });
+});

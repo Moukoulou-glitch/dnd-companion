@@ -1,3 +1,4 @@
+import { RichText } from "./Conditions";
 import { useState } from "react";
 import { ABILITY_NAMES } from "@dnd/schema";
 import { signed, type DerivedSheet, type SpellResult, type WeaponAttack } from "@dnd/engine";
@@ -280,11 +281,15 @@ export function SpellPanel({
             {sp.summary} Full text: {sp.source}. Load your book files (Characters → Book text) to read it here.
           </p>
         ) : (
-          sp.text.map((p, i) => <p key={i}>{p}</p>)
+          sp.text.map((p, i) => (
+            <p key={i}>
+              <RichText text={p} />
+            </p>
+          ))
         )}
         {sp.higherLevels.map((p, i) => (
           <p key={`h${i}`}>
-            <b>At higher levels.</b> {p}
+            <b>At higher levels.</b> <RichText text={p} />
           </p>
         ))}
       </div>

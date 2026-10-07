@@ -459,6 +459,14 @@
       "reminders": [
         "A long rest with food and drink removes one level.",
         "Level 6 is death."
+      ],
+      "levelNotes": [
+        "Disadvantage on ability checks",
+        "Speed halved",
+        "Disadvantage on attack rolls and saving throws",
+        "Hit point maximum halved",
+        "Speed reduced to 0",
+        "Death"
       ]
     },
     {
@@ -632,7 +640,8 @@
       ],
       "reminders": [
         "Remove it at the start of your next turn."
-      ]
+      ],
+      "selfOnly": true
     },
     {
       "kind": "effect",
@@ -709,7 +718,8 @@
         "Advantage on Perception and Survival checks to find the marked target.",
         "Bonus action to move the mark when the target drops to 0 HP."
       ],
-      "minutes": 60
+      "minutes": 60,
+      "selfOnly": true
     },
     {
       "kind": "effect",
@@ -738,7 +748,8 @@
       "reminders": [
         "The target has disadvantage on checks with the ability you chose."
       ],
-      "minutes": 60
+      "minutes": 60,
+      "selfOnly": true
     },
     {
       "kind": "effect",
@@ -797,7 +808,8 @@
       },
       "modifiers": [],
       "rounds": 10,
-      "concentration": true
+      "concentration": true,
+      "selfOnly": true
     },
     {
       "kind": "effect",
@@ -1052,6 +1064,10 @@
       ],
       "reminders": [
         "Ends early if you attack or cast a spell."
+      ],
+      "endsOn": [
+        "attack",
+        "cast"
       ]
     },
     {
@@ -1072,6 +1088,274 @@
         "condition:invisible"
       ],
       "reminders": []
+    },
+    {
+      "kind": "effect",
+      "id": "effect:hunters-marked",
+      "name": "Hunter's Marked",
+      "summary": "A ranger's Hunter's Mark is on you: their weapon hits deal you an extra 1d6, and they track you easily.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 251
+      },
+      "category": "spell",
+      "modifiers": [],
+      "concentration": true,
+      "includes": [],
+      "reminders": [
+        "The caster's weapon hits deal you an extra 1d6 damage."
+      ],
+      "minutes": 60
+    },
+    {
+      "kind": "effect",
+      "id": "effect:cause-fear",
+      "name": "Cause Fear",
+      "summary": "You're frightened of the caster.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 151
+      },
+      "category": "spell",
+      "modifiers": [],
+      "concentration": true,
+      "includes": [
+        "condition:frightened"
+      ],
+      "reminders": [
+        "Wisdom save at the end of each of your turns ends it."
+      ],
+      "rounds": 10
+    },
+    {
+      "kind": "effect",
+      "id": "effect:fear",
+      "name": "Fear",
+      "summary": "Frightened: you drop what you're holding and must Dash away from the caster each turn.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 239
+      },
+      "category": "spell",
+      "modifiers": [],
+      "concentration": true,
+      "includes": [
+        "condition:frightened"
+      ],
+      "reminders": [
+        "Drop what you're holding. On your turn, Dash away from the caster by the safest route.",
+        "Wisdom save at the end of a turn where you end out of the caster's sight ends it."
+      ],
+      "rounds": 10
+    },
+    {
+      "kind": "effect",
+      "id": "effect:hideous-laughter",
+      "name": "Tasha's Hideous Laughter",
+      "summary": "Laughing helplessly: prone and incapacitated.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 280
+      },
+      "category": "spell",
+      "modifiers": [],
+      "concentration": true,
+      "includes": [
+        "condition:prone",
+        "condition:incapacitated"
+      ],
+      "reminders": [
+        "Wisdom save at the end of each of your turns (advantage if it was triggered by damage) ends it."
+      ],
+      "rounds": 10
+    },
+    {
+      "kind": "effect",
+      "id": "effect:hold-monster",
+      "name": "Hold Monster",
+      "summary": "Paralyzed.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 251
+      },
+      "category": "spell",
+      "modifiers": [],
+      "concentration": true,
+      "includes": [
+        "condition:paralyzed"
+      ],
+      "reminders": [
+        "Wisdom save at the end of each of your turns ends it."
+      ],
+      "rounds": 10
+    },
+    {
+      "kind": "effect",
+      "id": "effect:sleep",
+      "name": "Sleep",
+      "summary": "Magically asleep: unconscious until damaged or someone uses an action to wake you.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 276
+      },
+      "category": "spell",
+      "modifiers": [],
+      "concentration": false,
+      "includes": [
+        "condition:unconscious"
+      ],
+      "reminders": [],
+      "rounds": 10
+    },
+    {
+      "kind": "effect",
+      "id": "effect:blindness",
+      "name": "Blindness",
+      "summary": "Blinded by the spell.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 219
+      },
+      "category": "spell",
+      "modifiers": [],
+      "concentration": false,
+      "includes": [
+        "condition:blinded"
+      ],
+      "reminders": [
+        "Constitution save at the end of each of your turns ends it."
+      ],
+      "rounds": 10
+    },
+    {
+      "kind": "effect",
+      "id": "effect:deafness",
+      "name": "Deafness",
+      "summary": "Deafened by the spell.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 219
+      },
+      "category": "spell",
+      "modifiers": [],
+      "concentration": false,
+      "includes": [
+        "condition:deafened"
+      ],
+      "reminders": [
+        "Constitution save at the end of each of your turns ends it."
+      ],
+      "rounds": 10
+    },
+    {
+      "kind": "effect",
+      "id": "effect:web",
+      "name": "Web",
+      "summary": "Stuck in the webs: restrained.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 287
+      },
+      "category": "spell",
+      "modifiers": [],
+      "concentration": true,
+      "includes": [
+        "condition:restrained"
+      ],
+      "reminders": [
+        "Use your action for a Strength check against the caster's DC to break free."
+      ],
+      "minutes": 60
+    },
+    {
+      "kind": "effect",
+      "id": "effect:entangle",
+      "name": "Entangle",
+      "summary": "Grasping plants: restrained.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 238
+      },
+      "category": "spell",
+      "modifiers": [],
+      "concentration": true,
+      "includes": [
+        "condition:restrained"
+      ],
+      "reminders": [
+        "Use your action for a Strength check against the caster's DC to break free."
+      ],
+      "rounds": 10
+    },
+    {
+      "kind": "effect",
+      "id": "effect:ensnaring-strike",
+      "name": "Ensnaring Strike",
+      "summary": "Thorny vines: restrained.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 237
+      },
+      "category": "spell",
+      "modifiers": [],
+      "concentration": true,
+      "includes": [
+        "condition:restrained"
+      ],
+      "reminders": [
+        "At the start of each of your turns you take 1d6 piercing damage.",
+        "Use your action for a Strength check against the caster's DC to break free."
+      ],
+      "rounds": 10
+    },
+    {
+      "kind": "effect",
+      "id": "effect:charm-person",
+      "name": "Charm Person",
+      "summary": "Charmed by the caster, who you regard as a friendly acquaintance.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 221
+      },
+      "category": "spell",
+      "modifiers": [],
+      "concentration": false,
+      "includes": [
+        "condition:charmed"
+      ],
+      "reminders": [
+        "Ends if the caster or their companions harm you. You know you were charmed when it ends."
+      ],
+      "minutes": 60
+    },
+    {
+      "kind": "effect",
+      "id": "effect:command",
+      "name": "Command",
+      "summary": "You follow a one-word command on your next turn.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 223
+      },
+      "category": "spell",
+      "modifiers": [],
+      "concentration": false,
+      "includes": [],
+      "reminders": [],
+      "rounds": 1
     }
   ]
 }

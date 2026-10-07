@@ -1,3 +1,4 @@
+import { RichText } from "./Conditions";
 import { useMemo, useState } from "react";
 import type { ContentRegistry, EffectResult } from "@dnd/engine";
 import { ABILITY_NAMES, type Ability, type EffectDef, type Modifier, type OperationType } from "@dnd/schema";
@@ -5,11 +6,12 @@ import { formatMinutes } from "../time";
 
 type Act = (type: OperationType, payload: unknown, label: string) => void;
 
-export function effectChipLabel(e: EffectResult): string {
+export function effectChipLabel(e: EffectResult, hideTime = false): string {
   let s = e.name;
   if (e.level !== undefined) s += ` ${e.level}`;
   if (e.choice?.value) s += `: ${optionName(e.choice.value).slice(0, 3)}`;
   if (e.upcast && e.upcast.castLevel > e.upcast.baseLevel) s += ` (lvl ${e.upcast.castLevel})`;
+  if (hideTime) return s;
   if (e.rounds !== undefined) s += ` (${e.rounds})`;
   else if (e.minutes !== undefined) s += ` (${formatMinutes(e.minutes)})`;
   return s;
@@ -24,9 +26,11 @@ export function EffectChips({
   onAdd,
   concentration,
   onConcentration,
+  onCondition,
 }: {
   effects: EffectResult[];
   onOpen: (e: EffectResult) => void;
+  onCondition: (id: string) => void;
   onAdd: () => void;
   concentration?: { name: string; rounds?: number | undefined; minutes?: number | undefined } | undefined;
   onConcentration: () => void;
@@ -49,7 +53,13 @@ export function EffectChips({
           onClick={() => onOpen(e)}
           aria-label={`${e.name}${e.level ? ` level ${e.level}` : ""}${e.rounds !== undefined ? `, ${e.rounds} rounds left` : ""}. Details`}
         >
-          {effectChipLabel(e)}
+          {/* The concentration chip already shows the time of a spell you're concentrating on. */}
+          {effectChipLabel(e, e.concentration && concentration?.name === e.name)}
+        </button>
+      ))}
+      {[...new Map(effects.flatMap((e) => e.includes).filter((x) => !effects.some((e) => e.id === x.id)).map((x) => [x.id, x])).values()].map((x) => (
+        <button key={x.id} className="chip condition" onClick={() => onCondition(x.id)} aria-label={`${x.name}, from another effect. Details`}>
+          {x.name}
         </button>
       ))}
     </div>
@@ -61,13 +71,36 @@ export function EffectPanel({ e, act, close }: { e: EffectResult; act: Act; clos
   return (
     <>
       {e.from && <p className="row-sub">From {e.from}</p>}
-      {e.summary && <p>{e.summary}</p>}
+      {e.summary && (
+        <p>
+          <RichText text={e.summary} />
+        </p>
+      )}
+      {e.includes.length > 0 && (
+        <p className="note">
+          Brings with it: <RichText text={e.includes.map((x) => x.name).join(", ")} />
+        </p>
+      )}
+      {e.levelNotes && (
+        <>
+          <p className="sub-head">Levels</p>
+          <ol className="levels">
+            {e.levelNotes.map((n, i) => (
+              <li key={n} data-on={(e.level ?? 0) > i}>
+                <RichText text={n} />
+              </li>
+            ))}
+          </ol>
+        </>
+      )}
       {e.reminders.length > 0 && (
         <>
           <p className="sub-head">Remember</p>
           <ul className="reminders">
             {e.reminders.map((r) => (
-              <li key={r}>{r}</li>
+              <li key={r}>
+                <RichText text={r} />
+              </li>
             ))}
           </ul>
         </>
@@ -291,7 +324,8 @@ function CustomBuilder({ act, close }: { act: Act; close: () => void }) {
 export function AddEffectPanel({ registry, act, close }: { registry: ContentRegistry; act: Act; close: () => void }) {
   const [tab, setTab] = useState<"condition" | "spell" | "other" | "custom">("condition");
   const [q, setQ] = useState("");
-  const all = useMemo(() => registry.list("effect"), [registry]);
+  // Effects someone or something else puts on you; caster-only ones (Hex, Hunter's Mark) come from casting.
+  const all = useMemo(() => registry.list("effect").filter((d) => !d.selfOnly), [registry]);
   const list = all.filter((d: EffectDef) => d.category === tab && d.name.toLowerCase().includes(q.trim().toLowerCase()));
 
   return (

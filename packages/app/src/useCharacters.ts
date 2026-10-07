@@ -101,7 +101,7 @@ export function useCharacters() {
       try {
         const notes = log.record(type, payload);
         setVersion((v) => v + 1);
-        setToast({ id: Date.now(), text: [label, ...notes].join(" "), canUndo: true });
+        setToast({ id: Date.now(), text: [label, ...notes.filter((n) => n !== label)].join(" "), canUndo: true });
         void persist(log, selectedId);
         return log.lastPrompts;
       } catch (e) {
