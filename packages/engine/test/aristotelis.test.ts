@@ -88,8 +88,8 @@ describe("Αριστοτέλης (Wizard 4)", () => {
       ["Fey Touched", 14, 6],
     ]);
     expect(sheet.spellSlots).toEqual([
-      { level: 1, total: 4 },
-      { level: 2, total: 3 },
+      { level: 1, total: 4, used: 0 },
+      { level: 2, total: 3, used: 0 },
     ]);
   });
 

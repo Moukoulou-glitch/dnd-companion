@@ -113,8 +113,98 @@
   "effects": [
     {
       "id": "e-mage-armor",
-      "effect": "spell:mage-armor",
+      "effect": "effect:mage-armor",
       "from": "Cast at the start of the day"
+    }
+  ],
+  "spells": [
+    {
+      "spell": "spell:mage-hand",
+      "list": "wizard"
+    },
+    {
+      "spell": "spell:ray-of-frost",
+      "list": "wizard"
+    },
+    {
+      "spell": "spell:mind-sliver",
+      "list": "wizard"
+    },
+    {
+      "spell": "spell:shocking-grasp",
+      "list": "wizard"
+    },
+    {
+      "spell": "spell:absorb-elements",
+      "list": "wizard"
+    },
+    {
+      "spell": "spell:alarm",
+      "list": "wizard"
+    },
+    {
+      "spell": "spell:chromatic-orb",
+      "list": "wizard"
+    },
+    {
+      "spell": "spell:comprehend-languages",
+      "list": "wizard"
+    },
+    {
+      "spell": "spell:detect-magic",
+      "list": "wizard"
+    },
+    {
+      "spell": "spell:feather-fall",
+      "list": "wizard"
+    },
+    {
+      "spell": "spell:find-familiar",
+      "list": "wizard"
+    },
+    {
+      "spell": "spell:identify",
+      "list": "wizard"
+    },
+    {
+      "spell": "spell:mage-armor",
+      "list": "wizard"
+    },
+    {
+      "spell": "spell:magic-missile",
+      "list": "wizard"
+    },
+    {
+      "spell": "spell:shield",
+      "list": "wizard"
+    },
+    {
+      "spell": "spell:sleep",
+      "list": "wizard"
+    },
+    {
+      "spell": "spell:web",
+      "list": "wizard"
+    },
+    {
+      "spell": "spell:mirror-image",
+      "list": "wizard"
+    },
+    {
+      "spell": "spell:tashas-mind-whip",
+      "list": "wizard"
+    },
+    {
+      "spell": "spell:invisibility",
+      "list": "wizard"
+    },
+    {
+      "spell": "spell:flaming-sphere",
+      "list": "wizard"
+    },
+    {
+      "spell": "spell:scorching-ray",
+      "list": "wizard"
     }
   ]
 }

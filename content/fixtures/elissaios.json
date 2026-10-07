@@ -155,5 +155,23 @@
   "resourcesUsed": {
     "psionic-energy": 2,
     "form-of-dread": 1
-  }
+  },
+  "spells": [
+    {
+      "spell": "spell:chill-touch",
+      "list": "warlock"
+    },
+    {
+      "spell": "spell:eldritch-blast",
+      "list": "warlock"
+    },
+    {
+      "spell": "spell:armor-of-agathys",
+      "list": "warlock"
+    },
+    {
+      "spell": "spell:hex",
+      "list": "warlock"
+    }
+  ]
 }

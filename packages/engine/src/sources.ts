@@ -105,8 +105,9 @@ export function collectSources(c: Character, reg: ContentRegistry): Source[] {
   for (const e of c.effects) {
     if (e.effect === "custom" && e.custom) {
       out.push({ id: `custom:${e.id}`, label: e.custom.name, grant: { modifiers: e.custom.modifiers }, choices: {}, effectInstanceId: e.id });
-    } else if (reg.has(e.effect)) {
-      pushEffect(reg.get(e.effect, "effect"), e.id, e.level);
+    } else {
+      const def = reg.find(reg.effectId(e.effect), "effect");
+      if (def) pushEffect(def, e.id, e.level);
     }
   }
 

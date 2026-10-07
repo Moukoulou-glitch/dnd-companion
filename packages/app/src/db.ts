@@ -8,6 +8,8 @@ export interface StoredCharacter {
   ops: Operation[];
   /** Most recent rolls, newest first. */
   rolls?: RollRecord[];
+  /** For the bundled reference characters: which version of the fixture the snapshot came from. */
+  fixtureHash?: string;
 }
 
 const DB_NAME = "table-companion";

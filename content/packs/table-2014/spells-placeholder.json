@@ -1,0 +1,419 @@
+{
+  "definitions": [
+    {
+      "kind": "spell",
+      "id": "spell:mind-sliver",
+      "name": "Mind Sliver",
+      "summary": "Psychic jab: Intelligence save or psychic damage, and the target subtracts 1d4 from its next save. Placeholder: replace with the imported spell.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 108
+      },
+      "level": 0,
+      "school": "Enchantment",
+      "castingTime": "1 action",
+      "range": "60 feet",
+      "components": [
+        "V"
+      ],
+      "duration": "1 round",
+      "concentration": false,
+      "ritual": false,
+      "classes": [
+        "sorcerer",
+        "warlock",
+        "wizard"
+      ],
+      "text": [],
+      "higherLevels": [],
+      "save": {
+        "ability": "int",
+        "onSuccess": "none"
+      },
+      "damage": {
+        "type": "psychic",
+        "atCharacterLevel": {
+          "1": "1d6",
+          "5": "2d6",
+          "11": "3d6",
+          "17": "4d6"
+        }
+      }
+    },
+    {
+      "kind": "spell",
+      "id": "spell:toll-the-dead",
+      "name": "Toll the Dead",
+      "summary": "Wisdom save or necrotic damage; d12s instead of d8s if the target is missing hit points. Placeholder: replace with the imported spell.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 169
+      },
+      "level": 0,
+      "school": "Necromancy",
+      "castingTime": "1 action",
+      "range": "60 feet",
+      "components": [
+        "V",
+        "S"
+      ],
+      "duration": "Instantaneous",
+      "concentration": false,
+      "ritual": false,
+      "classes": [
+        "cleric",
+        "warlock",
+        "wizard"
+      ],
+      "text": [],
+      "higherLevels": [],
+      "save": {
+        "ability": "wis",
+        "onSuccess": "none"
+      },
+      "damage": {
+        "type": "necrotic",
+        "atCharacterLevel": {
+          "1": "1d8",
+          "5": "2d8",
+          "11": "3d8",
+          "17": "4d8"
+        }
+      }
+    },
+    {
+      "kind": "spell",
+      "id": "spell:absorb-elements",
+      "name": "Absorb Elements",
+      "summary": "Reaction to elemental damage: resistance to it until your next turn, and extra damage of that type on your next melee hit. Placeholder: replace with the imported spell.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 150
+      },
+      "level": 1,
+      "school": "Abjuration",
+      "castingTime": "1 reaction",
+      "range": "Self",
+      "components": [
+        "S"
+      ],
+      "duration": "1 round",
+      "concentration": false,
+      "ritual": false,
+      "classes": [
+        "druid",
+        "ranger",
+        "sorcerer",
+        "wizard"
+      ],
+      "text": [],
+      "higherLevels": [],
+      "damage": {
+        "atSlot": {
+          "1": "1d6",
+          "2": "2d6",
+          "3": "3d6",
+          "4": "4d6",
+          "5": "5d6",
+          "6": "6d6",
+          "7": "7d6",
+          "8": "8d6",
+          "9": "9d6"
+        }
+      }
+    },
+    {
+      "kind": "spell",
+      "id": "spell:chromatic-orb",
+      "name": "Chromatic Orb",
+      "summary": "Hurl an orb of a damage type you choose (acid, cold, fire, lightning, poison or thunder). Placeholder: replace with the imported spell.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 221
+      },
+      "level": 1,
+      "school": "Evocation",
+      "castingTime": "1 action",
+      "range": "90 feet",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ],
+      "duration": "Instantaneous",
+      "concentration": false,
+      "ritual": false,
+      "classes": [
+        "sorcerer",
+        "wizard"
+      ],
+      "text": [],
+      "higherLevels": [],
+      "attack": "ranged",
+      "damage": {
+        "atSlot": {
+          "1": "3d8",
+          "2": "4d8",
+          "3": "5d8",
+          "4": "6d8",
+          "5": "7d8",
+          "6": "8d8",
+          "7": "9d8",
+          "8": "10d8",
+          "9": "11d8"
+        }
+      }
+    },
+    {
+      "kind": "spell",
+      "id": "spell:dissonant-whispers",
+      "name": "Dissonant Whispers",
+      "summary": "Wisdom save: psychic damage and the target must use its reaction to move away; half and no movement on a success. Placeholder: replace with the imported spell.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 234
+      },
+      "level": 1,
+      "school": "Enchantment",
+      "castingTime": "1 action",
+      "range": "60 feet",
+      "components": [
+        "V"
+      ],
+      "duration": "Instantaneous",
+      "concentration": false,
+      "ritual": false,
+      "classes": [
+        "bard"
+      ],
+      "text": [],
+      "higherLevels": [],
+      "save": {
+        "ability": "wis",
+        "onSuccess": "half"
+      },
+      "damage": {
+        "type": "psychic",
+        "atSlot": {
+          "1": "3d6",
+          "2": "4d6",
+          "3": "5d6",
+          "4": "6d6",
+          "5": "7d6",
+          "6": "8d6",
+          "7": "9d6",
+          "8": "10d6",
+          "9": "11d6"
+        }
+      }
+    },
+    {
+      "kind": "spell",
+      "id": "spell:ensnaring-strike",
+      "name": "Ensnaring Strike",
+      "summary": "Your next weapon hit can restrain the target (Strength save) and deals piercing damage each turn while restrained. Placeholder: replace with the imported spell.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 237
+      },
+      "level": 1,
+      "school": "Conjuration",
+      "castingTime": "1 bonus action",
+      "range": "Self",
+      "components": [
+        "V"
+      ],
+      "duration": "Up to 1 minute",
+      "concentration": true,
+      "ritual": false,
+      "classes": [
+        "ranger"
+      ],
+      "text": [],
+      "higherLevels": [],
+      "save": {
+        "ability": "str",
+        "onSuccess": "none"
+      },
+      "damage": {
+        "type": "piercing",
+        "atSlot": {
+          "1": "1d6",
+          "2": "2d6",
+          "3": "3d6",
+          "4": "4d6",
+          "5": "5d6",
+          "6": "6d6",
+          "7": "7d6",
+          "8": "8d6",
+          "9": "9d6"
+        }
+      }
+    },
+    {
+      "kind": "spell",
+      "id": "spell:armor-of-agathys",
+      "name": "Armor of Agathys",
+      "summary": "Temporary hit points, and creatures that hit you in melee take cold damage while they last. Placeholder: replace with the imported spell.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 215
+      },
+      "level": 1,
+      "school": "Abjuration",
+      "castingTime": "1 action",
+      "range": "Self",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ],
+      "duration": "1 hour",
+      "concentration": false,
+      "ritual": false,
+      "classes": [
+        "warlock"
+      ],
+      "text": [],
+      "higherLevels": [],
+      "damage": {
+        "type": "cold",
+        "atSlot": {
+          "1": "5",
+          "2": "10",
+          "3": "15",
+          "4": "20",
+          "5": "25",
+          "6": "30",
+          "7": "35",
+          "8": "40",
+          "9": "45"
+        }
+      }
+    },
+    {
+      "kind": "spell",
+      "id": "spell:hex",
+      "name": "Hex",
+      "summary": "Curse a creature: extra necrotic damage when you hit it, and disadvantage on checks with one ability. Placeholder: replace with the imported spell.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 251
+      },
+      "level": 1,
+      "school": "Enchantment",
+      "castingTime": "1 bonus action",
+      "range": "90 feet",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ],
+      "duration": "Up to 1 hour",
+      "concentration": true,
+      "ritual": false,
+      "classes": [
+        "warlock"
+      ],
+      "text": [],
+      "higherLevels": [],
+      "damage": {
+        "type": "necrotic",
+        "atSlot": {
+          "1": "1d6",
+          "2": "1d6",
+          "3": "1d6",
+          "4": "1d6",
+          "5": "1d6",
+          "6": "1d6",
+          "7": "1d6",
+          "8": "1d6",
+          "9": "1d6"
+        }
+      }
+    },
+    {
+      "kind": "spell",
+      "id": "spell:cause-fear",
+      "name": "Cause Fear",
+      "summary": "Wisdom save or the target is frightened of you; it repeats the save at the end of each of its turns. Placeholder: replace with the imported spell.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 151
+      },
+      "level": 1,
+      "school": "Necromancy",
+      "castingTime": "1 action",
+      "range": "60 feet",
+      "components": [
+        "V"
+      ],
+      "duration": "Up to 1 minute",
+      "concentration": true,
+      "ritual": false,
+      "classes": [
+        "warlock",
+        "wizard"
+      ],
+      "text": [],
+      "higherLevels": [],
+      "save": {
+        "ability": "wis",
+        "onSuccess": "none"
+      }
+    },
+    {
+      "kind": "spell",
+      "id": "spell:tashas-mind-whip",
+      "name": "Tasha's Mind Whip",
+      "summary": "Intelligence save: psychic damage and the target's next turn is restricted; half and no restriction on a success. Placeholder: replace with the imported spell.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 115
+      },
+      "level": 2,
+      "school": "Enchantment",
+      "castingTime": "1 action",
+      "range": "90 feet",
+      "components": [
+        "V"
+      ],
+      "duration": "1 round",
+      "concentration": false,
+      "ritual": false,
+      "classes": [
+        "sorcerer",
+        "wizard"
+      ],
+      "text": [],
+      "higherLevels": [],
+      "save": {
+        "ability": "int",
+        "onSuccess": "half"
+      },
+      "damage": {
+        "type": "psychic",
+        "atSlot": {
+          "2": "3d6",
+          "3": "3d6",
+          "4": "3d6",
+          "5": "3d6",
+          "6": "3d6",
+          "7": "3d6",
+          "8": "3d6",
+          "9": "3d6"
+        }
+      }
+    }
+  ]
+}

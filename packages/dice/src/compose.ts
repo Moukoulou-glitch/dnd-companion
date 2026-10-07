@@ -46,10 +46,12 @@ export interface Composed {
   disadvantageFrom: string[];
 }
 
+/** Adds every term of a dice expression ("3d4+3"); dice terms get the damage type as their label. */
 function pushDice(out: Composed, dice: string, source: string, type?: string) {
-  const [t] = parseFormula(type ? `${dice}[${type}]` : dice);
-  out.terms.push(t!);
-  out.sources.push(source);
+  for (const t of parseFormula(dice)) {
+    out.terms.push(t.kind === "dice" && type ? { ...t, label: type } : t);
+    out.sources.push(source);
+  }
 }
 
 function pushFlat(out: Composed, value: number, source: string) {
@@ -97,9 +99,11 @@ export function composeDamage(
   damageType: string,
   base: ComposerBase,
   choices: ComposerChoices = noChoices,
+  /** What the main dice are called in the breakdown: "Weapon", or a spell's name. */
+  label = "Weapon",
 ): Composed {
   const out: Composed = { terms: [], sources: [], advantageFrom: [], disadvantageFrom: [] };
-  pushDice(out, weaponDice, "Weapon", damageType);
+  pushDice(out, weaponDice, label, damageType || undefined);
   for (const p of base.parts) pushFlat(out, p.value, p.label);
   for (const d of base.dice) pushDice(out, d.dice, d.label, d.damageType ?? damageType);
   for (const s of base.suggestions.filter((x) => choices.enabled.includes(x.label))) {

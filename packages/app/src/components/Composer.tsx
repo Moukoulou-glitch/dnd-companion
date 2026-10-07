@@ -19,10 +19,19 @@ interface Props {
   title: string;
   base: ComposerBase;
   /** Set for weapon and feature attacks: enables the damage step. */
-  attack?: WeaponAttack;
+  attack?: WeaponAttack & { saveNote?: string };
   physical: boolean;
   onPhysicalChange: (physical: boolean) => void;
   onRolled: (r: RollRecord) => void;
+  /** Skip the d20: save spells, Magic Missile, healing. */
+  damageOnly?: boolean;
+  /** The roll heals rather than damages: the result offers "Heal myself". */
+  healing?: boolean;
+  onHealSelf?: (amount: number) => void;
+  /** A DC the d20 roll must meet (concentration checks). */
+  dc?: number;
+  /** Called with whether the d20 roll met the DC. */
+  onCheck?: (passed: boolean) => void;
 }
 
 type Stage =
@@ -194,10 +203,10 @@ export function ResultView({ r }: { r: RollRecord }) {
   );
 }
 
-export function Composer({ title, base, attack, physical, onPhysicalChange, onRolled }: Props) {
+export function Composer({ title, base, attack, physical, onPhysicalChange, onRolled, damageOnly, healing, onHealSelf, dc, onCheck }: Props) {
   const [choices, setChoices] = useState<ComposerChoices>({ enabled: [], manual: "none", extra: 0 });
   const [damageChoices, setDamageChoices] = useState<ComposerChoices>({ enabled: [], manual: "none", extra: 0 });
-  const [stage, setStage] = useState<Stage>({ step: "setup" });
+  const [stage, setStage] = useState<Stage>(damageOnly ? { step: "damage-setup", crit: false } : { step: "setup" });
   const [entering, setEntering] = useState(false);
 
   const d20 = useMemo(() => composeD20(base, choices), [base, choices]);
@@ -205,7 +214,7 @@ export function Composer({ title, base, attack, physical, onPhysicalChange, onRo
   const damageBase = attack?.damage.bonus;
   const damage = useMemo(() => {
     if (!attack || stage.step !== "damage-setup") return undefined;
-    const c = composeDamage(attack.damage.dice, attack.damage.type, attack.damage.bonus, damageChoices);
+    const c = composeDamage(attack.damage.dice, attack.damage.type, attack.damage.bonus, damageChoices, attack.attackId.startsWith("spell:") ? attack.name : "Weapon");
     if (!stage.crit) return c;
     const extra = attack.damage.critExtraDice.reduce((n, p) => n + p.value, 0);
     const natural20 = stage.attackRecord?.natural === 20 || !stage.attackRecord;
@@ -223,15 +232,16 @@ export function Composer({ title, base, attack, physical, onPhysicalChange, onRo
   };
 
   const rollD20 = (values?: number[]) => {
-    const rec = recordOf(title, "d20", rollComposed(d20, values));
+    const rec = recordOf(dc ? `${title} (DC ${dc})` : title, "d20", rollComposed(d20, values));
     onRolled(rec);
+    if (dc !== undefined) onCheck?.(rec.total >= dc);
     setEntering(false);
     setStage({ step: "d20-result", record: rec });
   };
 
   const rollDamage = (diceTotal?: number) => {
     if (!damage || stage.step !== "damage-setup") return;
-    const label = `${attack!.name} damage${stage.crit ? " (critical)" : ""}`;
+    const label = `${attack!.name} ${healing ? "healing" : "damage"}${stage.crit ? " (critical)" : ""}`;
     const result = rollComposed(damage);
     const rec =
       diceTotal === undefined
@@ -308,6 +318,11 @@ export function Composer({ title, base, attack, physical, onPhysicalChange, onRo
     return (
       <>
         <ResultView r={r} />
+        {dc !== undefined && (
+          <p className={r.total >= dc ? "pass" : "warn"}>
+            {r.total >= dc ? `Success against DC ${dc}.` : `Failed against DC ${dc}.`}
+          </p>
+        )}
         {attack && (
           <div className="big-actions" style={{ marginTop: 12 }}>
             <button className={`big${r.crit ? "" : " primary"}`} onClick={() => startDamage(false, r)}>
@@ -318,9 +333,11 @@ export function Composer({ title, base, attack, physical, onPhysicalChange, onRo
             </button>
           </div>
         )}
-        <button className="link" onClick={() => setStage({ step: "setup" })}>
-          Roll again
-        </button>
+        {dc === undefined && (
+          <button className="link" onClick={() => setStage({ step: "setup" })}>
+            Roll again
+          </button>
+        )}
       </>
     );
   }
@@ -330,6 +347,7 @@ export function Composer({ title, base, attack, physical, onPhysicalChange, onRo
       <>
         {diceSwitch}
         {stage.crit && <p className="note">Critical hit: every damage die is rolled twice.</p>}
+        {dc === undefined && attack?.saveNote && <p className="note">{attack.saveNote}</p>}
         <FormulaLines c={damage} />
         <Options base={damageBase} choices={damageChoices} setChoices={setDamageChoices} withManual={false} />
         <p className="formula">{formatFormula(damage.terms).replace(/\[[^\]]*\]/g, "")}</p>
@@ -343,7 +361,7 @@ export function Composer({ title, base, attack, physical, onPhysicalChange, onRo
           )
         ) : (
           <button className="big primary wide" onClick={() => rollDamage()}>
-            Roll damage
+            {healing ? "Roll healing" : "Roll damage"}
           </button>
         )}
       </>
@@ -354,8 +372,13 @@ export function Composer({ title, base, attack, physical, onPhysicalChange, onRo
     return (
       <>
         <ResultView r={stage.record} />
-        <button className="link" onClick={() => setStage({ step: "setup" })}>
-          New attack
+        {healing && onHealSelf && (
+          <button className="big heal wide" onClick={() => onHealSelf(stage.record.total)}>
+            Heal myself {stage.record.total}
+          </button>
+        )}
+        <button className="link" onClick={() => setStage(damageOnly ? { step: "damage-setup", crit: false } : { step: "setup" })}>
+          {damageOnly ? "Roll again" : "New attack"}
         </button>
       </>
     );

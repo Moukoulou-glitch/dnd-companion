@@ -1,6 +1,6 @@
 import { Operation as OperationSchema, type Character, type Operation, type OperationType } from "@dnd/schema";
 import type { ContentRegistry } from "@dnd/engine";
-import { applyOperation } from "./apply.js";
+import { applyOperation, type Prompt } from "./apply.js";
 import { HybridClock } from "./clock.js";
 
 export interface HistoryEntry {
@@ -18,6 +18,8 @@ export class CharacterLog {
   private ops: Operation[] = [];
   private redoStack: Operation[] = [];
   private cache?: { character: Character; history: HistoryEntry[] };
+  /** Follow-ups the last recorded operation asks for (a concentration check). */
+  lastPrompts: Prompt[] = [];
 
   constructor(
     private readonly snapshot: Character,
@@ -72,6 +74,7 @@ export class CharacterLog {
     this.ops.push(op);
     this.redoStack = [];
     this.invalidate();
+    this.lastPrompts = result.prompts;
     return result.notes;
   }
 

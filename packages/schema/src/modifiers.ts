@@ -163,6 +163,8 @@ export const GrantedSpell = z
     casting: z.string(),
     /** Free cast pool, e.g. once per long rest. */
     resource: z.string().optional(),
+    /** Spellcasting id it is cast with when the granting feature has none of its own (Primal Awareness: "ranger"). */
+    list: z.string().optional(),
   })
   .strict();
 export type GrantedSpell = z.infer<typeof GrantedSpell>;
@@ -240,6 +242,8 @@ export const ChoiceDef = z
     count: z.number().int().positive().default(1),
     /** Allowed values; empty means any of that kind. */
     from: z.array(z.string()).optional(),
+    /** Spell choices: the free-cast pool the chosen spells use (Magic Initiate's once per long rest). */
+    resource: z.string().optional(),
   })
   .strict();
 export type ChoiceDef = z.infer<typeof ChoiceDef>;

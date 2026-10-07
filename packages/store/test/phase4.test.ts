@@ -18,8 +18,8 @@ const bow = (log: CharacterLog) => sheetOf(log).attacks.find((a) => a.name === "
 describe("spell effects", () => {
   it("Bless adds 1d4 to attacks and saves, not to checks; a second Bless doesn't stack", () => {
     const log = logFor("beren");
-    add(log, "spell:bless", { from: "Cleric" });
-    add(log, "spell:bless");
+    add(log, "effect:bless", { from: "Cleric" });
+    add(log, "effect:bless");
     const s = sheetOf(log);
     expect(bow(log).attack.dice).toEqual([{ label: "Bless", dice: "1d4" }]);
     expect(s.saves.wis.dice).toEqual([{ label: "Bless", dice: "1d4" }]);
@@ -29,13 +29,13 @@ describe("spell effects", () => {
 
   it("Bane subtracts 1d4", () => {
     const log = logFor("beren");
-    add(log, "spell:bane");
+    add(log, "effect:bane");
     expect(formatFormula(composeD20(bow(log).attack).terms)).toBe("1d20+3+2+2-1d4");
   });
 
   it("Haste: +2 AC, advantage on Dexterity saves, speed doubled", () => {
     const log = logFor("agaklis");
-    add(log, "spell:haste");
+    add(log, "effect:haste");
     const s = sheetOf(log);
     expect(s.ac.total).toBe(17);
     expect(s.saves.dex.advantage).toEqual(["Haste"]);
@@ -45,7 +45,7 @@ describe("spell effects", () => {
 
   it("Shield adds 5 AC; removing it takes the 5 away", () => {
     const log = logFor("aristotelis");
-    add(log, "spell:shield");
+    add(log, "effect:shield");
     expect(sheetOf(log).ac.total).toBe(20);
     log.record("removeEffect", { instanceId: log.character.effects.at(-1)!.id });
     expect(sheetOf(log).ac.total).toBe(15);
@@ -59,7 +59,7 @@ describe("spell effects", () => {
 
   it("Hunter's Mark is offered on weapon damage, with its condition", () => {
     const log = logFor("beren");
-    add(log, "spell:hunters-mark");
+    add(log, "effect:hunters-mark");
     expect(bow(log).damage.bonus.suggestions).toContainEqual(
       expect.objectContaining({ label: "Hunter's Mark", effect: "+1d6", reason: "only against the marked target" }),
     );
@@ -103,7 +103,7 @@ describe("conditions (2014)", () => {
 
   it("Hold Person brings Paralyzed with it", () => {
     const log = logFor("elissaios");
-    add(log, "spell:hold-person");
+    add(log, "effect:hold-person");
     expect(sheetOf(log).saves.str.autoFail).toEqual(["Paralyzed (Hold Person)"]);
   });
 
@@ -159,17 +159,17 @@ describe("exhaustion", () => {
 describe("durations", () => {
   it("End of turn counts rounds down and ends effects at 0", () => {
     const log = logFor("beren");
-    add(log, "spell:bless");
+    add(log, "effect:bless");
     add(log, "condition:prone");
     for (let i = 0; i < 9; i++) log.record("endTurn", {});
-    expect(log.character.effects.find((e) => e.effect === "spell:bless")!.rounds).toBe(1);
+    expect(log.character.effects.find((e) => e.effect === "effect:bless")!.rounds).toBe(1);
     expect(log.record("endTurn", {})).toEqual(["Ended: Bless."]);
     expect(log.character.effects.map((e) => e.effect)).toEqual(["condition:prone"]);
   });
 
   it("a custom duration overrides the default", () => {
     const log = logFor("beren");
-    add(log, "spell:bless", { rounds: 3 });
+    add(log, "effect:bless", { rounds: 3 });
     expect(log.character.effects[0]!.rounds).toBe(3);
   });
 });

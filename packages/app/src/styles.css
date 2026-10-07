@@ -959,3 +959,81 @@ h2 {
   border-color: var(--hp);
   color: var(--hp);
 }
+
+/* ── Spells and concentration ────────────────────────────── */
+
+:root {
+  --conc: #a98bf0;
+  --conc-soft: rgba(169, 139, 240, 0.16);
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --conc: #6a45c9;
+    --conc-soft: rgba(106, 69, 201, 0.1);
+  }
+}
+
+.chip.conc {
+  border-color: var(--conc);
+  background: var(--conc-soft);
+  color: var(--conc);
+}
+
+.tag.conc {
+  border-color: var(--conc);
+  color: var(--conc);
+}
+
+.row.dim .row-title {
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.cast-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 10px 0;
+}
+
+.lines.meta li {
+  padding: 4px 0;
+  font-size: 15px;
+}
+
+.lines.meta li span:first-child {
+  color: var(--muted);
+  flex: none;
+}
+
+.lines.meta li span:last-child {
+  text-align: right;
+}
+
+.spell-text {
+  margin-top: 14px;
+  line-height: 1.45;
+}
+
+.spell-text p {
+  margin: 0 0 10px;
+  white-space: pre-wrap;
+}
+
+.pass {
+  border: 1px solid color-mix(in srgb, var(--teal) 50%, transparent);
+  background: var(--teal-soft);
+  border-radius: var(--radius-m);
+  padding: 8px 12px;
+  margin: 8px 0 10px;
+}
+
+.attribution {
+  font-size: 13px;
+}
+
+.big.primary .sub {
+  color: var(--bg);
+  opacity: 0.75;
+}

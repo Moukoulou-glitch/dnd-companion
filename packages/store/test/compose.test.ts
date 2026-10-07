@@ -91,3 +91,10 @@ describe("composing damage", () => {
     expect(physicalDamageTotal(c, 11)).toBe(15);
   });
 });
+
+describe("damage formulas with a flat part", () => {
+  it("Magic Missile at level 2 keeps its +4", () => {
+    const c = composeDamage("4d4+4", "force", { total: 0, parts: [], dice: [], advantage: [], disadvantage: [], suggestions: [] });
+    expect(formatFormula(c.terms)).toBe("4d4[force]+4");
+  });
+});

@@ -463,7 +463,7 @@
     },
     {
       "kind": "effect",
-      "id": "spell:bless",
+      "id": "effect:bless",
       "name": "Bless",
       "category": "spell",
       "summary": "+1d4 to attack rolls and saving throws.",
@@ -491,7 +491,7 @@
     },
     {
       "kind": "effect",
-      "id": "spell:bane",
+      "id": "effect:bane",
       "name": "Bane",
       "category": "spell",
       "summary": "-1d4 to attack rolls and saving throws.",
@@ -519,7 +519,7 @@
     },
     {
       "kind": "effect",
-      "id": "spell:guidance",
+      "id": "effect:guidance",
       "name": "Guidance",
       "category": "spell",
       "summary": "+1d4 to one ability check of your choice, then it ends.",
@@ -545,7 +545,7 @@
     },
     {
       "kind": "effect",
-      "id": "spell:haste",
+      "id": "effect:haste",
       "name": "Haste",
       "category": "spell",
       "summary": "+2 AC, advantage on Dexterity saves, speed doubled, one extra action each turn.",
@@ -579,7 +579,7 @@
     },
     {
       "kind": "effect",
-      "id": "spell:slow",
+      "id": "effect:slow",
       "name": "Slow",
       "category": "spell",
       "summary": "-2 AC and Dexterity saves, half speed, no reactions.",
@@ -614,7 +614,7 @@
     },
     {
       "kind": "effect",
-      "id": "spell:shield",
+      "id": "effect:shield",
       "name": "Shield",
       "category": "spell",
       "summary": "+5 AC, no damage from Magic Missile.",
@@ -636,7 +636,7 @@
     },
     {
       "kind": "effect",
-      "id": "spell:shield-of-faith",
+      "id": "effect:shield-of-faith",
       "name": "Shield of Faith",
       "category": "spell",
       "summary": "+2 AC.",
@@ -657,7 +657,7 @@
     },
     {
       "kind": "effect",
-      "id": "spell:mage-armor",
+      "id": "effect:mage-armor",
       "name": "Mage Armor",
       "category": "spell",
       "summary": "AC 13 + Dexterity while not wearing armor. 8 hours.",
@@ -683,7 +683,7 @@
     },
     {
       "kind": "effect",
-      "id": "spell:hunters-mark",
+      "id": "effect:hunters-mark",
       "name": "Hunter's Mark",
       "category": "spell",
       "summary": "+1d6 weapon damage against the marked target.",
@@ -711,7 +711,7 @@
     },
     {
       "kind": "effect",
-      "id": "spell:hex",
+      "id": "effect:hex",
       "name": "Hex",
       "category": "spell",
       "summary": "+1d6 necrotic damage against the cursed target.",
@@ -739,7 +739,7 @@
     },
     {
       "kind": "effect",
-      "id": "spell:heroism",
+      "id": "effect:heroism",
       "name": "Heroism",
       "category": "spell",
       "summary": "Immune to frightened; temp HP each turn.",
@@ -757,7 +757,7 @@
     },
     {
       "kind": "effect",
-      "id": "spell:aid",
+      "id": "effect:aid",
       "name": "Aid",
       "category": "spell",
       "summary": "+5 HP maximum (more if upcast) for 8 hours.",
@@ -779,7 +779,7 @@
     },
     {
       "kind": "effect",
-      "id": "spell:blur",
+      "id": "effect:blur",
       "name": "Blur",
       "category": "spell",
       "summary": "Attackers that rely on sight have disadvantage.",
@@ -794,7 +794,7 @@
     },
     {
       "kind": "effect",
-      "id": "spell:faerie-fire",
+      "id": "effect:faerie-fire",
       "name": "Faerie Fire",
       "category": "spell",
       "summary": "You glow: attacks against you have advantage.",
@@ -813,7 +813,7 @@
     },
     {
       "kind": "effect",
-      "id": "spell:hold-person",
+      "id": "effect:hold-person",
       "name": "Hold Person",
       "category": "spell",
       "summary": "Paralyzed by magic.",

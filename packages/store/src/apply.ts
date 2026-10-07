@@ -1,10 +1,22 @@
 import { Character, type Operation } from "@dnd/schema";
 import { derive, type ContentRegistry } from "@dnd/engine";
 
+/** Something the player should do next, e.g. roll a concentration check. */
+export type Prompt = { kind: "concentration"; dc: number; spell: string };
+
 /** What changed, in words the UI can show as a toast or reminder. */
 export interface ApplyResult {
   character: Character;
   notes: string[];
+  prompts: Prompt[];
+}
+
+/** Ends concentration and every effect that depended on it. */
+function endConcentration(c: Character, notes: string[], why: string) {
+  if (!c.concentration) return;
+  notes.push(`${why} Concentration on ${c.concentration.name} ended.`);
+  delete c.concentration;
+  c.effects = c.effects.filter((e) => !e.concentration);
 }
 
 const clone = <T>(v: T): T => structuredClone(v);
@@ -18,6 +30,7 @@ const clone = <T>(v: T): T => structuredClone(v);
 export function applyOperation(input: Character, op: Operation, reg: ContentRegistry): ApplyResult {
   const c = clone(input);
   const notes: string[] = [];
+  const prompts: Prompt[] = [];
   const sheet = derive(c, reg);
   const maxHp = sheet.hpMax.total;
 
@@ -43,6 +56,7 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
       if (dmg === 0) break;
 
       const wasAtZero = c.hp.current === 0;
+      const concentrating = c.concentration;
       const absorbed = Math.min(c.hp.temp, dmg);
       c.hp.temp -= absorbed;
       const rest = dmg - absorbed;
@@ -61,6 +75,11 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
 
       const before = c.hp.current;
       c.hp.current = Math.max(0, before - rest);
+      if (concentrating) {
+        if (c.hp.current === 0) endConcentration(c, notes, "Dropped to 0 HP.");
+        // 2014: DC 10 or half the damage taken, whichever is higher. Temp HP still count as damage taken.
+        else prompts.push({ kind: "concentration", dc: Math.max(10, Math.floor(dmg / 2)), spell: concentrating.name });
+      }
       if (c.hp.current === 0 && before > 0) {
         const overflow = rest - before;
         if (overflow >= maxHp) {
@@ -266,10 +285,76 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
       break;
     }
 
+    case "castSpell": {
+      const { spell, list, level, using, selfEffect } = op.payload;
+      const sp = sheet.spells.find((x) => x.id === spell && x.list.id === list);
+      if (!sp) {
+        notes.push("That spell isn't on this character's lists.");
+        break;
+      }
+      if (using === "slot") {
+        const total = sheet.spellSlots.find((x) => x.level === level)?.total ?? 0;
+        const used = c.slotsUsed[String(level)] ?? 0;
+        if (used >= total) notes.push(`No level ${level} slots left. Cast anyway.`);
+        else c.slotsUsed[String(level)] = used + 1;
+      } else if (using === "pact") {
+        if (!sp.cast.pact || sp.cast.pact.remaining <= 0) notes.push("No Pact Magic slots left. Cast anyway.");
+        else c.pactSlotsUsed += 1;
+      } else if (using === "free") {
+        const f = sp.cast.free;
+        if (!f) notes.push(`${sp.name} has no free use here. Cast anyway.`);
+        else {
+          const max = sheet.resources.find((r) => r.id === f.resource)?.max ?? 0;
+          if (f.remaining <= 0) notes.push(`${f.name}: none left. Cast anyway.`);
+          c.resourcesUsed[f.resource] = Math.min(max, (c.resourcesUsed[f.resource] ?? 0) + 1);
+        }
+      } else if (using === "ritual" && !sp.ritual) {
+        notes.push(`${sp.name} isn't a ritual.`);
+      }
+      if (sp.ready === "not prepared") notes.push(`${sp.name} isn't prepared today.`);
+      if (sp.concentration) {
+        if (c.concentration && c.concentration.spell !== sp.id) endConcentration(c, notes, `Casting ${sp.name}.`);
+        else if (c.concentration) c.effects = c.effects.filter((e) => !e.concentration);
+        c.concentration = { spell: sp.id, name: sp.name };
+      }
+      const effectId = sp.id.replace(/^spell:/, "effect:");
+      const selfDef = reg.find(effectId, "effect");
+      if (selfEffect && selfDef) {
+        const def = selfDef;
+        const entry: Character["effects"][number] = { id: `${op.id}-effect`, effect: effectId, from: "Your own spell" };
+        if (def.rounds) entry.rounds = def.rounds;
+        if (sp.concentration) entry.concentration = true;
+        c.effects.push(entry);
+      }
+      break;
+    }
+
+    case "endConcentration": {
+      endConcentration(c, notes, "");
+      if (notes.length) notes[notes.length - 1] = notes[notes.length - 1]!.trim();
+      break;
+    }
+
+    case "setPrepared": {
+      const { spell, list, prepared } = op.payload;
+      const inst = c.spells.find((x) => x.spell === spell && x.list === list);
+      if (!inst) {
+        notes.push("That spell isn't on this character's lists.");
+        break;
+      }
+      inst.prepared = prepared;
+      const sc = sheet.spellcasting.find((x) => x.id === list);
+      if (prepared && sc?.prepared && sc.prepared.count + 1 > sc.prepared.max) {
+        notes.push(`${sc.prepared.count + 1} spells prepared; ${sc.label} can prepare ${sc.prepared.max}.`);
+      }
+      break;
+    }
+
     case "addEffect": {
-      const { instanceId, effect, custom, rounds, level, from } = op.payload;
+      const { instanceId, custom, rounds, level, from } = op.payload;
+      const effect = op.payload.effect === "custom" ? "custom" : reg.effectId(op.payload.effect);
       if (c.effects.some((e) => e.id === instanceId)) break;
-      const def = effect !== "custom" && reg.has(effect) ? reg.get(effect, "effect") : undefined;
+      const def = effect !== "custom" ? reg.find(effect, "effect") : undefined;
       const existing = def ? c.effects.find((e) => e.effect === effect) : undefined;
       if (def && existing && def.levels) {
         // Exhaustion stacks as levels rather than copies.
@@ -289,6 +374,9 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
       if (def?.levels) entry.level = Math.min(def.levels.length, level ?? 1);
       if (from) entry.from = from;
       c.effects.push(entry);
+      // Incapacitating conditions break concentration.
+      const incapacitates = def && (def.id === "condition:incapacitated" || def.includes.includes("condition:incapacitated"));
+      if (incapacitates) endConcentration(c, notes, `${def!.name}.`);
       break;
     }
 
@@ -313,7 +401,7 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
         if (e.rounds === undefined) return true;
         e.rounds -= 1;
         if (e.rounds > 0) return true;
-        ended.push(e.custom?.name ?? (reg.has(e.effect) ? reg.get(e.effect, "effect").name : e.effect));
+        ended.push(e.custom?.name ?? reg.find(reg.effectId(e.effect), "effect")?.name ?? e.effect);
         return false;
       });
       if (ended.length) notes.push(`Ended: ${ended.join(", ")}.`);
@@ -362,7 +450,7 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
       }
       target[path.at(-1)!] = value;
       // Edits must still produce a valid character.
-      return { character: Character.parse(c), notes };
+      return { character: Character.parse(c), notes, prompts };
     }
   }
 
@@ -375,5 +463,5 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
     }
   }
 
-  return { character: c, notes };
+  return { character: c, notes, prompts };
 }

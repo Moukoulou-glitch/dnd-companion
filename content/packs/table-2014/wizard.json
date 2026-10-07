@@ -61,7 +61,8 @@
           "level": 3,
           "feature": "feature:cantrip-formulas"
         }
-      ]
+      ],
+      "spellPreparation": "prepared"
     },
     {
       "kind": "feature",

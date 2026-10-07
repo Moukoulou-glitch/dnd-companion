@@ -67,6 +67,44 @@ export interface SpellcastingResult {
   ability: Ability;
   saveDc: Breakdown;
   attack: Breakdown;
+  /** Prepared casters: how many spells are prepared and the most allowed. */
+  prepared?: { count: number; max: number };
+}
+
+/** A spell this character can cast, with every number already worked out. */
+export interface SpellResult {
+  id: string;
+  name: string;
+  level: number;
+  school: string;
+  castingTime: string;
+  range: string;
+  components: string[];
+  material?: string;
+  duration: string;
+  concentration: boolean;
+  ritual: boolean;
+  text: string[];
+  higherLevels: string[];
+  summary?: string;
+  /** The pack has only its numbers, not its text yet. */
+  placeholder: boolean;
+  source: string;
+  list: { id: string; label: string };
+  /** "always": cantrips, known casters and granted spells; otherwise whether it is prepared today. */
+  ready: "always" | "prepared" | "not prepared";
+  attack?: RollBreakdown;
+  save?: { ability: Ability; dc: number; onSuccess: "half" | "none" | "other" };
+  /** Damage or healing dice by the slot level it's cast at (cantrips: key 0). */
+  damage?: { type?: string; byLevel: Record<number, string> };
+  heal?: { byLevel: Record<number, string> };
+  damageBonus?: RollBreakdown;
+  /** How it can be cast right now. */
+  cast: {
+    slotLevels: number[];
+    pact?: { level: number; remaining: number };
+    free?: { resource: string; name: string; remaining: number };
+  };
 }
 
 /** A rolled amount resolved for this character: dice plus a flat number, e.g. 1d10 + 1. */
@@ -129,10 +167,14 @@ export interface DerivedSheet {
   attacks: WeaponAttack[];
   /** Features the character can use (Rage, Form of Dread, Fey Step...). */
   actions: ActionResult[];
+  /** Spells the character can cast, sorted by level then name. */
+  spells: SpellResult[];
+  /** The spell being concentrated on, if any. */
+  concentration?: { spell: string; name: string };
   /** Conditions and effects on the character, in the order they were added. */
   effects: EffectResult[];
   spellcasting: SpellcastingResult[];
-  spellSlots: { level: number; total: number }[];
+  spellSlots: { level: number; total: number; used: number }[];
   pactSlots?: { count: number; level: number };
   resources: ResourceResult[];
   proficiencies: { armor: string[]; weapons: string[]; tools: string[]; languages: string[] };
@@ -629,6 +671,112 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
     }
   }
 
+  // Spells: class lists from the character, plus spells features grant or let the player pick.
+  const spellDefs = new Map<string, { def: ReturnType<typeof reg.get<"spell">> | undefined; list: string; prepared: boolean; granted?: GrantedSpellRef }>();
+  type GrantedSpellRef = { resource?: string };
+  for (const inst of c.spells) {
+    spellDefs.set(`${inst.list}|${inst.spell}`, { def: reg.has(inst.spell) ? reg.get(inst.spell, "spell") : undefined, list: inst.list, prepared: inst.prepared });
+    if (!reg.has(inst.spell)) warnings.push(`Spell "${inst.spell}" isn't in any content pack.`);
+  }
+  for (const s of sources) {
+    const ownList = s.grant.spellcasting?.id;
+    for (const g of s.grant.spells ?? []) {
+      const list = g.list ?? ownList ?? casters[0]?.id ?? "innate";
+      const granted: GrantedSpellRef = {};
+      if (g.resource) granted.resource = g.resource;
+      spellDefs.set(`${list}|${g.spell}`, { def: reg.has(g.spell) ? reg.get(g.spell, "spell") : undefined, list, prepared: true, granted });
+    }
+    // Spells picked through a feature's spell choices (Magic Initiate, Fey Touched).
+    if (ownList && reg.has(s.id)) {
+      const d = reg.get(s.id, s.id.startsWith("feat:") ? "feat" : "feature") as { choices?: { id: string; kind: string; resource?: string }[] };
+      for (const ch of d.choices ?? []) {
+        if (ch.kind !== "spell") continue;
+        for (const id of s.choices[ch.id] ?? []) {
+          const def = reg.has(id) ? reg.get(id, "spell") : undefined;
+          const granted: GrantedSpellRef = {};
+          if (def && def.level > 0 && ch.resource) granted.resource = ch.resource;
+          spellDefs.set(`${ownList}|${id}`, { def, list: ownList, prepared: true, granted });
+        }
+      }
+    }
+  }
+  const preparedLists = new Set(
+    c.classes.map((cl) => reg.get(cl.class, "class")).filter((d) => d.spellPreparation === "prepared" && d.spellcasting).map((d) => d.spellcasting!.id),
+  );
+  const pactList = c.classes.map((cl) => reg.get(cl.class, "class")).find((d) => d.spellcasting?.progression === "pact")?.spellcasting?.id;
+  const slotsTotal = slots.slots;
+  const modFor = (list: string) => {
+    const sc = spellcasting.find((x) => x.id === list);
+    return sc ? mods[sc.ability] : 0;
+  };
+  const pickByLevel = (table: Record<string, string>, level: number) => {
+    const keys = Object.keys(table).map(Number).filter((k) => k <= level).sort((a, b) => a - b);
+    const k = keys.at(-1) ?? Math.min(...Object.keys(table).map(Number));
+    return table[String(k)]!;
+  };
+  const spells: SpellResult[] = [];
+  for (const { def, list, prepared, granted } of spellDefs.values()) {
+    if (!def) continue;
+    const sc = spellcasting.find((x) => x.id === list);
+    const listLabel = sc?.label ?? list;
+    const mod = modFor(list);
+    const withMod = (dice: string) => dice.replace(/\bMOD\b/g, String(mod)).replace(/\+\s*-/g, "- ").replace(/\s+/g, "");
+    const castLevels = def.level === 0 ? [0] : slotsTotal.map((n, i) => (n > 0 ? i + 1 : 0)).filter((l) => l >= def.level);
+    const r: SpellResult = {
+      id: def.id,
+      name: def.name,
+      level: def.level,
+      school: def.school,
+      castingTime: def.castingTime,
+      range: def.range,
+      components: def.components,
+      duration: def.duration,
+      concentration: def.concentration,
+      ritual: def.ritual,
+      text: def.text,
+      higherLevels: def.higherLevels,
+      placeholder: def.text.length === 0,
+      source: def.source.book ?? def.source.pack,
+      list: { id: list, label: listLabel },
+      ready: def.level === 0 || granted || !preparedLists.has(list) ? "always" : prepared ? "prepared" : "not prepared",
+      cast: { slotLevels: list === pactList ? [] : castLevels.filter((l) => l > 0) },
+    };
+    if (def.material) r.material = def.material;
+    if (def.summary) r.summary = def.summary;
+    if (sc && def.attack) {
+      r.attack = roll([`roll.attack.spell.${def.attack}`], [pbPart(), abilityPart(sc.ability), ...statAdds("stat.spell.attack")]);
+    }
+    if (sc && def.save) r.save = { ability: def.save.ability, dc: sc.saveDc.total, onSuccess: def.save.onSuccess };
+    const levelsFor = (table?: Record<string, string>, byCharacter = false) => {
+      if (!table) return undefined;
+      const out: Record<number, string> = {};
+      if (byCharacter || def.level === 0) out[0] = withMod(pickByLevel(table, level));
+      else for (let l = def.level; l <= 9; l++) out[l] = withMod(pickByLevel(table, l));
+      return out;
+    };
+    if (def.damage) {
+      const byLevel = levelsFor(def.damage.atSlot ?? def.damage.atCharacterLevel, !def.damage.atSlot);
+      if (byLevel) r.damage = def.damage.type ? { type: def.damage.type, byLevel } : { byLevel };
+      r.damageBonus = roll(["roll.damage.spell"], []);
+    }
+    if (def.heal) r.heal = { byLevel: levelsFor(def.heal.atSlot)! };
+    if (list === pactList && slots.pact && def.level > 0 && def.level <= slots.pact.level) {
+      r.cast.pact = { level: slots.pact.level, remaining: Math.max(0, slots.pact.count - c.pactSlotsUsed) };
+    }
+    if (granted?.resource) {
+      const res = resources.find((x) => x.id === granted.resource);
+      if (res) r.cast.free = { resource: res.id, name: res.name, remaining: res.remaining };
+    }
+    spells.push(r);
+  }
+  spells.sort((a, b) => a.level - b.level || a.name.localeCompare(b.name));
+  for (const sc of spellcasting) {
+    if (!preparedLists.has(sc.id)) continue;
+    const cl = c.classes.find((x) => reg.get(x.class, "class").spellcasting?.id === sc.id)!;
+    const count = spells.filter((x) => x.list.id === sc.id && x.ready === "prepared").length;
+    sc.prepared = { count, max: Math.max(1, mods[sc.ability] + cl.level) };
+  }
+
   // Usable features, with their cost resolved against the resources above.
   const amountOf = (expr: ValueExpr, src: Source): Amount => {
     const terms = evalExpr(expr, ctxFor(src));
@@ -669,11 +817,11 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
   const effects: EffectResult[] = c.effects.map((e) => {
     const base = { instanceId: e.id, reminders: [] as string[], concentration: false };
     let r: EffectResult;
-    if (e.effect === "custom" || !reg.has(e.effect)) {
+    const def = e.effect === "custom" ? undefined : reg.find(reg.effectId(e.effect), "effect");
+    if (!def) {
       r = { ...base, id: e.effect, name: e.custom?.name ?? e.effect, category: "other" };
-      if (!e.custom && !reg.has(e.effect)) warnings.push(`Effect "${e.effect}" isn't in the content pack.`);
+      if (!e.custom) warnings.push(`Effect "${e.effect}" isn't in the content pack.`);
     } else {
-      const def = reg.get(e.effect, "effect");
       const reminders = [...def.reminders];
       for (const inc of def.includes) reminders.push(...reg.get(inc, "effect").reminders);
       r = { ...base, id: def.id, name: def.name, category: def.category, concentration: def.concentration, reminders };
@@ -709,9 +857,10 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
     hitDice,
     attacks,
     actions,
+    spells,
     effects,
     spellcasting,
-    spellSlots: slots.slots.map((total, i) => ({ level: i + 1, total })),
+    spellSlots: slots.slots.map((total, i) => ({ level: i + 1, total, used: Math.min(total, c.slotsUsed[String(i + 1)] ?? 0) })),
     resources,
     proficiencies: {
       armor: [...profs.armor],
@@ -724,5 +873,6 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
     warnings,
   };
   if (slots.pact) sheet.pactSlots = slots.pact;
+  if (c.concentration) sheet.concentration = c.concentration;
   return sheet;
 }

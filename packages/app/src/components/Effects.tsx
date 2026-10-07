@@ -12,9 +12,26 @@ export function effectChipLabel(e: EffectResult): string {
 }
 
 /** Active effects in the status strip; tap one for details, or + to add. */
-export function EffectChips({ effects, onOpen, onAdd }: { effects: EffectResult[]; onOpen: (e: EffectResult) => void; onAdd: () => void }) {
+export function EffectChips({
+  effects,
+  onOpen,
+  onAdd,
+  concentration,
+  onConcentration,
+}: {
+  effects: EffectResult[];
+  onOpen: (e: EffectResult) => void;
+  onAdd: () => void;
+  concentration?: { name: string } | undefined;
+  onConcentration: () => void;
+}) {
   return (
     <div className="switches effects" role="group" aria-label="Conditions and effects">
+      {concentration && (
+        <button className="chip conc" onClick={onConcentration} aria-label={`Concentrating on ${concentration.name}. Details`}>
+          ◎ {concentration.name}
+        </button>
+      )}
       <button className="chip add" onClick={onAdd} aria-label="Add a condition or effect">
         + Effect
       </button>

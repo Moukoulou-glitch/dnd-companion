@@ -33,6 +33,22 @@ export class ContentRegistry {
     return { ...header, definitions };
   }
 
+  /** The definition if it exists and is of this kind; never throws. */
+  find<K extends Definition["kind"]>(id: string, kind: K): ByKind<K> | undefined {
+    const d = this.defs.get(id);
+    return d && d.kind === kind ? (d as ByKind<K>) : undefined;
+  }
+
+  /**
+   * Effect ids saved by older versions used "spell:bless"; spells now own
+   * those ids and their effects are "effect:bless". This maps old to new.
+   */
+  effectId(id: string): string {
+    if (this.find(id, "effect")) return id;
+    const moved = id.replace(/^spell:/, "effect:");
+    return this.find(moved, "effect") ? moved : id;
+  }
+
   has(id: string): boolean {
     return this.defs.has(id);
   }

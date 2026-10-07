@@ -77,6 +77,22 @@ export const OPERATION_PAYLOADS = {
     .strict(),
   /** End of the character's turn: timed effects lose a round; those reaching 0 end. */
   endTurn: z.object({}).strict(),
+  /**
+   * Cast a spell: spends a slot of `level` (or a Pact slot, or a free use),
+   * starts concentration if the spell needs it, and can put the spell's
+   * effect on the caster (Shield, Mage Armor, Haste on yourself).
+   */
+  castSpell: z
+    .object({
+      spell: z.string(),
+      list: z.string(),
+      level: z.number().int().min(0).max(9),
+      using: z.enum(["slot", "pact", "free", "ritual", "none"]),
+      selfEffect: z.boolean().default(false),
+    })
+    .strict(),
+  endConcentration: z.object({}).strict(),
+  setPrepared: z.object({ spell: z.string(), list: z.string(), prepared: z.boolean() }).strict(),
   deathSave: z.object({ result: z.enum(["success", "failure", "critSuccess", "critFailure"]) }).strict(),
   toggle: z.object({ name: z.string(), on: z.boolean() }).strict(),
   /** Generic edit of a stored value, e.g. path ["abilities","str"]. Validated after applying. */
@@ -105,6 +121,9 @@ export const Operation = z.discriminatedUnion("type", [
   OperationBase.extend({ type: z.literal("removeEffect"), payload: OPERATION_PAYLOADS.removeEffect }),
   OperationBase.extend({ type: z.literal("updateEffect"), payload: OPERATION_PAYLOADS.updateEffect }),
   OperationBase.extend({ type: z.literal("endTurn"), payload: OPERATION_PAYLOADS.endTurn }),
+  OperationBase.extend({ type: z.literal("castSpell"), payload: OPERATION_PAYLOADS.castSpell }),
+  OperationBase.extend({ type: z.literal("endConcentration"), payload: OPERATION_PAYLOADS.endConcentration }),
+  OperationBase.extend({ type: z.literal("setPrepared"), payload: OPERATION_PAYLOADS.setPrepared }),
   OperationBase.extend({ type: z.literal("deathSave"), payload: OPERATION_PAYLOADS.deathSave }),
   OperationBase.extend({ type: z.literal("toggle"), payload: OPERATION_PAYLOADS.toggle }),
   OperationBase.extend({ type: z.literal("setField"), payload: OPERATION_PAYLOADS.setField }),

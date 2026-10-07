@@ -4,18 +4,62 @@
   "ruleset": "5e-2014",
   "name": "Μπέρεν",
   "alignment": "N",
-  "abilities": { "str": 10, "dex": 14, "con": 14, "int": 10, "wis": 16, "cha": 7 },
+  "abilities": {
+    "str": 10,
+    "dex": 14,
+    "con": 14,
+    "int": 10,
+    "wis": 16,
+    "cha": 7
+  },
   "race": "race:eladrin",
-  "classes": [{ "class": "class:ranger", "subclass": "subclass:beast-master", "level": 4 }],
-  "feats": [{ "feat": "feat:magic-initiate", "from": "Level 4 Ability Score Improvement" }],
+  "classes": [
+    {
+      "class": "class:ranger",
+      "subclass": "subclass:beast-master",
+      "level": 4
+    }
+  ],
+  "feats": [
+    {
+      "feat": "feat:magic-initiate",
+      "from": "Level 4 Ability Score Improvement"
+    }
+  ],
   "choices": {
-    "class:ranger": { "skills": ["insight", "survival"] },
-    "feature:deft-explorer": { "canny-skill": ["perception"], "canny-languages": ["Ignan", "Sylvan"] },
-    "feature:fighting-style-ranger": { "style": ["feature:style-archery"] },
-    "feat:magic-initiate": { "class": ["feature:magic-initiate-cleric"] },
+    "class:ranger": {
+      "skills": [
+        "insight",
+        "survival"
+      ]
+    },
+    "feature:deft-explorer": {
+      "canny-skill": [
+        "perception"
+      ],
+      "canny-languages": [
+        "Ignan",
+        "Sylvan"
+      ]
+    },
+    "feature:fighting-style-ranger": {
+      "style": [
+        "feature:style-archery"
+      ]
+    },
+    "feat:magic-initiate": {
+      "class": [
+        "feature:magic-initiate-cleric"
+      ]
+    },
     "feature:magic-initiate-cleric": {
-      "cantrips": ["spell:guidance", "spell:toll-the-dead"],
-      "spell": ["spell:guiding-bolt"]
+      "cantrips": [
+        "spell:guidance",
+        "spell:toll-the-dead"
+      ],
+      "spell": [
+        "spell:guiding-bolt"
+      ]
     }
   },
   "manualGrants": [
@@ -23,25 +67,101 @@
       "label": "Player's own entries",
       "grant": {
         "proficiencies": [
-          { "kind": "skill", "target": "acrobatics" },
-          { "kind": "skill", "target": "medicine" },
-          { "kind": "skill", "target": "history" },
-          { "kind": "language", "target": "Druidic" }
+          {
+            "kind": "skill",
+            "target": "acrobatics"
+          },
+          {
+            "kind": "skill",
+            "target": "medicine"
+          },
+          {
+            "kind": "skill",
+            "target": "history"
+          },
+          {
+            "kind": "language",
+            "target": "Druidic"
+          }
         ]
       }
     }
   ],
   "inventory": [
-    { "id": "i1", "item": "item:leather-armor", "equipped": true },
-    { "id": "i2", "item": "item:vicious-longbow", "equipped": true },
-    { "id": "i3", "item": "item:shortsword", "quantity": 2 },
-    { "id": "i4", "item": "item:arrows", "quantity": 63 },
-    { "id": "i5", "item": "item:silvered-arrows", "quantity": 7 },
-    { "id": "i6", "item": "item:natures-mantle", "equipped": true, "attuned": true },
-    { "id": "i7", "item": "item:chime-of-opening" },
-    { "id": "i8", "item": "item:druidic-focus", "name": "Garnet Dahlia" },
-    { "id": "i9", "item": "item:explorers-gear" }
+    {
+      "id": "i1",
+      "item": "item:leather-armor",
+      "equipped": true
+    },
+    {
+      "id": "i2",
+      "item": "item:vicious-longbow",
+      "equipped": true
+    },
+    {
+      "id": "i3",
+      "item": "item:shortsword",
+      "quantity": 2
+    },
+    {
+      "id": "i4",
+      "item": "item:arrows",
+      "quantity": 63
+    },
+    {
+      "id": "i5",
+      "item": "item:silvered-arrows",
+      "quantity": 7
+    },
+    {
+      "id": "i6",
+      "item": "item:natures-mantle",
+      "equipped": true,
+      "attuned": true
+    },
+    {
+      "id": "i7",
+      "item": "item:chime-of-opening"
+    },
+    {
+      "id": "i8",
+      "item": "item:druidic-focus",
+      "name": "Garnet Dahlia"
+    },
+    {
+      "id": "i9",
+      "item": "item:explorers-gear"
+    }
   ],
-  "currency": { "cp": 5, "sp": 7, "gp": 9 },
-  "hp": { "current": 36, "temp": 0 }
+  "currency": {
+    "cp": 5,
+    "sp": 7,
+    "gp": 9
+  },
+  "hp": {
+    "current": 36,
+    "temp": 0
+  },
+  "spells": [
+    {
+      "spell": "spell:cure-wounds",
+      "list": "ranger"
+    },
+    {
+      "spell": "spell:ensnaring-strike",
+      "list": "ranger"
+    },
+    {
+      "spell": "spell:entangle",
+      "list": "ranger"
+    },
+    {
+      "spell": "spell:hunters-mark",
+      "list": "ranger"
+    },
+    {
+      "spell": "spell:goodberry",
+      "list": "ranger"
+    }
+  ]
 }

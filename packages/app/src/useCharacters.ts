@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { derive, type DerivedSheet } from "@dnd/engine";
 import { Character as CharacterSchema, Operation as OperationSchema, type Character, type OperationType } from "@dnd/schema";
-import { CharacterLog, HybridClock } from "@dnd/store";
+import { CharacterLog, HybridClock, type Prompt } from "@dnd/store";
 import { registry, starterCharacters } from "./content";
-import { db, deviceId, requestPersistentStorage } from "./db";
+import { db, deviceId, requestPersistentStorage, type StoredCharacter } from "./db";
 import { MAX_ROLLS, type RollRecord } from "./rolls";
 
 export interface Toast {
@@ -26,6 +26,7 @@ function readSelected(): string | null {
 export function useCharacters() {
   const logs = useRef(new Map<string, CharacterLog>());
   const rolls = useRef(new Map<string, RollRecord[]>());
+  const fixtureHashes = useRef(new Map<string, string>());
   const [ready, setReady] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(readSelected);
   const [version, setVersion] = useState(0);
@@ -37,10 +38,19 @@ export function useCharacters() {
       try {
         let stored = await db.all();
         if (stored.length === 0) {
-          stored = starterCharacters.map((c) => ({ id: c.id, snapshot: c, ops: [] }));
+          stored = starterCharacters.map((c) => ({ id: c.id, snapshot: c, ops: [], fixtureHash: hashOf(c) }));
           await Promise.all(stored.map((s) => db.put(s)));
         }
+        // Reference characters updated in a new version: take the new snapshot and replay the player's changes on it.
+        for (const rec of stored) {
+          const fresh = starterCharacters.find((c) => c.id === rec.id);
+          if (!fresh || rec.fixtureHash === hashOf(fresh)) continue;
+          rec.snapshot = fresh;
+          rec.fixtureHash = hashOf(fresh);
+          await db.put(rec);
+        }
         for (const s of stored) {
+          if (s.fixtureHash) fixtureHashes.current.set(s.id, s.fixtureHash);
           // Re-parsing upgrades characters saved by an older version (new fields get their defaults).
           const snapshot = CharacterSchema.parse(s.snapshot);
           const ops = s.ops.map((o) => OperationSchema.parse(o));
@@ -63,23 +73,29 @@ export function useCharacters() {
 
   const persist = useCallback(async (l: CharacterLog, id: string) => {
     try {
-      await db.put({ id, snapshot: l.base, ops: [...l.operations], rolls: rolls.current.get(id) ?? [] });
+      const rec: StoredCharacter = { id, snapshot: l.base, ops: [...l.operations], rolls: rolls.current.get(id) ?? [] };
+      const hash = fixtureHashes.current.get(id);
+      if (hash) rec.fixtureHash = hash;
+      await db.put(rec);
     } catch (e) {
       setError(`Couldn't save: ${(e as Error).message}`);
     }
   }, []);
 
   /** Records an operation on the selected character and shows what happened. */
+  /** Records an operation and returns any follow-up it asks for (a concentration check). */
   const act = useCallback(
-    (type: OperationType, payload: unknown, label: string) => {
-      if (!log || !selectedId) return;
+    (type: OperationType, payload: unknown, label: string): Prompt[] => {
+      if (!log || !selectedId) return [];
       try {
         const notes = log.record(type, payload);
         setVersion((v) => v + 1);
         setToast({ id: Date.now(), text: [label, ...notes].join(" "), canUndo: true });
         void persist(log, selectedId);
+        return log.lastPrompts;
       } catch (e) {
         setToast({ id: Date.now(), text: `Not saved: ${(e as Error).message}`, canUndo: false });
+        return [];
       }
     },
     [log, selectedId, persist],
@@ -136,4 +152,12 @@ export function useCharacters() {
 
 function summarize(c: Character): string {
   return c.classes.map((cl) => `${registry.get(cl.class, "class").name} ${cl.level}`).join(" / ");
+}
+
+/** Short fingerprint of a reference character, to notice when a new version ships. */
+function hashOf(c: Character): string {
+  const text = JSON.stringify(c);
+  let h = 2166136261;
+  for (let i = 0; i < text.length; i++) h = Math.imul(h ^ text.charCodeAt(i), 16777619);
+  return (h >>> 0).toString(36);
 }

@@ -94,7 +94,8 @@
           "level": 3,
           "feature": "feature:primal-awareness"
         }
-      ]
+      ],
+      "spellPreparation": "known"
     },
     {
       "kind": "feature",
@@ -243,7 +244,8 @@
             "spell": "spell:speak-with-animals",
             "name": "Speak with Animals",
             "casting": "Free once per long rest, or with a ranger slot",
-            "resource": "primal-awareness-speak-with-animals"
+            "resource": "primal-awareness-speak-with-animals",
+            "list": "ranger"
           }
         ],
         "resources": [

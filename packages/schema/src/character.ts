@@ -70,9 +70,23 @@ export const EffectInstance = z
     level: z.number().int().min(1).optional(),
     /** Who or what applied it, e.g. "Cleric's Bless". */
     from: z.string().optional(),
+    /** Ends when this character's own concentration ends (a spell they cast on themselves). */
+    concentration: z.boolean().optional(),
   })
   .strict();
 export type EffectInstance = z.infer<typeof EffectInstance>;
+
+/** A spell the character knows or has in a spellbook, on one of their spell lists. */
+export const SpellInstance = z
+  .object({
+    spell: DefId,
+    /** Spellcasting id it is cast with: "wizard", "ranger", "warlock"... */
+    list: z.string(),
+    /** For prepared casters (wizard, cleric...): on today's prepared list. */
+    prepared: z.boolean().default(false),
+  })
+  .strict();
+export type SpellInstance = z.infer<typeof SpellInstance>;
 
 export const Note = z
   .object({
@@ -127,6 +141,9 @@ export const Character = z
     slotsUsed: z.record(z.string(), z.number().int().min(0)).default({}),
     /** Pact Magic slots spent. */
     pactSlotsUsed: z.number().int().min(0).default(0),
+    spells: z.array(SpellInstance).default([]),
+    /** The spell the character is concentrating on, if any. */
+    concentration: z.object({ spell: DefId, name: z.string() }).strict().optional(),
     /** Conditions and effects currently on the character. */
     effects: z.array(EffectInstance).default([]),
     /** Named on/off states the engine reads, e.g. "raging". */

@@ -52,7 +52,8 @@
         "progression": "pact"
       },
       "subclassLevel": 1,
-      "features": []
+      "features": [],
+      "spellPreparation": "known"
     },
     {
       "kind": "subclass",

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { formatBonus } from "@dnd/engine";
 import type { ComposerBase } from "@dnd/dice";
-import type { ActionResult, EffectResult, WeaponAttack } from "@dnd/engine";
+import type { ActionResult, EffectResult, SpellResult, WeaponAttack } from "@dnd/engine";
 import { ActionsTab } from "./components/ActionsTab";
 import { Composer, ResultView } from "./components/Composer";
 import { AddEffectPanel, EffectChips, EffectPanel } from "./components/Effects";
@@ -12,14 +12,16 @@ import { registry } from "./content";
 import { PlayTab } from "./components/PlayTab";
 import { BottomSheet, BreakdownLines } from "./components/Sheet";
 import { SheetTab } from "./components/SheetTab";
+import { SpellPanel, SpellsTab, spellAsAttack } from "./components/SpellsTab";
 import { useCharacters } from "./useCharacters";
 
-type Tab = "play" | "actions" | "sheet" | "inventory";
+type Tab = "play" | "actions" | "spells" | "sheet" | "inventory";
 const TABS: { id: Tab; label: string }[] = [
   { id: "play", label: "Play" },
   { id: "actions", label: "Actions" },
+  { id: "spells", label: "Spells" },
   { id: "sheet", label: "Sheet" },
-  { id: "inventory", label: "Inventory" },
+  { id: "inventory", label: "Items" },
 ];
 
 function rollDie(sides: number): number {
@@ -59,8 +61,10 @@ export function App() {
       "Hit points",
       <HpPad
         onDamage={(amount, type) => {
-          s.act("damage", { amount, damageType: type }, `Took ${amount}${type ? ` ${type}` : ""} damage.`);
-          close();
+          const prompts = s.act("damage", { amount, damageType: type }, `Took ${amount}${type ? ` ${type}` : ""} damage.`);
+          const check = prompts.find((p) => p.kind === "concentration");
+          if (check) openConcentrationCheck(check.dc);
+          else close();
         }}
         onHeal={(amount) => {
           s.act("heal", { amount }, `Healed ${amount}.`);
@@ -151,6 +155,62 @@ export function App() {
 
   const openAddEffect = () => open("Add an effect", <AddEffectPanel registry={registry} act={s.act} close={close} />);
 
+  /** Constitution save against a DC; a failure ends concentration (undo is one tap away). */
+  const openConcentrationCheck = (dc: number) => {
+    const name = live.current.character?.concentration?.name ?? "your spell";
+    open(`Concentration: ${name}`, () => (
+      <Composer
+        title={`Concentration on ${name}`}
+        base={live.current.sheet!.saves.con}
+        dc={dc}
+        physical={live.current.character?.settings.physicalDice ?? true}
+        onPhysicalChange={(p) => live.current.act("setField", { path: ["settings", "physicalDice"], value: p }, p ? "Rolling your own dice." : "The app rolls for you.")}
+        onRolled={(r) => live.current.addRoll(r)}
+        onCheck={(passed) => {
+          if (!passed) live.current.act("endConcentration", {}, "Concentration check failed.");
+        }}
+      />
+    ));
+  };
+
+  const openConcentration = () => {
+    const conc = c.concentration;
+    if (!conc) return;
+    open(`Concentrating on ${conc.name}`, () => <ConcentrationPanel onCheck={openConcentrationCheck} onEnd={() => { live.current.act("endConcentration", {}, "Concentration ended."); close(); }} />);
+  };
+
+  const openSpell = (first: SpellResult) =>
+    open(first.name, () => {
+      const sp = live.current.sheet?.spells.find((x) => x.id === first.id && x.list.id === first.list.id) ?? first;
+      const roller = (level: number, damageOnly: boolean) =>
+        open(sp.name, () => (
+          <Composer
+            title={sp.name}
+            base={sp.attack ?? live.current.sheet!.saves.con}
+            attack={spellAsAttack(sp, level)}
+            damageOnly={damageOnly}
+            healing={!!sp.heal && !sp.damage}
+            onHealSelf={(n) => { live.current.act("heal", { amount: n }, `Healed ${n}.`); close(); }}
+            physical={live.current.character?.settings.physicalDice ?? true}
+            onPhysicalChange={(p) => live.current.act("setField", { path: ["settings", "physicalDice"], value: p }, p ? "Rolling your own dice." : "The app rolls for you.")}
+            onRolled={(r) => live.current.addRoll(r)}
+          />
+        ));
+      return (
+        <SpellPanel
+          sp={sp}
+          sheet={live.current.sheet!}
+          hasSelfEffect={registry.has(sp.id.replace(/^spell:/, "effect:"))}
+          onCast={(level, using, selfEffect) =>
+            live.current.act("castSpell", { spell: sp.id, list: sp.list.id, level, using, selfEffect }, `${sp.name} cast.`)
+          }
+          onPrepare={(prepared) => live.current.act("setPrepared", { spell: sp.id, list: sp.list.id, prepared }, `${sp.name} ${prepared ? "prepared" : "unprepared"}.`)}
+          onRollAttack={(level) => roller(level, false)}
+          onRollDamage={(level) => roller(level, true)}
+        />
+      );
+    });
+
   const openRollHistory = () =>
     open("Rolls", () => (
       <>
@@ -235,7 +295,7 @@ export function App() {
           </button>
         </div>
 
-        <EffectChips effects={sheet.effects} onOpen={openEffect} onAdd={openAddEffect} />
+        <EffectChips effects={sheet.effects} onOpen={openEffect} onAdd={openAddEffect} concentration={sheet.concentration} onConcentration={openConcentration} />
 
         {sheet.toggles.length > 0 && (
           <div className="switches" role="group" aria-label="Active states">
@@ -257,6 +317,7 @@ export function App() {
         <PlayTab character={c} sheet={sheet} act={s.act} openHp={openHp} openHitDie={openHitDie} rolls={s.rolls} openRollHistory={openRollHistory} />
       )}
       {tab === "actions" && <ActionsTab sheet={sheet} open={open} openRoll={openRoll} openFeature={openFeature} />}
+      {tab === "spells" && <SpellsTab sheet={sheet} openSpell={openSpell} />}
       {tab === "sheet" && <SheetTab sheet={sheet} open={open} openRoll={openRoll} />}
       {tab === "inventory" && (
         <InventoryTab character={c} registry={registry} openItem={openItem} openAdd={openAdd} openCoin={openCoin} />
@@ -264,7 +325,7 @@ export function App() {
 
       <nav className="tabs" aria-label="Sections">
         <div className="tabs-inner">
-          {TABS.map((t) => (
+          {TABS.filter((t) => t.id !== "spells" || sheet.spells.length > 0).map((t) => (
             <button key={t.id} className="tab" aria-current={tab === t.id ? "page" : undefined} onClick={() => setTab(t.id)}>
               {t.label}
             </button>
@@ -285,5 +346,31 @@ export function App() {
         </div>
       )}
     </div>
+  );
+}
+
+/** What to do while concentrating: check after damage, or end it. */
+function ConcentrationPanel({ onCheck, onEnd }: { onCheck: (dc: number) => void; onEnd: () => void }) {
+  const [dc, setDc] = useState(10);
+  return (
+    <>
+      <p className="note">When you take damage, make a Constitution save: DC 10 or half the damage, whichever is higher. The app asks for it on its own when you enter damage.</p>
+      <div className="group">
+        <div className="row">
+          <div className="row-main row-title">DC</div>
+          <div className="stepper">
+            <button aria-label="Lower DC" onClick={() => setDc(Math.max(10, dc - 1))}>−</button>
+            <span>{dc}</span>
+            <button aria-label="Raise DC" onClick={() => setDc(dc + 1)}>+</button>
+          </div>
+        </div>
+      </div>
+      <button className="big primary wide" style={{ marginTop: 10 }} onClick={() => onCheck(dc)}>
+        Concentration check
+      </button>
+      <button className="big damage wide" style={{ marginTop: 10 }} onClick={onEnd}>
+        End concentration
+      </button>
+    </>
   );
 }

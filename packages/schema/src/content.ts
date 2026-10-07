@@ -63,6 +63,8 @@ export const ClassDef = z
     /** Proficiencies granted when multiclassing into it. */
     multiclassGrant: Grant.optional(),
     spellcasting: SpellcastingDef.optional(),
+    /** Prepared casters choose today's spells from their list; known casters always have theirs ready. */
+    spellPreparation: z.enum(["prepared", "known"]).optional(),
     /** The level at which spellcasting starts (ranger and paladin: 2). */
     spellcastingFromLevel: z.number().int().min(1).optional(),
     features: z.array(ClassFeatureRef),
@@ -202,7 +204,42 @@ export const EffectDef = z
   .strict();
 export type EffectDef = z.infer<typeof EffectDef>;
 
+/** Dice for a spell at each slot level ("1".."9") or character level ("1","5","11","17"). */
+const DiceTable = z.record(z.string(), z.string());
+
+export const SpellDef = z
+  .object({
+    ...base,
+    kind: z.literal("spell"),
+    level: z.number().int().min(0).max(9),
+    school: z.string(),
+    castingTime: z.string(),
+    range: z.string(),
+    components: z.array(z.enum(["V", "S", "M"])),
+    material: z.string().optional(),
+    duration: z.string(),
+    concentration: z.boolean(),
+    ritual: z.boolean(),
+    /** Class lists the spell is on, e.g. ["wizard", "sorcerer"]. */
+    classes: z.array(z.string()).default([]),
+    /** The spell's text, one entry per paragraph. */
+    text: z.array(z.string()).default([]),
+    higherLevels: z.array(z.string()).default([]),
+    attack: z.enum(["melee", "ranged"]).optional(),
+    save: z.object({ ability: Ability, onSuccess: z.enum(["half", "none", "other"]) }).strict().optional(),
+    /** "MOD" in dice strings means the caster's spellcasting modifier. */
+    damage: z
+      .object({ type: z.string().optional(), atSlot: DiceTable.optional(), atCharacterLevel: DiceTable.optional() })
+      .strict()
+      .optional(),
+    heal: z.object({ atSlot: DiceTable }).strict().optional(),
+    area: z.string().optional(),
+  })
+  .strict();
+export type SpellDef = z.infer<typeof SpellDef>;
+
 export const Definition = z.discriminatedUnion("kind", [
+  SpellDef,
   EffectDef,
   FeatureDef,
   ClassDef,

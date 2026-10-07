@@ -16,8 +16,9 @@ export function loadPackDir(relativeDir: string): unknown {
   return ContentRegistry.mergePack(loadJson(`${relativeDir}/pack.json`) as object, parts);
 }
 
+/** The SRD pack first, then the table's pack, which can override it. */
 export function tableRegistry(): ContentRegistry {
-  return new ContentRegistry([loadPackDir("content/packs/table-2014")]);
+  return new ContentRegistry([loadPackDir("content/packs/srd-5.1"), loadPackDir("content/packs/table-2014")]);
 }
 
 export function loadCharacter(name: string): Character {

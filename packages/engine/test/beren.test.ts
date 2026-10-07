@@ -121,7 +121,7 @@ describe("Μπέρεν (Ranger 4) matches his sheet", () => {
       ["Ranger", 13, 5],
       ["Magic Initiate (Cleric)", 13, 5],
     ]);
-    expect(sheet.spellSlots).toEqual([{ level: 1, total: 3 }]);
+    expect(sheet.spellSlots).toEqual([{ level: 1, total: 3, used: 0 }]);
   });
 
   it("resources", () => {
