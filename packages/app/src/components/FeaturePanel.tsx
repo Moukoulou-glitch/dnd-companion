@@ -28,12 +28,13 @@ export function FeaturePanel({
   text?: string[] | undefined;
   physical: boolean;
   /** The third argument: the skill to roll right after (Hide: stealth). */
-  onUse: (rolled?: number, free?: boolean, check?: string, choice?: string) => void;
+  onUse: (rolled?: number, free?: boolean, check?: string, choice?: string, spend?: { amount: number; healSelf: boolean }) => void;
   /** Skills it can roll, with their names and bonuses. */
   checks?: { skill: string; name: string; bonus: string }[];
 }) {
   const amount = a.tempHp ?? a.heal ?? a.roll;
   const [entry, setEntry] = useState("");
+  const [points, setPoints] = useState("");
   const none = a.cost && a.cost.remaining < a.cost.amount;
 
   const useNow = (free = false) => {
@@ -66,7 +67,7 @@ export function FeaturePanel({
         </details>
       )}
       {a.common && !text?.length && <p className="note">Full text: load the actions file with your book files (Characters → Book text).</p>}
-      {a.cost && (
+      {a.cost && !a.spendAmount && (
         <p className={none ? "note danger-text" : "note"}>
           Uses {a.cost.amount} {a.cost.name}: {a.cost.remaining} left.
           {none ? " None left; you can still use it if your DM allows." : ""}
@@ -86,7 +87,26 @@ export function FeaturePanel({
           )}
         </>
       )}
-      {a.infoOnly ? null : a.choose ? (
+      {a.infoOnly ? null : a.spendAmount ? (
+        <>
+          <label className="entry">
+            <span>
+              {a.spendAmount.label} ({a.cost?.remaining ?? 0} left)
+            </span>
+            <input inputMode="numeric" pattern="[0-9]*" value={points} onChange={(e) => setPoints(e.target.value.replace(/\D/g, "").slice(0, 3))} />
+          </label>
+          <div className="big-actions">
+            {a.spendAmount.heals && (
+              <button className="big primary" disabled={!Number(points)} onClick={() => onUse(undefined, false, undefined, undefined, { amount: Number(points), healSelf: true })}>
+                Heal myself
+              </button>
+            )}
+            <button className="big" disabled={!Number(points)} onClick={() => onUse(undefined, false, undefined, undefined, { amount: Number(points), healSelf: false })}>
+              {a.spendAmount.heals ? "Someone else" : `Spend ${points || ""}`}
+            </button>
+          </div>
+        </>
+      ) : a.choose ? (
         <>
           <p className="sub-head">{a.choose.label}</p>
           <div className="choice-grid">

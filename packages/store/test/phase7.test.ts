@@ -169,3 +169,74 @@ describe("Variant Human", () => {
     expect(derive(agaklis, reg).abilities.str.score.parts.map((p) => p.label)).not.toContain("Variant Human");
   });
 });
+
+describe("SRD class features that work", () => {
+  const make = (cls: string, abilities: Record<string, number>, race = "race:human") =>
+    logOf(newCharacter({ id: cls, name: cls, race, class: cls, abilities: abilities as never }, reg));
+  const up = (log: CharacterLog, cls: string, to: number) => {
+    while (log.character.classes.find((c) => c.class === cls)!.level < to) log.record("levelUp", { class: cls });
+  };
+  const action = (log: CharacterLog, id: string) => sheetOf(log).actions.find((a) => a.id === id);
+
+  it("Fighter: Second Wind heals, Action Surge gives another action, Extra Attack grows to 4", () => {
+    const log = make("class:fighter", { str: 15, dex: 13, con: 14, int: 8, wis: 12, cha: 10 });
+    log.record("setHp", { current: 3 });
+    log.record("useAction", { action: "second-wind", rolled: 7 });
+    expect(log.character.hp.current).toBe(10);
+    up(log, "class:fighter", 2);
+    log.record("startCombat", {});
+    log.record("startTurn", {});
+    log.record("useEconomy", { kind: "action" });
+    log.record("useAction", { action: "action-surge" });
+    expect(log.character.combat).toMatchObject({ action: 1, extraActions: 1 });
+    expect(sheetOf(log).resources.find((r) => r.id === "action-surge")!.remaining).toBe(0);
+    up(log, "class:fighter", 11);
+    expect(sheetOf(log).attacksPerAction).toBe(3);
+    up(log, "class:fighter", 20);
+    expect(sheetOf(log).attacksPerAction).toBe(4);
+  });
+
+  it("Monk: Martial Arts die grows, Unarmored Defense, ki and Patient Defense", () => {
+    const log = make("class:monk", { str: 10, dex: 15, con: 13, int: 8, wis: 14, cha: 12 });
+    const s1 = sheetOf(log);
+    const unarmed = s1.attacks.find((a) => a.attackId === "martial-arts")!;
+    expect(unarmed.damage.dice).toBe("1d4");
+    // Human +1 to all: Dexterity 16 (+3), Wisdom 15 (+2).
+    expect(s1.ac.total).toBe(10 + 3 + 2);
+    up(log, "class:monk", 5);
+    const s5 = sheetOf(log);
+    expect(s5.attacks.find((a) => a.attackId === "martial-arts")!.damage.dice).toBe("1d6");
+    expect(s5.resources.find((r) => r.id === "ki")!.max).toBe(5);
+    expect(s5.attacksPerAction).toBe(2);
+    log.record("useAction", { action: "patient-defense" });
+    expect(sheetOf(log).saves.dex.advantage).toContain("Dodge");
+  });
+
+  it("Paladin: Lay on Hands spends the points you choose", () => {
+    const log = make("class:paladin", { str: 15, dex: 10, con: 14, int: 8, wis: 12, cha: 14 });
+    up(log, "class:paladin", 3);
+    expect(sheetOf(log).resources.find((r) => r.id === "lay-on-hands")!.max).toBe(15);
+    log.record("setHp", { current: 5 });
+    log.record("useAction", { action: "lay-on-hands", amount: 7, healSelf: true });
+    expect(log.character.hp.current).toBe(12);
+    expect(sheetOf(log).resources.find((r) => r.id === "lay-on-hands")!.remaining).toBe(8);
+    expect(sheetOf(log).resources.find((r) => r.id === "divine-sense")!.max).toBe(3);
+  });
+
+  it("Bard: Bardic Inspiration uses Charisma (at least one) and comes back on a short rest from 5th", () => {
+    const log = make("class:bard", { str: 8, dex: 14, con: 12, int: 10, wis: 10, cha: 9 });
+    const bi = () => sheetOf(log).resources.find((r) => r.id === "bardic-inspiration")!;
+    expect(bi()).toMatchObject({ max: 1, reset: "long", die: "d6" });
+    up(log, "class:bard", 5);
+    expect(bi()).toMatchObject({ reset: "short", die: "d8" });
+  });
+
+  it("Cleric: Channel Divinity uses and Turn Undead spends one", () => {
+    const log = make("class:cleric", { str: 10, dex: 10, con: 14, int: 8, wis: 15, cha: 12 });
+    up(log, "class:cleric", 6);
+    expect(sheetOf(log).resources.find((r) => r.id === "channel-divinity")!.max).toBe(2);
+    log.record("useAction", { action: "turn-undead" });
+    expect(sheetOf(log).resources.find((r) => r.id === "channel-divinity")!.remaining).toBe(1);
+    expect(action(log, "turn-undead")!.economy).toBe("action");
+  });
+});

@@ -241,11 +241,19 @@ export function App() {
                 }),
               }
             : {})}
-          onUse={(rolled, free, check, choice) => {
+          onUse={(rolled, free, check, choice, spend) => {
             // Readying a spell: pick it, then cast it now and hold it.
             if (choice === "Cast a Spell" && current.choose) return openReadySpell();
-            const payload = { action: a.id, ...(rolled === undefined ? {} : { rolled }), ...(free ? { free: true } : {}), ...(choice ? { choice } : {}) };
-            const label = choice
+            const payload = {
+              action: a.id,
+              ...(rolled === undefined ? {} : { rolled }),
+              ...(free ? { free: true } : {}),
+              ...(choice ? { choice } : {}),
+              ...(spend ? { amount: spend.amount, healSelf: spend.healSelf } : {}),
+            };
+            const label = spend
+              ? `${a.name}: ${spend.amount} ${spend.healSelf ? "hit points to yourself" : "points spent"}.`
+              : choice
               ? `${a.name}: ${choice}. Use your reaction when the trigger happens.`
               : free ? `${a.name} switched on (nothing spent).` : current.roll && rolled !== undefined ? `${a.name}: ${rolled} ${current.roll.label}.` : `${a.name} used.`;
             if (free) {

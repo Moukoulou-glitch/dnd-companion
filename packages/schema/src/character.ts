@@ -126,6 +126,8 @@ export const CombatState = z
     reaction: z.number().int().min(0).default(0),
     /** Attacks made with the Attack action this turn (Extra Attack allows more than one). */
     attacks: z.number().int().min(0).default(0),
+    /** Extra actions this turn (Action Surge). */
+    extraActions: z.number().int().min(0).default(0),
     /** Feet moved this turn. */
     moved: z.number().int().min(0).default(0),
     /** What set your speed to 0 for the rest of this turn (Steady Aim). */

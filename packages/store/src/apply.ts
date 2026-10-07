@@ -381,11 +381,20 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
         break;
       }
       const free = op.payload.free === true;
+      // Lay on Hands: as many points as the player chose.
+      const amount = a.spendAmount && op.payload.amount ? op.payload.amount : a.cost?.amount ?? 1;
       if (a.cost && !free) {
         const used = c.resourcesUsed[a.cost.resource] ?? 0;
         const max = sheet.resources.find((r) => r.id === a.cost!.resource)?.max ?? 0;
-        if (a.cost.remaining < a.cost.amount) notes.push(`${a.cost.name}: none left. Used anyway.`);
-        c.resourcesUsed[a.cost.resource] = Math.min(max, used + a.cost.amount);
+        if (a.cost.remaining < amount) notes.push(`${a.cost.name}: ${a.cost.remaining > 0 ? `only ${a.cost.remaining} left` : "none left"}. Used anyway.`);
+        c.resourcesUsed[a.cost.resource] = Math.min(max, used + amount);
+        if (a.spendAmount) notes.push(`${a.cost.name}: ${Math.max(0, max - used - amount)} left.`);
+      }
+      if (a.spendAmount?.heals && op.payload.healSelf && op.payload.amount) {
+        const before = c.hp.current;
+        c.hp.current = Math.min(maxHp, before + op.payload.amount);
+        if (before === 0 && c.hp.current > 0) c.deathSaves = { successes: 0, failures: 0 };
+        notes.push(`Healed ${c.hp.current - before}.`);
       }
       if (a.toggles.length) c.toggles = [...new Set([...c.toggles, ...a.toggles])];
       if (a.restores) {
@@ -403,6 +412,12 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
           if (cb.attacks === 0) cb.action += 1;
           cb.attacks += 1;
           if (cb.attacks > sheet.attacksPerAction) notes.push(`That's attack ${cb.attacks} of ${sheet.attacksPerAction} for your Attack action.`);
+        }
+        if (a.extraAction) {
+          // Action Surge: one more action, with its own Attack action.
+          cb.extraActions += 1;
+          cb.attacks = 0;
+          notes.push("One more action this turn.");
         }
         if (a.dash) {
           cb.dashes += 1;

@@ -69,7 +69,10 @@
       },
       "text": [
         "Beginning at 5th level, you can attack twice, instead of once, whenever you take the Attack action on your turn."
-      ]
+      ],
+      "grant": {
+        "extraAttacks": 2
+      }
     },
     {
       "kind": "feature",
@@ -336,7 +339,57 @@
         "Level 5: You can inspire others through stirring words or music. To do so, you use a bonus action on your turn to choose one creature other than yourself within 60 feet of you who can hear you. That creature gains one Bardic Inspiration die, a d6. Once within the next 10 minutes, the creature can roll the die and add the number rolled to one ability check, attack roll, or saving throw it makes. The creature can wait until after it rolls the d20 before deciding to use the Bardic Inspiration die, but must decide before the GM says whether the roll succeeds or fails. Once the Bardic Inspiration die is rolled, it is lost. A creature can have only one Bardic Inspiration die at a time. You can use this feature a number of times equal to your Charisma modifier (a minimum of once). You regain any expended uses when you finish a long rest. Your Bardic Inspiration die changes when you reach certain levels in this class. The die becomes a d8 at 5th level, a d10 at 10th level, and a d12 at 15th level.",
         "Level 10: You can inspire others through stirring words or music. To do so, you use a bonus action on your turn to choose one creature other than yourself within 60 feet of you who can hear you. That creature gains one Bardic Inspiration die, a d6. Once within the next 10 minutes, the creature can roll the die and add the number rolled to one ability check, attack roll, or saving throw it makes. The creature can wait until after it rolls the d20 before deciding to use the Bardic Inspiration die, but must decide before the GM says whether the roll succeeds or fails. Once the Bardic Inspiration die is rolled, it is lost. A creature can have only one Bardic Inspiration die at a time. You can use this feature a number of times equal to your Charisma modifier (a minimum of once). You regain any expended uses when you finish a long rest. Your Bardic Inspiration die changes when you reach certain levels in this class. The die becomes a d8 at 5th level, a d10 at 10th level, and a d12 at 15th level.",
         "Level 15: You can inspire others through stirring words or music. To do so, you use a bonus action on your turn to choose one creature other than yourself within 60 feet of you who can hear you. That creature gains one Bardic Inspiration die, a d6. Once within the next 10 minutes, the creature can roll the die and add the number rolled to one ability check, attack roll, or saving throw it makes. The creature can wait until after it rolls the d20 before deciding to use the Bardic Inspiration die, but must decide before the GM says whether the roll succeeds or fails. Once the Bardic Inspiration die is rolled, it is lost. A creature can have only one Bardic Inspiration die at a time. You can use this feature a number of times equal to your Charisma modifier (a minimum of once). You regain any expended uses when you finish a long rest. Your Bardic Inspiration die changes when you reach certain levels in this class. The die becomes a d8 at 5th level, a d10 at 10th level, and a d12 at 15th level."
-      ]
+      ],
+      "scaling": {
+        "die": {
+          "class": "class:bard",
+          "table": [
+            [
+              1,
+              "d6"
+            ],
+            [
+              5,
+              "d8"
+            ],
+            [
+              10,
+              "d10"
+            ],
+            [
+              15,
+              "d12"
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "bardic-inspiration",
+            "name": "Bardic Inspiration",
+            "max": "mod.cha",
+            "min": 1,
+            "reset": "long",
+            "die": "scale.die",
+            "shortFrom": {
+              "class": "class:bard",
+              "level": 5
+            }
+          }
+        ],
+        "actions": [
+          {
+            "id": "bardic-inspiration",
+            "name": "Bardic Inspiration",
+            "economy": "bonus",
+            "cost": {
+              "resource": "bardic-inspiration"
+            },
+            "note": "Give a creature within 60 ft that can hear you one Bardic Inspiration die (d6; d8 at 5th, d10 at 10th, d12 at 15th) for 10 minutes. They add it to + Effect → Bardic Inspiration."
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -751,7 +804,36 @@
         "Beginning at 6th level, you can use your Channel Divinity twice between rests, and beginning at 18th level, you can use it three times between rests. When you finish a short or long rest, you regain your expended uses.",
         "Level 6: Beginning at 6th level, you can use your Channel Divinity twice between rests, and beginning at 18th level, you can use it three times between rests. When you finish a short or long rest, you regain your expended uses.",
         "Level 18: Beginning at 6th level, you can use your Channel Divinity twice between rests, and beginning at 18th level, you can use it three times between rests. When you finish a short or long rest, you regain your expended uses."
-      ]
+      ],
+      "scaling": {
+        "uses": {
+          "class": "class:cleric",
+          "table": [
+            [
+              2,
+              1
+            ],
+            [
+              6,
+              2
+            ],
+            [
+              18,
+              3
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "channel-divinity",
+            "name": "Channel Divinity",
+            "max": "scale.uses",
+            "reset": "short"
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -765,7 +847,20 @@
       "text": [
         "As an action, you present your holy symbol and speak a prayer censuring the undead. Each undead that can see or hear you within 30 feet of you must make a Wisdom saving throw. If the creature fails its saving throw, it is turned for 1 minute or until it takes any damage.",
         "A turned creature must spend its turns trying to move as far away from you as it can, and it can't willingly move to a space within 30 feet of you. It also can't take reactions. For its action, it can use only the Dash action or try to escape from an effect that prevents it from moving. If there's nowhere to move, the creature can use the Dodge action."
-      ]
+      ],
+      "grant": {
+        "actions": [
+          {
+            "id": "turn-undead",
+            "name": "Turn Undead",
+            "economy": "action",
+            "cost": {
+              "resource": "channel-divinity"
+            },
+            "note": "Undead within 30 ft that can see or hear you make a Wisdom save against your spell save DC or are turned for 1 minute (or until damaged). Destroy Undead from 5th level."
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -798,7 +893,17 @@
         "Imploring your deity's aid requires you to use your action. Describe the assistance you seek, and roll percentile dice. If you roll a number equal to or lower than your cleric level, your deity intervenes. The GM chooses the nature of the intervention; the effect of any cleric spell or cleric domain spell would be appropriate.",
         "If your deity intervenes, you can't use this feature again for 7 days. Otherwise, you can use it again after you finish a long rest.",
         "At 20th level, your call for intervention succeeds automatically, no roll required."
-      ]
+      ],
+      "grant": {
+        "actions": [
+          {
+            "id": "divine-intervention",
+            "name": "Divine Intervention",
+            "economy": "action",
+            "note": "Call on your deity: roll d100, and if it's your cleric level or lower, the DM chooses how it helps. On a success, not again for 7 days; otherwise after a long rest."
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -1003,7 +1108,28 @@
         "- You choose whether your equipment falls to the ground in your space, merges into your new form, or is worn by it. Worn equipment functions as normal, but the GM decides whether it is practical for the new form to wear a piece of equipment, based on the creature's shape and size. Your equipment doesn't change size or shape to match the new form, and any equipment that the new form can't wear must either fall to the ground or merge with it. Equipment that merges with the form has no effect until you leave the form.",
         "Level 4: Starting at 2nd level, you can use your action to magically assume the shape of a beast that you have seen before. You can use this feature twice. You regain expended uses when you finish a short or long rest. Your druid level determines the beasts you can transform into, as shown in the Beast Shapes table. At 2nd level, for example, you can transform into any beast that has a challenge rating of 1/4 or lower that doesn't have a flying or swimming speed. You can stay in a beast shape for a number of hours equal to half your druid level (rounded down). You then revert to your normal form unless you expend another use of this feature. You can revert to your normal form earlier by using a bonus action on your turn. You automatically revert if you fall unconscious, drop to 0 hit points, or die. While you are transformed, the following rules apply: - Your game statistics are replaced by the statistics of the beast, but you retain your alignment, personality, and Intelligence, Wisdom, and Charisma scores. You also retain all of your skill and saving throw proficiencies, in addition to gaining those of the creature. If the creature has the same proficiency as you and the bonus in its stat block is higher than yours, use the creature's bonus instead of yours. If the creature has any legendary or lair actions, you can't use them. - When you transform, you assume the beast's hit points and Hit Dice. When you revert to your normal form, you return to the number of hit points you had before you transformed. However, if you revert as a result of dropping to 0 hit points, any excess damage carries over to your normal form. For example, if you take 10 damage in animal form and have only 1 hit point left, you revert and take 9 damage. As long as the excess damage doesn't reduce your normal form to 0 hit points, you aren't knocked unconscious. - You can't cast spells, and your ability to speak or take any action that requires hands is limited to the capabilities of your beast form. Transforming doesn't break your concentration on a spell you've already cast, however, or prevent you from taking actions that are part of a spell, such as call lightning, that you've already cast. - You retain the benefit of any features from your class, race, or other source and can use them if the new form is physically capable of doing so. However, you can't use any of your special senses, such as darkvision, unless your new form also has that sense. - You choose whether your equipment falls to the ground in your space, merges into your new form, or is worn by it. Worn equipment functions as normal, but the GM decides whether it is practical for the new form to wear a piece of equipment, based on the creature's shape and size. Your equipment doesn't change size or shape to match the new form, and any equipment that the new form can't wear must either fall to the ground or merge with it. Equipment that merges with the form has no effect until you leave the form.",
         "Level 8: Starting at 2nd level, you can use your action to magically assume the shape of a beast that you have seen before. You can use this feature twice. You regain expended uses when you finish a short or long rest. Your druid level determines the beasts you can transform into, as shown in the Beast Shapes table. At 2nd level, for example, you can transform into any beast that has a challenge rating of 1/4 or lower that doesn't have a flying or swimming speed. You can stay in a beast shape for a number of hours equal to half your druid level (rounded down). You then revert to your normal form unless you expend another use of this feature. You can revert to your normal form earlier by using a bonus action on your turn. You automatically revert if you fall unconscious, drop to 0 hit points, or die. While you are transformed, the following rules apply: - Your game statistics are replaced by the statistics of the beast, but you retain your alignment, personality, and Intelligence, Wisdom, and Charisma scores. You also retain all of your skill and saving throw proficiencies, in addition to gaining those of the creature. If the creature has the same proficiency as you and the bonus in its stat block is higher than yours, use the creature's bonus instead of yours. If the creature has any legendary or lair actions, you can't use them. - When you transform, you assume the beast's hit points and Hit Dice. When you revert to your normal form, you return to the number of hit points you had before you transformed. However, if you revert as a result of dropping to 0 hit points, any excess damage carries over to your normal form. For example, if you take 10 damage in animal form and have only 1 hit point left, you revert and take 9 damage. As long as the excess damage doesn't reduce your normal form to 0 hit points, you aren't knocked unconscious. - You can't cast spells, and your ability to speak or take any action that requires hands is limited to the capabilities of your beast form. Transforming doesn't break your concentration on a spell you've already cast, however, or prevent you from taking actions that are part of a spell, such as call lightning, that you've already cast. - You retain the benefit of any features from your class, race, or other source and can use them if the new form is physically capable of doing so. However, you can't use any of your special senses, such as darkvision, unless your new form also has that sense. - You choose whether your equipment falls to the ground in your space, merges into your new form, or is worn by it. Worn equipment functions as normal, but the GM decides whether it is practical for the new form to wear a piece of equipment, based on the creature's shape and size. Your equipment doesn't change size or shape to match the new form, and any equipment that the new form can't wear must either fall to the ground or merge with it. Equipment that merges with the form has no effect until you leave the form."
-      ]
+      ],
+      "grant": {
+        "resources": [
+          {
+            "id": "wild-shape",
+            "name": "Wild Shape",
+            "max": 2,
+            "reset": "short"
+          }
+        ],
+        "actions": [
+          {
+            "id": "wild-shape",
+            "name": "Wild Shape",
+            "economy": "action",
+            "cost": {
+              "resource": "wild-shape"
+            },
+            "note": "Become a beast you've seen: CR 1/4 and no flying or swimming (CR 1/2, no flying at 4th; CR 1 at 8th). Lasts up to half your druid level in hours."
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -1251,10 +1377,10 @@
           "count": 1,
           "from": [
             "feature:style-archery",
-            "feature:fighter-fighting-style-defense",
-            "feature:fighter-fighting-style-dueling",
-            "feature:fighter-fighting-style-great-weapon-fighting",
-            "feature:fighter-fighting-style-protection",
+            "feature:style-defense",
+            "feature:style-dueling",
+            "feature:style-great-weapon-fighting",
+            "feature:style-protection",
             "feature:style-two-weapon-fighting"
           ]
         }
@@ -1263,7 +1389,7 @@
     {
       "kind": "feature",
       "id": "feature:style-archery",
-      "name": "Fighting Style: Archery",
+      "name": "Archery",
       "summary": "You gain a +2 bonus to attack rolls you make with ranged weapons.",
       "source": {
         "pack": "srd-5.1",
@@ -1275,8 +1401,8 @@
     },
     {
       "kind": "feature",
-      "id": "feature:fighter-fighting-style-defense",
-      "name": "Fighting Style: Defense",
+      "id": "feature:style-defense",
+      "name": "Defense",
       "summary": "While you are wearing armor, you gain a +1 bonus to AC.",
       "source": {
         "pack": "srd-5.1",
@@ -1284,12 +1410,25 @@
       },
       "text": [
         "While you are wearing armor, you gain a +1 bonus to AC."
-      ]
+      ],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.ac",
+            "op": "add",
+            "value": 1,
+            "label": "Fighting Style: Defense",
+            "when": {
+              "withArmor": true
+            }
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
-      "id": "feature:fighter-fighting-style-dueling",
-      "name": "Fighting Style: Dueling",
+      "id": "feature:style-dueling",
+      "name": "Dueling",
       "summary": "When you are wielding a melee weapon in one hand and no other weapons, you gain a +2 bonus to damage rolls with that weapon.",
       "source": {
         "pack": "srd-5.1",
@@ -1297,12 +1436,26 @@
       },
       "text": [
         "When you are wielding a melee weapon in one hand and no other weapons, you gain a +2 bonus to damage rolls with that weapon."
-      ]
+      ],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.damage.weapon.melee",
+            "op": "add",
+            "value": 2,
+            "mode": "suggested",
+            "label": "Dueling",
+            "when": {
+              "text": "one-handed melee weapon and no other weapon"
+            }
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
-      "id": "feature:fighter-fighting-style-great-weapon-fighting",
-      "name": "Fighting Style: Great Weapon Fighting",
+      "id": "feature:style-great-weapon-fighting",
+      "name": "Great Weapon Fighting",
       "summary": "When you roll a 1 or 2 on a damage die for an attack you make with a melee weapon that you are wielding with two hands, you can reroll the die and must use the new roll, even if the new roll is a 1 or a 2.",
       "source": {
         "pack": "srd-5.1",
@@ -1310,12 +1463,26 @@
       },
       "text": [
         "When you roll a 1 or 2 on a damage die for an attack you make with a melee weapon that you are wielding with two hands, you can reroll the die and must use the new roll, even if the new roll is a 1 or a 2. The weapon must have the two-handed or versatile property for you to gain this benefit."
-      ]
+      ],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.damage.weapon.melee",
+            "op": "reroll",
+            "value": 2,
+            "mode": "suggested",
+            "label": "Great Weapon Fighting",
+            "when": {
+              "text": "two-handed or versatile weapon held in two hands"
+            }
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
-      "id": "feature:fighter-fighting-style-protection",
-      "name": "Fighting Style: Protection",
+      "id": "feature:style-protection",
+      "name": "Protection",
       "summary": "When a creature you can see attacks a target other than you that is within 5 feet of you, you can use your reaction to impose disadvantage on the attack roll.",
       "source": {
         "pack": "srd-5.1",
@@ -1323,12 +1490,22 @@
       },
       "text": [
         "When a creature you can see attacks a target other than you that is within 5 feet of you, you can use your reaction to impose disadvantage on the attack roll. You must be wielding a shield."
-      ]
+      ],
+      "grant": {
+        "actions": [
+          {
+            "id": "protection",
+            "name": "Protection",
+            "economy": "reaction",
+            "note": "With a shield: a creature you see attacks someone else within 5 ft of you; it has disadvantage on that attack."
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
       "id": "feature:style-two-weapon-fighting",
-      "name": "Fighting Style: Two-Weapon Fighting",
+      "name": "Two-Weapon Fighting",
       "summary": "When you engage in two-weapon fighting, you can add your ability modifier to the damage of the second attack.",
       "source": {
         "pack": "srd-5.1",
@@ -1349,7 +1526,29 @@
       },
       "text": [
         "You have a limited well of stamina that you can draw on to protect yourself from harm. On your turn, you can use a bonus action to regain hit points equal to 1d10 + your fighter level. Once you use this feature, you must finish a short or long rest before you can use it again."
-      ]
+      ],
+      "grant": {
+        "resources": [
+          {
+            "id": "second-wind",
+            "name": "Second Wind",
+            "max": 1,
+            "reset": "short"
+          }
+        ],
+        "actions": [
+          {
+            "id": "second-wind",
+            "name": "Second Wind",
+            "economy": "bonus",
+            "cost": {
+              "resource": "second-wind"
+            },
+            "heal": "1d10 + classLevel.class:fighter",
+            "note": "Regain 1d10 + fighter level hit points."
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -1364,7 +1563,44 @@
         "Starting at 2nd level, you can push yourself beyond your normal limits for a moment. On your turn, you can take one additional action on top of your regular action and a possible bonus action.",
         "Once you use this feature, you must finish a short or long rest before you can use it again. Starting at 17th level, you can use it twice before a rest, but only once on the same turn.",
         "Level 17: Starting at 2nd level, you can push yourself beyond your normal limits for a moment. On your turn, you can take one additional action on top of your regular action and a possible bonus action. Once you use this feature, you must finish a short or long rest before you can use it again. Starting at 17th level, you can use it twice before a rest, but only once on the same turn."
-      ]
+      ],
+      "scaling": {
+        "uses": {
+          "class": "class:fighter",
+          "table": [
+            [
+              2,
+              1
+            ],
+            [
+              17,
+              2
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "action-surge",
+            "name": "Action Surge",
+            "max": "scale.uses",
+            "reset": "short"
+          }
+        ],
+        "actions": [
+          {
+            "id": "action-surge",
+            "name": "Action Surge",
+            "economy": "free",
+            "cost": {
+              "resource": "action-surge"
+            },
+            "extraAction": true,
+            "note": "One more action on this turn (once per turn)."
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -1379,7 +1615,29 @@
         "Beginning at 5th level, you can attack twice, instead of once, whenever you take the Attack action on your turn. The number of attacks increases to three when you reach 11th level in this class and to four when you reach 20th level in this class.",
         "Level 11: Beginning at 5th level, you can attack twice, instead of once, whenever you take the Attack action on your turn. The number of attacks increases to three when you reach 11th level in this class and to four when you reach 20th level in this class.",
         "Level 20: Beginning at 5th level, you can attack twice, instead of once, whenever you take the Attack action on your turn. The number of attacks increases to three when you reach 11th level in this class and to four when you reach 20th level in this class."
-      ]
+      ],
+      "scaling": {
+        "attacks": {
+          "class": "class:fighter",
+          "table": [
+            [
+              5,
+              2
+            ],
+            [
+              11,
+              3
+            ],
+            [
+              20,
+              4
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "extraAttacks": "scale.attacks"
+      }
     },
     {
       "kind": "feature",
@@ -1394,7 +1652,47 @@
         "Beginning at 9th level, you can reroll a saving throw that you fail. If you do so, you must use the new roll, and you can't use this feature again until you finish a long rest. You can use this feature twice between long rests starting at 13th level and three times between long rests starting at 17th level.",
         "Level 13: Beginning at 9th level, you can reroll a saving throw that you fail. If you do so, you must use the new roll, and you can't use this feature again until you finish a long rest. You can use this feature twice between long rests starting at 13th level and three times between long rests starting at 17th level.",
         "Level 17: Beginning at 9th level, you can reroll a saving throw that you fail. If you do so, you must use the new roll, and you can't use this feature again until you finish a long rest. You can use this feature twice between long rests starting at 13th level and three times between long rests starting at 17th level."
-      ]
+      ],
+      "scaling": {
+        "uses": {
+          "class": "class:fighter",
+          "table": [
+            [
+              9,
+              1
+            ],
+            [
+              13,
+              2
+            ],
+            [
+              17,
+              3
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "indomitable",
+            "name": "Indomitable",
+            "max": "scale.uses",
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "indomitable",
+            "name": "Indomitable",
+            "economy": "free",
+            "cost": {
+              "resource": "indomitable"
+            },
+            "note": "Reroll a saving throw you failed; you must use the new roll."
+          }
+        ]
+      }
     },
     {
       "kind": "class",
@@ -1538,7 +1836,21 @@
       },
       "text": [
         "Beginning at 1st level, while you are wearing no armor and not wielding a shield, your AC equals 10 + your Dexterity modifier + your Wisdom modifier."
-      ]
+      ],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.ac",
+            "op": "acBase",
+            "value": "10 + mod.dex + mod.wis",
+            "label": "Unarmored Defense",
+            "when": {
+              "noArmor": true,
+              "noShield": true
+            }
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -1556,7 +1868,61 @@
         "- You can roll a d4 in place of the normal damage of your unarmed strike or monk weapon. This die changes as you gain monk levels, as shown in the Martial Arts column of Table: The Monk.",
         "- When you use the Attack action with an unarmed strike or a monk weapon on your turn, you can make one unarmed strike as a bonus action. For example, if you take the Attack action and attack with a quarterstaff, you can also make an unarmed strike as a bonus action, assuming you haven't already taken a bonus action this turn.",
         "Certain monasteries use specialized forms of the monk weapons. For example, you might use a club that is two lengths of wood connected by a short chain (called a nunchaku) or a sickle with a shorter, straighter blade (called a kama). Whatever name you use for a monk weapon, you can use the game statistics provided for the weapon."
-      ]
+      ],
+      "scaling": {
+        "die": {
+          "class": "class:monk",
+          "table": [
+            [
+              1,
+              "1d4"
+            ],
+            [
+              5,
+              "1d6"
+            ],
+            [
+              11,
+              "1d8"
+            ],
+            [
+              17,
+              "1d10"
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "attacks": [
+          {
+            "id": "martial-arts",
+            "name": "Unarmed Strike",
+            "category": "simple",
+            "kind": "melee",
+            "damage": "scale.die",
+            "damageType": "bludgeoning",
+            "properties": [
+              "finesse"
+            ]
+          },
+          {
+            "id": "martial-arts-bonus",
+            "name": "Unarmed Strike (bonus action)",
+            "category": "simple",
+            "kind": "melee",
+            "damage": "scale.die",
+            "damageType": "bludgeoning",
+            "properties": [
+              "finesse"
+            ],
+            "action": "bonus",
+            "requires": {
+              "attack": "martial-arts",
+              "text": "Martial Arts: the bonus unarmed strike comes after taking the Attack action with an unarmed strike or a monk weapon."
+            }
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -1573,7 +1939,17 @@
         "When you spend a ki point, it is unavailable until you finish a short or long rest, at the end of which you draw all of your expended ki back into yourself. You must spend at least 30 minutes of the rest meditating to regain your ki points.",
         "Some of your ki features require your target to make a saving throw to resist the feature's effects. The saving throw DC is calculated as follows:",
         "Ki save DC = 8 + your proficiency bonus + your Wisdom modifier"
-      ]
+      ],
+      "grant": {
+        "resources": [
+          {
+            "id": "ki",
+            "name": "Ki points",
+            "max": "classLevel.class:monk",
+            "reset": "short"
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -1586,7 +1962,20 @@
       },
       "text": [
         "Immediately after you take the Attack action on your turn, you can spend 1 ki point to make two unarmed strikes as a bonus action."
-      ]
+      ],
+      "grant": {
+        "actions": [
+          {
+            "id": "flurry-of-blows",
+            "name": "Flurry of Blows",
+            "economy": "bonus",
+            "cost": {
+              "resource": "ki"
+            },
+            "note": "Right after taking the Attack action: two unarmed strikes as a bonus action."
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -1599,7 +1988,24 @@
       },
       "text": [
         "You can spend 1 ki point to take the Dodge action as a bonus action on your turn."
-      ]
+      ],
+      "grant": {
+        "actions": [
+          {
+            "id": "patient-defense",
+            "name": "Patient Defense",
+            "economy": "bonus",
+            "cost": {
+              "resource": "ki"
+            },
+            "untilTurnStart": true,
+            "toggles": [
+              "dodging"
+            ],
+            "note": "Take the Dodge action as a bonus action: until your next turn, attacks against you have disadvantage and you have advantage on Dexterity saves."
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -1612,7 +2018,21 @@
       },
       "text": [
         "You can spend 1 ki point to take the Disengage or Dash action as a bonus action on your turn, and your jump distance is doubled for the turn."
-      ]
+      ],
+      "grant": {
+        "actions": [
+          {
+            "id": "step-of-the-wind",
+            "name": "Step of the Wind",
+            "economy": "bonus",
+            "cost": {
+              "resource": "ki"
+            },
+            "dash": true,
+            "note": "Dash (or Disengage) as a bonus action, and your jump distance doubles this turn."
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -1627,7 +2047,48 @@
         "Starting at 2nd level, your speed increases by 10 feet while you are not wearing armor or wielding a shield. This bonus increases when you reach certain monk levels, as shown in Table: The Monk.",
         "At 9th level, you gain the ability to move along vertical surfaces and across liquids on your turn without falling during the move.",
         "Level 9: Starting at 2nd level, your speed increases by 10 feet while you are not wearing armor or wielding a shield. This bonus increases when you reach certain monk levels, as shown in Table: The Monk. At 9th level, you gain the ability to move along vertical surfaces and across liquids on your turn without falling during the move."
-      ]
+      ],
+      "scaling": {
+        "speed": {
+          "class": "class:monk",
+          "table": [
+            [
+              2,
+              10
+            ],
+            [
+              6,
+              15
+            ],
+            [
+              10,
+              20
+            ],
+            [
+              14,
+              25
+            ],
+            [
+              18,
+              30
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.speed.walk",
+            "op": "add",
+            "value": "scale.speed",
+            "label": "Unarmored Movement",
+            "when": {
+              "noArmor": true,
+              "noShield": true
+            }
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -1641,7 +2102,21 @@
       "text": [
         "Starting at 3rd level, you can use your reaction to deflect or catch the missile when you are hit by a ranged weapon attack. When you do so, the damage you take from the attack is reduced by 1d10 + your Dexterity modifier + your monk level.",
         "If you reduce the damage to 0, you can catch the missile if it is small enough for you to hold in one hand and you have at least one hand free. If you catch a missile in this way, you can spend 1 ki point to make a ranged attack with the weapon or piece of ammunition you just caught, as part of the same reaction. You make this attack with proficiency, regardless of your weapon proficiencies, and the missile counts as a monk weapon for the attack, which has a normal range of 20 feet and a long range of 60 feet."
-      ]
+      ],
+      "grant": {
+        "actions": [
+          {
+            "id": "deflect-missiles",
+            "name": "Deflect Missiles",
+            "economy": "reaction",
+            "roll": {
+              "dice": "1d10 + mod.dex + classLevel.class:monk",
+              "label": "damage reduced"
+            },
+            "note": "When a ranged weapon attack hits you. Reduced to 0: catch it, and spend 1 ki to throw it back."
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -1667,7 +2142,10 @@
       },
       "text": [
         "Beginning at 5th level, you can attack twice, instead of once, whenever you take the Attack action on your turn."
-      ]
+      ],
+      "grant": {
+        "extraAttacks": 2
+      }
     },
     {
       "kind": "feature",
@@ -1680,7 +2158,20 @@
       },
       "text": [
         "Starting at 5th level, you can interfere with the flow of ki in an opponent's body. When you hit another creature with a melee weapon attack, you can spend 1 ki point to attempt a stunning strike. The target must succeed on a Constitution saving throw or be stunned until the end of your next turn."
-      ]
+      ],
+      "grant": {
+        "actions": [
+          {
+            "id": "stunning-strike",
+            "name": "Stunning Strike",
+            "economy": "free",
+            "cost": {
+              "resource": "ki"
+            },
+            "note": "After hitting with a melee weapon attack: the target makes a Constitution save against your ki save DC (8 + proficiency + Wisdom) or is stunned until the end of your next turn."
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -2014,7 +2505,29 @@
       "text": [
         "The presence of strong evil registers on your senses like a noxious odor, and powerful good rings like heavenly music in your ears. As an action, you can open your awareness to detect such forces. Until the end of your next turn, you know the location of any celestial, fiend, or undead within 60 feet of you that is not behind total cover. You know the type (celestial, fiend, or undead) of any being whose presence you sense, but not its identity. Within the same radius, you also detect the presence of any place or object that has been consecrated or desecrated, as with the hallow spell.",
         "You can use this feature a number of times equal to 1 + your Charisma modifier. When you finish a long rest, you regain all expended uses."
-      ]
+      ],
+      "grant": {
+        "resources": [
+          {
+            "id": "divine-sense",
+            "name": "Divine Sense",
+            "max": "1 + mod.cha",
+            "min": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "divine-sense",
+            "name": "Divine Sense",
+            "economy": "action",
+            "cost": {
+              "resource": "divine-sense"
+            },
+            "note": "Until the end of your next turn, you know where celestials, fiends and undead are within 60 ft (not behind total cover), and any consecrated or desecrated place."
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -2030,7 +2543,32 @@
         "As an action, you can touch a creature and draw power from the pool to restore a number of hit points to that creature, up to the maximum amount remaining in your pool.",
         "Alternatively, you can expend 5 hit points from your pool of healing to cure the target of one disease or neutralize one poison affecting it. You can cure multiple diseases and neutralize multiple poisons with a single use of Lay on Hands, expending hit points separately for each one.",
         "This feature has no effect on undead and constructs."
-      ]
+      ],
+      "grant": {
+        "resources": [
+          {
+            "id": "lay-on-hands",
+            "name": "Lay on Hands",
+            "max": "5*classLevel.class:paladin",
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "lay-on-hands",
+            "name": "Lay on Hands",
+            "economy": "action",
+            "cost": {
+              "resource": "lay-on-hands"
+            },
+            "spendAmount": {
+              "label": "Hit points to restore",
+              "heals": true
+            },
+            "note": "Touch a creature and restore hit points from your pool; 5 points cure one disease or neutralize one poison instead. Not undead or constructs."
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -2051,64 +2589,12 @@
           "kind": "feature",
           "count": 1,
           "from": [
-            "feature:fighting-style-defense",
-            "feature:fighting-style-dueling",
-            "feature:fighting-style-great-weapon-fighting",
-            "feature:fighting-style-protection"
+            "feature:style-defense",
+            "feature:style-dueling",
+            "feature:style-great-weapon-fighting",
+            "feature:style-protection"
           ]
         }
-      ]
-    },
-    {
-      "kind": "feature",
-      "id": "feature:fighting-style-defense",
-      "name": "Fighting Style: Defense",
-      "summary": "While you are wearing armor, you gain a +1 bonus to AC.",
-      "source": {
-        "pack": "srd-5.1",
-        "book": "SRD 5.1"
-      },
-      "text": [
-        "While you are wearing armor, you gain a +1 bonus to AC."
-      ]
-    },
-    {
-      "kind": "feature",
-      "id": "feature:fighting-style-dueling",
-      "name": "Fighting Style: Dueling",
-      "summary": "When you are wielding a melee weapon in one hand and no other weapons, you gain a +2 bonus to damage rolls with that weapon.",
-      "source": {
-        "pack": "srd-5.1",
-        "book": "SRD 5.1"
-      },
-      "text": [
-        "When you are wielding a melee weapon in one hand and no other weapons, you gain a +2 bonus to damage rolls with that weapon."
-      ]
-    },
-    {
-      "kind": "feature",
-      "id": "feature:fighting-style-great-weapon-fighting",
-      "name": "Fighting Style: Great Weapon Fighting",
-      "summary": "When you roll a 1 or 2 on a damage die for an attack you make with a melee weapon that you are wielding with two hands, you can reroll the die and must use the new roll.",
-      "source": {
-        "pack": "srd-5.1",
-        "book": "SRD 5.1"
-      },
-      "text": [
-        "When you roll a 1 or 2 on a damage die for an attack you make with a melee weapon that you are wielding with two hands, you can reroll the die and must use the new roll. The weapon must have the two-handed or versatile property for you to gain this benefit."
-      ]
-    },
-    {
-      "kind": "feature",
-      "id": "feature:fighting-style-protection",
-      "name": "Fighting Style: Protection",
-      "summary": "When a creature you can see attacks a target other than you that is within 5 feet of you, you can use your reaction to impose disadvantage on the attack roll.",
-      "source": {
-        "pack": "srd-5.1",
-        "book": "SRD 5.1"
-      },
-      "text": [
-        "When a creature you can see attacks a target other than you that is within 5 feet of you, you can use your reaction to impose disadvantage on the attack roll. You must be wielding a shield."
       ]
     },
     {
@@ -2135,7 +2621,22 @@
       },
       "text": [
         "Starting at 2nd level, when you hit a creature with a melee weapon attack, you can expend one spell slot to deal radiant damage to the target, in addition to the weapon's damage. The extra damage is 2d8 for a 1st-level spell slot, plus 1d8 for each spell level higher than 1st, to a maximum of 5d8. The damage increases by 1d8 if the target is an undead or a fiend."
-      ]
+      ],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.damage.weapon.melee",
+            "op": "add",
+            "value": "2d8",
+            "damageType": "radiant",
+            "mode": "suggested",
+            "label": "Divine Smite (1st-level slot)",
+            "when": {
+              "text": "spend a spell slot on a hit: +1d8 per slot level above 1st (up to 5d8), +1d8 against undead or fiends"
+            }
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -2153,7 +2654,7 @@
     {
       "kind": "feature",
       "id": "feature:channel-divinity",
-      "name": "Channel Divinity",
+      "name": "Channel Divinity (paladin)",
       "summary": "Your oath allows you to channel divine energy to fuel magical effects.",
       "source": {
         "pack": "srd-5.1",
@@ -2163,7 +2664,17 @@
         "Your oath allows you to channel divine energy to fuel magical effects. Each Channel Divinity option provided by your oath explains how to use it.",
         "When you use your Channel Divinity, you choose which option to use. You must then finish a short or long rest to use your Channel Divinity again.",
         "Some Channel Divinity effects require saving throws. When you use such an effect from this class, the DC equals your paladin spell save DC."
-      ]
+      ],
+      "grant": {
+        "resources": [
+          {
+            "id": "channel-divinity-paladin",
+            "name": "Channel Divinity",
+            "max": 1,
+            "reset": "short"
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -2176,7 +2687,10 @@
       },
       "text": [
         "Beginning at 5th level, you can attack twice, instead of once, whenever you take the Attack action on your turn."
-      ]
+      ],
+      "grant": {
+        "extraAttacks": 2
+      }
     },
     {
       "kind": "feature",
@@ -2190,7 +2704,17 @@
       "text": [
         "Starting at 6th level, whenever you or a friendly creature within 10 feet of you must make a saving throw, the creature gains a bonus to the saving throw equal to your Charisma modifier (with a minimum bonus of +1). You must be conscious to grant this bonus.",
         "At 18th level, the range of this aura increases to 30 feet."
-      ]
+      ],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.save.*",
+            "op": "add",
+            "value": "mod.cha",
+            "label": "Aura of Protection"
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -2217,7 +2741,18 @@
       },
       "text": [
         "By 11th level, you are so suffused with righteous might that all your melee weapon strikes carry divine power with them. Whenever you hit a creature with a melee weapon, the creature takes an extra 1d8 radiant damage. If you also use your Divine Smite with an attack, you add this damage to the extra damage of your Divine Smite."
-      ]
+      ],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.damage.weapon.melee",
+            "op": "add",
+            "value": "1d8",
+            "damageType": "radiant",
+            "label": "Improved Divine Smite"
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -2494,37 +3029,11 @@
           "count": 1,
           "from": [
             "feature:style-archery",
-            "feature:ranger-fighting-style-defense",
-            "feature:ranger-fighting-style-dueling",
+            "feature:style-defense",
+            "feature:style-dueling",
             "feature:style-two-weapon-fighting"
           ]
         }
-      ]
-    },
-    {
-      "kind": "feature",
-      "id": "feature:ranger-fighting-style-defense",
-      "name": "Fighting Style: Defense",
-      "summary": "While you are wearing armor, you gain a +1 bonus to AC.",
-      "source": {
-        "pack": "srd-5.1",
-        "book": "SRD 5.1"
-      },
-      "text": [
-        "While you are wearing armor, you gain a +1 bonus to AC."
-      ]
-    },
-    {
-      "kind": "feature",
-      "id": "feature:ranger-fighting-style-dueling",
-      "name": "Fighting Style: Dueling",
-      "summary": "When you are wielding a melee weapon in one hand and no other weapons, you gain a +2 bonus to damage rolls with that weapon.",
-      "source": {
-        "pack": "srd-5.1",
-        "book": "SRD 5.1"
-      },
-      "text": [
-        "When you are wielding a melee weapon in one hand and no other weapons, you gain a +2 bonus to damage rolls with that weapon."
       ]
     },
     {
@@ -2564,7 +3073,10 @@
       },
       "text": [
         "Beginning at 5th level, you can attack twice, instead of once, whenever you take the Attack action on your turn."
-      ]
+      ],
+      "grant": {
+        "extraAttacks": 2
+      }
     },
     {
       "kind": "feature",
@@ -3155,7 +3667,20 @@
       },
       "text": [
         "By 11th level, you have refined your chosen skills until they approach perfection. Whenever you make an ability check that lets you add your proficiency bonus, you can treat a d20 roll of 9 or lower as a 10."
-      ]
+      ],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.check.skill.*",
+            "op": "minD20",
+            "value": 10,
+            "label": "Reliable Talent",
+            "when": {
+              "text": "skills you're proficient in"
+            }
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -3414,7 +3939,17 @@
         "At 2nd level, you tap into a deep wellspring of magic within yourself. This wellspring is represented by sorcery points, which allow you to create a variety of magical effects.",
         "Sorcery Points",
         "You have 2 sorcery points, and you gain more as you reach higher levels, as shown in the Sorcery Points column of the Sorcerer table. You can never have more sorcery points than shown on the table for your level. You regain all spent sorcery points when you finish a long rest."
-      ]
+      ],
+      "grant": {
+        "resources": [
+          {
+            "id": "sorcery-points",
+            "name": "Sorcery points",
+            "max": "classLevel.class:sorcerer",
+            "reset": "long"
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -4884,7 +5419,20 @@
         "Also at 3rd level, you learn how to use your wit to distract, confuse, and otherwise sap the confidence and competence of others.",
         "When a creature that you can see within 60 feet of you makes an attack roll, an ability check, or a damage roll, you can use your reaction to expend one of your uses of Bardic Inspiration, rolling a Bardic Inspiration die and subtracting the number rolled from the creature's roll.",
         "You can choose to use this feature after the creature makes its roll, but before the GM determines whether the attack roll or ability check succeeds or fails, or before the creature deals its damage. The creature is immune if it can't hear you or if it's immune to being charmed."
-      ]
+      ],
+      "grant": {
+        "actions": [
+          {
+            "id": "cutting-words",
+            "name": "Cutting Words",
+            "economy": "reaction",
+            "cost": {
+              "resource": "bardic-inspiration"
+            },
+            "note": "A creature within 60 ft makes an attack, check or damage roll: roll your Bardic Inspiration die and subtract it."
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -4983,7 +5531,20 @@
         "Starting at 2nd level, you can use your Channel Divinity to heal the badly injured.",
         "As an action, you present your holy symbol and evoke healing energy that can restore a number of hit points equal to five times your cleric level.",
         "Choose any creatures within 30 feet of you, and divide those hit points among them. This feature can restore a creature to no more than half of its hit point maximum. You can't use this feature on an undead or a construct."
-      ]
+      ],
+      "grant": {
+        "actions": [
+          {
+            "id": "preserve-life",
+            "name": "Preserve Life",
+            "economy": "action",
+            "cost": {
+              "resource": "channel-divinity"
+            },
+            "note": "Share out 5 × your cleric level in healing among creatures within 30 ft, none above half their hit point maximum. Not undead or constructs."
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -5009,7 +5570,38 @@
       },
       "text": [
         "At 8th level, you gain the ability to infuse your weapon strikes with divine energy. Once on each of your turns when you hit a creature with a weapon attack, you can cause the attack to deal an extra 1d8 radiant damage to the target. When you reach 14th level, the extra damage increases to 2d8."
-      ]
+      ],
+      "scaling": {
+        "dice": {
+          "class": "class:cleric",
+          "table": [
+            [
+              8,
+              "1d8"
+            ],
+            [
+              14,
+              "2d8"
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.damage.weapon.*",
+            "op": "add",
+            "value": "scale.dice",
+            "damageType": "radiant",
+            "mode": "suggested",
+            "oncePerTurn": true,
+            "label": "Divine Strike",
+            "when": {
+              "text": "once on each of your turns"
+            }
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -5809,34 +6401,6 @@
         },
         {
           "level": 2,
-          "feature": "feature:circle-of-the-land-arctic"
-        },
-        {
-          "level": 2,
-          "feature": "feature:circle-of-the-land-coast"
-        },
-        {
-          "level": 2,
-          "feature": "feature:circle-of-the-land-desert"
-        },
-        {
-          "level": 2,
-          "feature": "feature:circle-of-the-land-forest"
-        },
-        {
-          "level": 2,
-          "feature": "feature:circle-of-the-land-grassland"
-        },
-        {
-          "level": 2,
-          "feature": "feature:circle-of-the-land-mountain"
-        },
-        {
-          "level": 2,
-          "feature": "feature:circle-of-the-land-swamp"
-        },
-        {
-          "level": 2,
           "feature": "feature:bonus-cantrip"
         },
         {
@@ -5888,7 +6452,17 @@
       },
       "text": [
         "Beginning when you choose this archetype at 3rd level, your weapon attacks score a critical hit on a roll of 19 or 20."
-      ]
+      ],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.attack.weapon.*",
+            "op": "critRange",
+            "value": 19,
+            "label": "Improved Critical"
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -5923,10 +6497,10 @@
           "count": 1,
           "from": [
             "feature:style-archery",
-            "feature:fighter-fighting-style-defense",
-            "feature:fighter-fighting-style-dueling",
-            "feature:fighter-fighting-style-great-weapon-fighting",
-            "feature:fighter-fighting-style-protection",
+            "feature:style-defense",
+            "feature:style-dueling",
+            "feature:style-great-weapon-fighting",
+            "feature:style-protection",
             "feature:style-two-weapon-fighting"
           ]
         }
@@ -5943,7 +6517,17 @@
       },
       "text": [
         "Starting at 15th level, your weapon attacks score a critical hit on a roll of 18-20."
-      ]
+      ],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.attack.weapon.*",
+            "op": "critRange",
+            "value": 18,
+            "label": "Superior Critical"
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -6021,7 +6605,29 @@
       },
       "text": [
         "At 6th level, you gain the ability to heal yourself. As an action, you can regain hit points equal to three times your monk level. You must finish a long rest before you can use this feature again."
-      ]
+      ],
+      "grant": {
+        "resources": [
+          {
+            "id": "wholeness-of-body",
+            "name": "Wholeness of Body",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "wholeness-of-body",
+            "name": "Wholeness of Body",
+            "economy": "action",
+            "cost": {
+              "resource": "wholeness-of-body"
+            },
+            "heal": "3*classLevel.class:monk",
+            "note": "Regain three times your monk level in hit points."
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -6094,7 +6700,37 @@
       "text": [
         "As an action, you can imbue one weapon that you are holding with positive energy, using your Channel Divinity. For 1 minute, you add your Charisma modifier to attack rolls made with that weapon (with a minimum bonus of +1). The weapon also emits bright light in a 20-foot radius and dim light 20 feet beyond that. If the weapon is not already magical, it becomes magical for the duration.",
         "You can end this effect on your turn as part of any other action. If you are no longer holding or carrying this weapon, or if you fall unconscious, this effect ends."
-      ]
+      ],
+      "grant": {
+        "actions": [
+          {
+            "id": "sacred-weapon",
+            "name": "Sacred Weapon",
+            "economy": "action",
+            "cost": {
+              "resource": "channel-divinity-paladin"
+            },
+            "duration": {
+              "rounds": 10
+            },
+            "toggles": [
+              "sacred-weapon"
+            ],
+            "note": "For 1 minute your weapon is magical, sheds bright light, and you add your Charisma modifier to attacks with it."
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.attack.weapon.*",
+            "op": "add",
+            "value": "mod.cha",
+            "label": "Sacred Weapon",
+            "when": {
+              "toggle": "sacred-weapon"
+            }
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -6108,7 +6744,20 @@
       "text": [
         "As an action, you present your holy symbol and speak a prayer censuring fiends and undead, using your Channel Divinity. Each fiend or undead that can see or hear you within 30 feet of you must make a Wisdom saving throw. If the creature fails its saving throw, it is turned for 1 minute or until it takes damage.",
         "A turned creature must spend its turns trying to move as far away from you as it can, and it can't willingly move to a space within 30 feet of you. It also can't take reactions. For its action, it can use only the Dash action or try to escape from an effect that prevents it from moving. If there's nowhere to move, the creature can use the Dodge action."
-      ]
+      ],
+      "grant": {
+        "actions": [
+          {
+            "id": "turn-the-unholy",
+            "name": "Turn the Unholy",
+            "economy": "action",
+            "cost": {
+              "resource": "channel-divinity-paladin"
+            },
+            "note": "Fiends and undead within 30 ft that can hear you make a Wisdom save or are turned for 1 minute (or until damaged)."
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -6614,60 +7263,16 @@
           "feature": "feature:hunters-prey"
         },
         {
-          "level": 3,
-          "feature": "feature:hunters-prey-colossus-slayer"
-        },
-        {
-          "level": 3,
-          "feature": "feature:hunters-prey-giant-killer"
-        },
-        {
-          "level": 3,
-          "feature": "feature:hunters-prey-horde-breaker"
-        },
-        {
           "level": 7,
           "feature": "feature:defensive-tactics"
-        },
-        {
-          "level": 7,
-          "feature": "feature:defensive-tactics-escape-the-horde"
-        },
-        {
-          "level": 7,
-          "feature": "feature:defensive-tactics-multiattack-defense"
-        },
-        {
-          "level": 7,
-          "feature": "feature:defensive-tactics-steel-will"
         },
         {
           "level": 11,
           "feature": "feature:multiattack"
         },
         {
-          "level": 11,
-          "feature": "feature:multiattack-volley"
-        },
-        {
-          "level": 11,
-          "feature": "feature:multiattack-whirlwind-attack"
-        },
-        {
           "level": 15,
           "feature": "feature:superior-hunters-defense"
-        },
-        {
-          "level": 15,
-          "feature": "feature:superior-hunters-defense-evasion"
-        },
-        {
-          "level": 15,
-          "feature": "feature:superior-hunters-defense-stand-against-the-tide"
-        },
-        {
-          "level": 15,
-          "feature": "feature:superior-hunters-defense-uncanny-dodge"
         }
       ]
     },
@@ -6959,7 +7564,26 @@
       "text": [
         "As magic flows through your body, it causes physical traits of your dragon ancestors to emerge. At 1st level, your hit point maximum increases by 1 and increases by 1 again whenever you gain a level in this class.",
         "Additionally, parts of your skin are covered by a thin sheen of dragon-like scales. When you aren't wearing armor, your AC equals 13 + your Dexterity modifier."
-      ]
+      ],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.hp.max",
+            "op": "add",
+            "value": "classLevel.class:sorcerer",
+            "label": "Draconic Resilience"
+          },
+          {
+            "selector": "stat.ac",
+            "op": "acBase",
+            "value": "13 + mod.dex",
+            "label": "Draconic Resilience",
+            "when": {
+              "noArmor": true
+            }
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -7018,46 +7642,6 @@
         {
           "level": 1,
           "feature": "feature:dragon-ancestor"
-        },
-        {
-          "level": 1,
-          "feature": "feature:dragon-ancestor-black---acid-damage"
-        },
-        {
-          "level": 1,
-          "feature": "feature:dragon-ancestor-blue---lightning-damage"
-        },
-        {
-          "level": 1,
-          "feature": "feature:dragon-ancestor-brass---fire-damage"
-        },
-        {
-          "level": 1,
-          "feature": "feature:dragon-ancestor-bronze---lightning-damage"
-        },
-        {
-          "level": 1,
-          "feature": "feature:dragon-ancestor-copper---acid-damage"
-        },
-        {
-          "level": 1,
-          "feature": "feature:dragon-ancestor-gold---fire-damage"
-        },
-        {
-          "level": 1,
-          "feature": "feature:dragon-ancestor-green---poison-damage"
-        },
-        {
-          "level": 1,
-          "feature": "feature:dragon-ancestor-red---fire-damage"
-        },
-        {
-          "level": 1,
-          "feature": "feature:dragon-ancestor-silver---cold-damage"
-        },
-        {
-          "level": 1,
-          "feature": "feature:dragon-ancestor-white---cold-damage"
         },
         {
           "level": 1,

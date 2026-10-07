@@ -79,8 +79,8 @@ export function turnWarnings(c: Character, sheet: DerivedSheet, intent: TurnInte
   if (intent.attack) {
     const max = sheet.attacksPerAction;
     if (cb.attacks >= max) out.push(`You've made ${cb.attacks} of ${max} attacks for your Attack action this turn.`);
-    else if (cb.attacks === 0 && cb.action > 0) out.push("You've already used your action this turn.");
-  } else if (intent.economy === "action" && cb.action > 0) {
+    else if (cb.attacks === 0 && cb.action > cb.extraActions) out.push("You've already used your action this turn.");
+  } else if (intent.economy === "action" && cb.action > cb.extraActions) {
     out.push("You've already used your action this turn.");
   }
   if (intent.economy === "bonus" && cb.bonus > 0) out.push("You've already used your bonus action this turn.");

@@ -93,7 +93,99 @@ defs = {}
 
 
 def fid(index):
-    return ALIASES.get(index, f"feature:{index}")
+    if index in ALIASES:
+        return ALIASES[index]
+    # Every class's Defense, Dueling... is the same fighting style.
+    m = re.match(r"^(?:fighter-|ranger-|paladin-)?fighting-style-(.+)$", index)
+    if m:
+        return f"feature:style-{m.group(1)}"
+    return f"feature:{index}"
+
+
+# Option features (fighting styles, Hunter's Prey choices, Land terrains,
+# dragon ancestors) are offered by the feature that asks for them, not
+# listed on their own.
+OPTION_INDEXES = {
+    o["item"]["index"]
+    for f in features.values()
+    for key in ("subfeature_options",)
+    if key in (f.get("feature_specific") or {})
+    for o in (f["feature_specific"][key].get("from", {}).get("options", []))
+    if o.get("option_type") == "reference"
+}
+
+# Working mechanics for the most used SRD features, keyed by the SRD index:
+# what the feature grants (uses, buttons, modifiers) and how it scales.
+CL = lambda c: f"classLevel.class:{c}"
+MECHANICS = {
+    # Fighter
+    "second-wind": {"grant": {"resources": [{"id": "second-wind", "name": "Second Wind", "max": 1, "reset": "short"}], "actions": [{"id": "second-wind", "name": "Second Wind", "economy": "bonus", "cost": {"resource": "second-wind"}, "heal": f"1d10 + {CL('fighter')}", "note": "Regain 1d10 + fighter level hit points."}]}},
+    "action-surge-1-use": {"scaling": {"uses": {"class": "class:fighter", "table": [[2, 1], [17, 2]]}}, "grant": {"resources": [{"id": "action-surge", "name": "Action Surge", "max": "scale.uses", "reset": "short"}], "actions": [{"id": "action-surge", "name": "Action Surge", "economy": "free", "cost": {"resource": "action-surge"}, "extraAction": True, "note": "One more action on this turn (once per turn)."}]}},
+    "indomitable-1-use": {"scaling": {"uses": {"class": "class:fighter", "table": [[9, 1], [13, 2], [17, 3]]}}, "grant": {"resources": [{"id": "indomitable", "name": "Indomitable", "max": "scale.uses", "reset": "long"}], "actions": [{"id": "indomitable", "name": "Indomitable", "economy": "free", "cost": {"resource": "indomitable"}, "note": "Reroll a saving throw you failed; you must use the new roll."}]}},
+    "extra-attack-1": {"scaling": {"attacks": {"class": "class:fighter", "table": [[5, 2], [11, 3], [20, 4]]}}, "grant": {"extraAttacks": "scale.attacks"}},
+    "improved-critical": {"grant": {"modifiers": [{"selector": "roll.attack.weapon.*", "op": "critRange", "value": 19, "label": "Improved Critical"}]}},
+    "superior-critical": {"grant": {"modifiers": [{"selector": "roll.attack.weapon.*", "op": "critRange", "value": 18, "label": "Superior Critical"}]}},
+    "fighting-style-defense": {"grant": {"modifiers": [{"selector": "stat.ac", "op": "add", "value": 1, "label": "Fighting Style: Defense", "when": {"withArmor": True}}]}},
+    "fighting-style-dueling": {"grant": {"modifiers": [{"selector": "roll.damage.weapon.melee", "op": "add", "value": 2, "mode": "suggested", "label": "Dueling", "when": {"text": "one-handed melee weapon and no other weapon"}}]}},
+    "fighting-style-great-weapon-fighting": {"grant": {"modifiers": [{"selector": "roll.damage.weapon.melee", "op": "reroll", "value": 2, "mode": "suggested", "label": "Great Weapon Fighting", "when": {"text": "two-handed or versatile weapon held in two hands"}}]}},
+    "fighting-style-protection": {"grant": {"actions": [{"id": "protection", "name": "Protection", "economy": "reaction", "note": "With a shield: a creature you see attacks someone else within 5 ft of you; it has disadvantage on that attack."}]}},
+    # Bard
+    "bardic-inspiration-d6": {"scaling": {"die": {"class": "class:bard", "table": [[1, "d6"], [5, "d8"], [10, "d10"], [15, "d12"]]}}, "grant": {"resources": [{"id": "bardic-inspiration", "name": "Bardic Inspiration", "max": "mod.cha", "min": 1, "reset": "long", "die": "scale.die", "shortFrom": {"class": "class:bard", "level": 5}}], "actions": [{"id": "bardic-inspiration", "name": "Bardic Inspiration", "economy": "bonus", "cost": {"resource": "bardic-inspiration"}, "note": "Give a creature within 60 ft that can hear you one Bardic Inspiration die (d6; d8 at 5th, d10 at 10th, d12 at 15th) for 10 minutes. They add it to + Effect → Bardic Inspiration."}]}},
+    "cutting-words": {"grant": {"actions": [{"id": "cutting-words", "name": "Cutting Words", "economy": "reaction", "cost": {"resource": "bardic-inspiration"}, "note": "A creature within 60 ft makes an attack, check or damage roll: roll your Bardic Inspiration die and subtract it."}]}},
+    # Cleric
+    "channel-divinity-1-rest": {"name": "Channel Divinity", "scaling": {"uses": {"class": "class:cleric", "table": [[2, 1], [6, 2], [18, 3]]}}, "grant": {"resources": [{"id": "channel-divinity", "name": "Channel Divinity", "max": "scale.uses", "reset": "short"}]}},
+    "channel-divinity-turn-undead": {"grant": {"actions": [{"id": "turn-undead", "name": "Turn Undead", "economy": "action", "cost": {"resource": "channel-divinity"}, "note": "Undead within 30 ft that can see or hear you make a Wisdom save against your spell save DC or are turned for 1 minute (or until damaged). Destroy Undead from 5th level."}]}},
+    "channel-divinity-preserve-life": {"grant": {"actions": [{"id": "preserve-life", "name": "Preserve Life", "economy": "action", "cost": {"resource": "channel-divinity"}, "note": "Share out 5 × your cleric level in healing among creatures within 30 ft, none above half their hit point maximum. Not undead or constructs."}]}},
+    "divine-strike": {"scaling": {"dice": {"class": "class:cleric", "table": [[8, "1d8"], [14, "2d8"]]}}, "grant": {"modifiers": [{"selector": "roll.damage.weapon.*", "op": "add", "value": "scale.dice", "damageType": "radiant", "mode": "suggested", "oncePerTurn": True, "label": "Divine Strike", "when": {"text": "once on each of your turns"}}]}},
+    "divine-intervention": {"grant": {"actions": [{"id": "divine-intervention", "name": "Divine Intervention", "economy": "action", "note": "Call on your deity: roll d100, and if it's your cleric level or lower, the DM chooses how it helps. On a success, not again for 7 days; otherwise after a long rest."}]}},
+    # Druid
+    "wild-shape-cr-1-4-or-below-no-flying-or-swim-speed": {"name": "Wild Shape", "grant": {"resources": [{"id": "wild-shape", "name": "Wild Shape", "max": 2, "reset": "short"}], "actions": [{"id": "wild-shape", "name": "Wild Shape", "economy": "action", "cost": {"resource": "wild-shape"}, "note": "Become a beast you've seen: CR 1/4 and no flying or swimming (CR 1/2, no flying at 4th; CR 1 at 8th). Lasts up to half your druid level in hours."}]}},
+    # Monk
+    "martial-arts": {"scaling": {"die": {"class": "class:monk", "table": [[1, "1d4"], [5, "1d6"], [11, "1d8"], [17, "1d10"]]}}, "grant": {"attacks": [{"id": "martial-arts", "name": "Unarmed Strike", "category": "simple", "kind": "melee", "damage": "scale.die", "damageType": "bludgeoning", "properties": ["finesse"]}, {"id": "martial-arts-bonus", "name": "Unarmed Strike (bonus action)", "category": "simple", "kind": "melee", "damage": "scale.die", "damageType": "bludgeoning", "properties": ["finesse"], "action": "bonus", "requires": {"attack": "martial-arts", "text": "Martial Arts: the bonus unarmed strike comes after taking the Attack action with an unarmed strike or a monk weapon."}}]}},
+    "monk-unarmored-defense": {"grant": {"modifiers": [{"selector": "stat.ac", "op": "acBase", "value": "10 + mod.dex + mod.wis", "label": "Unarmored Defense", "when": {"noArmor": True, "noShield": True}}]}},
+    "ki": {"grant": {"resources": [{"id": "ki", "name": "Ki points", "max": CL("monk"), "reset": "short"}]}},
+    "flurry-of-blows": {"grant": {"actions": [{"id": "flurry-of-blows", "name": "Flurry of Blows", "economy": "bonus", "cost": {"resource": "ki"}, "note": "Right after taking the Attack action: two unarmed strikes as a bonus action."}]}},
+    "patient-defense": {"grant": {"actions": [{"id": "patient-defense", "name": "Patient Defense", "economy": "bonus", "cost": {"resource": "ki"}, "untilTurnStart": True, "toggles": ["dodging"], "note": "Take the Dodge action as a bonus action: until your next turn, attacks against you have disadvantage and you have advantage on Dexterity saves."}]}},
+    "step-of-the-wind": {"grant": {"actions": [{"id": "step-of-the-wind", "name": "Step of the Wind", "economy": "bonus", "cost": {"resource": "ki"}, "dash": True, "note": "Dash (or Disengage) as a bonus action, and your jump distance doubles this turn."}]}},
+    "stunning-strike": {"grant": {"actions": [{"id": "stunning-strike", "name": "Stunning Strike", "economy": "free", "cost": {"resource": "ki"}, "note": "After hitting with a melee weapon attack: the target makes a Constitution save against your ki save DC (8 + proficiency + Wisdom) or is stunned until the end of your next turn."}]}},
+    "deflect-missiles": {"grant": {"actions": [{"id": "deflect-missiles", "name": "Deflect Missiles", "economy": "reaction", "roll": {"dice": f"1d10 + mod.dex + {CL('monk')}", "label": "damage reduced"}, "note": "When a ranged weapon attack hits you. Reduced to 0: catch it, and spend 1 ki to throw it back."}]}},
+    "unarmored-movement-1": {"name": "Unarmored Movement", "scaling": {"speed": {"class": "class:monk", "table": [[2, 10], [6, 15], [10, 20], [14, 25], [18, 30]]}}, "grant": {"modifiers": [{"selector": "stat.speed.walk", "op": "add", "value": "scale.speed", "label": "Unarmored Movement", "when": {"noArmor": True, "noShield": True}}]}},
+    "monk-extra-attack": {"grant": {"extraAttacks": 2}},
+    "wholeness-of-body": {"grant": {"resources": [{"id": "wholeness-of-body", "name": "Wholeness of Body", "max": 1, "reset": "long"}], "actions": [{"id": "wholeness-of-body", "name": "Wholeness of Body", "economy": "action", "cost": {"resource": "wholeness-of-body"}, "heal": f"3*{CL('monk')}", "note": "Regain three times your monk level in hit points."}]}},
+    # Paladin
+    "divine-sense": {"grant": {"resources": [{"id": "divine-sense", "name": "Divine Sense", "max": "1 + mod.cha", "min": 1, "reset": "long"}], "actions": [{"id": "divine-sense", "name": "Divine Sense", "economy": "action", "cost": {"resource": "divine-sense"}, "note": "Until the end of your next turn, you know where celestials, fiends and undead are within 60 ft (not behind total cover), and any consecrated or desecrated place."}]}},
+    "lay-on-hands": {"grant": {"resources": [{"id": "lay-on-hands", "name": "Lay on Hands", "max": f"5*{CL('paladin')}", "reset": "long"}], "actions": [{"id": "lay-on-hands", "name": "Lay on Hands", "economy": "action", "cost": {"resource": "lay-on-hands"}, "spendAmount": {"label": "Hit points to restore", "heals": True}, "note": "Touch a creature and restore hit points from your pool; 5 points cure one disease or neutralize one poison instead. Not undead or constructs."}]}},
+    "divine-smite": {"grant": {"modifiers": [{"selector": "roll.damage.weapon.melee", "op": "add", "value": "2d8", "damageType": "radiant", "mode": "suggested", "label": "Divine Smite (1st-level slot)", "when": {"text": "spend a spell slot on a hit: +1d8 per slot level above 1st (up to 5d8), +1d8 against undead or fiends"}}]}},
+    "channel-divinity": {"name": "Channel Divinity (paladin)", "grant": {"resources": [{"id": "channel-divinity-paladin", "name": "Channel Divinity", "max": 1, "reset": "short"}]}},
+    "channel-divinity-sacred-weapon": {"grant": {"actions": [{"id": "sacred-weapon", "name": "Sacred Weapon", "economy": "action", "cost": {"resource": "channel-divinity-paladin"}, "duration": {"rounds": 10}, "toggles": ["sacred-weapon"], "note": "For 1 minute your weapon is magical, sheds bright light, and you add your Charisma modifier to attacks with it."}], "modifiers": [{"selector": "roll.attack.weapon.*", "op": "add", "value": "mod.cha", "label": "Sacred Weapon", "when": {"toggle": "sacred-weapon"}}]}},
+    "channel-divinity-turn-the-unholy": {"grant": {"actions": [{"id": "turn-the-unholy", "name": "Turn the Unholy", "economy": "action", "cost": {"resource": "channel-divinity-paladin"}, "note": "Fiends and undead within 30 ft that can hear you make a Wisdom save or are turned for 1 minute (or until damaged)."}]}},
+    "paladin-extra-attack": {"grant": {"extraAttacks": 2}},
+    "aura-of-protection": {"grant": {"modifiers": [{"selector": "roll.save.*", "op": "add", "value": "mod.cha", "label": "Aura of Protection"}]}},
+    "improved-divine-smite": {"grant": {"modifiers": [{"selector": "roll.damage.weapon.melee", "op": "add", "value": "1d8", "damageType": "radiant", "label": "Improved Divine Smite"}]}},
+    # Ranger, barbarian
+    "ranger-extra-attack": {"grant": {"extraAttacks": 2}},
+    "barbarian-extra-attack": {"grant": {"extraAttacks": 2}},
+    # Sorcerer
+    "font-of-magic": {"grant": {"resources": [{"id": "sorcery-points", "name": "Sorcery points", "max": CL("sorcerer"), "reset": "long"}]}},
+    "draconic-resilience": {"grant": {"modifiers": [{"selector": "stat.hp.max", "op": "add", "value": CL("sorcerer"), "label": "Draconic Resilience"}, {"selector": "stat.ac", "op": "acBase", "value": "13 + mod.dex", "label": "Draconic Resilience", "when": {"noArmor": True}}]}},
+    # Rogue (SRD levels beyond the table's)
+    "reliable-talent": {"grant": {"modifiers": [{"selector": "roll.check.skill.*", "op": "minD20", "value": 10, "label": "Reliable Talent", "when": {"text": "skills you're proficient in"}}]}},
+}
+
+
+def apply_mechanics(index, d):
+    m = MECHANICS.get(index)
+    if not m:
+        return d
+    if "name" in m:
+        d["name"] = m["name"]
+    if "scaling" in m:
+        d["scaling"] = m["scaling"]
+    if "grant" in m:
+        g = d.setdefault("grant", {})
+        for k, v in m["grant"].items():
+            g[k] = (g.get(k) or []) + v if isinstance(v, list) else v
+    return d
 
 
 def summary_of(paras):
@@ -212,6 +304,10 @@ def add_feature(f, name=None, extra_text=None):
         d["choices"] = choices
     if grant:
         d["grant"] = grant
+    m = re.match(r"^(?:fighter-|ranger-|paladin-)?(fighting-style-.+)$", f["index"])
+    apply_mechanics(m.group(1) if m else f["index"], d)
+    if d["id"].startswith("feature:style-"):
+        d["name"] = re.sub(r"^Fighting Style:\s*", "", d["name"])
     defs[i] = d
     # Options a feature offers (fighting styles, invocations) are features too.
     spec = f.get("feature_specific") or {}
@@ -331,6 +427,9 @@ for s in subclasses:
     refs = []
     first = {}
     for f in sub_feats:
+        if f["index"] in OPTION_INDEXES:
+            add_feature(f)
+            continue
         b = base_name(f["name"])
         if b in first and not f.get("feature_specific"):
             d = defs[first[b]]

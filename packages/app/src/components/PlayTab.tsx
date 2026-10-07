@@ -60,6 +60,22 @@ function Pips({ total, used, onSpend, onRestore, kind, name }: {
   kind?: "slot";
   name: string;
 }) {
+  // Big pools (Lay on Hands, Ki at high level) as a counter instead of a row of circles.
+  if (total > 12)
+    return (
+      <div className="stepper pool-count">
+        <button aria-label={`Spend one ${name}`} disabled={used >= total} onClick={onSpend}>
+          −
+        </button>
+        <span>
+          {total - used}
+          <small>/{total}</small>
+        </span>
+        <button aria-label={`Get back one ${name}`} disabled={used === 0} onClick={onRestore}>
+          +
+        </button>
+      </div>
+    );
   return (
     <div className={`pips${total > 5 ? " wide" : ""}`}>
       {Array.from({ length: total }, (_, i) => {

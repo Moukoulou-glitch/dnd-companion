@@ -38,6 +38,8 @@ export const Condition = z
   .object({
     /** Not wearing body armor (a shield is allowed). */
     noArmor: z.boolean().optional(),
+    /** Wearing body armor (Fighting Style: Defense). */
+    withArmor: z.boolean().optional(),
     /** Not wearing heavy armor. */
     noHeavyArmor: z.boolean().optional(),
     /** Not holding a shield. */
@@ -150,6 +152,10 @@ export const ResourceDef = z
      * a long rest). The player records the values and spends them one by one.
      */
     pool: z.object({ sides: z.number().int().min(2) }).strict().optional(),
+    /** Never fewer than this (Bardic Inspiration: Charisma modifier, at least once). */
+    min: z.number().int().optional(),
+    /** Comes back on a short rest from this class level (Font of Inspiration: bard 5). */
+    shortFrom: z.object({ class: DefId, level: z.number().int().min(1).max(20) }).strict().optional(),
   })
   .strict();
 export type ResourceDef = z.infer<typeof ResourceDef>;
@@ -250,6 +256,13 @@ export const ActionDef = z
     asAttack: z.boolean().optional(),
     /** Adds your speed to this turn's movement (Dash). */
     dash: z.boolean().optional(),
+    /** Gives you one more action this turn (Action Surge). */
+    extraAction: z.boolean().optional(),
+    /**
+     * Spends as many points of its cost's resource as the player says (Lay on
+     * Hands), healing that much when `heals`; the panel asks for the number.
+     */
+    spendAmount: z.object({ label: z.string(), heals: z.boolean().optional() }).strict().optional(),
     /** Its toggles last until the start of your next turn (Dodge). */
     untilTurnStart: z.boolean().optional(),
     /** Ends your concentration. */
@@ -330,6 +343,8 @@ export const Grant = z
     spells: z.array(GrantedSpell).optional(),
     senses: z.record(z.string(), z.number()).optional(),
     companions: z.array(CompanionDef).optional(),
+    /** Attacks per Attack action (Extra Attack: 2; a fighter's 3 at 11th level and 4 at 20th). */
+    extraAttacks: ValueExpr.optional(),
   })
   .strict();
 export type Grant = z.infer<typeof Grant>;

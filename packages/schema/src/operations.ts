@@ -40,6 +40,9 @@ export const OPERATION_PAYLOADS = {
       action: z.string(),
       /** What was picked, for actions that ask (Ready: which action). */
       choice: z.string().optional(),
+      /** Points spent, for actions that ask how many (Lay on Hands); `healSelf` heals you by that much. */
+      amount: z.number().int().min(1).optional(),
+      healSelf: z.boolean().optional(),
       /** Total of the temp HP or healing roll, recorded so replaying the log gives the same result. */
       rolled: z.number().int().min(0).optional(),
       /** "Just activate": switch it on without spending its cost or the turn (forgot to mark it earlier). */

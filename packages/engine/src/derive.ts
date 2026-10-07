@@ -150,6 +150,8 @@ export interface ActionResult {
   common?: boolean;
   check?: { skills: string[]; dc?: number };
   choose?: { label: string; options: string[] };
+  extraAction?: boolean;
+  spendAmount?: { label: string; heals?: boolean };
   asAttack?: boolean;
   dash?: boolean;
   untilTurnStart?: boolean;
@@ -395,6 +397,7 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
   const conditionState = (when: Condition | undefined): "pass" | "fail" | "unknown" => {
     if (!when) return "pass";
     if (when.noArmor && armorWorn) return "fail";
+    if (when.withArmor && !armorWorn) return "fail";
     if (when.noHeavyArmor && armorWorn?.def.armor?.category === "heavy") return "fail";
     if (when.noShield && shieldHeld) return "fail";
     if (when.withShield && !shieldHeld) return "fail";
@@ -728,7 +731,9 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
   }
   for (const s of sources) {
     for (const a of s.grant.attacks ?? []) {
-      const w: AttackDef = a;
+      // Damage can grow with level (Martial Arts: "scale.die" is 1d4, then 1d6 at 5th...).
+      const dice = a.damage.startsWith("scale.") ? evalExpr(a.damage, ctxFor(s)).find((x) => x.kind === "dice") : undefined;
+      const w: AttackDef = dice && dice.kind === "dice" ? { ...a, damage: dice.dice } : a;
       const o: Parameters<typeof buildAttacks>[1] = { attackId: a.id, name: a.name, proficient: true, action: a.action };
       if (a.requires) o.requires = a.requires;
       buildAttacks(w, o);
@@ -770,9 +775,10 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
   const resources: ResourceResult[] = [];
   for (const s of sources) {
     for (const r of s.grant.resources ?? []) {
-      const max = evalFlat(r.max, ctxFor(s));
+      const max = Math.max(r.min ?? 0, evalFlat(r.max, ctxFor(s)));
       const used = Math.min(c.resourcesUsed[r.id] ?? 0, max);
-      const entry: ResourceResult = { id: r.id, name: r.name, max, used, remaining: max - used, reset: r.reset, source: s.label };
+      const shortNow = r.shortFrom && (c.classes.find((x) => x.class === r.shortFrom!.class)?.level ?? 0) >= r.shortFrom.level;
+      const entry: ResourceResult = { id: r.id, name: r.name, max, used, remaining: max - used, reset: shortNow ? "short" : r.reset, source: s.label };
       if (r.die) {
         const terms = evalExpr(r.die, ctxFor(s));
         const die = terms[0];
@@ -956,6 +962,8 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
       for (const k of ["asAttack", "dash", "untilTurnStart", "endsConcentration", "infoOnly"] as const) if (a[k]) entry[k] = true;
       if (a.check) entry.check = a.check;
       if (a.choose) entry.choose = a.choose;
+      if (a.extraAction) entry.extraAction = true;
+      if (a.spendAmount) entry.spendAmount = a.spendAmount;
       actions.push(entry);
     }
   }
@@ -1064,7 +1072,10 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
     features: featureEntries(sources, reg),
     companions: sources.flatMap((s) => (s.grant.companions ?? []).map((d) => deriveCompanion(d, s.label, c.companions[d.id], ctxFor(s), spellcasting))),
     rules,
-    attacksPerAction: sources.some((s) => /^feature:extra-attack/.test(s.id)) ? 2 : 1,
+    attacksPerAction: Math.max(
+      sources.some((s) => /^feature:extra-attack/.test(s.id)) ? 2 : 1,
+      ...sources.map((s) => (s.grant.extraAttacks !== undefined ? evalFlat(s.grant.extraAttacks, ctxFor(s)) : 1)),
+    ),
     warnings,
   };
   if (slots.pact) sheet.pactSlots = slots.pact;
