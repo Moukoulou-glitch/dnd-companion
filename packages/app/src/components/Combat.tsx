@@ -36,7 +36,7 @@ export function CombatCard({
 
   const speed = sheet.speed.total;
   const allowed = speed * (1 + cb.dashes);
-  const left = Math.max(0, allowed - cb.moved);
+  const left = cb.speedZero ? 0 : Math.max(0, allowed - cb.moved);
   const max = sheet.attacksPerAction;
   const toggle = (kind: "action" | "bonus" | "reaction", used: number, label: string) =>
     act("useEconomy", { kind, amount: used > 0 ? -1 : 1 }, used > 0 ? `${label} given back.` : `${label} used.`);
@@ -114,13 +114,13 @@ export function MovePanel({
   if (!cb) return <p className="note">Not in combat.</p>;
   const speed = sheet.speed.total;
   const allowed = speed * (1 + cb.dashes);
-  const left = allowed - cb.moved;
+  const left = cb.speedZero ? -cb.moved : allowed - cb.moved;
   const cunning = sheet.actions.some((a) => a.id === "cunning-action");
   const move = (feet: number) => act("useEconomy", { kind: "move", amount: feet }, feet > 0 ? `Moved ${feet} ft.` : `${-feet} ft back.`);
   return (
     <>
       <p className="note">
-        Speed {speed} ft{cb.dashes ? `, Dash ×${cb.dashes}` : ""}. Moved {cb.moved} ft, {Math.max(0, left)} ft left.
+        {cb.speedZero ? `Your speed is 0 for the rest of this turn (${cb.speedZero}). ` : ""}Speed {speed} ft{cb.dashes ? `, Dash ×${cb.dashes}` : ""}. Moved {cb.moved} ft, {Math.max(0, left)} ft left.
         {left < 0 ? " That's more than your speed allows." : ""}
       </p>
       <div className="keys" style={{ gridTemplateColumns: "repeat(4, 1fr)" }}>

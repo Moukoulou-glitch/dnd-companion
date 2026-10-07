@@ -132,6 +132,8 @@ export const OPERATION_PAYLOADS = {
       attackWith: z.object({ attackId: z.string(), itemInstanceId: z.string().optional(), melee: z.boolean(), light: z.boolean() }).strict().optional(),
     })
     .strict(),
+  /** Once-per-turn options used on this turn (Sneak Attack). */
+  markOnce: z.object({ labels: z.array(z.string()).min(1) }).strict(),
   /** Change how long concentration has left, by hand. null clears the timer. */
   setConcentration: z.object({ rounds: z.number().int().min(0).nullable().optional(), minutes: z.number().int().min(0).nullable().optional() }).strict(),
   /** Choose a companion's form or name; a new form arrives with full HP. */
@@ -179,6 +181,7 @@ export const Operation = z.discriminatedUnion("type", [
   OperationBase.extend({ type: z.literal("setInitiative"), payload: OPERATION_PAYLOADS.setInitiative }),
   OperationBase.extend({ type: z.literal("setPool"), payload: OPERATION_PAYLOADS.setPool }),
   OperationBase.extend({ type: z.literal("usePool"), payload: OPERATION_PAYLOADS.usePool }),
+  OperationBase.extend({ type: z.literal("markOnce"), payload: OPERATION_PAYLOADS.markOnce }),
   OperationBase.extend({ type: z.literal("setConcentration"), payload: OPERATION_PAYLOADS.setConcentration }),
   OperationBase.extend({ type: z.literal("deathSave"), payload: OPERATION_PAYLOADS.deathSave }),
   OperationBase.extend({ type: z.literal("toggle"), payload: OPERATION_PAYLOADS.toggle }),

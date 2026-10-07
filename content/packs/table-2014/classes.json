@@ -127,7 +127,10 @@
             "toggles": [
               "favored-foe"
             ],
-            "note": "When you hit: mark the target for 1 minute (concentration). Once per turn, your first hit on it adds 1d4."
+            "note": "When you hit: mark the target for 1 minute (concentration). Once per turn, your first hit on it adds 1d4.",
+            "duration": {
+              "rounds": 10
+            }
           }
         ],
         "modifiers": [
@@ -139,7 +142,8 @@
             "when": {
               "toggle": "favored-foe",
               "text": "first hit on the marked target this turn"
-            }
+            },
+            "oncePerTurn": true
           }
         ]
       }

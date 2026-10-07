@@ -21,6 +21,8 @@ export interface Suggestion {
   reason?: string;
   /** What the roll composer applies when the player turns it on. */
   apply: { flat: number; dice: string[]; damageType?: string; mode?: "advantage" | "disadvantage" };
+  /** Once per turn (Sneak Attack). */
+  oncePerTurn?: boolean;
 }
 
 /** A computed number and every source that contributed to it. */

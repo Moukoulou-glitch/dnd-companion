@@ -69,13 +69,40 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
   };
 
   /** Current HP gained when an effect starts (Aid), worked out at its cast level. */
-  const gainHp = (def: { hpGain?: string | number; upcast?: { baseLevel: number }; name: string }, castLevel?: number) => {
-    if (def.hpGain === undefined) return;
+  const atLevel = (expr: string | number, slotLevel: number) =>
+    evalFlat(expr, { pb: sheet.proficiencyBonus, mods: Object.fromEntries(Object.entries(sheet.abilities).map(([k, v]) => [k, v.modifier])) as never, level: sheet.level, classLevels: {}, slotLevel });
+
+  const gainHp = (def: { hpGain?: string | number; tempHpGain?: string | number; upcast?: { baseLevel: number }; name: string }, castLevel?: number) => {
     const slotLevel = castLevel ?? def.upcast?.baseLevel ?? 1;
-    const amount = evalFlat(def.hpGain, { pb: sheet.proficiencyBonus, mods: Object.fromEntries(Object.entries(sheet.abilities).map(([k, v]) => [k, v.modifier])) as never, level: sheet.level, classLevels: {}, slotLevel });
-    if (amount > 0 && c.hp.current > 0) {
-      c.hp.current += amount;
-      notes.push(`${def.name}: +${amount} current HP.`);
+    if (def.hpGain !== undefined) {
+      const amount = atLevel(def.hpGain, slotLevel);
+      if (amount > 0 && c.hp.current > 0) {
+        c.hp.current += amount;
+        notes.push(`${def.name}: +${amount} current HP.`);
+      }
+    }
+    if (def.tempHpGain !== undefined) {
+      const amount = atLevel(def.tempHpGain, slotLevel);
+      if (amount > c.hp.temp) {
+        c.hp.temp = amount;
+        notes.push(`${def.name}: ${amount} temporary HP.`);
+      } else notes.push(`${def.name}: temporary HP don't stack, keeping ${c.hp.temp}.`);
+    }
+  };
+
+  /** Effects that remind you of something when you take damage (Armor of Agathys). */
+  const damageReminders = (tempBefore: number) => {
+    for (const e of [...c.effects]) {
+      const def = reg.find(reg.effectId(e.effect), "effect");
+      const od = def?.onDamage;
+      if (!def || !od) continue;
+      if (od.whileTempHp && tempBefore <= 0) continue;
+      const lvl = e.castLevel ?? def.upcast?.baseLevel ?? 1;
+      notes.push(od.text.replace("{amount}", od.amount !== undefined ? String(atLevel(od.amount, lvl)) : ""));
+      if (od.whileTempHp && c.hp.temp === 0) {
+        c.effects = c.effects.filter((x) => x.id !== e.id);
+        notes.push(`${def.name}'s temporary HP are gone: it ends.`);
+      }
     }
   };
 
@@ -134,10 +161,12 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
 
       const wasAtZero = c.hp.current === 0;
       const concentrating = c.concentration;
+      const tempBefore = c.hp.temp;
       const absorbed = Math.min(c.hp.temp, dmg);
       c.hp.temp -= absorbed;
       const rest = dmg - absorbed;
       if (absorbed > 0) notes.push(`Temporary HP absorbed ${absorbed}.`);
+      damageReminders(tempBefore);
 
       if (wasAtZero && rest > 0) {
         if (rest >= maxHp) {
@@ -321,7 +350,7 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
       }
       if (!free) spendTurn(a.economy, (cb) => {
         if (a.notAfterMoving && cb.moved > 0) notes.push(`You had moved ${cb.moved} ft this turn: ${a.name} needs you not to have moved.`);
-        if (a.stopsMovement) cb.moved = Math.max(cb.moved, sheet.speed.total * (1 + cb.dashes));
+        if (a.stopsMovement) cb.speedZero = a.name;
         cb.usedThisTurn = [...cb.usedThisTurn, a.id];
       });
       if (a.duration) {
@@ -541,6 +570,13 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
       else if (rounds !== undefined) e.rounds = rounds;
       if (minutes === null) delete e.minutes;
       else if (minutes !== undefined) e.minutes = minutes;
+      // An effect from your own concentration spell (Invisibility on yourself) shares the spell's clock.
+      if (e.concentration && c.concentration && (rounds !== undefined || minutes !== undefined)) {
+        if (rounds === null) delete c.concentration.rounds;
+        else if (rounds !== undefined) c.concentration.rounds = rounds;
+        if (minutes === null) delete c.concentration.minutes;
+        else if (minutes !== undefined) c.concentration.minutes = minutes;
+      }
       if (level !== undefined) e.level = level;
       if (choice !== undefined) e.choice = choice;
       if (castLevel !== undefined) {
@@ -557,6 +593,11 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
       break;
     }
 
+    case "markOnce": {
+      if (c.combat) c.combat.onceUsed = [...new Set([...c.combat.onceUsed, ...op.payload.labels])];
+      break;
+    }
+
     case "setConcentration": {
       const conc = c.concentration;
       if (!conc) {
@@ -568,6 +609,10 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
       else if (rounds !== undefined) conc.rounds = rounds;
       if (minutes === null) delete conc.minutes;
       else if (minutes !== undefined) conc.minutes = minutes;
+      for (const e of c.effects.filter((x) => x.concentration)) {
+        if (conc.rounds !== undefined) e.rounds = conc.rounds;
+        if (conc.minutes !== undefined) e.minutes = conc.minutes;
+      }
       if (conc.rounds === 0 || conc.minutes === 0) endConcentration(c, notes, `${conc.name} has run its course.`);
       break;
     }
@@ -659,7 +704,10 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
         cb.attacks = add(cb.attacks);
         if (before === 0 && cb.attacks > 0) cb.action += 1;
         if (before > 0 && cb.attacks === 0) cb.action = Math.max(0, cb.action - 1);
-      } else if (kind === "move") cb.moved = add(cb.moved);
+      } else if (kind === "move") {
+        cb.moved = add(cb.moved);
+        if (amount > 0 && cb.speedZero) notes.push(`Your speed is 0 for the rest of this turn (${cb.speedZero}).`);
+      }
       else cb[kind] = add(cb[kind]);
       if (dash) cb.dashes = Math.max(0, cb.dashes + Math.sign(amount));
       if (op.payload.attackWith && amount > 0) cb.attackedWith = [...cb.attackedWith, op.payload.attackWith];

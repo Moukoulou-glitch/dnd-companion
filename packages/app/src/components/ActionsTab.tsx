@@ -42,7 +42,7 @@ function FeatureRow({ a, openFeature }: { a: ActionResult; openFeature: (a: Acti
       <span className="row-tags">
         <span className="tag">{a.source}</span>
       </span>
-      <span className={`tag${none ? "" : " adv"}`}>{none ? "none left" : "use"}</span>
+      <span className={`tag${none ? " fail" : " adv"}`}>{none ? "none left" : "use"}</span>
     </button>
   );
 }

@@ -65,7 +65,9 @@ export function turnWarnings(c: Character, sheet: DerivedSheet, intent: TurnInte
 
   if (w?.requires && !cb.attackedWith.some((a) => a.attackId === w.requires!.attack)) out.push(w.requires.text);
   if (w?.offHand) {
-    const first = cb.attackedWith.filter((a) => a.melee && a.itemInstanceId && a.itemInstanceId !== w.itemInstanceId);
+    // A stack of two daggers is one inventory line but a weapon in each hand.
+    const pair = (c.inventory.find((i) => i.id === w.itemInstanceId)?.quantity ?? 1) >= 2;
+    const first = cb.attackedWith.filter((a) => a.melee && a.itemInstanceId && (a.itemInstanceId !== w.itemInstanceId || pair));
     if (!first.length) out.push("Two-weapon fighting: first attack with a melee weapon in your other hand, using the Attack action.");
     else if (!sheet.rules.twoWeaponNonLight && !first.some((a) => a.light)) out.push("The weapon you attacked with first isn't light: two-weapon fighting needs light weapons in both hands.");
   }

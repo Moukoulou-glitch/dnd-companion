@@ -38,8 +38,18 @@ interface Props {
   notes?: string[];
   /** Foretelling rolls that can replace the d20 (Portent). */
   portent?: { values: number[]; onUse: (index: number) => void };
-  /** Options that clash with this roll, with the warning shown when turned on (Steady Aim with a bonus-action attack). */
-  conflicts?: { label: string; warning: string }[];
+  /**
+   * Per optional modifier: a warning shown when it's turned on (Steady Aim
+   * with no bonus action left, Sneak Attack already used this turn), and
+   * whether it starts turned on (Steady Aim already used this turn).
+   */
+  optionInfo?: Record<string, { warning?: string; preselect?: boolean }>;
+  /** Called once per attack actually made (at its first roll), to mark the turn. */
+  onCommit?: (n: number) => void;
+  /** Several separate attacks in a row (Eldritch Blast beams, Extra Attack). */
+  repeat?: { count: number; what: string };
+  /** The damage options used, when damage is rolled (marks once-per-turn ones like Sneak Attack). */
+  onDamageOptions?: (labels: string[]) => void;
   /** The optional modifiers that were on when the d20 was rolled (Steady Aim spends its bonus action). */
   onOptionsUsed?: (labels: string[]) => void;
 }
@@ -228,8 +238,34 @@ export function ResultView({ r }: { r: RollRecord }) {
   );
 }
 
-export function Composer({ title, base, attack, physical, onPhysicalChange, onRolled, damageOnly, healing, onHealSelf, dc, onCheck, notes, portent, onOptionsUsed, conflicts }: Props) {
-  const [choices, setChoices] = useState<ComposerChoices>({ enabled: [], manual: "none", extra: 0 });
+export function Composer({ title, base, attack, physical, onPhysicalChange, onRolled, damageOnly, healing, onHealSelf, dc, onCheck, notes, portent, onOptionsUsed, optionInfo, onCommit, repeat, onDamageOptions }: Props) {
+  const preselected = base.suggestions.filter((sg) => optionInfo?.[sg.label]?.preselect).map((sg) => sg.label);
+  const [choices, setChoices] = useState<ComposerChoices>({ enabled: preselected, manual: "none", extra: 0 });
+  // Which of several attacks this is, and whether it has been made (marked on the turn) yet.
+  const [nth, setNth] = useState(1);
+  const [committed, setCommitted] = useState(false);
+  const commit = () => {
+    if (committed) return;
+    setCommitted(true);
+    onCommit?.(nth);
+  };
+  const warningsFor = (enabled: string[]) =>
+    enabled.flatMap((l) => (optionInfo?.[l]?.warning ? [{ label: l, warning: optionInfo[l]!.warning! }] : []));
+  const nextButton =
+    repeat && nth < repeat.count ? (
+      <button
+        className="big primary wide"
+        style={{ marginTop: 12 }}
+        onClick={() => {
+          setNth(nth + 1);
+          setCommitted(false);
+          setEntering(false);
+          setStage(damageOnly ? { step: "damage-setup", crit: false } : { step: "setup" });
+        }}
+      >
+        Next {repeat.what.replace(/s$/, "")} ({nth + 1} of {repeat.count})
+      </button>
+    ) : null;
   const [damageChoices, setDamageChoices] = useState<ComposerChoices>({ enabled: [], manual: "none", extra: 0 });
   const [stage, setStage] = useState<Stage>(damageOnly ? { step: "damage-setup", crit: false } : { step: "setup" });
   const [entering, setEntering] = useState(false);
@@ -263,6 +299,7 @@ export function Composer({ title, base, attack, physical, onPhysicalChange, onRo
   const rollD20 = (values?: number[], composed = d20) => {
     const rec = recordOf(dc ? `${title} (DC ${dc})` : title, "d20", rollComposed(composed, values));
     setAttackMode(composed.d20Mode);
+    commit();
     if (choices.enabled.length) onOptionsUsed?.(choices.enabled);
     onRolled(rec);
     if (dc !== undefined) onCheck?.(rec.total >= dc);
@@ -284,6 +321,8 @@ export function Composer({ title, base, attack, physical, onPhysicalChange, onRo
         ...damage.terms.flatMap((t, i) => (t.kind === "flat" ? [{ source: damage.sources[i]!, detail: "", total: t.sign * t.value }] : [])),
       ];
     }
+    commit();
+    onDamageOptions?.(damageChoices.enabled);
     onRolled(rec);
     setEntering(false);
     const next: Stage = { step: "damage-result", record: rec, crit: stage.crit };
@@ -302,9 +341,12 @@ export function Composer({ title, base, attack, physical, onPhysicalChange, onRo
     </div>
   );
 
+  const which = repeat && repeat.count > 1 ? <p className="sub-head">{`${repeat.what.replace(/s$/, "").replace(/^./, (c) => c.toUpperCase())} ${nth} of ${repeat.count}`}</p> : null;
+
   if (stage.step === "setup") {
     return (
       <>
+        {which}
         {diceSwitch}
         {base.autoFail && base.autoFail.length > 0 && (
           <p className="warn">
@@ -331,13 +373,11 @@ export function Composer({ title, base, attack, physical, onPhysicalChange, onRo
           </p>
         )}
         <Options base={base} choices={choices} setChoices={setChoices} withManual />
-        {(conflicts ?? [])
-          .filter((x) => choices.enabled.includes(x.label))
-          .map((x) => (
-            <p className="warn" key={x.label}>
-              {x.warning}
-            </p>
-          ))}
+        {warningsFor(choices.enabled).map((x) => (
+          <p className="warn" key={x.label}>
+            {x.warning}
+          </p>
+        ))}
         {attack?.range && (
           <p className="note">Range {attack.range[0] === attack.range[1] ? `${attack.range[0]} ft` : `${attack.range[0]}/${attack.range[1]} ft`}.</p>
         )}
@@ -396,6 +436,7 @@ export function Composer({ title, base, attack, physical, onPhysicalChange, onRo
             </button>
           </div>
         )}
+        {nextButton}
         {dc === undefined && (
           <button className="link" onClick={() => setStage({ step: "setup" })}>
             Roll again
@@ -408,6 +449,7 @@ export function Composer({ title, base, attack, physical, onPhysicalChange, onRo
   if (stage.step === "damage-setup" && damage && damageBase) {
     return (
       <>
+        {which}
         {diceSwitch}
         {stage.crit && <p className="note">Critical hit: every damage die is rolled twice.</p>}
         {dc === undefined && attack?.saveNote && <p className="note">{attack.saveNote}</p>}
@@ -421,6 +463,11 @@ export function Composer({ title, base, attack, physical, onPhysicalChange, onRo
         )}
         <FormulaLines c={damage} />
         <Options base={damageBase} choices={damageChoices} setChoices={setDamageChoices} withManual={false} />
+        {warningsFor(damageChoices.enabled).map((x) => (
+          <p className="warn" key={x.label}>
+            {x.warning}
+          </p>
+        ))}
         <p className="formula">{formatFormula(damage.terms).replace(/\[[^\]]*\]/g, "")}</p>
         {physical ? (
           entering ? (
@@ -448,8 +495,9 @@ export function Composer({ title, base, attack, physical, onPhysicalChange, onRo
             Heal myself {stage.record.total}
           </button>
         )}
+        {nextButton}
         <button className="link" onClick={() => setStage(damageOnly ? { step: "damage-setup", crit: false } : { step: "setup" })}>
-          {damageOnly ? "Roll again" : "New attack"}
+          {damageOnly ? "Roll again" : "Roll this one again"}
         </button>
       </>
     );

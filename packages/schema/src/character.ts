@@ -122,6 +122,8 @@ export const CombatState = z
     attacks: z.number().int().min(0).default(0),
     /** Feet moved this turn. */
     moved: z.number().int().min(0).default(0),
+    /** What set your speed to 0 for the rest of this turn (Steady Aim). */
+    speedZero: z.string().optional(),
     /** Dash taken this turn (each adds your speed). */
     dashes: z.number().int().min(0).default(0),
     /** Your initiative roll for this combat. */
@@ -130,6 +132,8 @@ export const CombatState = z
     attackedWith: z
       .array(z.object({ attackId: z.string(), itemInstanceId: z.string().optional(), melee: z.boolean(), light: z.boolean() }).strict())
       .default([]),
+    /** Once-per-turn options already used this turn (Sneak Attack), by label. */
+    onceUsed: z.array(z.string()).default([]),
     /** Features used this turn, by action id (so Steady Aim isn't spent twice). */
     usedThisTurn: z.array(z.string()).default([]),
     /** 2014: after a bonus-action spell, the only other spell this turn is an action cantrip. */

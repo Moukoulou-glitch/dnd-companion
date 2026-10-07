@@ -135,7 +135,9 @@ describe("turn rules", () => {
     expect(turnWarnings(log.character, sheetOf(log), intent)).toEqual(["You've moved 10 ft this turn: Steady Aim only works if you haven't moved."]);
     const notes = log.record("useAction", { action: "steady-aim" });
     expect(notes[0]).toMatch(/You had moved 10 ft/);
-    expect(log.character.combat!.moved).toBe(sheetOf(log).speed.total);
+    expect(log.character.combat!.moved).toBe(10);
+    expect(log.character.combat!.speedZero).toBe("Steady Aim");
+    expect(log.record("useEconomy", { kind: "move", amount: 5 })).toContain("Your speed is 0 for the rest of this turn (Steady Aim).");
     expect(turnWarnings(log.character, sheetOf(log), intent)).toContain("You've already used Steady Aim this turn.");
   });
 
@@ -224,5 +226,67 @@ describe("second round of table feedback", () => {
 
   it("Exhaustion knows what each level does", () => {
     expect(reg.get("condition:exhaustion", "effect").levelNotes![2]).toBe("Disadvantage on attack rolls and saving throws");
+  });
+});
+
+describe("third round of table feedback", () => {
+  it("Armor of Agathys gives the caster temp HP and reminds about the cold damage until they're gone", () => {
+    const log = logFor("elissaios");
+    const notes = log.record("castSpell", { spell: "spell:armor-of-agathys", list: "warlock", level: 1, using: "pact", selfEffect: true });
+    expect(log.character.hp.temp).toBe(5);
+    expect(notes).toContain("Armor of Agathys: 5 temporary HP.");
+    expect(sheetOf(log).spells.find((s) => s.id === "spell:armor-of-agathys")!.damage).toBeUndefined();
+
+    const hit = log.record("damage", { amount: 3 });
+    expect(log.character.hp.temp).toBe(2);
+    expect(hit).toContain("Armor of Agathys: if a melee attack hit you, the attacker takes 5 cold damage.");
+    expect(log.character.effects.some((e) => e.effect === "effect:armor-of-agathys")).toBe(true);
+
+    const last = log.record("damage", { amount: 4 });
+    expect(log.character.hp.temp).toBe(0);
+    expect(last).toContain("Armor of Agathys's temporary HP are gone: it ends.");
+    expect(log.character.effects.some((e) => e.effect === "effect:armor-of-agathys")).toBe(false);
+    expect(log.record("damage", { amount: 1 }).join(" ")).not.toMatch(/Agathys/);
+  });
+
+  it("once-per-turn features are remembered for the turn, then forgotten", () => {
+    const log = logFor("elissaios");
+    log.record("startCombat", {});
+    log.record("startTurn", {});
+    log.record("markOnce", { labels: ["Sneak Attack"] });
+    expect(log.character.combat!.onceUsed).toEqual(["Sneak Attack"]);
+    log.record("endTurn", {});
+    log.record("startTurn", {});
+    expect(log.character.combat!.onceUsed).toEqual([]);
+  });
+
+  it("Sneak Attack is marked once per turn", () => {
+    const s = sheetOf(logFor("elissaios"));
+    const sneak = s.attacks.flatMap((a) => a.damage.bonus.suggestions).find((x) => x.label.startsWith("Sneak Attack"));
+    expect(sneak?.oncePerTurn).toBe(true);
+  });
+
+  it("concentration and its effect share one duration", () => {
+    const log = logFor("elissaios");
+    log.record("castSpell", { spell: "spell:invisibility", list: "haunted-by-the-shadows", level: 2, using: "free", selfEffect: true });
+    const eff = log.character.effects.find((e) => e.effect === "effect:invisibility")!;
+    log.record("updateEffect", { instanceId: eff.id, minutes: 30 });
+    expect(log.character.concentration!.minutes).toBe(30);
+    log.record("setConcentration", { minutes: 12 });
+    expect(log.character.effects.find((e) => e.id === eff.id)!.minutes).toBe(12);
+  });
+});
+
+describe("two daggers in one stack", () => {
+  it("dagger then off-hand dagger is two-weapon fighting when you carry two", () => {
+    const log = logFor("elissaios");
+    log.record("startCombat", {});
+    log.record("startTurn", {});
+    const s = sheetOf(log);
+    const off = s.attacks.find((a) => a.offHand && a.name.startsWith("Dagger"))!;
+    const main = s.attacks.find((a) => !a.offHand && a.name === "Dagger")!;
+    log.record("useEconomy", { kind: "attack", attackWith: { attackId: main.attackId, itemInstanceId: main.itemInstanceId!, melee: true, light: true } });
+    const intent = { name: off.name, economy: "bonus" as const, weapon: { attackId: off.attackId, itemInstanceId: off.itemInstanceId!, offHand: true, light: true } };
+    expect(turnWarnings(log.character, sheetOf(log), intent)).toEqual([]);
   });
 });

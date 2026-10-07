@@ -466,6 +466,7 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
         if (mod.damageType) apply.damageType = mod.damageType;
         const s: Suggestion = { label: labelOf(a), effect: describeEffect(a), apply };
         if (mod.when?.text) s.reason = mod.when.text;
+        if (mod.oncePerTurn) s.oncePerTurn = true;
         suggestions.push(s);
         continue;
       }

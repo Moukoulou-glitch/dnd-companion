@@ -107,6 +107,8 @@ export const Modifier = z
     /** Overrides the source name in breakdowns, e.g. "Archery". */
     label: z.string().optional(),
     damageType: DamageType.optional(),
+    /** Usable once per turn (Sneak Attack): the roll warns if it was already used this turn. */
+    oncePerTurn: z.boolean().optional(),
   })
   .strict();
 export type Modifier = z.infer<typeof Modifier>;

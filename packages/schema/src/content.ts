@@ -215,6 +215,18 @@ export const EffectDef = z
     selfOnly: z.boolean().optional(),
     /** Ends when you do one of these (Invisibility: attack or cast a spell); the app asks. */
     endsOn: z.array(z.enum(["attack", "cast"])).optional(),
+    /** Temporary HP gained when applied (Armor of Agathys: 5*slotLevel). */
+    tempHpGain: z.union([z.number(), z.string()]).optional(),
+    /**
+     * A reminder each time you take damage while it's on (Armor of Agathys:
+     * melee attackers take cold damage). "{amount}" in the text is `amount`
+     * worked out at the cast level. `whileTempHp`: only while you have temp HP,
+     * and it ends when they're gone.
+     */
+    onDamage: z
+      .object({ text: z.string(), amount: z.union([z.number(), z.string()]).optional(), whileTempHp: z.boolean().optional() })
+      .strict()
+      .optional(),
     /** Current HP gained when applied (Aid). May use "slotLevel". */
     hpGain: z.union([z.number(), z.string()]).optional(),
     /** Ends if the caster loses concentration. */

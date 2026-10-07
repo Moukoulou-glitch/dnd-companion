@@ -1356,6 +1356,35 @@
       "includes": [],
       "reminders": [],
       "rounds": 1
+    },
+    {
+      "kind": "effect",
+      "id": "effect:armor-of-agathys",
+      "name": "Armor of Agathys",
+      "summary": "Frosty armor: temporary HP (5 per slot level), and melee attackers who hit you take cold damage while they last.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 215
+      },
+      "category": "spell",
+      "modifiers": [],
+      "minutes": 60,
+      "concentration": false,
+      "includes": [],
+      "reminders": [
+        "While its temporary HP last, a creature that hits you with a melee attack takes cold damage (5 per slot level)."
+      ],
+      "selfOnly": true,
+      "upcast": {
+        "baseLevel": 1
+      },
+      "tempHpGain": "5*slotLevel",
+      "onDamage": {
+        "text": "Armor of Agathys: if a melee attack hit you, the attacker takes {amount} cold damage.",
+        "amount": "5*slotLevel",
+        "whileTempHp": true
+      }
     }
   ]
 }

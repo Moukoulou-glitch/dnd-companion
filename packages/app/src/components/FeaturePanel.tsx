@@ -80,7 +80,7 @@ export function FeaturePanel({
           )}
         </>
       )}
-      <button className="big primary wide" disabled={!!amount && physical && amount.dice.length > 0 && !entry} onClick={() => useNow()}>
+      <button className={`big wide ${none ? "damage" : "primary"}`} disabled={!!amount && physical && amount.dice.length > 0 && !entry} onClick={() => useNow()}>
         {none ? `Use ${a.name} anyway` : a.roll && !physical ? `Roll and use ${a.name}` : `Use ${a.name}`}
       </button>
       {(a.cost || a.economy !== "free") && (a.toggles.length > 0 || a.duration) && (

@@ -232,7 +232,8 @@
             "label": "Sneak Attack",
             "when": {
               "text": "once per turn; finesse or ranged weapon; advantage, or an ally within 5 ft of the target"
-            }
+            },
+            "oncePerTurn": true
           }
         ]
       }

@@ -179,7 +179,14 @@ export function App() {
     title: string,
     base: ComposerBase,
     attack?: WeaponAttack,
-    opts: { notes?: string[]; onTotal?: (n: number) => void; conflicts?: { label: string; warning: string }[] } = {},
+    opts: {
+      notes?: string[];
+      onTotal?: (n: number) => void;
+      optionInfo?: Record<string, { warning?: string; preselect?: boolean }>;
+      onCommit?: (n: number) => void;
+      repeat?: { count: number; what: string };
+      onDamageOptions?: (labels: string[]) => void;
+    } = {},
   ) =>
     open(title, () => (
       <Composer
@@ -187,7 +194,10 @@ export function App() {
         base={base}
         {...(attack ? { attack } : {})}
         {...(opts.notes ? { notes: opts.notes } : {})}
-        {...(opts.conflicts ? { conflicts: opts.conflicts } : {})}
+        {...(opts.optionInfo ? { optionInfo: opts.optionInfo } : {})}
+        {...(opts.onCommit ? { onCommit: opts.onCommit } : {})}
+        {...(opts.repeat ? { repeat: opts.repeat } : {})}
+        {...(opts.onDamageOptions ? { onDamageOptions: opts.onDamageOptions } : {})}
         {...(portentFor() ? { portent: portentFor()! } : {})}
         onOptionsUsed={recordOptions}
         physical={live.current.character?.settings.physicalDice ?? true}
@@ -220,10 +230,23 @@ export function App() {
               live.current.act("useAction", payload, label);
               return close();
             }
-            guard({ name: current.name, economy: current.economy, actionId: current.id, ...(current.notAfterMoving ? { notAfterMoving: true } : {}) }, () => {
+            const go = () =>
+              guard({ name: current.name, economy: current.economy, actionId: current.id, ...(current.notAfterMoving ? { notAfterMoving: true } : {}) }, () => {
               live.current.act("useAction", payload, label);
               close();
             });
+            if (current.cost && current.cost.remaining < current.cost.amount)
+              open(current.name, () => (
+                <Confirm
+                  question="Are you sure?"
+                  detail={`You have no ${current.cost!.name} left.`}
+                  no="No, cancel"
+                  yes={`Use ${current.name} anyway`}
+                  onNo={close}
+                  onYes={go}
+                />
+              ));
+            else go();
           }}
         />
       );
@@ -247,10 +270,10 @@ export function App() {
    */
   const askEndsOn = (kind: "attack" | "cast", proceed: () => boolean | void, after?: () => void) => {
     const ending = live.current.sheet?.effects.filter((e) => e.endsOn?.includes(kind)) ?? [];
-    if (!ending.length) return void proceed();
     const go = () => {
       if (proceed() !== false) after?.();
     };
+    if (!ending.length) return go();
     const names = ending.map((e) => e.name).join(", ");
     open(`${names} ends?`, () => (
       <Confirm
@@ -270,7 +293,43 @@ export function App() {
     ));
   };
 
-  /** Weapon attacks on your turn use the Attack action (Extra Attack counts); off your turn they're a reaction (opportunity attack). */
+  /**
+   * What the roll should know about each optional modifier: Steady Aim already
+   * used this turn starts ticked; with no bonus action left, after moving, or
+   * with a bonus-action attack it warns; a once-per-turn option already used
+   * (Sneak Attack) warns.
+   */
+  const optionInfoFor = (a: WeaponAttack) => {
+    const cur = live.current;
+    const cb = cur.character?.combat;
+    const info: Record<string, { warning?: string; preselect?: boolean }> = {};
+    const ECON = { action: "action", bonus: "bonus action", reaction: "reaction" } as const;
+    for (const sg of [...a.attack.suggestions, ...a.damage.bonus.suggestions]) {
+      const warnings: string[] = [];
+      let preselect = false;
+      const feature = cur.sheet?.actions.find((x) => x.name === sg.label && x.economy !== "free");
+      if (feature && cb && feature.economy !== "free") {
+        if (cb.usedThisTurn.includes(feature.id)) {
+          preselect = true;
+          if (feature.stopsMovement && cb.moved > 0) warnings.push(`You've moved ${cb.moved} ft this turn, but ${feature.name} sets your speed to 0: it only works if you stay put.`);
+        } else {
+          if (feature.notAfterMoving && cb.moved > 0) warnings.push(`You've moved ${cb.moved} ft this turn: ${feature.name} only works if you haven't moved.`);
+          const used = feature.economy === "bonus" ? cb.bonus : feature.economy === "action" ? cb.action : cb.reaction;
+          if (used > 0) warnings.push(`No ${ECON[feature.economy]} left this turn: you've already used it.`);
+          else if (a.action === "bonus" && feature.economy === "bonus") warnings.push(`${feature.name} is a bonus action too, and ${a.name} uses your bonus action.`);
+        }
+      }
+      if (sg.oncePerTurn && cb?.onceUsed.includes(sg.label)) warnings.push(`You've already used ${sg.label} this turn: it works once per turn.`);
+      if (warnings.length || preselect) info[sg.label] = { ...(warnings.length ? { warning: `${warnings.join(" ")} Keep it only if your DM allows.` } : {}), ...(preselect ? { preselect } : {}) };
+    }
+    return info;
+  };
+
+  /**
+   * Weapon attacks on your turn use the Attack action (Extra Attack counts);
+   * off your turn they're a reaction (opportunity attack). Nothing is spent
+   * until the attack is actually rolled.
+   */
   const openAttack = (a: WeaponAttack) => {
     const cb = live.current.character?.combat;
     const reaction = !!cb && !cb.myTurn && a.action === "attack";
@@ -281,24 +340,30 @@ export function App() {
     if (a.itemInstanceId) weapon.itemInstanceId = a.itemInstanceId;
     if (a.offHand) weapon.offHand = true;
     if (a.requires) weapon.requires = a.requires;
-    // Bonus-action features that can't share the turn with this bonus attack (Steady Aim).
-    const conflicts =
-      a.action === "bonus"
-        ? (live.current.sheet?.actions ?? [])
-            .filter((x) => x.economy === "bonus" && a.attack.suggestions.some((sg) => sg.label === x.name))
-            .map((x) => ({ label: x.name, warning: `${x.name} is a bonus action too: with ${a.name} you've already used it this turn. Keep it only if your DM allows.` }))
-        : [];
+    const perAction = live.current.sheet?.attacksPerAction ?? 1;
+    const left = Math.max(1, perAction - (cb?.attacks ?? 0));
+    const onCommit = () => {
+      const now = live.current.character?.combat;
+      if (!now) return;
+      const kind = economy === "action" ? "attack" : economy;
+      const label = kind === "attack" ? `Attack ${now.attacks + 1} of ${perAction}.` : reaction ? "Reaction used (opportunity attack)." : "Bonus action used.";
+      const attackWith: Record<string, unknown> = { attackId: a.attackId, melee, light };
+      if (a.itemInstanceId) attackWith.itemInstanceId = a.itemInstanceId;
+      live.current.act("useEconomy", { kind, attackWith }, label);
+    };
+    const onDamageOptions = (labels: string[]) => {
+      const once = labels.filter((l) => a.damage.bonus.suggestions.some((sg) => sg.label === l && sg.oncePerTurn));
+      if (once.length && live.current.character?.combat) live.current.act("markOnce", { labels: once }, `${once.join(", ")} used this turn.`);
+    };
     askEndsOn("attack", () =>
-      guard({ name: a.name, economy, attack: economy === "action", weapon }, () => {
-        if (cb) {
-          const kind = economy === "action" ? "attack" : economy;
-          const label = kind === "attack" ? `Attack ${cb.attacks + 1} of ${live.current.sheet?.attacksPerAction ?? 1}.` : reaction ? "Reaction used (opportunity attack)." : "Bonus action used.";
-          const attackWith: Record<string, unknown> = { attackId: a.attackId, melee, light };
-          if (a.itemInstanceId) attackWith.itemInstanceId = a.itemInstanceId;
-          live.current.act("useEconomy", { kind, attackWith }, label);
-        }
-        openRoll(a.name, a.attack, a, conflicts.length ? { conflicts } : {});
-      }),
+      guard({ name: a.name, economy, attack: economy === "action", weapon }, () =>
+        openRoll(a.name, a.attack, a, {
+          optionInfo: optionInfoFor(a),
+          onCommit,
+          onDamageOptions,
+          ...(economy === "action" && left > 1 ? { repeat: { count: left, what: "attacks" } } : {}),
+        }),
+      ),
     );
   };
 
@@ -699,7 +764,7 @@ export function App() {
   /** Attack or damage for a spell at a slot level; beams and portent come along. */
   const rollSpell = (sp: SpellResult, level: number, damageOnly: boolean) => {
     const beams = sp.beams?.byLevel[sp.level === 0 ? 0 : level];
-    const notes = beams && beams > 1 ? [`${beams} ${sp.beams!.what}: make a separate attack roll for each. They can hit the same target or different ones.`] : [];
+    const notes = beams && beams > 1 ? [`${beams} ${sp.beams!.what}, each its own attack: they can hit the same target or different ones. The app takes you through them one by one.`] : [];
     const portent = portentFor();
     open(sp.name, () => (
       <Composer
@@ -708,6 +773,8 @@ export function App() {
         attack={spellAsAttack(sp, level)}
         damageOnly={damageOnly}
         notes={notes}
+        optionInfo={optionInfoFor(spellAsAttack(sp, level))}
+        {...(beams && beams > 1 ? { repeat: { count: beams, what: sp.beams!.what } } : {})}
         {...(portent && !damageOnly ? { portent } : {})}
         healing={!!sp.heal && !sp.damage}
         onHealSelf={(n) => {
@@ -731,13 +798,25 @@ export function App() {
           sheet={live.current.sheet!}
           hasSelfEffect={registry.has(sp.id.replace(/^spell:/, "effect:"))}
           initialCast={castAt}
-          onCast={(level, using, selfEffect) =>
-            askEndsOn("cast", () => guard(
+          onCast={(level, using, selfEffect) => {
+            const castIt = () => askEndsOn("cast", () => guard(
               { name: sp.name, economy: using === "ritual" ? "free" : castingEconomy(sp.castingTime), spell: { level: sp.level, concentration: sp.concentration } },
               () => live.current.act("castSpell", { spell: sp.id, list: sp.list.id, level, using, selfEffect }, `${sp.name} cast.`),
               { cancelled: () => openSpell(sp), done: () => openSpell(sp, level) },
-            ), () => openSpell(sp, level))
-          }
+            ), () => openSpell(sp, level));
+            if (using === "free" && sp.cast.free && sp.cast.free.remaining <= 0)
+              open(sp.name, () => (
+                <Confirm
+                  question="Are you sure?"
+                  detail={`You have no ${sp.cast.free!.name} left.`}
+                  no="No, cancel"
+                  yes={`Cast ${sp.name} anyway`}
+                  onNo={() => openSpell(sp)}
+                  onYes={castIt}
+                />
+              ));
+            else castIt();
+          }}
           onPrepare={(prepared) => live.current.act("setPrepared", { spell: sp.id, list: sp.list.id, prepared }, `${sp.name} ${prepared ? "prepared" : "unprepared"}.`)}
           onRollAttack={(level) => roller(level, false)}
           onRollDamage={(level) => roller(level, true)}
