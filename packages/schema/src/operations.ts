@@ -145,6 +145,32 @@ export const OPERATION_PAYLOADS = {
   /** Choose a companion's form or name; a new form arrives with full HP. */
   setCompanion: z.object({ companion: z.string(), form: z.string().optional(), name: z.string().optional() }).strict(),
   /** Bring a companion back with full HP, spending a spell slot of `level`. */
+  /** Gain a level in a class (a new class is multiclassing). HP: the roll, or the average when absent. */
+  levelUp: z.object({ class: z.string(), hpRoll: z.number().int().min(1).optional() }).strict(),
+  /** Take a level back (a mistake): the last level of that class. */
+  levelDown: z.object({ class: z.string() }).strict(),
+  setSubclass: z.object({ class: z.string(), subclass: z.string().nullable() }).strict(),
+  /** What the player picked for one choice of a race, class, background, feature or feat. */
+  setChoice: z.object({ source: z.string(), choice: z.string(), values: z.array(z.string()) }).strict(),
+  /** Base ability scores (before racial and other bonuses). */
+  setAbilities: z.object({ abilities: z.record(z.enum(["str", "dex", "con", "int", "wis", "cha"]), z.number().int().min(1).max(30)) }).strict(),
+  /** An Ability Score Improvement at a class level: abilities (+2 one or +1 two) or a feat. null clears it. */
+  chooseAsi: z
+    .object({
+      class: z.string(),
+      level: z.number().int().min(1).max(20),
+      abilities: z.record(z.enum(["str", "dex", "con", "int", "wis", "cha"]), z.number().int().min(1).max(2)).optional(),
+      feat: z.string().optional(),
+      clear: z.boolean().optional(),
+    })
+    .strict(),
+  /** Name, player, alignment, race or background. */
+  setDetails: z
+    .object({ name: z.string().optional(), player: z.string().optional(), alignment: z.string().optional(), race: z.string().optional(), background: z.string().nullable().optional() })
+    .strict(),
+  /** Add a spell to a class list (known spells, a wizard's spellbook, cantrips), or take it away. */
+  learnSpell: z.object({ spell: z.string(), list: z.string() }).strict(),
+  forgetSpell: z.object({ spell: z.string(), list: z.string() }).strict(),
   /** A companion takes one of the actions anyone can take; Dodge and Ready show as tags until your next turn starts. */
   companionAction: z.object({ companion: z.string(), action: z.string(), choice: z.string().optional() }).strict(),
   /** Takes a companion's tag away (the readied action was used, or it ended early). */
@@ -187,6 +213,15 @@ export const Operation = z.discriminatedUnion("type", [
   OperationBase.extend({ type: z.literal("useEconomy"), payload: OPERATION_PAYLOADS.useEconomy }),
   OperationBase.extend({ type: z.literal("setCompanion"), payload: OPERATION_PAYLOADS.setCompanion }),
   OperationBase.extend({ type: z.literal("reviveCompanion"), payload: OPERATION_PAYLOADS.reviveCompanion }),
+  OperationBase.extend({ type: z.literal("levelUp"), payload: OPERATION_PAYLOADS.levelUp }),
+  OperationBase.extend({ type: z.literal("levelDown"), payload: OPERATION_PAYLOADS.levelDown }),
+  OperationBase.extend({ type: z.literal("setSubclass"), payload: OPERATION_PAYLOADS.setSubclass }),
+  OperationBase.extend({ type: z.literal("setChoice"), payload: OPERATION_PAYLOADS.setChoice }),
+  OperationBase.extend({ type: z.literal("setAbilities"), payload: OPERATION_PAYLOADS.setAbilities }),
+  OperationBase.extend({ type: z.literal("chooseAsi"), payload: OPERATION_PAYLOADS.chooseAsi }),
+  OperationBase.extend({ type: z.literal("setDetails"), payload: OPERATION_PAYLOADS.setDetails }),
+  OperationBase.extend({ type: z.literal("learnSpell"), payload: OPERATION_PAYLOADS.learnSpell }),
+  OperationBase.extend({ type: z.literal("forgetSpell"), payload: OPERATION_PAYLOADS.forgetSpell }),
   OperationBase.extend({ type: z.literal("companionAction"), payload: OPERATION_PAYLOADS.companionAction }),
   OperationBase.extend({ type: z.literal("endCompanionState"), payload: OPERATION_PAYLOADS.endCompanionState }),
   OperationBase.extend({ type: z.literal("passTime"), payload: OPERATION_PAYLOADS.passTime }),

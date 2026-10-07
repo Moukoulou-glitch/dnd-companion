@@ -1,5 +1,5 @@
 import { Character, CombatState, type Operation } from "@dnd/schema";
-import { castingEconomy, derive, evalFlat, type ContentRegistry } from "@dnd/engine";
+import { castingEconomy, derive, evalFlat, levelGains, multiclassIssues, type ContentRegistry } from "@dnd/engine";
 
 /** Something the player should do next, e.g. roll a concentration check. */
 export type Prompt = { kind: "concentration"; dc: number; spell: string };
@@ -942,6 +942,142 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
       break;
     }
 
+    case "levelUp": {
+      const { class: cls, hpRoll } = op.payload;
+      const def = reg.find(cls, "class");
+      if (!def) {
+        notes.push(`Unknown class "${cls}".`);
+        break;
+      }
+      // From now on the app asks for ASIs at new levels; the ones before are taken as settled.
+      c.asiBaseline ??= Object.fromEntries(c.classes.map((x) => [x.class, x.level]));
+      const gains = levelGains(c, reg, cls)!;
+      const avg = def.hitDie / 2 + 1;
+      const idx = c.classes.findIndex((x) => x.class === cls);
+      if (idx < 0) {
+        for (const p of multiclassIssues(c, reg, cls)) notes.push(`Multiclassing: ${p}`);
+        c.classes.push({ class: cls, level: 1, ...(hpRoll !== undefined ? { hpRolls: [hpRoll] } : {}) });
+      } else {
+        const cl = c.classes[idx]!;
+        if (cl.level >= 20) {
+          notes.push(`${def.name} is already level 20.`);
+          break;
+        }
+        const counted = idx === 0 ? cl.level - 1 : cl.level;
+        if (hpRoll !== undefined || cl.hpRolls?.length) {
+          const rolls = [...(cl.hpRolls ?? [])];
+          while (rolls.length < counted) rolls.push(avg);
+          rolls.push(hpRoll ?? avg);
+          cl.hpRolls = rolls;
+        }
+        cl.level += 1;
+      }
+      const total = c.classes.reduce((n, x) => n + x.level, 0);
+      if (total > 20) notes.push(`Character level ${total}: above 20.`);
+      const gain = derive(c, reg).hpMax.total - maxHp;
+      if (c.hp.current > 0) c.hp.current += Math.max(0, gain);
+      notes.push(`${def.name} ${gains.newLevel}: ${gain >= 0 ? "+" : ""}${gain} HP maximum.`);
+      if (gains.features.length) notes.push(`New: ${gains.features.map((f) => f.name).join(", ")}.`);
+      if (gains.subclassDue) notes.push(`Choose your ${def.subclassTitle ?? "subclass"}.`);
+      if (gains.asiDue) notes.push("Ability Score Improvement: +2 to one ability, +1 to two, or a feat.");
+      break;
+    }
+
+    case "levelDown": {
+      const idx = c.classes.findIndex((x) => x.class === op.payload.class);
+      const cl = c.classes[idx];
+      if (!cl) break;
+      if (cl.level === 1) {
+        if (c.classes.length === 1) {
+          notes.push("A character needs at least one level.");
+          break;
+        }
+        c.classes.splice(idx, 1);
+      } else {
+        cl.level -= 1;
+        const counted = idx === 0 ? cl.level - 1 : cl.level;
+        if (cl.hpRolls && cl.hpRolls.length > counted) cl.hpRolls = cl.hpRolls.slice(0, counted);
+      }
+      // ASIs above the level that's left go too, with a feat taken instead of one.
+      const remaining = c.classes.find((x) => x.class === op.payload.class)?.level ?? 0;
+      const gone = c.asi.filter((a) => a.class === op.payload.class && a.level > remaining);
+      for (const g of gone) if (g.feat) c.feats = c.feats.filter((f) => !(f.feat === g.feat && f.from.endsWith(`${g.level} (Ability Score Improvement)`)));
+      c.asi = c.asi.filter((a) => !gone.includes(a));
+      const newMax = derive(c, reg).hpMax.total;
+      if (c.hp.current > newMax) c.hp.current = newMax;
+      notes.push(`${reg.find(op.payload.class, "class")?.name ?? op.payload.class} level taken back.`);
+      break;
+    }
+
+    case "setSubclass": {
+      const cl = c.classes.find((x) => x.class === op.payload.class);
+      if (!cl) break;
+      if (op.payload.subclass) cl.subclass = op.payload.subclass;
+      else delete cl.subclass;
+      break;
+    }
+
+    case "setChoice": {
+      const { source, choice, values } = op.payload;
+      const forSource = (c.choices[source] ??= {});
+      if (values.length) forSource[choice] = values;
+      else delete forSource[choice];
+      if (!Object.keys(forSource).length) delete c.choices[source];
+      break;
+    }
+
+    case "setAbilities": {
+      c.abilities = { ...c.abilities, ...op.payload.abilities };
+      break;
+    }
+
+    case "chooseAsi": {
+      const { class: cls, level, abilities, feat, clear } = op.payload;
+      const tag = `${reg.find(cls, "class")?.name ?? cls} ${level} (Ability Score Improvement)`;
+      const old = c.asi.find((a) => a.class === cls && a.level === level);
+      if (old?.feat) {
+        const i = c.feats.findIndex((f) => f.feat === old.feat && f.from === tag);
+        if (i >= 0) c.feats.splice(i, 1);
+      }
+      c.asi = c.asi.filter((a) => a !== old);
+      if (clear) break;
+      if (feat) {
+        c.asi.push({ class: cls, level, feat });
+        c.feats.push({ feat, from: tag });
+      } else if (abilities) {
+        const sum = Object.values(abilities).reduce((n, v) => n + v, 0);
+        if (sum !== 2) notes.push(`That's +${sum}: an Ability Score Improvement is +2 to one ability or +1 to two.`);
+        c.asi.push({ class: cls, level, abilities });
+      }
+      break;
+    }
+
+    case "setDetails": {
+      const { name, player, alignment, race, background } = op.payload;
+      if (name !== undefined) c.name = name;
+      if (player !== undefined) c.player = player;
+      if (alignment !== undefined) c.alignment = alignment;
+      if (race !== undefined) c.race = race;
+      if (background === null) delete c.background;
+      else if (background !== undefined) c.background = background;
+      break;
+    }
+
+    case "learnSpell": {
+      const { spell, list } = op.payload;
+      if (c.spells.some((x) => x.spell === spell && x.list === list)) {
+        notes.push("Already on that list.");
+        break;
+      }
+      c.spells.push({ spell, list, prepared: false });
+      break;
+    }
+
+    case "forgetSpell": {
+      c.spells = c.spells.filter((x) => !(x.spell === op.payload.spell && x.list === op.payload.list));
+      break;
+    }
+
     case "setField": {
       const { path, value } = op.payload;
       let target: Record<string | number, unknown> = c as unknown as Record<string, unknown>;
@@ -969,8 +1105,13 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
     }
   }
 
+  // Building at full HP (a Constitution bonus, a race's extra hit points): stay at full.
+  if (["setChoice", "setAbilities", "chooseAsi", "setDetails", "setSubclass"].includes(op.type) && input.hp.current >= maxHp) {
+    c.hp.current = derive(c, reg).hpMax.total;
+  }
+
   // A lower HP maximum (Exhaustion 4, Aid ending) pulls current HP down with it.
-  if (["addEffect", "removeEffect", "updateEffect", "endTurn", "setItem", "removeItem"].includes(op.type)) {
+  if (["addEffect", "removeEffect", "updateEffect", "endTurn", "setItem", "removeItem", "setChoice", "setAbilities", "chooseAsi", "setDetails", "setSubclass", "levelDown"].includes(op.type)) {
     const newMax = derive(c, reg).hpMax.total;
     if (c.hp.current > newMax) {
       c.hp.current = newMax;

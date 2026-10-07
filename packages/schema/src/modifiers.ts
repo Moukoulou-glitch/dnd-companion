@@ -346,6 +346,19 @@ export const ChoiceDef = z
     from: z.array(z.string()).optional(),
     /** Spell choices: the free-cast pool the chosen spells use (Magic Initiate's once per long rest). */
     resource: z.string().optional(),
+    /** How many grows with class level, read from the class's table (Eldritch Invocations: "invocations"). */
+    countBy: z.string().optional(),
+    /** Spell choices: which spells qualify (Magic Initiate cleric cantrips: classes ["cleric"], level 0). */
+    spells: z
+      .object({
+        classes: z.array(z.string()).optional(),
+        level: z.number().int().min(0).max(9).optional(),
+        maxLevel: z.number().int().min(0).max(9).optional(),
+        /** Lower-case school names (Fey Touched: divination or enchantment). */
+        schools: z.array(z.string()).optional(),
+      })
+      .strict()
+      .optional(),
   })
   .strict();
 export type ChoiceDef = z.infer<typeof ChoiceDef>;

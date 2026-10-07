@@ -230,6 +230,28 @@ export const Character = z
     pools: z.record(z.string(), z.array(z.number().int())).default({}),
     /** Features given by the campaign rather than a class or race (Charm of Sunlight). */
     extraFeatures: z.array(DefId).default([]),
+    /**
+     * Ability Score Improvements taken, one per class level that gives one:
+     * +2 to one ability or +1 to two, or a feat instead (kept in `feats` too).
+     */
+    asi: z
+      .array(
+        z
+          .object({
+            class: DefId,
+            level: z.number().int().min(1).max(20),
+            abilities: z.record(Ability, z.number().int().min(1).max(2)).optional(),
+            feat: DefId.optional(),
+          })
+          .strict(),
+      )
+      .default([]),
+    /**
+     * Class levels already settled before the app tracked ASIs (characters
+     * made outside the app): no ASI is asked for at or below them. Absent for
+     * characters that haven't levelled in the app yet: nothing is asked.
+     */
+    asiBaseline: z.record(DefId, z.number().int().min(0)).optional(),
     /** Companions from features (Primal Companion), keyed by companion id. */
     companions: z.record(z.string(), CompanionState).default({}),
     /** Per-character preferences. Real dice is the default: most players at the table roll physical dice. */

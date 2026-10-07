@@ -76,6 +76,19 @@ export const ClassDef = z
     spellcastingFromLevel: z.number().int().min(1).optional(),
     features: z.array(ClassFeatureRef),
     subclassLevel: z.number().int().min(1),
+    /** What the subclass is called for this class ("Primal Path", "Otherworldly Patron"). */
+    subclassTitle: z.string().optional(),
+    /** Choices when this is the first class (skills), and when multiclassing into it. */
+    choices: z.array(ChoiceDef).optional(),
+    multiclassChoices: z.array(ChoiceDef).optional(),
+    /** Levels that give an Ability Score Improvement (or a feat). */
+    asiLevels: z.array(z.number().int().min(1).max(20)).optional(),
+    /** Numbers by class level, index 0 = level 1: cantrips and spells known, invocations known. */
+    progression: z.record(z.string(), z.array(z.number().int().min(0)).length(20)).optional(),
+    /** Ability minimums to multiclass into or out of it; `any` means one of them is enough (Fighter: STR or DEX 13). */
+    multiclassPrereq: z.object({ abilities: z.record(Ability, z.number().int()), any: z.boolean().optional() }).strict().optional(),
+    /** Features of an earlier pack's version of this class that this one drops (Tasha's ranger replaces Favored Enemy). */
+    replaces: z.array(DefId).optional(),
   })
   .strict();
 export type ClassDef = z.infer<typeof ClassDef>;
@@ -86,6 +99,7 @@ export const SubclassDef = z
     kind: z.literal("subclass"),
     class: DefId,
     features: z.array(ClassFeatureRef),
+    choices: z.array(ChoiceDef).optional(),
   })
   .strict();
 export type SubclassDef = z.infer<typeof SubclassDef>;
@@ -97,6 +111,9 @@ export const RaceDef = z
     size: z.enum(["small", "medium"]),
     /** Humanoid unless the race says otherwise. */
     creatureType: z.string().optional(),
+    /** For subraces: the race it belongs to, for grouping ("Dwarf" for Hill Dwarf). */
+    group: z.string().optional(),
+    choices: z.array(ChoiceDef).optional(),
     speed: z.number().int(),
     grant: Grant.optional(),
     features: z.array(DefId).default([]),
@@ -109,6 +126,7 @@ export const BackgroundDef = z
     ...base,
     kind: z.literal("background"),
     grant: Grant.optional(),
+    choices: z.array(ChoiceDef).optional(),
     features: z.array(DefId).default([]),
   })
   .strict();

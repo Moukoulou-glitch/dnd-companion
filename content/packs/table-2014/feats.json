@@ -38,14 +38,26 @@
           "id": "cantrips",
           "label": "Cantrips",
           "kind": "spell",
-          "count": 2
+          "count": 2,
+          "spells": {
+            "classes": [
+              "cleric"
+            ],
+            "level": 0
+          }
         },
         {
           "id": "spell",
           "label": "1st-level spell",
           "kind": "spell",
           "count": 1,
-          "resource": "magic-initiate-spell"
+          "resource": "magic-initiate-spell",
+          "spells": {
+            "classes": [
+              "cleric"
+            ],
+            "level": 1
+          }
         }
       ],
       "grant": {
@@ -190,7 +202,14 @@
           "label": "1st-level spell",
           "kind": "spell",
           "count": 1,
-          "resource": "fey-touched-spell"
+          "resource": "fey-touched-spell",
+          "spells": {
+            "level": 1,
+            "schools": [
+              "divination",
+              "enchantment"
+            ]
+          }
         }
       ]
     }

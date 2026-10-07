@@ -2,6 +2,28 @@ import type { ContentPack, Definition } from "@dnd/schema";
 import { ContentPack as ContentPackSchema } from "@dnd/schema";
 
 type ByKind<K extends Definition["kind"]> = Extract<Definition, { kind: K }>;
+type ClassDef = ByKind<"class">;
+
+/**
+ * The table's version of a class (Tasha's ranger, a barbarian up to level 9)
+ * over the SRD one: the table decides every level it lists; levels it doesn't
+ * list keep the SRD features, minus any it `replaces`. Level tables, choices
+ * and multiclass rules come from the SRD unless the table gives its own.
+ */
+export function mergeClass(base: ClassDef, over: ClassDef): ClassDef {
+  const levels = new Set(over.features.map((f) => f.level));
+  const dropped = new Set(over.replaces ?? []);
+  const kept = base.features.filter((f) => !levels.has(f.level) && !dropped.has(f.feature));
+  const merged: ClassDef = {
+    ...base,
+    ...over,
+    features: [...over.features, ...kept].sort((a, b) => a.level - b.level),
+  };
+  for (const k of ["choices", "multiclassChoices", "asiLevels", "progression", "multiclassPrereq", "subclassTitle", "startingGrant", "multiclassGrant", "spellcasting", "spellPreparation", "spellcastingFromLevel", "text"] as const) {
+    if (over[k] === undefined && base[k] !== undefined) (merged as Record<string, unknown>)[k] = base[k];
+  }
+  return merged;
+}
 
 /** Loads content packs and resolves definition ids. Later packs override earlier ones. */
 export class ContentRegistry {
@@ -16,7 +38,10 @@ export class ContentRegistry {
   add(pack: unknown): void {
     const parsed = ContentPackSchema.parse(pack);
     this.packs.push(parsed);
-    for (const d of parsed.definitions) this.defs.set(d.id, d);
+    for (const d of parsed.definitions) {
+      const old = this.defs.get(d.id);
+      this.defs.set(d.id, old?.kind === "class" && d.kind === "class" ? mergeClass(old, d) : d);
+    }
   }
 
   /**

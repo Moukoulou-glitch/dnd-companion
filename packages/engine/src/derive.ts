@@ -1,3 +1,4 @@
+import { maxSpellLevel } from "./build.js";
 import {
   ABILITIES,
   ABILITY_NAMES,
@@ -321,6 +322,10 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
     for (const s of sources) {
       const bonus = (s.grant.abilityBonuses?.[ab] ?? 0) + chosenBonus(s, ab);
       if (bonus) parts.push({ label: s.label, value: bonus });
+    }
+    for (const a of c.asi) {
+      const n = a.abilities?.[ab];
+      if (n) parts.push({ label: `Ability Score Improvement (${reg.find(a.class, "class")?.name ?? a.class} ${a.level})`, value: n });
     }
     const score = sum(parts);
     if (score.total > 20) warnings.push(`${ABILITY_NAMES[ab]} is ${score.total}, above the usual maximum of 20.`);
@@ -781,6 +786,19 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
   for (const inst of c.spells) {
     spellDefs.set(`${inst.list}|${inst.spell}`, { def: reg.has(inst.spell) ? reg.get(inst.spell, "spell") : undefined, list: inst.list, prepared: inst.prepared });
     if (!reg.has(inst.spell)) warnings.push(`Spell "${inst.spell}" isn't in any content pack.`);
+  }
+  // Prepared casters other than wizards (cleric, druid, paladin) prepare from their whole class list.
+  for (const cl of c.classes) {
+    const def = reg.find(cl.class, "class");
+    const sc = def?.spellcasting;
+    if (!def || !sc || def.spellPreparation !== "prepared" || def.id === "class:wizard") continue;
+    const max = maxSpellLevel(def, cl.level);
+    const listName = def.id.replace(/^class:/, "");
+    for (const sp of reg.list("spell")) {
+      if (sp.level < 1 || sp.level > max || !sp.classes.includes(listName)) continue;
+      const key = `${sc.id}|${sp.id}`;
+      if (!spellDefs.has(key)) spellDefs.set(key, { def: sp, list: sc.id, prepared: false });
+    }
   }
   for (const s of sources) {
     const ownList = s.grant.spellcasting?.id;

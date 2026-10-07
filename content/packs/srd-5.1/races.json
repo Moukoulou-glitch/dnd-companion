@@ -1,0 +1,1108 @@
+{
+  "definitions": [
+    {
+      "kind": "feature",
+      "id": "feature:trait-darkvision",
+      "name": "Darkvision",
+      "summary": "You have superior vision in dark and dim conditions.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "You have superior vision in dark and dim conditions. You can see in dim light within 60 feet of you as if it were bright light, and in darkness as if it were dim light. You cannot discern color in darkness, only shades of gray."
+      ],
+      "grant": {
+        "senses": {
+          "darkvision": 60
+        }
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:trait-dwarven-resilience",
+      "name": "Dwarven Resilience",
+      "summary": "You have advantage on saving throws against poison, and you have resistance against poison damage.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "You have advantage on saving throws against poison, and you have resistance against poison damage."
+      ],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.poison",
+            "op": "resist",
+            "label": "Dwarven Resilience"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:trait-stonecunning",
+      "name": "Stonecunning",
+      "summary": "Whenever you make an Intelligence (History) check related to the origin of stonework, you are considered proficient in the History skill and add double your proficiency bonus to the check, instead of your normal…",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "Whenever you make an Intelligence (History) check related to the origin of stonework, you are considered proficient in the History skill and add double your proficiency bonus to the check, instead of your normal proficiency bonus."
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:trait-dwarven-combat-training",
+      "name": "Dwarven Combat Training",
+      "summary": "You have proficiency with the battleaxe, handaxe, light hammer, and warhammer.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "You have proficiency with the battleaxe, handaxe, light hammer, and warhammer."
+      ],
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "weapon",
+            "target": "battleaxe"
+          },
+          {
+            "kind": "weapon",
+            "target": "handaxe"
+          },
+          {
+            "kind": "weapon",
+            "target": "light hammer"
+          },
+          {
+            "kind": "weapon",
+            "target": "warhammer"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:trait-tool-proficiency",
+      "name": "Tool Proficiency",
+      "summary": "You gain proficiency with the artisan's tools of your choice: smith's tools, brewer's supplies, or mason's tools.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "You gain proficiency with the artisan's tools of your choice: smith's tools, brewer's supplies, or mason's tools."
+      ],
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "tool",
+            "target": {
+              "choice": "tools"
+            }
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "tools",
+          "label": "Tools or instruments",
+          "kind": "tool",
+          "count": 1,
+          "from": [
+            "Smith's tools",
+            "Brewer's supplies",
+            "Mason's tools"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:trait-dwarven-toughness",
+      "name": "Dwarven Toughness",
+      "summary": "Your hit point maximum increases by 1, and it increases by 1 every time you gain a level.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "Your hit point maximum increases by 1, and it increases by 1 every time you gain a level."
+      ],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.hp.max",
+            "op": "add",
+            "value": "level",
+            "label": "Dwarven Toughness"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "race",
+      "id": "race:hill-dwarf",
+      "name": "Hill Dwarf",
+      "summary": "Sturdy and wise: poison resistance, darkvision and extra hit points.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "Dwarves mature at the same rate as humans, but they're considered young until they reach the age of 50. On average, they live about 350 years.",
+        "Dwarves stand between 4 and 5 feet tall and average about 150 pounds. Your size is Medium.",
+        "As a hill dwarf, you have keen senses, deep intuition, and remarkable resilience."
+      ],
+      "size": "medium",
+      "speed": 25,
+      "grant": {
+        "abilityBonuses": {
+          "con": 2,
+          "wis": 1
+        },
+        "proficiencies": [
+          {
+            "kind": "language",
+            "target": "Common"
+          },
+          {
+            "kind": "language",
+            "target": "Dwarvish"
+          }
+        ]
+      },
+      "features": [
+        "feature:trait-darkvision",
+        "feature:trait-dwarven-resilience",
+        "feature:trait-stonecunning",
+        "feature:trait-dwarven-combat-training",
+        "feature:trait-tool-proficiency",
+        "feature:trait-dwarven-toughness"
+      ],
+      "group": "Dwarf"
+    },
+    {
+      "kind": "feature",
+      "id": "feature:trait-fey-ancestry",
+      "name": "Fey Ancestry",
+      "summary": "You have advantage on saving throws against being charmed, and magic cannot put you to sleep.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "You have advantage on saving throws against being charmed, and magic cannot put you to sleep."
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:trait-trance",
+      "name": "Trance",
+      "summary": "Elves do not need to sleep.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "Elves do not need to sleep. Instead, they meditate deeply, remaining semiconscious, for 4 hours a day. (The Common word for such meditation is \"trance.\") While meditating, you can dream after a fashion; such dreams are actually mental exercises that have become reflexive through years of practice. After resting this way, you gain the same benefit that a human does from 8 hours of sleep."
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:trait-keen-senses",
+      "name": "Keen Senses",
+      "summary": "You have proficiency in the Perception skill.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "You have proficiency in the Perception skill."
+      ],
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "skill",
+            "target": "perception"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:trait-elf-weapon-training",
+      "name": "Elf Weapon Training",
+      "summary": "You have proficiency with the longsword, shortsword, shortbow, and longbow.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "You have proficiency with the longsword, shortsword, shortbow, and longbow."
+      ],
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "weapon",
+            "target": "longsword"
+          },
+          {
+            "kind": "weapon",
+            "target": "shortsword"
+          },
+          {
+            "kind": "weapon",
+            "target": "shortbow"
+          },
+          {
+            "kind": "weapon",
+            "target": "longbow"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:trait-high-elf-cantrip",
+      "name": "High Elf Cantrip",
+      "summary": "You know one cantrip of your choice form the wizard spell list.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "You know one cantrip of your choice form the wizard spell list. Intelligence is your spellcasting ability for it."
+      ],
+      "grant": {
+        "spellcasting": {
+          "id": "high-elf",
+          "label": "High Elf cantrip",
+          "ability": "int",
+          "progression": "none"
+        }
+      },
+      "choices": [
+        {
+          "id": "cantrip",
+          "label": "Cantrip",
+          "kind": "spell",
+          "count": 1,
+          "spells": {
+            "classes": [
+              "wizard"
+            ],
+            "level": 0
+          }
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:trait-extra-language",
+      "name": "Extra Language",
+      "summary": "You can speak, read, and write one extra language of your choice.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "You can speak, read, and write one extra language of your choice."
+      ]
+    },
+    {
+      "kind": "race",
+      "id": "race:high-elf",
+      "name": "High Elf",
+      "summary": "Graceful and keen-eyed, with a wizard cantrip and trance instead of sleep.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "Although elves reach physical maturity at about the same age as humans, the elven understanding of adulthood goes beyond physical growth to encompass worldly experience. An elf typically claims adulthood and an adult name around the age of 100 and can live to be 750 years old.",
+        "Elves range from under 5 to over 6 feet tall and have slender builds. Your size is Medium.",
+        "As a high elf, you have a keen mind and a mastery of at least the basics of magic. In many fantasy gaming worlds, there are two kinds of high elves. One type is haughty and reclusive, believing themselves to be superior to non-elves and even other elves. The other type is more common and more friendly, and often encountered among humans and other races."
+      ],
+      "size": "medium",
+      "speed": 30,
+      "grant": {
+        "abilityBonuses": {
+          "dex": 2,
+          "int": 1
+        },
+        "proficiencies": [
+          {
+            "kind": "language",
+            "target": "Common"
+          },
+          {
+            "kind": "language",
+            "target": "Elvish"
+          }
+        ]
+      },
+      "features": [
+        "feature:trait-darkvision",
+        "feature:trait-fey-ancestry",
+        "feature:trait-trance",
+        "feature:trait-keen-senses",
+        "feature:trait-elf-weapon-training",
+        "feature:trait-high-elf-cantrip",
+        "feature:trait-extra-language"
+      ],
+      "group": "Elf"
+    },
+    {
+      "kind": "feature",
+      "id": "feature:trait-brave",
+      "name": "Brave",
+      "summary": "You have advantage on saving throw against being frightened.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "You have advantage on saving throw against being frightened."
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:trait-halfling-nimbleness",
+      "name": "Halfling Nimbleness",
+      "summary": "You can move through the space of any creature that is of a size larger than yours.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "You can move through the space of any creature that is of a size larger than yours."
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:trait-lucky",
+      "name": "Lucky",
+      "summary": "When you roll a 1 on the d20 for an attack roll, ability check, or saving throw, you can reroll the die and must use the new roll.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "When you roll a 1 on the d20 for an attack roll, ability check, or saving throw, you can reroll the die and must use the new roll."
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:trait-naturally-stealthy",
+      "name": "Naturally Stealthy",
+      "summary": "You can attempt to hide even when you are obscured only by a creature that is at least one size larger than you.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "You can attempt to hide even when you are obscured only by a creature that is at least one size larger than you."
+      ]
+    },
+    {
+      "kind": "race",
+      "id": "race:lightfoot-halfling",
+      "name": "Lightfoot Halfling",
+      "summary": "Small, lucky and brave; slips behind larger creatures to hide.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "A halfling reaches adulthood at the age of 20 and generally lives into the middle of his or her second century.",
+        "Halflings average about 3 feet tall and weigh about 40 pounds. Your size is Small.",
+        "As a lightfoot halfling, you can easily hide from notice, even using other people as cover. You're inclined to be affable and get along well with others. Lightfoots are more prone to wanderlust than other halflings, and often dwell alongside other races or take up a nomadic life."
+      ],
+      "size": "small",
+      "speed": 25,
+      "grant": {
+        "abilityBonuses": {
+          "dex": 2,
+          "cha": 1
+        },
+        "proficiencies": [
+          {
+            "kind": "language",
+            "target": "Common"
+          },
+          {
+            "kind": "language",
+            "target": "Halfling"
+          }
+        ]
+      },
+      "features": [
+        "feature:trait-brave",
+        "feature:trait-halfling-nimbleness",
+        "feature:trait-lucky",
+        "feature:trait-naturally-stealthy"
+      ],
+      "group": "Halfling"
+    },
+    {
+      "kind": "race",
+      "id": "race:human",
+      "name": "Human",
+      "summary": "+1 to every ability score.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "Humans reach adulthood in their late teens and live less than a century.",
+        "Humans vary widely in height and build, from barely 5 feet to well over 6 feet tall. Regardless of your position in that range, your size is Medium."
+      ],
+      "size": "medium",
+      "speed": 30,
+      "grant": {
+        "abilityBonuses": {
+          "str": 1,
+          "dex": 1,
+          "con": 1,
+          "int": 1,
+          "wis": 1,
+          "cha": 1
+        },
+        "proficiencies": [
+          {
+            "kind": "language",
+            "target": "Common"
+          },
+          {
+            "kind": "language",
+            "target": {
+              "choice": "language"
+            }
+          }
+        ]
+      },
+      "features": [],
+      "choices": [
+        {
+          "id": "language",
+          "label": "Language",
+          "kind": "language",
+          "count": 1,
+          "from": [
+            "Dwarvish",
+            "Elvish",
+            "Giant",
+            "Gnomish",
+            "Goblin",
+            "Halfling",
+            "Orc",
+            "Abyssal",
+            "Celestial",
+            "Draconic",
+            "Deep Speech",
+            "Infernal",
+            "Primordial",
+            "Sylvan",
+            "Undercommon"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:trait-draconic-ancestry-black",
+      "name": "Draconic Ancestry (Black)",
+      "summary": "You have draconic ancestry.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "You have draconic ancestry. Choose one type of dragon from the Draconic Ancestry table. Your breath weapon and damage resistance are determined by the dragon type, as shown in the table."
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:trait-draconic-ancestry-blue",
+      "name": "Draconic Ancestry (Blue)",
+      "summary": "You have draconic ancestry.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "You have draconic ancestry. Choose one type of dragon from the Draconic Ancestry table. Your breath weapon and damage resistance are determined by the dragon type, as shown in the table."
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:trait-draconic-ancestry-brass",
+      "name": "Draconic Ancestry (Brass)",
+      "summary": "You have draconic ancestry.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "You have draconic ancestry. Choose one type of dragon from the Draconic Ancestry table. Your breath weapon and damage resistance are determined by the dragon type, as shown in the table."
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:trait-draconic-ancestry-bronze",
+      "name": "Draconic Ancestry (Bronze)",
+      "summary": "You have draconic ancestry.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "You have draconic ancestry. Choose one type of dragon from the Draconic Ancestry table. Your breath weapon and damage resistance are determined by the dragon type, as shown in the table."
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:trait-draconic-ancestry-copper",
+      "name": "Draconic Ancestry (Copper)",
+      "summary": "You have draconic ancestry.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "You have draconic ancestry. Choose one type of dragon from the Draconic Ancestry table. Your breath weapon and damage resistance are determined by the dragon type, as shown in the table."
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:trait-draconic-ancestry-gold",
+      "name": "Draconic Ancestry (Gold)",
+      "summary": "You have draconic ancestry.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "You have draconic ancestry. Choose one type of dragon from the Draconic Ancestry table. Your breath weapon and damage resistance are determined by the dragon type, as shown in the table."
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:trait-draconic-ancestry-green",
+      "name": "Draconic Ancestry (Green)",
+      "summary": "You have draconic ancestry.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "You have draconic ancestry. Choose one type of dragon from the Draconic Ancestry table. Your breath weapon and damage resistance are determined by the dragon type, as shown in the table."
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:trait-draconic-ancestry-red",
+      "name": "Draconic Ancestry (Red)",
+      "summary": "You have draconic ancestry.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "You have draconic ancestry. Choose one type of dragon from the Draconic Ancestry table. Your breath weapon and damage resistance are determined by the dragon type, as shown in the table."
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:trait-draconic-ancestry-silver",
+      "name": "Draconic Ancestry (Silver)",
+      "summary": "You have draconic ancestry.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "You have draconic ancestry. Choose one type of dragon from the Draconic Ancestry table. Your breath weapon and damage resistance are determined by the dragon type, as shown in the table."
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:trait-draconic-ancestry-white",
+      "name": "Draconic Ancestry (White)",
+      "summary": "You have draconic ancestry.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "You have draconic ancestry. Choose one type of dragon from the Draconic Ancestry table. Your breath weapon and damage resistance are determined by the dragon type, as shown in the table."
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:trait-draconic-ancestry",
+      "name": "Draconic Ancestry",
+      "summary": "You have draconic ancestry.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "You have draconic ancestry. Choose one type of dragon from the Draconic Ancestry table. Your breath weapon and damage resistance are determined by the dragon type, as shown in the table."
+      ],
+      "choices": [
+        {
+          "id": "option",
+          "label": "Draconic Ancestry",
+          "kind": "feature",
+          "count": 1,
+          "from": [
+            "feature:trait-draconic-ancestry-black",
+            "feature:trait-draconic-ancestry-blue",
+            "feature:trait-draconic-ancestry-brass",
+            "feature:trait-draconic-ancestry-bronze",
+            "feature:trait-draconic-ancestry-copper",
+            "feature:trait-draconic-ancestry-gold",
+            "feature:trait-draconic-ancestry-green",
+            "feature:trait-draconic-ancestry-red",
+            "feature:trait-draconic-ancestry-silver",
+            "feature:trait-draconic-ancestry-white"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:trait-breath-weapon",
+      "name": "Breath Weapon",
+      "summary": "You can use your action to exhale destructive energy.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "You can use your action to exhale destructive energy. Your draconic ancestry determines the size, shape, and damage type of the exhalation.",
+        "When you use your breath weapon, each creature in the area of the exhalation must make a saving throw, the type of which is determined by your draconic ancestry. The DC for this saving throw equals 8 + your Constitution modifier + your proficiency bonus. A creature takes 2d6 damage on a failed save, and half as much damage on a successful one. The damage increases to 3d6 at 6th level, 4d6 at 11th level, and 5d6 at 16th level.",
+        "After you use your breath weapon, you cannot use it again until you complete a short or long rest."
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:trait-damage-resistance",
+      "name": "Damage Resistance",
+      "summary": "You have resistance to the damage type associated with your draconic ancestry.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "You have resistance to the damage type associated with your draconic ancestry."
+      ]
+    },
+    {
+      "kind": "race",
+      "id": "race:dragonborn",
+      "name": "Dragonborn",
+      "summary": "Draconic ancestry: a breath weapon and a damage resistance.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "Young dragonborn grow quickly. They walk hours after hatching, attain the size and development of a 10-year-old human child by the age of 3, and reach adulthood by 15. They live to be around 80.",
+        "Dragonborn are taller and heavier than humans, standing well over 6 feet tall and averaging almost 250 pounds. Your size is Medium."
+      ],
+      "size": "medium",
+      "speed": 30,
+      "grant": {
+        "abilityBonuses": {
+          "str": 2,
+          "cha": 1
+        },
+        "proficiencies": [
+          {
+            "kind": "language",
+            "target": "Common"
+          },
+          {
+            "kind": "language",
+            "target": "Draconic"
+          }
+        ]
+      },
+      "features": [
+        "feature:trait-draconic-ancestry",
+        "feature:trait-breath-weapon",
+        "feature:trait-damage-resistance"
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:trait-gnome-cunning",
+      "name": "Gnome Cunning",
+      "summary": "You have advantage on all Intelligence, Wisdom, and Charisma saving throws against magic.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "You have advantage on all Intelligence, Wisdom, and Charisma saving throws against magic."
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:trait-artificers-lore",
+      "name": "Artificer's Lore",
+      "summary": "Whenever you make an Intelligence (History) check related to magic items, alchemical objects, or technological devices, you can add twice your proficiency bonus, instead of any proficiency bonus you normally apply.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "Whenever you make an Intelligence (History) check related to magic items, alchemical objects, or technological devices, you can add twice your proficiency bonus, instead of any proficiency bonus you normally apply."
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:trait-tinker",
+      "name": "Tinker",
+      "summary": "You have proficiency with artisan's tools (tinker's tools).",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "You have proficiency with artisan's tools (tinker's tools). Using those tools, you can spend 1 hour and 10 gp worth of materials to construct a Tiny clockwork device (AC 5, 1 hp). The device ceases to function after 24 hours (unless you spend 1 hour repairing it to keep the device functioning), or when you use your action to dismantle it; at that time, you can reclaim the materials used to create it. You can have up to three such devices active at a time.",
+        "When you create a device, choose one of the following options:",
+        "Clockwork Toy: This toy is a clockwork animal, monster, or person, such as a frog, mouse, bird, dragon, or soldier. When placed on the ground, the toy moves 5 feet across the ground on each of your turns in a random direction. It makes noises as appropriate to the creature it represents.",
+        "Fire Starter: The device produces a miniature flame, which you can use to light a candle, torch, or campfire. Using the device requires your action.",
+        "Music Box: When opened, this music box plays a single song at a moderate volume. The box stops playing when it reaches the song's end or when it is closed."
+      ],
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "tool",
+            "target": "Tinker's tools"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "race",
+      "id": "race:rock-gnome",
+      "name": "Rock Gnome",
+      "summary": "Small and clever, with a knack for tinkering and magic resistance.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "Gnomes mature at the same rate humans do, and most are expected to settle down into an adult life by around age 40. They can live 350 to almost 500 years.",
+        "Gnomes are between 3 and 4 feet tall and average about 40 pounds. Your size is Small.",
+        "As a rock gnome, you have a natural inventiveness and hardiness beyond that of other gnomes."
+      ],
+      "size": "small",
+      "speed": 25,
+      "grant": {
+        "abilityBonuses": {
+          "int": 2,
+          "con": 1
+        },
+        "proficiencies": [
+          {
+            "kind": "language",
+            "target": "Common"
+          },
+          {
+            "kind": "language",
+            "target": "Gnomish"
+          }
+        ]
+      },
+      "features": [
+        "feature:trait-darkvision",
+        "feature:trait-gnome-cunning",
+        "feature:trait-artificers-lore",
+        "feature:trait-tinker"
+      ],
+      "group": "Gnome"
+    },
+    {
+      "kind": "feature",
+      "id": "feature:trait-skill-versatility",
+      "name": "Skill Versatility",
+      "summary": "You gain proficiency in two skills of your choice.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "You gain proficiency in two skills of your choice."
+      ],
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "skill",
+            "target": {
+              "choice": "skills"
+            }
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "skills",
+          "label": "Skills",
+          "kind": "skill",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "kind": "race",
+      "id": "race:half-elf",
+      "name": "Half-Elf",
+      "summary": "Charismatic, versatile in two skills, with elven resilience.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "Half-elves mature at the same rate humans do and reach adulthood around the age of 20. They live much longer than humans, however, often exceeding 180 years.",
+        "Half-elves are about the same size as humans, ranging from 5 to 6 feet tall. Your size is Medium."
+      ],
+      "size": "medium",
+      "speed": 30,
+      "grant": {
+        "abilityBonuses": {
+          "cha": 2
+        },
+        "abilityChoice": {
+          "choice": "abilities",
+          "amount": 1
+        },
+        "proficiencies": [
+          {
+            "kind": "language",
+            "target": "Common"
+          },
+          {
+            "kind": "language",
+            "target": "Elvish"
+          },
+          {
+            "kind": "language",
+            "target": {
+              "choice": "language"
+            }
+          }
+        ]
+      },
+      "features": [
+        "feature:trait-darkvision",
+        "feature:trait-fey-ancestry",
+        "feature:trait-skill-versatility"
+      ],
+      "choices": [
+        {
+          "id": "abilities",
+          "label": "Ability scores (+1 each)",
+          "kind": "ability",
+          "count": 2,
+          "from": [
+            "str",
+            "dex",
+            "con",
+            "int",
+            "wis"
+          ]
+        },
+        {
+          "id": "language",
+          "label": "Language",
+          "kind": "language",
+          "count": 1,
+          "from": [
+            "Dwarvish",
+            "Giant",
+            "Gnomish",
+            "Goblin",
+            "Halfling",
+            "Orc",
+            "Abyssal",
+            "Celestial",
+            "Draconic",
+            "Deep Speech",
+            "Infernal",
+            "Primordial",
+            "Sylvan",
+            "Undercommon"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:trait-savage-attacks",
+      "name": "Savage Attacks",
+      "summary": "When you score a critical hit with a melee weapon attack, you can roll one of the weapon's damage dice one additional time and add it to the extra damage of the critical hit.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "When you score a critical hit with a melee weapon attack, you can roll one of the weapon's damage dice one additional time and add it to the extra damage of the critical hit."
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:trait-relentless-endurance",
+      "name": "Relentless Endurance",
+      "summary": "When you are reduced to 0 hit points but not killed outright, you can drop to 1 hit point instead.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "When you are reduced to 0 hit points but not killed outright, you can drop to 1 hit point instead. you cannot use this feature again until you finish a long rest."
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:trait-menacing",
+      "name": "Menacing",
+      "summary": "You gain proficiency in the Intimidation skill.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "You gain proficiency in the Intimidation skill."
+      ],
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "skill",
+            "target": "intimidation"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "race",
+      "id": "race:half-orc",
+      "name": "Half-Orc",
+      "summary": "Strong and fierce: hard to drop, savage with critical hits.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "Half-orcs mature a little faster than humans, reaching adulthood around age 14. They age noticeably faster and rarely live longer than 75 years.",
+        "Half-orcs are somewhat larger and bulkier than humans, and they range from 5 to well over 6 feet tall. Your size is Medium."
+      ],
+      "size": "medium",
+      "speed": 30,
+      "grant": {
+        "abilityBonuses": {
+          "str": 2,
+          "con": 1
+        },
+        "proficiencies": [
+          {
+            "kind": "language",
+            "target": "Common"
+          },
+          {
+            "kind": "language",
+            "target": "Orc"
+          }
+        ]
+      },
+      "features": [
+        "feature:trait-darkvision",
+        "feature:trait-savage-attacks",
+        "feature:trait-relentless-endurance",
+        "feature:trait-menacing"
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:trait-hellish-resistance",
+      "name": "Hellish Resistance",
+      "summary": "You have resistance to fire damage.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "You have resistance to fire damage."
+      ],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.fire",
+            "op": "resist",
+            "label": "Hellish Resistance"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:trait-infernal-legacy",
+      "name": "Infernal Legacy",
+      "summary": "You know the thaumaturgy cantrip.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "You know the thaumaturgy cantrip. When you reach 3rd level, you can cast the hellish rebuke spell as a 2nd-level spell once with this trait and regain the ability to do so when you finish a long rest. When you reach 5th level, you can cast the darkness spell once with this trait and regain the ability to do so when you finish a long rest. Charisma is your spellcasting ability for these spells."
+      ]
+    },
+    {
+      "kind": "race",
+      "id": "race:tiefling",
+      "name": "Tiefling",
+      "summary": "Infernal heritage: darkvision, fire resistance and a little innate magic.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "Tieflings mature at the same rate as humans but live a few years longer.",
+        "Tieflings are about the same size and build as humans. Your size is Medium."
+      ],
+      "size": "medium",
+      "speed": 30,
+      "grant": {
+        "abilityBonuses": {
+          "int": 1,
+          "cha": 2
+        },
+        "proficiencies": [
+          {
+            "kind": "language",
+            "target": "Common"
+          },
+          {
+            "kind": "language",
+            "target": "Infernal"
+          }
+        ]
+      },
+      "features": [
+        "feature:trait-darkvision",
+        "feature:trait-hellish-resistance",
+        "feature:trait-infernal-legacy"
+      ]
+    }
+  ]
+}
