@@ -124,6 +124,12 @@ describe("Μπέρεν (Ranger 4) matches his sheet", () => {
     expect(sheet.spellSlots).toEqual([{ level: 1, total: 3, used: 0 }]);
   });
 
+  it("ranger spells are only the three he has now (replaced ones are a note)", () => {
+    const ranger = sheet.spells.filter((s) => s.list.id === "ranger").map((s) => s.id).sort();
+    // Speak with Animals is Primal Awareness, granted on top of the spells he knows.
+    expect(ranger).toEqual(["spell:cure-wounds", "spell:entangle", "spell:hunters-mark", "spell:speak-with-animals"]);
+  });
+
   it("resources", () => {
     expect(sheet.resources.map((r) => [r.name, r.max, r.reset])).toEqual([
       ["Fey Step", 1, "short"],

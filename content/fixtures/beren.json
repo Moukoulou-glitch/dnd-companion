@@ -148,20 +148,21 @@
       "list": "ranger"
     },
     {
-      "spell": "spell:ensnaring-strike",
-      "list": "ranger"
-    },
-    {
       "spell": "spell:entangle",
       "list": "ranger"
     },
     {
       "spell": "spell:hunters-mark",
       "list": "ranger"
-    },
+    }
+  ],
+  "notes": [
     {
-      "spell": "spell:goodberry",
-      "list": "ranger"
+      "id": "replaced-spells",
+      "category": "Spells",
+      "title": "Replaced ranger spells",
+      "body": "Ensnaring Strike and Goodberry were known earlier and swapped out at previous level-ups. Kept here as a record only; they are not castable.",
+      "pinned": false
     }
   ]
 }
