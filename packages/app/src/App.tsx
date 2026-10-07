@@ -93,8 +93,8 @@ export function App() {
             className="big primary"
             onClick={() => {
               proceed();
+              // What goes ahead opens its own next panel (the roll) or closes; only `done` reopens one.
               if (back?.done) back.done();
-              else close();
             }}
           >
             Use anyway
