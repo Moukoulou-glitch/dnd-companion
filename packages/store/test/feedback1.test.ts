@@ -402,16 +402,90 @@ describe("fifth round of table feedback", () => {
 
   it("Healing Surge is gone; Bardic Inspiration goes up to d12 and lasts 10 minutes", () => {
     expect(sheetOf(logFor("beren")).actions.some((a) => a.name === "Healing Surge")).toBe(false);
-    expect(reg.get("other:bardic-inspiration-d12", "effect").minutes).toBe(10);
+    const def = reg.get("other:bardic-inspiration", "effect");
+    expect(def.minutes).toBe(10);
+    expect(def.choice!.options).toEqual(["d6", "d8", "d10", "d12"]);
     const log = logFor("beren");
-    log.record("addEffect", { instanceId: "bi", effect: "other:bardic-inspiration-d10" });
+    log.record("addEffect", { instanceId: "bi", effect: "other:bardic-inspiration", choice: "d12" });
     const e = sheetOf(log).effects[0]!;
     expect(e).toMatchObject({ minutes: 10, usedUp: "Bardic Inspiration" });
+    const sg = sheetOf(log).attacks[0]!.attack.suggestions.find((x) => x.label === "Bardic Inspiration")!;
+    expect(JSON.stringify(sg)).toContain("1d12");
   });
 
   it("Μπέρεν's Magic Initiate spell is Guiding Bolt", () => {
     const s = sheetOf(logFor("beren"));
     expect(s.resources.find((r) => r.id === "magic-initiate-spell")!.name).toBe("Magic Initiate: Guiding Bolt");
     expect(s.actions.find((a) => a.id === "magic-initiate-spell")).toMatchObject({ name: "Guiding Bolt (free)", spells: [{ id: "spell:guiding-bolt" }] });
+  });
+});
+
+describe("sixth round of table feedback", () => {
+  const start = (name: string) => {
+    const log = logFor(name);
+    log.record("startCombat", {});
+    log.record("startTurn", {});
+    return log;
+  };
+  const ready = (log: CharacterLog) => log.character.effects.find((e) => e.custom?.name.startsWith("Ready"));
+
+  it("a readied spell is cast now, held with concentration, and released with the reaction", () => {
+    const log = start("aristotelis");
+    log.record("castSpell", { spell: "spell:magic-missile", list: "wizard", level: 1, using: "slot", readied: true });
+    expect(log.character.slotsUsed["1"]).toBe(1);
+    expect(log.character.concentration).toMatchObject({ name: "Readied Magic Missile" });
+    expect(ready(log)).toMatchObject({ custom: { name: "Ready: Magic Missile" }, readied: { spell: "spell:magic-missile", level: 1 } });
+    expect(log.character.combat).toMatchObject({ action: 1, reaction: 0 });
+    log.record("endTurn", {});
+    expect(ready(log)).toBeDefined();
+    log.record("releaseReadied", { instanceId: ready(log)!.id });
+    expect(ready(log)).toBeUndefined();
+    expect(log.character.concentration).toBeUndefined();
+    expect(log.character.combat!.reaction).toBe(1);
+  });
+
+  it("an unreleased readied spell dissipates when your next turn starts, or when concentration breaks", () => {
+    const log = start("aristotelis");
+    log.record("castSpell", { spell: "spell:magic-missile", list: "wizard", level: 1, using: "slot", readied: true });
+    log.record("endTurn", {});
+    expect(log.record("startTurn", {}).join(" ")).toMatch(/dissipates/);
+    expect(log.character.concentration).toBeUndefined();
+    expect(ready(log)).toBeUndefined();
+
+    log.record("castSpell", { spell: "spell:magic-missile", list: "wizard", level: 1, using: "slot", readied: true });
+    log.record("endConcentration", {});
+    expect(ready(log)).toBeUndefined();
+  });
+
+  it("readying a spell ends the concentration you had", () => {
+    const log = start("aristotelis");
+    log.record("castSpell", { spell: "spell:flaming-sphere", list: "wizard", level: 2, using: "slot" });
+    log.record("castSpell", { spell: "spell:magic-missile", list: "wizard", level: 1, using: "slot", readied: true });
+    expect(log.character.concentration!.name).toBe("Readied Magic Missile");
+  });
+
+  it("a readied action is taken with the reaction", () => {
+    const log = start("beren");
+    log.record("useAction", { action: "common-ready", choice: "Attack" });
+    log.record("releaseReadied", { instanceId: ready(log)!.id });
+    expect(ready(log)).toBeUndefined();
+    expect(log.character.combat!.reaction).toBe(1);
+  });
+
+  it("Dodge ends when you're incapacitated or your speed drops to 0", () => {
+    const log = start("beren");
+    log.record("useAction", { action: "common-dodge" });
+    expect(log.record("addEffect", { instanceId: "st", effect: "condition:stunned" })).toContain("Dodge ends: you're incapacitated.");
+    const log2 = start("beren");
+    log2.record("useAction", { action: "common-dodge" });
+    expect(log2.record("addEffect", { instanceId: "gr", effect: "condition:grappled" })).toContain("Dodge ends: your speed is 0.");
+    expect(log2.character.toggles).not.toContain("dodging");
+  });
+
+  it("Dodge or Ready taken outside combat ends when you end your turn", () => {
+    const log = logFor("beren");
+    log.record("useAction", { action: "common-ready", choice: "Dash" });
+    log.record("endTurn", {});
+    expect(ready(log)).toBeUndefined();
   });
 });

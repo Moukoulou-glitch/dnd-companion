@@ -129,7 +129,10 @@ export function SpellPanel({
   onPrepare,
   onRollAttack,
   onRollDamage,
+  readying,
 }: {
+  /** Casting it with the Ready action: held, released later with the reaction. */
+  readying?: boolean;
   sp: SpellResult;
   sheet: DerivedSheet;
   hasSelfEffect: boolean;
@@ -197,7 +200,12 @@ export function SpellPanel({
       {cast === null ? (
         <>
           {sp.ready === "not prepared" && <p className="warn">Not prepared today. You can still cast it if your DM allows.</p>}
-          {hasSelfEffect && (
+          {readying && (
+            <p className="note reminder">
+              Readying {sp.name}: it's cast now (the slot is spent) and held with your concentration. Release it with your reaction when the trigger happens, before your next turn starts.
+            </p>
+          )}
+          {hasSelfEffect && !readying && (
             <label className="row check" style={{ padding: "8px 0" }}>
               <input type="checkbox" checked={onMe} onChange={() => setOnMe(!onMe)} />
               <div className="row-main">

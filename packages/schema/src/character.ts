@@ -76,6 +76,10 @@ export const EffectInstance = z
     toggles: z.array(z.string()).optional(),
     /** Ends when your next turn starts (Dodge). */
     untilTurnStart: z.boolean().optional(),
+    /** Taken outside combat: it ends when you end your turn (there's no next turn to wait for). */
+    outOfCombat: z.boolean().optional(),
+    /** A spell held with the Ready action, released with your reaction. */
+    readied: z.object({ spell: z.string(), list: z.string(), level: z.number().int().min(0).max(9) }).strict().optional(),
     /** For leveled effects (Exhaustion). */
     level: z.number().int().min(1).optional(),
     /** Who or what applied it, e.g. "Cleric's Bless". */

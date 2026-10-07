@@ -2,6 +2,43 @@ import type { DerivedSheet, ResourceResult } from "@dnd/engine";
 import type { Character, OperationType } from "@dnd/schema";
 import type { RollRecord } from "../rolls";
 import { CombatCard, CompanionCard } from "./Combat";
+import { registry } from "../content";
+
+const ALIGNMENTS: Record<string, string> = {
+  LG: "Lawful good",
+  NG: "Neutral good",
+  CG: "Chaotic good",
+  LN: "Lawful neutral",
+  N: "Neutral",
+  TN: "Neutral",
+  CN: "Chaotic neutral",
+  LE: "Lawful evil",
+  NE: "Neutral evil",
+  CE: "Chaotic evil",
+};
+
+/** Race, background, alignment, and size and creature type, in one line. */
+function Identity({ c }: { c: Character }) {
+  const race = registry.find(c.race, "race");
+  const bg = c.background ? registry.find(c.background, "background") : undefined;
+  const cap = (s: string) => s.replace(/^./, (x) => x.toUpperCase());
+  const parts: [string, string][] = [
+    ["Race", race?.name ?? c.race],
+    ["Background", bg?.name ?? "none"],
+    ["Alignment", c.alignment ? ALIGNMENTS[c.alignment.toUpperCase()] ?? c.alignment : "not set"],
+    ["Creature", race ? `${cap(race.size)} ${race.creatureType ?? "humanoid"}` : "humanoid"],
+  ];
+  return (
+    <section className="identity" aria-label="Who you are">
+      {parts.map(([k, v]) => (
+        <div key={k}>
+          <span className="identity-label">{k}</span>
+          <span className="identity-value">{v}</span>
+        </div>
+      ))}
+    </section>
+  );
+}
 
 type Act = (type: OperationType, payload: unknown, label: string) => void;
 
@@ -73,6 +110,7 @@ export function PlayTab({
 
   return (
     <main>
+      <Identity c={character} />
       <section className="big-actions" aria-label="Hit points">
         <button className="big damage" onClick={openHp}>
           Damage

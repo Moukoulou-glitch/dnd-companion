@@ -106,9 +106,14 @@ export function collectSources(c: Character, reg: ContentRegistry): Source[] {
     seenConditions.add(def.id);
     const label = def.levels ? `${def.name} ${level ?? 1}` : viaName ? `${def.name} (${viaName})` : def.name;
     // "{choice}" in selectors becomes what was picked (Hex: roll.check.{choice}); without a choice those modifiers wait.
-    const modifiers = effectModifiers(def, level).flatMap((m) =>
-      m.selector.includes("{choice}") ? (inst?.choice ? [{ ...m, selector: m.selector.replace("{choice}", inst.choice) }] : []) : [m],
-    );
+    // "{choice}" in a value too: Bardic Inspiration adds "1{choice}" with the die picked.
+    const modifiers = effectModifiers(def, level).flatMap((m) => {
+      const v = (m as { value?: unknown }).value;
+      const inValue = typeof v === "string" && v.includes("{choice}");
+      if (!m.selector.includes("{choice}") && !inValue) return [m];
+      if (!inst?.choice) return [];
+      return [{ ...m, selector: m.selector.replace("{choice}", inst.choice), ...(inValue ? { value: (v as string).replace("{choice}", inst.choice) } : {}) } as typeof m];
+    });
     const src: Source = { id: def.id, label, grant: { modifiers }, choices: {}, effectInstanceId: instanceId };
     if (def.upcast) src.slotLevel = inst?.castLevel ?? def.upcast.baseLevel;
     out.push(src);

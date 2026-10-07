@@ -1,5 +1,5 @@
 import { RichText } from "./Conditions";
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import type { ContentRegistry, EffectResult } from "@dnd/engine";
 import { ABILITY_NAMES, type Ability, type EffectDef, type Modifier, type OperationType } from "@dnd/schema";
 import { formatMinutes } from "../time";
@@ -67,10 +67,22 @@ export function EffectChips({
 }
 
 /** One active effect: what it does, what to remember, its rounds or level, and Remove. */
-export function EffectPanel({ e, act, close }: { e: EffectResult; act: Act; close: () => void }) {
+export function EffectPanel({ e, act, close, onRelease }: { e: EffectResult; act: Act; close: () => void; onRelease?: () => void }) {
   return (
     <>
       {e.from && <p className="row-sub">From {e.from}</p>}
+      {onRelease && (
+        <>
+          <p className="note">
+            {e.release?.spell
+              ? "When the trigger happens, release the spell with your reaction. If your concentration breaks first, or your next turn starts, it's lost."
+              : "When the trigger happens, take it with your reaction, or let it go. It ends when your next turn starts."}
+          </p>
+          <button className="big primary wide" style={{ marginBottom: 10 }} onClick={onRelease}>
+            {e.release?.spell ? "Release it now (reaction)" : "The trigger happened: do it (reaction)"}
+          </button>
+        </>
+      )}
       {e.summary && (
         <p>
           <RichText text={e.summary} />
@@ -207,7 +219,15 @@ export function EffectPanel({ e, act, close }: { e: EffectResult; act: Act; clos
             </div>
           </div>
         )}
-        {e.minutes === undefined && (
+        {e.untilTurnStart && (
+          <div className="row">
+            <div className="row-main">
+              <div className="row-title">One round</div>
+              <div className="row-sub">It ends when your next turn starts.</div>
+            </div>
+          </div>
+        )}
+        {e.minutes === undefined && !e.untilTurnStart && (
         <div className="row">
           <div className="row-main">
             <div className="row-title">Rounds left</div>
@@ -232,7 +252,7 @@ export function EffectPanel({ e, act, close }: { e: EffectResult; act: Act; clos
         </div>
         )}
       </div>
-      {e.rounds !== undefined && (
+      {e.rounds !== undefined && !e.untilTurnStart && (
         <button className="link" onClick={() => act("updateEffect", { instanceId: e.instanceId, rounds: null }, `${e.name} lasts until removed.`)}>
           Keep it until I remove it
         </button>
@@ -324,6 +344,12 @@ function CustomBuilder({ act, close }: { act: Act; close: () => void }) {
 export function AddEffectPanel({ registry, act, close }: { registry: ContentRegistry; act: Act; close: () => void }) {
   const [tab, setTab] = useState<"condition" | "spell" | "other" | "custom">("condition");
   const [q, setQ] = useState("");
+  /** An effect with a choice (Bardic Inspiration's die, Hexed's ability) asks for it before it's added. */
+  const [picking, setPicking] = useState<string | null>(null);
+  const add = (d: EffectDef, choice?: string) => {
+    act("addEffect", { instanceId: crypto.randomUUID(), effect: d.id, ...(choice ? { choice } : {}) }, `${d.name}${choice ? ` (${optionName(choice)})` : ""} added.`);
+    close();
+  };
   // Effects someone or something else puts on you; caster-only ones (Hex, Hunter's Mark) come from casting.
   const all = useMemo(() => registry.list("effect").filter((d) => !d.selfOnly), [registry]);
   const list = all.filter((d: EffectDef) => d.category === tab && d.name.toLowerCase().includes(q.trim().toLowerCase()));
@@ -351,20 +377,27 @@ export function AddEffectPanel({ registry, act, close }: { registry: ContentRegi
           {tab === "spell" && <input className="search" type="search" placeholder="Search spells" value={q} onChange={(e) => setQ(e.target.value)} />}
           <div className="group">
             {list.map((d) => (
-              <button
-                className="row"
-                key={d.id}
-                onClick={() => {
-                  act("addEffect", { instanceId: crypto.randomUUID(), effect: d.id }, `${d.name} added.`);
-                  close();
-                }}
-              >
-                <div className="row-main">
-                  <div className="row-title">{d.name}</div>
-                  {d.summary && <div className="row-sub">{d.summary}</div>}
-                </div>
-                {d.rounds && <span className="tag">{d.rounds} rounds</span>}
-              </button>
+              <Fragment key={d.id}>
+                <button className="row" onClick={() => (d.choice ? setPicking(picking === d.id ? null : d.id) : add(d))}>
+                  <div className="row-main">
+                    <div className="row-title">{d.name}</div>
+                    {d.summary && <div className="row-sub">{d.summary}</div>}
+                  </div>
+                  {d.rounds && <span className="tag">{d.rounds} rounds</span>}
+                </button>
+                {d.choice && picking === d.id && (
+                  <div className="pick-inline">
+                    <p className="sub-head">{d.choice.label}</p>
+                    <div className="choice-grid">
+                      {d.choice.options.map((o) => (
+                        <button key={o} className="big" onClick={() => add(d, o)}>
+                          {optionName(o)}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </Fragment>
             ))}
           </div>
         </>

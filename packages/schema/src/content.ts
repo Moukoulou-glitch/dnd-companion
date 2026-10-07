@@ -95,6 +95,8 @@ export const RaceDef = z
     ...base,
     kind: z.literal("race"),
     size: z.enum(["small", "medium"]),
+    /** Humanoid unless the race says otherwise. */
+    creatureType: z.string().optional(),
     speed: z.number().int(),
     grant: Grant.optional(),
     features: z.array(DefId).default([]),

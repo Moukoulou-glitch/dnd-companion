@@ -168,7 +168,7 @@ export function InventoryTab({
         <h2>{title}</h2>
         <div className="group">
           {rows.map(({ inst, def }) => (
-            <button className="row" key={inst.id} onClick={() => openItem(inst.id)}>
+            <button className={inst.attuned ? "row attuned" : "row"} key={inst.id} onClick={() => openItem(inst.id)}>
               <div className="row-main">
                 <div className="row-title">{displayName(inst, def)}</div>
                 {itemTags(inst, def).length > 0 && <div className="row-sub">{itemTags(inst, def).join(", ")}</div>}
@@ -180,8 +180,31 @@ export function InventoryTab({
       </section>
     );
 
+  const attunedItems = items.filter((i) => i.inst.attuned);
+  const slots = Math.max(3, attunedItems.length);
+
   return (
     <main>
+      <section aria-label="Attunement">
+        <h2>
+          Attuned <span className={attuned > 3 ? "danger-text" : "gold-text"}>{attuned} of 3</span>
+        </h2>
+        <div className="attune-slots">
+          {Array.from({ length: slots }, (_, i) => {
+            const it = attunedItems[i];
+            return it ? (
+              <button key={it.inst.id} className={`attune-slot filled${i >= 3 ? " over" : ""}`} onClick={() => openItem(it.inst.id)}>
+                {displayName(it.inst, it.def)}
+              </button>
+            ) : (
+              <div key={`free-${i}`} className="attune-slot">
+                Free slot
+              </div>
+            );
+          })}
+        </div>
+        {attuned > 3 && <p className="note danger-text">More than 3 attuned items: the rules allow 3.</p>}
+      </section>
       <section>
         <h2>Coins</h2>
         <div className="coins">
@@ -196,7 +219,7 @@ export function InventoryTab({
       {list("Equipped", equipped)}
       {list("Carried", carried)}
       <p className={`note${attuned > 3 ? " danger-text" : ""}`}>
-        Attuned to {attuned} of 3. Carrying {Math.round(weight * 10) / 10} lb.
+        Carrying {Math.round(weight * 10) / 10} lb.
       </p>
       <button className="big wide" onClick={openAdd}>
         Add an item

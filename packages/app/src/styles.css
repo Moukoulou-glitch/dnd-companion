@@ -1532,3 +1532,76 @@ ol.levels li[data-on="true"] {
   grid-template-columns: repeat(2, 1fr);
   gap: 8px;
 }
+
+.pick-inline {
+  padding: 4px 12px 12px;
+  background: var(--panel-raised);
+}
+
+/* Who you are, at the top of Play. */
+.identity {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px 12px;
+  margin-bottom: 14px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-m);
+  background: var(--panel);
+}
+.identity > div {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.identity-label {
+  font-size: 0.75rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.identity-value {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+/* Attunement: three slots, gold when an item fills one. */
+.gold-text {
+  color: var(--gold);
+}
+.attune-slots {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.attune-slot {
+  min-height: 64px;
+  display: grid;
+  place-items: center;
+  padding: 8px;
+  text-align: center;
+  border: 1px dashed var(--line);
+  border-radius: var(--radius-m);
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.9rem;
+  background: none;
+}
+.attune-slot.filled {
+  border: 2px solid var(--gold);
+  background: var(--gold-soft);
+  color: var(--text);
+  font-weight: 600;
+  cursor: pointer;
+}
+.attune-slot.over {
+  border-color: var(--hp);
+  background: var(--hp-soft);
+}
+.group .row.attuned {
+  box-shadow: inset 0 0 0 2px var(--gold);
+  background: var(--gold-soft);
+}
+.companion-actions {
+  margin: 14px 0;
+}

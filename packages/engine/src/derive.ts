@@ -195,6 +195,10 @@ export interface EffectResult {
   endsOn?: ("attack" | "cast")[];
   /** Gone once its bonus is used in a roll (Bardic Inspiration): the label to look for. */
   usedUp?: string;
+  /** Something readied with the Ready action, taken with your reaction; a spell when it's a readied spell. */
+  release?: { spell?: { id: string; list: string; level: number } };
+  /** Lasts until your next turn starts (Dodge, Ready): one round, no countdown to adjust. */
+  untilTurnStart?: boolean;
 }
 
 export interface ResourceResult {
@@ -975,6 +979,8 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
     if (def?.upcast) r.upcast = { baseLevel: def.upcast.baseLevel, castLevel: e.castLevel ?? def.upcast.baseLevel };
     if (def?.levelNotes) r.levelNotes = def.levelNotes;
     if (def?.endsOn) r.endsOn = def.endsOn;
+    if (e.untilTurnStart) r.untilTurnStart = true;
+    if (e.untilTurnStart && e.custom?.name.startsWith("Ready")) r.release = e.readied ? { spell: { id: e.readied.spell, list: e.readied.list, level: e.readied.level } } : {};
     if (def?.usedUp) {
       const label = def.modifiers.find((m) => m.label)?.label;
       if (label) r.usedUp = label;

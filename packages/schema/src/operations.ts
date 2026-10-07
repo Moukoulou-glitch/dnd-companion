@@ -112,6 +112,8 @@ export const OPERATION_PAYLOADS = {
       level: z.number().int().min(0).max(9),
       using: z.enum(["slot", "pact", "free", "ritual", "none"]),
       selfEffect: z.boolean().default(false),
+      /** Readied (the Ready action): cast now, held with concentration, released with your reaction. */
+      readied: z.boolean().optional(),
     })
     .strict(),
   endConcentration: z.object({}).strict(),
@@ -136,6 +138,8 @@ export const OPERATION_PAYLOADS = {
     .strict(),
   /** Once-per-turn options used on this turn (Sneak Attack). */
   markOnce: z.object({ labels: z.array(z.string()).min(1) }).strict(),
+  /** The trigger happened: take the readied action (or release the readied spell) with your reaction. */
+  releaseReadied: z.object({ instanceId: z.string() }).strict(),
   /** Change how long concentration has left, by hand. null clears the timer. */
   setConcentration: z.object({ rounds: z.number().int().min(0).nullable().optional(), minutes: z.number().int().min(0).nullable().optional() }).strict(),
   /** Choose a companion's form or name; a new form arrives with full HP. */
@@ -184,6 +188,7 @@ export const Operation = z.discriminatedUnion("type", [
   OperationBase.extend({ type: z.literal("setPool"), payload: OPERATION_PAYLOADS.setPool }),
   OperationBase.extend({ type: z.literal("usePool"), payload: OPERATION_PAYLOADS.usePool }),
   OperationBase.extend({ type: z.literal("markOnce"), payload: OPERATION_PAYLOADS.markOnce }),
+  OperationBase.extend({ type: z.literal("releaseReadied"), payload: OPERATION_PAYLOADS.releaseReadied }),
   OperationBase.extend({ type: z.literal("setConcentration"), payload: OPERATION_PAYLOADS.setConcentration }),
   OperationBase.extend({ type: z.literal("deathSave"), payload: OPERATION_PAYLOADS.deathSave }),
   OperationBase.extend({ type: z.literal("toggle"), payload: OPERATION_PAYLOADS.toggle }),

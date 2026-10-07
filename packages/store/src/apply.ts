@@ -78,6 +78,17 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
     if (off.size) c.toggles = c.toggles.filter((t) => !off.has(t));
   };
 
+  /** Dodge and Ready end; a readied spell that was never released dissipates with its concentration. */
+  const endTurnStartEffects = (ending: Character["effects"], why: string) => {
+    if (!ending.length) return;
+    notes.push(`${ending.map(effectName).join(", ")} ended: ${why}.`);
+    removeEffects(ending);
+    if (ending.some((e) => e.readied) && c.concentration?.name.startsWith("Readied ")) {
+      notes.push(`${c.concentration.name.replace("Readied ", "")} wasn't released: it dissipates.`);
+      delete c.concentration;
+    }
+  };
+
   /** Current HP gained when an effect starts (Aid), worked out at its cast level. */
   const atLevel = (expr: string | number, slotLevel: number) =>
     evalFlat(expr, { pb: sheet.proficiencyBonus, mods: Object.fromEntries(Object.entries(sheet.abilities).map(([k, v]) => [k, v.modifier])) as never, level: sheet.level, classLevels: {}, slotLevel });
@@ -395,6 +406,7 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
         // One round: it ends when your next turn starts (Dodge, Ready: Attack).
         const name = op.payload.choice ? `${a.name}: ${op.payload.choice}` : a.name;
         const entry: Character["effects"][number] = { id: `${op.id}-turn`, effect: "custom", custom: { name, modifiers: [] }, from: a.source, untilTurnStart: true, rounds: 1 };
+        if (!c.combat) entry.outOfCombat = true;
         if (a.toggles.length) entry.toggles = a.toggles;
         removeEffects(c.effects.filter((e) => e.effect === "custom" && (e.custom?.name === a.name || e.custom?.name.startsWith(`${a.name}: `))));
         c.effects.push(entry);
@@ -511,6 +523,30 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
         notes.push(`${sp.name} isn't a ritual.`);
       }
       if (sp.ready === "not prepared") notes.push(`${sp.name} isn't prepared today.`);
+      if (op.payload.readied) {
+        // Cast now, held with concentration until released with your reaction (PHB p. 193).
+        if (castingEconomy(sp.castingTime) !== "action") notes.push(`${sp.name} isn't cast with 1 action: only those can be readied.`);
+        if (c.concentration) endConcentration(c, notes, `Holding ${sp.name} takes your concentration.`);
+        c.concentration = { spell: sp.id, name: `Readied ${sp.name}`, level };
+        removeEffects(c.effects.filter((e) => e.effect === "custom" && e.custom?.name.startsWith("Ready")));
+        const entry: Character["effects"][number] = {
+          id: `${op.id}-ready`,
+          effect: "custom",
+          custom: { name: `Ready: ${sp.name}`, modifiers: [] },
+          from: "Ready",
+          untilTurnStart: true,
+          rounds: 1,
+          concentration: true,
+          readied: { spell: sp.id, list, level },
+        };
+        if (!c.combat) entry.outOfCombat = true;
+        c.effects.push(entry);
+        spendTurn("action", (cb) => {
+          if (sp.level > 0) cb.leveledActionSpell = true;
+        });
+        notes.push(`${sp.name} is readied: release it with your reaction when the trigger happens, before your next turn starts.`);
+        break;
+      }
       if (sp.concentration) {
         if (c.concentration && c.concentration.spell !== sp.id) endConcentration(c, notes, `Casting ${sp.name}.`);
         else if (c.concentration) c.effects = c.effects.filter((e) => !e.concentration);
@@ -649,6 +685,26 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
       break;
     }
 
+    case "releaseReadied": {
+      const e = c.effects.find((x) => x.id === op.payload.instanceId);
+      if (!e) break;
+      c.effects = c.effects.filter((x) => x.id !== e.id);
+      spendTurn("reaction");
+      if (e.readied) {
+        const sp = sheet.spells.find((x) => x.id === e.readied!.spell && x.list.id === e.readied!.list);
+        if (c.concentration?.name.startsWith("Readied ")) delete c.concentration;
+        // A concentration spell goes on as normal once it's released.
+        if (sp?.concentration) {
+          c.concentration = { spell: sp.id, name: sp.name, level: e.readied.level };
+          if (sp.timer?.rounds) c.concentration.rounds = sp.timer.rounds;
+          if (sp.timer?.minutes) c.concentration.minutes = sp.timer.minutes;
+        }
+        notes.push(`${sp?.name ?? "The spell"} released with your reaction.`);
+      } else notes.push(`${effectName(e)}: done with your reaction.`);
+      if (c.combat && c.combat.reaction > 1) notes.push("You had already used your reaction this round.");
+      break;
+    }
+
     case "markOnce": {
       if (c.combat) c.combat.onceUsed = [...new Set([...c.combat.onceUsed, ...op.payload.labels])];
       break;
@@ -713,6 +769,8 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
       });
       if (ended.length) notes.push(`Ended: ${ended.map(effectName).join(", ")}.`);
       removeEffects(ended);
+      // Dodge or Ready taken outside combat: no next turn to wait for, so they end now.
+      endTurnStartEffects(c.effects.filter((e) => e.untilTurnStart && (e.outOfCombat || !c.combat)), "your turn is over");
       const conc = c.concentration;
       if (conc?.rounds !== undefined) {
         conc.rounds -= 1;
@@ -732,9 +790,7 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
 
     case "startTurn": {
       const prev = c.combat;
-      const ending = c.effects.filter((e) => e.untilTurnStart);
-      if (ending.length) notes.push(`${ending.map(effectName).join(", ")} ended: your turn has started.`);
-      removeEffects(ending);
+      endTurnStartEffects(c.effects.filter((e) => e.untilTurnStart), "your turn has started");
       const round = !prev ? 1 : prev.hadTurn && !prev.myTurn ? prev.round + 1 : prev.round;
       if (prev?.myTurn) notes.push("Your turn had already started: everything is back for a fresh turn.");
       c.combat = CombatState.parse({ round, myTurn: true, hadTurn: true, ...(prev?.initiative !== undefined ? { initiative: prev.initiative } : {}) });
@@ -854,6 +910,19 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
       target[path.at(-1)!] = value;
       // Edits must still produce a valid character.
       return { character: Character.parse(c), notes, prompts };
+    }
+  }
+
+  // Dodge is lost if you're incapacitated or your speed drops to 0.
+  const dodge = c.effects.find((e) => e.untilTurnStart && e.toggles?.includes("dodging"));
+  if (dodge && !(op.type === "useAction" && op.payload.action === "common-dodge")) {
+    const after = derive(c, reg);
+    const states = after.effects.flatMap((e) => [e.id, ...e.includes.map((x) => x.id)]);
+    const incapacitated = states.some((id) => /(incapacitated|paralyzed|petrified|stunned|unconscious)$/.test(id)) || c.hp.current === 0;
+    const still = after.speed.total === 0 || !!c.combat?.speedZero;
+    if (incapacitated || still) {
+      removeEffects([dodge]);
+      notes.push(`Dodge ends: ${incapacitated ? "you're incapacitated" : "your speed is 0"}.`);
     }
   }
 

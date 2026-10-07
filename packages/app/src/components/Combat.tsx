@@ -1,5 +1,5 @@
 import { RichText } from "./Conditions";
-import { ABILITIES, ABILITY_NAMES, type Character, type OperationType } from "@dnd/schema";
+import { ABILITIES, ABILITY_NAMES, SKILL_ABILITY, SKILL_NAMES, type Character, type OperationType, type Skill } from "@dnd/schema";
 import { formatBonus, signed, turnReminders, type CompanionResult, type DerivedSheet, type RollBreakdown, type WeaponAttack } from "@dnd/engine";
 import { damageText } from "./ActionsTab";
 import { BreakdownLines } from "./Sheet";
@@ -280,6 +280,8 @@ export function CompanionPanel({
         </div>
       )}
 
+      <CompanionActions comp={comp} sheet={sheet} open={open} openRoll={openRoll} />
+
       <h2 className="sub-head">Attacks</h2>
       <div className="group">
         {f.attacks.map((a) => (
@@ -332,6 +334,75 @@ export function CompanionPanel({
       <p className="note">A different beast after a long rest arrives with full hit points.</p>
       {chooseForm}
     </>
+  );
+}
+
+/** Things only you do (casting, your own gear and concentration): left out of a companion's list. */
+const NOT_FOR_COMPANIONS = /^common-(cast-a-spell|two-weapon-fighting|activate-an-item|identify-a-spell|don-or-doff|end-concentration|attack|disarm)/;
+
+/**
+ * The actions anyone can take, for a companion: what each does, and its
+ * checks rolled with the companion's own abilities (Stealth uses its Dexterity).
+ */
+function CompanionActions({
+  comp,
+  sheet,
+  open,
+  openRoll,
+}: {
+  comp: CompanionResult;
+  sheet: DerivedSheet;
+  open: (title: string, body: ReactNode) => void;
+  openRoll: (title: string, base: RollBreakdown, attack?: WeaponAttack) => void;
+}) {
+  const f = comp.form!;
+  const list = sheet.actions.filter((a) => a.common && !NOT_FOR_COMPANIONS.test(a.id));
+  const show = (a: (typeof list)[number]) =>
+    open(
+      `${comp.name}: ${a.name}`,
+      <>
+        <p className="row-sub">{a.economy === "bonus" ? "Bonus action" : a.economy === "reaction" ? "Reaction" : a.economy === "free" ? "No action" : "Action"}, on its turn</p>
+        {a.note && (
+          <p>
+            <RichText text={a.note} />
+          </p>
+        )}
+        {a.check?.skills.map((sk) => {
+          const ab = SKILL_ABILITY[sk as Skill];
+          if (!ab) return null;
+          const base = f.abilities[ab].check;
+          return (
+            <button key={sk} className="big primary wide" style={{ marginBottom: 8 }} onClick={() => openRoll(`${comp.name}: ${a.name} (${SKILL_NAMES[sk as Skill]})`, base)}>
+              Roll {SKILL_NAMES[sk as Skill]}
+              <span className="sub">
+                {ABILITY_NAMES[ab]} check {signed(base.total)}
+                {a.check?.dc ? `, DC ${a.check.dc}` : ""}
+              </span>
+            </button>
+          );
+        })}
+        {a.check && <p className="note">Rolled with its {a.check.skills.map((sk) => ABILITY_NAMES[SKILL_ABILITY[sk as Skill]]).join(" or ")}; add its proficiency bonus if its stat block lists the skill.</p>}
+      </>,
+    );
+  return (
+    <details className="common-actions companion-actions">
+      <summary>
+        <span className="ca-icon" aria-hidden="true">⚔</span>
+        <h2>Actions anyone can take</h2>
+        <span className="ca-arrow" aria-hidden="true">▸</span>
+        <span className="row-sub">{comp.name} can Dash, Dodge, Help, Hide, Grapple…</span>
+      </summary>
+      <div className="group">
+        {list.map((a) => (
+          <button className="row" key={a.id} onClick={() => show(a)}>
+            <div className="row-main">
+              <div className="row-title">{a.name}</div>
+              <div className="row-sub">{a.check ? `Rolls ${a.check.skills.map((s) => SKILL_NAMES[s as Skill]).join(" or ")}` : a.note?.split(/[.:]/)[0]}</div>
+            </div>
+          </button>
+        ))}
+      </div>
+    </details>
   );
 }
 

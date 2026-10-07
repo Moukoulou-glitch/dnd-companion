@@ -14,6 +14,7 @@ import { HpPad } from "./components/HpPad";
 import { AddItemPanel, CoinPanel, InventoryTab, ItemPanel } from "./components/InventoryTab";
 import { bookReport, registry } from "./content";
 import { BookText, BooksPanel } from "./components/BookText";
+import { flashEnabled, flashForFeature, flashForSpell, flashTorch, setFlashEnabled } from "./flash";
 import { PlayTab, type PlayPrompts } from "./components/PlayTab";
 import { Confirm, PoolRollPanel, SlotSpendPanel, SpendDiePanel } from "./components/Prompts";
 import { BottomSheet, BreakdownLines } from "./components/Sheet";
@@ -239,6 +240,8 @@ export function App() {
               }
             : {})}
           onUse={(rolled, free, check, choice) => {
+            // Readying a spell: pick it, then cast it now and hold it.
+            if (choice === "Cast a Spell" && current.choose) return openReadySpell();
             const payload = { action: a.id, ...(rolled === undefined ? {} : { rolled }), ...(free ? { free: true } : {}), ...(choice ? { choice } : {}) };
             const label = choice
               ? `${a.name}: ${choice}. Use your reaction when the trigger happens.`
@@ -257,6 +260,7 @@ export function App() {
                 },
                 () => {
                   live.current.act("useAction", payload, label);
+                  flashForFeature(current.id);
                   const sk = check as Skill | undefined;
                   const base = sk && live.current.sheet?.skills[sk];
                   if (sk && base) openRoll(`${current.name}: ${SKILL_NAMES[sk]}`, base, undefined, current.check?.dc !== undefined ? { dc: current.check.dc } : {});
@@ -280,6 +284,30 @@ export function App() {
       );
     });
   };
+
+  /** Spells that can be readied: a casting time of 1 action. */
+  const openReadySpell = () =>
+    open("Ready a spell", () => {
+      const list = (live.current.sheet?.spells ?? []).filter((sp) => castingEconomy(sp.castingTime) === "action" && sp.ready !== "not prepared");
+      return (
+        <>
+          <p className="note">Only spells with a casting time of 1 action can be readied. It's cast now and held with your concentration.</p>
+          <div className="group">
+            {list.map((sp) => (
+              <button className="row" key={`${sp.list.id}-${sp.id}`} onClick={() => openSpell(sp, undefined, true)}>
+                <div className="row-main">
+                  <div className="row-title">{sp.name}</div>
+                  <div className="row-sub">
+                    {sp.level === 0 ? "Cantrip" : `Level ${sp.level}`}, {sp.list.label}
+                    {sp.concentration ? ", concentration" : ""}
+                  </div>
+                </div>
+              </button>
+            ))}
+          </div>
+        </>
+      );
+    });
 
   const openItem = (instanceId: string) => {
     const first = c.inventory.find((i) => i.id === instanceId);
@@ -729,7 +757,17 @@ export function App() {
     open(e.name, () => {
       const current = live.current.sheet?.effects.find((x) => x.instanceId === e.instanceId);
       if (!current) return <p className="note">{e.name} has ended.</p>;
-      return <EffectPanel e={current} act={live.current.act} close={close} />;
+      const release = current.release
+        ? () =>
+            guard({ name: current.name, economy: "reaction" }, () => {
+              live.current.act("releaseReadied", { instanceId: current.instanceId }, current.release!.spell ? `${current.name.replace("Ready: ", "")} released.` : `${current.name}: done.`);
+              const r = current.release!.spell;
+              const sp = r && live.current.sheet?.spells.find((x) => x.id === r.id && x.list.id === r.list);
+              if (sp) openSpell(sp, r.level);
+              else close();
+            })
+        : undefined;
+      return <EffectPanel e={current} act={live.current.act} close={close} {...(release ? { onRelease: release } : {})} />;
     });
 
   const openAddEffect = () => open("Add an effect", <AddEffectPanel registry={registry} act={s.act} close={close} />);
@@ -816,14 +854,25 @@ export function App() {
    * casting ask first, the turn rules warn, free uses with none left ask
    * "Are you sure?", and the spell sheet comes back showing it was cast.
    */
-  const castFlow = (sp: SpellResult, level: number, using: "slot" | "pact" | "free" | "ritual" | "none", selfEffect: boolean) => {
+  const castFlow = (sp: SpellResult, level: number, using: "slot" | "pact" | "free" | "ritual" | "none", selfEffect: boolean, readying = false) => {
+    if (readying)
+      return guard(
+        { name: `Ready ${sp.name}`, economy: "action", spell: { level: sp.level, concentration: true } },
+        () => {
+          live.current.act("castSpell", { spell: sp.id, list: sp.list.id, level, using, readied: true }, `${sp.name} readied.`);
+          close();
+        },
+      );
     const castIt = () =>
       askEndsOn(
         "cast",
         () =>
           guard(
             { name: sp.name, economy: using === "ritual" ? "free" : castingEconomy(sp.castingTime), spell: { level: sp.level, concentration: sp.concentration } },
-            () => live.current.act("castSpell", { spell: sp.id, list: sp.list.id, level, using, selfEffect }, `${sp.name} cast.`),
+            () => {
+              live.current.act("castSpell", { spell: sp.id, list: sp.list.id, level, using, selfEffect }, `${sp.name} cast.`);
+              flashForSpell(sp.id, level);
+            },
             { cancelled: () => openSpell(sp), done: () => openSpell(sp, level) },
           ),
         () => openSpell(sp, level),
@@ -845,7 +894,7 @@ export function App() {
   /** Spells cast on yourself put their effect on you unless you say otherwise. */
   const selfByDefault = (sp: SpellResult) => registry.has(sp.id.replace(/^spell:/, "effect:")) && /self/i.test(sp.range);
 
-  const openSpell = (first: SpellResult, castAt?: number) =>
+  const openSpell = (first: SpellResult, castAt?: number, readying = false) =>
     open(first.name, () => {
       const sp = live.current.sheet?.spells.find((x) => x.id === first.id && x.list.id === first.list.id) ?? first;
       const roller = (level: number, damageOnly: boolean) => rollSpell(sp, level, damageOnly);
@@ -855,7 +904,8 @@ export function App() {
           sheet={live.current.sheet!}
           hasSelfEffect={registry.has(sp.id.replace(/^spell:/, "effect:"))}
           initialCast={castAt}
-          onCast={(level, using, selfEffect) => castFlow(sp, level, using, selfEffect)}
+          readying={readying}
+          onCast={(level, using, selfEffect) => castFlow(sp, level, using, selfEffect, readying)}
           onPrepare={(prepared) => live.current.act("setPrepared", { spell: sp.id, list: sp.list.id, prepared }, `${sp.name} ${prepared ? "prepared" : "unprepared"}.`)}
           onRollAttack={(level) => roller(level, false)}
           onRollDamage={(level) => roller(level, true)}
@@ -912,6 +962,7 @@ export function App() {
         <button className="big" style={{ width: "100%", marginTop: 12 }} onClick={openBooks}>
           Book text{bookReport ? " (loaded)" : ""}
         </button>
+        <FlashSetting />
       </>,
     );
 
@@ -1084,6 +1135,40 @@ function ConcentrationPanel({
       <button className="big damage wide" style={{ marginTop: 10 }} onClick={onEnd}>
         End concentration
       </button>
+    </>
+  );
+}
+
+/** The phone's flashlight for light spells: per device, off until switched on, tested when switched on. */
+function FlashSetting() {
+  const [on, setOn] = useState(flashEnabled());
+  const [msg, setMsg] = useState("");
+  return (
+    <>
+      <label className="row check" style={{ marginTop: 12 }}>
+        <input
+          type="checkbox"
+          checked={on}
+          onChange={async () => {
+            if (on) {
+              setFlashEnabled(false);
+              setOn(false);
+              setMsg("");
+              return;
+            }
+            setMsg("Testing the flashlight…");
+            const works = await flashTorch(0);
+            setFlashEnabled(works);
+            setOn(works);
+            setMsg(works ? "On: light spells blink the flashlight, once per spell level." : "This phone's browser can't control the flashlight (iPhones don't allow it; Chrome on Android does).");
+          }}
+        />
+        <div className="row-main">
+          <div className="row-title">Flash my phone's light for light spells</div>
+          <div className="row-sub">Light, Daylight, Charm of Sunlight… A cantrip flashes once; other spells blink once per level.</div>
+        </div>
+      </label>
+      {msg && <p className="note">{msg}</p>}
     </>
   );
 }
