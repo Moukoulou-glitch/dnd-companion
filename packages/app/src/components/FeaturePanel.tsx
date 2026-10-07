@@ -18,10 +18,12 @@ export const economyLabel = (e: ActionResult["economy"]) => ECONOMY[e];
  */
 export function FeaturePanel({
   a,
+  text,
   physical,
   onUse,
 }: {
   a: ActionResult;
+  text?: string[] | undefined;
   physical: boolean;
   onUse: (rolled?: number) => void;
 }) {
@@ -42,6 +44,14 @@ export function FeaturePanel({
         {economyLabel(a.economy)}, from {a.source}
       </p>
       {a.note && <p>{a.note}</p>}
+      {text && text.length > 0 && (
+        <details className="book-text">
+          <summary>Full text</summary>
+          {text.map((p, i) => (
+            <p key={i}>{p}</p>
+          ))}
+        </details>
+      )}
       {a.cost && (
         <p className={none ? "note danger-text" : "note"}>
           Uses {a.cost.amount} {a.cost.name}: {a.cost.remaining} left.

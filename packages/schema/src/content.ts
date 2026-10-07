@@ -22,6 +22,11 @@ const base = {
   /** One or two sentences in our own words. */
   summary: z.string().optional(),
   source: SourceRef,
+  /**
+   * Full text, one entry per paragraph. Filled only by the SRD pack and by book
+   * text the player loads on their own device; never committed for non-SRD books.
+   */
+  text: z.array(z.string()).optional(),
 };
 
 /**

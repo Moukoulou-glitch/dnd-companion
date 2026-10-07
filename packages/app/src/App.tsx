@@ -8,7 +8,8 @@ import { AddEffectPanel, EffectChips, EffectPanel } from "./components/Effects";
 import { FeaturePanel } from "./components/FeaturePanel";
 import { HpPad } from "./components/HpPad";
 import { AddItemPanel, CoinPanel, InventoryTab, ItemPanel } from "./components/InventoryTab";
-import { registry } from "./content";
+import { bookReport, registry } from "./content";
+import { BookText, BooksPanel } from "./components/BookText";
 import { PlayTab } from "./components/PlayTab";
 import { BottomSheet, BreakdownLines } from "./components/Sheet";
 import { SheetTab } from "./components/SheetTab";
@@ -119,9 +120,11 @@ export function App() {
   const openFeature = (a: ActionResult) =>
     open(a.name, () => {
       const current = live.current.sheet?.actions.find((x) => x.id === a.id) ?? a;
+      const feature = live.current.sheet?.features.find((f) => f.id === current.featureId);
       return (
         <FeaturePanel
           a={current}
+          text={feature?.text}
           physical={live.current.character?.settings.physicalDice ?? true}
           onUse={(rolled) => {
             live.current.act("useAction", rolled === undefined ? { action: a.id } : { action: a.id, rolled }, `${a.name} used.`);
@@ -140,6 +143,14 @@ export function App() {
       return <ItemPanel inst={inst} def={registry.get(inst.item, "item")} act={live.current.act} close={close} />;
     });
   };
+
+  const openTrait = (id: string) => {
+    const f = sheet.features.find((x) => x.id === id);
+    if (!f) return;
+    open(f.name, <BookText text={f.text} summary={f.summary} source={f.source} />);
+  };
+
+  const openBooks = () => open("Book text", <BooksPanel report={bookReport} />);
 
   const openAdd = () => open("Add an item", <AddItemPanel registry={registry} act={s.act} close={close} />);
 
@@ -257,6 +268,9 @@ export function App() {
           Export {c.name} as a file
         </button>
         <p className="note">Everything is saved on this device as you play. Export makes a backup you can keep or move to another device.</p>
+        <button className="big" style={{ width: "100%", marginTop: 12 }} onClick={openBooks}>
+          Book text{bookReport ? " (loaded)" : ""}
+        </button>
       </>,
     );
 
@@ -318,7 +332,7 @@ export function App() {
       )}
       {tab === "actions" && <ActionsTab sheet={sheet} open={open} openRoll={openRoll} openFeature={openFeature} />}
       {tab === "spells" && <SpellsTab sheet={sheet} openSpell={openSpell} />}
-      {tab === "sheet" && <SheetTab sheet={sheet} open={open} openRoll={openRoll} />}
+      {tab === "sheet" && <SheetTab sheet={sheet} open={open} openRoll={openRoll} openTrait={openTrait} />}
       {tab === "inventory" && (
         <InventoryTab character={c} registry={registry} openItem={openItem} openAdd={openAdd} openCoin={openCoin} />
       )}

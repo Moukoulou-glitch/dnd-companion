@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { derive, type DerivedSheet } from "@dnd/engine";
 import { Character as CharacterSchema, Operation as OperationSchema, type Character, type OperationType } from "@dnd/schema";
 import { CharacterLog, HybridClock, type Prompt } from "@dnd/store";
-import { registry, starterCharacters } from "./content";
+import { addBooks, registry, starterCharacters, stubMissingItems } from "./content";
 import { db, deviceId, requestPersistentStorage, type StoredCharacter } from "./db";
 import { MAX_ROLLS, type RollRecord } from "./rolls";
 
@@ -36,6 +36,11 @@ export function useCharacters() {
   useEffect(() => {
     (async () => {
       try {
+        addBooks(await db.books());
+      } catch (e) {
+        setError(`Couldn't read the book text on this device: ${(e as Error).message}`);
+      }
+      try {
         let stored = await db.all();
         if (stored.length === 0) {
           stored = starterCharacters.map((c) => ({ id: c.id, snapshot: c, ops: [], fixtureHash: hashOf(c) }));
@@ -49,6 +54,12 @@ export function useCharacters() {
           rec.fixtureHash = hashOf(fresh);
           await db.put(rec);
         }
+        stubMissingItems(
+          stored.flatMap((s) => [
+            ...(s.snapshot.inventory ?? []).map((i) => i.item),
+            ...s.ops.flatMap((o) => (o.type === "addItem" ? [(o.payload as { item: string }).item] : [])),
+          ]),
+        );
         for (const s of stored) {
           if (s.fixtureHash) fixtureHashes.current.set(s.id, s.fixtureHash);
           // Re-parsing upgrades characters saved by an older version (new fields get their defaults).

@@ -12,24 +12,35 @@ export interface StoredCharacter {
   fixtureHash?: string;
 }
 
+/** A book file the player loaded; it stays on this device only. */
+export interface StoredBook {
+  name: string;
+  text: string;
+}
+
 const DB_NAME = "table-companion";
 const STORE = "characters";
+const BOOKS = "books";
 
 function open(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
-    const req = indexedDB.open(DB_NAME, 1);
-    req.onupgradeneeded = () => req.result.createObjectStore(STORE, { keyPath: "id" });
+    const req = indexedDB.open(DB_NAME, 2);
+    req.onupgradeneeded = () => {
+      const d = req.result;
+      if (!d.objectStoreNames.contains(STORE)) d.createObjectStore(STORE, { keyPath: "id" });
+      if (!d.objectStoreNames.contains(BOOKS)) d.createObjectStore(BOOKS, { keyPath: "name" });
+    };
     req.onsuccess = () => resolve(req.result);
     req.onerror = () => reject(req.error);
   });
 }
 
-function run<T>(mode: IDBTransactionMode, body: (store: IDBObjectStore) => IDBRequest<T>): Promise<T> {
+function run<T>(mode: IDBTransactionMode, body: (store: IDBObjectStore) => IDBRequest<T>, store = STORE): Promise<T> {
   return open().then(
     (db) =>
       new Promise<T>((resolve, reject) => {
-        const tx = db.transaction(STORE, mode);
-        const req = body(tx.objectStore(STORE));
+        const tx = db.transaction(store, mode);
+        const req = body(tx.objectStore(store));
         tx.oncomplete = () => resolve(req.result);
         tx.onerror = () => reject(tx.error);
       }),
@@ -40,6 +51,9 @@ export const db = {
   all: () => run<StoredCharacter[]>("readonly", (s) => s.getAll() as IDBRequest<StoredCharacter[]>),
   put: (record: StoredCharacter) => run("readwrite", (s) => s.put(record)),
   remove: (id: string) => run("readwrite", (s) => s.delete(id)),
+  books: () => run<StoredBook[]>("readonly", (s) => s.getAll() as IDBRequest<StoredBook[]>, BOOKS),
+  putBook: (b: StoredBook) => run("readwrite", (s) => s.put(b), BOOKS),
+  clearBooks: () => run("readwrite", (s) => s.clear(), BOOKS),
 };
 
 /**

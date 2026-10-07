@@ -28,7 +28,9 @@ function RollRow({ title, sub, roll, mark, onOpen }: { title: string; sub?: stri
   );
 }
 
-export function SheetTab({ sheet, open, openRoll }: { sheet: DerivedSheet; open: Open; openRoll: OpenRoll }) {
+const KIND_LABEL = { race: "Race", background: "Background", feature: "Feature", feat: "Feat" } as const;
+
+export function SheetTab({ sheet, open, openRoll, openTrait }: { sheet: DerivedSheet; open: Open; openRoll: OpenRoll; openTrait: (id: string) => void }) {
   return (
     <main>
       <section>
@@ -98,6 +100,21 @@ export function SheetTab({ sheet, open, openRoll }: { sheet: DerivedSheet; open:
               </div>
               <span className="num">{range} ft</span>
             </div>
+          ))}
+        </div>
+      </section>
+
+      <section>
+        <h2>Features and traits</h2>
+        <div className="group">
+          {sheet.features.map((f) => (
+            <button className="row" key={f.id} onClick={() => openTrait(f.id)}>
+              <div className="row-main">
+                <div className="row-title">{f.name}</div>
+                <div className="row-sub">{f.summary ?? KIND_LABEL[f.kind]}</div>
+              </div>
+              {f.text && <span className="tag">text</span>}
+            </button>
           ))}
         </div>
       </section>

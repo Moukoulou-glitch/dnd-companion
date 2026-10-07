@@ -34,7 +34,8 @@ npm run typecheck
 ## Content policy
 
 - `content/packs/srd-5.1`: material from the System Reference Document 5.1 by Wizards of the Coast LLC, used verbatim under the Creative Commons Attribution 4.0 International License (https://creativecommons.org/licenses/by/4.0/legalcode). Built with `scripts/build-srd-spells.py` from the open SRD dataset (github.com/5e-bits/5e-database); the only change is capitalizing ability names as the SRD prints them.
-- `content/packs/table-2014`: the group's private pack. Non-SRD entries carry mechanics, a short summary in our own words and a book reference; spells marked "Placeholder" wait for the group's own import of the book text.
+- `content/packs/table-2014`: the group's private pack. Non-SRD entries carry mechanics, a short summary in our own words and a book reference. No non-SRD book text is ever committed: the repository and the site are public.
+- **Book text on the device.** Players load their own book files in the app (Characters → Book text). The files stay in the browser's storage on that device and are parsed at every start by `packages/engine/src/books` (spells, feats, backgrounds, race traits, class pages, items). Book entries add text and new spells, feats, backgrounds and items; existing entries keep their mechanics. Protected entries are never changed: house rules, rulings, campaign items and homebrew, including the remastered feats. Tests use invented sample text only.
 
 ## Status
 
@@ -47,6 +48,7 @@ npm run typecheck
 | 3 · Features and inventory | Done: features you can use (Rage, Form of Dread, Fey Step, Favored Foe, Portent, free casts, Flame Tongue...) grouped by action, bonus action, reaction and free; using one spends its uses, switches on its effects and records rolled temp HP; Inventory tab with equip, attune (limit warning), quantities, add and remove items, coins, weight |
 | 4 · Effects and conditions | Done: all 14 conditions and Exhaustion (2014 rules, cumulative levels), with included conditions (Paralyzed brings Incapacitated); spell effects (Bless, Bane, Guidance, Haste, Slow, Shield, Shield of Faith, Mage Armor, Hunter's Mark, Hex, Heroism, Aid, Blur, Faerie Fire, Hold Person), Bardic Inspiration, Dodge, cover; custom effects for DM rulings; durations in rounds with End of my turn; reminders for what the app can't apply; auto-fail warnings; speed and HP max halving and caps |
 | 5 · Spells and concentration | Done: 319 SRD 5.1 spells with their full text; each character's spells from their sheet (class lists, Magic Initiate, Fey Touched, Infernal Legacy, Primal Awareness, Haunted by the Shadows); DC, attack, damage and healing by slot level, cantrips by character level; casting with slots, upcasting, Pact slots, free uses and rituals; preparing (limit noted); spell attacks and damage through the composer; effects on yourself (Shield, Mage Armor); concentration with the automatic check on damage (DC 10 or half, after resistance, temp HP included), ends at 0 HP, when incapacitated, or when casting another |
+| 5½ · Book text | Done: load book files on the device; full text for spells (new spells get attack, save, damage, healing and area read from the text), features, race traits, feats, backgrounds and items (weapons and armor with stats, magic versions from their base item); Features and traits list on the Sheet; protected table entries listed as kept |
 | Remaining from 1 | Editing a character in the app, importing a file |
 
 ### Shortcuts to revisit

@@ -122,8 +122,20 @@ export interface ActionResult {
   note?: string;
   cost?: { resource: string; name: string; amount: number; remaining: number };
   toggles: string[];
+  /** The feature or feat this comes from, for showing its text. */
+  featureId?: string;
   tempHp?: Amount;
   heal?: Amount;
+}
+
+/** A trait, feature, feat or rule on the character, for reading. */
+export interface FeatureEntry {
+  id: string;
+  name: string;
+  kind: "race" | "background" | "feature" | "feat";
+  summary?: string;
+  text?: string[];
+  source: string;
 }
 
 /** An active effect or condition, for the status strip. */
@@ -182,6 +194,8 @@ export interface DerivedSheet {
   senses: Record<string, number>;
   /** On/off states some active feature reads (Rage, Mage Armor, a lit Flame Tongue), for the UI to offer as switches. */
   toggles: { name: string; label: string; on: boolean }[];
+  /** Race traits, background, class and subclass features, feats and table rules, in sheet order, with their text when loaded. */
+  features: FeatureEntry[];
   /** Data problems found while deriving (missing choices, too many attuned items). */
   warnings: string[];
 }
@@ -789,6 +803,7 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
   for (const s of sources) {
     for (const a of s.grant.actions ?? []) {
       const entry: ActionResult = { id: a.id, name: a.name, economy: a.economy, source: s.label, toggles: a.toggles };
+      if (/^(feature|feat|race|background):/.test(s.id)) entry.featureId = s.id;
       if (a.note) entry.note = a.note;
       if (a.cost) {
         const r = resources.find((x) => x.id === a.cost!.resource);
@@ -870,9 +885,28 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
     },
     defenses,
     senses,
+    features: featureEntries(sources, reg),
     warnings,
   };
   if (slots.pact) sheet.pactSlots = slots.pact;
   if (c.concentration) sheet.concentration = c.concentration;
   return sheet;
+}
+
+/** The readable list of traits and features, one per definition. */
+function featureEntries(sources: Source[], reg: ContentRegistry): FeatureEntry[] {
+  const out: FeatureEntry[] = [];
+  const seen = new Set<string>();
+  for (const s of sources) {
+    const kind = /^(race|background|feature|feat):/.exec(s.id)?.[1] as FeatureEntry["kind"] | undefined;
+    if (!kind || seen.has(s.id)) continue;
+    seen.add(s.id);
+    const def = reg.find(s.id, kind);
+    if (!def) continue;
+    const e: FeatureEntry = { id: def.id, name: def.name, kind, source: [def.source.book, def.source.page ? `p. ${def.source.page}` : ""].filter(Boolean).join(" ") || def.source.pack };
+    if (def.summary) e.summary = def.summary;
+    if (def.text?.length) e.text = def.text;
+    out.push(e);
+  }
+  return out;
 }

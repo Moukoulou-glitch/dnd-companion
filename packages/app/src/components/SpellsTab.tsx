@@ -261,7 +261,7 @@ export function SpellPanel({
       <div className="spell-text">
         {sp.placeholder ? (
           <p className="note">
-            {sp.summary} The full text arrives when you import {sp.source}.
+            {sp.summary} Full text: {sp.source}. Load your book files (Characters → Book text) to read it here.
           </p>
         ) : (
           sp.text.map((p, i) => <p key={i}>{p}</p>)

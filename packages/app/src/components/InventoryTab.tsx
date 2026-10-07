@@ -31,6 +31,14 @@ export function ItemPanel({ inst, def, act, close }: { inst: Inst; def: ItemDef;
   return (
     <>
       {def.summary && <p>{def.summary}</p>}
+      {def.text && def.text.length > 0 && (
+        <details className="book-text" open={!def.summary}>
+          <summary>Full text</summary>
+          {def.text.map((p, i) => (
+            <p key={i}>{p}</p>
+          ))}
+        </details>
+      )}
       {inst.name && inst.name !== def.name && <p className="row-sub">{def.name}</p>}
       <div className="group">
         <div className="row">
@@ -98,7 +106,7 @@ export function AddItemPanel({ registry, act, close }: { registry: ContentRegist
           >
             <div className="row-main">
               <div className="row-title">{d.name}</div>
-              <div className="row-sub">{d.category}</div>
+              <div className="row-sub">{[d.category, d.magic?.rarity, d.requiresAttunement ? "attunement" : ""].filter(Boolean).join(", ")}</div>
             </div>
           </button>
         ))}
