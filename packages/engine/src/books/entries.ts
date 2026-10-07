@@ -1,4 +1,4 @@
-import { clean, paragraphs, splitHeadings } from "./text.js";
+import { clean, isThirdParty, paragraphs, splitHeadings } from "./text.js";
 
 /** A named piece of text from a book file: a feat, a background, a race trait, a class feature. */
 export interface TextEntry {
@@ -17,8 +17,13 @@ export function entryFileKind(text: string): EntryFileKind | undefined {
 }
 
 /** Feats and backgrounds: one entry per "## Name" heading. */
-export function parseEntries(text: string): TextEntry[] {
+export function parseEntries(text: string, excluded: string[] = []): TextEntry[] {
   return splitHeadings(text, "##")
+    .filter((e) => {
+      const tp = isThirdParty(e.lines.join("\n"));
+      if (tp) excluded.push(e.name);
+      return !tp;
+    })
     .map((e) => ({ name: e.name, text: paragraphs(e.lines) }))
     .filter((e) => e.text.length > 0);
 }
@@ -30,6 +35,7 @@ export function parseEntries(text: string): TextEntry[] {
 export function parseRaceTraits(text: string): TextEntry[] {
   const out = new Map<string, string[]>();
   for (const e of splitHeadings(text, "##")) {
+    if (isThirdParty(e.lines.join("\n"))) continue;
     let cur: string[] | undefined;
     for (const raw of e.lines) {
       const line = raw.trim();

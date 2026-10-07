@@ -1,5 +1,5 @@
 import type { ArmorStats, ItemDef, WeaponProperty, WeaponStats } from "@dnd/schema";
-import { clean, paragraphs, slug, splitHeadings } from "./text.js";
+import { clean, isThirdParty, paragraphs, slug, splitHeadings } from "./text.js";
 
 const PROPERTIES: WeaponProperty[] = ["ammunition", "finesse", "heavy", "light", "loading", "reach", "special", "thrown", "two-handed", "versatile"];
 const DAMAGE_TYPES = ["acid", "bludgeoning", "cold", "fire", "force", "lightning", "necrotic", "piercing", "poison", "psychic", "radiant", "slashing", "thunder"];
@@ -14,6 +14,8 @@ export function looksLikeItems(text: string): boolean {
 
 interface RawItem {
   name: string;
+  /** The whole entry as loaded, for spotting third-party material. */
+  raw: string;
   type: string;
   base?: string;
   stats: string[];
@@ -30,7 +32,9 @@ function rawItems(text: string): RawItem[] {
     if (!head.length) continue;
     const typeRaw = head[0]!;
     const base = /\(\*([^*]+)\*\)/.exec(typeRaw)?.[1];
-    const item: RawItem = { name: e.name, type: clean(typeRaw), stats: head.slice(1).map(clean), text: paragraphs(body) };
+    const stats = head.slice(1).map(clean).filter((l) => !/^Mastery:/i.test(l));
+    const text = paragraphs(body).filter((l) => !/^Mastery:/i.test(l));
+    const item: RawItem = { name: e.name, raw: e.lines.join("\n"), type: clean(typeRaw), stats, text };
     if (base) item.base = base;
     out.push(item);
   }
@@ -79,9 +83,22 @@ function category(type: string): ItemDef["category"] {
   return "gear";
 }
 
-/** Parses item lists. Magic weapons and armor take their stats from the base item when it's in the same files. */
-export function parseItems(texts: string[], pack: string, known: Map<string, ItemDef> = new Map()): ItemDef[] {
-  const raws = texts.flatMap(rawItems).filter((r) => !/^Generic Variant/i.test(r.type));
+/**
+ * Parses item lists. Magic weapons and armor take their stats from the base
+ * item when it's in the same files. Third-party material is left out, and so
+ * is any variant of a base item that isn't an official one.
+ */
+export function parseItems(texts: string[], pack: string, known: Map<string, ItemDef> = new Map(), excluded: string[] = []): ItemDef[] {
+  const all = texts.flatMap(rawItems).filter((r) => !/^Generic Variant/i.test(r.type));
+  const thirdParty = all.filter((r) => isThirdParty(r.raw));
+  excluded.push(...thirdParty.map((r) => r.name));
+  const official = all.filter((r) => !isThirdParty(r.raw));
+  const baseNames = new Set([...known.keys(), ...official.filter((r) => !r.base).map((r) => slug(r.name))]);
+  const raws = official.filter((r) => {
+    if (!r.base || baseNames.has(slug(r.base))) return true;
+    excluded.push(r.name);
+    return false;
+  });
   const bases = new Map(known);
   const out: ItemDef[] = [];
   const build = (r: RawItem): ItemDef => {

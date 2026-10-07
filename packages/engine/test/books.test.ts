@@ -14,7 +14,7 @@ ___
 A needle of ice flies at a creature. Make a ranged spell attack. On a hit, the target takes 2d6 cold damage.
 ***At Higher Levels.*** When you cast this spell using a spell slot of 2nd level or higher, the damage increases by 1d6 for each slot level above 1st.
 
-**Classes:** Sorcerer, Wizard
+**Classes:** Sorcerer, Apothecary, Wizard
 
 ---
 
@@ -115,6 +115,26 @@ AC 15 + Dex (max 2)
 ---
 
 Sample armor text.
+
+#### Chain of Elsewhere
+
+Weapon (*Fighting Chain*), Advanced Weapon, Melee Weapon, 3 lb.
+
+1d4 Bludgeoning
+
+---
+
+*The base item can be found in Grim Hollow: The Player's Guide, page 1.*
+
+#### Silvered Worg Jaws
+
+Weapon (*Worg Jaws*), Martial Weapon, Melee Weapon, 2 lb.
+
+2d6 Piercing
+
+---
+
+Sample text for a variant whose base item isn't in the files.
 
 #### Lantern of Testing
 
@@ -222,6 +242,13 @@ describe("book text loaded on the device", () => {
     expect(def("item:2-glaive")).toMatchObject({ name: "+2 Glaive", weapon: { damage: "1d10" }, magic: { rarity: "rare", bonus: 2 } });
     expect(def("item:half-plate-armor")).toMatchObject({ category: "armor", armor: { category: "medium", base: 15 }, weight: 40 });
     expect(def("item:lantern-of-testing")).toMatchObject({ category: "wondrous", requiresAttunement: true, magic: { rarity: "rare" }, weight: 2 });
+  });
+
+  it("leaves out third-party material and classes", () => {
+    expect(def("item:chain-of-elsewhere")).toBeUndefined();
+    expect(def("item:silvered-worg-jaws")).toBeUndefined();
+    expect(report.excluded).toBe(2);
+    expect(def("spell:frost-needle")).toMatchObject({ classes: ["sorcerer", "wizard"] });
   });
 
   it("the pack is valid and loads over the table pack", () => {

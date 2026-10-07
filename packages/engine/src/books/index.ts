@@ -25,6 +25,8 @@ export interface BookReport {
   textAdded: number;
   /** Table entries the book versions were not allowed to change (house rules, remastered feats, homebrew). */
   kept: string[];
+  /** How many third-party entries (Grim Hollow and other publishers) were left out. */
+  excluded: number;
 }
 
 export function bookFileKind(text: string): BookFileKind {
@@ -62,7 +64,8 @@ function namesOf(def: Definition): string[] {
  * leaving every protected table entry exactly as it is.
  */
 export function bookPack(files: BookFile[], base: ContentRegistry): { pack: ContentPack; report: BookReport } {
-  const report: BookReport = { files: [], added: {}, textAdded: 0, kept: [] };
+  const report: BookReport = { files: [], added: {}, textAdded: 0, kept: [], excluded: 0 };
+  const excluded: string[] = [];
   const out = new Map<string, Definition>();
   const kept = new Set<string>();
 
@@ -74,14 +77,14 @@ export function bookPack(files: BookFile[], base: ContentRegistry): { pack: Cont
     const kind = bookFileKind(f.text);
     let count = 0;
     if (kind === "spells") {
-      const s = parseSpells(f.text, BOOK_PACK_ID);
+      const s = parseSpells(f.text, BOOK_PACK_ID, excluded);
       spells.push(...s);
       count = s.length;
     } else if (kind === "items") {
       itemTexts.push(f.text);
       count = (f.text.match(/^#### /gm) ?? []).length;
     } else if (kind === "feats" || kind === "backgrounds") {
-      const e = parseEntries(f.text);
+      const e = parseEntries(f.text, excluded);
       named.push({ kind: kind === "feats" ? "feat" : "background", entries: e });
       count = e.length;
     } else if (kind === "races") {
@@ -158,7 +161,7 @@ export function bookPack(files: BookFile[], base: ContentRegistry): { pack: Cont
   // Items: existing ones get their text; the rest are added, with weapon and armor stats when the text gives them.
   if (itemTexts.length) {
     const known = new Map(base.list("item").map((d) => [slug(d.name), d as ItemDef]));
-    for (const item of parseItems(itemTexts, BOOK_PACK_ID, known)) {
+    for (const item of parseItems(itemTexts, BOOK_PACK_ID, known, excluded)) {
       const existing = base.find(item.id, "item") ?? (known.get(slug(item.name)) as ItemDef | undefined);
       if (existing) {
         if (item.text) attach(existing, item.text);
@@ -171,6 +174,7 @@ export function bookPack(files: BookFile[], base: ContentRegistry): { pack: Cont
   }
 
   report.kept = [...kept].sort();
+  report.excluded = new Set(excluded).size;
   const pack: ContentPack = {
     id: BOOK_PACK_ID,
     title: "Book text loaded on this device",

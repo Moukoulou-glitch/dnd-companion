@@ -1,5 +1,5 @@
 import type { Ability, SpellDef } from "@dnd/schema";
-import { clean, slug, splitHeadings } from "./text.js";
+import { clean, isThirdParty, OFFICIAL_CLASSES, slug, splitHeadings } from "./text.js";
 
 const ABILITIES: Record<string, Ability> = {
   strength: "str",
@@ -86,9 +86,13 @@ export function spellMechanics(level: number, text: string[], higher: string[]):
 }
 
 /** Parses every spell in a markdown export into spell definitions. */
-export function parseSpells(text: string, pack: string): SpellDef[] {
+export function parseSpells(text: string, pack: string, excluded: string[] = []): SpellDef[] {
   const out: SpellDef[] = [];
   for (const e of splitHeadings(text, "####")) {
+    if (isThirdParty(e.lines.join("\n"))) {
+      excluded.push(e.name);
+      continue;
+    }
     const head = e.lines.find((l) => l.trim().startsWith("*"));
     if (!head) continue;
     const h = clean(head);
@@ -124,7 +128,10 @@ export function parseSpells(text: string, pack: string): SpellDef[] {
       const line = raw.trim();
       if (!line || /^(-{3,}|_{3,})$/.test(line)) continue;
       if (line.startsWith("**Classes:**")) {
-        classes = clean(line.slice(12)).split(",").map((c) => c.trim().toLowerCase()).filter(Boolean);
+        classes = clean(line.slice(12))
+          .split(",")
+          .map((c) => c.trim().toLowerCase())
+          .filter((c) => OFFICIAL_CLASSES.includes(c));
         continue;
       }
       const c = clean(line.replace(/^[-*] /, "• "));

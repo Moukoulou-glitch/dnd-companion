@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { BookReport } from "@dnd/engine";
+import { bookReport } from "../content";
 import { db } from "../db";
 
 /** A definition's full text when it's loaded, otherwise its short summary and where to read it. */
@@ -16,7 +17,13 @@ export function BookText({ text, summary, source }: { text?: string[] | undefine
   return (
     <>
       {summary && <p>{summary}</p>}
-      {source && !/homebrew|ruling|campaign|srd/i.test(source) && <p className="note">Full text: {source}. Load your book files (Characters → Book text) to read it here.</p>}
+      {source && !/homebrew|ruling|campaign|srd/i.test(source) && (
+        <p className="note">
+          {bookReport
+            ? `Full text: ${source}. It isn't in the book files on this device. Class and subclass features come from the class pages: load those as .txt files too (Characters → Book text).`
+            : `Full text: ${source}. Load your book files (Characters → Book text) to read it here.`}
+        </p>
+      )}
     </>
   );
 }
@@ -47,7 +54,7 @@ export function BooksPanel({ report }: { report: BookReport | undefined }) {
   return (
     <>
       <p className="note">
-        Load the book files you have (spells, feats, backgrounds, races, items, class pages). They stay on this device only and are never uploaded. To give a friend the same text, send them the files and they load them here.
+        Load the book files you have: spells, feats, backgrounds, races and items (.md), and class pages (.txt). They stay on this device only and are never uploaded. To give a friend the same text, send them the files and they load them here.
       </p>
       <p className="note">The table's own versions always win: house rules, rulings and the remastered feats are never changed by a book.</p>
 
@@ -72,6 +79,14 @@ export function BooksPanel({ report }: { report: BookReport | undefined }) {
               </div>
             </div>
           </div>
+          {report.excluded > 0 && (
+            <div className="row">
+              <div className="row-main">
+                <div className="row-title">Left out</div>
+                <div className="row-sub">{report.excluded} third-party entries (Grim Hollow and other publishers)</div>
+              </div>
+            </div>
+          )}
           {report.kept.length > 0 && (
             <div className="row">
               <div className="row-main">

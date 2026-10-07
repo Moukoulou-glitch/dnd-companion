@@ -70,3 +70,17 @@ export function paragraphs(lines: string[]): string[] {
   }
   return out;
 }
+
+/**
+ * Third-party publishers' material that shows up in exported lists. The
+ * table plays official 2014 content plus its own homebrew, so these are
+ * never loaded.
+ */
+const THIRD_PARTY = /Grim Hollow|Vampire: The Masquerade|Lord of the Rings|Humblewood|Ghostfire|Kobold Press|Tal'Dorei|Critical Role|Salvage text|removed due to homebrew|Advanced Weapon/i;
+
+export function isThirdParty(text: string): boolean {
+  return THIRD_PARTY.test(text);
+}
+
+/** The classes of the 2014 rules; anything else on a spell's class list is third-party and dropped. */
+export const OFFICIAL_CLASSES = ["artificer", "barbarian", "bard", "cleric", "druid", "fighter", "monk", "paladin", "ranger", "rogue", "sorcerer", "warlock", "wizard"];
