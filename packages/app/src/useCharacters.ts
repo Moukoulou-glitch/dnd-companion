@@ -158,7 +158,56 @@ export function useCharacters() {
     URL.revokeObjectURL(a.href);
   }, [log, character, selectedId]);
 
-  return { ready, error, character, sheet, roster, selectedId, select, act, undo, canUndo: !!log?.canUndo, toast, setToast, history: log?.history ?? [], exportSelected, addRoll, rolls: (selectedId && rolls.current.get(selectedId)) || [] };
+  /** Adds a character (a new one from the builder, or an imported file) and selects it. */
+  const create = useCallback(
+    async (c: Character, label = `${c.name} created.`) => {
+      const l = new CharacterLog(CharacterSchema.parse(c), registry, clock, "player");
+      logs.current.set(c.id, l);
+      rolls.current.set(c.id, []);
+      fixtureHashes.current.delete(c.id);
+      await persist(l, c.id);
+      select(c.id);
+      setVersion((v) => v + 1);
+      setToast({ id: Date.now(), text: label, canUndo: false });
+    },
+    [persist, select],
+  );
+
+  /**
+   * Reads an exported character file. Returns the character, or why it can't be
+   * read; `exists` says a character with that id is already on this device.
+   */
+  const readImport = useCallback((text: string): { character?: Character; exists?: boolean; error?: string } => {
+    try {
+      const data = JSON.parse(text) as { format?: string; character?: unknown };
+      if (data.format !== "table-companion/character@1" || !data.character) return { error: "That isn't a character file exported from this app." };
+      const character = CharacterSchema.parse(data.character);
+      for (const cl of character.classes) if (!registry.has(cl.class)) return { error: `It uses a class this app doesn't have: ${cl.class}.` };
+      if (!registry.has(character.race)) return { error: `It uses a race this app doesn't have: ${character.race}.` };
+      stubMissingItems(character.inventory.map((i) => i.item));
+      return { character, exists: logs.current.has(character.id) };
+    } catch (e) {
+      return { error: `Couldn't read it: ${(e as Error).message}` };
+    }
+  }, []);
+
+  /** Deletes a character from this device (export first to keep a copy). */
+  const remove = useCallback(
+    async (id: string) => {
+      const name = logs.current.get(id)?.character.name ?? "Character";
+      logs.current.delete(id);
+      rolls.current.delete(id);
+      await db.remove(id);
+      const next = [...logs.current.keys()][0];
+      if (next) select(next);
+      else setSelectedId(null);
+      setVersion((v) => v + 1);
+      setToast({ id: Date.now(), text: `${name} deleted from this device.`, canUndo: false });
+    },
+    [select],
+  );
+
+  return { ready, error, character, sheet, roster, selectedId, select, act, undo, canUndo: !!log?.canUndo, toast, setToast, history: log?.history ?? [], exportSelected, addRoll, rolls: (selectedId && rolls.current.get(selectedId)) || [], create, readImport, remove };
 }
 
 function summarize(c: Character): string {

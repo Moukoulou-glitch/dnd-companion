@@ -252,6 +252,8 @@ export const Character = z
      * characters that haven't levelled in the app yet: nothing is asked.
      */
     asiBaseline: z.record(DefId, z.number().int().min(0)).optional(),
+    /** Made with the app's builder: every build choice is asked for and applied. */
+    builtInApp: z.boolean().optional(),
     /** Companions from features (Primal Companion), keyed by companion id. */
     companions: z.record(z.string(), CompanionState).default({}),
     /** Per-character preferences. Real dice is the default: most players at the table roll physical dice. */

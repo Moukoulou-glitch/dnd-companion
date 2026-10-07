@@ -36,7 +36,8 @@
         "feature:fey-ancestry",
         "feature:trance",
         "feature:fey-step"
-      ]
+      ],
+      "group": "Elf"
     },
     {
       "kind": "feature",
@@ -246,9 +247,35 @@
               "choice": "skill"
             }
           }
-        ]
+        ],
+        "abilityChoice": {
+          "choice": "abilities",
+          "amount": 1
+        }
       },
-      "features": []
+      "features": [],
+      "group": "Human",
+      "choices": [
+        {
+          "id": "abilities",
+          "label": "Ability scores (+1 each)",
+          "kind": "ability",
+          "count": 2,
+          "newOnly": true
+        },
+        {
+          "id": "skill",
+          "label": "Skill",
+          "kind": "skill",
+          "count": 1
+        },
+        {
+          "id": "language",
+          "label": "Language",
+          "kind": "language",
+          "count": 1
+        }
+      ]
     }
   ]
 }

@@ -147,6 +147,7 @@ export function buildItems(c: Character, reg: ContentRegistry): BuildItem[] {
     if (s.common || seen.has(s.id) || !/^(race|class|background|feature|feat):/.test(s.id)) continue;
     seen.add(s.id);
     for (const ch of defChoices(c, reg, s.id)) {
+      if (ch.newOnly && !c.builtInApp) continue;
       const need = countOf(c, reg, ch);
       const picked = c.choices[s.id]?.[ch.id] ?? [];
       out.push({ key: `${s.id}|${ch.id}`, kind: "choice", sourceName: s.label, label: ch.label, done: picked.length >= need, need, picked, source: s.id, choice: ch });
@@ -338,6 +339,7 @@ export function newCharacter(
     classes: [{ class: input.class, level: 1 }],
     hp: { current: 1, temp: 0 },
     asiBaseline: {},
+    builtInApp: true,
   });
   c.hp.current = derive(c, reg).hpMax.total;
   return c;

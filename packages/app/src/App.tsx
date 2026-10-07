@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
-import { castingEconomy, formatBonus, signed, turnWarnings, type TurnIntent } from "@dnd/engine";
-import { SKILL_NAMES, type Skill } from "@dnd/schema";
+import { buildItems, castingEconomy, formatBonus, newCharacter, signed, turnWarnings, type TurnIntent } from "@dnd/engine";
+import { SKILL_NAMES, type Character, type Skill } from "@dnd/schema";
 import type { ComposerBase } from "@dnd/dice";
 import type { ActionResult, EffectResult, SpellResult, WeaponAttack } from "@dnd/engine";
 import { ActionsTab } from "./components/ActionsTab";
@@ -14,6 +14,7 @@ import { HpPad } from "./components/HpPad";
 import { AddItemPanel, CoinPanel, InventoryTab, ItemPanel } from "./components/InventoryTab";
 import { bookReport, registry } from "./content";
 import { BookText, BooksPanel } from "./components/BookText";
+import { BuildPanel, LevelUpPanel, NewCharacterPanel, type NewCharacterInput } from "./components/Builder";
 import { flashEnabled, flashForFeature, flashForSpell, flashTorch, setFlashEnabled } from "./flash";
 import { PlayTab, type PlayPrompts } from "./components/PlayTab";
 import { Confirm, PoolRollPanel, SlotSpendPanel, SpendDiePanel } from "./components/Prompts";
@@ -62,7 +63,7 @@ export function App() {
 
   if (!s.ready) return null;
   if (s.error && !s.character) return <p style={{ padding: 16 }}>{s.error}</p>;
-  if (!s.character || !s.sheet) return <p style={{ padding: 16 }}>No characters on this device yet.</p>;
+  if (!s.character || !s.sheet) return <Welcome create={s.create} readImport={s.readImport} />;
 
   const { character: c, sheet } = s;
 
@@ -107,6 +108,7 @@ export function App() {
     return false;
   };
   const hpNow = Math.min(c.hp.current, sheet.hpMax.total);
+  const openChoices = buildItems(c, registry).filter((i) => !i.done).length;
   const hpPct = Math.round((hpNow / sheet.hpMax.total) * 100);
 
   const openHp = () =>
@@ -748,6 +750,76 @@ export function App() {
 
   const openBooks = () => open("Book text", <BooksPanel report={bookReport} />);
 
+  /** Everything left to choose for this character, and what's chosen. */
+  const openBuild = () =>
+    open("Choices", () => <BuildPanel get={() => live.current.character} reg={registry} push={push} act={live.current.act} back={back} onLevelUp={openLevelUp} />);
+
+  const openLevelUp = () =>
+    open("Level up", () =>
+      live.current.character && live.current.sheet ? (
+        <LevelUpPanel
+          character={live.current.character}
+          sheet={live.current.sheet}
+          reg={registry}
+          onLevel={(cls, hpRoll) => {
+            live.current.act("levelUp", { class: cls, ...(hpRoll !== undefined ? { hpRoll } : {}) }, hpRoll !== undefined ? `Level up: rolled ${hpRoll} for hit points.` : "Level up.");
+            openBuild();
+          }}
+        />
+      ) : null,
+    );
+
+  const openNewCharacter = () =>
+    open(
+      "New character",
+      <NewCharacterPanel
+        reg={registry}
+        onCreate={async (input: NewCharacterInput) => {
+          await s.create(newCharacter({ ...input, id: crypto.randomUUID() }, registry));
+          openBuild();
+        }}
+      />,
+    );
+
+  const importFile = async (file: File | undefined) => {
+    if (!file) return;
+    const res = s.readImport(await file.text());
+    if (!res.character) return open("Import", <p className="note danger-text">{res.error}</p>);
+    const ch = res.character;
+    if (!res.exists) {
+      await s.create(ch, `${ch.name} imported.`);
+      return close();
+    }
+    open("Import", () => (
+      <Confirm
+        question={`Replace ${ch.name}?`}
+        detail={`${ch.name} is already on this device. The file's version replaces it, and its change history here is lost.`}
+        no="No, keep this one"
+        yes="Replace it"
+        onNo={close}
+        onYes={async () => {
+          await s.create(ch, `${ch.name} replaced from the file.`);
+          close();
+        }}
+      />
+    ));
+  };
+
+  const confirmDelete = () =>
+    open(`Delete ${c.name}?`, () => (
+      <Confirm
+        question={`Delete ${c.name} from this device?`}
+        detail="This can't be undone. Export the character first if you want to keep a copy."
+        no="No, keep them"
+        yes={`Delete ${c.name}`}
+        onNo={openRoster}
+        onYes={async () => {
+          await s.remove(c.id);
+          close();
+        }}
+      />
+    ));
+
   const openAdd = () => open("Add an item", <AddItemPanel registry={registry} act={s.act} close={close} />);
 
   const openCoin = (coin: "cp" | "sp" | "ep" | "gp" | "pp", label: string) =>
@@ -955,6 +1027,15 @@ export function App() {
             </button>
           ))}
         </div>
+        <div className="big-actions" style={{ marginTop: 12 }}>
+          <button className="big primary" onClick={openNewCharacter}>
+            New character
+          </button>
+          <label className="big file-button">
+            Import a file
+            <input type="file" accept=".json,application/json" onChange={(e) => void importFile(e.target.files?.[0])} />
+          </label>
+        </div>
         <button className="big" style={{ width: "100%", marginTop: 12 }} onClick={s.exportSelected}>
           Export {c.name} as a file
         </button>
@@ -963,6 +1044,9 @@ export function App() {
           Book text{bookReport ? " (loaded)" : ""}
         </button>
         <FlashSetting />
+        <button className="link danger-text" style={{ marginTop: 16 }} onClick={confirmDelete}>
+          Delete {c.name} from this device
+        </button>
       </>,
     );
 
@@ -1027,6 +1111,21 @@ export function App() {
           </div>
         )}
       </header>
+
+      {(tab === "sheet" || (tab === "play" && openChoices > 0)) && (
+        <div className="build-bar">
+          <button className={`big${openChoices ? " todo" : ""}`} onClick={openBuild}>
+            {openChoices ? `${openChoices} ${openChoices === 1 ? "choice" : "choices"} to make` : "Choices"}
+            <span className="sub">skills, spells, subclass, ASIs…</span>
+          </button>
+          {tab === "sheet" && (
+            <button className="big primary" onClick={openLevelUp}>
+              Level up
+              <span className="sub">to level {sheet.level + 1}</span>
+            </button>
+          )}
+        </div>
+      )}
 
       {tab === "play" && (
         <PlayTab
@@ -1170,5 +1269,43 @@ function FlashSetting() {
       </label>
       {msg && <p className="note">{msg}</p>}
     </>
+  );
+}
+
+/** No characters yet: make one, or bring one in from a file. */
+function Welcome({ create, readImport }: { create: (c: Character, label?: string) => Promise<void>; readImport: (text: string) => { character?: Character; error?: string } }) {
+  const [making, setMaking] = useState(false);
+  const [msg, setMsg] = useState("");
+  return (
+    <main style={{ padding: 16 }}>
+      <h2>Your characters</h2>
+      {making ? (
+        <NewCharacterPanel reg={registry} onCreate={(input) => void create(newCharacter({ ...input, id: crypto.randomUUID() }, registry))} />
+      ) : (
+        <>
+          <p className="note">No characters on this device yet.</p>
+          <div className="big-actions">
+            <button className="big primary" onClick={() => setMaking(true)}>
+              New character
+            </button>
+            <label className="big file-button">
+              Import a file
+              <input
+                type="file"
+                accept=".json,application/json"
+                onChange={async (e) => {
+                  const f = e.target.files?.[0];
+                  if (!f) return;
+                  const res = readImport(await f.text());
+                  if (res.character) await create(res.character, `${res.character.name} imported.`);
+                  else setMsg(res.error ?? "");
+                }}
+              />
+            </label>
+          </div>
+          {msg && <p className="note danger-text">{msg}</p>}
+        </>
+      )}
+    </main>
   );
 }

@@ -157,3 +157,15 @@ describe("prepared casters", () => {
     expect(s.hpMax.total).toBe(8 + 3 + 1);
   });
 });
+
+describe("Variant Human", () => {
+  it("a new one picks +1 to two abilities; the table's existing ones aren't asked again", () => {
+    const log = logOf(newCharacter({ id: "v", name: "V", race: "race:variant-human", class: "class:fighter", abilities: { str: 15, dex: 14, con: 13, int: 12, wis: 10, cha: 8 } }, reg));
+    expect(buildItems(log.character, reg).find((i) => i.key === "race:variant-human|abilities")).toMatchObject({ need: 2, done: false });
+    log.record("setChoice", { source: "race:variant-human", choice: "abilities", values: ["str", "con"] });
+    expect(sheetOf(log).abilities.str.score.total).toBe(16);
+    const agaklis = loadCharacter("agaklis");
+    expect(buildItems(agaklis, reg).some((i) => i.key === "race:variant-human|abilities")).toBe(false);
+    expect(derive(agaklis, reg).abilities.str.score.parts.map((p) => p.label)).not.toContain("Variant Human");
+  });
+});

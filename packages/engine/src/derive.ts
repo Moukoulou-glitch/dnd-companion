@@ -314,6 +314,9 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
   };
   for (const s of sources) {
     const ch = s.grant.abilityChoice;
+    const def = ch && reg.has(s.id) ? (reg.find(s.id, "race") ?? reg.find(s.id, "feat") ?? reg.find(s.id, "feature")) : undefined;
+    const newOnly = (def as { choices?: { id: string; newOnly?: boolean }[] } | undefined)?.choices?.find((x) => x.id === ch?.choice)?.newOnly;
+    if (newOnly && !c.builtInApp) continue;
     if (ch && !(s.choices[ch.choice]?.length)) warnings.push(`${s.label}: choice "${ch.choice}" has not been made.`);
   }
   const abilities = {} as Record<Ability, AbilityResult>;

@@ -346,6 +346,8 @@ export const ChoiceDef = z
     from: z.array(z.string()).optional(),
     /** Spell choices: the free-cast pool the chosen spells use (Magic Initiate's once per long rest). */
     resource: z.string().optional(),
+    /** Only asked of characters built in the app: older sheets already have it in their scores (Variant Human's +1s). */
+    newOnly: z.boolean().optional(),
     /** How many grows with class level, read from the class's table (Eldritch Invocations: "invocations"). */
     countBy: z.string().optional(),
     /** Spell choices: which spells qualify (Magic Initiate cleric cantrips: classes ["cleric"], level 0). */

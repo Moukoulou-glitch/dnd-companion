@@ -1615,3 +1615,104 @@ ol.levels li[data-on="true"] {
   font-size: 0.8rem;
   padding: 2px 10px;
 }
+
+/* Building and levelling. */
+.build-bar {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 12px 16px 0;
+}
+.build-bar .big:only-child {
+  grid-column: span 2;
+}
+.big.todo,
+.row.todo {
+  border-color: var(--gold);
+}
+.big.todo {
+  background: var(--gold-soft);
+}
+.steps {
+  display: flex;
+  gap: 4px;
+  list-style: none;
+  padding: 0;
+  margin: 0 0 14px;
+  overflow-x: auto;
+}
+.steps li {
+  flex: 1;
+}
+.steps button {
+  width: 100%;
+  font: inherit;
+  font-size: 0.8rem;
+  padding: 6px 2px;
+  border: 0;
+  border-bottom: 3px solid var(--line);
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+}
+.steps li[data-done="true"] button {
+  border-color: var(--teal);
+  color: var(--text);
+}
+.steps li[data-on="true"] button {
+  border-color: var(--gold);
+  color: var(--gold);
+  font-weight: 700;
+}
+.field {
+  display: block;
+  margin-bottom: 12px;
+}
+.field > span {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+.align-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+.align-grid .tag[aria-pressed="true"],
+.choice-grid .tag[aria-pressed="true"] {
+  border-color: var(--gold);
+  background: var(--gold-soft);
+  color: var(--text);
+}
+.pick-group {
+  padding: 10px 14px 4px;
+  font-size: 0.8rem;
+  color: var(--gold);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.score-select {
+  font: inherit;
+  font-weight: 700;
+  padding: 6px 10px;
+  border-radius: var(--radius-s);
+  border: 1px solid var(--line);
+  background: var(--panel-raised);
+  color: var(--text);
+  width: 72px;
+  text-align: center;
+}
+.multiclass {
+  margin-top: 10px;
+}
+.multiclass > summary {
+  cursor: pointer;
+  color: var(--teal);
+  padding: 8px 0;
+}
+.sticky-save {
+  position: sticky;
+  bottom: 0;
+  margin-top: 12px;
+}
