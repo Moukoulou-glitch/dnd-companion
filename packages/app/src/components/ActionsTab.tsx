@@ -1,4 +1,4 @@
-import { formatBonus, signed, type DerivedSheet, type RollBreakdown, type WeaponAttack } from "@dnd/engine";
+import { formatBonus, signed, type ActionResult, type DerivedSheet, type RollBreakdown, type WeaponAttack } from "@dnd/engine";
 import type { ReactNode } from "react";
 import { BreakdownLines } from "./Sheet";
 
@@ -11,11 +11,57 @@ export function damageText(a: WeaponAttack): string {
   return `${a.damage.dice}${bonus} ${a.damage.type}${extra}`;
 }
 
-export function ActionsTab({ sheet, open, openRoll }: { sheet: DerivedSheet; open: Open; openRoll: OpenRoll }) {
-  const groups: { title: string; list: WeaponAttack[] }[] = [
-    { title: "Attack action", list: sheet.attacks.filter((a) => a.action === "attack") },
-    { title: "Bonus action", list: sheet.attacks.filter((a) => a.action === "bonus") },
-  ].filter((g) => g.list.length > 0);
+function AttackRow({ a, openRoll }: { a: WeaponAttack; openRoll: OpenRoll }) {
+  return (
+    <button className="row" onClick={() => openRoll(a.name, a.attack, a)}>
+      <div className="row-main">
+        <div className="row-title">{a.name}</div>
+        <div className="row-sub">{damageText(a)}</div>
+      </div>
+      {a.attack.advantage.length > 0 && <span className="tag adv">adv</span>}
+      {a.attack.suggestions.length > 0 && (
+        <span className="tag">{a.attack.suggestions.length === 1 ? "1 option" : `${a.attack.suggestions.length} options`}</span>
+      )}
+      <span className="num">{formatBonus({ total: a.attack.total, dice: a.attack.dice })}</span>
+    </button>
+  );
+}
+
+function FeatureRow({ a, openFeature }: { a: ActionResult; openFeature: (a: ActionResult) => void }) {
+  const none = a.cost && a.cost.remaining < a.cost.amount;
+  return (
+    <button className="row" onClick={() => openFeature(a)}>
+      <div className="row-main">
+        <div className="row-title">{a.name}</div>
+        <div className="row-sub">
+          {a.cost ? `${a.cost.remaining} left` : "No cost"}
+          {a.tempHp ? `, ${a.tempHp.text} temp HP` : ""}
+          {a.heal ? `, heals ${a.heal.text}` : ""}
+        </div>
+      </div>
+      <span className={`tag${none ? "" : " adv"}`}>{none ? "none left" : "use"}</span>
+    </button>
+  );
+}
+
+export function ActionsTab({
+  sheet,
+  open,
+  openRoll,
+  openFeature,
+}: {
+  sheet: DerivedSheet;
+  open: Open;
+  openRoll: OpenRoll;
+  openFeature: (a: ActionResult) => void;
+}) {
+  const features = (e: ActionResult["economy"]) => sheet.actions.filter((a) => a.economy === e);
+  const groups: { title: string; attacks: WeaponAttack[]; features: ActionResult[] }[] = [
+    { title: "Action", attacks: sheet.attacks.filter((a) => a.action === "attack"), features: features("action") },
+    { title: "Bonus action", attacks: sheet.attacks.filter((a) => a.action === "bonus"), features: features("bonus") },
+    { title: "Reaction", attacks: [], features: features("reaction") },
+    { title: "No action needed", attacks: [], features: features("free") },
+  ].filter((g) => g.attacks.length + g.features.length > 0);
 
   return (
     <main>
@@ -23,16 +69,11 @@ export function ActionsTab({ sheet, open, openRoll }: { sheet: DerivedSheet; ope
         <section key={g.title}>
           <h2>{g.title}</h2>
           <div className="group">
-            {g.list.map((a) => (
-              <button className="row" key={`${a.attackId}-${a.itemInstanceId ?? ""}-${a.mode}`} onClick={() => openRoll(a.name, a.attack, a)}>
-                <div className="row-main">
-                  <div className="row-title">{a.name}</div>
-                  <div className="row-sub">{damageText(a)}</div>
-                </div>
-                {a.attack.advantage.length > 0 && <span className="tag adv">adv</span>}
-                {a.attack.suggestions.length > 0 && <span className="tag">{a.attack.suggestions.length === 1 ? "1 option" : `${a.attack.suggestions.length} options`}</span>}
-                <span className="num">{formatBonus({ total: a.attack.total, dice: a.attack.dice })}</span>
-              </button>
+            {g.attacks.map((a) => (
+              <AttackRow key={`${a.attackId}-${a.itemInstanceId ?? ""}-${a.mode}`} a={a} openRoll={openRoll} />
+            ))}
+            {g.features.map((a) => (
+              <FeatureRow key={a.id} a={a} openFeature={openFeature} />
             ))}
           </div>
         </section>
@@ -47,7 +88,8 @@ export function ActionsTab({ sheet, open, openRoll }: { sheet: DerivedSheet; ope
                 className="row"
                 key={s.id}
                 onClick={() =>
-                  open(s.label, (
+                  open(
+                    s.label,
                     <>
                       <p className="sub-head">Spell save DC</p>
                       <BreakdownLines b={s.saveDc} totalLabel="DC" />
@@ -59,8 +101,8 @@ export function ActionsTab({ sheet, open, openRoll }: { sheet: DerivedSheet; ope
                       >
                         Roll a spell attack
                       </button>
-                    </>
-                  ))
+                    </>,
+                  )
                 }
               >
                 <div className="row-main">

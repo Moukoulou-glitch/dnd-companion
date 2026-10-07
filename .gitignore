@@ -3,3 +3,7 @@ dist/
 *.tsbuildinfo
 .DS_Store
 coverage/
+
+# Compiled output must never sit next to the TypeScript sources.
+packages/*/src/**/*.js
+packages/*/test/**/*.js

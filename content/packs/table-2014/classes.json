@@ -114,6 +114,32 @@
             "max": "pb",
             "reset": "long"
           }
+        ],
+        "actions": [
+          {
+            "id": "favored-foe",
+            "name": "Favored Foe",
+            "economy": "free",
+            "cost": {
+              "resource": "favored-foe"
+            },
+            "toggles": [
+              "favored-foe"
+            ],
+            "note": "When you hit: mark the target for 1 minute (concentration). Once per turn, your first hit on it adds 1d4."
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.damage.weapon.*",
+            "op": "add",
+            "value": "1d4",
+            "label": "Favored Foe",
+            "when": {
+              "toggle": "favored-foe",
+              "text": "first hit on the marked target this turn"
+            }
+          }
         ]
       }
     },
@@ -227,6 +253,17 @@
             "max": 1,
             "reset": "long"
           }
+        ],
+        "actions": [
+          {
+            "id": "primal-awareness",
+            "name": "Speak with Animals (free)",
+            "economy": "action",
+            "cost": {
+              "resource": "primal-awareness-speak-with-animals"
+            },
+            "note": "Cast without a slot, once per long rest."
+          }
         ]
       }
     },
@@ -257,6 +294,16 @@
         "pack": "table-2014",
         "book": "TCoE",
         "page": 61
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "primal-companion",
+            "name": "Command companion",
+            "economy": "bonus",
+            "note": "Your beast acts on your turn; otherwise it takes the Dodge action. It can also attack in place of one of your attacks."
+          }
+        ]
       }
     }
   ]

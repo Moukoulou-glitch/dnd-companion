@@ -392,6 +392,17 @@
               "toggle": "flame-tongue-lit"
             }
           }
+        ],
+        "actions": [
+          {
+            "id": "ignite-flame-tongue",
+            "name": "Ignite Flame Tongue",
+            "economy": "bonus",
+            "toggles": [
+              "flame-tongue-lit"
+            ],
+            "note": "Flames add 2d6 fire to its hits. Speak the word again, or drop or sheathe it, to put it out."
+          }
         ]
       }
     },
@@ -562,6 +573,17 @@
             "name": "Φυλαχτό του Ηλιακού Φωτός",
             "max": 1,
             "reset": "manual"
+          }
+        ],
+        "actions": [
+          {
+            "id": "amulet-of-sunlight",
+            "name": "Φυλαχτό του Ηλιακού Φωτός",
+            "economy": "action",
+            "cost": {
+              "resource": "amulet-of-sunlight"
+            },
+            "note": "Sunlight in a 10 ft radius from a crown that moves with you; counts as a 5th-level spell. Once every 10 days."
           }
         ]
       }

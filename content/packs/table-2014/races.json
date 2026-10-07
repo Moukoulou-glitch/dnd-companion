@@ -109,6 +109,17 @@
             "max": 1,
             "reset": "short"
           }
+        ],
+        "actions": [
+          {
+            "id": "fey-step",
+            "name": "Fey Step",
+            "economy": "bonus",
+            "cost": {
+              "resource": "fey-step"
+            },
+            "note": "Teleport up to 30 ft. Summer: then fire damage equal to your Charisma modifier (minimum 1) to creatures you choose within 5 ft."
+          }
         ]
       }
     },
@@ -190,6 +201,17 @@
             "name": "Infernal Legacy: Hellish Rebuke",
             "max": 1,
             "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "hellish-rebuke",
+            "name": "Hellish Rebuke",
+            "economy": "reaction",
+            "cost": {
+              "resource": "infernal-legacy-rebuke"
+            },
+            "note": "When a creature you can see within 60 ft damages you: 3d10 fire, Dexterity save for half (2nd level)."
           }
         ]
       }

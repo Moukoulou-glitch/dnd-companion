@@ -1,20 +1,24 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { formatBonus } from "@dnd/engine";
 import type { ComposerBase } from "@dnd/dice";
-import type { WeaponAttack } from "@dnd/engine";
+import type { ActionResult, WeaponAttack } from "@dnd/engine";
 import { ActionsTab } from "./components/ActionsTab";
 import { Composer, ResultView } from "./components/Composer";
+import { FeaturePanel } from "./components/FeaturePanel";
 import { HpPad } from "./components/HpPad";
+import { AddItemPanel, CoinPanel, InventoryTab, ItemPanel } from "./components/InventoryTab";
+import { registry } from "./content";
 import { PlayTab } from "./components/PlayTab";
 import { BottomSheet, BreakdownLines } from "./components/Sheet";
 import { SheetTab } from "./components/SheetTab";
 import { useCharacters } from "./useCharacters";
 
-type Tab = "play" | "actions" | "sheet";
+type Tab = "play" | "actions" | "sheet" | "inventory";
 const TABS: { id: Tab; label: string }[] = [
   { id: "play", label: "Play" },
   { id: "actions", label: "Actions" },
   { id: "sheet", label: "Sheet" },
+  { id: "inventory", label: "Inventory" },
 ];
 
 function rollDie(sides: number): number {
@@ -105,6 +109,36 @@ export function App() {
         onRolled={(r) => live.current.addRoll(r)}
       />
     ));
+
+  const openFeature = (a: ActionResult) =>
+    open(a.name, () => {
+      const current = live.current.sheet?.actions.find((x) => x.id === a.id) ?? a;
+      return (
+        <FeaturePanel
+          a={current}
+          physical={live.current.character?.settings.physicalDice ?? true}
+          onUse={(rolled) => {
+            live.current.act("useAction", rolled === undefined ? { action: a.id } : { action: a.id, rolled }, `${a.name} used.`);
+            close();
+          }}
+        />
+      );
+    });
+
+  const openItem = (instanceId: string) => {
+    const first = c.inventory.find((i) => i.id === instanceId);
+    if (!first) return;
+    open(first.name ?? registry.get(first.item, "item").name, () => {
+      const inst = live.current.character?.inventory.find((i) => i.id === instanceId);
+      if (!inst) return <p className="note">This item has been removed.</p>;
+      return <ItemPanel inst={inst} def={registry.get(inst.item, "item")} act={live.current.act} close={close} />;
+    });
+  };
+
+  const openAdd = () => open("Add an item", <AddItemPanel registry={registry} act={s.act} close={close} />);
+
+  const openCoin = (coin: "cp" | "sp" | "ep" | "gp" | "pp", label: string) =>
+    open(label, () => <CoinPanel coin={coin} label={label} have={live.current.character?.currency[coin] ?? 0} act={live.current.act} />);
 
   const openRollHistory = () =>
     open("Rolls", () => (
@@ -209,8 +243,11 @@ export function App() {
       {tab === "play" && (
         <PlayTab character={c} sheet={sheet} act={s.act} openHp={openHp} openHitDie={openHitDie} rolls={s.rolls} openRollHistory={openRollHistory} />
       )}
-      {tab === "actions" && <ActionsTab sheet={sheet} open={open} openRoll={openRoll} />}
+      {tab === "actions" && <ActionsTab sheet={sheet} open={open} openRoll={openRoll} openFeature={openFeature} />}
       {tab === "sheet" && <SheetTab sheet={sheet} open={open} openRoll={openRoll} />}
+      {tab === "inventory" && (
+        <InventoryTab character={c} registry={registry} openItem={openItem} openAdd={openAdd} openCoin={openCoin} />
+      )}
 
       <nav className="tabs" aria-label="Sections">
         <div className="tabs-inner">

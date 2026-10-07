@@ -61,6 +61,17 @@
             "max": 1,
             "reset": "long"
           }
+        ],
+        "actions": [
+          {
+            "id": "magic-initiate-spell",
+            "name": "Magic Initiate spell (free)",
+            "economy": "action",
+            "cost": {
+              "resource": "magic-initiate-spell"
+            },
+            "note": "Cast your Magic Initiate 1st-level spell without a slot, once per long rest."
+          }
         ]
       }
     },
@@ -130,6 +141,26 @@
             "name": "Fey Touched: 1st-level spell",
             "max": 1,
             "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "fey-touched-misty-step",
+            "name": "Misty Step (free)",
+            "economy": "bonus",
+            "cost": {
+              "resource": "fey-touched-misty-step"
+            },
+            "note": "Teleport up to 30 ft to a space you can see."
+          },
+          {
+            "id": "fey-touched-spell",
+            "name": "Fey Touched spell (free)",
+            "economy": "action",
+            "cost": {
+              "resource": "fey-touched-spell"
+            },
+            "note": "Cast your Fey Touched 1st-level spell without a slot."
           }
         ]
       },

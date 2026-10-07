@@ -5,38 +5,106 @@
       "id": "class:rogue",
       "name": "Rogue",
       "summary": "Skilled, precise combatant built around Sneak Attack and expertise.",
-      "source": { "pack": "table-2014", "book": "PHB", "page": 94 },
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 94
+      },
       "hitDie": 8,
-      "saves": ["dex", "int"],
+      "saves": [
+        "dex",
+        "int"
+      ],
       "startingGrant": {
         "proficiencies": [
-          { "kind": "armor", "target": "light" },
-          { "kind": "weapon", "target": "simple" },
-          { "kind": "weapon", "target": "hand crossbow" },
-          { "kind": "weapon", "target": "longsword" },
-          { "kind": "weapon", "target": "rapier" },
-          { "kind": "weapon", "target": "shortsword" },
-          { "kind": "tool", "target": "Thieves' tools" },
-          { "kind": "skill", "target": { "choice": "skills" } }
+          {
+            "kind": "armor",
+            "target": "light"
+          },
+          {
+            "kind": "weapon",
+            "target": "simple"
+          },
+          {
+            "kind": "weapon",
+            "target": "hand crossbow"
+          },
+          {
+            "kind": "weapon",
+            "target": "longsword"
+          },
+          {
+            "kind": "weapon",
+            "target": "rapier"
+          },
+          {
+            "kind": "weapon",
+            "target": "shortsword"
+          },
+          {
+            "kind": "tool",
+            "target": "Thieves' tools"
+          },
+          {
+            "kind": "skill",
+            "target": {
+              "choice": "skills"
+            }
+          }
         ]
       },
       "multiclassGrant": {
         "proficiencies": [
-          { "kind": "armor", "target": "light" },
-          { "kind": "tool", "target": "Thieves' tools" },
-          { "kind": "skill", "target": { "choice": "skills" } }
+          {
+            "kind": "armor",
+            "target": "light"
+          },
+          {
+            "kind": "tool",
+            "target": "Thieves' tools"
+          },
+          {
+            "kind": "skill",
+            "target": {
+              "choice": "skills"
+            }
+          }
         ]
       },
       "subclassLevel": 3,
       "features": [
-        { "level": 1, "feature": "feature:rogue-expertise-1" },
-        { "level": 1, "feature": "feature:sneak-attack" },
-        { "level": 1, "feature": "feature:thieves-cant" },
-        { "level": 2, "feature": "feature:cunning-action" },
-        { "level": 2, "feature": "feature:steady-aim" },
-        { "level": 5, "feature": "feature:uncanny-dodge" },
-        { "level": 6, "feature": "feature:rogue-expertise-6" },
-        { "level": 7, "feature": "feature:evasion" }
+        {
+          "level": 1,
+          "feature": "feature:rogue-expertise-1"
+        },
+        {
+          "level": 1,
+          "feature": "feature:sneak-attack"
+        },
+        {
+          "level": 1,
+          "feature": "feature:thieves-cant"
+        },
+        {
+          "level": 2,
+          "feature": "feature:cunning-action"
+        },
+        {
+          "level": 2,
+          "feature": "feature:steady-aim"
+        },
+        {
+          "level": 5,
+          "feature": "feature:uncanny-dodge"
+        },
+        {
+          "level": 6,
+          "feature": "feature:rogue-expertise-6"
+        },
+        {
+          "level": 7,
+          "feature": "feature:evasion"
+        }
       ]
     },
     {
@@ -44,29 +112,114 @@
       "id": "feature:rogue-expertise-1",
       "name": "Expertise",
       "summary": "Double proficiency bonus for two chosen skills (or thieves' tools).",
-      "source": { "pack": "table-2014", "book": "PHB", "page": 96 },
-      "choices": [{ "id": "skills", "label": "Expertise", "kind": "skill", "count": 2 }],
-      "grant": { "proficiencies": [{ "kind": "expertise", "target": { "choice": "skills" } }] }
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 96
+      },
+      "choices": [
+        {
+          "id": "skills",
+          "label": "Expertise",
+          "kind": "skill",
+          "count": 2
+        }
+      ],
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "expertise",
+            "target": {
+              "choice": "skills"
+            }
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
       "id": "feature:rogue-expertise-6",
       "name": "Expertise (6th level)",
       "summary": "Two more skills (or thieves' tools) with double proficiency bonus.",
-      "source": { "pack": "table-2014", "book": "PHB", "page": 96 },
-      "choices": [{ "id": "skills", "label": "Expertise", "kind": "skill", "count": 2 }],
-      "grant": { "proficiencies": [{ "kind": "expertise", "target": { "choice": "skills" } }] }
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 96
+      },
+      "choices": [
+        {
+          "id": "skills",
+          "label": "Expertise",
+          "kind": "skill",
+          "count": 2
+        }
+      ],
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "expertise",
+            "target": {
+              "choice": "skills"
+            }
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
       "id": "feature:sneak-attack",
       "name": "Sneak Attack",
       "summary": "Once per turn, extra damage on a hit with a finesse or ranged weapon when you have advantage, or when another enemy of the target is within 5 ft of it and you don't have disadvantage.",
-      "source": { "pack": "table-2014", "book": "PHB", "page": 96 },
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 96
+      },
       "scaling": {
         "dice": {
           "class": "class:rogue",
-          "table": [[1, "1d6"], [3, "2d6"], [5, "3d6"], [7, "4d6"], [9, "5d6"], [11, "6d6"], [13, "7d6"], [15, "8d6"], [17, "9d6"], [19, "10d6"]]
+          "table": [
+            [
+              1,
+              "1d6"
+            ],
+            [
+              3,
+              "2d6"
+            ],
+            [
+              5,
+              "3d6"
+            ],
+            [
+              7,
+              "4d6"
+            ],
+            [
+              9,
+              "5d6"
+            ],
+            [
+              11,
+              "6d6"
+            ],
+            [
+              13,
+              "7d6"
+            ],
+            [
+              15,
+              "8d6"
+            ],
+            [
+              17,
+              "9d6"
+            ],
+            [
+              19,
+              "10d6"
+            ]
+          ]
         }
       },
       "grant": {
@@ -77,7 +230,9 @@
             "value": "scale.dice",
             "mode": "suggested",
             "label": "Sneak Attack",
-            "when": { "text": "once per turn; finesse or ranged weapon; advantage, or an ally within 5 ft of the target" }
+            "when": {
+              "text": "once per turn; finesse or ranged weapon; advantage, or an ally within 5 ft of the target"
+            }
           }
         ]
       }
@@ -87,22 +242,51 @@
       "id": "feature:thieves-cant",
       "name": "Thieves' Cant",
       "summary": "Secret rogue jargon and signs.",
-      "source": { "pack": "table-2014", "book": "PHB", "page": 96 },
-      "grant": { "proficiencies": [{ "kind": "language", "target": "Thieves' Cant" }] }
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 96
+      },
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "language",
+            "target": "Thieves' Cant"
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
       "id": "feature:cunning-action",
       "name": "Cunning Action",
       "summary": "Dash, Disengage or Hide as a bonus action.",
-      "source": { "pack": "table-2014", "book": "PHB", "page": 96 }
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 96
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "cunning-action",
+            "name": "Cunning Action",
+            "economy": "bonus",
+            "note": "Dash, Disengage or Hide."
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
       "id": "feature:steady-aim",
       "name": "Steady Aim",
       "summary": "Bonus action, if you haven't moved this turn: advantage on your next attack this turn, and your speed becomes 0 until the turn ends.",
-      "source": { "pack": "table-2014", "book": "TCoE", "page": 62 },
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 62
+      },
       "grant": {
         "modifiers": [
           {
@@ -110,7 +294,17 @@
             "op": "advantage",
             "mode": "suggested",
             "label": "Steady Aim",
-            "when": { "text": "bonus action, not moved this turn; speed becomes 0" }
+            "when": {
+              "text": "bonus action, not moved this turn; speed becomes 0"
+            }
+          }
+        ],
+        "actions": [
+          {
+            "id": "steady-aim",
+            "name": "Steady Aim",
+            "economy": "bonus",
+            "note": "Only if you haven't moved this turn: advantage on your next attack this turn; your speed becomes 0."
           }
         ]
       }
@@ -120,26 +314,57 @@
       "id": "feature:uncanny-dodge",
       "name": "Uncanny Dodge",
       "summary": "Reaction: halve the damage of an attack that hits you from an attacker you can see.",
-      "source": { "pack": "table-2014", "book": "PHB", "page": 96 }
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 96
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "uncanny-dodge",
+            "name": "Uncanny Dodge",
+            "economy": "reaction",
+            "note": "When an attacker you can see hits you: halve the damage."
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
       "id": "feature:evasion",
       "name": "Evasion",
       "summary": "Dexterity saves for half damage: no damage on a success, half on a failure.",
-      "source": { "pack": "table-2014", "book": "PHB", "page": 96 }
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 96
+      }
     },
     {
       "kind": "subclass",
       "id": "subclass:soulknife",
       "name": "Soulknife",
       "summary": "Rogue who fights with blades of psychic energy.",
-      "source": { "pack": "table-2014", "book": "TCoE", "page": 63 },
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 63
+      },
       "class": "class:rogue",
       "features": [
-        { "level": 3, "feature": "feature:psionic-power" },
-        { "level": 3, "feature": "feature:psychic-blades" },
-        { "level": 9, "feature": "feature:soul-blades" }
+        {
+          "level": 3,
+          "feature": "feature:psionic-power"
+        },
+        {
+          "level": 3,
+          "feature": "feature:psychic-blades"
+        },
+        {
+          "level": 9,
+          "feature": "feature:soul-blades"
+        }
       ]
     },
     {
@@ -147,10 +372,44 @@
       "id": "feature:psionic-power",
       "name": "Psionic Power",
       "summary": "A pool of Psionic Energy dice (twice your proficiency bonus) fueling Psi-Bolstered Knack and Psychic Whispers. Regain all on a long rest; regain one as a bonus action once per short rest.",
-      "source": { "pack": "table-2014", "book": "TCoE", "page": 63 },
-      "scaling": { "die": { "class": "class:rogue", "table": [[3, "1d6"], [5, "1d8"], [11, "1d10"], [17, "1d12"]] } },
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 63
+      },
+      "scaling": {
+        "die": {
+          "class": "class:rogue",
+          "table": [
+            [
+              3,
+              "1d6"
+            ],
+            [
+              5,
+              "1d8"
+            ],
+            [
+              11,
+              "1d10"
+            ],
+            [
+              17,
+              "1d12"
+            ]
+          ]
+        }
+      },
       "grant": {
-        "resources": [{ "id": "psionic-energy", "name": "Psionic Energy dice", "max": "pb + pb", "reset": "long", "die": "scale.die" }]
+        "resources": [
+          {
+            "id": "psionic-energy",
+            "name": "Psionic Energy dice",
+            "max": "pb + pb",
+            "reset": "long",
+            "die": "scale.die"
+          }
+        ]
       }
     },
     {
@@ -158,7 +417,11 @@
       "id": "feature:psychic-blades",
       "name": "Psychic Blades",
       "summary": "When you take the Attack action, attack with a psychic blade (simple melee, finesse, thrown 60 ft). Then a second blade as a bonus action with a d4.",
-      "source": { "pack": "table-2014", "book": "TCoE", "page": 64 },
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 64
+      },
       "grant": {
         "attacks": [
           {
@@ -168,8 +431,14 @@
             "kind": "melee",
             "damage": "1d6",
             "damageType": "psychic",
-            "properties": ["finesse", "thrown"],
-            "range": [60, 60]
+            "properties": [
+              "finesse",
+              "thrown"
+            ],
+            "range": [
+              60,
+              60
+            ]
           },
           {
             "id": "attack:psychic-blade-bonus",
@@ -178,8 +447,14 @@
             "kind": "melee",
             "damage": "1d4",
             "damageType": "psychic",
-            "properties": ["finesse", "thrown"],
-            "range": [60, 60],
+            "properties": [
+              "finesse",
+              "thrown"
+            ],
+            "range": [
+              60,
+              60
+            ],
             "action": "bonus"
           }
         ]
@@ -190,7 +465,11 @@
       "id": "feature:soul-blades",
       "name": "Soul Blades",
       "summary": "Spend Psionic Energy dice to turn a Psychic Blade miss into a hit, or to teleport by throwing a blade.",
-      "source": { "pack": "table-2014", "book": "TCoE", "page": 64 }
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 64
+      }
     }
   ]
 }

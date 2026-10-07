@@ -88,6 +88,26 @@
               "toggle": "haunting-whispers"
             }
           }
+        ],
+        "actions": [
+          {
+            "id": "haunted-invisibility",
+            "name": "Invisibility (free)",
+            "economy": "action",
+            "cost": {
+              "resource": "haunted-invisibility"
+            },
+            "note": "Once per long rest without a slot."
+          },
+          {
+            "id": "haunted-fear",
+            "name": "Cause Fear (free)",
+            "economy": "action",
+            "cost": {
+              "resource": "haunted-fear"
+            },
+            "note": "Once per long rest without a slot."
+          }
         ]
       },
       "choices": [
@@ -562,6 +582,17 @@
             "name": "Savage Attacker",
             "max": "3 + pb",
             "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "savage-attacker",
+            "name": "Savage Attacker",
+            "economy": "free",
+            "cost": {
+              "resource": "savage-attacker"
+            },
+            "note": "Once per turn on melee weapon damage: replace the weapon dice with 1d12, 2d6 or 3d4."
           }
         ]
       }

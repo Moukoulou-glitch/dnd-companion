@@ -445,7 +445,8 @@ h2 {
 
 .tabs-inner {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
   width: 100%;
   max-width: 560px;
 }
@@ -825,4 +826,60 @@ h2 {
 .app:has(.scrim) .toast {
   bottom: auto;
   top: calc(12px + env(safe-area-inset-top));
+}
+
+/* ── Inventory ───────────────────────────────────────────── */
+
+.coins {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+}
+
+.coin {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-m);
+  padding: 6px 2px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.coin b {
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.coin small {
+  color: var(--muted);
+}
+
+.search,
+.entry input {
+  width: 100%;
+  font: inherit;
+  font-size: 18px;
+  color: var(--text);
+  background: var(--panel-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-m);
+  padding: 12px 14px;
+  margin-bottom: 10px;
+}
+
+.entry {
+  display: block;
+  margin: 8px 0;
+}
+
+.entry span {
+  display: block;
+  color: var(--muted);
+  font-size: 15px;
+  margin-bottom: 6px;
+}
+
+.big:disabled {
+  opacity: 0.4;
 }

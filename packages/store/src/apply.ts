@@ -182,6 +182,90 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
       break;
     }
 
+    case "useAction": {
+      const a = sheet.actions.find((x) => x.id === op.payload.action);
+      if (!a) {
+        notes.push(`Unknown feature "${op.payload.action}".`);
+        break;
+      }
+      if (a.cost) {
+        const used = c.resourcesUsed[a.cost.resource] ?? 0;
+        const max = sheet.resources.find((r) => r.id === a.cost!.resource)?.max ?? 0;
+        if (a.cost.remaining < a.cost.amount) notes.push(`${a.cost.name}: none left. Used anyway.`);
+        c.resourcesUsed[a.cost.resource] = Math.min(max, used + a.cost.amount);
+      }
+      if (a.toggles.length) c.toggles = [...new Set([...c.toggles, ...a.toggles])];
+      const rolled = op.payload.rolled;
+      if (a.tempHp && rolled !== undefined) {
+        if (rolled > c.hp.temp) {
+          c.hp.temp = rolled;
+          notes.push(`${rolled} temporary HP.`);
+        } else notes.push(`Temporary HP don't stack: keeping ${c.hp.temp}, the higher value.`);
+      }
+      if (a.heal && rolled !== undefined) {
+        const before = c.hp.current;
+        c.hp.current = Math.min(maxHp, before + rolled);
+        if (before === 0 && c.hp.current > 0) c.deathSaves = { successes: 0, failures: 0 };
+        notes.push(`Healed ${c.hp.current - before}.`);
+      }
+      break;
+    }
+
+    case "addItem": {
+      const { instanceId, item, quantity, name } = op.payload;
+      if (c.inventory.some((i) => i.id === instanceId)) break;
+      const entry: Character["inventory"][number] = { id: instanceId, item, quantity, equipped: false, attuned: false };
+      if (name) entry.name = name;
+      c.inventory.push(entry);
+      break;
+    }
+
+    case "removeItem": {
+      c.inventory = c.inventory.filter((i) => i.id !== op.payload.instanceId);
+      break;
+    }
+
+    case "setItem": {
+      const { instanceId, quantity, equipped, attuned, name } = op.payload;
+      const inst = c.inventory.find((i) => i.id === instanceId);
+      if (!inst) {
+        notes.push("That item is no longer in the inventory.");
+        break;
+      }
+      const def = reg.get(inst.item, "item");
+      if (quantity !== undefined) inst.quantity = quantity;
+      if (name !== undefined) inst.name = name || undefined;
+      if (equipped !== undefined) {
+        inst.equipped = equipped;
+        // Only one suit of armor and one shield at a time: wearing a new one takes the old one off.
+        if (equipped && (def.category === "armor" || def.category === "shield")) {
+          for (const other of c.inventory) {
+            if (other === inst || !other.equipped) continue;
+            if (reg.get(other.item, "item").category === def.category) {
+              other.equipped = false;
+              notes.push(`${other.name ?? reg.get(other.item, "item").name} taken off.`);
+            }
+          }
+        }
+        if (!equipped && inst.attuned && def.requiresAttunement) notes.push("Still attuned, but its magic works only while equipped.");
+      }
+      if (attuned !== undefined) {
+        inst.attuned = attuned;
+        if (attuned && !def.requiresAttunement) notes.push(`${def.name} doesn't need attunement.`);
+        const count = c.inventory.filter((i) => i.attuned).length;
+        if (attuned && count > 3) notes.push(`${count} items attuned; the limit is 3.`);
+      }
+      break;
+    }
+
+    case "adjustCurrency": {
+      const { coin, delta } = op.payload;
+      const before = c.currency[coin] ?? 0;
+      if (before + delta < 0) notes.push(`Only ${before} ${coin}. Set to 0.`);
+      c.currency[coin] = Math.max(0, before + delta);
+      break;
+    }
+
     case "deathSave": {
       const ds = c.deathSaves;
       switch (op.payload.result) {

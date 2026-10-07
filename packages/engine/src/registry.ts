@@ -44,6 +44,13 @@ export class ContentRegistry {
     return d as ByKind<K>;
   }
 
+  /** Every definition of one kind, sorted by name. */
+  list<K extends Definition["kind"]>(kind: K): ByKind<K>[] {
+    return [...this.defs.values()]
+      .filter((d): d is ByKind<K> => d.kind === kind)
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }
+
   listPacks(): readonly ContentPack[] {
     return this.packs;
   }

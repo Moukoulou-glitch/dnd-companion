@@ -43,6 +43,7 @@ Definitions carry mechanics, a short summary in our own words, and a book and pa
 | 1 · Operation log | Done: damage (resistances, temp HP, 0 HP, massive damage), healing, temp HP, death saves, resources, spell and Pact slots, Hit Dice, short and long rests, toggles, validated field edits, undo/redo, offline merge |
 | 1 · App | First screens: status strip with HP pad, Play (features, slots, Hit Dice, rests, death saves), Actions (attacks, spellcasting), Sheet (abilities, saves, skills, passives); every number opens its breakdown; undo toast; saved on the device; JSON export |
 | 2 · Dice and composer | Done: tap any save, skill, initiative or attack to open the composer; optional modifiers as checkboxes (carried from attack to damage); advantage and disadvantage with the 2014 cancelling rule; extra bonus; real dice (default) or app rolls per character; critical damage with Brutal Critical and Vicious; last 200 rolls saved per character |
+| 3 · Features and inventory | Done: features you can use (Rage, Form of Dread, Fey Step, Favored Foe, Portent, free casts, Flame Tongue...) grouped by action, bonus action, reaction and free; using one spends its uses, switches on its effects and records rolled temp HP; Inventory tab with equip, attune (limit warning), quantities, add and remove items, coins, weight |
 | Remaining from 1 | Editing a character in the app, importing a file |
 
 ### Shortcuts to revisit

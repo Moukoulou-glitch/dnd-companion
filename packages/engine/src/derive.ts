@@ -69,6 +69,25 @@ export interface SpellcastingResult {
   attack: Breakdown;
 }
 
+/** A rolled amount resolved for this character: dice plus a flat number, e.g. 1d10 + 1. */
+export interface Amount {
+  dice: string[];
+  flat: number;
+  text: string;
+}
+
+export interface ActionResult {
+  id: string;
+  name: string;
+  economy: "action" | "bonus" | "reaction" | "free";
+  source: string;
+  note?: string;
+  cost?: { resource: string; name: string; amount: number; remaining: number };
+  toggles: string[];
+  tempHp?: Amount;
+  heal?: Amount;
+}
+
 export interface ResourceResult {
   id: string;
   name: string;
@@ -93,6 +112,8 @@ export interface DerivedSheet {
   hpMax: Breakdown;
   hitDice: { die: string; total: number; used: number }[];
   attacks: WeaponAttack[];
+  /** Features the character can use (Rage, Form of Dread, Fey Step...). */
+  actions: ActionResult[];
   spellcasting: SpellcastingResult[];
   spellSlots: { level: number; total: number }[];
   pactSlots?: { count: number; level: number };
@@ -564,6 +585,30 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
     }
   }
 
+  // Usable features, with their cost resolved against the resources above.
+  const amountOf = (expr: ValueExpr, src: Source): Amount => {
+    const terms = evalExpr(expr, ctxFor(src));
+    const dice = terms.flatMap((t) => (t.kind === "dice" ? [t.dice] : []));
+    const flat = terms.reduce((n, t) => n + (t.kind === "flat" ? t.value : 0), 0);
+    const text = [...dice, ...(flat || !dice.length ? [String(flat)] : [])].join(" + ");
+    return { dice, flat, text };
+  };
+  const actions: ActionResult[] = [];
+  for (const s of sources) {
+    for (const a of s.grant.actions ?? []) {
+      const entry: ActionResult = { id: a.id, name: a.name, economy: a.economy, source: s.label, toggles: a.toggles };
+      if (a.note) entry.note = a.note;
+      if (a.cost) {
+        const r = resources.find((x) => x.id === a.cost!.resource);
+        if (!r) warnings.push(`${a.name}: its resource "${a.cost.resource}" doesn't exist.`);
+        entry.cost = { resource: a.cost.resource, name: r?.name ?? a.cost.resource, amount: a.cost.amount, remaining: r?.remaining ?? 0 };
+      }
+      if (a.tempHp !== undefined) entry.tempHp = amountOf(a.tempHp, s);
+      if (a.heal !== undefined) entry.heal = amountOf(a.heal, s);
+      actions.push(entry);
+    }
+  }
+
   // Defenses and senses.
   const defenses: DerivedSheet["defenses"] = { resist: [], immune: [], vulnerable: [] };
   for (const a of active) {
@@ -597,6 +642,7 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
     hpMax,
     hitDice,
     attacks,
+    actions,
     spellcasting,
     spellSlots: slots.slots.map((total, i) => ({ level: i + 1, total })),
     resources,

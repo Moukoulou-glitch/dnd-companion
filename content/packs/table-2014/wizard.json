@@ -5,24 +5,62 @@
       "id": "class:wizard",
       "name": "Wizard",
       "summary": "Full arcane caster using Intelligence, learning spells into a spellbook.",
-      "source": { "pack": "table-2014", "book": "PHB", "page": 112 },
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 112
+      },
       "hitDie": 6,
-      "saves": ["int", "wis"],
+      "saves": [
+        "int",
+        "wis"
+      ],
       "startingGrant": {
         "proficiencies": [
-          { "kind": "weapon", "target": "dagger" },
-          { "kind": "weapon", "target": "dart" },
-          { "kind": "weapon", "target": "sling" },
-          { "kind": "weapon", "target": "quarterstaff" },
-          { "kind": "weapon", "target": "light crossbow" },
-          { "kind": "skill", "target": { "choice": "skills" } }
+          {
+            "kind": "weapon",
+            "target": "dagger"
+          },
+          {
+            "kind": "weapon",
+            "target": "dart"
+          },
+          {
+            "kind": "weapon",
+            "target": "sling"
+          },
+          {
+            "kind": "weapon",
+            "target": "quarterstaff"
+          },
+          {
+            "kind": "weapon",
+            "target": "light crossbow"
+          },
+          {
+            "kind": "skill",
+            "target": {
+              "choice": "skills"
+            }
+          }
         ]
       },
-      "spellcasting": { "id": "wizard", "label": "Wizard", "ability": "int", "progression": "full" },
+      "spellcasting": {
+        "id": "wizard",
+        "label": "Wizard",
+        "ability": "int",
+        "progression": "full"
+      },
       "subclassLevel": 2,
       "features": [
-        { "level": 1, "feature": "feature:arcane-recovery" },
-        { "level": 3, "feature": "feature:cantrip-formulas" }
+        {
+          "level": 1,
+          "feature": "feature:arcane-recovery"
+        },
+        {
+          "level": 3,
+          "feature": "feature:cantrip-formulas"
+        }
       ]
     },
     {
@@ -30,9 +68,31 @@
       "id": "feature:arcane-recovery",
       "name": "Arcane Recovery",
       "summary": "Once per day, after a short rest, recover expended slots whose levels add up to half your wizard level (rounded up), none of 6th level or higher.",
-      "source": { "pack": "table-2014", "book": "PHB", "page": 115 },
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 115
+      },
       "grant": {
-        "resources": [{ "id": "arcane-recovery", "name": "Arcane Recovery", "max": 1, "reset": "long" }]
+        "resources": [
+          {
+            "id": "arcane-recovery",
+            "name": "Arcane Recovery",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "arcane-recovery",
+            "name": "Arcane Recovery",
+            "economy": "free",
+            "cost": {
+              "resource": "arcane-recovery"
+            },
+            "note": "After a short rest: recover spell slots with levels adding up to half your wizard level (rounded up), none 6th level or higher."
+          }
+        ]
       }
     },
     {
@@ -40,18 +100,32 @@
       "id": "feature:cantrip-formulas",
       "name": "Cantrip Formulas",
       "summary": "After a long rest, swap one wizard cantrip you know for another.",
-      "source": { "pack": "table-2014", "book": "TCoE", "page": 76 }
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 76
+      }
     },
     {
       "kind": "subclass",
       "id": "subclass:divination",
       "name": "School of Divination",
       "summary": "Wizard tradition of foresight and discernment.",
-      "source": { "pack": "table-2014", "book": "PHB", "page": 116 },
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 116
+      },
       "class": "class:wizard",
       "features": [
-        { "level": 2, "feature": "feature:divination-savant" },
-        { "level": 2, "feature": "feature:portent" }
+        {
+          "level": 2,
+          "feature": "feature:divination-savant"
+        },
+        {
+          "level": 2,
+          "feature": "feature:portent"
+        }
       ]
     },
     {
@@ -59,17 +133,57 @@
       "id": "feature:divination-savant",
       "name": "Divination Savant",
       "summary": "Copying divination spells into the spellbook costs half the gold and time.",
-      "source": { "pack": "table-2014", "book": "PHB", "page": 116 }
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 116
+      }
     },
     {
       "kind": "feature",
       "id": "feature:portent",
       "name": "Portent",
       "summary": "After a long rest, roll d20s and keep the results. Before any attack, save or check by you or a creature you can see, you may replace its d20 with one of them, once per turn.",
-      "source": { "pack": "table-2014", "book": "PHB", "page": 116 },
-      "scaling": { "rolls": { "class": "class:wizard", "table": [[2, 2], [14, 3]] } },
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 116
+      },
+      "scaling": {
+        "rolls": {
+          "class": "class:wizard",
+          "table": [
+            [
+              2,
+              2
+            ],
+            [
+              14,
+              3
+            ]
+          ]
+        }
+      },
       "grant": {
-        "resources": [{ "id": "portent", "name": "Portent rolls", "max": "scale.rolls", "reset": "long" }]
+        "resources": [
+          {
+            "id": "portent",
+            "name": "Portent rolls",
+            "max": "scale.rolls",
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "portent",
+            "name": "Portent",
+            "economy": "free",
+            "cost": {
+              "resource": "portent"
+            },
+            "note": "Before a d20 roll by you or a creature you can see: replace it with one of your foretelling rolls. Once per turn."
+          }
+        ]
       }
     }
   ]

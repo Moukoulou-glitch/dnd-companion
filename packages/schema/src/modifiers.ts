@@ -183,6 +183,29 @@ export const AttackDef = z
   .strict();
 export type AttackDef = z.infer<typeof AttackDef>;
 
+/**
+ * Something the character can choose to do that isn't an attack: Rage,
+ * Form of Dread, Fey Step, Portent, igniting a Flame Tongue. Using it spends
+ * its cost and switches on its states; dice it rolls (temp HP, healing) are
+ * rolled when used and the result is recorded with the use.
+ */
+export const ActionDef = z
+  .object({
+    id: z.string(),
+    name: z.string(),
+    economy: z.enum(["action", "bonus", "reaction", "free"]),
+    /** Resource spent per use. */
+    cost: z.object({ resource: z.string(), amount: z.number().int().min(1).default(1) }).strict().optional(),
+    /** On/off states switched on (e.g. "raging"). */
+    toggles: z.array(z.string()).default([]),
+    tempHp: ValueExpr.optional(),
+    heal: ValueExpr.optional(),
+    /** Short reminder of what happens, shown on the button. */
+    note: z.string().optional(),
+  })
+  .strict();
+export type ActionDef = z.infer<typeof ActionDef>;
+
 /** Everything a source (race, class level, feat, item, manual entry) gives a character. */
 export const Grant = z
   .object({
@@ -190,6 +213,7 @@ export const Grant = z
     /** +amount to each ability the player picked for `choice` (Athlete: +1 to STR or DEX). */
     abilityChoice: z.object({ choice: z.string(), amount: z.number().int() }).strict().optional(),
     attacks: z.array(AttackDef).optional(),
+    actions: z.array(ActionDef).optional(),
     modifiers: z.array(Modifier).optional(),
     proficiencies: z.array(Proficiency).optional(),
     resources: z.array(ResourceDef).optional(),

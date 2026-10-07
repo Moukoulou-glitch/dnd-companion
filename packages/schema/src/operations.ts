@@ -32,6 +32,34 @@ export const OPERATION_PAYLOADS = {
   /** Spend one Hit Die during a short rest; `roll` is the die result (digital or typed from a real die). */
   spendHitDie: z.object({ die: z.string(), roll: z.number().int().min(1) }).strict(),
   rest: z.object({ kind: z.enum(["short", "long"]) }).strict(),
+  /** Use a feature: spends its cost, switches on its states, applies recorded dice results. */
+  useAction: z
+    .object({
+      action: z.string(),
+      /** Total of the temp HP or healing roll, recorded so replaying the log gives the same result. */
+      rolled: z.number().int().min(0).optional(),
+    })
+    .strict(),
+  addItem: z
+    .object({
+      instanceId: z.string(),
+      item: z.string(),
+      quantity: z.number().int().min(1).default(1),
+      name: z.string().optional(),
+    })
+    .strict(),
+  removeItem: z.object({ instanceId: z.string() }).strict(),
+  /** Change one item: any field left out stays as it is. */
+  setItem: z
+    .object({
+      instanceId: z.string(),
+      quantity: z.number().int().min(0).optional(),
+      equipped: z.boolean().optional(),
+      attuned: z.boolean().optional(),
+      name: z.string().optional(),
+    })
+    .strict(),
+  adjustCurrency: z.object({ coin: z.enum(["cp", "sp", "ep", "gp", "pp"]), delta: z.number().int() }).strict(),
   deathSave: z.object({ result: z.enum(["success", "failure", "critSuccess", "critFailure"]) }).strict(),
   toggle: z.object({ name: z.string(), on: z.boolean() }).strict(),
   /** Generic edit of a stored value, e.g. path ["abilities","str"]. Validated after applying. */
@@ -51,6 +79,11 @@ export const Operation = z.discriminatedUnion("type", [
   OperationBase.extend({ type: z.literal("restoreSlot"), payload: OPERATION_PAYLOADS.restoreSlot }),
   OperationBase.extend({ type: z.literal("spendHitDie"), payload: OPERATION_PAYLOADS.spendHitDie }),
   OperationBase.extend({ type: z.literal("rest"), payload: OPERATION_PAYLOADS.rest }),
+  OperationBase.extend({ type: z.literal("useAction"), payload: OPERATION_PAYLOADS.useAction }),
+  OperationBase.extend({ type: z.literal("addItem"), payload: OPERATION_PAYLOADS.addItem }),
+  OperationBase.extend({ type: z.literal("removeItem"), payload: OPERATION_PAYLOADS.removeItem }),
+  OperationBase.extend({ type: z.literal("setItem"), payload: OPERATION_PAYLOADS.setItem }),
+  OperationBase.extend({ type: z.literal("adjustCurrency"), payload: OPERATION_PAYLOADS.adjustCurrency }),
   OperationBase.extend({ type: z.literal("deathSave"), payload: OPERATION_PAYLOADS.deathSave }),
   OperationBase.extend({ type: z.literal("toggle"), payload: OPERATION_PAYLOADS.toggle }),
   OperationBase.extend({ type: z.literal("setField"), payload: OPERATION_PAYLOADS.setField }),
