@@ -2630,7 +2630,7 @@
             "value": "2d8",
             "damageType": "radiant",
             "mode": "suggested",
-            "label": "Divine Smite (1st-level slot)",
+            "label": "Divine Smite",
             "when": {
               "text": "spend a spell slot on a hit: +1d8 per slot level above 1st (up to 5d8), +1d8 against undead or fiends"
             }
@@ -3963,7 +3963,21 @@
       "text": [
         "You can transform unexpended sorcery points into one spell slot as a bonus action on your turn. The Creating Spell Slots table shows the cost of creating a spell slot of a given level. You can create spell slots no higher in level than 5th.",
         "Any spell slot you create with this feature vanishes when you finish a long rest."
-      ]
+      ],
+      "grant": {
+        "actions": [
+          {
+            "id": "flexible-to-slot",
+            "name": "Flexible Casting: create a slot",
+            "economy": "bonus",
+            "cost": {
+              "resource": "sorcery-points"
+            },
+            "flexibleCasting": "toSlot",
+            "note": "Spend sorcery points to create a spell slot: 1st 2, 2nd 3, 3rd 5, 4th 6, 5th 7. Created slots vanish on a long rest."
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -3976,7 +3990,21 @@
       },
       "text": [
         "As a bonus action on your turn, you can expend one spell slot and gain a number of sorcery points equal to the slot's level.."
-      ]
+      ],
+      "grant": {
+        "actions": [
+          {
+            "id": "flexible-to-points",
+            "name": "Flexible Casting: slot into points",
+            "economy": "bonus",
+            "cost": {
+              "resource": "sorcery-points"
+            },
+            "flexibleCasting": "toPoints",
+            "note": "Spend a spell slot to gain sorcery points equal to its level."
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -4021,7 +4049,20 @@
       },
       "text": [
         "When you cast a spell that forces other creatures to make a saving throw, you can protect some of those creatures from the spell's full force. To do so, you spend 1 sorcery point and choose a number of those creatures up to your Charisma modifier (minimum of one creature). A chosen creature automatically succeeds on its saving throw against the spell."
-      ]
+      ],
+      "grant": {
+        "actions": [
+          {
+            "id": "careful-spell",
+            "name": "Careful Spell",
+            "economy": "free",
+            "cost": {
+              "resource": "sorcery-points"
+            },
+            "note": "1 point: up to your Charisma modifier creatures automatically succeed on the spell's save."
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -4035,7 +4076,20 @@
       "text": [
         "When you cast a spell that has a range of 5 feet or greater, you can spend 1 sorcery point to double the range of the spell.",
         "When you cast a spell that has a range of touch, you can spend 1 sorcery point to make the range of the spell 30 feet."
-      ]
+      ],
+      "grant": {
+        "actions": [
+          {
+            "id": "distant-spell",
+            "name": "Distant Spell",
+            "economy": "free",
+            "cost": {
+              "resource": "sorcery-points"
+            },
+            "note": "1 point: double the spell's range, or touch becomes 30 ft."
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -4049,7 +4103,20 @@
       "text": [
         "When you roll damage for a spell, you can spend 1 sorcery point to reroll a number of the damage dice up to your Charisma modifier (minimum of one). You must use the new rolls.",
         "You can use Empowered Spell even if you have already used a different Metamagic option during the casting of the spell."
-      ]
+      ],
+      "grant": {
+        "actions": [
+          {
+            "id": "empowered-spell",
+            "name": "Empowered Spell",
+            "economy": "free",
+            "cost": {
+              "resource": "sorcery-points"
+            },
+            "note": "1 point: reroll up to your Charisma modifier damage dice (works with other Metamagic)."
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -4062,7 +4129,20 @@
       },
       "text": [
         "When you cast a spell that has a duration of 1 minute or longer, you can spend 1 sorcery point to double its duration, to a maximum duration of 24 hours."
-      ]
+      ],
+      "grant": {
+        "actions": [
+          {
+            "id": "extended-spell",
+            "name": "Extended Spell",
+            "economy": "free",
+            "cost": {
+              "resource": "sorcery-points"
+            },
+            "note": "1 point: double a duration of 1 minute or longer, up to 24 hours."
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -4075,7 +4155,21 @@
       },
       "text": [
         "When you cast a spell that forces a creature to make a saving throw to resist its effects, you can spend 3 sorcery points to give one target of the spell disadvantage on its first saving throw made against the spell."
-      ]
+      ],
+      "grant": {
+        "actions": [
+          {
+            "id": "heightened-spell",
+            "name": "Heightened Spell",
+            "economy": "free",
+            "cost": {
+              "resource": "sorcery-points",
+              "amount": 3
+            },
+            "note": "3 points: one target has disadvantage on its first save against the spell."
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -4088,7 +4182,21 @@
       },
       "text": [
         "When you cast a spell that has a casting time of 1 action, you can spend 2 sorcery points to change the casting time to 1 bonus action for this casting."
-      ]
+      ],
+      "grant": {
+        "actions": [
+          {
+            "id": "quickened-spell",
+            "name": "Quickened Spell",
+            "economy": "free",
+            "cost": {
+              "resource": "sorcery-points",
+              "amount": 2
+            },
+            "note": "2 points: a spell with a casting time of 1 action is cast as a bonus action instead."
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -4101,7 +4209,20 @@
       },
       "text": [
         "When you cast a spell, you can spend 1 sorcery point to cast it without any somatic or verbal components."
-      ]
+      ],
+      "grant": {
+        "actions": [
+          {
+            "id": "subtle-spell",
+            "name": "Subtle Spell",
+            "economy": "free",
+            "cost": {
+              "resource": "sorcery-points"
+            },
+            "note": "1 point: no verbal or somatic components."
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -4115,7 +4236,23 @@
       "text": [
         "When you cast a spell that targets only one creature and doesn't have a range of self, you can spend a number of sorcery points equal to the spell's level to target a second creature in range with the same spell (1 sorcery point if the spell is a cantrip).",
         "To be eligible, a spell must be incapable of targeting more than one creature at the spell's current level. For example, magic missile and scorching ray aren't eligible, but ray of frost is."
-      ]
+      ],
+      "grant": {
+        "actions": [
+          {
+            "id": "twinned-spell",
+            "name": "Twinned Spell",
+            "economy": "free",
+            "cost": {
+              "resource": "sorcery-points"
+            },
+            "spendAmount": {
+              "label": "Sorcery points (the spell's level; 1 for a cantrip)"
+            },
+            "note": "A spell that targets one creature and not self targets a second creature in range."
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -4425,7 +4562,29 @@
             "feature:eldritch-invocation-chains-of-carceri",
             "feature:eldritch-invocation-master-of-myriad-forms",
             "feature:eldritch-invocation-visions-of-distant-realms",
-            "feature:eldritch-invocation-witch-sight"
+            "feature:eldritch-invocation-witch-sight",
+            "feature:invocation-aspect-of-the-moon",
+            "feature:invocation-bond-of-the-talisman",
+            "feature:invocation-cloak-of-flies",
+            "feature:invocation-eldritch-mind",
+            "feature:invocation-eldritch-smite",
+            "feature:invocation-far-scribe",
+            "feature:invocation-ghostly-gaze",
+            "feature:invocation-gift-of-the-depths",
+            "feature:invocation-gift-of-the-ever-living-ones",
+            "feature:invocation-gift-of-the-protectors",
+            "feature:invocation-grasp-of-hadar",
+            "feature:invocation-improved-pact-weapon",
+            "feature:invocation-investment-of-the-chain-master",
+            "feature:invocation-lance-of-lethargy",
+            "feature:invocation-maddening-hex",
+            "feature:invocation-protection-of-the-talisman",
+            "feature:invocation-rebuke-of-the-talisman",
+            "feature:invocation-relentless-hex",
+            "feature:invocation-shroud-of-shadow",
+            "feature:invocation-tomb-of-levistus",
+            "feature:invocation-tricksters-escape",
+            "feature:invocation-undying-servitude"
           ]
         }
       ]
@@ -4441,7 +4600,17 @@
       },
       "text": [
         "When you cast eldritch blast, add your Charisma modifier to the damage it deals on a hit."
-      ]
+      ],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.damage.spell.eldritch-blast",
+            "op": "add",
+            "value": "mod.cha",
+            "label": "Agonizing Blast"
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -4454,7 +4623,18 @@
       },
       "text": [
         "You can cast mage armor on yourself at will, without expending a spell slot or material components."
-      ]
+      ],
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:mage-armor",
+            "name": "Mage Armor",
+            "casting": "at will, on yourself",
+            "list": "warlock",
+            "atWill": true
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -4467,7 +4647,18 @@
       },
       "text": [
         "You can cast speak with animals at will, without expending a spell slot."
-      ]
+      ],
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:speak-with-animals",
+            "name": "Speak with Animals",
+            "casting": "at will",
+            "list": "warlock",
+            "atWill": true
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -4480,7 +4671,19 @@
       },
       "text": [
         "You gain proficiency in the Deception and Persuasion skills."
-      ]
+      ],
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "skill",
+            "target": "deception"
+          },
+          {
+            "kind": "skill",
+            "target": "persuasion"
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -4494,7 +4697,26 @@
       "text": [
         "You can now inscribe magical rituals in your Book of Shadows. Choose two 1st-level spells that have the ritual tag from any class's spell list (the two needn't be from the same list). The spells appear in the book and don't count against the number of spells you know. With your Book of Shadows in hand, you can cast the chosen spells as rituals. You can't cast the spells except as rituals, unless you've learned them by some other means. You can also cast a warlock spell you know as a ritual if it has the ritual tag.",
         "On your adventures, you can add other ritual spells to your Book of Shadows. When you find such a spell, you can add it to the book if the spell's level is equal to or less than half your warlock level (rounded up) and if you can spare the time to transcribe the spell. For each level of the spell, the transcription process takes 2 hours and costs 50 gp for the rare inks needed to inscribe it."
-      ]
+      ],
+      "choices": [
+        {
+          "id": "rituals",
+          "label": "Ritual spells",
+          "kind": "spell",
+          "count": 2,
+          "spells": {
+            "level": 1
+          }
+        }
+      ],
+      "grant": {
+        "spellcasting": {
+          "id": "ancient-secrets",
+          "label": "Book of Ancient Secrets",
+          "ability": "cha",
+          "progression": "none"
+        }
+      }
     },
     {
       "kind": "feature",
@@ -4507,7 +4729,12 @@
       },
       "text": [
         "You can see normally in darkness, both magical and nonmagical, to a distance of 120 feet."
-      ]
+      ],
+      "grant": {
+        "senses": {
+          "devil's sight": 120
+        }
+      }
     },
     {
       "kind": "feature",
@@ -4520,7 +4747,18 @@
       },
       "text": [
         "You can cast detect magic at will, without expending a spell slot."
-      ]
+      ],
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:detect-magic",
+            "name": "Detect Magic",
+            "casting": "at will",
+            "list": "warlock",
+            "atWill": true
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -4533,7 +4771,16 @@
       },
       "text": [
         "When you cast eldritch blast, its range is 300 feet."
-      ]
+      ],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.attack.spell.eldritch-blast",
+            "op": "note",
+            "label": "Eldritch Spear: Eldritch Blast reaches 300 ft."
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -4559,7 +4806,18 @@
       },
       "text": [
         "You can cast false life on yourself at will as a 1st-level spell, without expending a spell slot or material components."
-      ]
+      ],
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:false-life",
+            "name": "False Life",
+            "casting": "at will, on yourself, as 1st level",
+            "list": "warlock",
+            "atWill": true
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -4572,7 +4830,17 @@
       },
       "text": [
         "You can use your action to touch a willing humanoid and perceive through its senses until the end of your next turn. As long as the creature is on the same plane of existence as you, you can use your action on subsequent turns to maintain this connection, extending the duration until the end of your next turn. While perceiving through the other creature's senses, you benefit from any special senses possessed by that creature, and you are blinded and deafened to your own surroundings."
-      ]
+      ],
+      "grant": {
+        "actions": [
+          {
+            "id": "gaze-of-two-minds",
+            "name": "Gaze of Two Minds",
+            "economy": "action",
+            "note": "Touch a willing humanoid and perceive through its senses until the end of your next turn (an action each turn keeps it going); you're blinded and deafened to your own surroundings."
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -4585,7 +4853,18 @@
       },
       "text": [
         "You can cast disguise self at will, without expending a spell slot."
-      ]
+      ],
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:disguise-self",
+            "name": "Disguise Self",
+            "casting": "at will",
+            "list": "warlock",
+            "atWill": true
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -4598,7 +4877,18 @@
       },
       "text": [
         "You can cast silent image at will, without expending a spell slot or material components."
-      ]
+      ],
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:silent-image",
+            "name": "Silent Image",
+            "casting": "at will",
+            "list": "warlock",
+            "atWill": true
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -4611,7 +4901,16 @@
       },
       "text": [
         "When you hit a creature with eldritch blast, you can push the creature up to 10 feet away from you in a straight line."
-      ]
+      ],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.damage.spell.eldritch-blast",
+            "op": "note",
+            "label": "Repelling Blast: each beam that hits can push the target up to 10 ft away."
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -4624,7 +4923,17 @@
       },
       "text": [
         "You can cast bane once using a warlock spell slot. You can't do so again until you finish a long rest."
-      ]
+      ],
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:bane",
+            "name": "Bane",
+            "casting": "once per long rest, with a warlock slot",
+            "list": "warlock"
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -4651,7 +4960,17 @@
       },
       "text": [
         "You can cast slow once using a warlock spell slot. You can't do so again until you finish a long rest."
-      ]
+      ],
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:slow",
+            "name": "Slow",
+            "casting": "once per long rest, with a warlock slot",
+            "list": "warlock"
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -4664,7 +4983,17 @@
       },
       "text": [
         "When you are in an area of dim light or darkness, you can use your action to become invisible until you move or take an action or a reaction."
-      ]
+      ],
+      "grant": {
+        "actions": [
+          {
+            "id": "one-with-shadows",
+            "name": "One with Shadows",
+            "economy": "action",
+            "note": "In dim light or darkness: you're invisible until you move or take an action or reaction."
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -4677,7 +5006,17 @@
       },
       "text": [
         "You can cast bestow curse once using a warlock spell slot. You can't do so again until you finish a long rest."
-      ]
+      ],
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:bestow-curse",
+            "name": "Bestow Curse",
+            "casting": "once per long rest, with a warlock slot",
+            "list": "warlock"
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -4690,7 +5029,10 @@
       },
       "text": [
         "You can attack with your pact weapon twice, instead of once, whenever you take the Attack action on your turn."
-      ]
+      ],
+      "grant": {
+        "extraAttacks": 2
+      }
     },
     {
       "kind": "feature",
@@ -4703,7 +5045,17 @@
       },
       "text": [
         "You can cast compulsion once using a warlock spell slot. You can't do so again until you finish a long rest."
-      ]
+      ],
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:compulsion",
+            "name": "Compulsion",
+            "casting": "once per long rest, with a warlock slot",
+            "list": "warlock"
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -4716,7 +5068,17 @@
       },
       "text": [
         "You can cast confusion once using a warlock spell slot. You can't do so again until you finish a long rest."
-      ]
+      ],
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:confusion",
+            "name": "Confusion",
+            "casting": "once per long rest, with a warlock slot",
+            "list": "warlock"
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -4729,7 +5091,17 @@
       },
       "text": [
         "You can cast polymorph once using a warlock spell slot. You can't do so again until you finish a long rest."
-      ]
+      ],
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:polymorph",
+            "name": "Polymorph",
+            "casting": "once per long rest, with a warlock slot",
+            "list": "warlock"
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -4742,7 +5114,18 @@
       },
       "text": [
         "You can cast levitate on yourself at will, without expending a spell slot or material components."
-      ]
+      ],
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:levitate",
+            "name": "Levitate",
+            "casting": "at will, on yourself",
+            "list": "warlock",
+            "atWill": true
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -4755,7 +5138,17 @@
       },
       "text": [
         "You can cast conjure elemental once using a warlock spell slot. You can't do so again until you finish a long rest."
-      ]
+      ],
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:conjure-elemental",
+            "name": "Conjure Elemental",
+            "casting": "once per long rest, with a warlock slot",
+            "list": "warlock"
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -4768,7 +5161,18 @@
       },
       "text": [
         "You can cast jump on yourself at will, without expending a spell slot or material components."
-      ]
+      ],
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:jump",
+            "name": "Jump",
+            "casting": "at will, on yourself",
+            "list": "warlock",
+            "atWill": true
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -4781,7 +5185,18 @@
       },
       "text": [
         "You can cast speak with dead at will, without expending a spell slot."
-      ]
+      ],
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:speak-with-dead",
+            "name": "Speak with Dead",
+            "casting": "at will",
+            "list": "warlock",
+            "atWill": true
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -4794,7 +5209,22 @@
       },
       "text": [
         "When you hit a creature with your pact weapon, the creature takes extra necrotic damage equal to your Charisma modifier (minimum 1)."
-      ]
+      ],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.damage.weapon.melee",
+            "op": "add",
+            "value": "mod.cha",
+            "damageType": "necrotic",
+            "mode": "suggested",
+            "label": "Lifedrinker",
+            "when": {
+              "text": "with your pact weapon"
+            }
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -4807,7 +5237,18 @@
       },
       "text": [
         "You can cast hold monster at will--targeting a celestial, fiend, or elemental--without expending a spell slot or material components. You must finish a long rest before you can use this invocation on the same creature again."
-      ]
+      ],
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:hold-monster",
+            "name": "Hold Monster",
+            "casting": "at will, on a celestial, fiend or elemental",
+            "list": "warlock",
+            "atWill": true
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -4820,7 +5261,18 @@
       },
       "text": [
         "You can cast alter self at will, without expending a spell slot."
-      ]
+      ],
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:alter-self",
+            "name": "Alter Self",
+            "casting": "at will",
+            "list": "warlock",
+            "atWill": true
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -4833,7 +5285,18 @@
       },
       "text": [
         "You can cast arcane eye at will, without expending a spell slot."
-      ]
+      ],
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:arcane-eye",
+            "name": "Arcane Eye",
+            "casting": "at will",
+            "list": "warlock",
+            "atWill": true
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -4846,7 +5309,12 @@
       },
       "text": [
         "You can see the true form of any shapechanger or creature concealed by illusion or transmutation magic while the creature is within 30 feet of you and within line of sight."
-      ]
+      ],
+      "grant": {
+        "senses": {
+          "witch sight": 30
+        }
+      }
     },
     {
       "kind": "feature",
@@ -4869,7 +5337,8 @@
           "from": [
             "feature:pact-of-the-chain",
             "feature:pact-of-the-blade",
-            "feature:pact-of-the-tome"
+            "feature:pact-of-the-tome",
+            "feature:pact-of-the-talisman"
           ]
         }
       ]
@@ -4888,7 +5357,17 @@
         "When you cast the spell, you can choose one of the normal forms for your familiar or one of the following special forms: imp, pseudodragon, quasit, or sprite.",
         "Additionally, when you take the Attack action, you can forgo one of your own attacks to allow your familiar to make one attack of its own with its reaction.",
         "Your familiar is more cunning than a typical familiar. Its default form can be a reflection of your patron, with imps and quasits tied to the Fiend."
-      ]
+      ],
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:find-familiar",
+            "name": "Find Familiar",
+            "casting": "ritual",
+            "list": "warlock"
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -4904,7 +5383,17 @@
         "Your pact weapon disappears if it is more than 5 feet away from you for 1 minute or more. It also disappears if you use this feature again, if you dismiss the weapon (no action required), or if you die.",
         "You can transform one magic weapon into your pact weapon by performing a special ritual while you hold the weapon. You perform the ritual over the course of 1 hour, which can be done during a short rest. You can then dismiss the weapon, shunting it into an extradimensional space, and it appears whenever you create your pact weapon thereafter. You can't affect an artifact or a sentient weapon in this way. The weapon ceases being your pact weapon if you die, if you perform the 1-hour ritual on a different weapon, or if you use a 1-hour ritual to break your bond to it. The weapon appears at your feet if it is in the extradimensional space when the bond breaks.",
         "If you serve the Fiend, your weapon could be an axe made of black metal and adorned with decorative flames."
-      ]
+      ],
+      "grant": {
+        "actions": [
+          {
+            "id": "pact-weapon",
+            "name": "Create pact weapon",
+            "economy": "action",
+            "note": "A melee weapon of your choice appears in your empty hand. You're proficient with it and it counts as magical. Add it in Items to roll its attacks."
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -4919,7 +5408,26 @@
         "Your patron gives you a grimoire called a Book of Shadows. When you gain this feature, choose three cantrips from any class's spell list (the three needn't be from the same list). While the book is on your person, you can cast those cantrips at will. They don't count against your number of cantrips known. If they don't appear on the warlock spell list, they are nonetheless warlock spells for you.",
         "If you lose your Book of Shadows, you can perform a 1-hour ceremony to receive a replacement from your patron. This ceremony can be performed during a short or long rest, and it destroys the previous book. The book turns to ash when you die.",
         "Your Book of Shadows could be a weighty tome bound in demon hide studded with iron, holding spells of conjuration and a wealth of forbidden lore about the sinister regions of the cosmos, a gift of the Fiend."
-      ]
+      ],
+      "choices": [
+        {
+          "id": "cantrips",
+          "label": "Book of Shadows cantrips",
+          "kind": "spell",
+          "count": 3,
+          "spells": {
+            "level": 0
+          }
+        }
+      ],
+      "grant": {
+        "spellcasting": {
+          "id": "book-of-shadows",
+          "label": "Book of Shadows",
+          "ability": "cha",
+          "progression": "none"
+        }
+      }
     },
     {
       "kind": "feature",
@@ -7027,7 +7535,22 @@
       },
       "text": [
         "Your tenacity can wear down the most potent foes. When you hit a creature with a weapon attack, the creature takes an extra 1d8 damage if it's below its hit point maximum. You can deal this extra damage only once per turn."
-      ]
+      ],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.damage.weapon.*",
+            "op": "add",
+            "value": "1d8",
+            "mode": "suggested",
+            "oncePerTurn": true,
+            "label": "Colossus Slayer",
+            "when": {
+              "text": "the target is below its hit point maximum; once per turn"
+            }
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -7040,7 +7563,17 @@
       },
       "text": [
         "When a Large or larger creature within 5 feet of you hits or misses you with an attack, you can use your reaction to attack that creature immediately after its attack, provided that you can see the creature."
-      ]
+      ],
+      "grant": {
+        "actions": [
+          {
+            "id": "giant-killer",
+            "name": "Giant Killer",
+            "economy": "reaction",
+            "note": "A Large or larger creature within 5 ft hits or misses you with an attack: attack it right after, if you can see it."
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -7053,7 +7586,17 @@
       },
       "text": [
         "Once on each of your turns when you make a weapon attack, you can make another attack with the same weapon against a different creature that is within 5 feet of the original target and within range of your weapon."
-      ]
+      ],
+      "grant": {
+        "actions": [
+          {
+            "id": "horde-breaker",
+            "name": "Horde Breaker",
+            "economy": "free",
+            "note": "Once on each of your turns when you make a weapon attack: one more attack against a different creature within 5 ft of the original target and in range."
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -7095,7 +7638,16 @@
       },
       "text": [
         "Opportunity attacks against you are made with disadvantage."
-      ]
+      ],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.ac",
+            "op": "note",
+            "label": "Escape the Horde: opportunity attacks against you have disadvantage."
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -7108,7 +7660,21 @@
       },
       "text": [
         "When a creature hits you with an attack, you gain a +4 bonus to AC against all subsequent attacks made by that creature for the rest of the turn."
-      ]
+      ],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.ac",
+            "op": "add",
+            "value": 4,
+            "mode": "suggested",
+            "label": "Multiattack Defense",
+            "when": {
+              "text": "against later attacks from a creature that hit you this turn"
+            }
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -7121,7 +7687,20 @@
       },
       "text": [
         "You have advantage on saving throws against being frightened."
-      ]
+      ],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.save.*",
+            "op": "advantage",
+            "mode": "suggested",
+            "label": "Steel Will",
+            "when": {
+              "text": "against being frightened"
+            }
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -7161,7 +7740,17 @@
       },
       "text": [
         "You can use your action to make a ranged attack against any number of creatures within 10 feet of a point you can see within your weapon's range. You must have ammunition for each target, as normal, and you make a separate attack roll for each target."
-      ]
+      ],
+      "grant": {
+        "actions": [
+          {
+            "id": "volley",
+            "name": "Volley",
+            "economy": "action",
+            "note": "A ranged attack against every creature within 10 ft of a point you can see in range (one roll each, one piece of ammunition each)."
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -7174,7 +7763,17 @@
       },
       "text": [
         "You can use your action to make a melee attack against any number of creatures within 5 feet of you, with a separate attack roll for each target."
-      ]
+      ],
+      "grant": {
+        "actions": [
+          {
+            "id": "whirlwind-attack",
+            "name": "Whirlwind Attack",
+            "economy": "action",
+            "note": "A melee attack against every creature within 5 ft of you, a separate roll for each."
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -7216,7 +7815,16 @@
       },
       "text": [
         "When you are subjected to an effect, such as a red dragon's fiery breath or a lightning bolt spell, that allows you to make a Dexterity saving throw to take only half damage, you instead take no damage if you succeed on the saving throw, and only half damage if you fail."
-      ]
+      ],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.save.dex",
+            "op": "note",
+            "label": "Evasion: on a Dexterity save for half damage, none on a success and half on a failure."
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -7229,7 +7837,17 @@
       },
       "text": [
         "When a hostile creature misses you with a melee attack, you can use your reaction to force that creature to repeat the same attack against another creature (other than itself) of your choice."
-      ]
+      ],
+      "grant": {
+        "actions": [
+          {
+            "id": "stand-against-the-tide",
+            "name": "Stand Against the Tide",
+            "economy": "reaction",
+            "note": "A hostile creature misses you with a melee attack: it repeats the attack against another creature of your choice."
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -7242,7 +7860,17 @@
       },
       "text": [
         "When an attacker that you can see hits you with an attack, you can use your reaction to halve the attack's damage against you."
-      ]
+      ],
+      "grant": {
+        "actions": [
+          {
+            "id": "hunter-uncanny-dodge",
+            "name": "Uncanny Dodge",
+            "economy": "reaction",
+            "note": "An attacker you can see hits you: halve the attack's damage."
+          }
+        ]
+      }
     },
     {
       "kind": "subclass",

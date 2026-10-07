@@ -43,7 +43,7 @@ interface Props {
    * with no bonus action left, Sneak Attack already used this turn), and
    * whether it starts turned on (Steady Aim already used this turn).
    */
-  optionInfo?: Record<string, { warning?: string; preselect?: boolean }>;
+  optionInfo?: Record<string, OptionInfo>;
   /** Called once per attack actually made (at its first roll), to mark the turn. */
   onCommit?: (n: number) => void;
   /** Several separate attacks in a row (Eldritch Blast beams, Extra Attack). */
@@ -52,6 +52,23 @@ interface Props {
   onDamageOptions?: (labels: string[]) => void;
   /** The optional modifiers that were on when the d20 was rolled (Steady Aim spends its bonus action). */
   onOptionsUsed?: (labels: string[]) => void;
+}
+
+/**
+ * What the app knows about one optional modifier: a warning, whether it starts
+ * on, and for smites the spell slots to spend, with the dice each one gives.
+ */
+export interface OptionInfo {
+  warning?: string;
+  preselect?: boolean;
+  slots?: {
+    choices: { key: string; label: string }[];
+    /** A yes/no extra, e.g. "Undead or fiend (+1d8)". */
+    extra?: string;
+    dice: (key: string, extra: boolean) => string;
+    /** Called when the damage is rolled with this option on: spends the slot. */
+    onSpend: (key: string) => void;
+  };
 }
 
 type Stage =
@@ -273,14 +290,28 @@ export function Composer({ title, base, attack, physical, onPhysicalChange, onRo
   const d20 = useMemo(() => composeD20(base, choices), [base, choices]);
 
   const damageBase = attack?.damage.bonus;
+  // Smites: the slot picked decides the dice (Divine Smite with a 3rd-level slot: 4d8).
+  const [slotPick, setSlotPick] = useState<Record<string, { key: string; extra: boolean }>>({});
+  const smites = Object.entries(optionInfo ?? {}).filter(([label, info]) => info.slots && damageChoices.enabled.includes(label));
+  const pickFor = (label: string) => slotPick[label] ?? { key: optionInfo?.[label]?.slots?.choices[0]?.key ?? "", extra: false };
   const damage = useMemo(() => {
     if (!attack || stage.step !== "damage-setup") return undefined;
-    const c = composeDamage(attack.damage.dice, attack.damage.type, attack.damage.bonus, damageChoices, attack.attackId.startsWith("spell:") ? attack.name : "Weapon");
+    const bonus = {
+      ...attack.damage.bonus,
+      suggestions: attack.damage.bonus.suggestions.map((sg) => {
+        const slots = optionInfo?.[sg.label]?.slots;
+        if (!slots) return sg;
+        const p = pickFor(sg.label);
+        return p.key ? { ...sg, apply: { ...sg.apply, dice: [slots.dice(p.key, p.extra)] } } : sg;
+      }),
+    };
+    const c = composeDamage(attack.damage.dice, attack.damage.type, bonus, damageChoices, attack.attackId.startsWith("spell:") ? attack.name : "Weapon");
     if (!stage.crit) return c;
     const extra = attack.damage.critExtraDice.reduce((n, p) => n + p.value, 0);
     const natural20 = stage.attackRecord?.natural === 20 || !stage.attackRecord;
     return withCrit(c, extra, natural20 ? attack.damage.onCrit : []);
-  }, [attack, stage, damageChoices]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [attack, stage, damageChoices, slotPick, optionInfo]);
 
   const [attackMode, setAttackMode] = useState<string | undefined>();
 
@@ -322,6 +353,10 @@ export function Composer({ title, base, attack, physical, onPhysicalChange, onRo
       ];
     }
     commit();
+    for (const [label, info] of smites) {
+      const p = pickFor(label);
+      if (p.key) info.slots!.onSpend(p.key);
+    }
     onDamageOptions?.(damageChoices.enabled);
     onRolled(rec);
     setEntering(false);
@@ -463,6 +498,35 @@ export function Composer({ title, base, attack, physical, onPhysicalChange, onRo
         )}
         <FormulaLines c={damage} />
         <Options base={damageBase} choices={damageChoices} setChoices={setDamageChoices} withManual={false} />
+        {smites.map(([label, info]) => {
+          const p = pickFor(label);
+          const s = info.slots!;
+          return (
+            <div className="smite" key={label}>
+              <p className="sub-head">{label.replace(/\s*\(.*\)$/, "")}: which slot?</p>
+              {s.choices.length === 0 ? (
+                <p className="warn">No spell slots left. Turn it off, or keep it if your DM allows.</p>
+              ) : (
+                <div className="choice-grid">
+                  {s.choices.map((ch) => (
+                    <button key={ch.key} className="tag" aria-pressed={p.key === ch.key} onClick={() => setSlotPick({ ...slotPick, [label]: { ...p, key: ch.key } })}>
+                      {ch.label} · {s.dice(ch.key, p.extra)}
+                    </button>
+                  ))}
+                </div>
+              )}
+              {s.extra && (
+                <label className="row check">
+                  <input type="checkbox" checked={p.extra} onChange={() => setSlotPick({ ...slotPick, [label]: { ...p, extra: !p.extra } })} />
+                  <div className="row-main">
+                    <div className="row-title">{s.extra}</div>
+                  </div>
+                </label>
+              )}
+              <p className="note">The slot is spent when you roll the damage.</p>
+            </div>
+          );
+        })}
         {warningsFor(damageChoices.enabled).map((x) => (
           <p className="warn" key={x.label}>
             {x.warning}

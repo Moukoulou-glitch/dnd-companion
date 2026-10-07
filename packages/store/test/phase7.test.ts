@@ -240,3 +240,61 @@ describe("SRD class features that work", () => {
     expect(action(log, "turn-undead")!.economy).toBe("action");
   });
 });
+
+describe("invocations, smites and Flexible Casting", () => {
+  const warlock = () => {
+    const log = logOf(newCharacter({ id: "asmo", name: "Asmo", race: "race:tiefling", class: "class:warlock", abilities: { str: 8, dex: 14, con: 14, int: 10, wis: 12, cha: 15 } }, reg));
+    log.record("levelUp", { class: "class:warlock" });
+    log.record("learnSpell", { spell: "spell:eldritch-blast", list: "warlock" });
+    return log;
+  };
+
+  it("Agonizing Blast adds Charisma to Eldritch Blast damage only", () => {
+    const log = warlock();
+    const before = sheetOf(log).spells.find((s) => s.id === "spell:eldritch-blast")!;
+    expect(before.damageBonus!.total).toBe(0);
+    log.record("setChoice", { source: "feature:eldritch-invocations", choice: "invocations", values: ["feature:eldritch-invocation-agonizing-blast", "feature:eldritch-invocation-armor-of-shadows"] });
+    const s = sheetOf(log);
+    const eb = s.spells.find((x) => x.id === "spell:eldritch-blast")!;
+    // Tiefling +2 Charisma: 17, +3.
+    expect(eb.damageBonus!.total).toBe(3);
+    expect(eb.damageBonus!.parts[0]!.label).toMatch(/^Agonizing Blast/);
+    // Armor of Shadows: mage armor at will, no slot.
+    const ma = s.spells.find((x) => x.id === "spell:mage-armor")!;
+    expect(ma.cast).toEqual({ slotLevels: [], atWill: true });
+  });
+
+  it("the table's Xanathar's and Tasha's invocations are offered too", () => {
+    const opts = choiceOptions(reg.get("feature:eldritch-invocations", "feature").choices![0]!, reg).map((o) => o.label);
+    expect(opts).toContain("Eldritch Invocation: Agonizing Blast");
+    expect(opts).toContain("Eldritch Invocation: Eldritch Smite");
+    expect(opts).toContain("Eldritch Invocation: Tomb of Levistus");
+  });
+
+  it("Pact of the Tome gives three cantrips from any list", () => {
+    const log = warlock();
+    log.record("levelUp", { class: "class:warlock" });
+    log.record("setChoice", { source: "feature:pact-boon", choice: "option", values: ["feature:pact-of-the-tome"] });
+    expect(buildItems(log.character, reg).find((i) => i.key === "feature:pact-of-the-tome|cantrips")).toMatchObject({ need: 3, done: false });
+    log.record("setChoice", { source: "feature:pact-of-the-tome", choice: "cantrips", values: ["spell:guidance", "spell:light", "spell:fire-bolt"] });
+    expect(sheetOf(log).spells.filter((s) => s.list.id === "book-of-shadows").map((s) => s.name)).toEqual(["Fire Bolt", "Guidance", "Light"]);
+  });
+
+  it("Flexible Casting turns sorcery points into slots and back", () => {
+    const log = logOf(newCharacter({ id: "s", name: "S", race: "race:human", class: "class:sorcerer", abilities: { str: 8, dex: 14, con: 14, int: 10, wis: 12, cha: 15 } }, reg));
+    log.record("levelUp", { class: "class:sorcerer" });
+    log.record("levelUp", { class: "class:sorcerer" });
+    const pts = () => sheetOf(log).resources.find((r) => r.id === "sorcery-points")!;
+    const slot = (l: number) => sheetOf(log).spellSlots.find((s) => s.level === l)!;
+    expect(pts().max).toBe(3);
+    expect(slot(2)).toMatchObject({ total: 2, used: 0 });
+    log.record("useAction", { action: "flexible-to-slot", choice: "Level 2 slot for 3 points" });
+    expect(pts().remaining).toBe(0);
+    expect(slot(2)).toMatchObject({ total: 3, used: 0 });
+    log.record("useAction", { action: "flexible-to-points", choice: "Level 1 slot into 1 points" });
+    expect(pts().remaining).toBe(1);
+    expect(slot(1).used).toBe(1);
+    log.record("rest", { kind: "long" });
+    expect(slot(2).total).toBe(2);
+  });
+});

@@ -7,7 +7,7 @@ import { ActionsTab } from "./components/ActionsTab";
 import { CompanionPanel, MovePanel } from "./components/Combat";
 import { SwipeAway } from "./components/Swipe";
 import { ConditionLinks, RichText } from "./components/Conditions";
-import { Composer, ResultView } from "./components/Composer";
+import { Composer, ResultView, type OptionInfo } from "./components/Composer";
 import { AddEffectPanel, EffectChips, EffectPanel } from "./components/Effects";
 import { FeaturePanel } from "./components/FeaturePanel";
 import { HpPad } from "./components/HpPad";
@@ -190,7 +190,7 @@ export function App() {
     opts: {
       notes?: string[];
       onTotal?: (n: number) => void;
-      optionInfo?: Record<string, { warning?: string; preselect?: boolean }>;
+      optionInfo?: Record<string, OptionInfo>;
       onCommit?: (n: number) => void;
       repeat?: { count: number; what: string };
       onDamageOptions?: (labels: string[]) => void;
@@ -253,8 +253,10 @@ export function App() {
             };
             const label = spend
               ? `${a.name}: ${spend.amount} ${spend.healSelf ? "hit points to yourself" : "points spent"}.`
-              : choice
+              : choice && current.untilTurnStart
               ? `${a.name}: ${choice}. Use your reaction when the trigger happens.`
+              : choice
+              ? `${a.name}: ${choice.replace(/ \(not enough\)$/, "")}.`
               : free ? `${a.name} switched on (nothing spent).` : current.roll && rolled !== undefined ? `${a.name}: ${rolled} ${current.roll.label}.` : `${a.name} used.`;
             if (free) {
               live.current.act("useAction", payload, label);
@@ -365,10 +367,40 @@ export function App() {
    * with a bonus-action attack it warns; a once-per-turn option already used
    * (Sneak Attack) warns.
    */
+  /**
+   * Smites spend a slot you pick when the damage is rolled: Divine Smite any
+   * spell slot (2d8, +1d8 a level above 1st, up to 5d8; +1d8 against undead or
+   * fiends), Eldritch Smite a warlock slot (1d8 + 1d8 per slot level).
+   */
+  const smiteSlots = (label: string): OptionInfo["slots"] | undefined => {
+    const divine = /^Divine Smite/.test(label);
+    const eldritch = /^Eldritch Smite/.test(label);
+    if (!divine && !eldritch) return undefined;
+    const sh = live.current.sheet;
+    const ch = live.current.character;
+    if (!sh || !ch) return undefined;
+    const choices: { key: string; label: string }[] = [];
+    if (divine) for (const s of sh.spellSlots) if (s.total - s.used > 0) choices.push({ key: `slot:${s.level}`, label: `Level ${s.level} (${s.total - s.used} left)` });
+    if (sh.pactSlots && sh.pactSlots.count - ch.pactSlotsUsed > 0) choices.push({ key: `pact:${sh.pactSlots.level}`, label: `Pact level ${sh.pactSlots.level} (${sh.pactSlots.count - ch.pactSlotsUsed} left)` });
+    return {
+      choices,
+      ...(divine ? { extra: "Undead or fiend (+1d8)" } : {}),
+      dice: (key, extra) => {
+        const lvl = Number(key.split(":")[1]);
+        const n = divine ? Math.min(5, 1 + lvl) + (extra ? 1 : 0) : 1 + lvl;
+        return `${n}d8`;
+      },
+      onSpend: (key) => {
+        const [kind, lvl] = key.split(":");
+        live.current.act("spendSlot", { level: Number(lvl), pact: kind === "pact" }, `${divine ? "Divine Smite" : "Eldritch Smite"}: ${kind === "pact" ? "Pact" : `level ${lvl}`} slot spent.`);
+      },
+    };
+  };
+
   const optionInfoFor = (a: WeaponAttack) => {
     const cur = live.current;
     const cb = cur.character?.combat;
-    const info: Record<string, { warning?: string; preselect?: boolean }> = {};
+    const info: Record<string, OptionInfo> = {};
     const ECON = { action: "action", bonus: "bonus action", reaction: "reaction" } as const;
     for (const sg of [...a.attack.suggestions, ...a.damage.bonus.suggestions]) {
       const warnings: string[] = [];
@@ -387,6 +419,8 @@ export function App() {
       }
       if (sg.oncePerTurn && cb?.onceUsed.includes(sg.label)) warnings.push(`You've already used ${sg.label} this turn: it works once per turn.`);
       if (warnings.length || preselect) info[sg.label] = { ...(warnings.length ? { warning: `${warnings.join(" ")} Keep it only if your DM allows.` } : {}), ...(preselect ? { preselect } : {}) };
+      const slots = smiteSlots(sg.label);
+      if (slots) info[sg.label] = { ...info[sg.label], slots };
     }
     return info;
   };

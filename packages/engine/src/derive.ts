@@ -116,6 +116,8 @@ export interface SpellResult {
     slotLevels: number[];
     pact?: { level: number; remaining: number };
     free?: { resource: string; name: string; remaining: number };
+    /** Cast without a slot whenever you like (an invocation's at-will spell). */
+    atWill?: boolean;
   };
 }
 
@@ -152,6 +154,7 @@ export interface ActionResult {
   choose?: { label: string; options: string[] };
   extraAction?: boolean;
   spendAmount?: { label: string; heals?: boolean };
+  flexibleCasting?: "toSlot" | "toPoints";
   asAttack?: boolean;
   dash?: boolean;
   untilTurnStart?: boolean;
@@ -791,7 +794,7 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
 
   // Spells: class lists from the character, plus spells features grant or let the player pick.
   const spellDefs = new Map<string, { def: ReturnType<typeof reg.get<"spell">> | undefined; list: string; prepared: boolean; granted?: GrantedSpellRef }>();
-  type GrantedSpellRef = { resource?: string; from?: string };
+  type GrantedSpellRef = { resource?: string; from?: string; atWill?: boolean };
   for (const inst of c.spells) {
     spellDefs.set(`${inst.list}|${inst.spell}`, { def: reg.has(inst.spell) ? reg.get(inst.spell, "spell") : undefined, list: inst.list, prepared: inst.prepared });
     if (!reg.has(inst.spell)) warnings.push(`Spell "${inst.spell}" isn't in any content pack.`);
@@ -815,6 +818,7 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
       const list = g.list ?? ownList ?? casters[0]?.id ?? "innate";
       const granted: GrantedSpellRef = { from: s.label };
       if (g.resource) granted.resource = g.resource;
+      if (g.atWill) granted.atWill = true;
       spellDefs.set(`${list}|${g.spell}`, { def: reg.has(g.spell) ? reg.get(g.spell, "spell") : undefined, list, prepared: true, granted });
     }
     // Spells picked through a feature's spell choices (Magic Initiate, Fey Touched).
@@ -841,7 +845,7 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
   );
   const classLists = new Set(c.classes.map((cl) => reg.get(cl.class, "class").spellcasting?.id).filter(Boolean) as string[]);
   const pactList = c.classes.map((cl) => reg.get(cl.class, "class")).find((d) => d.spellcasting?.progression === "pact")?.spellcasting?.id;
-  const slotsTotal = slots.slots;
+  const slotsTotal = slots.slots.map((n, i) => n + (c.extraSlots[String(i + 1)] ?? 0));
   const modFor = (list: string) => {
     const sc = spellcasting.find((x) => x.id === list);
     return sc ? mods[sc.ability] : 0;
@@ -876,7 +880,7 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
       source: def.source.book ?? def.source.pack,
       list: { id: list, label: listLabel },
       ready: def.level === 0 || granted || !preparedLists.has(list) ? "always" : prepared ? "prepared" : "not prepared",
-      cast: { slotLevels: list === pactList ? [] : castLevels.filter((l) => l > 0) },
+      cast: granted?.atWill ? { slotLevels: [], atWill: true } : { slotLevels: list === pactList ? [] : castLevels.filter((l) => l > 0) },
     };
     if (def.material) r.material = def.material;
     if (def.summary) r.summary = def.summary;
@@ -892,7 +896,7 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
     const timer = durationTimer(def.duration);
     if (timer) r.timer = timer;
     if (sc && def.attack) {
-      r.attack = roll([`roll.attack.spell.${def.attack}`], [pbPart(), abilityPart(sc.ability), ...statAdds("stat.spell.attack")]);
+      r.attack = roll([`roll.attack.spell.${def.attack}`, `roll.attack.spell.${def.id.replace(/^spell:/, "")}`], [pbPart(), abilityPart(sc.ability), ...statAdds("stat.spell.attack")]);
     }
     if (sc && def.save) r.save = { ability: def.save.ability, dc: sc.saveDc.total, onSuccess: def.save.onSuccess };
     const levelsFor = (table?: Record<string, string>, byCharacter = false) => {
@@ -905,10 +909,11 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
     if (def.damage) {
       const byLevel = levelsFor(def.damage.atSlot ?? def.damage.atCharacterLevel, !def.damage.atSlot);
       if (byLevel) r.damage = def.damage.type ? { type: def.damage.type, byLevel } : { byLevel };
-      r.damageBonus = roll(["roll.damage.spell"], []);
+      // Spell-specific modifiers too (Agonizing Blast: "roll.damage.spell.eldritch-blast").
+      r.damageBonus = roll(["roll.damage.spell", `roll.damage.spell.${def.id.replace(/^spell:/, "")}`], []);
     }
     if (def.heal) r.heal = { byLevel: levelsFor(def.heal.atSlot)! };
-    if (list === pactList && slots.pact && def.level > 0 && def.level <= slots.pact.level) {
+    if (!granted?.atWill && list === pactList && slots.pact && def.level > 0 && def.level <= slots.pact.level) {
       r.cast.pact = { level: slots.pact.level, remaining: Math.max(0, slots.pact.count - c.pactSlotsUsed) };
     }
     if (granted?.resource) {
@@ -963,6 +968,17 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
       if (a.check) entry.check = a.check;
       if (a.choose) entry.choose = a.choose;
       if (a.extraAction) entry.extraAction = true;
+      if (a.flexibleCasting) {
+        // Font of Magic: the slots you could make (2/3/5/6/7 points for 1st-5th) or turn into points.
+        const points = resources.find((r) => r.id === a.cost?.resource)?.remaining ?? 0;
+        const options =
+          a.flexibleCasting === "toSlot"
+            ? [1, 2, 3, 4, 5].map((l) => `Level ${l} slot for ${FLEX_COST[l]} points${FLEX_COST[l]! > points ? " (not enough)" : ""}`)
+            : slotsTotal.flatMap((n, i) => (n - (c.slotsUsed[String(i + 1)] ?? 0) > 0 ? [`Level ${i + 1} slot into ${i + 1} points`] : []));
+        entry.choose = { label: a.flexibleCasting === "toSlot" ? "Which slot to create?" : "Which slot to turn into points?", options };
+        entry.flexibleCasting = a.flexibleCasting;
+        delete entry.cost;
+      }
       if (a.spendAmount) entry.spendAmount = a.spendAmount;
       actions.push(entry);
     }
@@ -1059,7 +1075,7 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
     spells,
     effects,
     spellcasting,
-    spellSlots: slots.slots.map((total, i) => ({ level: i + 1, total, used: Math.min(total, c.slotsUsed[String(i + 1)] ?? 0) })),
+    spellSlots: slotsTotal.map((total, i) => ({ level: i + 1, total, used: Math.min(total, c.slotsUsed[String(i + 1)] ?? 0) })),
     resources,
     proficiencies: {
       armor: [...profs.armor],
@@ -1101,6 +1117,9 @@ function featureEntries(sources: Source[], reg: ContentRegistry): FeatureEntry[]
   }
   return out;
 }
+
+/** Sorcery points to create a spell slot (PHB p. 101). */
+export const FLEX_COST: Record<number, number> = { 1: 2, 2: 3, 3: 5, 4: 6, 5: 7 };
 
 /** Spells that make several separate attacks. */
 const BEAMS: Record<string, { what: string; byCharacterLevel?: (lvl: number) => number; bySlot?: (slot: number) => number }> = {

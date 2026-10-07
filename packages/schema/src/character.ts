@@ -206,6 +206,8 @@ export const Character = z
     resourcesUsed: z.record(z.string(), z.number().int().min(0)).default({}),
     /** Spell slots spent, keyed by slot level ("1".."9"). */
     slotsUsed: z.record(z.string(), z.number().int().min(0)).default({}),
+    /** Spell slots created beyond the usual (Flexible Casting); they vanish on a long rest. */
+    extraSlots: z.record(z.string(), z.number().int().min(0)).default({}),
     /** Pact Magic slots spent. */
     pactSlotsUsed: z.number().int().min(0).default(0),
     spells: z.array(SpellInstance).default([]),

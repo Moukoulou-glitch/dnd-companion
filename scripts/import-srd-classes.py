@@ -42,6 +42,15 @@ SKILL_IDS = {
     "sleight-of-hand": "sleightOfHand", "stealth": "stealth", "survival": "survival",
 }
 
+# The table pack's invocations and pact boon from Xanathar's and Tasha's, offered next to the SRD's.
+TABLE_INVOCATIONS = [f"feature:invocation-{n}" for n in (
+    "aspect-of-the-moon", "bond-of-the-talisman", "cloak-of-flies", "eldritch-mind", "eldritch-smite", "far-scribe",
+    "ghostly-gaze", "gift-of-the-depths", "gift-of-the-ever-living-ones", "gift-of-the-protectors", "grasp-of-hadar",
+    "improved-pact-weapon", "investment-of-the-chain-master", "lance-of-lethargy", "maddening-hex",
+    "protection-of-the-talisman", "rebuke-of-the-talisman", "relentless-hex", "shroud-of-shadow", "tomb-of-levistus",
+    "tricksters-escape", "undying-servitude")]
+TABLE_PACT_BOONS = ["feature:pact-of-the-talisman"]
+
 # Our own one-line summaries.
 CLASS_SUMMARY = {
     "barbarian": "Furious warrior who shrugs off blows in a rage.",
@@ -155,7 +164,7 @@ MECHANICS = {
     # Paladin
     "divine-sense": {"grant": {"resources": [{"id": "divine-sense", "name": "Divine Sense", "max": "1 + mod.cha", "min": 1, "reset": "long"}], "actions": [{"id": "divine-sense", "name": "Divine Sense", "economy": "action", "cost": {"resource": "divine-sense"}, "note": "Until the end of your next turn, you know where celestials, fiends and undead are within 60 ft (not behind total cover), and any consecrated or desecrated place."}]}},
     "lay-on-hands": {"grant": {"resources": [{"id": "lay-on-hands", "name": "Lay on Hands", "max": f"5*{CL('paladin')}", "reset": "long"}], "actions": [{"id": "lay-on-hands", "name": "Lay on Hands", "economy": "action", "cost": {"resource": "lay-on-hands"}, "spendAmount": {"label": "Hit points to restore", "heals": True}, "note": "Touch a creature and restore hit points from your pool; 5 points cure one disease or neutralize one poison instead. Not undead or constructs."}]}},
-    "divine-smite": {"grant": {"modifiers": [{"selector": "roll.damage.weapon.melee", "op": "add", "value": "2d8", "damageType": "radiant", "mode": "suggested", "label": "Divine Smite (1st-level slot)", "when": {"text": "spend a spell slot on a hit: +1d8 per slot level above 1st (up to 5d8), +1d8 against undead or fiends"}}]}},
+    "divine-smite": {"grant": {"modifiers": [{"selector": "roll.damage.weapon.melee", "op": "add", "value": "2d8", "damageType": "radiant", "mode": "suggested", "label": "Divine Smite", "when": {"text": "spend a spell slot on a hit: +1d8 per slot level above 1st (up to 5d8), +1d8 against undead or fiends"}}]}},
     "channel-divinity": {"name": "Channel Divinity (paladin)", "grant": {"resources": [{"id": "channel-divinity-paladin", "name": "Channel Divinity", "max": 1, "reset": "short"}]}},
     "channel-divinity-sacred-weapon": {"grant": {"actions": [{"id": "sacred-weapon", "name": "Sacred Weapon", "economy": "action", "cost": {"resource": "channel-divinity-paladin"}, "duration": {"rounds": 10}, "toggles": ["sacred-weapon"], "note": "For 1 minute your weapon is magical, sheds bright light, and you add your Charisma modifier to attacks with it."}], "modifiers": [{"selector": "roll.attack.weapon.*", "op": "add", "value": "mod.cha", "label": "Sacred Weapon", "when": {"toggle": "sacred-weapon"}}]}},
     "channel-divinity-turn-the-unholy": {"grant": {"actions": [{"id": "turn-the-unholy", "name": "Turn the Unholy", "economy": "action", "cost": {"resource": "channel-divinity-paladin"}, "note": "Fiends and undead within 30 ft that can hear you make a Wisdom save or are turned for 1 minute (or until damaged)."}]}},
@@ -168,6 +177,63 @@ MECHANICS = {
     # Sorcerer
     "font-of-magic": {"grant": {"resources": [{"id": "sorcery-points", "name": "Sorcery points", "max": CL("sorcerer"), "reset": "long"}]}},
     "draconic-resilience": {"grant": {"modifiers": [{"selector": "stat.hp.max", "op": "add", "value": CL("sorcerer"), "label": "Draconic Resilience"}, {"selector": "stat.ac", "op": "acBase", "value": "13 + mod.dex", "label": "Draconic Resilience", "when": {"noArmor": True}}]}},
+    # Warlock: pact boons and invocations
+    "pact-of-the-chain": {"grant": {"spells": [{"spell": "spell:find-familiar", "name": "Find Familiar", "casting": "ritual", "list": "warlock"}]}},
+    "pact-of-the-blade": {"grant": {"actions": [{"id": "pact-weapon", "name": "Create pact weapon", "economy": "action", "note": "A melee weapon of your choice appears in your empty hand. You're proficient with it and it counts as magical. Add it in Items to roll its attacks."}]}},
+    "pact-of-the-tome": {"choices": [{"id": "cantrips", "label": "Book of Shadows cantrips", "kind": "spell", "count": 3, "spells": {"level": 0}}], "grant": {"spellcasting": {"id": "book-of-shadows", "label": "Book of Shadows", "ability": "cha", "progression": "none"}}},
+    "eldritch-invocation-agonizing-blast": {"grant": {"modifiers": [{"selector": "roll.damage.spell.eldritch-blast", "op": "add", "value": "mod.cha", "label": "Agonizing Blast"}]}},
+    "eldritch-invocation-armor-of-shadows": {"grant": {"spells": [{"spell": "spell:mage-armor", "name": "Mage Armor", "casting": "at will, on yourself", "list": "warlock", "atWill": True}]}},
+    "eldritch-invocation-beast-speech": {"grant": {"spells": [{"spell": "spell:speak-with-animals", "name": "Speak with Animals", "casting": "at will", "list": "warlock", "atWill": True}]}},
+    "eldritch-invocation-beguiling-influence": {"grant": {"proficiencies": [{"kind": "skill", "target": "deception"}, {"kind": "skill", "target": "persuasion"}]}},
+    "eldritch-invocation-book-of-ancient-secrets": {"choices": [{"id": "rituals", "label": "Ritual spells", "kind": "spell", "count": 2, "spells": {"level": 1}}], "grant": {"spellcasting": {"id": "ancient-secrets", "label": "Book of Ancient Secrets", "ability": "cha", "progression": "none"}}},
+    "eldritch-invocation-devils-sight": {"grant": {"senses": {"devil's sight": 120}}},
+    "eldritch-invocation-eldritch-sight": {"grant": {"spells": [{"spell": "spell:detect-magic", "name": "Detect Magic", "casting": "at will", "list": "warlock", "atWill": True}]}},
+    "eldritch-invocation-eldritch-spear": {"grant": {"modifiers": [{"selector": "roll.attack.spell.eldritch-blast", "op": "note", "label": "Eldritch Spear: Eldritch Blast reaches 300 ft."}]}},
+    "eldritch-invocation-fiendish-vigor": {"grant": {"spells": [{"spell": "spell:false-life", "name": "False Life", "casting": "at will, on yourself, as 1st level", "list": "warlock", "atWill": True}]}},
+    "eldritch-invocation-gaze-of-two-minds": {"grant": {"actions": [{"id": "gaze-of-two-minds", "name": "Gaze of Two Minds", "economy": "action", "note": "Touch a willing humanoid and perceive through its senses until the end of your next turn (an action each turn keeps it going); you're blinded and deafened to your own surroundings."}]}},
+    "eldritch-invocation-mask-of-many-faces": {"grant": {"spells": [{"spell": "spell:disguise-self", "name": "Disguise Self", "casting": "at will", "list": "warlock", "atWill": True}]}},
+    "eldritch-invocation-misty-visions": {"grant": {"spells": [{"spell": "spell:silent-image", "name": "Silent Image", "casting": "at will", "list": "warlock", "atWill": True}]}},
+    "eldritch-invocation-repelling-blast": {"grant": {"modifiers": [{"selector": "roll.damage.spell.eldritch-blast", "op": "note", "label": "Repelling Blast: each beam that hits can push the target up to 10 ft away."}]}},
+    "eldritch-invocation-thief-of-five-fates": {"grant": {"spells": [{"spell": "spell:bane", "name": "Bane", "casting": "once per long rest, with a warlock slot", "list": "warlock"}]}},
+    "eldritch-invocation-mire-the-mind": {"grant": {"spells": [{"spell": "spell:slow", "name": "Slow", "casting": "once per long rest, with a warlock slot", "list": "warlock"}]}},
+    "eldritch-invocation-one-with-shadows": {"grant": {"actions": [{"id": "one-with-shadows", "name": "One with Shadows", "economy": "action", "note": "In dim light or darkness: you're invisible until you move or take an action or reaction."}]}},
+    "eldritch-invocation-sign-of-ill-omen": {"grant": {"spells": [{"spell": "spell:bestow-curse", "name": "Bestow Curse", "casting": "once per long rest, with a warlock slot", "list": "warlock"}]}},
+    "eldritch-invocation-thirsting-blade": {"grant": {"extraAttacks": 2}},
+    "eldritch-invocation-bewitching-whispers": {"grant": {"spells": [{"spell": "spell:compulsion", "name": "Compulsion", "casting": "once per long rest, with a warlock slot", "list": "warlock"}]}},
+    "eldritch-invocation-dreadful-word": {"grant": {"spells": [{"spell": "spell:confusion", "name": "Confusion", "casting": "once per long rest, with a warlock slot", "list": "warlock"}]}},
+    "eldritch-invocation-sculptor-of-flesh": {"grant": {"spells": [{"spell": "spell:polymorph", "name": "Polymorph", "casting": "once per long rest, with a warlock slot", "list": "warlock"}]}},
+    "eldritch-invocation-minions-of-chaos": {"grant": {"spells": [{"spell": "spell:conjure-elemental", "name": "Conjure Elemental", "casting": "once per long rest, with a warlock slot", "list": "warlock"}]}},
+    "eldritch-invocation-ascendant-step": {"grant": {"spells": [{"spell": "spell:levitate", "name": "Levitate", "casting": "at will, on yourself", "list": "warlock", "atWill": True}]}},
+    "eldritch-invocation-otherworldly-leap": {"grant": {"spells": [{"spell": "spell:jump", "name": "Jump", "casting": "at will, on yourself", "list": "warlock", "atWill": True}]}},
+    "eldritch-invocation-whispers-of-the-grave": {"grant": {"spells": [{"spell": "spell:speak-with-dead", "name": "Speak with Dead", "casting": "at will", "list": "warlock", "atWill": True}]}},
+    "eldritch-invocation-lifedrinker": {"grant": {"modifiers": [{"selector": "roll.damage.weapon.melee", "op": "add", "value": "mod.cha", "damageType": "necrotic", "mode": "suggested", "label": "Lifedrinker", "when": {"text": "with your pact weapon"}}]}},
+    "eldritch-invocation-chains-of-carceri": {"grant": {"spells": [{"spell": "spell:hold-monster", "name": "Hold Monster", "casting": "at will, on a celestial, fiend or elemental", "list": "warlock", "atWill": True}]}},
+    "eldritch-invocation-master-of-myriad-forms": {"grant": {"spells": [{"spell": "spell:alter-self", "name": "Alter Self", "casting": "at will", "list": "warlock", "atWill": True}]}},
+    "eldritch-invocation-visions-of-distant-realms": {"grant": {"spells": [{"spell": "spell:arcane-eye", "name": "Arcane Eye", "casting": "at will", "list": "warlock", "atWill": True}]}},
+    "eldritch-invocation-witch-sight": {"grant": {"senses": {"witch sight": 30}}},
+    # Sorcerer: Flexible Casting and Metamagic
+    "flexible-casting-creating-spell-slots": {"grant": {"actions": [{"id": "flexible-to-slot", "name": "Flexible Casting: create a slot", "economy": "bonus", "cost": {"resource": "sorcery-points"}, "flexibleCasting": "toSlot", "note": "Spend sorcery points to create a spell slot: 1st 2, 2nd 3, 3rd 5, 4th 6, 5th 7. Created slots vanish on a long rest."}]}},
+    "flexible-casting-converting-spell-slot": {"grant": {"actions": [{"id": "flexible-to-points", "name": "Flexible Casting: slot into points", "economy": "bonus", "cost": {"resource": "sorcery-points"}, "flexibleCasting": "toPoints", "note": "Spend a spell slot to gain sorcery points equal to its level."}]}},
+    "metamagic-careful-spell": {"grant": {"actions": [{"id": "careful-spell", "name": "Careful Spell", "economy": "free", "cost": {"resource": "sorcery-points"}, "note": "1 point: up to your Charisma modifier creatures automatically succeed on the spell's save."}]}},
+    "metamagic-distant-spell": {"grant": {"actions": [{"id": "distant-spell", "name": "Distant Spell", "economy": "free", "cost": {"resource": "sorcery-points"}, "note": "1 point: double the spell's range, or touch becomes 30 ft."}]}},
+    "metamagic-empowered-spell": {"grant": {"actions": [{"id": "empowered-spell", "name": "Empowered Spell", "economy": "free", "cost": {"resource": "sorcery-points"}, "note": "1 point: reroll up to your Charisma modifier damage dice (works with other Metamagic)."}]}},
+    "metamagic-extended-spell": {"grant": {"actions": [{"id": "extended-spell", "name": "Extended Spell", "economy": "free", "cost": {"resource": "sorcery-points"}, "note": "1 point: double a duration of 1 minute or longer, up to 24 hours."}]}},
+    "metamagic-heightened-spell": {"grant": {"actions": [{"id": "heightened-spell", "name": "Heightened Spell", "economy": "free", "cost": {"resource": "sorcery-points", "amount": 3}, "note": "3 points: one target has disadvantage on its first save against the spell."}]}},
+    "metamagic-quickened-spell": {"grant": {"actions": [{"id": "quickened-spell", "name": "Quickened Spell", "economy": "free", "cost": {"resource": "sorcery-points", "amount": 2}, "note": "2 points: a spell with a casting time of 1 action is cast as a bonus action instead."}]}},
+    "metamagic-subtle-spell": {"grant": {"actions": [{"id": "subtle-spell", "name": "Subtle Spell", "economy": "free", "cost": {"resource": "sorcery-points"}, "note": "1 point: no verbal or somatic components."}]}},
+    "metamagic-twinned-spell": {"grant": {"actions": [{"id": "twinned-spell", "name": "Twinned Spell", "economy": "free", "cost": {"resource": "sorcery-points"}, "spendAmount": {"label": "Sorcery points (the spell's level; 1 for a cantrip)"}, "note": "A spell that targets one creature and not self targets a second creature in range."}]}},
+    # Ranger (Hunter) options
+    "hunters-prey-colossus-slayer": {"grant": {"modifiers": [{"selector": "roll.damage.weapon.*", "op": "add", "value": "1d8", "mode": "suggested", "oncePerTurn": True, "label": "Colossus Slayer", "when": {"text": "the target is below its hit point maximum; once per turn"}}]}},
+    "hunters-prey-giant-killer": {"grant": {"actions": [{"id": "giant-killer", "name": "Giant Killer", "economy": "reaction", "note": "A Large or larger creature within 5 ft hits or misses you with an attack: attack it right after, if you can see it."}]}},
+    "hunters-prey-horde-breaker": {"grant": {"actions": [{"id": "horde-breaker", "name": "Horde Breaker", "economy": "free", "note": "Once on each of your turns when you make a weapon attack: one more attack against a different creature within 5 ft of the original target and in range."}]}},
+    "defensive-tactics-escape-the-horde": {"grant": {"modifiers": [{"selector": "stat.ac", "op": "note", "label": "Escape the Horde: opportunity attacks against you have disadvantage."}]}},
+    "defensive-tactics-multiattack-defense": {"grant": {"modifiers": [{"selector": "stat.ac", "op": "add", "value": 4, "mode": "suggested", "label": "Multiattack Defense", "when": {"text": "against later attacks from a creature that hit you this turn"}}]}},
+    "defensive-tactics-steel-will": {"grant": {"modifiers": [{"selector": "roll.save.*", "op": "advantage", "mode": "suggested", "label": "Steel Will", "when": {"text": "against being frightened"}}]}},
+    "multiattack-volley": {"grant": {"actions": [{"id": "volley", "name": "Volley", "economy": "action", "note": "A ranged attack against every creature within 10 ft of a point you can see in range (one roll each, one piece of ammunition each)."}]}},
+    "multiattack-whirlwind-attack": {"grant": {"actions": [{"id": "whirlwind-attack", "name": "Whirlwind Attack", "economy": "action", "note": "A melee attack against every creature within 5 ft of you, a separate roll for each."}]}},
+    "superior-hunters-defense-evasion": {"grant": {"modifiers": [{"selector": "roll.save.dex", "op": "note", "label": "Evasion: on a Dexterity save for half damage, none on a success and half on a failure."}]}},
+    "superior-hunters-defense-stand-against-the-tide": {"grant": {"actions": [{"id": "stand-against-the-tide", "name": "Stand Against the Tide", "economy": "reaction", "note": "A hostile creature misses you with a melee attack: it repeats the attack against another creature of your choice."}]}},
+    "superior-hunters-defense-uncanny-dodge": {"grant": {"actions": [{"id": "hunter-uncanny-dodge", "name": "Uncanny Dodge", "economy": "reaction", "note": "An attacker you can see hits you: halve the attack's damage."}]}},
     # Rogue (SRD levels beyond the table's)
     "reliable-talent": {"grant": {"modifiers": [{"selector": "roll.check.skill.*", "op": "minD20", "value": 10, "label": "Reliable Talent", "when": {"text": "skills you're proficient in"}}]}},
 }
@@ -181,6 +247,8 @@ def apply_mechanics(index, d):
         d["name"] = m["name"]
     if "scaling" in m:
         d["scaling"] = m["scaling"]
+    if "choices" in m:
+        d["choices"] = (d.get("choices") or []) + m["choices"]
     if "grant" in m:
         g = d.setdefault("grant", {})
         for k, v in m["grant"].items():
@@ -281,9 +349,10 @@ def feature_choices(f):
         grant["proficiencies"] = [{"kind": "expertise", "target": {"choice": "skills"}}]
     if "subfeature_options" in spec:
         so = spec["subfeature_options"]
-        choices.append({"id": "option", "label": f["name"], "kind": "feature", "count": so["choose"], "from": [fid(o["index"]) for o in options_of(so)]})
+        extra = TABLE_PACT_BOONS if f["index"] == "pact-boon" else []
+        choices.append({"id": "option", "label": f["name"], "kind": "feature", "count": so["choose"], "from": [fid(o["index"]) for o in options_of(so)] + extra})
     if "invocations" in spec:
-        choices.append({"id": "invocations", "label": "Eldritch Invocations", "kind": "feature", "count": 2, "countBy": "invocations", "from": [fid(o["index"]) for o in spec["invocations"]]})
+        choices.append({"id": "invocations", "label": "Eldritch Invocations", "kind": "feature", "count": 2, "countBy": "invocations", "from": [fid(o["index"]) for o in spec["invocations"]] + TABLE_INVOCATIONS})
     for key, label in (("enemy_type_options", "Favored enemy"), ("terrain_type_options", "Favored terrain")):
         if key in spec:
             o = spec[key]

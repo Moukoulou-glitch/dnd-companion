@@ -186,6 +186,8 @@ export const GrantedSpell = z
     resource: z.string().optional(),
     /** Spellcasting id it is cast with when the granting feature has none of its own (Primal Awareness: "ranger"). */
     list: z.string().optional(),
+    /** Cast at will, without a slot (Armor of Shadows: mage armor). */
+    atWill: z.boolean().optional(),
   })
   .strict();
 export type GrantedSpell = z.infer<typeof GrantedSpell>;
@@ -256,6 +258,8 @@ export const ActionDef = z
     asAttack: z.boolean().optional(),
     /** Adds your speed to this turn's movement (Dash). */
     dash: z.boolean().optional(),
+    /** Font of Magic's Flexible Casting: a spell slot into sorcery points, or points into a slot. */
+    flexibleCasting: z.enum(["toSlot", "toPoints"]).optional(),
     /** Gives you one more action this turn (Action Surge). */
     extraAction: z.boolean().optional(),
     /**

@@ -1,5 +1,5 @@
 import { Character, CombatState, type Operation } from "@dnd/schema";
-import { castingEconomy, derive, evalFlat, levelGains, multiclassIssues, type ContentRegistry } from "@dnd/engine";
+import { FLEX_COST, castingEconomy, derive, evalFlat, levelGains, multiclassIssues, type ContentRegistry } from "@dnd/engine";
 
 /** Something the player should do next, e.g. roll a concentration check. */
 export type Prompt = { kind: "concentration"; dc: number; spell: string };
@@ -355,6 +355,7 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
       if (kind === "long") {
         if (Object.values(c.slotsUsed).some((n) => n > 0)) restored.push("Spell slots");
         c.slotsUsed = {};
+        c.extraSlots = {};
         c.hp.current = maxHp;
         c.hp.temp = 0;
         c.deathSaves = { successes: 0, failures: 0 };
@@ -378,6 +379,33 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
       const a = sheet.actions.find((x) => x.id === op.payload.action);
       if (!a) {
         notes.push(`Unknown feature "${op.payload.action}".`);
+        break;
+      }
+      // Flexible Casting: sorcery points into a spell slot, or a slot into points.
+      if (a.flexibleCasting) {
+        const lvl = Number(/Level (\d)/.exec(op.payload.choice ?? "")?.[1] ?? 0);
+        const pts = sheet.resources.find((r) => r.id === "sorcery-points");
+        if (!lvl || !pts) {
+          notes.push(lvl ? "No sorcery points." : "Choose a slot level.");
+          break;
+        }
+        if (a.flexibleCasting === "toSlot") {
+          const cost = FLEX_COST[lvl] ?? 0;
+          if (pts.remaining < cost) notes.push(`That costs ${cost} sorcery points and you have ${pts.remaining}. Done anyway.`);
+          c.resourcesUsed[pts.id] = Math.min(pts.max, pts.used + cost);
+          c.extraSlots[String(lvl)] = (c.extraSlots[String(lvl)] ?? 0) + 1;
+          notes.push(`A level ${lvl} spell slot created (it vanishes on a long rest). ${Math.max(0, pts.remaining - cost)} sorcery points left.`);
+        } else {
+          const slot = sheet.spellSlots.find((s) => s.level === lvl);
+          if (!slot || slot.total - slot.used <= 0) notes.push(`No level ${lvl} slot left. Done anyway.`);
+          c.slotsUsed[String(lvl)] = (c.slotsUsed[String(lvl)] ?? 0) + 1;
+          const gained = Math.min(lvl, pts.used);
+          c.resourcesUsed[pts.id] = pts.used - gained;
+          notes.push(`+${gained} sorcery points${gained < lvl ? " (you can't go above your maximum)" : ""}: ${pts.remaining + gained} now.`);
+        }
+        spendTurn(a.economy, (cb) => {
+          cb.usedThisTurn = [...cb.usedThisTurn, a.id];
+        });
         break;
       }
       const free = op.payload.free === true;

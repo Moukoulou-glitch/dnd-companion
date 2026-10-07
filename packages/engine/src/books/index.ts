@@ -15,7 +15,7 @@ export interface BookFile {
   text: string;
 }
 
-export type BookFileKind = "spells" | "items" | "feats" | "races" | "backgrounds" | "class page" | "actions" | "unknown";
+export type BookFileKind = "spells" | "items" | "feats" | "races" | "backgrounds" | "class page" | "actions" | "options" | "unknown";
 
 export interface BookReport {
   files: { name: string; kind: BookFileKind; entries: number }[];
@@ -34,6 +34,8 @@ export function bookFileKind(text: string): BookFileKind {
   if (looksLikeItems(text)) return "items";
   if (looksLikeClassPage(text)) return "class page";
   if (/^## Dash\s*$/m.test(text) && /^## (Dodge|Disengage)\s*$/m.test(text)) return "actions";
+  // Optional features (Eldritch Invocations, Metamagic, Fighting Styles...): text for those features, never new feats.
+  if (/^\*Type: (Eldritch Invocation|Metamagic|Fighting Style|Pact Boon|Maneuver|Artificer Infusion|Rune)/im.test(text)) return "options";
   return entryFileKind(text) ?? "unknown";
 }
 
@@ -54,7 +56,11 @@ function namesOf(def: Definition): string[] {
   const out = [norm(def.name)];
   const paren = /\(([^)]+)\)\s*$/.exec(def.name)?.[1];
   if (paren) out.push(norm(paren));
-  if (def.name.includes(":")) out.push(norm(def.name.split(":")[0]!));
+  if (def.name.includes(":")) {
+    out.push(norm(def.name.split(":")[0]!));
+    // "Eldritch Invocation: Agonizing Blast" also matches "Agonizing Blast".
+    out.push(norm(def.name.slice(def.name.indexOf(":") + 1)));
+  }
   out.push(norm(def.name.replace(/\s*\([^)]*\)\s*$/, "")));
   return [...new Set(out)];
 }
@@ -91,6 +97,10 @@ export function bookPack(files: BookFile[], base: ContentRegistry): { pack: Cont
     } else if (kind === "races") {
       const e = parseRaceTraits(f.text);
       named.push({ kind: "trait", entries: e });
+      count = e.length;
+    } else if (kind === "options") {
+      const e = parseEntries(f.text, excluded).map((x) => ({ ...x, text: x.text.filter((p) => !/^Type: /.test(p)) }));
+      named.push({ kind: "feature", entries: e });
       count = e.length;
     } else if (kind === "actions") {
       const e = parseEntries(f.text);

@@ -1,0 +1,601 @@
+{
+  "definitions": [
+    {
+      "kind": "feature",
+      "id": "feature:invocation-aspect-of-the-moon",
+      "name": "Eldritch Invocation: Aspect of the Moon",
+      "summary": "Prerequisite: Pact of the Tome. You don't need sleep and can't be magically put to sleep; a long rest can be 8 hours of light activity.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 56
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:invocation-bond-of-the-talisman",
+      "name": "Eldritch Invocation: Bond of the Talisman",
+      "summary": "Prerequisite: 12th level, Pact of the Talisman. As an action, teleport to the talisman's wearer (or they to you), proficiency bonus times per long rest.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCE",
+        "page": 70
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "bond-of-the-talisman",
+            "name": "Bond of the Talisman",
+            "max": "pb",
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "bond-of-the-talisman",
+            "name": "Bond of the Talisman",
+            "economy": "action",
+            "cost": {
+              "resource": "bond-of-the-talisman"
+            },
+            "note": "Teleport to the unoccupied space closest to the talisman's wearer, on the same plane."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:invocation-cloak-of-flies",
+      "name": "Eldritch Invocation: Cloak of Flies",
+      "summary": "Prerequisite: 5th level. Bonus action: a 5-ft aura of flies until you're incapacitated or dismiss it. Advantage on Intimidation, disadvantage on other Charisma checks; creatures starting their turn in it take poison damage equal to your Charisma modifier. Once per short rest.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 56
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "cloak-of-flies",
+            "name": "Cloak of Flies",
+            "max": 1,
+            "reset": "short"
+          }
+        ],
+        "actions": [
+          {
+            "id": "cloak-of-flies",
+            "name": "Cloak of Flies",
+            "economy": "bonus",
+            "cost": {
+              "resource": "cloak-of-flies"
+            },
+            "toggles": [
+              "cloak-of-flies"
+            ],
+            "note": "Creatures that start their turn in the aura take poison damage equal to your Charisma modifier."
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.check.skill.intimidation",
+            "op": "advantage",
+            "label": "Cloak of Flies",
+            "when": {
+              "toggle": "cloak-of-flies"
+            }
+          },
+          {
+            "selector": "roll.check.cha",
+            "op": "disadvantage",
+            "label": "Cloak of Flies (not Intimidation)",
+            "mode": "suggested",
+            "when": {
+              "toggle": "cloak-of-flies",
+              "text": "Charisma checks other than Intimidation"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:invocation-eldritch-mind",
+      "name": "Eldritch Invocation: Eldritch Mind",
+      "summary": "Advantage on Constitution saves to keep concentrating on a spell.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCE",
+        "page": 70
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.save.con",
+            "op": "advantage",
+            "mode": "suggested",
+            "label": "Eldritch Mind",
+            "when": {
+              "text": "to keep concentration"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:invocation-eldritch-smite",
+      "name": "Eldritch Invocation: Eldritch Smite",
+      "summary": "Prerequisite: 5th level, Pact of the Blade. Once per turn when your pact weapon hits, spend a warlock slot: +1d8 force, plus 1d8 per slot level, and you can knock a Huge or smaller target prone.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 56
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.damage.weapon.melee",
+            "op": "add",
+            "value": "2d8",
+            "damageType": "force",
+            "mode": "suggested",
+            "oncePerTurn": true,
+            "label": "Eldritch Smite",
+            "when": {
+              "text": "with your pact weapon; spends a warlock slot"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:invocation-far-scribe",
+      "name": "Eldritch Invocation: Far Scribe",
+      "summary": "Prerequisite: 5th level, Pact of the Tome. Creatures write their names in your Book of Shadows (up to your proficiency bonus); you can cast sending to them without a slot or components.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCE",
+        "page": 70
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:sending",
+            "name": "Sending",
+            "casting": "without a slot, to a creature named in your book",
+            "list": "warlock",
+            "atWill": true
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:invocation-ghostly-gaze",
+      "name": "Eldritch Invocation: Ghostly Gaze",
+      "summary": "Prerequisite: 7th level. As an action, see through solid objects to 30 ft (with darkvision) for 1 minute, concentrating. Once per short rest.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 56
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "ghostly-gaze",
+            "name": "Ghostly Gaze",
+            "max": 1,
+            "reset": "short"
+          }
+        ],
+        "actions": [
+          {
+            "id": "ghostly-gaze",
+            "name": "Ghostly Gaze",
+            "economy": "action",
+            "cost": {
+              "resource": "ghostly-gaze"
+            },
+            "duration": {
+              "rounds": 10
+            },
+            "note": "See through solid objects within 30 ft for 1 minute (concentration)."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:invocation-gift-of-the-depths",
+      "name": "Eldritch Invocation: Gift of the Depths",
+      "summary": "Prerequisite: 5th level. Breathe underwater and swim at your walking speed; cast water breathing once per long rest without a slot.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 57
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "gift-of-the-depths",
+            "name": "Gift of the Depths: Water Breathing",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "spells": [
+          {
+            "spell": "spell:water-breathing",
+            "name": "Water Breathing",
+            "casting": "once per long rest, without a slot",
+            "list": "warlock",
+            "resource": "gift-of-the-depths"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:invocation-gift-of-the-ever-living-ones",
+      "name": "Eldritch Invocation: Gift of the Ever-Living Ones",
+      "summary": "Prerequisite: Pact of the Chain. While your familiar is within 100 ft, healing dice you roll for yourself count as their maximum.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 57
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:invocation-gift-of-the-protectors",
+      "name": "Eldritch Invocation: Gift of the Protectors",
+      "summary": "Prerequisite: 9th level, Pact of the Tome. A creature named in your Book of Shadows that drops to 0 hit points drops to 1 instead, once per long rest.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCE",
+        "page": 70
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "gift-of-the-protectors",
+            "name": "Gift of the Protectors",
+            "max": 1,
+            "reset": "long"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:invocation-grasp-of-hadar",
+      "name": "Eldritch Invocation: Grasp of Hadar",
+      "summary": "Prerequisite: eldritch blast. Once per turn when eldritch blast hits, pull the creature 10 ft straight toward you.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 57
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.damage.spell.eldritch-blast",
+            "op": "note",
+            "label": "Grasp of Hadar: once per turn, pull a creature hit 10 ft toward you."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:invocation-improved-pact-weapon",
+      "name": "Eldritch Invocation: Improved Pact Weapon",
+      "summary": "Prerequisite: Pact of the Blade. Your pact weapon can be your spellcasting focus, gets +1 to attack and damage if it has no bonus, and can be a shortbow, longbow or crossbow.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 57
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.attack.weapon.*",
+            "op": "add",
+            "value": 1,
+            "mode": "suggested",
+            "label": "Improved Pact Weapon",
+            "when": {
+              "text": "with your pact weapon (no magic bonus of its own)"
+            }
+          },
+          {
+            "selector": "roll.damage.weapon.*",
+            "op": "add",
+            "value": 1,
+            "mode": "suggested",
+            "label": "Improved Pact Weapon",
+            "when": {
+              "text": "with your pact weapon (no magic bonus of its own)"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:invocation-investment-of-the-chain-master",
+      "name": "Eldritch Invocation: Investment of the Chain Master",
+      "summary": "Prerequisite: Pact of the Chain. Your familiar flies or swims 40 ft, attacks as magical, uses your save DC; as a bonus action you command it to attack; as a reaction you give it resistance to damage.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCE",
+        "page": 70
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "chain-master-attack",
+            "name": "Command familiar to attack",
+            "economy": "bonus",
+            "note": "Your familiar takes the Attack action."
+          },
+          {
+            "id": "chain-master-resist",
+            "name": "Familiar resistance",
+            "economy": "reaction",
+            "note": "When your familiar takes damage, it has resistance to it."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:invocation-lance-of-lethargy",
+      "name": "Eldritch Invocation: Lance of Lethargy",
+      "summary": "Prerequisite: eldritch blast. Once per turn when eldritch blast hits, reduce the creature's speed by 10 ft until the end of your next turn.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 57
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.damage.spell.eldritch-blast",
+            "op": "note",
+            "label": "Lance of Lethargy: once per turn, a creature hit loses 10 ft of speed until the end of your next turn."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:invocation-maddening-hex",
+      "name": "Eldritch Invocation: Maddening Hex",
+      "summary": "Prerequisite: 5th level, hex or a curse feature. Bonus action: psychic damage equal to your Charisma modifier (minimum 1) to the cursed target and creatures you choose within 5 ft of it.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 57
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "maddening-hex",
+            "name": "Maddening Hex",
+            "economy": "bonus",
+            "roll": {
+              "dice": "mod.cha",
+              "label": "psychic damage to the cursed target and your choice of creatures within 5 ft of it"
+            },
+            "note": "The cursed target must be within 30 ft and visible."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:invocation-protection-of-the-talisman",
+      "name": "Eldritch Invocation: Protection of the Talisman",
+      "summary": "Prerequisite: 7th level, Pact of the Talisman. The wearer adds a d4 to a failed saving throw, proficiency bonus times per long rest.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCE",
+        "page": 71
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "protection-of-the-talisman",
+            "name": "Protection of the Talisman",
+            "max": "pb",
+            "reset": "long"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:invocation-rebuke-of-the-talisman",
+      "name": "Eldritch Invocation: Rebuke of the Talisman",
+      "summary": "Prerequisite: Pact of the Talisman. Reaction when the wearer is hit by an attacker within 30 ft you can see: psychic damage equal to your proficiency bonus, and push it 10 ft.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCE",
+        "page": 71
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "rebuke-of-the-talisman",
+            "name": "Rebuke of the Talisman",
+            "economy": "reaction",
+            "roll": {
+              "dice": "pb",
+              "label": "psychic damage, and a 10-ft push"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:invocation-relentless-hex",
+      "name": "Eldritch Invocation: Relentless Hex",
+      "summary": "Prerequisite: 7th level, hex or a curse feature. Bonus action: teleport up to 30 ft to a space within 5 ft of the target you cursed.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 57
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "relentless-hex",
+            "name": "Relentless Hex",
+            "economy": "bonus",
+            "note": "Teleport up to 30 ft to a space you can see within 5 ft of your cursed target."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:invocation-shroud-of-shadow",
+      "name": "Eldritch Invocation: Shroud of Shadow",
+      "summary": "Prerequisite: 15th level. Cast invisibility at will, without a slot.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 57
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:invisibility",
+            "name": "Invisibility",
+            "casting": "at will",
+            "list": "warlock",
+            "atWill": true
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:invocation-tomb-of-levistus",
+      "name": "Eldritch Invocation: Tomb of Levistus",
+      "summary": "Prerequisite: 5th level. Reaction when you take damage: encase yourself in ice for 10 temporary HP per warlock level, then vulnerable to fire, speed 0 and incapacitated until the end of your next turn. Once per short rest.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 57
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "tomb-of-levistus",
+            "name": "Tomb of Levistus",
+            "max": 1,
+            "reset": "short"
+          }
+        ],
+        "actions": [
+          {
+            "id": "tomb-of-levistus",
+            "name": "Tomb of Levistus",
+            "economy": "reaction",
+            "cost": {
+              "resource": "tomb-of-levistus"
+            },
+            "tempHp": "10*classLevel.class:warlock",
+            "note": "Then: vulnerable to fire, speed 0 and incapacitated until the ice melts at the end of your next turn."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:invocation-tricksters-escape",
+      "name": "Eldritch Invocation: Trickster's Escape",
+      "summary": "Prerequisite: 7th level. Cast freedom of movement on yourself once per long rest without a slot.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 57
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "tricksters-escape",
+            "name": "Trickster's Escape",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "spells": [
+          {
+            "spell": "spell:freedom-of-movement",
+            "name": "Freedom of Movement",
+            "casting": "once per long rest, on yourself, without a slot",
+            "list": "warlock",
+            "resource": "tricksters-escape"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:invocation-undying-servitude",
+      "name": "Eldritch Invocation: Undying Servitude",
+      "summary": "Prerequisite: 5th level. Cast animate dead once per long rest without a slot.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCE",
+        "page": 71
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "undying-servitude",
+            "name": "Undying Servitude",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "spells": [
+          {
+            "spell": "spell:animate-dead",
+            "name": "Animate Dead",
+            "casting": "once per long rest, without a slot",
+            "list": "warlock",
+            "resource": "undying-servitude"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:pact-of-the-talisman",
+      "name": "Pact of the Talisman",
+      "summary": "An amulet: its wearer adds a d4 to a failed ability check, proficiency bonus times per long rest.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCE",
+        "page": 71
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "pact-of-the-talisman",
+            "name": "Talisman (d4 to a failed check)",
+            "max": "pb",
+            "reset": "long"
+          }
+        ]
+      }
+    }
+  ]
+}

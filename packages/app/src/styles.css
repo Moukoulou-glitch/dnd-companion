@@ -1721,3 +1721,15 @@ ol.levels li[data-on="true"] {
   font-weight: 400;
   margin-left: 2px;
 }
+.smite {
+  margin: 10px 0;
+  padding: 10px 12px;
+  border: 1px solid var(--gold);
+  border-radius: var(--radius-m);
+  background: var(--gold-soft);
+}
+.smite .tag[aria-pressed="true"] {
+  border-color: var(--gold);
+  background: var(--gold);
+  color: var(--bg);
+}

@@ -220,6 +220,12 @@ export function SpellPanel({
                 Cast
               </button>
             )}
+            {sp.level > 0 && sp.cast.atWill && (
+              <button className="big primary" onClick={() => doCast(sp.level, "none")}>
+                Cast at will
+                <span className="sub">no slot needed</span>
+              </button>
+            )}
             {sp.cast.slotLevels.map((l) => (
               <button key={l} className={`big${l === sp.level ? " primary" : ""}`} onClick={() => doCast(l, "slot")}>
                 {ordinal(l)} slot
