@@ -100,5 +100,8 @@
   "hp": {
     "current": 95,
     "temp": 0
-  }
+  },
+  "extraFeatures": [
+    "feature:charm-of-sunlight"
+  ]
 }

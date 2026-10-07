@@ -7,6 +7,8 @@ export interface ExprContext {
   classLevels: Record<string, number>;
   /** Level-table values of the feature being evaluated, already resolved for the character's level. */
   scale?: Record<string, ValueExpr>;
+  /** Slot level an effect was cast at (Aid). */
+  slotLevel?: number;
 }
 
 export type Term = { kind: "flat"; value: number; label?: string } | { kind: "dice"; dice: string };
@@ -40,6 +42,18 @@ export function evalExpr(expr: ValueExpr, ctx: ExprContext): Term[] {
 
   function single(sign: number, t: string): Term {
     if (/^\d+$/.test(t)) return { kind: "flat", value: sign * Number(t) };
+
+    // "5*slotLevel": a whole number times one named term.
+    const times = /^(\d+)\*(.+)$/.exec(t);
+    if (times) {
+      const inner = single(sign, times[2]!);
+      if (inner.kind === "dice") throw new Error(`Can't multiply dice in "${expr}"`);
+      return { ...inner, value: inner.value * Number(times[1]) };
+    }
+    if (t === "slotLevel") {
+      if (ctx.slotLevel === undefined) throw new Error(`"slotLevel" used outside a cast effect in "${expr}"`);
+      return { kind: "flat", value: sign * ctx.slotLevel, label: "Slot level" };
+    }
 
     const dice = DICE.exec(t);
     if (dice) {

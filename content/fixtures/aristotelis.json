@@ -88,11 +88,6 @@
       "attuned": true
     },
     {
-      "id": "i6",
-      "item": "item:amulet-of-sunlight",
-      "equipped": true
-    },
-    {
       "id": "i7",
       "item": "item:smiths-tools"
     }
@@ -206,5 +201,8 @@
       "spell": "spell:scorching-ray",
       "list": "wizard"
     }
+  ],
+  "extraFeatures": [
+    "feature:charm-of-sunlight"
   ]
 }

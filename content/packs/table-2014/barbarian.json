@@ -238,7 +238,10 @@
             "toggles": [
               "raging"
             ],
-            "note": "1 minute, not in heavy armor. Ends early if you neither attack nor take damage during a turn."
+            "note": "1 minute, not in heavy armor. Ends early if you neither attack nor take damage during a turn.",
+            "duration": {
+              "rounds": 10
+            }
           }
         ]
       }
@@ -449,6 +452,16 @@
             "economy": "free",
             "note": "While raging, the first creature you hit on your turn has disadvantage against targets other than you, and they resist its damage, until your next turn."
           }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.damage.weapon.*",
+            "op": "note",
+            "label": "Ancestral Protectors: if this is the first creature you hit this turn, it has disadvantage on attacks against anyone but you, and their damage from it is halved, until the start of your next turn.",
+            "when": {
+              "toggle": "raging"
+            }
+          }
         ]
       }
     },
@@ -468,9 +481,32 @@
             "id": "spirit-shield",
             "name": "Spirit Shield",
             "economy": "reaction",
-            "note": "While raging, when a creature you can see within 30 ft takes damage: reduce it by 2d6 (3d6 from 10th level)."
+            "note": "While raging, when a creature you can see within 30 ft takes damage: reduce it by 2d6 (3d6 from 10th level).",
+            "roll": {
+              "dice": "scale.dice",
+              "label": "damage prevented"
+            }
           }
         ]
+      },
+      "scaling": {
+        "dice": {
+          "class": "class:barbarian",
+          "table": [
+            [
+              6,
+              "2d6"
+            ],
+            [
+              10,
+              "3d6"
+            ],
+            [
+              14,
+              "4d6"
+            ]
+          ]
+        }
       }
     }
   ]

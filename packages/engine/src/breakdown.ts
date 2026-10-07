@@ -37,6 +37,8 @@ export interface RollBreakdown extends Breakdown {
   minD20?: number;
   /** Sources that make this roll fail automatically (Paralyzed on Dexterity saves). */
   autoFail?: string[];
+  /** Reminders shown with the roll (Ancestral Protectors on your first hit while raging). */
+  notes?: string[];
   dice: DicePart[];
   advantage: string[];
   disadvantage: string[];

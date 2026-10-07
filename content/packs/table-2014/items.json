@@ -555,38 +555,6 @@
       "magic": {
         "rarity": "common"
       }
-    },
-    {
-      "kind": "item",
-      "id": "item:amulet-of-sunlight",
-      "name": "Φυλαχτό του Ηλιακού Φωτός",
-      "summary": "Campaign reward. Once every 10 days, a variant of Daylight: sunlight in a 10 ft radius from an intangible crown that moves with the wearer; counts as a 5th-level spell.",
-      "source": {
-        "pack": "table-2014",
-        "book": "Campaign"
-      },
-      "category": "wondrous",
-      "grant": {
-        "resources": [
-          {
-            "id": "amulet-of-sunlight",
-            "name": "Φυλαχτό του Ηλιακού Φωτός",
-            "max": 1,
-            "reset": "manual"
-          }
-        ],
-        "actions": [
-          {
-            "id": "amulet-of-sunlight",
-            "name": "Φυλαχτό του Ηλιακού Φωτός",
-            "economy": "action",
-            "cost": {
-              "resource": "amulet-of-sunlight"
-            },
-            "note": "Sunlight in a 10 ft radius from a crown that moves with you; counts as a 5th-level spell. Once every 10 days."
-          }
-        ]
-      }
     }
   ]
 }

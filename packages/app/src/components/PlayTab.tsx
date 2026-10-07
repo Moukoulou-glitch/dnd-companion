@@ -1,9 +1,19 @@
-import type { DerivedSheet } from "@dnd/engine";
+import type { DerivedSheet, ResourceResult } from "@dnd/engine";
 import type { Character, OperationType } from "@dnd/schema";
 import type { RollRecord } from "../rolls";
 import { CombatCard, CompanionCard } from "./Combat";
 
 type Act = (type: OperationType, payload: unknown, label: string) => void;
+
+/** Questions the Play tab asks before spending or restoring (handled by the app shell). */
+export interface PlayPrompts {
+  spendResource: (r: ResourceResult) => void;
+  spendSlot: (level: number, pact: boolean) => void;
+  /** Restoring anything by hand asks first. */
+  restore: (what: string, run: () => void) => void;
+  rest: (kind: "short" | "long") => void;
+  rollPool: (r: ResourceResult) => void;
+}
 
 function Pips({ total, used, onSpend, onRestore, kind, name }: {
   total: number;
@@ -42,6 +52,8 @@ export function PlayTab({
   onStartCombat,
   openMove,
   openCompanion,
+  prompts,
+  onInitiative,
 }: {
   character: Character;
   sheet: DerivedSheet;
@@ -53,6 +65,8 @@ export function PlayTab({
   onStartCombat: () => void;
   openMove: () => void;
   openCompanion: (id: string) => void;
+  prompts: PlayPrompts;
+  onInitiative: () => void;
 }) {
   const down = character.hp.current === 0;
   const slotsUsed = (level: number) => character.slotsUsed[String(level)] ?? 0;
@@ -68,7 +82,7 @@ export function PlayTab({
         </button>
       </section>
 
-      <CombatCard character={character} sheet={sheet} act={act} onStartCombat={onStartCombat} openMove={openMove} />
+      <CombatCard character={character} sheet={sheet} act={act} onStartCombat={onStartCombat} openMove={openMove} onInitiative={onInitiative} />
 
       {sheet.companions.length > 0 && (
         <section>
@@ -156,13 +170,28 @@ export function PlayTab({
                     {r.remaining} of {r.max}
                     {r.die ? `, ${r.die}` : ""}, {resetLabel(r.reset)}
                   </div>
+                  {r.pool && r.remaining > 0 && (
+                    <div className="pool">
+                      {r.pool.values.length > 0 ? (
+                        r.pool.values.map((v, i) => (
+                          <span key={i} className="pool-value">
+                            {v}
+                          </span>
+                        ))
+                      ) : (
+                        <button className="tag adv" onClick={() => prompts.rollPool(r)}>
+                          Roll your {r.remaining} d{r.pool.sides}
+                        </button>
+                      )}
+                    </div>
+                  )}
                 </div>
                 <Pips
                   name={r.name}
                   total={r.max}
                   used={r.used}
-                  onSpend={() => act("spendResource", { resource: r.id }, `${r.name} used.`)}
-                  onRestore={() => act("restoreResource", { resource: r.id }, `${r.name} restored.`)}
+                  onSpend={() => prompts.spendResource(r)}
+                  onRestore={() => prompts.restore(r.name, () => act("restoreResource", { resource: r.id }, `${r.name} restored.`))}
                 />
               </div>
             ))}
@@ -187,8 +216,8 @@ export function PlayTab({
                   name={`level ${s.level} slot`}
                   total={s.total}
                   used={slotsUsed(s.level)}
-                  onSpend={() => act("spendSlot", { level: s.level }, `Level ${s.level} slot spent.`)}
-                  onRestore={() => act("restoreSlot", { level: s.level }, `Level ${s.level} slot restored.`)}
+                  onSpend={() => prompts.spendSlot(s.level, false)}
+                  onRestore={() => prompts.restore(`a level ${s.level} spell slot`, () => act("restoreSlot", { level: s.level }, `Level ${s.level} slot restored.`))}
                 />
               </div>
             ))}
@@ -203,8 +232,8 @@ export function PlayTab({
                   name="Pact Magic slot"
                   total={sheet.pactSlots.count}
                   used={character.pactSlotsUsed}
-                  onSpend={() => act("spendSlot", { level: sheet.pactSlots!.level, pact: true }, "Pact slot spent.")}
-                  onRestore={() => act("restoreSlot", { level: sheet.pactSlots!.level, pact: true }, "Pact slot restored.")}
+                  onSpend={() => prompts.spendSlot(sheet.pactSlots!.level, true)}
+                  onRestore={() => prompts.restore("a Pact Magic slot", () => act("restoreSlot", { level: sheet.pactSlots!.level, pact: true }, "Pact slot restored."))}
                 />
               </div>
             )}
@@ -234,13 +263,24 @@ export function PlayTab({
           ))}
         </div>
         <div className="big-actions" style={{ marginTop: 10 }}>
-          <button className="big" onClick={() => act("rest", { kind: "short" }, "Short rest.")}>
+          <button className="big" onClick={() => prompts.rest("short")}>
             Short rest
           </button>
-          <button className="big" onClick={() => act("rest", { kind: "long" }, "Long rest.")}>
+          <button className="big" onClick={() => prompts.rest("long")}>
             Long rest
           </button>
         </div>
+        {(sheet.effects.some((e) => e.minutes !== undefined) || character.concentration?.minutes !== undefined) && (
+          <div className="time-passes">
+            <span>Time passes</span>
+            <button className="tag" onClick={() => act("passTime", { minutes: 10 }, "10 minutes pass.")}>
+              10 min
+            </button>
+            <button className="tag" onClick={() => act("passTime", { minutes: 60 }, "An hour passes.")}>
+              1 hour
+            </button>
+          </div>
+        )}
       </section>
     </main>
   );

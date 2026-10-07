@@ -40,6 +40,8 @@ export const OPERATION_PAYLOADS = {
       action: z.string(),
       /** Total of the temp HP or healing roll, recorded so replaying the log gives the same result. */
       rolled: z.number().int().min(0).optional(),
+      /** "Just activate": switch it on without spending its cost or the turn (forgot to mark it earlier). */
+      free: z.boolean().optional(),
     })
     .strict(),
   addItem: z
@@ -66,6 +68,9 @@ export const OPERATION_PAYLOADS = {
     .object({
       instanceId: z.string(),
       effect: z.string(),
+      minutes: z.number().int().min(1).optional(),
+      choice: z.string().optional(),
+      castLevel: z.number().int().min(1).max(9).optional(),
       custom: z.object({ name: z.string(), modifiers: z.array(Modifier) }).strict().optional(),
       rounds: z.number().int().min(1).optional(),
       level: z.number().int().min(1).optional(),
@@ -74,8 +79,23 @@ export const OPERATION_PAYLOADS = {
     .strict(),
   removeEffect: z.object({ instanceId: z.string() }).strict(),
   updateEffect: z
-    .object({ instanceId: z.string(), rounds: z.number().int().min(0).nullable().optional(), level: z.number().int().min(1).optional() })
+    .object({
+      instanceId: z.string(),
+      rounds: z.number().int().min(0).nullable().optional(),
+      minutes: z.number().int().min(0).nullable().optional(),
+      level: z.number().int().min(1).optional(),
+      choice: z.string().optional(),
+      castLevel: z.number().int().min(1).max(9).optional(),
+    })
     .strict(),
+  /** Time passes outside combat: long effects and concentration count down. Rests do this too. */
+  passTime: z.object({ minutes: z.number().int().min(1) }).strict(),
+  /** Your initiative roll for the current combat. */
+  setInitiative: z.object({ value: z.number().int() }).strict(),
+  /** Record rolls made in advance (Portent after a long rest). */
+  setPool: z.object({ resource: z.string(), values: z.array(z.number().int()) }).strict(),
+  /** Spend one recorded roll. */
+  usePool: z.object({ resource: z.string(), index: z.number().int().min(0) }).strict(),
   /** End of the character's turn: timed effects lose a round; those reaching 0 end. */
   endTurn: z.object({}).strict(),
   /**
@@ -151,6 +171,10 @@ export const Operation = z.discriminatedUnion("type", [
   OperationBase.extend({ type: z.literal("useEconomy"), payload: OPERATION_PAYLOADS.useEconomy }),
   OperationBase.extend({ type: z.literal("setCompanion"), payload: OPERATION_PAYLOADS.setCompanion }),
   OperationBase.extend({ type: z.literal("reviveCompanion"), payload: OPERATION_PAYLOADS.reviveCompanion }),
+  OperationBase.extend({ type: z.literal("passTime"), payload: OPERATION_PAYLOADS.passTime }),
+  OperationBase.extend({ type: z.literal("setInitiative"), payload: OPERATION_PAYLOADS.setInitiative }),
+  OperationBase.extend({ type: z.literal("setPool"), payload: OPERATION_PAYLOADS.setPool }),
+  OperationBase.extend({ type: z.literal("usePool"), payload: OPERATION_PAYLOADS.usePool }),
   OperationBase.extend({ type: z.literal("deathSave"), payload: OPERATION_PAYLOADS.deathSave }),
   OperationBase.extend({ type: z.literal("toggle"), payload: OPERATION_PAYLOADS.toggle }),
   OperationBase.extend({ type: z.literal("setField"), payload: OPERATION_PAYLOADS.setField }),

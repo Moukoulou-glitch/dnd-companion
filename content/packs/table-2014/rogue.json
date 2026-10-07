@@ -304,7 +304,9 @@
             "id": "steady-aim",
             "name": "Steady Aim",
             "economy": "bonus",
-            "note": "Only if you haven't moved this turn: advantage on your next attack this turn; your speed becomes 0."
+            "note": "Only if you haven't moved this turn: advantage on your next attack this turn; your speed becomes 0.",
+            "notAfterMoving": true,
+            "stopsMovement": true
           }
         ]
       }
@@ -408,6 +410,44 @@
             "max": "pb + pb",
             "reset": "long",
             "die": "scale.die"
+          }
+        ],
+        "actions": [
+          {
+            "id": "psi-bolstered-knack",
+            "name": "Psi-Bolstered Knack",
+            "economy": "free",
+            "toggles": [],
+            "roll": {
+              "dice": "scale.die",
+              "label": "added to the failed check"
+            },
+            "note": "After failing a check with a skill or tool you're proficient in: add a Psionic Energy die. Spend the die only if the check now succeeds."
+          },
+          {
+            "id": "psychic-whispers",
+            "name": "Psychic Whispers",
+            "economy": "action",
+            "toggles": [],
+            "cost": {
+              "resource": "psionic-energy",
+              "amount": 1
+            },
+            "roll": {
+              "dice": "scale.die",
+              "label": "hours of telepathy"
+            },
+            "duration": {
+              "fromRoll": "hours"
+            },
+            "note": "Telepathy with up to PB creatures you can see, for hours equal to the roll. The first use after each long rest costs no die: use Just activate."
+          },
+          {
+            "id": "psionic-recover",
+            "name": "Regain a Psionic Energy die",
+            "economy": "bonus",
+            "toggles": [],
+            "note": "Once per short or long rest: regain one spent die."
           }
         ]
       }

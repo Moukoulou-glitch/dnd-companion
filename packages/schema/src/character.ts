@@ -66,6 +66,14 @@ export const EffectInstance = z
       .optional(),
     /** Rounds left; absent = until removed. */
     rounds: z.number().int().min(0).optional(),
+    /** Minutes left, for long effects (Mage Armor: 480). */
+    minutes: z.number().int().min(0).optional(),
+    /** What was chosen for it (Hex: "str"). */
+    choice: z.string().optional(),
+    /** Slot level it was cast with, for upcast effects (Aid at 3rd level). */
+    castLevel: z.number().int().min(1).max(9).optional(),
+    /** States switched off when it ends (Rage ends "raging"). */
+    toggles: z.array(z.string()).optional(),
     /** For leveled effects (Exhaustion). */
     level: z.number().int().min(1).optional(),
     /** Who or what applied it, e.g. "Cleric's Bless". */
@@ -116,6 +124,10 @@ export const CombatState = z
     moved: z.number().int().min(0).default(0),
     /** Dash taken this turn (each adds your speed). */
     dashes: z.number().int().min(0).default(0),
+    /** Your initiative roll for this combat. */
+    initiative: z.number().int().optional(),
+    /** Features used this turn, by action id (so Steady Aim isn't spent twice). */
+    usedThisTurn: z.array(z.string()).default([]),
     /** 2014: after a bonus-action spell, the only other spell this turn is an action cantrip. */
     bonusSpell: z.boolean().default(false),
     /** A spell of 1st level or higher cast with an action this turn. */
@@ -178,7 +190,17 @@ export const Character = z
     pactSlotsUsed: z.number().int().min(0).default(0),
     spells: z.array(SpellInstance).default([]),
     /** The spell the character is concentrating on, if any. */
-    concentration: z.object({ spell: DefId, name: z.string() }).strict().optional(),
+    concentration: z
+      .object({
+        spell: DefId,
+        name: z.string(),
+        /** Slot level it was cast at (for rolling its ongoing damage). */
+        level: z.number().int().min(0).max(9).optional(),
+        rounds: z.number().int().min(0).optional(),
+        minutes: z.number().int().min(0).optional(),
+      })
+      .strict()
+      .optional(),
     /** Conditions and effects currently on the character. */
     effects: z.array(EffectInstance).default([]),
     /** Named on/off states the engine reads, e.g. "raging". */
@@ -186,6 +208,10 @@ export const Character = z
     inspiration: z.boolean().default(false),
     /** Present while the character is in a combat. */
     combat: CombatState.optional(),
+    /** Rolls made in advance and kept (Portent), keyed by resource id. */
+    pools: z.record(z.string(), z.array(z.number().int())).default({}),
+    /** Features given by the campaign rather than a class or race (Charm of Sunlight). */
+    extraFeatures: z.array(DefId).default([]),
     /** Companions from features (Primal Companion), keyed by companion id. */
     companions: z.record(z.string(), CompanionState).default({}),
     /** Per-character preferences. Real dice is the default: most players at the table roll physical dice. */

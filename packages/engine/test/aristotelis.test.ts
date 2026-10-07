@@ -100,7 +100,7 @@ describe("Αριστοτέλης (Wizard 4)", () => {
       ["Portent rolls", 2, 2],
       ["Fey Touched: Misty Step", 1, 1],
       ["Fey Touched: 1st-level spell", 1, 1],
-      ["Φυλαχτό του Ηλιακού Φωτός", 1, 1],
+      ["Charm of Sunlight", 1, 1],
     ]);
   });
 });

@@ -101,10 +101,12 @@ export function SpellsTab({ sheet, openSpell }: { sheet: DerivedSheet; openSpell
                     <div className="row-title">{sp.name}</div>
                     <div className="row-sub">{tags(sp)}</div>
                   </div>
-                  {sheet.concentration?.spell === sp.id && <span className="tag conc">concentrating</span>}
-                  {sp.ready === "prepared" && <span className="tag adv">prepared</span>}
-                  {sp.attack && <span className="num">{signed(sp.attack.total)}</span>}
-                  {!sp.attack && sp.save && <span className="num">DC {sp.save.dc}</span>}
+                  <span className="row-tags">
+                    {sheet.concentration?.spell === sp.id && <span className="tag conc">concentrating</span>}
+                    {sp.ready === "prepared" && <span className="tag adv">prepared</span>}
+                    {sp.fromFeature && <span className="tag">{sp.fromFeature}</span>}
+                  </span>
+                  <span className="num spell-num">{sp.attack ? signed(sp.attack.total) : sp.save ? `DC ${sp.save.dc}` : ""}</span>
                 </button>
               ))}
           </div>
@@ -151,6 +153,17 @@ export function SpellPanel({
     ["Duration", sp.duration],
     ["School", sp.school],
     ["Cast with", sp.list.label],
+    ...(sp.fromFeature ? [["From", sp.fromFeature] as [string, string]] : []),
+    ...(sp.beams
+      ? [
+          [
+            sp.beams.what === "beams" ? "Beams" : "Rays",
+            sp.level === 0
+              ? `${sp.beams.byLevel[0]} at your level, each its own attack roll`
+              : `${sp.beams.byLevel[sp.level]} at level ${sp.level}, +1 per slot level above`,
+          ] as [string, string],
+        ]
+      : []),
   ];
 
   const doCast = (level: number, using: "slot" | "pact" | "free" | "ritual" | "none") => {

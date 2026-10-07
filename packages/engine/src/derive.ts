@@ -92,6 +92,12 @@ export interface SpellResult {
   placeholder: boolean;
   source: string;
   list: { id: string; label: string };
+  /** Feature, feat or race it comes from, when not a class list (Infernal Legacy, Fey Touched). */
+  fromFeature?: string;
+  /** Separate attacks per cast (Eldritch Blast beams by character level, Scorching Ray rays by slot). */
+  beams?: { byLevel: Record<number, number>; what: string };
+  /** The spell's duration as a timer: rounds up to 1 minute, minutes beyond. */
+  timer?: { rounds?: number; minutes?: number };
   /** "always": cantrips, known casters and granted spells; otherwise whether it is prepared today. */
   ready: "always" | "prepared" | "not prepared";
   attack?: RollBreakdown;
@@ -125,6 +131,11 @@ export interface ActionResult {
   toggles: string[];
   /** The feature or feat this comes from, for showing its text. */
   featureId?: string;
+  /** Dice rolled when used and what the number means (Spirit Shield: damage prevented). */
+  roll?: Amount & { label: string };
+  duration?: { rounds?: number; minutes?: number; fromRoll?: "rounds" | "minutes" | "hours" };
+  notAfterMoving?: boolean;
+  stopsMovement?: boolean;
   tempHp?: Amount;
   heal?: Amount;
 }
@@ -147,11 +158,17 @@ export interface EffectResult {
   category: "condition" | "spell" | "other";
   summary?: string;
   rounds?: number;
+  /** Minutes left on a long effect (Mage Armor). */
+  minutes?: number;
   level?: number;
   maxLevel?: number;
   concentration: boolean;
   reminders: string[];
   from?: string;
+  /** What can be chosen for it (Hex: an ability) and what was. */
+  choice?: { label: string; options: string[]; value?: string };
+  /** Upcast effects: the lowest level and the level it was cast at. */
+  upcast?: { baseLevel: number; castLevel: number };
 }
 
 export interface ResourceResult {
@@ -163,6 +180,8 @@ export interface ResourceResult {
   reset: string;
   die?: string;
   source: string;
+  /** Rolls made in advance (Portent): the dice size and the values kept so far. */
+  pool?: { sides: number; values: number[] };
 }
 
 export interface DerivedSheet {
@@ -183,7 +202,7 @@ export interface DerivedSheet {
   /** Spells the character can cast, sorted by level then name. */
   spells: SpellResult[];
   /** The spell being concentrated on, if any. */
-  concentration?: { spell: string; name: string };
+  concentration?: { spell: string; name: string; level?: number; rounds?: number; minutes?: number };
   /** Conditions and effects on the character, in the order they were added. */
   effects: EffectResult[];
   spellcasting: SpellcastingResult[];
@@ -281,6 +300,7 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
   /** Expression context for one source: its level tables resolved at the character's class level. */
   const ctxCache = new Map<Source, ExprContext>();
   const ctxFor = (s: Source): ExprContext => {
+    if (s.slotLevel !== undefined) return { ...ctx, slotLevel: s.slotLevel };
     if (!s.scaling) return ctx;
     const cached = ctxCache.get(s);
     if (cached) return cached;
@@ -399,6 +419,7 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
     let critAt: number | undefined;
     let minD20: number | undefined;
     const autoFail: string[] = [];
+    const notes: string[] = [];
     for (const a of modsFor(keys, itemInstanceId)) {
       const { mod } = a;
       if (mod.op === "autoFail") {
@@ -409,6 +430,10 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
         const v = flatOf(a);
         if (mod.op === "critRange") critAt = Math.min(critAt ?? 20, v);
         else minD20 = Math.max(minD20 ?? 1, v);
+        continue;
+      }
+      if (mod.op === "note") {
+        if (conditionState(mod.when) !== "fail" && mod.label) notes.push(mod.label);
         continue;
       }
       if (!["add", "advantage", "disadvantage"].includes(mod.op)) continue;
@@ -445,6 +470,7 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
     if (critAt !== undefined && critAt < 20) result.critAt = critAt;
     if (minD20 !== undefined && minD20 > 1) result.minD20 = minD20;
     if (autoFail.length) result.autoFail = autoFail;
+    if (notes.length) result.notes = notes;
     return result;
   };
 
@@ -686,13 +712,14 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
         const die = terms[0];
         entry.die = die && die.kind === "dice" ? die.dice.replace(/^1d/, "d") : r.die;
       }
+      if (r.pool) entry.pool = { sides: r.pool.sides, values: c.pools[r.id] ?? [] };
       resources.push(entry);
     }
   }
 
   // Spells: class lists from the character, plus spells features grant or let the player pick.
   const spellDefs = new Map<string, { def: ReturnType<typeof reg.get<"spell">> | undefined; list: string; prepared: boolean; granted?: GrantedSpellRef }>();
-  type GrantedSpellRef = { resource?: string };
+  type GrantedSpellRef = { resource?: string; from?: string };
   for (const inst of c.spells) {
     spellDefs.set(`${inst.list}|${inst.spell}`, { def: reg.has(inst.spell) ? reg.get(inst.spell, "spell") : undefined, list: inst.list, prepared: inst.prepared });
     if (!reg.has(inst.spell)) warnings.push(`Spell "${inst.spell}" isn't in any content pack.`);
@@ -701,7 +728,7 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
     const ownList = s.grant.spellcasting?.id;
     for (const g of s.grant.spells ?? []) {
       const list = g.list ?? ownList ?? casters[0]?.id ?? "innate";
-      const granted: GrantedSpellRef = {};
+      const granted: GrantedSpellRef = { from: s.label };
       if (g.resource) granted.resource = g.resource;
       spellDefs.set(`${list}|${g.spell}`, { def: reg.has(g.spell) ? reg.get(g.spell, "spell") : undefined, list, prepared: true, granted });
     }
@@ -722,6 +749,7 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
   const preparedLists = new Set(
     c.classes.map((cl) => reg.get(cl.class, "class")).filter((d) => d.spellPreparation === "prepared" && d.spellcasting).map((d) => d.spellcasting!.id),
   );
+  const classLists = new Set(c.classes.map((cl) => reg.get(cl.class, "class").spellcasting?.id).filter(Boolean) as string[]);
   const pactList = c.classes.map((cl) => reg.get(cl.class, "class")).find((d) => d.spellcasting?.progression === "pact")?.spellcasting?.id;
   const slotsTotal = slots.slots;
   const modFor = (list: string) => {
@@ -762,6 +790,17 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
     };
     if (def.material) r.material = def.material;
     if (def.summary) r.summary = def.summary;
+    if (granted?.from && granted.from !== listLabel) r.fromFeature = granted.from;
+    else if (!classLists.has(list) && sc) r.fromFeature = listLabel;
+    const beams = BEAMS[def.id];
+    if (beams) {
+      const byLevel: Record<number, number> = {};
+      if (beams.byCharacterLevel) byLevel[0] = beams.byCharacterLevel(level);
+      else for (let l = def.level; l <= 9; l++) byLevel[l] = beams.bySlot!(l);
+      r.beams = { byLevel, what: beams.what };
+    }
+    const timer = durationTimer(def.duration);
+    if (timer) r.timer = timer;
     if (sc && def.attack) {
       r.attack = roll([`roll.attack.spell.${def.attack}`], [pbPart(), abilityPart(sc.ability), ...statAdds("stat.spell.attack")]);
     }
@@ -809,6 +848,10 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
     for (const a of s.grant.actions ?? []) {
       const entry: ActionResult = { id: a.id, name: a.name, economy: a.economy, source: s.label, toggles: a.toggles };
       if (/^(feature|feat|race|background):/.test(s.id)) entry.featureId = s.id;
+      if (a.roll) entry.roll = { ...amountOf(a.roll.dice, s), label: a.roll.label };
+      if (a.duration) entry.duration = a.duration;
+      if (a.notAfterMoving) entry.notAfterMoving = true;
+      if (a.stopsMovement) entry.stopsMovement = true;
       if (a.note) entry.note = a.note;
       if (a.cost) {
         const r = resources.find((x) => x.id === a.cost!.resource);
@@ -852,7 +895,13 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
       }
     }
     if (e.rounds !== undefined) r.rounds = e.rounds;
+    if (e.minutes !== undefined) r.minutes = e.minutes;
     if (e.from) r.from = e.from;
+    if (def?.choice) {
+      r.choice = { label: def.choice.label, options: def.choice.options };
+      if (e.choice) r.choice.value = e.choice;
+    }
+    if (def?.upcast) r.upcast = { baseLevel: def.upcast.baseLevel, castLevel: e.castLevel ?? def.upcast.baseLevel };
     return r;
   });
 
@@ -916,4 +965,21 @@ function featureEntries(sources: Source[], reg: ContentRegistry): FeatureEntry[]
     out.push(e);
   }
   return out;
+}
+
+/** Spells that make several separate attacks. */
+const BEAMS: Record<string, { what: string; byCharacterLevel?: (lvl: number) => number; bySlot?: (slot: number) => number }> = {
+  "spell:eldritch-blast": { what: "beams", byCharacterLevel: (l) => 1 + (l >= 5 ? 1 : 0) + (l >= 11 ? 1 : 0) + (l >= 17 ? 1 : 0) },
+  "spell:scorching-ray": { what: "rays", bySlot: (s) => 3 + (s - 2) },
+};
+
+/** "Concentration, up to 1 minute" → 10 rounds; "8 hours" → 480 minutes; "Instantaneous" → nothing. */
+export function durationTimer(duration: string): { rounds?: number; minutes?: number } | undefined {
+  const m = /(\d+)\s*(round|minute|hour|day)s?/i.exec(duration);
+  if (!m) return undefined;
+  const n = Number(m[1]);
+  const unit = m[2]!.toLowerCase();
+  if (unit === "round") return { rounds: n };
+  const minutes = unit === "minute" ? n : unit === "hour" ? n * 60 : n * 1440;
+  return minutes <= 1 ? { rounds: minutes * 10 } : { minutes };
 }

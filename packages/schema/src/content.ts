@@ -195,8 +195,19 @@ export const EffectDef = z
     kind: z.literal("effect"),
     category: z.enum(["condition", "spell", "other"]),
     modifiers: z.array(Modifier).default([]),
-    /** Default duration in rounds; leave out for "until removed". */
+    /** Default duration in rounds (1 minute = 10); leave out for "until removed". */
     rounds: z.number().int().min(1).optional(),
+    /** Longer default durations in minutes (Mage Armor: 480). Rests and "time passes" count them down. */
+    minutes: z.number().int().min(1).optional(),
+    /**
+     * Something chosen when it's applied (Hex: the ability). Selectors may use
+     * "{choice}", e.g. "roll.check.{choice}".
+     */
+    choice: z.object({ label: z.string(), options: z.array(z.string()).min(1) }).strict().optional(),
+    /** Cast at a higher level: modifiers may use "slotLevel" (Aid: 5*slotLevel - 5). */
+    upcast: z.object({ baseLevel: z.number().int().min(1).max(9) }).strict().optional(),
+    /** Current HP gained when applied (Aid). May use "slotLevel". */
+    hpGain: z.union([z.number(), z.string()]).optional(),
     /** Ends if the caster loses concentration. */
     concentration: z.boolean().default(false),
     /** Exhaustion-style levels: level n applies the modifiers of levels 1..n. */

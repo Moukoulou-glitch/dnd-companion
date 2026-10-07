@@ -1,0 +1,61 @@
+{
+  "definitions": [
+    {
+      "kind": "feature",
+      "id": "feature:charm-of-sunlight",
+      "name": "Φυλαχτό του Ηλιακού Φωτός (Charm of Sunlight)",
+      "summary": "Once every 10 days: a variant Daylight (5th level) whose light is sunlight, a 10-foot sphere around an incorporeal crown of light that moves with you. Allies who earned it with you can add theirs.",
+      "source": {
+        "pack": "table-2014",
+        "book": "Campaign"
+      },
+      "text": [
+        "Any heroes who fight the shadows and manage to destroy them within 1 minute receive the Amulet of Sunlight, a reward that can only be bestowed once every 100 years.",
+        "The amulet allows its bearer to activate a variant of the Daylight spell once every 10 days:",
+        "• The light produced is sunlight.",
+        "• The sphere of light has a 10-foot radius.",
+        "• The source of the spell is an incorporeal crown of light that moves with its bearer.",
+        "• The effect is considered a 5th-level spell.",
+        "Cooperative Empowerment",
+        "If the Amulet was acquired together with other creatures, and you activate it while those creatures are within 60 feet of you, each of them that has an unused use of the Amulet can use its reaction to expend its own use of the Amulet.",
+        "For each creature that does so:",
+        "1. The radius of the sphere of light increases by 10 feet.",
+        "2. A luminous crown, identical in properties to yours, appears around that creature and moves with it."
+      ],
+      "grant": {
+        "resources": [
+          {
+            "id": "charm-of-sunlight",
+            "name": "Charm of Sunlight",
+            "max": 1,
+            "reset": "manual"
+          }
+        ],
+        "actions": [
+          {
+            "id": "charm-of-sunlight",
+            "name": "Charm of Sunlight",
+            "economy": "action",
+            "cost": {
+              "resource": "charm-of-sunlight",
+              "amount": 1
+            },
+            "toggles": [],
+            "note": "Sunlight in a 10-ft sphere around a crown of light that moves with you (Daylight variant, 5th level). Once every 10 days: restore it by hand."
+          },
+          {
+            "id": "charm-of-sunlight-join",
+            "name": "Join a Charm of Sunlight",
+            "economy": "reaction",
+            "cost": {
+              "resource": "charm-of-sunlight",
+              "amount": 1
+            },
+            "toggles": [],
+            "note": "When an ally who earned the Charm with you activates theirs within 60 ft: spend yours to add 10 ft to the sphere and get your own crown of light."
+          }
+        ]
+      }
+    }
+  ]
+}

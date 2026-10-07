@@ -15,6 +15,8 @@ export interface Source {
   itemInstanceId?: string;
   /** Set when the source is an active effect or condition. */
   effectInstanceId?: string;
+  /** Slot level an effect was cast at ("slotLevel" in its expressions). */
+  slotLevel?: number;
 }
 
 /** The modifiers an effect applies at a given level (levels are cumulative, like Exhaustion). */
@@ -92,14 +94,21 @@ export function collectSources(c: Character, reg: ContentRegistry): Source[] {
   }
 
   c.rules.forEach(pushFeature);
+  c.extraFeatures.forEach(pushFeature);
 
   // Active effects and conditions; a condition can include others (Paralyzed includes Incapacitated).
   const seenConditions = new Set<string>();
-  const pushEffect = (def: EffectDef, instanceId: string, level: number | undefined, viaName?: string) => {
+  const pushEffect = (def: EffectDef, instanceId: string, level: number | undefined, viaName?: string, inst?: Character["effects"][number]) => {
     if (seenConditions.has(def.id) && def.category === "condition") return;
     seenConditions.add(def.id);
     const label = def.levels ? `${def.name} ${level ?? 1}` : viaName ? `${def.name} (${viaName})` : def.name;
-    out.push({ id: def.id, label, grant: { modifiers: effectModifiers(def, level) }, choices: {}, effectInstanceId: instanceId });
+    // "{choice}" in selectors becomes what was picked (Hex: roll.check.{choice}); without a choice those modifiers wait.
+    const modifiers = effectModifiers(def, level).flatMap((m) =>
+      m.selector.includes("{choice}") ? (inst?.choice ? [{ ...m, selector: m.selector.replace("{choice}", inst.choice) }] : []) : [m],
+    );
+    const src: Source = { id: def.id, label, grant: { modifiers }, choices: {}, effectInstanceId: instanceId };
+    if (def.upcast) src.slotLevel = inst?.castLevel ?? def.upcast.baseLevel;
+    out.push(src);
     for (const inc of def.includes) pushEffect(reg.get(inc, "effect"), instanceId, undefined, def.name);
   };
   for (const e of c.effects) {
@@ -107,7 +116,7 @@ export function collectSources(c: Character, reg: ContentRegistry): Source[] {
       out.push({ id: `custom:${e.id}`, label: e.custom.name, grant: { modifiers: e.custom.modifiers }, choices: {}, effectInstanceId: e.id });
     } else {
       const def = reg.find(reg.effectId(e.effect), "effect");
-      if (def) pushEffect(def, e.id, e.level);
+      if (def) pushEffect(def, e.id, e.level, undefined, e);
     }
   }
 

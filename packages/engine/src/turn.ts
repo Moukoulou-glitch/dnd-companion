@@ -9,6 +9,10 @@ export interface TurnIntent {
   attack?: boolean;
   /** For spells: level 0 for cantrips, and whether it needs concentration. */
   spell?: { level: number; concentration: boolean };
+  /** Only allowed if you haven't moved this turn (Steady Aim). */
+  notAfterMoving?: boolean;
+  /** Feature id, to notice it was already used this turn. */
+  actionId?: string;
 }
 
 const INCAPACITATING = ["incapacitated", "paralyzed", "petrified", "stunned", "unconscious"];
@@ -56,6 +60,8 @@ export function turnWarnings(c: Character, sheet: DerivedSheet, intent: TurnInte
     out.push("You've already used your action this turn.");
   }
   if (intent.economy === "bonus" && cb.bonus > 0) out.push("You've already used your bonus action this turn.");
+  if (intent.notAfterMoving && cb.moved > 0) out.push(`You've moved ${cb.moved} ft this turn: ${intent.name} only works if you haven't moved.`);
+  if (intent.actionId && cb.usedThisTurn.includes(intent.actionId)) out.push(`You've already used ${intent.name} this turn.`);
   if (intent.economy === "reaction" && cb.reaction > 0) out.push("You've already used your reaction this round.");
 
   if (intent.spell) {

@@ -7,6 +7,7 @@ import {
   formatFormula,
   physicalDamageTotal,
   rollComposed,
+  sourcesMode,
   withCrit,
   type ComposerBase,
   type ComposerChoices,
@@ -32,12 +33,18 @@ interface Props {
   dc?: number;
   /** Called with whether the d20 roll met the DC. */
   onCheck?: (passed: boolean) => void;
+  /** Extra reminders for this roll (Eldritch Blast beams). */
+  notes?: string[];
+  /** Foretelling rolls that can replace the d20 (Portent). */
+  portent?: { values: number[]; onUse: (index: number) => void };
+  /** The optional modifiers that were on when the d20 was rolled (Steady Aim spends its bonus action). */
+  onOptionsUsed?: (labels: string[]) => void;
 }
 
 type Stage =
   | { step: "setup" }
   | { step: "d20-result"; record: RollRecord }
-  | { step: "damage-setup"; crit: boolean; attackRecord?: RollRecord }
+  | { step: "damage-setup"; crit: boolean; attackRecord?: RollRecord; attackMode?: string }
   | { step: "damage-result"; record: RollRecord; crit: boolean; attackRecord?: RollRecord };
 
 /** The lines of a composed roll before rolling: what goes in and from where. */
@@ -98,12 +105,27 @@ function Options({
       )}
       <div className="adjust">
         {withManual && (
-          <div className="segmented" role="radiogroup" aria-label="Advantage">
-            {(["disadvantage", "none", "advantage"] as const).map((m) => (
-              <button key={m} role="radio" aria-checked={choices.manual === m} onClick={() => setChoices({ ...choices, manual: m })}>
-                {m === "none" ? "Normal" : m === "advantage" ? "Adv" : "Disadv"}
-              </button>
-            ))}
+          <div className="segmented mode" role="radiogroup" aria-label="Advantage">
+            {(["disadvantage", "normal", "advantage"] as const).map((m) => {
+              const auto = sourcesMode(base, choices);
+              const current = choices.force ?? auto;
+              return (
+                <button
+                  key={m}
+                  role="radio"
+                  data-mode={m}
+                  aria-checked={current === m}
+                  onClick={() => {
+                    const next: ComposerChoices = { ...choices, manual: "none" };
+                    if (m === auto) delete next.force;
+                    else next.force = m;
+                    setChoices(next);
+                  }}
+                >
+                  {m === "normal" ? "Normal" : m === "advantage" ? "Adv" : "Disadv"}
+                </button>
+              );
+            })}
           </div>
         )}
         <div className="stepper" aria-label="Extra bonus">
@@ -203,7 +225,7 @@ export function ResultView({ r }: { r: RollRecord }) {
   );
 }
 
-export function Composer({ title, base, attack, physical, onPhysicalChange, onRolled, damageOnly, healing, onHealSelf, dc, onCheck }: Props) {
+export function Composer({ title, base, attack, physical, onPhysicalChange, onRolled, damageOnly, healing, onHealSelf, dc, onCheck, notes, portent, onOptionsUsed }: Props) {
   const [choices, setChoices] = useState<ComposerChoices>({ enabled: [], manual: "none", extra: 0 });
   const [damageChoices, setDamageChoices] = useState<ComposerChoices>({ enabled: [], manual: "none", extra: 0 });
   const [stage, setStage] = useState<Stage>(damageOnly ? { step: "damage-setup", crit: false } : { step: "setup" });
@@ -221,6 +243,8 @@ export function Composer({ title, base, attack, physical, onPhysicalChange, onRo
     return withCrit(c, extra, natural20 ? attack.damage.onCrit : []);
   }, [attack, stage, damageChoices]);
 
+  const [attackMode, setAttackMode] = useState<string | undefined>();
+
   const startDamage = (crit: boolean, attackRecord?: RollRecord) => {
     // Options turned on for the attack (Sharpshooter) carry over to its damage.
     const shared = choices.enabled.filter((l) => damageBase?.suggestions.some((s) => s.label === l));
@@ -228,11 +252,15 @@ export function Composer({ title, base, attack, physical, onPhysicalChange, onRo
     setEntering(false);
     const next: Stage = { step: "damage-setup", crit };
     if (attackRecord) next.attackRecord = attackRecord;
+    const mode = attackRecord ? attackMode : d20.d20Mode;
+    if (mode) next.attackMode = mode;
     setStage(next);
   };
 
-  const rollD20 = (values?: number[]) => {
-    const rec = recordOf(dc ? `${title} (DC ${dc})` : title, "d20", rollComposed(d20, values));
+  const rollD20 = (values?: number[], composed = d20) => {
+    const rec = recordOf(dc ? `${title} (DC ${dc})` : title, "d20", rollComposed(composed, values));
+    setAttackMode(composed.d20Mode);
+    if (choices.enabled.length) onOptionsUsed?.(choices.enabled);
     onRolled(rec);
     if (dc !== undefined) onCheck?.(rec.total >= dc);
     setEntering(false);
@@ -280,8 +308,16 @@ export function Composer({ title, base, attack, physical, onPhysicalChange, onRo
             Fails automatically ({base.autoFail.join(", ")}). Roll anyway only if your DM rules otherwise.
           </p>
         )}
+        {[...(notes ?? []), ...(base.notes ?? [])].map((n) => (
+          <p className="note reminder" key={n}>
+            {n}
+          </p>
+        ))}
         <FormulaLines c={d20} />
-        {d20.d20Mode !== "normal" && (
+        {choices.force && choices.force !== sourcesMode(base, choices) && (
+          <p className="note">Set by hand: the sources give {sourcesMode(base, choices) === "normal" ? "a normal roll" : sourcesMode(base, choices)}.</p>
+        )}
+        {!choices.force && d20.d20Mode !== "normal" && (
           <p className="note">
             {d20.d20Mode === "advantage" ? "Advantage" : "Disadvantage"} from {(d20.d20Mode === "advantage" ? d20.advantageFrom : d20.disadvantageFrom).join(", ")}.
           </p>
@@ -297,6 +333,23 @@ export function Composer({ title, base, attack, physical, onPhysicalChange, onRo
         )}
         {attack && !attack.proficient && <p className="note danger-text">Not proficient: no proficiency bonus on the attack.</p>}
         <p className="formula">{formatFormula(d20.terms).replace(/\[[^\]]*\]/g, "")}</p>
+        {portent && portent.values.length > 0 && (
+          <div className="portent">
+            <span>Portent: use a foretold roll instead</span>
+            {portent.values.map((v, i) => (
+              <button
+                key={i}
+                className="tag adv"
+                onClick={() => {
+                  portent.onUse(i);
+                  rollD20([v], composeD20(base, { ...choices, force: "normal" }));
+                }}
+              >
+                {v}
+              </button>
+            ))}
+          </div>
+        )}
         {physical ? (
           <D20Entry key={d20Count(d20)} count={d20Count(d20)} onDone={rollD20} />
         ) : (
@@ -348,6 +401,14 @@ export function Composer({ title, base, attack, physical, onPhysicalChange, onRo
         {diceSwitch}
         {stage.crit && <p className="note">Critical hit: every damage die is rolled twice.</p>}
         {dc === undefined && attack?.saveNote && <p className="note">{attack.saveNote}</p>}
+        {(damageBase.notes ?? []).map((n) => (
+          <p className="note reminder" key={n}>
+            {n}
+          </p>
+        ))}
+        {stage.attackMode === "disadvantage" && damageChoices.enabled.some((l) => /sneak attack/i.test(l)) && (
+          <p className="warn">You rolled this attack with disadvantage: Sneak Attack can't apply. Leave it on only if your DM says so.</p>
+        )}
         <FormulaLines c={damage} />
         <Options base={damageBase} choices={damageChoices} setChoices={setDamageChoices} withManual={false} />
         <p className="formula">{formatFormula(damage.terms).replace(/\[[^\]]*\]/g, "")}</p>

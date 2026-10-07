@@ -171,7 +171,10 @@
             "id": "portent",
             "name": "Portent rolls",
             "max": "scale.rolls",
-            "reset": "long"
+            "reset": "long",
+            "pool": {
+              "sides": 20
+            }
           }
         ],
         "actions": [

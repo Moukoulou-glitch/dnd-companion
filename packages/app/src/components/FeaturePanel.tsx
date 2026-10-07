@@ -25,18 +25,19 @@ export function FeaturePanel({
   a: ActionResult;
   text?: string[] | undefined;
   physical: boolean;
-  onUse: (rolled?: number) => void;
+  onUse: (rolled?: number, free?: boolean) => void;
 }) {
-  const amount = a.tempHp ?? a.heal;
+  const amount = a.tempHp ?? a.heal ?? a.roll;
   const [entry, setEntry] = useState("");
   const none = a.cost && a.cost.remaining < a.cost.amount;
 
-  const useNow = () => {
-    if (!amount) return onUse();
-    if (physical) return onUse(Number(entry) + amount.flat);
+  const useNow = (free = false) => {
+    if (!amount) return onUse(undefined, free);
+    if (physical) return onUse(Number(entry) + amount.flat, free);
     const formula = [...amount.dice, String(amount.flat)].join("+");
-    return onUse(Math.max(0, roll(formula).total));
+    return onUse(Math.max(0, roll(formula).total), free);
   };
+
 
   return (
     <>
@@ -61,7 +62,8 @@ export function FeaturePanel({
       {amount && (
         <>
           <p className="sub-head">
-            {a.tempHp ? "Temporary HP" : "Healing"}: {amount.text}
+            {a.tempHp ? "Temporary HP" : a.heal ? "Healing" : `Roll ${amount.text}, ${a.roll!.label}`}
+            {a.tempHp || a.heal ? `: ${amount.text}` : ""}
           </p>
           {physical && amount.dice.length > 0 && (
             <label className="entry">
@@ -71,9 +73,14 @@ export function FeaturePanel({
           )}
         </>
       )}
-      <button className="big primary wide" disabled={!!amount && physical && amount.dice.length > 0 && !entry} onClick={useNow}>
-        {none ? `Use ${a.name} anyway` : `Use ${a.name}`}
+      <button className="big primary wide" disabled={!!amount && physical && amount.dice.length > 0 && !entry} onClick={() => useNow()}>
+        {none ? `Use ${a.name} anyway` : a.roll && !physical ? `Roll and use ${a.name}` : `Use ${a.name}`}
       </button>
+      {(a.cost || a.economy !== "free") && (a.toggles.length > 0 || a.duration) && (
+        <button className="link" disabled={!!amount && physical && amount.dice.length > 0 && !entry} onClick={() => useNow(true)}>
+          Just activate: switch it on without spending anything
+        </button>
+      )}
     </>
   );
 }

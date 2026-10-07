@@ -83,6 +83,8 @@ export const ModifierOp = z.enum([
   "resist",
   "vulnerable",
   "immune",
+  /** Rolls: a reminder shown with the roll; `label` is the text (Ancestral Protectors on your first hit). */
+  "note",
 ]);
 export type ModifierOp = z.infer<typeof ModifierOp>;
 
@@ -135,6 +137,11 @@ export const ResourceDef = z
     reset: ResetRule,
     /** For die-based pools (Psionic Energy, Hit Dice). */
     die: z.string().optional(),
+    /**
+     * Each use is a roll made in advance and kept (Portent: d20s rolled after
+     * a long rest). The player records the values and spends them one by one.
+     */
+    pool: z.object({ sides: z.number().int().min(2) }).strict().optional(),
   })
   .strict();
 export type ResourceDef = z.infer<typeof ResourceDef>;
@@ -208,6 +215,21 @@ export const ActionDef = z
     toggles: z.array(z.string()).default([]),
     tempHp: ValueExpr.optional(),
     heal: ValueExpr.optional(),
+    /** Dice rolled when used, with what the number means (Spirit Shield: damage prevented). */
+    roll: z.object({ dice: ValueExpr, label: z.string() }).strict().optional(),
+    /**
+     * Starts a timer named after the action (Rage: 10 rounds). Its toggles
+     * switch off when it runs out. `fromRoll` turns the rolled number into the
+     * duration (Psychic Whispers: hours).
+     */
+    duration: z
+      .object({ rounds: z.number().int().min(1).optional(), minutes: z.number().int().min(1).optional(), fromRoll: z.enum(["rounds", "minutes", "hours"]).optional() })
+      .strict()
+      .optional(),
+    /** Only if you haven't moved this turn (Steady Aim). */
+    notAfterMoving: z.boolean().optional(),
+    /** Your speed becomes 0 for the rest of the turn (Steady Aim). */
+    stopsMovement: z.boolean().optional(),
     /** Short reminder of what happens, shown on the button. */
     note: z.string().optional(),
   })

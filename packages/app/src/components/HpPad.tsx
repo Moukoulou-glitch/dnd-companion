@@ -10,10 +10,13 @@ export function HpPad({
   onDamage,
   onHeal,
   onTemp,
+  temp = 0,
 }: {
   onDamage: (amount: number, type?: string) => void;
   onHeal: (amount: number) => void;
   onTemp: (amount: number) => void;
+  /** Current temporary HP, to offer removing them. */
+  temp?: number;
 }) {
   const [value, setValue] = useState("");
   const [type, setType] = useState<string | undefined>();
@@ -59,6 +62,11 @@ export function HpPad({
           Temp HP
         </button>
       </div>
+      {temp > 0 && (
+        <button className="link" onClick={() => onTemp(0)}>
+          Remove the {temp} temporary HP
+        </button>
+      )}
     </div>
   );
 }

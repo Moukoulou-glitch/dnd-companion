@@ -39,6 +39,9 @@ function FeatureRow({ a, openFeature }: { a: ActionResult; openFeature: (a: Acti
           {a.heal ? `, heals ${a.heal.text}` : ""}
         </div>
       </div>
+      <span className="row-tags">
+        <span className="tag">{a.source}</span>
+      </span>
       <span className={`tag${none ? "" : " adv"}`}>{none ? "none left" : "use"}</span>
     </button>
   );

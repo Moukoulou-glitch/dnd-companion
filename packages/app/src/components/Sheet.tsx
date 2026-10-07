@@ -1,4 +1,5 @@
 import { useEffect, useRef, type ReactNode } from "react";
+import { useDrag } from "./Swipe";
 import { signed, signedDice, type Breakdown, type RollBreakdown } from "@dnd/engine";
 
 /** A bottom sheet over the current screen. Closes on the scrim, Escape, or `onClose`. */
@@ -11,6 +12,10 @@ export function BottomSheet({ title, onClose, children }: { title: string; onClo
     return () => window.removeEventListener("keydown", onKey);
   }, [onClose]);
 
+  // Pull the handle down to close.
+  const drag = useDrag("y", (dy) => dy > 90 && onClose());
+  const pull = Math.max(0, drag.offset);
+
   return (
     <div className="scrim" onClick={onClose}>
       <div
@@ -21,8 +26,11 @@ export function BottomSheet({ title, onClose, children }: { title: string; onClo
         tabIndex={-1}
         ref={ref}
         onClick={(e) => e.stopPropagation()}
+        style={pull ? { transform: `translateY(${pull}px)`, transition: "none" } : undefined}
       >
-        <div className="grabber" />
+        <div className="grab-zone" {...drag.handlers} aria-hidden="true">
+          <div className="grabber" />
+        </div>
         <h3>{title}</h3>
         {children}
       </div>

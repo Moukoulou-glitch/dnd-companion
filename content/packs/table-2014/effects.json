@@ -652,8 +652,8 @@
           "value": 2
         }
       ],
-      "rounds": 100,
-      "concentration": true
+      "concentration": true,
+      "minutes": 10
     },
     {
       "kind": "effect",
@@ -678,8 +678,9 @@
         }
       ],
       "reminders": [
-        "Ends if you put on armor or after 8 hours."
-      ]
+        "Ends if you put on armor."
+      ],
+      "minutes": 480
     },
     {
       "kind": "effect",
@@ -707,7 +708,8 @@
       "reminders": [
         "Advantage on Perception and Survival checks to find the marked target.",
         "Bonus action to move the mark when the target drops to 0 HP."
-      ]
+      ],
+      "minutes": 60
     },
     {
       "kind": "effect",
@@ -735,7 +737,8 @@
       "concentration": true,
       "reminders": [
         "The target has disadvantage on checks with the ability you chose."
-      ]
+      ],
+      "minutes": 60
     },
     {
       "kind": "effect",
@@ -770,12 +773,16 @@
         {
           "selector": "stat.hp.max",
           "op": "add",
-          "value": 5
+          "value": "5*slotLevel - 5",
+          "label": "Aid"
         }
       ],
-      "reminders": [
-        "Your current HP also went up by 5 when it was cast: use Heal."
-      ]
+      "reminders": [],
+      "minutes": 480,
+      "upcast": {
+        "baseLevel": 2
+      },
+      "hpGain": "5*slotLevel - 5"
     },
     {
       "kind": "effect",
@@ -989,6 +996,82 @@
           "value": 5
         }
       ]
+    },
+    {
+      "kind": "effect",
+      "id": "effect:hexed",
+      "name": "Hexed",
+      "summary": "Someone's Hex is on you: disadvantage on ability checks with the chosen ability, and their hits deal you an extra 1d6 necrotic.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 251
+      },
+      "category": "spell",
+      "modifiers": [
+        {
+          "selector": "roll.check.{choice}",
+          "op": "disadvantage",
+          "label": "Hexed"
+        }
+      ],
+      "minutes": 60,
+      "choice": {
+        "label": "Ability",
+        "options": [
+          "str",
+          "dex",
+          "con",
+          "int",
+          "wis",
+          "cha"
+        ]
+      },
+      "concentration": false,
+      "includes": [],
+      "reminders": [
+        "The caster's hits deal you an extra 1d6 necrotic damage."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "effect:invisibility",
+      "name": "Invisibility",
+      "summary": "Invisible until the spell ends, or until you attack or cast a spell.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 254
+      },
+      "category": "spell",
+      "modifiers": [],
+      "minutes": 60,
+      "concentration": true,
+      "includes": [
+        "condition:invisible"
+      ],
+      "reminders": [
+        "Ends early if you attack or cast a spell."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "effect:greater-invisibility",
+      "name": "Greater Invisibility",
+      "summary": "Invisible for the duration, even while attacking or casting.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 246
+      },
+      "category": "spell",
+      "modifiers": [],
+      "rounds": 10,
+      "concentration": true,
+      "includes": [
+        "condition:invisible"
+      ],
+      "reminders": []
     }
   ]
 }

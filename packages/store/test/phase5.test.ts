@@ -119,19 +119,21 @@ describe("concentration (2014)", () => {
   it("casting a concentration spell starts concentration", () => {
     const log = logFor("beren");
     log.record("castSpell", { spell: "spell:hunters-mark", list: "ranger", level: 1, using: "slot" });
-    expect(log.character.concentration).toEqual({ spell: "spell:hunters-mark", name: "Hunter's Mark" });
+    expect(log.character.concentration).toEqual({ spell: "spell:hunters-mark", name: "Hunter's Mark", level: 1, minutes: 60 });
   });
 
   it("a second concentration spell ends the first, and its self effect", () => {
     const log = logFor("aristotelis");
     log.record("addEffect", { instanceId: "x", effect: "condition:prone" });
     log.record("castSpell", { spell: "spell:invisibility", list: "wizard", level: 2, using: "slot", selfEffect: true });
-    expect(sheetOf(log).effects.map((e) => e.name)).toEqual(["Mage Armor", "Prone"]);
+    // Invisibility on yourself now brings the Invisible condition, tied to concentration.
+    expect(sheetOf(log).effects.map((e) => e.name)).toEqual(["Mage Armor", "Prone", "Invisibility"]);
     expect(log.record("castSpell", { spell: "spell:web", list: "wizard", level: 2, using: "slot" })).toEqual([
       "Web isn't prepared today.",
       "Casting Web. Concentration on Invisibility ended.",
     ]);
     expect(log.character.concentration?.name).toBe("Web");
+    expect(sheetOf(log).effects.map((e) => e.name)).toEqual(["Mage Armor", "Prone"]);
   });
 
   it("damage asks for a check: DC 10, or half the damage if higher", () => {

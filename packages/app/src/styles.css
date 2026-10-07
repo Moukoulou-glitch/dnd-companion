@@ -18,6 +18,8 @@
   --teal: #55bcb1;
   --teal-soft: rgba(85, 188, 177, 0.16);
   --temp: #7da4e8;
+  --good: #5cc27a;
+  --good-soft: rgba(92, 194, 122, 0.18);
   --focus: #f2d27a;
   --radius-s: 6px;
   --radius-m: 12px;
@@ -37,6 +39,8 @@
     --hp: #b8303d;
     --hp-soft: rgba(184, 48, 61, 0.1);
     --gold: #9a6a12;
+    --good: #2f8a4c;
+    --good-soft: rgba(47, 138, 76, 0.12);
     --gold-soft: rgba(154, 106, 18, 0.1);
     --teal: #1f7f75;
     --teal-soft: rgba(31, 127, 117, 0.1);
@@ -1212,4 +1216,223 @@ h2 {
 button.tag {
   padding: 4px 9px;
   margin-left: 6px;
+}
+
+/* Drag the handle down to close a sheet; swipe controls; flick-away toasts. */
+.grab-zone {
+  margin: -12px -16px 0;
+  padding: 12px 0 6px;
+  touch-action: none;
+  cursor: grab;
+}
+
+.toast {
+  touch-action: pan-y;
+}
+
+.swipe {
+  position: relative;
+  height: 64px;
+  border-radius: 999px;
+  background: var(--teal-soft);
+  border: 1px solid var(--teal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  user-select: none;
+}
+
+.swipe.plain {
+  background: var(--panel-raised);
+  border-color: var(--line);
+}
+
+.swipe-label {
+  font-weight: 800;
+  font-size: 18px;
+  pointer-events: none;
+  padding-left: 40px;
+}
+
+.swipe-knob {
+  position: absolute;
+  left: 4px;
+  top: 4px;
+  width: 56px;
+  height: 54px;
+  border-radius: 999px;
+  background: var(--teal);
+  color: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  font-weight: 800;
+  touch-action: none;
+  cursor: grab;
+}
+
+.swipe.plain .swipe-knob {
+  background: var(--muted);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* Advantage state in the roll composer: red for disadvantage, green for advantage. */
+.segmented.mode button[data-mode="disadvantage"][aria-checked="true"] {
+  background: var(--hp-soft);
+  color: var(--hp);
+  box-shadow: inset 0 -3px 0 var(--hp);
+}
+
+.segmented.mode button[data-mode="advantage"][aria-checked="true"] {
+  background: var(--good-soft);
+  color: var(--good);
+  box-shadow: inset 0 -3px 0 var(--good);
+}
+
+.note.reminder {
+  border-left: 3px solid var(--gold);
+  padding: 4px 0 4px 10px;
+  color: var(--text);
+}
+
+.portent {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 6px 0 10px;
+  color: var(--muted);
+  font-size: 15px;
+}
+
+.portent span {
+  width: 100%;
+}
+
+.portent .tag {
+  font-size: 17px;
+  font-weight: 800;
+  padding: 6px 14px;
+}
+
+.choice-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin: 6px 0;
+}
+
+.choice-grid .tag {
+  margin: 0;
+  padding: 10px 4px;
+  font-size: 15px;
+  text-align: center;
+}
+
+.tag[aria-pressed="true"] {
+  border-color: var(--teal);
+  color: var(--teal);
+  background: var(--teal-soft);
+}
+
+.turn-head .init {
+  margin-left: auto;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-m);
+  padding: 4px 10px;
+}
+
+.turn-head .init small {
+  color: var(--muted);
+}
+
+.turn-head .init b {
+  font-size: 20px;
+}
+
+.turn > .link {
+  margin: 0 auto;
+  padding: 4px 8px;
+  color: var(--muted);
+  font-size: 15px;
+}
+
+.pool {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.pool-value {
+  min-width: 34px;
+  text-align: center;
+  font-weight: 800;
+  font-size: 17px;
+  border: 1px solid var(--gold);
+  color: var(--gold);
+  border-radius: var(--radius-s);
+  padding: 2px 6px;
+}
+
+.time-passes {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  color: var(--muted);
+}
+
+.time-passes .tag {
+  padding: 6px 12px;
+  font-size: 15px;
+}
+
+.question {
+  font-size: 21px;
+  font-weight: 800;
+  margin: 4px 0 8px;
+}
+
+.confirm {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+/* Tags sit between the name and the number, and wrap rather than cover it. */
+.row-tags {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 4px;
+  max-width: 45%;
+}
+
+.row-tags:empty {
+  display: none;
+}
+
+.row-tags .tag {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.spell-num {
+  flex: none;
+  min-width: 3.4em;
 }

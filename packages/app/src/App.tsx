@@ -4,6 +4,7 @@ import type { ComposerBase } from "@dnd/dice";
 import type { ActionResult, EffectResult, SpellResult, WeaponAttack } from "@dnd/engine";
 import { ActionsTab } from "./components/ActionsTab";
 import { CompanionPanel, MovePanel } from "./components/Combat";
+import { SwipeAway } from "./components/Swipe";
 import { Composer, ResultView } from "./components/Composer";
 import { AddEffectPanel, EffectChips, EffectPanel } from "./components/Effects";
 import { FeaturePanel } from "./components/FeaturePanel";
@@ -11,11 +12,13 @@ import { HpPad } from "./components/HpPad";
 import { AddItemPanel, CoinPanel, InventoryTab, ItemPanel } from "./components/InventoryTab";
 import { bookReport, registry } from "./content";
 import { BookText, BooksPanel } from "./components/BookText";
-import { PlayTab } from "./components/PlayTab";
+import { PlayTab, type PlayPrompts } from "./components/PlayTab";
+import { Confirm, PoolRollPanel, SlotSpendPanel, SpendDiePanel } from "./components/Prompts";
 import { BottomSheet, BreakdownLines } from "./components/Sheet";
 import { SheetTab } from "./components/SheetTab";
 import { SpellPanel, SpellsTab, spellAsAttack } from "./components/SpellsTab";
 import { useCharacters } from "./useCharacters";
+import { formatMinutes } from "./time";
 
 type Tab = "play" | "actions" | "spells" | "sheet" | "inventory";
 const TABS: { id: Tab; label: string }[] = [
@@ -62,10 +65,13 @@ export function App() {
    * "Use anyway". It never blocks. `back` reopens the panel the warning
    * replaced: cancelled, or after going ahead.
    */
-  const guard = (intent: TurnIntent, proceed: () => void, back?: { cancelled?: () => void; done?: () => void }) => {
+  const guard = (intent: TurnIntent, proceed: () => void, back?: { cancelled?: () => void; done?: () => void }): boolean => {
     const cur = live.current;
     const warnings = cur.character && cur.sheet ? turnWarnings(cur.character, cur.sheet, intent) : [];
-    if (!warnings.length) return proceed();
+    if (!warnings.length) {
+      proceed();
+      return true;
+    }
     open(intent.name, () => (
       <>
         <p className="sub-head">Before you do that</p>
@@ -91,6 +97,7 @@ export function App() {
         </div>
       </>
     ));
+    return false;
   };
   const hpNow = Math.min(c.hp.current, sheet.hpMax.total);
   const hpPct = Math.round((hpNow / sheet.hpMax.total) * 100);
@@ -110,9 +117,10 @@ export function App() {
           close();
         }}
         onTemp={(amount) => {
-          s.act("setTempHp", { amount }, `${amount} temporary HP.`);
+          s.act("setTempHp", { amount }, amount ? `${amount} temporary HP.` : "Temporary HP removed.");
           close();
         }}
+        temp={c.hp.temp}
       />,
     );
 
@@ -141,17 +149,44 @@ export function App() {
   };
 
   /** Opens the roll composer for any d20 roll; attacks also get the damage step. */
-  const openRoll = (title: string, base: ComposerBase, attack?: WeaponAttack) =>
+  /** Portent rolls on hand, offered on every d20 roll. */
+  const portentFor = () => {
+    const pool = live.current.sheet?.resources.find((r) => r.pool && r.pool.values.length > 0);
+    if (!pool?.pool) return undefined;
+    return {
+      values: pool.pool.values,
+      onUse: (index: number) => live.current.act("usePool", { resource: pool.id, index }, `${pool.name}: ${pool.pool!.values[index]} used.`),
+    };
+  };
+
+  /** Options ticked in the composer that are also features used on your turn (Steady Aim) get recorded. */
+  const recordOptions = (labels: string[]) => {
+    const cur = live.current;
+    const cb = cur.character?.combat;
+    if (!cb) return;
+    for (const label of labels) {
+      const a = cur.sheet?.actions.find((x) => x.name === label && x.economy !== "free");
+      if (a && !cb.usedThisTurn.includes(a.id)) cur.act("useAction", { action: a.id }, `${a.name} used.`);
+    }
+  };
+
+  const openRoll = (title: string, base: ComposerBase, attack?: WeaponAttack, opts: { notes?: string[]; onTotal?: (n: number) => void } = {}) =>
     open(title, () => (
       <Composer
         title={title}
         base={base}
         {...(attack ? { attack } : {})}
+        {...(opts.notes ? { notes: opts.notes } : {})}
+        {...(portentFor() ? { portent: portentFor()! } : {})}
+        onOptionsUsed={recordOptions}
         physical={live.current.character?.settings.physicalDice ?? true}
         onPhysicalChange={(p) =>
           live.current.act("setField", { path: ["settings", "physicalDice"], value: p }, p ? "Rolling your own dice." : "The app rolls for you.")
         }
-        onRolled={(r) => live.current.addRoll(r)}
+        onRolled={(r) => {
+          live.current.addRoll(r);
+          opts.onTotal?.(r.total);
+        }}
       />
     ));
 
@@ -162,14 +197,20 @@ export function App() {
       return (
         <FeaturePanel
           a={current}
-          text={feature?.text}
           physical={live.current.character?.settings.physicalDice ?? true}
-          onUse={(rolled) =>
-            guard({ name: current.name, economy: current.economy }, () => {
-              live.current.act("useAction", rolled === undefined ? { action: a.id } : { action: a.id, rolled }, `${a.name} used.`);
+          text={feature?.text}
+          onUse={(rolled, free) => {
+            const payload = { action: a.id, ...(rolled === undefined ? {} : { rolled }), ...(free ? { free: true } : {}) };
+            const label = free ? `${a.name} switched on (nothing spent).` : current.roll && rolled !== undefined ? `${a.name}: ${rolled} ${current.roll.label}.` : `${a.name} used.`;
+            if (free) {
+              live.current.act("useAction", payload, label);
+              return close();
+            }
+            guard({ name: current.name, economy: current.economy, actionId: current.id, ...(current.notAfterMoving ? { notAfterMoving: true } : {}) }, () => {
+              live.current.act("useAction", payload, label);
               close();
-            })
-          }
+            });
+          }}
         />
       );
     });
@@ -199,9 +240,132 @@ export function App() {
     });
   };
 
+  /** Initiative during a combat is kept on the combat card until the combat ends. */
+  const rollInitiative = () =>
+    openRoll("Initiative", live.current.sheet!.initiative, undefined, {
+      onTotal: (n) => {
+        if (live.current.character?.combat) live.current.act("setInitiative", { value: n }, `Initiative ${n}.`);
+      },
+    });
+
   const startCombat = () => {
     s.act("startCombat", {}, "Combat started.");
-    openRoll("Initiative", sheet.initiative);
+    rollInitiative();
+  };
+
+  const prompts: PlayPrompts = {
+    spendResource: (r) => {
+      if (r.pool) {
+        open(r.name, () => {
+          const cur = live.current.sheet?.resources.find((x) => x.id === r.id) ?? r;
+          return (
+            <>
+              <p className="note">Pick the foretold roll you're using. Rolls you make in the roll screen offer them too.</p>
+              <div className="pool">
+                {(cur.pool?.values ?? []).map((v, i) => (
+                  <button
+                    key={i}
+                    className="pool-value"
+                    onClick={() => {
+                      live.current.act("usePool", { resource: r.id, index: i }, `${r.name}: ${v} used.`);
+                      close();
+                    }}
+                  >
+                    {v}
+                  </button>
+                ))}
+              </div>
+              <button
+                className="link"
+                onClick={() => {
+                  live.current.act("spendResource", { resource: r.id }, `${r.name} used.`);
+                  close();
+                }}
+              >
+                Just spend one
+              </button>
+            </>
+          );
+        });
+        return;
+      }
+      if (!r.die) return void s.act("spendResource", { resource: r.id }, `${r.name} used.`);
+      open(r.name, () => (
+        <SpendDiePanel
+          r={r}
+          onRolled={(n) => {
+            live.current.act("spendResource", { resource: r.id }, `${r.name}: rolled ${n}.`);
+            close();
+          }}
+          onJustSpend={() => {
+            live.current.act("spendResource", { resource: r.id }, `${r.name} used.`);
+            close();
+          }}
+        />
+      ));
+    },
+    spendSlot: (level, pact) =>
+      open(pact ? "Pact Magic slot" : `Level ${level} slot`, () => (
+        <SlotSpendPanel
+          sheet={live.current.sheet!}
+          level={level}
+          pact={pact}
+          onCast={(sp) => {
+            const now = guard(
+              { name: sp.name, economy: castingEconomy(sp.castingTime), spell: { level: sp.level, concentration: sp.concentration } },
+              () => live.current.act("castSpell", { spell: sp.id, list: sp.list.id, level, using: pact ? "pact" : "slot" }, `${sp.name} cast.`),
+              { done: () => openSpell(sp, level) },
+            );
+            if (now) openSpell(sp, level);
+          }}
+          onJustSpend={() => {
+            live.current.act("spendSlot", { level, pact }, pact ? "Pact slot spent." : `Level ${level} slot spent.`);
+            close();
+          }}
+        />
+      )),
+    restore: (what, run) =>
+      open("Get it back?", () => (
+        <Confirm
+          question="Are you trying to cheat?"
+          detail={`You're restoring ${what} by hand.`}
+          no="Yes, I am sorry..."
+          yes="I am the master of my fate!"
+          onNo={close}
+          onYes={() => {
+            run();
+            close();
+          }}
+        />
+      )),
+    rest: (kind) =>
+      open(kind === "short" ? "Short rest" : "Long rest", () => (
+        <Confirm
+          question="Are you still alive after the rest?"
+          detail={
+            kind === "short"
+              ? "A short rest: short-rest features and Pact slots come back, and an hour passes."
+              : "A long rest: full HP, spell slots, features and half your Hit Dice come back, and 8 hours pass."
+          }
+          no="Not yet, cancel"
+          yes={kind === "short" ? "Yes, finish the short rest" : "Yes, finish the long rest"}
+          onNo={close}
+          onYes={() => {
+            live.current.act("rest", { kind }, kind === "short" ? "Short rest." : "Long rest.");
+            close();
+          }}
+        />
+      )),
+    rollPool: (r) =>
+      open(r.name, () => (
+        <PoolRollPanel
+          r={r}
+          onDone={(values) => {
+            live.current.act("setPool", { resource: r.id, values }, `${r.name}: ${values.join(", ")}.`);
+            close();
+          }}
+        />
+      )),
   };
 
   const openMove = () =>
@@ -231,9 +395,10 @@ export function App() {
           openCompanion(id);
         }}
         onTemp={(amount) => {
-          live.current.act("setTempHp", { amount, companion: id }, `Companion: ${amount} temporary HP.`);
+          live.current.act("setTempHp", { amount, companion: id }, amount ? `Companion: ${amount} temporary HP.` : "Companion's temporary HP removed.");
           openCompanion(id);
         }}
+        temp={live.current.sheet?.companions.find((x) => x.id === id)?.form?.hp.temp ?? 0}
       />
     ));
 
@@ -271,6 +436,59 @@ export function App() {
         />
       );
     });
+
+  /** A state chip (Rage, Flame Tongue lit): what it is, then use it properly, switch it on for free, or switch it off. */
+  const openToggle = (name: string) => {
+    const t = sheet.toggles.find((x) => x.name === name);
+    if (!t) return;
+    open(t.label, () => {
+      const cur = live.current.sheet;
+      const on = cur?.toggles.find((x) => x.name === name)?.on ?? false;
+      const action = cur?.actions.find((a) => a.toggles.includes(name));
+      const feature = cur?.features.find((f) => f.id === action?.featureId) ?? cur?.features.find((f) => f.name === t.label);
+      const timer = live.current.character?.effects.find((e) => e.toggles?.includes(name));
+      return (
+        <>
+          {timer?.rounds !== undefined && <p className="sub-head">{timer.rounds} {timer.rounds === 1 ? "round" : "rounds"} left</p>}
+          {feature ? <BookText text={feature.text} summary={feature.summary} /> : action?.note && <p>{action.note}</p>}
+          {on ? (
+            <button
+              className="big damage wide"
+              style={{ marginTop: 12 }}
+              onClick={() => {
+                live.current.act("toggle", { name, on: false }, `${t.label} off.`);
+                close();
+              }}
+            >
+              Switch it off
+            </button>
+          ) : (
+            <div className="confirm">
+              {action && (
+                <button className="big primary" onClick={() => openFeature(action)}>
+                  Use as normal
+                  <span className="sub">
+                    {[action.cost ? `spends ${action.cost.name}` : "", action.economy !== "free" ? `uses your ${action.economy === "bonus" ? "bonus action" : action.economy}` : ""].filter(Boolean).join(", ") || "no cost"}
+                  </span>
+                </button>
+              )}
+              <button
+                className="big"
+                onClick={() => {
+                  if (action) live.current.act("useAction", { action: action.id, free: true }, `${t.label} switched on (nothing spent).`);
+                  else live.current.act("toggle", { name, on: true }, `${t.label} on.`);
+                  close();
+                }}
+              >
+                Just activate
+                <span className="sub">forgot to switch it on: nothing is spent</span>
+              </button>
+            </div>
+          )}
+        </>
+      );
+    });
+  };
 
   const openTrait = (id: string) => {
     const f = sheet.features.find((x) => x.id === id);
@@ -315,26 +533,54 @@ export function App() {
   const openConcentration = () => {
     const conc = c.concentration;
     if (!conc) return;
-    open(`Concentrating on ${conc.name}`, () => <ConcentrationPanel onCheck={openConcentrationCheck} onEnd={() => { live.current.act("endConcentration", {}, "Concentration ended."); close(); }} />);
+    open(`Concentrating on ${conc.name}`, () => {
+      const cur = live.current.character?.concentration;
+      const sp = live.current.sheet?.spells.find((x) => x.id === cur?.spell && (x.damage || x.heal));
+      const level = cur?.level ?? sp?.level ?? 0;
+      const timer = cur?.rounds !== undefined ? `${cur.rounds} ${cur.rounds === 1 ? "round" : "rounds"} left.` : cur?.minutes !== undefined ? `${formatMinutes(cur.minutes)} left.` : "";
+      return (
+        <ConcentrationPanel
+          timer={timer}
+          {...(sp ? { onDamage: () => rollSpell(sp, level, true), damageLabel: `Roll ${sp.name} ${sp.heal && !sp.damage ? "healing" : "damage"}${level > sp.level ? ` (level ${level})` : ""}` } : {})}
+          onCheck={openConcentrationCheck}
+          onEnd={() => {
+            live.current.act("endConcentration", {}, "Concentration ended.");
+            close();
+          }}
+        />
+      );
+    });
+  };
+
+  /** Attack or damage for a spell at a slot level; beams and portent come along. */
+  const rollSpell = (sp: SpellResult, level: number, damageOnly: boolean) => {
+    const beams = sp.beams?.byLevel[sp.level === 0 ? 0 : level];
+    const notes = beams && beams > 1 ? [`${beams} ${sp.beams!.what}: make a separate attack roll for each. They can hit the same target or different ones.`] : [];
+    const portent = portentFor();
+    open(sp.name, () => (
+      <Composer
+        title={sp.name}
+        base={sp.attack ?? live.current.sheet!.saves.con}
+        attack={spellAsAttack(sp, level)}
+        damageOnly={damageOnly}
+        notes={notes}
+        {...(portent && !damageOnly ? { portent } : {})}
+        healing={!!sp.heal && !sp.damage}
+        onHealSelf={(n) => {
+          live.current.act("heal", { amount: n }, `Healed ${n}.`);
+          close();
+        }}
+        physical={live.current.character?.settings.physicalDice ?? true}
+        onPhysicalChange={(p) => live.current.act("setField", { path: ["settings", "physicalDice"], value: p }, p ? "Rolling your own dice." : "The app rolls for you.")}
+        onRolled={(r) => live.current.addRoll(r)}
+      />
+    ));
   };
 
   const openSpell = (first: SpellResult, castAt?: number) =>
     open(first.name, () => {
       const sp = live.current.sheet?.spells.find((x) => x.id === first.id && x.list.id === first.list.id) ?? first;
-      const roller = (level: number, damageOnly: boolean) =>
-        open(sp.name, () => (
-          <Composer
-            title={sp.name}
-            base={sp.attack ?? live.current.sheet!.saves.con}
-            attack={spellAsAttack(sp, level)}
-            damageOnly={damageOnly}
-            healing={!!sp.heal && !sp.damage}
-            onHealSelf={(n) => { live.current.act("heal", { amount: n }, `Healed ${n}.`); close(); }}
-            physical={live.current.character?.settings.physicalDice ?? true}
-            onPhysicalChange={(p) => live.current.act("setField", { path: ["settings", "physicalDice"], value: p }, p ? "Rolling your own dice." : "The app rolls for you.")}
-            onRolled={(r) => live.current.addRoll(r)}
-          />
-        ));
+      const roller = (level: number, damageOnly: boolean) => rollSpell(sp, level, damageOnly);
       return (
         <SpellPanel
           sp={sp}
@@ -432,7 +678,7 @@ export function App() {
             <b>{sheet.ac.total}</b>
             <small>AC</small>
           </button>
-          <button className="stat" onClick={() => openRoll("Initiative", sheet.initiative)}>
+          <button className="stat" onClick={rollInitiative}>
             <b>{formatBonus(sheet.initiative)}</b>
             <small>{sheet.initiative.advantage.length ? "Init, adv" : "Init"}</small>
           </button>
@@ -442,7 +688,7 @@ export function App() {
           </button>
         </div>
 
-        <EffectChips effects={sheet.effects} onOpen={openEffect} onAdd={openAddEffect} concentration={sheet.concentration} onConcentration={openConcentration} />
+        <EffectChips effects={sheet.effects.filter((e) => !c.effects.find((x) => x.id === e.instanceId)?.toggles?.length)} onOpen={openEffect} onAdd={openAddEffect} concentration={sheet.concentration} onConcentration={openConcentration} />
 
         {sheet.toggles.length > 0 && (
           <div className="switches" role="group" aria-label="Active states">
@@ -451,9 +697,13 @@ export function App() {
                 key={t.name}
                 className="switch"
                 aria-pressed={t.on}
-                onClick={() => s.act("toggle", { name: t.name, on: !t.on }, `${t.label} ${t.on ? "off" : "on"}.`)}
+                onClick={() => openToggle(t.name)}
               >
                 {t.label}
+                {(() => {
+                  const r = c.effects.find((e) => e.toggles?.includes(t.name))?.rounds;
+                  return t.on && r !== undefined ? ` (${r})` : "";
+                })()}
               </button>
             ))}
           </div>
@@ -470,6 +720,8 @@ export function App() {
           rolls={s.rolls}
           openRollHistory={openRollHistory}
           onStartCombat={startCombat}
+          prompts={prompts}
+          onInitiative={rollInitiative}
           openMove={openMove}
           openCompanion={openCompanion}
         />
@@ -498,20 +750,39 @@ export function App() {
       )}
 
       {s.toast && (
-        <div className="toast" role="status" key={s.toast.id}>
+        <SwipeAway className="toast" key={s.toast.id} onDismiss={() => s.setToast(null)}>
           <p>{s.toast.text}</p>
           {s.toast.canUndo && s.canUndo && <button onClick={s.undo}>Undo</button>}
-        </div>
+        </SwipeAway>
       )}
     </div>
   );
 }
 
 /** What to do while concentrating: check after damage, or end it. */
-function ConcentrationPanel({ onCheck, onEnd }: { onCheck: (dc: number) => void; onEnd: () => void }) {
+function ConcentrationPanel({
+  onCheck,
+  onEnd,
+  onDamage,
+  damageLabel,
+  timer,
+}: {
+  onCheck: (dc: number) => void;
+  onEnd: () => void;
+  onDamage?: () => void;
+  damageLabel?: string;
+  timer: string;
+}) {
   const [dc, setDc] = useState(10);
   return (
     <>
+      {timer && <p className="sub-head">{timer}</p>}
+      {onDamage && (
+        <button className="big primary wide" style={{ marginBottom: 12 }} onClick={onDamage}>
+          {damageLabel}
+          <span className="sub">its ongoing damage, this turn</span>
+        </button>
+      )}
       <p className="note">When you take damage, make a Constitution save: DC 10 or half the damage, whichever is higher. The app asks for it on its own when you enter damage.</p>
       <div className="group">
         <div className="row">
@@ -523,7 +794,7 @@ function ConcentrationPanel({ onCheck, onEnd }: { onCheck: (dc: number) => void;
           </div>
         </div>
       </div>
-      <button className="big primary wide" style={{ marginTop: 10 }} onClick={() => onCheck(dc)}>
+      <button className="big wide" style={{ marginTop: 10 }} onClick={() => onCheck(dc)}>
         Concentration check
       </button>
       <button className="big damage wide" style={{ marginTop: 10 }} onClick={onEnd}>

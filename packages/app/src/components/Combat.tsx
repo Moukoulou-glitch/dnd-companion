@@ -2,6 +2,7 @@ import { ABILITIES, ABILITY_NAMES, type Character, type OperationType } from "@d
 import { formatBonus, signed, turnReminders, type CompanionResult, type DerivedSheet, type RollBreakdown, type WeaponAttack } from "@dnd/engine";
 import { damageText } from "./ActionsTab";
 import { BreakdownLines } from "./Sheet";
+import { SwipeButton } from "./Swipe";
 import type { ReactNode } from "react";
 
 type Act = (type: OperationType, payload: unknown, label: string) => unknown;
@@ -13,12 +14,14 @@ export function CombatCard({
   act,
   onStartCombat,
   openMove,
+  onInitiative,
 }: {
   character: Character;
   sheet: DerivedSheet;
   act: Act;
   onStartCombat: () => void;
   openMove: () => void;
+  onInitiative: () => void;
 }) {
   const cb = character.combat;
   if (!cb) {
@@ -43,8 +46,9 @@ export function CombatCard({
       <div className="turn-head">
         <b>Round {cb.round}</b>
         <span className={cb.myTurn ? "tag adv" : "tag"}>{cb.myTurn ? "your turn" : "waiting"}</span>
-        <button className="link" onClick={() => act("endCombat", {}, "Combat over.")}>
-          End combat
+        <button className="init" onClick={onInitiative} aria-label={cb.initiative !== undefined ? `Initiative ${cb.initiative}. Roll again` : "Roll initiative"}>
+          <small>Init</small>
+          <b>{cb.initiative ?? "?"}</b>
         </button>
       </div>
       <div className="pills">
@@ -73,13 +77,9 @@ export function CombatCard({
         </button>
       </div>
       {cb.myTurn ? (
-        <button className="big primary wide" onClick={() => act("endTurn", {}, "Turn ended.")}>
-          End my turn
-        </button>
+        <SwipeButton key="end" label="Swipe to end my turn" onConfirm={() => act("endTurn", {}, "Turn ended.")} />
       ) : (
-        <button className="big primary wide" onClick={() => act("startTurn", {}, "Your turn.")}>
-          Start my turn
-        </button>
+        <SwipeButton key="start" label="Swipe to start my turn" tone="plain" onConfirm={() => act("startTurn", {}, "Your turn.")} />
       )}
       {reminders.length > 0 && (
         <ul className="reminders">
@@ -88,6 +88,9 @@ export function CombatCard({
           ))}
         </ul>
       )}
+      <button className="link" onClick={() => act("endCombat", {}, "Combat over.")}>
+        End combat
+      </button>
     </section>
   );
 }

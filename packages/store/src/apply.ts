@@ -1,5 +1,5 @@
 import { Character, CombatState, type Operation } from "@dnd/schema";
-import { castingEconomy, derive, type ContentRegistry } from "@dnd/engine";
+import { castingEconomy, derive, evalFlat, type ContentRegistry } from "@dnd/engine";
 
 /** Something the player should do next, e.g. roll a concentration check. */
 export type Prompt = { kind: "concentration"; dc: number; spell: string };
@@ -55,6 +55,50 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
     else if (economy === "bonus") cb.bonus += 1;
     else if (economy === "reaction") cb.reaction += 1;
     extra?.(cb);
+  };
+
+  const effectName = (e: Character["effects"][number]) => e.custom?.name ?? reg.find(reg.effectId(e.effect), "effect")?.name ?? e.effect;
+
+  /** Removes effects, switching off the states they kept on (Rage's "raging"). */
+  const removeEffects = (gone: Character["effects"]) => {
+    if (!gone.length) return;
+    const ids = new Set(gone.map((e) => e.id));
+    c.effects = c.effects.filter((e) => !ids.has(e.id));
+    const off = new Set(gone.flatMap((e) => e.toggles ?? []));
+    if (off.size) c.toggles = c.toggles.filter((t) => !off.has(t));
+  };
+
+  /** Current HP gained when an effect starts (Aid), worked out at its cast level. */
+  const gainHp = (def: { hpGain?: string | number; upcast?: { baseLevel: number }; name: string }, castLevel?: number) => {
+    if (def.hpGain === undefined) return;
+    const slotLevel = castLevel ?? def.upcast?.baseLevel ?? 1;
+    const amount = evalFlat(def.hpGain, { pb: sheet.proficiencyBonus, mods: Object.fromEntries(Object.entries(sheet.abilities).map(([k, v]) => [k, v.modifier])) as never, level: sheet.level, classLevels: {}, slotLevel });
+    if (amount > 0 && c.hp.current > 0) {
+      c.hp.current += amount;
+      notes.push(`${def.name}: +${amount} current HP.`);
+    }
+  };
+
+  /** Time passes: long effects and concentration count down; anything reaching 0 ends. */
+  const passMinutes = (minutes: number) => {
+    const ended: Character["effects"] = [];
+    for (const e of c.effects) {
+      if (e.minutes !== undefined) {
+        e.minutes = Math.max(0, e.minutes - minutes);
+        if (e.minutes === 0) ended.push(e);
+      } else if (e.rounds !== undefined) {
+        e.rounds = Math.max(0, e.rounds - minutes * 10);
+        if (e.rounds === 0) ended.push(e);
+      }
+    }
+    if (ended.length) notes.push(`Ended: ${ended.map(effectName).join(", ")}.`);
+    removeEffects(ended);
+    const conc = c.concentration;
+    if (conc && (conc.minutes !== undefined || conc.rounds !== undefined)) {
+      if (conc.minutes !== undefined) conc.minutes = Math.max(0, conc.minutes - minutes);
+      if (conc.rounds !== undefined) conc.rounds = Math.max(0, conc.rounds - minutes * 10);
+      if ((conc.minutes ?? conc.rounds) === 0) endConcentration(c, notes, `${conc.name} has run its course.`);
+    }
   };
 
   switch (op.type) {
@@ -221,9 +265,12 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
 
     case "rest": {
       const kind = op.payload.kind;
+      passMinutes(kind === "short" ? 60 : 480);
       const resets = kind === "short" ? ["short"] : ["short", "long", "dawn"];
       const restored = sheet.resources.filter((r) => resets.includes(r.reset) && r.used > 0).map((r) => r.name);
       for (const r of sheet.resources) if (resets.includes(r.reset)) delete c.resourcesUsed[r.id];
+      // Rolls kept in advance (Portent) are lost when their resource comes back.
+      for (const r of sheet.resources) if (r.pool && resets.includes(r.reset)) delete c.pools[r.id];
       if (c.pactSlotsUsed > 0) restored.push("Pact Magic slots");
       c.pactSlotsUsed = 0;
 
@@ -255,14 +302,33 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
         notes.push(`Unknown feature "${op.payload.action}".`);
         break;
       }
-      if (a.cost) {
+      const free = op.payload.free === true;
+      if (a.cost && !free) {
         const used = c.resourcesUsed[a.cost.resource] ?? 0;
         const max = sheet.resources.find((r) => r.id === a.cost!.resource)?.max ?? 0;
         if (a.cost.remaining < a.cost.amount) notes.push(`${a.cost.name}: none left. Used anyway.`);
         c.resourcesUsed[a.cost.resource] = Math.min(max, used + a.cost.amount);
       }
       if (a.toggles.length) c.toggles = [...new Set([...c.toggles, ...a.toggles])];
-      spendTurn(a.economy);
+      if (!free) spendTurn(a.economy, (cb) => {
+        if (a.notAfterMoving && cb.moved > 0) notes.push(`You had moved ${cb.moved} ft this turn: ${a.name} needs you not to have moved.`);
+        if (a.stopsMovement) cb.moved = Math.max(cb.moved, sheet.speed.total * (1 + cb.dashes));
+        cb.usedThisTurn = [...cb.usedThisTurn, a.id];
+      });
+      if (a.duration) {
+        const rolledN = op.payload.rolled;
+        const d = a.duration;
+        const entry: Character["effects"][number] = { id: `${op.id}-timer`, effect: "custom", custom: { name: a.name, modifiers: [] }, from: a.source };
+        if (d.fromRoll && rolledN !== undefined) {
+          if (d.fromRoll === "rounds") entry.rounds = rolledN;
+          else entry.minutes = d.fromRoll === "hours" ? rolledN * 60 : rolledN;
+        } else if (d.rounds) entry.rounds = d.rounds;
+        else if (d.minutes) entry.minutes = d.minutes;
+        if (a.toggles.length) entry.toggles = a.toggles;
+        // Using it again restarts the timer instead of stacking a second one.
+        removeEffects(c.effects.filter((e) => e.effect === "custom" && e.custom?.name === a.name));
+        c.effects.push(entry);
+      }
       const rolled = op.payload.rolled;
       if (a.tempHp && rolled !== undefined) {
         if (rolled > c.hp.temp) {
@@ -364,7 +430,9 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
       if (sp.concentration) {
         if (c.concentration && c.concentration.spell !== sp.id) endConcentration(c, notes, `Casting ${sp.name}.`);
         else if (c.concentration) c.effects = c.effects.filter((e) => !e.concentration);
-        c.concentration = { spell: sp.id, name: sp.name };
+        c.concentration = { spell: sp.id, name: sp.name, level };
+        if (sp.timer?.rounds) c.concentration.rounds = sp.timer.rounds;
+        if (sp.timer?.minutes) c.concentration.minutes = sp.timer.minutes;
       }
       const economy = using === "ritual" ? "free" : castingEconomy(sp.castingTime);
       spendTurn(economy, (cb) => {
@@ -376,7 +444,11 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
       if (selfEffect && selfDef) {
         const def = selfDef;
         const entry: Character["effects"][number] = { id: `${op.id}-effect`, effect: effectId, from: "Your own spell" };
-        if (def.rounds) entry.rounds = def.rounds;
+        const timer = def.rounds ? { rounds: def.rounds } : def.minutes ? { minutes: def.minutes } : sp.timer;
+        if (timer?.rounds) entry.rounds = timer.rounds;
+        else if (timer?.minutes) entry.minutes = timer.minutes;
+        if (def.upcast && level > 0) entry.castLevel = level;
+        gainHp(def, entry.castLevel);
         if (sp.concentration) entry.concentration = true;
         c.effects.push(entry);
       }
@@ -423,11 +495,18 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
       }
       const entry: Character["effects"][number] = { id: instanceId, effect };
       if (custom) entry.custom = custom;
-      const r = rounds ?? def?.rounds;
+      const minutes = op.payload.minutes ?? (rounds === undefined ? def?.minutes : undefined);
+      const r = rounds ?? (minutes === undefined ? def?.rounds : undefined);
       if (r !== undefined) entry.rounds = r;
+      if (minutes !== undefined) entry.minutes = minutes;
       if (def?.levels) entry.level = Math.min(def.levels.length, level ?? 1);
       if (from) entry.from = from;
+      if (op.payload.choice) entry.choice = op.payload.choice;
+      if (op.payload.castLevel) entry.castLevel = op.payload.castLevel;
       c.effects.push(entry);
+      if (def?.choice && !entry.choice) notes.push(`${def.name}: choose the ${def.choice.label.toLowerCase()} on its card.`);
+      if (def?.upcast && !entry.castLevel) notes.push(`Cast at a higher level? Set it on ${def.name}'s card.`);
+      if (def) gainHp(def, entry.castLevel);
       // Incapacitating conditions break concentration.
       const incapacitates = def && (def.id === "condition:incapacitated" || def.includes.includes("condition:incapacitated"));
       if (incapacitates) endConcentration(c, notes, `${def!.name}.`);
@@ -435,30 +514,78 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
     }
 
     case "removeEffect": {
-      c.effects = c.effects.filter((e) => e.id !== op.payload.instanceId);
+      removeEffects(c.effects.filter((e) => e.id === op.payload.instanceId));
       break;
     }
 
     case "updateEffect": {
       const e = c.effects.find((x) => x.id === op.payload.instanceId);
       if (!e) break;
-      const { rounds, level } = op.payload;
+      const { rounds, minutes, level, choice, castLevel } = op.payload;
       if (rounds === null) delete e.rounds;
       else if (rounds !== undefined) e.rounds = rounds;
+      if (minutes === null) delete e.minutes;
+      else if (minutes !== undefined) e.minutes = minutes;
       if (level !== undefined) e.level = level;
+      if (choice !== undefined) e.choice = choice;
+      if (castLevel !== undefined) {
+        const def = reg.find(reg.effectId(e.effect), "effect");
+        const before = e.castLevel ?? def?.upcast?.baseLevel ?? castLevel;
+        e.castLevel = castLevel;
+        // Changing Aid's level after the fact moves current HP by the difference.
+        if (def?.hpGain !== undefined && def.upcast) {
+          const ctxBase = { pb: sheet.proficiencyBonus, mods: Object.fromEntries(Object.entries(sheet.abilities).map(([k, v]) => [k, v.modifier])) as never, level: sheet.level, classLevels: {} };
+          const diff = evalFlat(def.hpGain, { ...ctxBase, slotLevel: castLevel }) - evalFlat(def.hpGain, { ...ctxBase, slotLevel: before });
+          if (diff && c.hp.current > 0) c.hp.current = Math.max(1, c.hp.current + diff);
+        }
+      }
+      break;
+    }
+
+    case "passTime": {
+      passMinutes(op.payload.minutes);
+      break;
+    }
+
+    case "setInitiative": {
+      if (!c.combat) c.combat = CombatState.parse({});
+      c.combat.initiative = op.payload.value;
+      break;
+    }
+
+    case "setPool": {
+      c.pools[op.payload.resource] = op.payload.values;
+      break;
+    }
+
+    case "usePool": {
+      const { resource, index } = op.payload;
+      const pool = c.pools[resource] ?? [];
+      const value = pool[index];
+      if (value === undefined) {
+        notes.push("That roll isn't there any more.");
+        break;
+      }
+      c.pools[resource] = pool.filter((_, i) => i !== index);
+      const r = sheet.resources.find((x) => x.id === resource);
+      if (r) c.resourcesUsed[resource] = Math.min(r.max, (c.resourcesUsed[resource] ?? 0) + 1);
+      notes.push(`${r?.name ?? resource}: ${value} used.`);
       break;
     }
 
     case "endTurn": {
-      const ended: string[] = [];
-      c.effects = c.effects.filter((e) => {
-        if (e.rounds === undefined) return true;
+      const ended = c.effects.filter((e) => {
+        if (e.rounds === undefined) return false;
         e.rounds -= 1;
-        if (e.rounds > 0) return true;
-        ended.push(e.custom?.name ?? reg.find(reg.effectId(e.effect), "effect")?.name ?? e.effect);
-        return false;
+        return e.rounds <= 0;
       });
-      if (ended.length) notes.push(`Ended: ${ended.join(", ")}.`);
+      if (ended.length) notes.push(`Ended: ${ended.map(effectName).join(", ")}.`);
+      removeEffects(ended);
+      const conc = c.concentration;
+      if (conc?.rounds !== undefined) {
+        conc.rounds -= 1;
+        if (conc.rounds <= 0) endConcentration(c, notes, `${conc.name} has run its course.`);
+      }
       if (c.combat) c.combat.myTurn = false;
       if (c.toggles.includes("raging")) notes.push("Still raging? It ends if you didn't attack a hostile creature or take damage since your last turn.");
       break;
@@ -475,7 +602,7 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
       const prev = c.combat;
       const round = !prev ? 1 : prev.hadTurn && !prev.myTurn ? prev.round + 1 : prev.round;
       if (prev?.myTurn) notes.push("Your turn had already started: everything is back for a fresh turn.");
-      c.combat = CombatState.parse({ round, myTurn: true, hadTurn: true });
+      c.combat = CombatState.parse({ round, myTurn: true, hadTurn: true, ...(prev?.initiative !== undefined ? { initiative: prev.initiative } : {}) });
       notes.push(`Round ${round}: action, bonus action, reaction and movement are back.`);
       break;
     }
@@ -569,6 +696,7 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
 
     case "toggle": {
       const { name, on } = op.payload;
+      if (!on) c.effects = c.effects.filter((e) => !e.toggles?.includes(name));
       const set = new Set(c.toggles);
       if (on) set.add(name);
       else set.delete(name);

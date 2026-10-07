@@ -21,6 +21,8 @@ export interface ComposerBase {
   minD20?: number;
   /** Sources that make the roll fail automatically; the composer warns but still lets you roll. */
   autoFail?: string[];
+  /** Reminders shown with the roll. */
+  notes?: string[];
 }
 
 /** What the player changed in the composer. */
@@ -31,6 +33,11 @@ export interface ComposerChoices {
   manual: "none" | "advantage" | "disadvantage";
   /** Flat bonus or penalty typed by hand. */
   extra: number;
+  /**
+   * The player's final say on the d20: overrides what the sources add up to
+   * (the composer starts from the sources' result and the player can change it).
+   */
+  force?: "advantage" | "disadvantage" | "normal";
 }
 
 export const noChoices: ComposerChoices = { enabled: [], manual: "none", extra: 0 };
@@ -69,7 +76,7 @@ export function composeD20(base: ComposerBase, choices: ComposerChoices = noChoi
   if (choices.manual === "disadvantage") dis.push("Added by hand");
 
   // 2014: any advantage and any disadvantage cancel out, however many of each.
-  const mode = adv.length && !dis.length ? "advantage" : dis.length && !adv.length ? "disadvantage" : "normal";
+  const mode = choices.force ?? (adv.length && !dis.length ? "advantage" : dis.length && !adv.length ? "disadvantage" : "normal");
   const out: Composed = { terms: [], sources: [], d20Mode: mode, advantageFrom: adv, disadvantageFrom: dis };
 
   const d20: Term = { kind: "dice", sign: 1, count: mode === "normal" ? 1 : 2, sides: 20 };
@@ -156,4 +163,10 @@ export function diceToRoll(c: Composed): string {
     .sort((a, b) => b[0] - a[0])
     .map(([sides, n]) => `${n}d${sides}`)
     .join(" + ");
+}
+
+/** What the sources say the d20 is, before the player's own override. */
+export function sourcesMode(base: ComposerBase, choices: ComposerChoices = noChoices): "advantage" | "disadvantage" | "normal" {
+  const { force: _ignored, ...rest } = choices;
+  return composeD20(base, { ...rest, manual: "none" }).d20Mode ?? "normal";
 }

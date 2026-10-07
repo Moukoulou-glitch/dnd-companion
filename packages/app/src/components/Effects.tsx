@@ -1,15 +1,21 @@
 import { useMemo, useState } from "react";
 import type { ContentRegistry, EffectResult } from "@dnd/engine";
-import type { EffectDef, Modifier, OperationType } from "@dnd/schema";
+import { ABILITY_NAMES, type Ability, type EffectDef, type Modifier, type OperationType } from "@dnd/schema";
+import { formatMinutes } from "../time";
 
 type Act = (type: OperationType, payload: unknown, label: string) => void;
 
 export function effectChipLabel(e: EffectResult): string {
   let s = e.name;
   if (e.level !== undefined) s += ` ${e.level}`;
+  if (e.choice?.value) s += `: ${optionName(e.choice.value).slice(0, 3)}`;
+  if (e.upcast && e.upcast.castLevel > e.upcast.baseLevel) s += ` (lvl ${e.upcast.castLevel})`;
   if (e.rounds !== undefined) s += ` (${e.rounds})`;
+  else if (e.minutes !== undefined) s += ` (${formatMinutes(e.minutes)})`;
   return s;
 }
+
+const optionName = (o: string) => ABILITY_NAMES[o as Ability] ?? o;
 
 /** Active effects in the status strip; tap one for details, or + to add. */
 export function EffectChips({
@@ -22,7 +28,7 @@ export function EffectChips({
   effects: EffectResult[];
   onOpen: (e: EffectResult) => void;
   onAdd: () => void;
-  concentration?: { name: string } | undefined;
+  concentration?: { name: string; rounds?: number | undefined; minutes?: number | undefined } | undefined;
   onConcentration: () => void;
 }) {
   return (
@@ -30,6 +36,7 @@ export function EffectChips({
       {concentration && (
         <button className="chip conc" onClick={onConcentration} aria-label={`Concentrating on ${concentration.name}. Details`}>
           ◎ {concentration.name}
+          {concentration.rounds !== undefined ? ` (${concentration.rounds})` : concentration.minutes !== undefined ? ` (${formatMinutes(concentration.minutes)})` : ""}
         </button>
       )}
       <button className="chip add" onClick={onAdd} aria-label="Add a condition or effect">
@@ -66,7 +73,82 @@ export function EffectPanel({ e, act, close }: { e: EffectResult; act: Act; clos
         </>
       )}
       {e.concentration && <p className="note">Needs the caster's concentration. Remove it if they lose concentration.</p>}
+      {e.choice && (
+        <>
+          <p className="sub-head">{e.choice.label}{e.choice.value ? "" : ": choose one"}</p>
+          <div className="choice-grid">
+            {e.choice.options.map((o) => (
+              <button
+                key={o}
+                className="tag"
+                aria-pressed={e.choice!.value === o}
+                onClick={() => act("updateEffect", { instanceId: e.instanceId, choice: o }, `${e.name}: ${optionName(o)}.`)}
+              >
+                {optionName(o)}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
       <div className="group" style={{ marginTop: 12 }}>
+        {e.upcast && (
+          <div className="row">
+            <div className="row-main">
+              <div className="row-title">Cast at level</div>
+              <div className="row-sub">Set the slot level it was cast with</div>
+            </div>
+            <div className="stepper">
+              <button
+                aria-label="Lower slot level"
+                disabled={e.upcast.castLevel <= e.upcast.baseLevel}
+                onClick={() => act("updateEffect", { instanceId: e.instanceId, castLevel: e.upcast!.castLevel - 1 }, `${e.name}: level ${e.upcast!.castLevel - 1}.`)}
+              >
+                −
+              </button>
+              <span>{e.upcast.castLevel}</span>
+              <button
+                aria-label="Raise slot level"
+                disabled={e.upcast.castLevel >= 9}
+                onClick={() => act("updateEffect", { instanceId: e.instanceId, castLevel: e.upcast!.castLevel + 1 }, `${e.name}: level ${e.upcast!.castLevel + 1}.`)}
+              >
+                +
+              </button>
+            </div>
+          </div>
+        )}
+        {e.minutes !== undefined && (
+          <div className="row">
+            <div className="row-main">
+              <div className="row-title">Time left</div>
+              <div className="row-sub">Rests and "Time passes" count it down</div>
+            </div>
+            <div className="stepper">
+              <button
+                aria-label="Less time"
+                onClick={() => {
+                  const step = e.minutes! > 60 ? 60 : 10;
+                  const next = e.minutes! - step;
+                  if (next <= 0) {
+                    act("removeEffect", { instanceId: e.instanceId }, `${e.name} ended.`);
+                    close();
+                  } else act("updateEffect", { instanceId: e.instanceId, minutes: next }, `${e.name}: ${formatMinutes(next)}.`);
+                }}
+              >
+                −
+              </button>
+              <span style={{ minWidth: "4.5em" }}>{formatMinutes(e.minutes)}</span>
+              <button
+                aria-label="More time"
+                onClick={() => {
+                  const next = e.minutes! + (e.minutes! >= 60 ? 60 : 10);
+                  act("updateEffect", { instanceId: e.instanceId, minutes: next }, `${e.name}: ${formatMinutes(next)}.`);
+                }}
+              >
+                +
+              </button>
+            </div>
+          </div>
+        )}
         {e.level !== undefined && (
           <div className="row">
             <div className="row-main row-title">Level</div>
@@ -92,6 +174,7 @@ export function EffectPanel({ e, act, close }: { e: EffectResult; act: Act; clos
             </div>
           </div>
         )}
+        {e.minutes === undefined && (
         <div className="row">
           <div className="row-main">
             <div className="row-title">Rounds left</div>
@@ -114,6 +197,7 @@ export function EffectPanel({ e, act, close }: { e: EffectResult; act: Act; clos
             </button>
           </div>
         </div>
+        )}
       </div>
       {e.rounds !== undefined && (
         <button className="link" onClick={() => act("updateEffect", { instanceId: e.instanceId, rounds: null }, `${e.name} lasts until removed.`)}>
