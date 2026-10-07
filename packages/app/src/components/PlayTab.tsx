@@ -1,5 +1,6 @@
 import type { DerivedSheet } from "@dnd/engine";
 import type { Character, OperationType } from "@dnd/schema";
+import type { RollRecord } from "../rolls";
 
 type Act = (type: OperationType, payload: unknown, label: string) => void;
 
@@ -35,12 +36,16 @@ export function PlayTab({
   act,
   openHp,
   openHitDie,
+  rolls,
+  openRollHistory,
 }: {
   character: Character;
   sheet: DerivedSheet;
   act: Act;
   openHp: () => void;
   openHitDie: (die: string) => void;
+  rolls: RollRecord[];
+  openRollHistory: () => void;
 }) {
   const down = character.hp.current === 0;
   const slotsUsed = (level: number) => character.slotsUsed[String(level)] ?? 0;
@@ -82,6 +87,26 @@ export function PlayTab({
                 1
               </button>
             </div>
+          </div>
+        </section>
+      )}
+
+      {rolls.length > 0 && (
+        <section>
+          <h2>Recent rolls</h2>
+          <div className="group">
+            {rolls.slice(0, 3).map((r) => (
+              <button className="row" key={r.id} onClick={openRollHistory}>
+                <div className="row-main">
+                  <div className="row-title">{r.title}</div>
+                  <div className="row-sub">
+                    {r.crit ? "Critical. " : r.fumble ? "Natural 1. " : ""}
+                    {r.physical ? "Your dice" : "App roll"}
+                  </div>
+                </div>
+                <span className={`num${r.crit ? " crit-text" : r.fumble ? " danger-text" : ""}`}>{r.total}</span>
+              </button>
+            ))}
           </div>
         </section>
       )}

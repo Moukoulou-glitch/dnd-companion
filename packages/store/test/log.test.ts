@@ -172,3 +172,14 @@ describe("hybrid clock", () => {
     expect(new Set(stamps).size).toBe(4);
   });
 });
+
+describe("upgrading saved characters", () => {
+  it("a character saved before the real-dice setting existed gets it, switched on", async () => {
+    const { Character } = await import("@dnd/schema");
+    const old = JSON.parse(JSON.stringify(loadCharacter("beren")));
+    delete old.settings;
+    delete old.slotsUsed;
+    expect(Character.parse(old).settings).toEqual({ physicalDice: true });
+    expect(Character.parse(old).slotsUsed).toEqual({});
+  });
+});

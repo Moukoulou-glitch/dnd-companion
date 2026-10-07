@@ -77,3 +77,30 @@ describe("spell slots (2014)", () => {
     expect(r.pact).toEqual({ count: 1, level: 1 });
   });
 });
+
+describe("d20 rules on rolls", () => {
+  it("crit range and Reliable Talent reach the roll", async () => {
+    const { derive } = await import("../src/derive.js");
+    const { loadCharacter, tableRegistry } = await import("./helpers.js");
+    const c = loadCharacter("beren");
+    const withRules = {
+      ...c,
+      manualGrants: [
+        ...c.manualGrants,
+        {
+          label: "Test rules",
+          grant: {
+            modifiers: [
+              { selector: "roll.attack.*", op: "critRange" as const, value: 19, mode: "auto" as const },
+              { selector: "roll.check.skill.*", op: "minD20" as const, value: 10, mode: "auto" as const },
+            ],
+          },
+        },
+      ],
+    };
+    const sheet = derive(withRules, tableRegistry());
+    expect(sheet.attacks[0]!.attack.critAt).toBe(19);
+    expect(sheet.skills.stealth.minD20).toBe(10);
+    expect(sheet.saves.dex.minD20).toBeUndefined();
+  });
+});

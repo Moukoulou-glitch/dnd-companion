@@ -45,6 +45,7 @@ describe("Μπέρεν (Ranger 4) matches his sheet", () => {
       label: "Fey Ancestry",
       effect: "advantage",
       reason: "against being charmed",
+      apply: { flat: 0, dice: [], mode: "advantage" },
     });
   });
 

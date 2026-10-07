@@ -1,6 +1,9 @@
-import { useCallback, useEffect, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { formatBonus } from "@dnd/engine";
+import type { ComposerBase } from "@dnd/dice";
+import type { WeaponAttack } from "@dnd/engine";
 import { ActionsTab } from "./components/ActionsTab";
+import { Composer, ResultView } from "./components/Composer";
 import { HpPad } from "./components/HpPad";
 import { PlayTab } from "./components/PlayTab";
 import { BottomSheet, BreakdownLines } from "./components/Sheet";
@@ -22,9 +25,13 @@ function rollDie(sides: number): number {
 
 export function App() {
   const s = useCharacters();
+  // Panels opened earlier read the latest state through this ref, never a stale copy.
+  const live = useRef(s);
+  live.current = s;
   const [tab, setTab] = useState<Tab>("play");
-  const [panel, setPanel] = useState<{ title: string; body: ReactNode } | null>(null);
-  const open = useCallback((title: string, body: ReactNode) => setPanel({ title, body }), []);
+  // A panel's body is rendered on every app render, so it always shows the current character.
+  const [panel, setPanel] = useState<{ title: string; body: ReactNode | (() => ReactNode) } | null>(null);
+  const open = useCallback((title: string, body: ReactNode | (() => ReactNode)) => setPanel({ title, body }), []);
   const close = useCallback(() => setPanel(null), []);
 
   // Toasts disappear after a few seconds; undo stays reachable in the meantime.
@@ -84,6 +91,40 @@ export function App() {
     );
   };
 
+  /** Opens the roll composer for any d20 roll; attacks also get the damage step. */
+  const openRoll = (title: string, base: ComposerBase, attack?: WeaponAttack) =>
+    open(title, () => (
+      <Composer
+        title={title}
+        base={base}
+        {...(attack ? { attack } : {})}
+        physical={live.current.character?.settings.physicalDice ?? true}
+        onPhysicalChange={(p) =>
+          live.current.act("setField", { path: ["settings", "physicalDice"], value: p }, p ? "Rolling your own dice." : "The app rolls for you.")
+        }
+        onRolled={(r) => live.current.addRoll(r)}
+      />
+    ));
+
+  const openRollHistory = () =>
+    open("Rolls", () => (
+      <>
+        {live.current.rolls.length === 0 && <p className="note">Rolls you make appear here, newest first.</p>}
+        {live.current.rolls.map((r) => (
+          <details className="history" key={r.id}>
+            <summary>
+              <span className="row-main">
+                <span className="row-title">{r.title}</span>
+                <span className="row-sub"> {new Date(r.at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
+              </span>
+              <b className={r.crit ? "crit-text" : r.fumble ? "danger-text" : ""}>{r.total}</b>
+            </summary>
+            <ResultView r={r} />
+          </details>
+        ))}
+      </>
+    ));
+
   const openRoster = () =>
     open(
       "Characters",
@@ -139,7 +180,7 @@ export function App() {
             <b>{sheet.ac.total}</b>
             <small>AC</small>
           </button>
-          <button className="stat" onClick={() => open("Initiative", <BreakdownLines b={sheet.initiative} totalLabel="Initiative" />)}>
+          <button className="stat" onClick={() => openRoll("Initiative", sheet.initiative)}>
             <b>{formatBonus(sheet.initiative)}</b>
             <small>{sheet.initiative.advantage.length ? "Init, adv" : "Init"}</small>
           </button>
@@ -165,9 +206,11 @@ export function App() {
         )}
       </header>
 
-      {tab === "play" && <PlayTab character={c} sheet={sheet} act={s.act} openHp={openHp} openHitDie={openHitDie} />}
-      {tab === "actions" && <ActionsTab sheet={sheet} open={open} />}
-      {tab === "sheet" && <SheetTab sheet={sheet} open={open} />}
+      {tab === "play" && (
+        <PlayTab character={c} sheet={sheet} act={s.act} openHp={openHp} openHitDie={openHitDie} rolls={s.rolls} openRollHistory={openRollHistory} />
+      )}
+      {tab === "actions" && <ActionsTab sheet={sheet} open={open} openRoll={openRoll} />}
+      {tab === "sheet" && <SheetTab sheet={sheet} open={open} openRoll={openRoll} />}
 
       <nav className="tabs" aria-label="Sections">
         <div className="tabs-inner">
@@ -181,7 +224,7 @@ export function App() {
 
       {panel && (
         <BottomSheet title={panel.title} onClose={close}>
-          {panel.body}
+          {typeof panel.body === "function" ? panel.body() : panel.body}
         </BottomSheet>
       )}
 

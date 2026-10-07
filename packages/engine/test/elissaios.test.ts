@@ -86,8 +86,8 @@ describe("Ελισσαίος (Rogue 8 / Warlock 1)", () => {
   it("thrown Psychic Blade offers Sharpshooter by table ruling: +3, 1d6+14 when used", () => {
     const thrown = attack("Psychic Blade (thrown)");
     expect(thrown.range).toEqual([60, 60]);
-    expect(thrown.attack.suggestions).toContainEqual({ label: "Sharpshooter (-5 / +10)", effect: "-5" });
-    expect(thrown.damage.bonus.suggestions).toContainEqual({ label: "Sharpshooter (-5 / +10)", effect: "+10" });
+    expect(thrown.attack.suggestions).toContainEqual(expect.objectContaining({ label: "Sharpshooter (-5 / +10)", effect: "-5" }));
+    expect(thrown.damage.bonus.suggestions).toContainEqual(expect.objectContaining({ label: "Sharpshooter (-5 / +10)", effect: "+10" }));
     expect(thrown.attack.total - 5).toBe(3);
     expect(thrown.damage.bonus.total + 10).toBe(14);
     // Melee blades never get Sharpshooter.

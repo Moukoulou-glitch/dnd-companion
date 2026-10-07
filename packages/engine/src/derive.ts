@@ -297,13 +297,30 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
     const disadvantage: string[] = [];
     const suggestions: Suggestion[] = [];
 
+    let critAt: number | undefined;
+    let minD20: number | undefined;
     for (const a of modsFor(keys, itemInstanceId)) {
       const { mod } = a;
+      if ((mod.op === "critRange" || mod.op === "minD20") && mod.value !== undefined && conditionState(mod.when) === "pass") {
+        const v = flatOf(a);
+        if (mod.op === "critRange") critAt = Math.min(critAt ?? 20, v);
+        else minD20 = Math.max(minD20 ?? 1, v);
+        continue;
+      }
       if (!["add", "advantage", "disadvantage"].includes(mod.op)) continue;
       const state = conditionState(mod.when);
       if (state === "fail") continue;
       if (state === "unknown" || mod.mode === "suggested") {
-        const s: Suggestion = { label: labelOf(a), effect: describeEffect(a) };
+        const apply: Suggestion["apply"] = { flat: 0, dice: [] };
+        if (mod.op === "advantage" || mod.op === "disadvantage") apply.mode = mod.op;
+        else if (mod.value !== undefined) {
+          for (const term of evalExpr(mod.value, ctxFor(a.source))) {
+            if (term.kind === "dice") apply.dice.push(term.dice);
+            else apply.flat += term.value;
+          }
+        }
+        if (mod.damageType) apply.damageType = mod.damageType;
+        const s: Suggestion = { label: labelOf(a), effect: describeEffect(a), apply };
         if (mod.when?.text) s.reason = mod.when.text;
         suggestions.push(s);
         continue;
@@ -320,7 +337,10 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
         }
       }
     }
-    return { ...sum(parts), dice, advantage, disadvantage, suggestions };
+    const result: RollBreakdown = { ...sum(parts), dice, advantage, disadvantage, suggestions };
+    if (critAt !== undefined && critAt < 20) result.critAt = critAt;
+    if (minD20 !== undefined && minD20 > 1) result.minD20 = minD20;
+    return result;
   };
 
   /** Flat additions to a stat (AC, speed, HP max); dice are not allowed here. */

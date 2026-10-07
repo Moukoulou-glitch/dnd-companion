@@ -1,10 +1,13 @@
 import type { Character, Operation } from "@dnd/schema";
+import type { RollRecord } from "./rolls";
 
 /** What is stored per character: the starting snapshot and every operation since. */
 export interface StoredCharacter {
   id: string;
   snapshot: Character;
   ops: Operation[];
+  /** Most recent rolls, newest first. */
+  rolls?: RollRecord[];
 }
 
 const DB_NAME = "table-companion";

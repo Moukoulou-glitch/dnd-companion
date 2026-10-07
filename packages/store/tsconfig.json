@@ -4,6 +4,19 @@
     "outDir": "dist",
     "rootDir": "../.."
   },
-  "include": ["src", "test"],
-  "references": [{ "path": "../schema" }, { "path": "../engine" }]
+  "include": [
+    "src",
+    "test"
+  ],
+  "references": [
+    {
+      "path": "../schema"
+    },
+    {
+      "path": "../engine"
+    },
+    {
+      "path": "../dice"
+    }
+  ]
 }

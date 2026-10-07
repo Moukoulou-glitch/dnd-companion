@@ -110,6 +110,11 @@ export const Character = z
     /** Named on/off states the engine reads, e.g. "raging". */
     toggles: z.array(z.string()).default([]),
     inspiration: z.boolean().default(false),
+    /** Per-character preferences. Real dice is the default: most players at the table roll physical dice. */
+    settings: z
+      .object({ physicalDice: z.boolean().default(true) })
+      .strict()
+      .default({}),
     notes: z.array(Note).default([]),
   })
   .strict();

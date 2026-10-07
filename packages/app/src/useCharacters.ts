@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { derive, type DerivedSheet } from "@dnd/engine";
-import type { Character, OperationType } from "@dnd/schema";
+import { Character as CharacterSchema, Operation as OperationSchema, type Character, type OperationType } from "@dnd/schema";
 import { CharacterLog, HybridClock } from "@dnd/store";
 import { registry, starterCharacters } from "./content";
 import { db, deviceId, requestPersistentStorage } from "./db";
+import { MAX_ROLLS, type RollRecord } from "./rolls";
 
 export interface Toast {
   id: number;
@@ -24,6 +25,7 @@ function readSelected(): string | null {
 /** Loads every character from the device, tracks the selected one, and records changes. */
 export function useCharacters() {
   const logs = useRef(new Map<string, CharacterLog>());
+  const rolls = useRef(new Map<string, RollRecord[]>());
   const [ready, setReady] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(readSelected);
   const [version, setVersion] = useState(0);
@@ -38,7 +40,13 @@ export function useCharacters() {
           stored = starterCharacters.map((c) => ({ id: c.id, snapshot: c, ops: [] }));
           await Promise.all(stored.map((s) => db.put(s)));
         }
-        for (const s of stored) logs.current.set(s.id, new CharacterLog(s.snapshot, registry, clock, "player", s.ops));
+        for (const s of stored) {
+          // Re-parsing upgrades characters saved by an older version (new fields get their defaults).
+          const snapshot = CharacterSchema.parse(s.snapshot);
+          const ops = s.ops.map((o) => OperationSchema.parse(o));
+          logs.current.set(s.id, new CharacterLog(snapshot, registry, clock, "player", ops));
+          rolls.current.set(s.id, s.rolls ?? []);
+        }
         setSelectedId((cur) => (cur && logs.current.has(cur) ? cur : stored[0]?.id ?? null));
         void requestPersistentStorage();
       } catch (e) {
@@ -55,7 +63,7 @@ export function useCharacters() {
 
   const persist = useCallback(async (l: CharacterLog, id: string) => {
     try {
-      await db.put({ id, snapshot: l.base, ops: [...l.operations] });
+      await db.put({ id, snapshot: l.base, ops: [...l.operations], rolls: rolls.current.get(id) ?? [] });
     } catch (e) {
       setError(`Couldn't save: ${(e as Error).message}`);
     }
@@ -86,6 +94,17 @@ export function useCharacters() {
     void persist(log, selectedId);
   }, [log, selectedId, persist]);
 
+  /** Saves a roll to the selected character's history (newest first, capped). */
+  const addRoll = useCallback(
+    (r: RollRecord) => {
+      if (!log || !selectedId) return;
+      rolls.current.set(selectedId, [r, ...(rolls.current.get(selectedId) ?? [])].slice(0, MAX_ROLLS));
+      setVersion((v) => v + 1);
+      void persist(log, selectedId);
+    },
+    [log, selectedId, persist],
+  );
+
   const select = useCallback((id: string) => {
     setSelectedId(id);
     try {
@@ -103,16 +122,16 @@ export function useCharacters() {
 
   const exportSelected = useCallback(() => {
     if (!log || !character) return;
-    const data = { format: "table-companion/character@1", character, operations: log.operations };
+    const data = { format: "table-companion/character@1", character, operations: log.operations, rolls: rolls.current.get(selectedId ?? "") ?? [] };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
     a.download = `${character.name}.json`;
     a.click();
     URL.revokeObjectURL(a.href);
-  }, [log, character]);
+  }, [log, character, selectedId]);
 
-  return { ready, error, character, sheet, roster, selectedId, select, act, undo, canUndo: !!log?.canUndo, toast, setToast, history: log?.history ?? [], exportSelected };
+  return { ready, error, character, sheet, roster, selectedId, select, act, undo, canUndo: !!log?.canUndo, toast, setToast, history: log?.history ?? [], exportSelected, addRoll, rolls: (selectedId && rolls.current.get(selectedId)) || [] };
 }
 
 function summarize(c: Character): string {

@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { BreakdownLines } from "./Sheet";
 
 type Open = (title: string, body: ReactNode) => void;
+type OpenRoll = (title: string, base: RollBreakdown) => void;
 
 const profMark = (p: 0 | 1 | 2 | boolean) => (p === 2 ? "◆" : p ? "●" : "○");
 const profName = (p: 0 | 1 | 2 | boolean) => (p === 2 ? "expertise" : p ? "proficient" : "not proficient");
@@ -25,7 +26,7 @@ function RollRow({ title, sub, roll, mark, onOpen }: { title: string; sub?: stri
   );
 }
 
-export function SheetTab({ sheet, open }: { sheet: DerivedSheet; open: Open }) {
+export function SheetTab({ sheet, open, openRoll }: { sheet: DerivedSheet; open: Open; openRoll: OpenRoll }) {
   return (
     <main>
       <section>
@@ -50,7 +51,7 @@ export function SheetTab({ sheet, open }: { sheet: DerivedSheet; open: Open }) {
               title={ABILITY_NAMES[ab]}
               roll={sheet.saves[ab]}
               mark={sheet.saves[ab].proficient}
-              onOpen={() => open(`${ABILITY_NAMES[ab]} saving throw`, <BreakdownLines b={sheet.saves[ab]} totalLabel="Save" />)}
+              onOpen={() => openRoll(`${ABILITY_NAMES[ab]} saving throw`, sheet.saves[ab])}
             />
           ))}
         </div>
@@ -66,7 +67,7 @@ export function SheetTab({ sheet, open }: { sheet: DerivedSheet; open: Open }) {
               sub={ABILITY_NAMES[sheet.skills[s].ability]}
               roll={sheet.skills[s]}
               mark={sheet.skills[s].proficiency}
-              onOpen={() => open(SKILL_NAMES[s], <BreakdownLines b={sheet.skills[s]} totalLabel="Check" />)}
+              onOpen={() => openRoll(SKILL_NAMES[s], sheet.skills[s])}
             />
           ))}
         </div>

@@ -19,6 +19,8 @@ export interface Suggestion {
   effect: string;
   /** Why it is only suggested, e.g. "target is within 5 ft". */
   reason?: string;
+  /** What the roll composer applies when the player turns it on. */
+  apply: { flat: number; dice: string[]; damageType?: string; mode?: "advantage" | "disadvantage" };
 }
 
 /** A computed number and every source that contributed to it. */
@@ -29,6 +31,10 @@ export interface Breakdown {
 
 /** A d20 roll bonus: flat total plus dice, advantage state and suggestions. */
 export interface RollBreakdown extends Breakdown {
+  /** Critical hit on this natural d20 or higher (attacks; default 20). */
+  critAt?: number;
+  /** Any d20 below this counts as this (Reliable Talent). */
+  minD20?: number;
   dice: DicePart[];
   advantage: string[];
   disadvantage: string[];
