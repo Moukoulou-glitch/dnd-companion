@@ -489,3 +489,33 @@ describe("sixth round of table feedback", () => {
     expect(ready(log)).toBeUndefined();
   });
 });
+
+describe("companions' Dodge and Ready", () => {
+  it("show as tags until your next turn starts, and end if it drops to 0 HP", () => {
+    const log = logFor("beren");
+    log.record("setCompanion", { companion: "primal-beast", form: "land" });
+    log.record("startCombat", {});
+    log.record("startTurn", {});
+    log.record("companionAction", { companion: "primal-beast", action: "common-dodge" });
+    log.record("companionAction", { companion: "primal-beast", action: "common-ready", choice: "Attack" });
+    const tags = () => sheetOf(log).companions[0]!.states.map((x) => x.name);
+    expect(tags()).toEqual(["Dodge", "Ready: Attack"]);
+    log.record("companionAction", { companion: "primal-beast", action: "common-ready", choice: "Dash" });
+    expect(tags()).toEqual(["Dodge", "Ready: Dash"]);
+    log.record("endTurn", {});
+    expect(tags()).toHaveLength(2);
+    log.record("startTurn", {});
+    expect(tags()).toEqual([]);
+    log.record("companionAction", { companion: "primal-beast", action: "common-dodge" });
+    log.record("damage", { amount: 999, companion: "primal-beast" });
+    expect(tags()).toEqual([]);
+  });
+
+  it("taken outside combat, they end when you end your turn", () => {
+    const log = logFor("beren");
+    log.record("setCompanion", { companion: "primal-beast", form: "land" });
+    log.record("companionAction", { companion: "primal-beast", action: "common-dodge" });
+    log.record("endTurn", {});
+    expect(sheetOf(log).companions[0]!.states).toEqual([]);
+  });
+});

@@ -1605,3 +1605,13 @@ ol.levels li[data-on="true"] {
 .companion-actions {
   margin: 14px 0;
 }
+.companion-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+.companion-tags .chip {
+  font-size: 0.8rem;
+  padding: 2px 10px;
+}

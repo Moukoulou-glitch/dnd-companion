@@ -145,6 +145,10 @@ export const OPERATION_PAYLOADS = {
   /** Choose a companion's form or name; a new form arrives with full HP. */
   setCompanion: z.object({ companion: z.string(), form: z.string().optional(), name: z.string().optional() }).strict(),
   /** Bring a companion back with full HP, spending a spell slot of `level`. */
+  /** A companion takes one of the actions anyone can take; Dodge and Ready show as tags until your next turn starts. */
+  companionAction: z.object({ companion: z.string(), action: z.string(), choice: z.string().optional() }).strict(),
+  /** Takes a companion's tag away (the readied action was used, or it ended early). */
+  endCompanionState: z.object({ companion: z.string(), id: z.string() }).strict(),
   reviveCompanion: z.object({ companion: z.string(), level: z.number().int().min(1).max(9), pact: z.boolean().default(false) }).strict(),
   deathSave: z.object({ result: z.enum(["success", "failure", "critSuccess", "critFailure"]) }).strict(),
   toggle: z.object({ name: z.string(), on: z.boolean() }).strict(),
@@ -183,6 +187,8 @@ export const Operation = z.discriminatedUnion("type", [
   OperationBase.extend({ type: z.literal("useEconomy"), payload: OPERATION_PAYLOADS.useEconomy }),
   OperationBase.extend({ type: z.literal("setCompanion"), payload: OPERATION_PAYLOADS.setCompanion }),
   OperationBase.extend({ type: z.literal("reviveCompanion"), payload: OPERATION_PAYLOADS.reviveCompanion }),
+  OperationBase.extend({ type: z.literal("companionAction"), payload: OPERATION_PAYLOADS.companionAction }),
+  OperationBase.extend({ type: z.literal("endCompanionState"), payload: OPERATION_PAYLOADS.endCompanionState }),
   OperationBase.extend({ type: z.literal("passTime"), payload: OPERATION_PAYLOADS.passTime }),
   OperationBase.extend({ type: z.literal("setInitiative"), payload: OPERATION_PAYLOADS.setInitiative }),
   OperationBase.extend({ type: z.literal("setPool"), payload: OPERATION_PAYLOADS.setPool }),

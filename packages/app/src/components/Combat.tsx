@@ -157,6 +157,15 @@ export function CompanionCard({ comp, onOpen }: { comp: CompanionResult; onOpen:
       <div className="row-main">
         <div className="row-title">{comp.name}</div>
         <div className="row-sub">{f ? `${f.name}, AC ${f.ac.total}` : "Choose its form"}</div>
+        {comp.states.length > 0 && (
+          <div className="companion-tags">
+            {comp.states.map((x) => (
+              <span key={x.id} className="chip other">
+                {x.name} (1)
+              </span>
+            ))}
+          </div>
+        )}
         {f && (
           <div className="mini-bar" aria-hidden="true">
             <span style={{ width: `${pct}%` }} />
@@ -280,7 +289,18 @@ export function CompanionPanel({
         </div>
       )}
 
-      <CompanionActions comp={comp} sheet={sheet} open={open} openRoll={openRoll} />
+      {comp.states.length > 0 && (
+        <div className="switches effects" aria-label={`What ${comp.name} is doing`}>
+          {comp.states.map((x) => (
+            <button key={x.id} className="chip other" onClick={() => act("endCompanionState", { companion: comp.id, id: x.id }, `${comp.name}: ${x.name} ended.`)}>
+              {x.name} (1) ✕
+            </button>
+          ))}
+        </div>
+      )}
+      {comp.states.length > 0 && <p className="note">Until your next turn starts. Tap a tag to end it early (a readied action was taken, or it was lost).</p>}
+
+      <CompanionActions comp={comp} sheet={sheet} open={open} openRoll={openRoll} act={act} />
 
       <h2 className="sub-head">Attacks</h2>
       <div className="group">
@@ -349,13 +369,17 @@ function CompanionActions({
   sheet,
   open,
   openRoll,
+  act,
 }: {
   comp: CompanionResult;
   sheet: DerivedSheet;
   open: (title: string, body: ReactNode) => void;
   openRoll: (title: string, base: RollBreakdown, attack?: WeaponAttack) => void;
+  act: Act;
 }) {
   const f = comp.form!;
+  const take = (a: (typeof list)[number], choice?: string) =>
+    act("companionAction", { companion: comp.id, action: a.id, ...(choice ? { choice } : {}) }, `${comp.name}: ${choice ? `${a.name}: ${choice}` : a.name}${a.untilTurnStart ? ", until your next turn starts" : ""}.`);
   const list = sheet.actions.filter((a) => a.common && !NOT_FOR_COMPANIONS.test(a.id));
   const show = (a: (typeof list)[number]) =>
     open(
@@ -381,6 +405,26 @@ function CompanionActions({
             </button>
           );
         })}
+        {a.untilTurnStart && !a.choose && (
+          <button className="big primary wide" style={{ marginBottom: 8 }} onClick={() => take(a)}>
+            {comp.name} takes {a.name}
+            <span className="sub">a tag until your next turn starts</span>
+          </button>
+        )}
+        {a.choose && (
+          <>
+            <p className="sub-head">{a.choose.label}</p>
+            <div className="choice-grid">
+              {a.choose.options
+                .filter((o) => o !== "Cast a Spell")
+                .map((o) => (
+                  <button key={o} className="big" onClick={() => take(a, o)}>
+                    {o}
+                  </button>
+                ))}
+            </div>
+          </>
+        )}
         {a.check && <p className="note">Rolled with its {a.check.skills.map((sk) => ABILITY_NAMES[SKILL_ABILITY[sk as Skill]]).join(" or ")}; add its proficiency bonus if its stat block lists the skill.</p>}
       </>,
     );

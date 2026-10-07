@@ -12,6 +12,8 @@ export interface CompanionResult {
   forms: { id: string; name: string }[];
   combatNote?: string;
   reviveNote?: string;
+  /** Tags for what it's doing until your next turn starts (Dodge, Ready: Attack). */
+  states: { id: string; name: string }[];
   /** Missing until the player picks a form. */
   form?: {
     id: string;
@@ -43,7 +45,13 @@ export function deriveCompanion(
   ctx: ExprContext,
   spellcasting: SpellcastingResult[],
 ): CompanionResult {
-  const r: CompanionResult = { id: def.id, name: state?.name ?? def.name, source, forms: def.forms.map((f) => ({ id: f.id, name: f.name })) };
+  const r: CompanionResult = {
+    id: def.id,
+    name: state?.name ?? def.name,
+    source,
+    forms: def.forms.map((f) => ({ id: f.id, name: f.name })),
+    states: (state?.states ?? []).map((x) => ({ id: x.id, name: x.name })),
+  };
   if (def.combatNote) r.combatNote = def.combatNote;
   if (def.revive) r.reviveNote = def.revive.note;
   const f = def.forms.find((x) => x.id === state?.form);

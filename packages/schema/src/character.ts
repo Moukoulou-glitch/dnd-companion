@@ -156,6 +156,10 @@ export const CompanionState = z
     form: z.string().optional(),
     name: z.string().optional(),
     hp: z.object({ current: z.number().int().min(0), temp: z.number().int().min(0).default(0) }).strict().optional(),
+    /** Actions it took that last until your next turn starts (Dodge, Ready: Attack), shown as tags. */
+    states: z
+      .array(z.object({ id: z.string(), name: z.string(), outOfCombat: z.boolean().optional() }).strict())
+      .default([]),
   })
   .strict();
 export type CompanionState = z.infer<typeof CompanionState>;

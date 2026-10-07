@@ -42,7 +42,7 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
       notes.push(comp ? `${comp.name} has no form yet: choose one first.` : `No companion "${id}".`);
       return null;
     }
-    const state = (c.companions[id] ??= {});
+    const state = (c.companions[id] ??= { states: [] });
     state.hp ??= { current: comp.form.hpMax.total, temp: 0 };
     return { comp, state: state as typeof state & { hp: { current: number; temp: number } }, max: comp.form.hpMax.total };
   };
@@ -76,6 +76,17 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
     c.effects = c.effects.filter((e) => !ids.has(e.id));
     const off = new Set(gone.flatMap((e) => e.toggles ?? []));
     if (off.size) c.toggles = c.toggles.filter((t) => !off.has(t));
+  };
+
+  /** Companions' Dodge and Ready end with yours. */
+  const clearCompanionStates = (which: (x: { outOfCombat?: boolean | undefined }) => boolean) => {
+    for (const [id, st] of Object.entries(c.companions)) {
+      const gone = (st.states ?? []).filter(which);
+      if (!gone.length) continue;
+      st.states = st.states.filter((x) => !gone.includes(x));
+      const name = sheet.companions.find((x) => x.id === id)?.name ?? "Companion";
+      notes.push(`${name}: ${gone.map((x) => x.name).join(", ")} ended.`);
+    }
   };
 
   /** Dodge and Ready end; a readied spell that was never released dissipates with its concentration. */
@@ -173,7 +184,10 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
         t.state.hp.temp -= absorbed;
         t.state.hp.current = Math.max(0, t.state.hp.current - (amount - absorbed));
         notes.push(`${t.comp.name}: ${t.state.hp.current} of ${t.max} HP.`);
-        if (t.state.hp.current === 0) notes.push(`${t.comp.name} drops to 0 HP and dies.${t.comp.reviveNote ? ` ${t.comp.reviveNote}` : ""}`);
+        if (t.state.hp.current === 0) {
+          notes.push(`${t.comp.name} drops to 0 HP and dies.${t.comp.reviveNote ? ` ${t.comp.reviveNote}` : ""}`);
+          t.state.states = [];
+        }
         break;
       }
       let dmg = amount;
@@ -771,6 +785,7 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
       removeEffects(ended);
       // Dodge or Ready taken outside combat: no next turn to wait for, so they end now.
       endTurnStartEffects(c.effects.filter((e) => e.untilTurnStart && (e.outOfCombat || !c.combat)), "your turn is over");
+      clearCompanionStates((x) => !!x.outOfCombat || !c.combat);
       const conc = c.concentration;
       if (conc?.rounds !== undefined) {
         conc.rounds -= 1;
@@ -791,6 +806,7 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
     case "startTurn": {
       const prev = c.combat;
       endTurnStartEffects(c.effects.filter((e) => e.untilTurnStart), "your turn has started");
+      clearCompanionStates(() => true);
       const round = !prev ? 1 : prev.hadTurn && !prev.myTurn ? prev.round + 1 : prev.round;
       if (prev?.myTurn) notes.push("Your turn had already started: everything is back for a fresh turn.");
       c.combat = CombatState.parse({ round, myTurn: true, hadTurn: true, ...(prev?.initiative !== undefined ? { initiative: prev.initiative } : {}) });
@@ -837,13 +853,40 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
         notes.push(`No companion "${companion}".`);
         break;
       }
-      const state = (c.companions[companion] ??= {});
+      const state = (c.companions[companion] ??= { states: [] });
       if (form !== undefined && form !== state.form) {
         state.form = form;
         delete state.hp;
         notes.push(`${comp.forms.find((f) => f.id === form)?.name ?? form} arrives with full hit points.`);
       }
       if (name !== undefined) state.name = name;
+      break;
+    }
+
+    case "companionAction": {
+      const { companion, action, choice } = op.payload;
+      const comp = sheet.companions.find((x) => x.id === companion);
+      const a = sheet.actions.find((x) => x.id === action);
+      if (!comp || !a) {
+        notes.push(comp ? `Unknown action "${action}".` : `No companion "${companion}".`);
+        break;
+      }
+      const name = choice ? `${a.name}: ${choice}` : a.name;
+      if (a.untilTurnStart) {
+        const state = (c.companions[companion] ??= { states: [] });
+        // A new Dodge or Ready replaces the old one.
+        state.states = [...(state.states ?? []).filter((x) => !x.name.startsWith(a.name)), { id: op.id, name, ...(c.combat ? {} : { outOfCombat: true }) }];
+      }
+      break;
+    }
+
+    case "endCompanionState": {
+      const state = c.companions[op.payload.companion];
+      const x = state?.states?.find((s) => s.id === op.payload.id);
+      if (state && x) {
+        state.states = state.states.filter((s) => s.id !== x.id);
+        notes.push(`${x.name} ended.`);
+      }
       break;
     }
 
