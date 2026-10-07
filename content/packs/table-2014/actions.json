@@ -1,0 +1,759 @@
+{
+  "definitions": [
+    {
+      "kind": "feature",
+      "id": "feature:action-attack",
+      "name": "Attack",
+      "common": true,
+      "summary": "One melee or ranged attack (more with Extra Attack). Pick a weapon or attack in the Action list above: rolling it uses your action.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 192
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "common-attack",
+            "name": "Attack",
+            "economy": "action",
+            "note": "One melee or ranged attack (more with Extra Attack). Pick a weapon or attack in the Action list above: rolling it uses your action.",
+            "infoOnly": true
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:action-cast-a-spell",
+      "name": "Cast a Spell",
+      "common": true,
+      "summary": "Most spells take 1 action; some a bonus action or reaction. Cast from the Spells tab: the casting time decides what it uses.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 192
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "common-cast-a-spell",
+            "name": "Cast a Spell",
+            "economy": "action",
+            "note": "Most spells take 1 action; some a bonus action or reaction. Cast from the Spells tab: the casting time decides what it uses.",
+            "infoOnly": true
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:action-dash",
+      "name": "Dash",
+      "common": true,
+      "summary": "Extra movement equal to your speed (after modifiers) for this turn.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 192
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "common-dash",
+            "name": "Dash",
+            "economy": "action",
+            "note": "Extra movement equal to your speed (after modifiers) for this turn.",
+            "dash": true
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:action-disengage",
+      "name": "Disengage",
+      "common": true,
+      "summary": "Your movement doesn't provoke opportunity attacks for the rest of this turn.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 192
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "common-disengage",
+            "name": "Disengage",
+            "economy": "action",
+            "note": "Your movement doesn't provoke opportunity attacks for the rest of this turn."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:action-dodge",
+      "name": "Dodge",
+      "common": true,
+      "summary": "Until your next turn starts: attacks against you have disadvantage if you can see the attacker, and you have advantage on Dexterity saves. Lost if you're incapacitated or your speed drops to 0.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 192
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "common-dodge",
+            "name": "Dodge",
+            "economy": "action",
+            "note": "Until your next turn starts: attacks against you have disadvantage if you can see the attacker, and you have advantage on Dexterity saves. Lost if you're incapacitated or your speed drops to 0.",
+            "untilTurnStart": true,
+            "toggles": [
+              "dodging"
+            ]
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.save.dex",
+            "op": "advantage",
+            "label": "Dodge",
+            "when": {
+              "toggle": "dodging"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:action-help",
+      "name": "Help",
+      "common": true,
+      "summary": "Give an ally advantage on their next check for a task you help with, or on their first attack against a creature within 5 ft of you, before your next turn.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 192
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "common-help",
+            "name": "Help",
+            "economy": "action",
+            "note": "Give an ally advantage on their next check for a task you help with, or on their first attack against a creature within 5 ft of you, before your next turn."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:action-hide",
+      "name": "Hide",
+      "common": true,
+      "summary": "Make a Dexterity (Stealth) check to hide. Hidden, you're unseen: attacks against you have disadvantage, yours have advantage.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 192
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "common-hide",
+            "name": "Hide",
+            "economy": "action",
+            "note": "Make a Dexterity (Stealth) check to hide. Hidden, you're unseen: attacks against you have disadvantage, yours have advantage.",
+            "check": {
+              "skills": [
+                "stealth"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:action-ready",
+      "name": "Ready",
+      "common": true,
+      "summary": "Choose a trigger and an action (or a move); when it happens before your next turn, use your reaction to do it. A readied spell is cast now, held with concentration, and released with the reaction.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 193
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "common-ready",
+            "name": "Ready",
+            "economy": "action",
+            "note": "Choose a trigger and an action (or a move); when it happens before your next turn, use your reaction to do it. A readied spell is cast now, held with concentration, and released with the reaction."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:action-search",
+      "name": "Search",
+      "common": true,
+      "summary": "Look for something: Wisdom (Perception) or Intelligence (Investigation), as the DM decides.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 193
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "common-search",
+            "name": "Search",
+            "economy": "action",
+            "note": "Look for something: Wisdom (Perception) or Intelligence (Investigation), as the DM decides.",
+            "check": {
+              "skills": [
+                "perception",
+                "investigation"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:action-use-an-object",
+      "name": "Use an Object",
+      "common": true,
+      "summary": "Use an object that takes an action, or interact with a second object this turn (the first is free).",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 193
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "common-use-an-object",
+            "name": "Use an Object",
+            "economy": "action",
+            "note": "Use an object that takes an action, or interact with a second object this turn (the first is free)."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:action-grapple",
+      "name": "Grapple",
+      "common": true,
+      "summary": "Replaces one attack of your Attack action. Target up to one size larger, within reach, with a free hand: your Strength (Athletics) against its Athletics or Acrobatics. Win: it's grappled. Moving drags it at half speed unless it's two sizes smaller.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 195
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "common-grapple",
+            "name": "Grapple",
+            "economy": "action",
+            "note": "Replaces one attack of your Attack action. Target up to one size larger, within reach, with a free hand: your Strength (Athletics) against its Athletics or Acrobatics. Win: it's grappled. Moving drags it at half speed unless it's two sizes smaller.",
+            "asAttack": true,
+            "check": {
+              "skills": [
+                "athletics"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:action-escape-a-grapple",
+      "name": "Escape a Grapple",
+      "common": true,
+      "summary": "Your Strength (Athletics) or Dexterity (Acrobatics) against the grappler's Strength (Athletics). Win: you're free.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 195
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "common-escape-a-grapple",
+            "name": "Escape a Grapple",
+            "economy": "action",
+            "note": "Your Strength (Athletics) or Dexterity (Acrobatics) against the grappler's Strength (Athletics). Win: you're free.",
+            "check": {
+              "skills": [
+                "athletics",
+                "acrobatics"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:action-shove",
+      "name": "Shove",
+      "common": true,
+      "summary": "Replaces one attack of your Attack action. Target up to one size larger, within reach: your Strength (Athletics) against its Athletics or Acrobatics. Win: knock it prone or push it 5 ft away.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 195
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "common-shove",
+            "name": "Shove",
+            "economy": "action",
+            "note": "Replaces one attack of your Attack action. Target up to one size larger, within reach: your Strength (Athletics) against its Athletics or Acrobatics. Win: knock it prone or push it 5 ft away.",
+            "asAttack": true,
+            "check": {
+              "skills": [
+                "athletics"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:action-opportunity-attack",
+      "name": "Opportunity Attack",
+      "common": true,
+      "summary": "Reaction, when a hostile creature you can see leaves your reach: one melee attack. Off your turn, pick a melee weapon in the Action list above and it uses your reaction.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 195
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "common-opportunity-attack",
+            "name": "Opportunity Attack",
+            "economy": "reaction",
+            "note": "Reaction, when a hostile creature you can see leaves your reach: one melee attack. Off your turn, pick a melee weapon in the Action list above and it uses your reaction.",
+            "infoOnly": true
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:action-two-weapon-fighting",
+      "name": "Two-Weapon Fighting",
+      "common": true,
+      "summary": "After attacking with a light melee weapon in one hand (Attack action), a bonus action attack with a light melee weapon in the other, without your ability modifier on damage (unless negative). The off-hand attacks are in the Bonus action list above.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 195
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "common-two-weapon-fighting",
+            "name": "Two-Weapon Fighting",
+            "economy": "bonus",
+            "note": "After attacking with a light melee weapon in one hand (Attack action), a bonus action attack with a light melee weapon in the other, without your ability modifier on damage (unless negative). The off-hand attacks are in the Bonus action list above.",
+            "infoOnly": true
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:action-stabilize-a-creature",
+      "name": "Stabilize a Creature",
+      "common": true,
+      "summary": "First aid for a creature at 0 HP: a DC 10 Wisdom (Medicine) check. Stable, it stops making death saves, and regains 1 HP after 1d4 hours unless healed.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 197
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "common-stabilize-a-creature",
+            "name": "Stabilize a Creature",
+            "economy": "action",
+            "note": "First aid for a creature at 0 HP: a DC 10 Wisdom (Medicine) check. Stable, it stops making death saves, and regains 1 HP after 1d4 hours unless healed.",
+            "check": {
+              "skills": [
+                "medicine"
+              ],
+              "dc": 10
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:action-don-or-doff-a-shield",
+      "name": "Don or Doff a Shield",
+      "common": true,
+      "summary": "Putting on or taking off a shield takes an action.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 146
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "common-don-or-doff-a-shield",
+            "name": "Don or Doff a Shield",
+            "economy": "action",
+            "note": "Putting on or taking off a shield takes an action."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:action-end-concentration",
+      "name": "End Concentration",
+      "common": true,
+      "summary": "You can stop concentrating at any time, no action needed.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 203
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "common-end-concentration",
+            "name": "End Concentration",
+            "economy": "free",
+            "note": "You can stop concentrating at any time, no action needed.",
+            "endsConcentration": true
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:action-other-activity",
+      "name": "Other Activity",
+      "common": true,
+      "summary": "Talking, gestures and one object interaction (draw a weapon, open a door) come free with your move or action. A second object takes your action.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 190
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "common-other-activity",
+            "name": "Other Activity",
+            "economy": "free",
+            "note": "Talking, gestures and one object interaction (draw a weapon, open a door) come free with your move or action. A second object takes your action.",
+            "infoOnly": true
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:action-improvising-an-action",
+      "name": "Improvising an Action",
+      "common": true,
+      "summary": "Anything not covered here: break a door, intimidate, parley. The DM says whether it's possible and what to roll.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 193
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "common-improvising-an-action",
+            "name": "Improvising an Action",
+            "economy": "action",
+            "note": "Anything not covered here: break a door, intimidate, parley. The DM says whether it's possible and what to roll."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:action-activate-an-item",
+      "name": "Activate an Item",
+      "common": true,
+      "summary": "Magic items that need an action to use. That isn't the Use an Object action, so Fast Hands can't do it.",
+      "source": {
+        "pack": "table-2014",
+        "book": "DMG",
+        "page": 141
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "common-activate-an-item",
+            "name": "Activate an Item",
+            "economy": "action",
+            "note": "Magic items that need an action to use. That isn't the Use an Object action, so Fast Hands can't do it."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:action-climb-onto-a-bigger-creature",
+      "name": "Climb onto a Bigger Creature",
+      "common": true,
+      "summary": "DMG optional rule. Your Athletics or Acrobatics against its Acrobatics: win and you move into its space, move with it, and have advantage on attacks against it.",
+      "source": {
+        "pack": "table-2014",
+        "book": "DMG",
+        "page": 271
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "common-climb-onto-a-bigger-creature",
+            "name": "Climb onto a Bigger Creature",
+            "economy": "action",
+            "note": "DMG optional rule. Your Athletics or Acrobatics against its Acrobatics: win and you move into its space, move with it, and have advantage on attacks against it.",
+            "check": {
+              "skills": [
+                "athletics",
+                "acrobatics"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:action-disarm",
+      "name": "Disarm",
+      "common": true,
+      "summary": "DMG optional rule. A weapon attack against the target's Athletics or Acrobatics: win and it drops the item, no damage. Disadvantage if it holds the item in two hands. Roll it with a weapon above.",
+      "source": {
+        "pack": "table-2014",
+        "book": "DMG",
+        "page": 271
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "common-disarm",
+            "name": "Disarm",
+            "economy": "action",
+            "note": "DMG optional rule. A weapon attack against the target's Athletics or Acrobatics: win and it drops the item, no damage. Disadvantage if it holds the item in two hands. Roll it with a weapon above.",
+            "infoOnly": true
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:action-overrun",
+      "name": "Overrun",
+      "common": true,
+      "summary": "DMG optional rule. Your Strength (Athletics) against its Athletics to move through a hostile creature's space once this turn; advantage if you're larger, disadvantage if smaller.",
+      "source": {
+        "pack": "table-2014",
+        "book": "DMG",
+        "page": 272
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "common-overrun",
+            "name": "Overrun",
+            "economy": "action",
+            "note": "DMG optional rule. Your Strength (Athletics) against its Athletics to move through a hostile creature's space once this turn; advantage if you're larger, disadvantage if smaller.",
+            "check": {
+              "skills": [
+                "athletics"
+              ]
+            }
+          },
+          {
+            "id": "common-overrun-bonus",
+            "name": "Overrun (bonus action)",
+            "economy": "bonus",
+            "note": "The same, as a bonus action.",
+            "check": {
+              "skills": [
+                "athletics"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:action-tumble",
+      "name": "Tumble",
+      "common": true,
+      "summary": "DMG optional rule. Your Dexterity (Acrobatics) against its Acrobatics to move through a hostile creature's space once this turn.",
+      "source": {
+        "pack": "table-2014",
+        "book": "DMG",
+        "page": 272
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "common-tumble",
+            "name": "Tumble",
+            "economy": "action",
+            "note": "DMG optional rule. Your Dexterity (Acrobatics) against its Acrobatics to move through a hostile creature's space once this turn.",
+            "check": {
+              "skills": [
+                "acrobatics"
+              ]
+            }
+          },
+          {
+            "id": "common-tumble-bonus",
+            "name": "Tumble (bonus action)",
+            "economy": "bonus",
+            "note": "The same, as a bonus action.",
+            "check": {
+              "skills": [
+                "acrobatics"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:action-shove-aside",
+      "name": "Shove Aside",
+      "common": true,
+      "summary": "DMG optional rule. A shove that moves the target 5 ft sideways within your reach, with disadvantage on your Athletics check. Replaces one attack.",
+      "source": {
+        "pack": "table-2014",
+        "book": "DMG",
+        "page": 272
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "common-shove-aside",
+            "name": "Shove Aside",
+            "economy": "action",
+            "note": "DMG optional rule. A shove that moves the target 5 ft sideways within your reach, with disadvantage on your Athletics check. Replaces one attack.",
+            "asAttack": true,
+            "check": {
+              "skills": [
+                "athletics"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:action-healing-surge",
+      "name": "Healing Surge",
+      "common": true,
+      "summary": "DMG optional rule. Spend up to half your Hit Dice, rolling each plus Constitution; once per short or long rest. Spend them from the Hit Dice on Play.",
+      "source": {
+        "pack": "table-2014",
+        "book": "DMG",
+        "page": 266
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "common-healing-surge",
+            "name": "Healing Surge",
+            "economy": "action",
+            "note": "DMG optional rule. Spend up to half your Hit Dice, rolling each plus Constitution; once per short or long rest. Spend them from the Hit Dice on Play."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:action-identify-a-spell",
+      "name": "Identify a Spell",
+      "common": true,
+      "summary": "Intelligence (Arcana), DC 15 + the spell's level: as a reaction while it's cast, or an action after. Advantage if it's cast as a spell of your class.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 85
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "common-identify-a-spell",
+            "name": "Identify a Spell",
+            "economy": "action",
+            "note": "Intelligence (Arcana), DC 15 + the spell's level: as a reaction while it's cast, or an action after. Advantage if it's cast as a spell of your class.",
+            "check": {
+              "skills": [
+                "arcana"
+              ]
+            }
+          },
+          {
+            "id": "common-identify-a-spell-reaction",
+            "name": "Identify a Spell (reaction)",
+            "economy": "reaction",
+            "note": "As it's being cast.",
+            "check": {
+              "skills": [
+                "arcana"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:action-waking-someone",
+      "name": "Waking Someone",
+      "common": true,
+      "summary": "Shake or slap a naturally sleeping creature awake. Magical or drugged sleep isn't broken this way.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 77
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "common-waking-someone",
+            "name": "Waking Someone",
+            "economy": "action",
+            "note": "Shake or slap a naturally sleeping creature awake. Magical or drugged sleep isn't broken this way."
+          }
+        ]
+      }
+    }
+  ]
+}

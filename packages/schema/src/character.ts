@@ -74,6 +74,8 @@ export const EffectInstance = z
     castLevel: z.number().int().min(1).max(9).optional(),
     /** States switched off when it ends (Rage ends "raging"). */
     toggles: z.array(z.string()).optional(),
+    /** Ends when your next turn starts (Dodge). */
+    untilTurnStart: z.boolean().optional(),
     /** For leveled effects (Exhaustion). */
     level: z.number().int().min(1).optional(),
     /** Who or what applied it, e.g. "Cleric's Bless". */

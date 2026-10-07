@@ -47,6 +47,23 @@ function FeatureRow({ a, openFeature }: { a: ActionResult; openFeature: (a: Acti
   );
 }
 
+const COMMON_TITLES: Record<ActionResult["economy"], string> = {
+  action: "Action",
+  bonus: "Bonus action",
+  reaction: "Reaction",
+  free: "No action needed",
+};
+
+/** What tapping it does, in a few words. */
+function commonSub(a: ActionResult): string {
+  if (a.infoOnly) return "How it works";
+  if (a.asAttack) return "Replaces one attack";
+  if (a.check) return `Rolls ${a.check.skills.map((s) => s.replace(/^./, (c) => c.toUpperCase())).join(" or ")}${a.check.dc ? `, DC ${a.check.dc}` : ""}`;
+  if (a.dash) return "Extra movement this turn";
+  if (a.untilTurnStart) return "Until your next turn";
+  return a.economy === "free" ? "No action" : `Uses your ${a.economy === "bonus" ? "bonus action" : a.economy}`;
+}
+
 export function ActionsTab({
   sheet,
   open,
@@ -60,7 +77,11 @@ export function ActionsTab({
   openAttack: (a: WeaponAttack) => void;
   openFeature: (a: ActionResult) => void;
 }) {
-  const features = (e: ActionResult["economy"]) => sheet.actions.filter((a) => a.economy === e);
+  const features = (e: ActionResult["economy"]) => sheet.actions.filter((a) => a.economy === e && !a.common);
+  const common = sheet.actions.filter((a) => a.common);
+  const commonGroups = (["action", "bonus", "reaction", "free"] as const)
+    .map((e) => ({ economy: e, list: common.filter((a) => a.economy === e) }))
+    .filter((g) => g.list.length > 0);
   const groups: { title: string; attacks: WeaponAttack[]; features: ActionResult[] }[] = [
     { title: "Action", attacks: sheet.attacks.filter((a) => a.action === "attack"), features: features("action") },
     { title: "Bonus action", attacks: sheet.attacks.filter((a) => a.action === "bonus"), features: features("bonus") },
@@ -83,6 +104,32 @@ export function ActionsTab({
           </div>
         </section>
       ))}
+
+      {common.length > 0 && (
+        <section>
+          <details className="common-actions">
+            <summary>
+              <h2>Actions anyone can take</h2>
+              <span className="row-sub">Dash, Dodge, Hide, Grapple, Shove and more</span>
+            </summary>
+            {commonGroups.map((g) => (
+              <div key={g.economy}>
+                <p className="sub-head">{COMMON_TITLES[g.economy]}</p>
+                <div className="group">
+                  {g.list.map((a) => (
+                    <button className="row" key={a.id} onClick={() => openFeature(a)}>
+                      <div className="row-main">
+                        <div className="row-title">{a.name}</div>
+                        <div className="row-sub">{commonSub(a)}</div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </details>
+        </section>
+      )}
 
       {sheet.spellcasting.length > 0 && (
         <section>

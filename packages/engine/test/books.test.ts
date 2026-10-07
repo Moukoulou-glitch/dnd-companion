@@ -258,3 +258,31 @@ describe("book text loaded on the device", () => {
     expect(reg.get("feat:dual-wielder", "feat").source.book).toMatch(/Homebrew/);
   });
 });
+
+describe("the actions file", () => {
+  const ACTIONS = `## Dash
+
+Sample text: you go twice as far.
+
+---
+
+## Dodge
+
+Sample text: you are hard to hit.
+
+---
+
+## Two-Weapon Fighting
+
+Sample text: a second weapon.
+`;
+  it("is recognized, and gives its text only to the actions anyone can take", () => {
+    const reg = tableRegistry();
+    expect(bookFileKind(ACTIONS)).toBe("actions");
+    const { pack } = bookPack([{ name: "actions.md", text: ACTIONS }], reg);
+    const byId = new Map(pack.definitions.map((d) => [d.id, d]));
+    expect(byId.get("feature:action-dash")?.text).toEqual(["Sample text: you go twice as far."]);
+    expect(byId.get("feature:action-two-weapon-fighting")?.text).toEqual(["Sample text: a second weapon."]);
+    expect([...byId.keys()].filter((id) => !id.startsWith("feature:action-"))).toEqual([]);
+  });
+});

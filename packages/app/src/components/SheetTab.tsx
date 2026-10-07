@@ -107,7 +107,7 @@ export function SheetTab({ sheet, open, openRoll, openTrait }: { sheet: DerivedS
       <section>
         <h2>Features and traits</h2>
         <div className="group">
-          {sheet.features.map((f) => (
+          {sheet.features.filter((f) => !f.common).map((f) => (
             <button className="row" key={f.id} onClick={() => openTrait(f.id)}>
               <div className="row-main">
                 <div className="row-title">{f.name}</div>

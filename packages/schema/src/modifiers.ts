@@ -244,6 +244,18 @@ export const ActionDef = z
     stopsMovement: z.boolean().optional(),
     /** Short reminder of what happens, shown on the button. */
     note: z.string().optional(),
+    /** Ability checks it calls for, by skill (Grapple: athletics), with a DC when there is one (Stabilize: 10). */
+    check: z.object({ skills: z.array(z.string()).min(1), dc: z.number().int().optional() }).strict().optional(),
+    /** Takes the place of one attack of the Attack action (Grapple, Shove). */
+    asAttack: z.boolean().optional(),
+    /** Adds your speed to this turn's movement (Dash). */
+    dash: z.boolean().optional(),
+    /** Its toggles last until the start of your next turn (Dodge). */
+    untilTurnStart: z.boolean().optional(),
+    /** Ends your concentration. */
+    endsConcentration: z.boolean().optional(),
+    /** Nothing to record: the panel only explains, and points to where it's done (Attack: the weapons above). */
+    infoOnly: z.boolean().optional(),
   })
   .strict();
 export type ActionDef = z.infer<typeof ActionDef>;

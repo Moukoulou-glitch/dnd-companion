@@ -13,6 +13,8 @@ export interface Source {
   scaling?: Record<string, Scaling>;
   /** Set when the source is an item, so item-scoped modifiers stay on that item. */
   itemInstanceId?: string;
+  /** Every character has it (the actions anyone can take). */
+  common?: boolean;
   /** Set when the source is an active effect or condition. */
   effectInstanceId?: string;
   /** Slot level an effect was cast at ("slotLevel" in its expressions). */
@@ -94,6 +96,7 @@ export function collectSources(c: Character, reg: ContentRegistry): Source[] {
   }
 
   c.rules.forEach(pushFeature);
+  for (const f of reg.list("feature")) if ((f as { common?: boolean }).common) out.push({ id: f.id, label: f.name, grant: (f as { grant?: Grant }).grant ?? {}, choices: {}, common: true });
   c.extraFeatures.forEach(pushFeature);
 
   // Active effects and conditions; a condition can include others (Paralyzed includes Incapacitated).

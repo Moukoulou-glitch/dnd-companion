@@ -46,6 +46,8 @@ export const FeatureDef = z
   .object({
     ...base,
     kind: z.literal("feature"),
+    /** Every character has it: the actions anyone can take in combat (Dash, Dodge, Grapple...). */
+    common: z.boolean().optional(),
     grant: Grant.optional(),
     choices: z.array(ChoiceDef).optional(),
     scaling: z.record(z.string(), Scaling).optional(),

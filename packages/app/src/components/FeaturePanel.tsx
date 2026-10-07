@@ -22,11 +22,15 @@ export function FeaturePanel({
   text,
   physical,
   onUse,
+  checks,
 }: {
   a: ActionResult;
   text?: string[] | undefined;
   physical: boolean;
-  onUse: (rolled?: number, free?: boolean) => void;
+  /** The third argument: the skill to roll right after (Hide: stealth). */
+  onUse: (rolled?: number, free?: boolean, check?: string) => void;
+  /** Skills it can roll, with their names and bonuses. */
+  checks?: { skill: string; name: string; bonus: string }[];
 }) {
   const amount = a.tempHp ?? a.heal ?? a.roll;
   const [entry, setEntry] = useState("");
@@ -43,7 +47,8 @@ export function FeaturePanel({
   return (
     <>
       <p className="row-sub">
-        {economyLabel(a.economy)}, from {a.source}
+        {economyLabel(a.economy)}
+        {a.common ? "" : `, from ${a.source}`}
       </p>
       {a.note && (
         <p>
@@ -60,6 +65,7 @@ export function FeaturePanel({
           ))}
         </details>
       )}
+      {a.common && !text?.length && <p className="note">Full text: load the actions file with your book files (Characters → Book text).</p>}
       {a.cost && (
         <p className={none ? "note danger-text" : "note"}>
           Uses {a.cost.amount} {a.cost.name}: {a.cost.remaining} left.
@@ -80,10 +86,28 @@ export function FeaturePanel({
           )}
         </>
       )}
+      {a.infoOnly ? null : checks && checks.length > 0 ? (
+        <>
+          {checks.map((ch) => (
+            <button key={ch.skill} className="big wide primary" style={{ marginBottom: 8 }} onClick={() => onUse(undefined, false, ch.skill)}>
+              {a.name}: roll {ch.name}
+              <span className="sub">
+                {ch.bonus}
+                {a.check?.dc ? `, DC ${a.check.dc}` : ""}
+                {a.asAttack ? ", uses one attack" : ""}
+              </span>
+            </button>
+          ))}
+          <button className="link" onClick={() => onUse()}>
+            Use it without rolling here
+          </button>
+        </>
+      ) : (
       <button className={`big wide ${none ? "damage" : "primary"}`} disabled={!!amount && physical && amount.dice.length > 0 && !entry} onClick={() => useNow()}>
         {none ? `Use ${a.name} anyway` : a.roll && !physical ? `Roll and use ${a.name}` : `Use ${a.name}`}
       </button>
-      {(a.cost || a.economy !== "free") && (a.toggles.length > 0 || a.duration) && (
+      )}
+      {!a.common && (a.cost || a.economy !== "free") && (a.toggles.length > 0 || a.duration) && (
         <button className="link" disabled={!!amount && physical && amount.dice.length > 0 && !entry} onClick={() => useNow(true)}>
           Just activate: switch it on without spending anything
         </button>

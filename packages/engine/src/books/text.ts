@@ -49,7 +49,8 @@ export function splitHeadings(text: string, marker: "##" | "####"): { name: stri
 export function paragraphs(lines: string[]): string[] {
   const out: string[] = [];
   for (const raw of lines) {
-    const line = raw.trim();
+    // Sidebars come as blockquotes ("> ##### Interacting with Objects"): read them as ordinary lines.
+    const line = raw.trim().replace(/^>\s?/, "").trim();
     if (!line || /^(-{3,}|_{3,})$/.test(line)) continue;
     if (/^\|?\s*:?-{2,}/.test(line)) continue; // table separator row
     if (line.startsWith("|")) {

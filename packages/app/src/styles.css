@@ -1471,3 +1471,28 @@ ol.levels li[data-on="true"] {
   border: 0;
   background: none;
 }
+
+/* Actions anyone can take: one tappable heading, opened when needed. */
+.common-actions > summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.common-actions > summary::-webkit-details-marker {
+  display: none;
+}
+.common-actions > summary h2 {
+  margin: 0;
+}
+.common-actions > summary h2::after {
+  content: " ▸";
+}
+.common-actions[open] > summary h2::after {
+  content: " ▾";
+}
+.common-actions .sub-head {
+  margin-top: 14px;
+}

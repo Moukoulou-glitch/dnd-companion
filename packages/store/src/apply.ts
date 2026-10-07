@@ -62,6 +62,16 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
   /** Removes effects, switching off the states they kept on (Rage's "raging"). */
   const removeEffects = (gone: Character["effects"]) => {
     if (!gone.length) return;
+    // Temporary HP that came with the effect (Armor of Agathys) go when it ends.
+    for (const e of gone) {
+      const def = e.effect === "custom" ? undefined : reg.find(reg.effectId(e.effect), "effect");
+      if (def?.tempHpGain === undefined || c.hp.temp === 0) continue;
+      const amount = atLevel(def.tempHpGain, e.castLevel ?? def.upcast?.baseLevel ?? 1);
+      if (c.hp.temp <= amount) {
+        notes.push(`${def.name} ends: its ${c.hp.temp} temporary HP go with it.`);
+        c.hp.temp = 0;
+      }
+    }
     const ids = new Set(gone.map((e) => e.id));
     c.effects = c.effects.filter((e) => !ids.has(e.id));
     const off = new Set(gone.flatMap((e) => e.toggles ?? []));
@@ -71,6 +81,20 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
   /** Current HP gained when an effect starts (Aid), worked out at its cast level. */
   const atLevel = (expr: string | number, slotLevel: number) =>
     evalFlat(expr, { pb: sheet.proficiencyBonus, mods: Object.fromEntries(Object.entries(sheet.abilities).map(([k, v]) => [k, v.modifier])) as never, level: sheet.level, classLevels: {}, slotLevel });
+
+  /**
+   * The same spell's effects don't combine (PHB p. 205): a second casting
+   * replaces the first, keeping the more potent level and the newer duration.
+   */
+  const combineSame = (entry: Character["effects"][number], name: string) => {
+    const same = c.effects.filter((e) => e.effect === entry.effect);
+    if (!same.length) return;
+    const higher = Math.max(entry.castLevel ?? 0, ...same.map((e) => e.castLevel ?? 0));
+    if (higher > 0 && (entry.castLevel ?? 0) < higher) entry.castLevel = higher;
+    const ids = new Set(same.map((e) => e.id));
+    c.effects = c.effects.filter((e) => !ids.has(e.id));
+    notes.push(`${name} was already on you: the same spell's effects don't combine, so you keep one${higher > 0 ? `, at level ${higher}` : ""}, with the new duration.`);
+  };
 
   const gainHp = (def: { hpGain?: string | number; tempHpGain?: string | number; upcast?: { baseLevel: number }; name: string }, castLevel?: number) => {
     const slotLevel = castLevel ?? def.upcast?.baseLevel ?? 1;
@@ -348,11 +372,31 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
           notes.push(`${target.name}: ${Math.min(used, a.restores.amount)} regained.`);
         }
       }
-      if (!free) spendTurn(a.economy, (cb) => {
+      if (!free) spendTurn(a.asAttack ? "attack" : a.economy, (cb) => {
+        // Grapple and Shove take the place of one attack of the Attack action.
+        if (a.asAttack) {
+          if (cb.attacks === 0) cb.action += 1;
+          cb.attacks += 1;
+          if (cb.attacks > sheet.attacksPerAction) notes.push(`That's attack ${cb.attacks} of ${sheet.attacksPerAction} for your Attack action.`);
+        }
+        if (a.dash) {
+          cb.dashes += 1;
+          notes.push(`Dash: ${sheet.speed.total * (1 + cb.dashes)} ft of movement this turn.`);
+        }
         if (a.notAfterMoving && cb.moved > 0) notes.push(`You had moved ${cb.moved} ft this turn: ${a.name} needs you not to have moved.`);
         if (a.stopsMovement) cb.speedZero = a.name;
         cb.usedThisTurn = [...cb.usedThisTurn, a.id];
       });
+      if (a.endsConcentration) {
+        if (c.concentration) endConcentration(c, notes, "");
+        else notes.push("You weren't concentrating on anything.");
+      }
+      if (a.untilTurnStart) {
+        const entry: Character["effects"][number] = { id: `${op.id}-turn`, effect: "custom", custom: { name: a.name, modifiers: [] }, from: a.source, untilTurnStart: true };
+        if (a.toggles.length) entry.toggles = a.toggles;
+        removeEffects(c.effects.filter((e) => e.effect === "custom" && e.custom?.name === a.name));
+        c.effects.push(entry);
+      }
       if (a.duration) {
         const rolledN = op.payload.rolled;
         const d = a.duration;
@@ -486,6 +530,7 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
         if (timer?.rounds) entry.rounds = timer.rounds;
         else if (timer?.minutes) entry.minutes = timer.minutes;
         if (def.upcast && level > 0) entry.castLevel = level;
+        combineSame(entry, def.name);
         gainHp(def, entry.castLevel);
         if (sp.concentration) entry.concentration = true;
         c.effects.push(entry);
@@ -541,6 +586,7 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
       if (from) entry.from = from;
       if (op.payload.choice) entry.choice = op.payload.choice;
       if (op.payload.castLevel) entry.castLevel = op.payload.castLevel;
+      if (def && def.category !== "condition") combineSame(entry, def.name);
       c.effects.push(entry);
       if (def?.choice && !entry.choice) notes.push(`${def.name}: choose the ${def.choice.label.toLowerCase()} on its card.`);
       if (def?.upcast && !entry.castLevel) notes.push(`Cast at a higher level? Set it on ${def.name}'s card.`);
@@ -588,6 +634,14 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
           const ctxBase = { pb: sheet.proficiencyBonus, mods: Object.fromEntries(Object.entries(sheet.abilities).map(([k, v]) => [k, v.modifier])) as never, level: sheet.level, classLevels: {} };
           const diff = evalFlat(def.hpGain, { ...ctxBase, slotLevel: castLevel }) - evalFlat(def.hpGain, { ...ctxBase, slotLevel: before });
           if (diff && c.hp.current > 0) c.hp.current = Math.max(1, c.hp.current + diff);
+        }
+        // Armor of Agathys: its temporary HP follow the level too.
+        if (def?.tempHpGain !== undefined) {
+          const diff = atLevel(def.tempHpGain, castLevel) - atLevel(def.tempHpGain, before);
+          if (diff) {
+            c.hp.temp = Math.max(0, c.hp.temp + diff);
+            notes.push(`${def.name} at level ${castLevel}: ${c.hp.temp} temporary HP.`);
+          }
         }
       }
       break;
@@ -675,6 +729,9 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
 
     case "startTurn": {
       const prev = c.combat;
+      const ending = c.effects.filter((e) => e.untilTurnStart);
+      if (ending.length) notes.push(`${ending.map(effectName).join(", ")} ended: your turn has started.`);
+      removeEffects(ending);
       const round = !prev ? 1 : prev.hadTurn && !prev.myTurn ? prev.round + 1 : prev.round;
       if (prev?.myTurn) notes.push("Your turn had already started: everything is back for a fresh turn.");
       c.combat = CombatState.parse({ round, myTurn: true, hadTurn: true, ...(prev?.initiative !== undefined ? { initiative: prev.initiative } : {}) });

@@ -145,6 +145,14 @@ export interface ActionResult {
   spells?: { id: string; list: string }[];
   tempHp?: Amount;
   heal?: Amount;
+  /** One of the actions anyone can take (Dash, Dodge, Grapple): listed in their own section. */
+  common?: boolean;
+  check?: { skills: string[]; dc?: number };
+  asAttack?: boolean;
+  dash?: boolean;
+  untilTurnStart?: boolean;
+  endsConcentration?: boolean;
+  infoOnly?: boolean;
 }
 
 /** A trait, feature, feat or rule on the character, for reading. */
@@ -155,6 +163,8 @@ export interface FeatureEntry {
   summary?: string;
   text?: string[];
   source: string;
+  /** One of the actions anyone can take: shown in the Actions tab's own section, not with the features. */
+  common?: boolean;
 }
 
 /** An active effect or condition, for the status strip. */
@@ -906,6 +916,9 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
       }
       if (a.tempHp !== undefined) entry.tempHp = amountOf(a.tempHp, s);
       if (a.heal !== undefined) entry.heal = amountOf(a.heal, s);
+      if (s.common) entry.common = true;
+      for (const k of ["asAttack", "dash", "untilTurnStart", "endsConcentration", "infoOnly"] as const) if (a[k]) entry[k] = true;
+      if (a.check) entry.check = a.check;
       actions.push(entry);
     }
   }
@@ -969,7 +982,10 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
     const name = a.mod.when?.toggle;
     if (!name || toggles.some((t) => t.name === name)) continue;
     // The action that switches it on names it best ("Form of Dread"); a note's label is a sentence, so fall back to the source.
-    const byAction = actions.find((x) => x.toggles.includes(name))?.name;
+    const switcher = actions.find((x) => x.toggles.includes(name));
+    // Dodge shows as its own effect chip while it lasts, not as a switch.
+    if (switcher?.common) continue;
+    const byAction = switcher?.name;
     const label = byAction ?? (a.mod.op === "note" ? a.source.label : labelOf(a));
     toggles.push({ name, label, on: c.toggles.includes(name) });
   }
@@ -1026,6 +1042,7 @@ function featureEntries(sources: Source[], reg: ContentRegistry): FeatureEntry[]
     const e: FeatureEntry = { id: def.id, name: def.name, kind, source: [def.source.book, def.source.page ? `p. ${def.source.page}` : ""].filter(Boolean).join(" ") || def.source.pack };
     if (def.summary) e.summary = def.summary;
     if (def.text?.length) e.text = def.text;
+    if (s.common) e.common = true;
     out.push(e);
   }
   return out;

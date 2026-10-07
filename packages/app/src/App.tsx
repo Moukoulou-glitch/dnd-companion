@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
-import { castingEconomy, formatBonus, turnWarnings, type TurnIntent } from "@dnd/engine";
+import { castingEconomy, formatBonus, signed, turnWarnings, type TurnIntent } from "@dnd/engine";
+import { SKILL_NAMES, type Skill } from "@dnd/schema";
 import type { ComposerBase } from "@dnd/dice";
 import type { ActionResult, EffectResult, SpellResult, WeaponAttack } from "@dnd/engine";
 import { ActionsTab } from "./components/ActionsTab";
@@ -186,6 +187,7 @@ export function App() {
       onCommit?: (n: number) => void;
       repeat?: { count: number; what: string };
       onDamageOptions?: (labels: string[]) => void;
+      dc?: number;
     } = {},
   ) =>
     open(title, () => (
@@ -198,6 +200,7 @@ export function App() {
         {...(opts.onCommit ? { onCommit: opts.onCommit } : {})}
         {...(opts.repeat ? { repeat: opts.repeat } : {})}
         {...(opts.onDamageOptions ? { onDamageOptions: opts.onDamageOptions } : {})}
+        {...(opts.dc !== undefined ? { dc: opts.dc } : {})}
         {...(portentFor() ? { portent: portentFor()! } : {})}
         onOptionsUsed={recordOptions}
         physical={live.current.character?.settings.physicalDice ?? true}
@@ -223,7 +226,15 @@ export function App() {
           a={current}
           physical={live.current.character?.settings.physicalDice ?? true}
           text={feature?.text}
-          onUse={(rolled, free) => {
+          {...(current.check
+            ? {
+                checks: current.check.skills.flatMap((sk) => {
+                  const r = live.current.sheet?.skills[sk as Skill];
+                  return r ? [{ skill: sk, name: SKILL_NAMES[sk as Skill], bonus: signed(r.total) }] : [];
+                }),
+              }
+            : {})}
+          onUse={(rolled, free, check) => {
             const payload = { action: a.id, ...(rolled === undefined ? {} : { rolled }), ...(free ? { free: true } : {}) };
             const label = free ? `${a.name} switched on (nothing spent).` : current.roll && rolled !== undefined ? `${a.name}: ${rolled} ${current.roll.label}.` : `${a.name} used.`;
             if (free) {
@@ -231,10 +242,21 @@ export function App() {
               return close();
             }
             const go = () =>
-              guard({ name: current.name, economy: current.economy, actionId: current.id, ...(current.notAfterMoving ? { notAfterMoving: true } : {}) }, () => {
-              live.current.act("useAction", payload, label);
-              close();
-            });
+              guard(
+                {
+                  name: current.name,
+                  economy: current.asAttack ? "action" : current.economy,
+                  ...(current.asAttack ? { attack: true } : { actionId: current.id }),
+                  ...(current.notAfterMoving ? { notAfterMoving: true } : {}),
+                },
+                () => {
+                  live.current.act("useAction", payload, label);
+                  const sk = check as Skill | undefined;
+                  const base = sk && live.current.sheet?.skills[sk];
+                  if (sk && base) openRoll(`${current.name}: ${SKILL_NAMES[sk]}`, base, undefined, current.check?.dc !== undefined ? { dc: current.check.dc } : {});
+                  else close();
+                },
+              );
             if (current.cost && current.cost.remaining < current.cost.amount)
               open(current.name, () => (
                 <Confirm
@@ -437,14 +459,7 @@ export function App() {
           sheet={live.current.sheet!}
           level={level}
           pact={pact}
-          onCast={(sp) => {
-            const now = guard(
-              { name: sp.name, economy: castingEconomy(sp.castingTime), spell: { level: sp.level, concentration: sp.concentration } },
-              () => live.current.act("castSpell", { spell: sp.id, list: sp.list.id, level, using: pact ? "pact" : "slot" }, `${sp.name} cast.`),
-              { done: () => openSpell(sp, level) },
-            );
-            if (now) openSpell(sp, level);
-          }}
+          onCast={(sp) => castFlow(sp, level, pact ? "pact" : "slot", selfByDefault(sp))}
           onJustSpend={() => {
             live.current.act("spendSlot", { level, pact }, pact ? "Pact slot spent." : `Level ${level} slot spent.`);
             close();
@@ -788,6 +803,40 @@ export function App() {
     ));
   };
 
+  /**
+   * Casting, from the spell sheet or from a slot on Play: effects that end on
+   * casting ask first, the turn rules warn, free uses with none left ask
+   * "Are you sure?", and the spell sheet comes back showing it was cast.
+   */
+  const castFlow = (sp: SpellResult, level: number, using: "slot" | "pact" | "free" | "ritual" | "none", selfEffect: boolean) => {
+    const castIt = () =>
+      askEndsOn(
+        "cast",
+        () =>
+          guard(
+            { name: sp.name, economy: using === "ritual" ? "free" : castingEconomy(sp.castingTime), spell: { level: sp.level, concentration: sp.concentration } },
+            () => live.current.act("castSpell", { spell: sp.id, list: sp.list.id, level, using, selfEffect }, `${sp.name} cast.`),
+            { cancelled: () => openSpell(sp), done: () => openSpell(sp, level) },
+          ),
+        () => openSpell(sp, level),
+      );
+    if (using === "free" && sp.cast.free && sp.cast.free.remaining <= 0)
+      open(sp.name, () => (
+        <Confirm
+          question="Are you sure?"
+          detail={`You have no ${sp.cast.free!.name} left.`}
+          no="No, cancel"
+          yes={`Cast ${sp.name} anyway`}
+          onNo={() => openSpell(sp)}
+          onYes={castIt}
+        />
+      ));
+    else castIt();
+  };
+
+  /** Spells cast on yourself put their effect on you unless you say otherwise. */
+  const selfByDefault = (sp: SpellResult) => registry.has(sp.id.replace(/^spell:/, "effect:")) && /self/i.test(sp.range);
+
   const openSpell = (first: SpellResult, castAt?: number) =>
     open(first.name, () => {
       const sp = live.current.sheet?.spells.find((x) => x.id === first.id && x.list.id === first.list.id) ?? first;
@@ -798,25 +847,7 @@ export function App() {
           sheet={live.current.sheet!}
           hasSelfEffect={registry.has(sp.id.replace(/^spell:/, "effect:"))}
           initialCast={castAt}
-          onCast={(level, using, selfEffect) => {
-            const castIt = () => askEndsOn("cast", () => guard(
-              { name: sp.name, economy: using === "ritual" ? "free" : castingEconomy(sp.castingTime), spell: { level: sp.level, concentration: sp.concentration } },
-              () => live.current.act("castSpell", { spell: sp.id, list: sp.list.id, level, using, selfEffect }, `${sp.name} cast.`),
-              { cancelled: () => openSpell(sp), done: () => openSpell(sp, level) },
-            ), () => openSpell(sp, level));
-            if (using === "free" && sp.cast.free && sp.cast.free.remaining <= 0)
-              open(sp.name, () => (
-                <Confirm
-                  question="Are you sure?"
-                  detail={`You have no ${sp.cast.free!.name} left.`}
-                  no="No, cancel"
-                  yes={`Cast ${sp.name} anyway`}
-                  onNo={() => openSpell(sp)}
-                  onYes={castIt}
-                />
-              ));
-            else castIt();
-          }}
+          onCast={(level, using, selfEffect) => castFlow(sp, level, using, selfEffect)}
           onPrepare={(prepared) => live.current.act("setPrepared", { spell: sp.id, list: sp.list.id, prepared }, `${sp.name} ${prepared ? "prepared" : "unprepared"}.`)}
           onRollAttack={(level) => roller(level, false)}
           onRollDamage={(level) => roller(level, true)}
@@ -912,7 +943,11 @@ export function App() {
           </button>
         </div>
 
-        <EffectChips onCondition={showCondition} effects={sheet.effects.filter((e) => !c.effects.find((x) => x.id === e.instanceId)?.toggles?.length)} onOpen={openEffect} onAdd={openAddEffect} concentration={sheet.concentration} onConcentration={openConcentration} />
+        <EffectChips onCondition={showCondition} effects={sheet.effects.filter((e) => {
+          // Rage and Form of Dread show as switches instead; Dodge has no switch, so it shows here.
+          const inst = c.effects.find((x) => x.id === e.instanceId);
+          return !inst?.toggles?.length || inst.untilTurnStart;
+        })} onOpen={openEffect} onAdd={openAddEffect} concentration={sheet.concentration} onConcentration={openConcentration} />
 
         {sheet.toggles.length > 0 && (
           <div className="switches" role="group" aria-label="Active states">

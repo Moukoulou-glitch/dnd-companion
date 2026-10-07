@@ -61,7 +61,7 @@ export function BooksPanel({ report }: { report: BookReport | undefined }) {
   return (
     <>
       <p className="note">
-        Load the book files you have: spells, feats, backgrounds, races and items (.md), and class pages (.txt). They stay on this device only and are never uploaded. To give a friend the same text, send them the files and they load them here.
+        Load the book files you have: spells, feats, backgrounds, races, items and the actions list (.md), and class pages (.txt). They stay on this device only and are never uploaded. To give a friend the same text, send them the files and they load them here.
       </p>
       <p className="note">The table's own versions always win: house rules, rulings and the remastered feats are never changed by a book.</p>
 

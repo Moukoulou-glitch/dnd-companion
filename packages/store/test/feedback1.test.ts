@@ -290,3 +290,86 @@ describe("two daggers in one stack", () => {
     expect(turnWarnings(log.character, sheetOf(log), intent)).toEqual([]);
   });
 });
+
+describe("fourth round of table feedback", () => {
+  const aoa = (log: CharacterLog) => log.character.effects.filter((e) => e.effect === "effect:armor-of-agathys");
+
+  it("casting Armor of Agathys twice keeps one, at the higher level", () => {
+    const log = logFor("elissaios");
+    log.record("castSpell", { spell: "spell:armor-of-agathys", list: "warlock", level: 1, using: "pact", selfEffect: true });
+    log.record("updateEffect", { instanceId: aoa(log)[0]!.id, castLevel: 3 });
+    const notes = log.record("castSpell", { spell: "spell:armor-of-agathys", list: "warlock", level: 1, using: "pact", selfEffect: true });
+    expect(aoa(log)).toHaveLength(1);
+    expect(aoa(log)[0]!.castLevel).toBe(3);
+    expect(notes.join(" ")).toMatch(/don't combine/);
+    expect(log.character.hp.temp).toBe(15);
+  });
+
+  it("changing the cast level moves the temporary HP", () => {
+    const log = logFor("elissaios");
+    log.record("castSpell", { spell: "spell:armor-of-agathys", list: "warlock", level: 1, using: "pact", selfEffect: true });
+    log.record("updateEffect", { instanceId: aoa(log)[0]!.id, castLevel: 4 });
+    expect(log.character.hp.temp).toBe(20);
+    expect(log.record("damage", { amount: 1 })).toContain("Armor of Agathys: if a melee attack hit you, the attacker takes 20 cold damage.");
+    log.record("updateEffect", { instanceId: aoa(log)[0]!.id, castLevel: 2 });
+    expect(log.character.hp.temp).toBe(9);
+  });
+
+  it("removing Armor of Agathys takes its temporary HP away", () => {
+    const log = logFor("elissaios");
+    log.record("castSpell", { spell: "spell:armor-of-agathys", list: "warlock", level: 1, using: "pact", selfEffect: true });
+    log.record("removeEffect", { instanceId: aoa(log)[0]!.id });
+    expect(log.character.hp.temp).toBe(0);
+  });
+
+  it("removing it leaves bigger temporary HP from elsewhere alone", () => {
+    const log = logFor("elissaios");
+    log.record("setTempHp", { amount: 12 });
+    log.record("castSpell", { spell: "spell:armor-of-agathys", list: "warlock", level: 1, using: "pact", selfEffect: true });
+    log.record("removeEffect", { instanceId: aoa(log)[0]!.id });
+    expect(log.character.hp.temp).toBe(12);
+  });
+});
+
+describe("the actions anyone can take", () => {
+  const start = (name: string) => {
+    const log = logFor(name);
+    log.record("startCombat", {});
+    log.record("startTurn", {});
+    return log;
+  };
+
+  it("every character has them, apart from their features", () => {
+    const s = sheetOf(logFor("beren"));
+    const common = s.actions.filter((a) => a.common).map((a) => a.name);
+    expect(common).toEqual(expect.arrayContaining(["Dash", "Dodge", "Hide", "Grapple", "Shove", "Stabilize a Creature", "Tumble (bonus action)"]));
+    expect(s.features.filter((f) => !f.common).some((f) => f.name === "Dash")).toBe(false);
+  });
+
+  it("Dash adds your speed; Grapple takes one attack of the Attack action", () => {
+    const log = start("agaklis");
+    log.record("useAction", { action: "common-dash" });
+    expect(log.character.combat).toMatchObject({ action: 1, dashes: 1 });
+    const log2 = start("agaklis");
+    log2.record("useAction", { action: "common-grapple" });
+    expect(log2.character.combat).toMatchObject({ action: 1, attacks: 1 });
+  });
+
+  it("Dodge gives advantage on Dexterity saves until your next turn starts", () => {
+    const log = start("beren");
+    log.record("useAction", { action: "common-dodge" });
+    expect(sheetOf(log).saves.dex.advantage).toContain("Dodge");
+    log.record("endTurn", {});
+    expect(sheetOf(log).saves.dex.advantage).toContain("Dodge");
+    log.record("startTurn", {});
+    expect(sheetOf(log).saves.dex.advantage).not.toContain("Dodge");
+    expect(log.character.toggles).not.toContain("dodging");
+  });
+
+  it("End Concentration ends it", () => {
+    const log = logFor("beren");
+    log.record("castSpell", { spell: "spell:entangle", list: "ranger", level: 1, using: "slot" });
+    log.record("useAction", { action: "common-end-concentration" });
+    expect(log.character.concentration).toBeUndefined();
+  });
+});

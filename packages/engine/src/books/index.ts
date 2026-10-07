@@ -15,7 +15,7 @@ export interface BookFile {
   text: string;
 }
 
-export type BookFileKind = "spells" | "items" | "feats" | "races" | "backgrounds" | "class page" | "unknown";
+export type BookFileKind = "spells" | "items" | "feats" | "races" | "backgrounds" | "class page" | "actions" | "unknown";
 
 export interface BookReport {
   files: { name: string; kind: BookFileKind; entries: number }[];
@@ -33,6 +33,7 @@ export function bookFileKind(text: string): BookFileKind {
   if (looksLikeSpells(text)) return "spells";
   if (looksLikeItems(text)) return "items";
   if (looksLikeClassPage(text)) return "class page";
+  if (/^## Dash\s*$/m.test(text) && /^## (Dodge|Disengage)\s*$/m.test(text)) return "actions";
   return entryFileKind(text) ?? "unknown";
 }
 
@@ -71,7 +72,7 @@ export function bookPack(files: BookFile[], base: ContentRegistry): { pack: Cont
 
   const spells = [];
   const itemTexts: string[] = [];
-  const named: { kind: "feat" | "background" | "trait" | "feature"; entries: TextEntry[] }[] = [];
+  const named: { kind: "feat" | "background" | "trait" | "feature" | "action"; entries: TextEntry[] }[] = [];
 
   for (const f of files) {
     const kind = bookFileKind(f.text);
@@ -90,6 +91,10 @@ export function bookPack(files: BookFile[], base: ContentRegistry): { pack: Cont
     } else if (kind === "races") {
       const e = parseRaceTraits(f.text);
       named.push({ kind: "trait", entries: e });
+      count = e.length;
+    } else if (kind === "actions") {
+      const e = parseEntries(f.text);
+      named.push({ kind: "action", entries: e });
       count = e.length;
     } else if (kind === "class page") {
       const e = parseClassPage(f.text);
@@ -144,7 +149,11 @@ export function bookPack(files: BookFile[], base: ContentRegistry): { pack: Cont
   for (const group of named) {
     for (const e of group.entries) {
       const keys = [norm(e.name), norm(e.name.replace(/\s*\([^)]*\)\s*$/, ""))];
+      const isCommon = (d: Definition) => d.kind === "feature" && (d as { common?: boolean }).common === true;
       const matches = keys.flatMap((k) => byName.get(k) ?? []).filter((d) => {
+        // The actions anyone can take only get text from the actions file, and only they do.
+        if (group.kind === "action") return isCommon(d);
+        if (isCommon(d)) return false;
         if (group.kind === "feat") return d.kind === "feat";
         if (group.kind === "background") return d.kind === "background";
         return d.kind === "feature" || d.kind === "subclass";
