@@ -34,6 +34,10 @@ describe("value expressions", () => {
     expect(() => evalFlat("scale.missing", scaled)).toThrow(/No scaling value/);
   });
 
+  it("keeps the sign on negative dice (Bane)", () => {
+    expect(evalExpr("-1d4", ctx)).toEqual([{ kind: "dice", dice: "-1d4" }]);
+  });
+
   it("rejects unknown terms instead of guessing", () => {
     expect(() => evalFlat("mod.luck", ctx)).toThrow(/Unknown term/);
     expect(() => evalFlat("1d4", ctx)).toThrow(/Expected a number/);

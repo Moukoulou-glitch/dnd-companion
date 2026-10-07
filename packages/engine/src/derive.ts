@@ -14,7 +14,7 @@ import {
   type SpellcastingDef,
   type ValueExpr,
 } from "@dnd/schema";
-import { sum, signed, type Breakdown, type DicePart, type Part, type RollBreakdown, type Suggestion } from "./breakdown.js";
+import { sum, signed, signedDice, type Breakdown, type DicePart, type Part, type RollBreakdown, type Suggestion } from "./breakdown.js";
 import { evalExpr, evalFlat, type ExprContext } from "./expr.js";
 import type { ContentRegistry } from "./registry.js";
 import { collectSources, type Source } from "./sources.js";
@@ -88,6 +88,21 @@ export interface ActionResult {
   heal?: Amount;
 }
 
+/** An active effect or condition, for the status strip. */
+export interface EffectResult {
+  instanceId: string;
+  id: string;
+  name: string;
+  category: "condition" | "spell" | "other";
+  summary?: string;
+  rounds?: number;
+  level?: number;
+  maxLevel?: number;
+  concentration: boolean;
+  reminders: string[];
+  from?: string;
+}
+
 export interface ResourceResult {
   id: string;
   name: string;
@@ -114,6 +129,8 @@ export interface DerivedSheet {
   attacks: WeaponAttack[];
   /** Features the character can use (Rage, Form of Dread, Fey Step...). */
   actions: ActionResult[];
+  /** Conditions and effects on the character, in the order they were added. */
+  effects: EffectResult[];
   spellcasting: SpellcastingResult[];
   spellSlots: { level: number; total: number }[];
   pactSlots?: { count: number; level: number };
@@ -306,7 +323,7 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
     if (m.op === "advantage" || m.op === "disadvantage") return m.op;
     if (m.value === undefined) return m.op;
     return evalExpr(m.value, ctxFor(a.source))
-      .map((t) => (t.kind === "dice" ? `+${t.dice}` : signed(t.value)))
+      .map((t) => (t.kind === "dice" ? signedDice(t.dice) : signed(t.value)))
       .join(" ");
   };
 
@@ -320,8 +337,13 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
 
     let critAt: number | undefined;
     let minD20: number | undefined;
+    const autoFail: string[] = [];
     for (const a of modsFor(keys, itemInstanceId)) {
       const { mod } = a;
+      if (mod.op === "autoFail") {
+        if (conditionState(mod.when) === "pass") autoFail.push(labelOf(a));
+        continue;
+      }
       if ((mod.op === "critRange" || mod.op === "minD20") && mod.value !== undefined && conditionState(mod.when) === "pass") {
         const v = flatOf(a);
         if (mod.op === "critRange") critAt = Math.min(critAt ?? 20, v);
@@ -361,6 +383,7 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
     const result: RollBreakdown = { ...sum(parts), dice, advantage, disadvantage, suggestions };
     if (critAt !== undefined && critAt < 20) result.critAt = critAt;
     if (minD20 !== undefined && minD20 > 1) result.minD20 = minD20;
+    if (autoFail.length) result.autoFail = autoFail;
     return result;
   };
 
@@ -373,6 +396,28 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
       parts.push({ label: labelOf(a), value: flatOf(a) });
     }
     return parts;
+  };
+
+  /**
+   * A stat with every rule applied in order: base parts and additions, then
+   * multipliers (rounded down), then caps ("set": the value becomes at most N).
+   * Each step shows up as a line, so "Exhaustion 2: speed halved" reads as -20.
+   */
+  const statWith = (key: string, base: Part[]): Breakdown => {
+    const parts = [...base, ...statAdds(key)];
+    const applicable = modsFor([key]).filter((a) => a.mod.value !== undefined && a.mod.mode !== "suggested" && conditionState(a.mod.when) === "pass");
+    for (const a of applicable.filter((x) => x.mod.op === "multiply")) {
+      const before = sum(parts).total;
+      const factor = Number(a.mod.value);
+      const after = Math.floor(before * factor);
+      parts.push({ label: `${labelOf(a)} (×${factor})`, value: after - before });
+    }
+    for (const a of applicable.filter((x) => x.mod.op === "set")) {
+      const before = sum(parts).total;
+      const cap = flatOf(a);
+      if (before > cap) parts.push({ label: `${labelOf(a)} (${cap})`, value: cap - before });
+    }
+    return sum(parts);
   };
 
   const abilityPart = (ab: Ability): Part => ({ label: `${ABILITY_NAMES[ab]} modifier`, value: mods[ab] });
@@ -449,7 +494,7 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
 
   // Speed.
   const race = reg.get(c.race, "race");
-  const speed = sum([{ label: race.name, value: race.speed }, ...statAdds("stat.speed.walk")]);
+  const speed = statWith("stat.speed.walk", [{ label: race.name, value: race.speed }]);
 
   // Hit points.
   const hpParts: Part[] = [];
@@ -475,8 +520,7 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
     else hitDice.push({ die, total: cl.level, used: c.hitDiceUsed[die] ?? 0 });
   });
   hpParts.push({ label: `Constitution modifier × ${level} levels`, value: mods.con * level });
-  hpParts.push(...statAdds("stat.hp.max"));
-  const hpMax = sum(hpParts);
+  const hpMax = statWith("stat.hp.max", hpParts);
 
   // Attacks: every weapon carried (switching weapons needs no edit), plus attacks features grant.
   const attacks: WeaponAttack[] = [];
@@ -622,6 +666,28 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
     for (const [sense, range] of Object.entries(s.grant.senses ?? {})) senses[sense] = Math.max(senses[sense] ?? 0, range);
   }
 
+  const effects: EffectResult[] = c.effects.map((e) => {
+    const base = { instanceId: e.id, reminders: [] as string[], concentration: false };
+    let r: EffectResult;
+    if (e.effect === "custom" || !reg.has(e.effect)) {
+      r = { ...base, id: e.effect, name: e.custom?.name ?? e.effect, category: "other" };
+      if (!e.custom && !reg.has(e.effect)) warnings.push(`Effect "${e.effect}" isn't in the content pack.`);
+    } else {
+      const def = reg.get(e.effect, "effect");
+      const reminders = [...def.reminders];
+      for (const inc of def.includes) reminders.push(...reg.get(inc, "effect").reminders);
+      r = { ...base, id: def.id, name: def.name, category: def.category, concentration: def.concentration, reminders };
+      if (def.summary) r.summary = def.summary;
+      if (def.levels) {
+        r.level = e.level ?? 1;
+        r.maxLevel = def.levels.length;
+      }
+    }
+    if (e.rounds !== undefined) r.rounds = e.rounds;
+    if (e.from) r.from = e.from;
+    return r;
+  });
+
   const toggles: DerivedSheet["toggles"] = [];
   for (const a of active) {
     const name = a.mod.when?.toggle;
@@ -643,6 +709,7 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
     hitDice,
     attacks,
     actions,
+    effects,
     spellcasting,
     spellSlots: slots.slots.map((total, i) => ({ level: i + 1, total })),
     resources,

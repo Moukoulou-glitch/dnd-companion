@@ -1,4 +1,4 @@
-import { formatBonus, signed, type ActionResult, type DerivedSheet, type RollBreakdown, type WeaponAttack } from "@dnd/engine";
+import { formatBonus, signed, signedDice, type ActionResult, type DerivedSheet, type RollBreakdown, type WeaponAttack } from "@dnd/engine";
 import type { ReactNode } from "react";
 import { BreakdownLines } from "./Sheet";
 
@@ -6,7 +6,7 @@ type Open = (title: string, body: ReactNode) => void;
 type OpenRoll = (title: string, base: RollBreakdown, attack?: WeaponAttack) => void;
 
 export function damageText(a: WeaponAttack): string {
-  const extra = a.damage.bonus.dice.map((d) => ` +${d.dice}${d.damageType ? ` ${d.damageType}` : ""}`).join("");
+  const extra = a.damage.bonus.dice.map((d) => ` ${signedDice(d.dice)}${d.damageType ? ` ${d.damageType}` : ""}`).join("");
   const bonus = a.damage.bonus.total ? signed(a.damage.bonus.total) : "";
   return `${a.damage.dice}${bonus} ${a.damage.type}${extra}`;
 }

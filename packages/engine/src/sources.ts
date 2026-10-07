@@ -1,4 +1,4 @@
-import type { Character, ChoiceDef, ChoiceValues, Grant, Scaling } from "@dnd/schema";
+import type { Character, ChoiceDef, ChoiceValues, EffectDef, Grant, Scaling } from "@dnd/schema";
 import type { ContentRegistry } from "./registry.js";
 
 /** Something active on the character that grants things: a race, a class feature, an item, a manual entry. */
@@ -13,6 +13,13 @@ export interface Source {
   scaling?: Record<string, Scaling>;
   /** Set when the source is an item, so item-scoped modifiers stay on that item. */
   itemInstanceId?: string;
+  /** Set when the source is an active effect or condition. */
+  effectInstanceId?: string;
+}
+
+/** The modifiers an effect applies at a given level (levels are cumulative, like Exhaustion). */
+export function effectModifiers(def: EffectDef, level = 1) {
+  return [...def.modifiers, ...(def.levels ?? []).slice(0, level).flat()];
 }
 
 /** Walks the character and returns every active source, in sheet order. */
@@ -85,6 +92,23 @@ export function collectSources(c: Character, reg: ContentRegistry): Source[] {
   }
 
   c.rules.forEach(pushFeature);
+
+  // Active effects and conditions; a condition can include others (Paralyzed includes Incapacitated).
+  const seenConditions = new Set<string>();
+  const pushEffect = (def: EffectDef, instanceId: string, level: number | undefined, viaName?: string) => {
+    if (seenConditions.has(def.id) && def.category === "condition") return;
+    seenConditions.add(def.id);
+    const label = def.levels ? `${def.name} ${level ?? 1}` : viaName ? `${def.name} (${viaName})` : def.name;
+    out.push({ id: def.id, label, grant: { modifiers: effectModifiers(def, level) }, choices: {}, effectInstanceId: instanceId });
+    for (const inc of def.includes) pushEffect(reg.get(inc, "effect"), instanceId, undefined, def.name);
+  };
+  for (const e of c.effects) {
+    if (e.effect === "custom" && e.custom) {
+      out.push({ id: `custom:${e.id}`, label: e.custom.name, grant: { modifiers: e.custom.modifiers }, choices: {}, effectInstanceId: e.id });
+    } else if (reg.has(e.effect)) {
+      pushEffect(reg.get(e.effect, "effect"), e.id, e.level);
+    }
+  }
 
   c.manualGrants.forEach((m, i) => {
     out.push({ id: `manual:${i}`, label: m.label, grant: m.grant, choices: {} });

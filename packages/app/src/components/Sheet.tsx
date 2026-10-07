@@ -1,5 +1,5 @@
 import { useEffect, useRef, type ReactNode } from "react";
-import { signed, type Breakdown, type RollBreakdown } from "@dnd/engine";
+import { signed, signedDice, type Breakdown, type RollBreakdown } from "@dnd/engine";
 
 /** A bottom sheet over the current screen. Closes on the scrim, Escape, or `onClose`. */
 export function BottomSheet({ title, onClose, children }: { title: string; onClose: () => void; children: ReactNode }) {
@@ -48,14 +48,14 @@ export function BreakdownLines({ b, totalLabel = "Total" }: { b: Breakdown | Rol
               {d.label}
               {d.damageType ? ` (${d.damageType})` : ""}
             </span>
-            <b>+{d.dice}</b>
+            <b>{signedDice(d.dice)}</b>
           </li>
         ))}
         <li className="total">
           <span>{totalLabel}</span>
           <span>
             {signed(b.total)}
-            {roll?.dice.map((d) => ` +${d.dice}`).join("")}
+            {roll?.dice.map((d) => ` ${signedDice(d.dice)}`).join("")}
           </span>
         </li>
       </ul>

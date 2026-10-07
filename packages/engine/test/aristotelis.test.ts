@@ -63,7 +63,7 @@ describe("Αριστοτέλης (Wizard 4)", () => {
   it("AC 15 with Mage Armor up, 12 without", () => {
     expect(sheet.ac.total).toBe(15);
     expect(sheet.ac.parts.map((p) => p.label)).toEqual(["Mage Armor", "Dexterity modifier"]);
-    const noArmor = derive({ ...character, toggles: [] }, reg);
+    const noArmor = derive({ ...character, effects: [] }, reg);
     expect(noArmor.ac.total).toBe(12);
   });
 

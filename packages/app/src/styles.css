@@ -883,3 +883,79 @@ h2 {
 .big:disabled {
   opacity: 0.4;
 }
+
+/* ── Effects ─────────────────────────────────────────────── */
+
+.chip {
+  flex: none;
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 15px;
+  font-weight: 700;
+  border: 1px solid var(--line);
+}
+
+.chip.condition {
+  border-color: color-mix(in srgb, var(--hp) 60%, transparent);
+  background: var(--hp-soft);
+  color: var(--hp);
+}
+
+.chip.spell {
+  border-color: color-mix(in srgb, var(--teal) 60%, transparent);
+  background: var(--teal-soft);
+  color: var(--teal);
+}
+
+.chip.other {
+  border-color: color-mix(in srgb, var(--gold) 60%, transparent);
+  background: var(--gold-soft);
+  color: var(--gold);
+}
+
+.chip.add {
+  color: var(--muted);
+  border-style: dashed;
+  font-weight: 500;
+}
+
+.reminders {
+  margin: 0;
+  padding-left: 1.1em;
+}
+
+.reminders li {
+  margin: 4px 0;
+}
+
+.choice-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.warn {
+  border: 1px solid color-mix(in srgb, var(--hp) 50%, transparent);
+  background: var(--hp-soft);
+  color: var(--text);
+  border-radius: var(--radius-m);
+  padding: 8px 12px;
+  margin: 0 0 10px;
+}
+
+.big .sub {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.stepper button:disabled {
+  opacity: 0.35;
+}
+
+.tag.fail,
+.tag.dis {
+  border-color: var(--hp);
+  color: var(--hp);
+}

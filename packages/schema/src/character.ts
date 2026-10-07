@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { Ability, DefId, Ruleset } from "./core.js";
-import { Grant } from "./modifiers.js";
+import { Grant, Modifier } from "./modifiers.js";
 
 export const SCHEMA_VERSION = 1;
 
@@ -53,6 +53,26 @@ export const ManualGrant = z
   })
   .strict();
 export type ManualGrant = z.infer<typeof ManualGrant>;
+
+/** An effect currently on the character. */
+export const EffectInstance = z
+  .object({
+    id: z.string(),
+    /** Pack effect id, or "custom" with `custom` filled in. */
+    effect: DefId,
+    custom: z
+      .object({ name: z.string(), modifiers: z.array(Modifier) })
+      .strict()
+      .optional(),
+    /** Rounds left; absent = until removed. */
+    rounds: z.number().int().min(0).optional(),
+    /** For leveled effects (Exhaustion). */
+    level: z.number().int().min(1).optional(),
+    /** Who or what applied it, e.g. "Cleric's Bless". */
+    from: z.string().optional(),
+  })
+  .strict();
+export type EffectInstance = z.infer<typeof EffectInstance>;
 
 export const Note = z
   .object({
@@ -107,6 +127,8 @@ export const Character = z
     slotsUsed: z.record(z.string(), z.number().int().min(0)).default({}),
     /** Pact Magic slots spent. */
     pactSlotsUsed: z.number().int().min(0).default(0),
+    /** Conditions and effects currently on the character. */
+    effects: z.array(EffectInstance).default([]),
     /** Named on/off states the engine reads, e.g. "raging". */
     toggles: z.array(z.string()).default([]),
     inspiration: z.boolean().default(false),

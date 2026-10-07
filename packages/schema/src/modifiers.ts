@@ -74,6 +74,12 @@ export const ModifierOp = z.enum([
   "critBonusDamage",
   /** Raise the Dexterity cap of medium armor to `value` (Medium Armor Master: 3). Selector stat.ac. */
   "mediumArmorDexCap",
+  /** Stats: the value becomes at most `value` (Grappled: speed 0). */
+  "set",
+  /** Stats: multiply, rounding down (Exhaustion 2: speed × 0.5; Haste: × 2). */
+  "multiply",
+  /** Rolls: the roll fails automatically (Paralyzed: Strength and Dexterity saves). */
+  "autoFail",
   "resist",
   "vulnerable",
   "immune",

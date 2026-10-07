@@ -19,7 +19,9 @@ function RollRow({ title, sub, roll, mark, onOpen }: { title: string; sub?: stri
         <div className="row-title">{title}</div>
         {sub && <div className="row-sub">{sub}</div>}
       </div>
-      {roll.advantage.length > roll.disadvantage.length ? <span className="tag adv">adv</span> : null}
+      {roll.autoFail && roll.autoFail.length > 0 && <span className="tag fail">fails</span>}
+      {roll.advantage.length > 0 && roll.disadvantage.length === 0 ? <span className="tag adv">adv</span> : null}
+      {roll.disadvantage.length > 0 && roll.advantage.length === 0 ? <span className="tag dis">disadv</span> : null}
       {roll.suggestions.length > 0 && <span className="tag">?</span>}
       <span className="num">{formatBonus(roll)}</span>
     </button>

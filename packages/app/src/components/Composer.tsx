@@ -265,6 +265,11 @@ export function Composer({ title, base, attack, physical, onPhysicalChange, onRo
     return (
       <>
         {diceSwitch}
+        {base.autoFail && base.autoFail.length > 0 && (
+          <p className="warn">
+            Fails automatically ({base.autoFail.join(", ")}). Roll anyway only if your DM rules otherwise.
+          </p>
+        )}
         <FormulaLines c={d20} />
         {d20.d20Mode !== "normal" && (
           <p className="note">

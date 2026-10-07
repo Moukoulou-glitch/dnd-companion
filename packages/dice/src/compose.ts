@@ -19,6 +19,8 @@ export interface ComposerBase {
   }[];
   critAt?: number;
   minD20?: number;
+  /** Sources that make the roll fail automatically; the composer warns but still lets you roll. */
+  autoFail?: string[];
 }
 
 /** What the player changed in the composer. */

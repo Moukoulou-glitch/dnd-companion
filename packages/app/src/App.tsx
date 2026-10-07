@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { formatBonus } from "@dnd/engine";
 import type { ComposerBase } from "@dnd/dice";
-import type { ActionResult, WeaponAttack } from "@dnd/engine";
+import type { ActionResult, EffectResult, WeaponAttack } from "@dnd/engine";
 import { ActionsTab } from "./components/ActionsTab";
 import { Composer, ResultView } from "./components/Composer";
+import { AddEffectPanel, EffectChips, EffectPanel } from "./components/Effects";
 import { FeaturePanel } from "./components/FeaturePanel";
 import { HpPad } from "./components/HpPad";
 import { AddItemPanel, CoinPanel, InventoryTab, ItemPanel } from "./components/InventoryTab";
@@ -50,7 +51,8 @@ export function App() {
   if (!s.character || !s.sheet) return <p style={{ padding: 16 }}>No characters on this device yet.</p>;
 
   const { character: c, sheet } = s;
-  const hpPct = Math.round((c.hp.current / sheet.hpMax.total) * 100);
+  const hpNow = Math.min(c.hp.current, sheet.hpMax.total);
+  const hpPct = Math.round((hpNow / sheet.hpMax.total) * 100);
 
   const openHp = () =>
     open(
@@ -140,6 +142,15 @@ export function App() {
   const openCoin = (coin: "cp" | "sp" | "ep" | "gp" | "pp", label: string) =>
     open(label, () => <CoinPanel coin={coin} label={label} have={live.current.character?.currency[coin] ?? 0} act={live.current.act} />);
 
+  const openEffect = (e: EffectResult) =>
+    open(e.name, () => {
+      const current = live.current.sheet?.effects.find((x) => x.instanceId === e.instanceId);
+      if (!current) return <p className="note">{e.name} has ended.</p>;
+      return <EffectPanel e={current} act={live.current.act} close={close} />;
+    });
+
+  const openAddEffect = () => open("Add an effect", <AddEffectPanel registry={registry} act={s.act} close={close} />);
+
   const openRollHistory = () =>
     open("Rolls", () => (
       <>
@@ -198,10 +209,10 @@ export function App() {
         </button>
 
         <div className="vitals">
-          <button className="hp" onClick={openHp} aria-label={`Hit points ${c.hp.current} of ${sheet.hpMax.total}${c.hp.temp ? `, ${c.hp.temp} temporary` : ""}. Change`}>
+          <button className="hp" onClick={openHp} aria-label={`Hit points ${hpNow} of ${sheet.hpMax.total}${c.hp.temp ? `, ${c.hp.temp} temporary` : ""}. Change`}>
             <div style={{ width: "100%" }}>
               <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
-                <span className="hp-now">{c.hp.current}</span>
+                <span className="hp-now">{hpNow}</span>
                 <span className="hp-max">/ {sheet.hpMax.total}</span>
                 {c.hp.temp > 0 && <span className="hp-temp">+{c.hp.temp} temp</span>}
               </div>
@@ -223,6 +234,8 @@ export function App() {
             <small>Speed</small>
           </button>
         </div>
+
+        <EffectChips effects={sheet.effects} onOpen={openEffect} onAdd={openAddEffect} />
 
         {sheet.toggles.length > 0 && (
           <div className="switches" role="group" aria-label="Active states">

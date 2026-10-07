@@ -266,6 +266,60 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
       break;
     }
 
+    case "addEffect": {
+      const { instanceId, effect, custom, rounds, level, from } = op.payload;
+      if (c.effects.some((e) => e.id === instanceId)) break;
+      const def = effect !== "custom" && reg.has(effect) ? reg.get(effect, "effect") : undefined;
+      const existing = def ? c.effects.find((e) => e.effect === effect) : undefined;
+      if (def && existing && def.levels) {
+        // Exhaustion stacks as levels rather than copies.
+        existing.level = Math.min(def.levels.length, (existing.level ?? 1) + (level ?? 1));
+        notes.push(`${def.name} is now level ${existing.level}.`);
+        if (existing.level >= def.levels.length && def.id === "condition:exhaustion") notes.push("Exhaustion 6: the character dies.");
+        break;
+      }
+      if (def?.category === "condition" && existing) {
+        notes.push(`Already ${def.name.toLowerCase()}.`);
+        break;
+      }
+      const entry: Character["effects"][number] = { id: instanceId, effect };
+      if (custom) entry.custom = custom;
+      const r = rounds ?? def?.rounds;
+      if (r !== undefined) entry.rounds = r;
+      if (def?.levels) entry.level = Math.min(def.levels.length, level ?? 1);
+      if (from) entry.from = from;
+      c.effects.push(entry);
+      break;
+    }
+
+    case "removeEffect": {
+      c.effects = c.effects.filter((e) => e.id !== op.payload.instanceId);
+      break;
+    }
+
+    case "updateEffect": {
+      const e = c.effects.find((x) => x.id === op.payload.instanceId);
+      if (!e) break;
+      const { rounds, level } = op.payload;
+      if (rounds === null) delete e.rounds;
+      else if (rounds !== undefined) e.rounds = rounds;
+      if (level !== undefined) e.level = level;
+      break;
+    }
+
+    case "endTurn": {
+      const ended: string[] = [];
+      c.effects = c.effects.filter((e) => {
+        if (e.rounds === undefined) return true;
+        e.rounds -= 1;
+        if (e.rounds > 0) return true;
+        ended.push(e.custom?.name ?? (reg.has(e.effect) ? reg.get(e.effect, "effect").name : e.effect));
+        return false;
+      });
+      if (ended.length) notes.push(`Ended: ${ended.join(", ")}.`);
+      break;
+    }
+
     case "deathSave": {
       const ds = c.deathSaves;
       switch (op.payload.result) {
@@ -309,6 +363,15 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
       target[path.at(-1)!] = value;
       // Edits must still produce a valid character.
       return { character: Character.parse(c), notes };
+    }
+  }
+
+  // A lower HP maximum (Exhaustion 4, Aid ending) pulls current HP down with it.
+  if (["addEffect", "removeEffect", "updateEffect", "endTurn", "setItem", "removeItem"].includes(op.type)) {
+    const newMax = derive(c, reg).hpMax.total;
+    if (c.hp.current > newMax) {
+      c.hp.current = newMax;
+      notes.push(`HP lowered to the new maximum of ${newMax}.`);
     }
   }
 

@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { Ability, DamageType, DefId, Ruleset } from "./core.js";
-import { ChoiceDef, Grant, SpellcastingDef } from "./modifiers.js";
+import { ChoiceDef, Grant, Modifier, SpellcastingDef } from "./modifiers.js";
 
 /**
  * Where a definition comes from. `book` and `page` are references only;
@@ -178,7 +178,32 @@ export const ItemDef = z
   .strict();
 export type ItemDef = z.infer<typeof ItemDef>;
 
+/**
+ * Something affecting the character for a while: a condition, a spell cast
+ * on them, a DM ruling. Its modifiers apply while it is active.
+ */
+export const EffectDef = z
+  .object({
+    ...base,
+    kind: z.literal("effect"),
+    category: z.enum(["condition", "spell", "other"]),
+    modifiers: z.array(Modifier).default([]),
+    /** Default duration in rounds; leave out for "until removed". */
+    rounds: z.number().int().min(1).optional(),
+    /** Ends if the caster loses concentration. */
+    concentration: z.boolean().default(false),
+    /** Exhaustion-style levels: level n applies the modifiers of levels 1..n. */
+    levels: z.array(z.array(Modifier)).optional(),
+    /** Other conditions this one includes (Paralyzed includes Incapacitated). */
+    includes: z.array(DefId).default([]),
+    /** Reminders for what the app can't apply itself, e.g. "Attacks against you have advantage". */
+    reminders: z.array(z.string()).default([]),
+  })
+  .strict();
+export type EffectDef = z.infer<typeof EffectDef>;
+
 export const Definition = z.discriminatedUnion("kind", [
+  EffectDef,
   FeatureDef,
   ClassDef,
   SubclassDef,

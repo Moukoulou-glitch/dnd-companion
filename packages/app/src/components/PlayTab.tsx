@@ -61,6 +61,19 @@ export function PlayTab({
         </button>
       </section>
 
+      {sheet.effects.some((e) => e.rounds !== undefined) && (
+        <button className="big wide" onClick={() => act("endTurn", {}, "Turn ended.")}>
+          End of my turn
+          <span className="sub">
+            {sheet.effects
+              .filter((e) => e.rounds !== undefined)
+              .map((e) => `${e.name} ${e.rounds}`)
+              .join(", ")}{" "}
+            rounds left
+          </span>
+        </button>
+      )}
+
       {down && (
         <section>
           <h2>Death saves</h2>

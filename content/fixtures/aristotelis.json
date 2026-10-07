@@ -60,28 +60,9 @@
           }
         ]
       }
-    },
-    {
-      "label": "Mage Armor",
-      "grant": {
-        "modifiers": [
-          {
-            "selector": "stat.ac",
-            "op": "acBase",
-            "value": "13 + mod.dex",
-            "label": "Mage Armor",
-            "when": {
-              "noArmor": true,
-              "toggle": "mage-armor"
-            }
-          }
-        ]
-      }
     }
   ],
-  "toggles": [
-    "mage-armor"
-  ],
+  "toggles": [],
   "inventory": [
     {
       "id": "i1",
@@ -128,5 +109,12 @@
   },
   "resourcesUsed": {
     "arcane-recovery": 1
-  }
+  },
+  "effects": [
+    {
+      "id": "e-mage-armor",
+      "effect": "spell:mage-armor",
+      "from": "Cast at the start of the day"
+    }
+  ]
 }

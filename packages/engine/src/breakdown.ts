@@ -35,6 +35,8 @@ export interface RollBreakdown extends Breakdown {
   critAt?: number;
   /** Any d20 below this counts as this (Reliable Talent). */
   minD20?: number;
+  /** Sources that make this roll fail automatically (Paralyzed on Dexterity saves). */
+  autoFail?: string[];
   dice: DicePart[];
   advantage: string[];
   disadvantage: string[];
@@ -50,15 +52,20 @@ export function signed(n: number): string {
 }
 
 /** "+7" or "+7 +1d4": the bonus as a player would read it. */
+/** "1d4" → "+1d4", "-1d4" stays "-1d4". */
+export function signedDice(dice: string): string {
+  return dice.startsWith("-") ? dice : `+${dice}`;
+}
+
 export function formatBonus(r: Pick<RollBreakdown, "total" | "dice">): string {
-  return [signed(r.total), ...r.dice.map((d) => `+${d.dice}`)].join(" ");
+  return [signed(r.total), ...r.dice.map((d) => signedDice(d.dice))].join(" ");
 }
 
 /** Multi-line, human-readable breakdown used in tests and debugging. */
 export function explain(b: Breakdown | RollBreakdown): string {
   const lines = b.parts.map((p) => `${signed(p.value).padStart(4)}  ${p.label}`);
   if ("dice" in b) {
-    for (const d of b.dice) lines.push(`+${d.dice}  ${d.label}`);
+    for (const d of b.dice) lines.push(`${signedDice(d.dice)}  ${d.label}`);
     for (const a of b.advantage) lines.push(` adv  ${a}`);
     for (const a of b.disadvantage) lines.push(` dis  ${a}`);
     for (const s of b.suggestions) lines.push(`  ?   ${s.label} (${s.effect})`);

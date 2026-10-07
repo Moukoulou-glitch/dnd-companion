@@ -44,13 +44,13 @@ Definitions carry mechanics, a short summary in our own words, and a book and pa
 | 1 · App | First screens: status strip with HP pad, Play (features, slots, Hit Dice, rests, death saves), Actions (attacks, spellcasting), Sheet (abilities, saves, skills, passives); every number opens its breakdown; undo toast; saved on the device; JSON export |
 | 2 · Dice and composer | Done: tap any save, skill, initiative or attack to open the composer; optional modifiers as checkboxes (carried from attack to damage); advantage and disadvantage with the 2014 cancelling rule; extra bonus; real dice (default) or app rolls per character; critical damage with Brutal Critical and Vicious; last 200 rolls saved per character |
 | 3 · Features and inventory | Done: features you can use (Rage, Form of Dread, Fey Step, Favored Foe, Portent, free casts, Flame Tongue...) grouped by action, bonus action, reaction and free; using one spends its uses, switches on its effects and records rolled temp HP; Inventory tab with equip, attune (limit warning), quantities, add and remove items, coins, weight |
+| 4 · Effects and conditions | Done: all 14 conditions and Exhaustion (2014 rules, cumulative levels), with included conditions (Paralyzed brings Incapacitated); spell effects (Bless, Bane, Guidance, Haste, Slow, Shield, Shield of Faith, Mage Armor, Hunter's Mark, Hex, Heroism, Aid, Blur, Faerie Fire, Hold Person), Bardic Inspiration, Dodge, cover; custom effects for DM rulings; durations in rounds with End of my turn; reminders for what the app can't apply; auto-fail warnings; speed and HP max halving and caps |
 | Remaining from 1 | Editing a character in the app, importing a file |
 
 ### Shortcuts to revisit
 
 - Variant human ability bonuses aren't recorded for Ελισσαίος and Αγακλής, so those +1s are folded into their base scores.
 - Dual Wielder's +2 AC is switched on with the `dual-wielding` toggle until the app can tell what is in each hand.
-- Mage Armor is a manual entry with a toggle until the effects system (Phase 4).
 
 - The ranger class in `table-2014.json` already uses the Tasha's optional features. A general "optional class features" switch comes with the character builder.
 - Μπέρεν's Acrobatics, Medicine and History proficiencies and his Druidic language are kept as the player's own entries (a manual grant), by the DM's decision.

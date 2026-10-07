@@ -1,0 +1,994 @@
+{
+  "definitions": [
+    {
+      "kind": "effect",
+      "id": "condition:blinded",
+      "name": "Blinded",
+      "category": "condition",
+      "summary": "You can't see.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 290
+      },
+      "modifiers": [
+        {
+          "selector": "roll.attack.*",
+          "op": "disadvantage"
+        }
+      ],
+      "reminders": [
+        "You automatically fail ability checks that need sight.",
+        "Attacks against you have advantage."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "condition:charmed",
+      "name": "Charmed",
+      "category": "condition",
+      "summary": "Charmed by a creature.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 290
+      },
+      "modifiers": [],
+      "reminders": [
+        "You can't attack the charmer or target it with harmful abilities or magic.",
+        "The charmer has advantage on social checks with you."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "condition:deafened",
+      "name": "Deafened",
+      "category": "condition",
+      "summary": "You can't hear.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 290
+      },
+      "modifiers": [],
+      "reminders": [
+        "You automatically fail ability checks that need hearing."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "condition:frightened",
+      "name": "Frightened",
+      "category": "condition",
+      "summary": "Afraid of a creature.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 290
+      },
+      "modifiers": [
+        {
+          "selector": "roll.attack.*",
+          "op": "disadvantage"
+        },
+        {
+          "selector": "roll.check.*",
+          "op": "disadvantage"
+        }
+      ],
+      "reminders": [
+        "The disadvantage applies only while the source of your fear is in sight.",
+        "You can't willingly move closer to it."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "condition:grappled",
+      "name": "Grappled",
+      "category": "condition",
+      "summary": "Held in place.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 290
+      },
+      "modifiers": [
+        {
+          "selector": "stat.speed.walk",
+          "op": "set",
+          "value": 0
+        }
+      ],
+      "reminders": [
+        "Ends if the grappler is incapacitated or an effect moves you out of its reach."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "condition:incapacitated",
+      "name": "Incapacitated",
+      "category": "condition",
+      "summary": "You can't act.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 290
+      },
+      "modifiers": [],
+      "reminders": [
+        "You can't take actions or reactions."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "condition:invisible",
+      "name": "Invisible",
+      "category": "condition",
+      "summary": "Can't be seen without magic or a special sense.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 291
+      },
+      "modifiers": [
+        {
+          "selector": "roll.attack.*",
+          "op": "advantage"
+        }
+      ],
+      "reminders": [
+        "Attacks against you have disadvantage."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "condition:paralyzed",
+      "name": "Paralyzed",
+      "category": "condition",
+      "summary": "You can't move or speak.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 291
+      },
+      "modifiers": [
+        {
+          "selector": "stat.speed.walk",
+          "op": "set",
+          "value": 0
+        },
+        {
+          "selector": "roll.save.str",
+          "op": "autoFail"
+        },
+        {
+          "selector": "roll.save.dex",
+          "op": "autoFail"
+        }
+      ],
+      "includes": [
+        "condition:incapacitated"
+      ],
+      "reminders": [
+        "Attacks against you have advantage.",
+        "Hits against you from within 5 ft are critical hits."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "condition:petrified",
+      "name": "Petrified",
+      "category": "condition",
+      "summary": "Turned to stone.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 291
+      },
+      "modifiers": [
+        {
+          "selector": "stat.speed.walk",
+          "op": "set",
+          "value": 0
+        },
+        {
+          "selector": "roll.save.str",
+          "op": "autoFail"
+        },
+        {
+          "selector": "roll.save.dex",
+          "op": "autoFail"
+        },
+        {
+          "selector": "defense.resist.acid",
+          "op": "resist"
+        },
+        {
+          "selector": "defense.resist.bludgeoning",
+          "op": "resist"
+        },
+        {
+          "selector": "defense.resist.cold",
+          "op": "resist"
+        },
+        {
+          "selector": "defense.resist.fire",
+          "op": "resist"
+        },
+        {
+          "selector": "defense.resist.force",
+          "op": "resist"
+        },
+        {
+          "selector": "defense.resist.lightning",
+          "op": "resist"
+        },
+        {
+          "selector": "defense.resist.necrotic",
+          "op": "resist"
+        },
+        {
+          "selector": "defense.resist.piercing",
+          "op": "resist"
+        },
+        {
+          "selector": "defense.resist.poison",
+          "op": "resist"
+        },
+        {
+          "selector": "defense.resist.psychic",
+          "op": "resist"
+        },
+        {
+          "selector": "defense.resist.radiant",
+          "op": "resist"
+        },
+        {
+          "selector": "defense.resist.slashing",
+          "op": "resist"
+        },
+        {
+          "selector": "defense.resist.thunder",
+          "op": "resist"
+        }
+      ],
+      "includes": [
+        "condition:incapacitated"
+      ],
+      "reminders": [
+        "Attacks against you have advantage.",
+        "Immune to poison and disease; any already in you is suspended."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "condition:poisoned",
+      "name": "Poisoned",
+      "category": "condition",
+      "summary": "Sickened by poison.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 292
+      },
+      "modifiers": [
+        {
+          "selector": "roll.attack.*",
+          "op": "disadvantage"
+        },
+        {
+          "selector": "roll.check.*",
+          "op": "disadvantage"
+        }
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "condition:prone",
+      "name": "Prone",
+      "category": "condition",
+      "summary": "Lying on the ground.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 292
+      },
+      "modifiers": [
+        {
+          "selector": "roll.attack.*",
+          "op": "disadvantage"
+        }
+      ],
+      "reminders": [
+        "Standing up costs half your speed.",
+        "Melee attacks against you from within 5 ft have advantage; other attacks have disadvantage."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "condition:restrained",
+      "name": "Restrained",
+      "category": "condition",
+      "summary": "Held fast.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 292
+      },
+      "modifiers": [
+        {
+          "selector": "stat.speed.walk",
+          "op": "set",
+          "value": 0
+        },
+        {
+          "selector": "roll.attack.*",
+          "op": "disadvantage"
+        },
+        {
+          "selector": "roll.save.dex",
+          "op": "disadvantage"
+        }
+      ],
+      "reminders": [
+        "Attacks against you have advantage."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "condition:stunned",
+      "name": "Stunned",
+      "category": "condition",
+      "summary": "Reeling and barely able to act.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 292
+      },
+      "modifiers": [
+        {
+          "selector": "stat.speed.walk",
+          "op": "set",
+          "value": 0
+        },
+        {
+          "selector": "roll.save.str",
+          "op": "autoFail"
+        },
+        {
+          "selector": "roll.save.dex",
+          "op": "autoFail"
+        }
+      ],
+      "includes": [
+        "condition:incapacitated"
+      ],
+      "reminders": [
+        "Attacks against you have advantage.",
+        "You can speak only falteringly."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "condition:unconscious",
+      "name": "Unconscious",
+      "category": "condition",
+      "summary": "Out cold.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 292
+      },
+      "modifiers": [
+        {
+          "selector": "stat.speed.walk",
+          "op": "set",
+          "value": 0
+        },
+        {
+          "selector": "roll.save.str",
+          "op": "autoFail"
+        },
+        {
+          "selector": "roll.save.dex",
+          "op": "autoFail"
+        }
+      ],
+      "includes": [
+        "condition:incapacitated",
+        "condition:prone"
+      ],
+      "reminders": [
+        "Attacks against you have advantage.",
+        "Hits against you from within 5 ft are critical hits.",
+        "You drop what you're holding."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "condition:exhaustion",
+      "name": "Exhaustion",
+      "category": "condition",
+      "summary": "Levels stack; each adds to the ones before.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 291
+      },
+      "modifiers": [],
+      "levels": [
+        [
+          {
+            "selector": "roll.check.*",
+            "op": "disadvantage"
+          }
+        ],
+        [
+          {
+            "selector": "stat.speed.walk",
+            "op": "multiply",
+            "value": 0.5
+          }
+        ],
+        [
+          {
+            "selector": "roll.attack.*",
+            "op": "disadvantage"
+          },
+          {
+            "selector": "roll.save.*",
+            "op": "disadvantage"
+          }
+        ],
+        [
+          {
+            "selector": "stat.hp.max",
+            "op": "multiply",
+            "value": 0.5
+          }
+        ],
+        [
+          {
+            "selector": "stat.speed.walk",
+            "op": "set",
+            "value": 0
+          }
+        ],
+        []
+      ],
+      "reminders": [
+        "A long rest with food and drink removes one level.",
+        "Level 6 is death."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "spell:bless",
+      "name": "Bless",
+      "category": "spell",
+      "summary": "+1d4 to attack rolls and saving throws.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 219
+      },
+      "modifiers": [
+        {
+          "selector": "roll.attack.*",
+          "op": "add",
+          "value": "1d4",
+          "stackingKey": "spell:bless"
+        },
+        {
+          "selector": "roll.save.*",
+          "op": "add",
+          "value": "1d4",
+          "stackingKey": "spell:bless"
+        }
+      ],
+      "rounds": 10,
+      "concentration": true
+    },
+    {
+      "kind": "effect",
+      "id": "spell:bane",
+      "name": "Bane",
+      "category": "spell",
+      "summary": "-1d4 to attack rolls and saving throws.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 216
+      },
+      "modifiers": [
+        {
+          "selector": "roll.attack.*",
+          "op": "add",
+          "value": "-1d4",
+          "stackingKey": "spell:bane"
+        },
+        {
+          "selector": "roll.save.*",
+          "op": "add",
+          "value": "-1d4",
+          "stackingKey": "spell:bane"
+        }
+      ],
+      "rounds": 10,
+      "concentration": true
+    },
+    {
+      "kind": "effect",
+      "id": "spell:guidance",
+      "name": "Guidance",
+      "category": "spell",
+      "summary": "+1d4 to one ability check of your choice, then it ends.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 248
+      },
+      "modifiers": [
+        {
+          "selector": "roll.check.*",
+          "op": "add",
+          "value": "1d4",
+          "mode": "suggested",
+          "label": "Guidance",
+          "when": {
+            "text": "one check; remove Guidance after using it"
+          }
+        }
+      ],
+      "rounds": 10,
+      "concentration": true
+    },
+    {
+      "kind": "effect",
+      "id": "spell:haste",
+      "name": "Haste",
+      "category": "spell",
+      "summary": "+2 AC, advantage on Dexterity saves, speed doubled, one extra action each turn.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 250
+      },
+      "modifiers": [
+        {
+          "selector": "stat.ac",
+          "op": "add",
+          "value": 2
+        },
+        {
+          "selector": "roll.save.dex",
+          "op": "advantage"
+        },
+        {
+          "selector": "stat.speed.walk",
+          "op": "multiply",
+          "value": 2
+        }
+      ],
+      "rounds": 10,
+      "concentration": true,
+      "reminders": [
+        "Extra action: one weapon attack, Dash, Disengage, Hide or Use an Object.",
+        "When it ends you can't move or act until after your next turn."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "spell:slow",
+      "name": "Slow",
+      "category": "spell",
+      "summary": "-2 AC and Dexterity saves, half speed, no reactions.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 277
+      },
+      "modifiers": [
+        {
+          "selector": "stat.ac",
+          "op": "add",
+          "value": -2
+        },
+        {
+          "selector": "roll.save.dex",
+          "op": "add",
+          "value": -2
+        },
+        {
+          "selector": "stat.speed.walk",
+          "op": "multiply",
+          "value": 0.5
+        }
+      ],
+      "rounds": 10,
+      "concentration": true,
+      "reminders": [
+        "No reactions. An action or a bonus action on your turn, not both. At most one attack.",
+        "Spells with a casting time of 1 action may be delayed (d20 of 11+ to cast now)."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "spell:shield",
+      "name": "Shield",
+      "category": "spell",
+      "summary": "+5 AC, no damage from Magic Missile.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 275
+      },
+      "modifiers": [
+        {
+          "selector": "stat.ac",
+          "op": "add",
+          "value": 5
+        }
+      ],
+      "reminders": [
+        "Remove it at the start of your next turn."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "spell:shield-of-faith",
+      "name": "Shield of Faith",
+      "category": "spell",
+      "summary": "+2 AC.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 275
+      },
+      "modifiers": [
+        {
+          "selector": "stat.ac",
+          "op": "add",
+          "value": 2
+        }
+      ],
+      "rounds": 100,
+      "concentration": true
+    },
+    {
+      "kind": "effect",
+      "id": "spell:mage-armor",
+      "name": "Mage Armor",
+      "category": "spell",
+      "summary": "AC 13 + Dexterity while not wearing armor. 8 hours.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 256
+      },
+      "modifiers": [
+        {
+          "selector": "stat.ac",
+          "op": "acBase",
+          "value": "13 + mod.dex",
+          "when": {
+            "noArmor": true
+          },
+          "label": "Mage Armor"
+        }
+      ],
+      "reminders": [
+        "Ends if you put on armor or after 8 hours."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "spell:hunters-mark",
+      "name": "Hunter's Mark",
+      "category": "spell",
+      "summary": "+1d6 weapon damage against the marked target.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 251
+      },
+      "modifiers": [
+        {
+          "selector": "roll.damage.weapon.*",
+          "op": "add",
+          "value": "1d6",
+          "label": "Hunter's Mark",
+          "when": {
+            "text": "only against the marked target"
+          }
+        }
+      ],
+      "concentration": true,
+      "reminders": [
+        "Advantage on Perception and Survival checks to find the marked target.",
+        "Bonus action to move the mark when the target drops to 0 HP."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "spell:hex",
+      "name": "Hex",
+      "category": "spell",
+      "summary": "+1d6 necrotic damage against the cursed target.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 251
+      },
+      "modifiers": [
+        {
+          "selector": "roll.damage.*",
+          "op": "add",
+          "value": "1d6",
+          "damageType": "necrotic",
+          "label": "Hex",
+          "when": {
+            "text": "only against the cursed target"
+          }
+        }
+      ],
+      "concentration": true,
+      "reminders": [
+        "The target has disadvantage on checks with the ability you chose."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "spell:heroism",
+      "name": "Heroism",
+      "category": "spell",
+      "summary": "Immune to frightened; temp HP each turn.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 250
+      },
+      "modifiers": [],
+      "rounds": 10,
+      "concentration": true,
+      "reminders": [
+        "At the start of each of your turns, gain temp HP equal to the caster's spellcasting modifier."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "spell:aid",
+      "name": "Aid",
+      "category": "spell",
+      "summary": "+5 HP maximum (more if upcast) for 8 hours.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 211
+      },
+      "modifiers": [
+        {
+          "selector": "stat.hp.max",
+          "op": "add",
+          "value": 5
+        }
+      ],
+      "reminders": [
+        "Your current HP also went up by 5 when it was cast: use Heal."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "spell:blur",
+      "name": "Blur",
+      "category": "spell",
+      "summary": "Attackers that rely on sight have disadvantage.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 219
+      },
+      "modifiers": [],
+      "rounds": 10,
+      "concentration": true
+    },
+    {
+      "kind": "effect",
+      "id": "spell:faerie-fire",
+      "name": "Faerie Fire",
+      "category": "spell",
+      "summary": "You glow: attacks against you have advantage.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 239
+      },
+      "modifiers": [],
+      "rounds": 10,
+      "concentration": true,
+      "reminders": [
+        "Attacks against you have advantage.",
+        "You can't benefit from being invisible."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "spell:hold-person",
+      "name": "Hold Person",
+      "category": "spell",
+      "summary": "Paralyzed by magic.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 251
+      },
+      "modifiers": [],
+      "includes": [
+        "condition:paralyzed"
+      ],
+      "rounds": 10,
+      "concentration": true,
+      "reminders": [
+        "Wisdom save at the end of each of your turns ends it."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "other:bardic-inspiration-d6",
+      "name": "Bardic Inspiration (d6)",
+      "category": "other",
+      "summary": "Add the die to one attack, check or save within 10 minutes.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 53
+      },
+      "modifiers": [
+        {
+          "selector": "roll.attack.*",
+          "op": "add",
+          "value": "1d6",
+          "mode": "suggested",
+          "label": "Bardic Inspiration",
+          "when": {
+            "text": "once; remove it after using it"
+          }
+        },
+        {
+          "selector": "roll.save.*",
+          "op": "add",
+          "value": "1d6",
+          "mode": "suggested",
+          "label": "Bardic Inspiration",
+          "when": {
+            "text": "once; remove it after using it"
+          }
+        },
+        {
+          "selector": "roll.check.*",
+          "op": "add",
+          "value": "1d6",
+          "mode": "suggested",
+          "label": "Bardic Inspiration",
+          "when": {
+            "text": "once; remove it after using it"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "other:bardic-inspiration-d8",
+      "name": "Bardic Inspiration (d8)",
+      "category": "other",
+      "summary": "Add the die to one attack, check or save within 10 minutes.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 53
+      },
+      "modifiers": [
+        {
+          "selector": "roll.attack.*",
+          "op": "add",
+          "value": "1d8",
+          "mode": "suggested",
+          "label": "Bardic Inspiration",
+          "when": {
+            "text": "once; remove it after using it"
+          }
+        },
+        {
+          "selector": "roll.save.*",
+          "op": "add",
+          "value": "1d8",
+          "mode": "suggested",
+          "label": "Bardic Inspiration",
+          "when": {
+            "text": "once; remove it after using it"
+          }
+        },
+        {
+          "selector": "roll.check.*",
+          "op": "add",
+          "value": "1d8",
+          "mode": "suggested",
+          "label": "Bardic Inspiration",
+          "when": {
+            "text": "once; remove it after using it"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "other:dodge",
+      "name": "Dodging",
+      "category": "other",
+      "summary": "You took the Dodge action.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 192
+      },
+      "modifiers": [
+        {
+          "selector": "roll.save.dex",
+          "op": "advantage"
+        }
+      ],
+      "reminders": [
+        "Attacks against you have disadvantage if you can see the attacker.",
+        "Remove it at the start of your next turn."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "other:half-cover",
+      "name": "Half cover",
+      "category": "other",
+      "summary": "+2 AC and Dexterity saves.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 196
+      },
+      "modifiers": [
+        {
+          "selector": "stat.ac",
+          "op": "add",
+          "value": 2
+        },
+        {
+          "selector": "roll.save.dex",
+          "op": "add",
+          "value": 2
+        }
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "other:three-quarters-cover",
+      "name": "Three-quarters cover",
+      "category": "other",
+      "summary": "+5 AC and Dexterity saves.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 196
+      },
+      "modifiers": [
+        {
+          "selector": "stat.ac",
+          "op": "add",
+          "value": 5
+        },
+        {
+          "selector": "roll.save.dex",
+          "op": "add",
+          "value": 5
+        }
+      ]
+    }
+  ]
+}

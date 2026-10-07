@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { Modifier } from "./modifiers.js";
 
 /**
  * One logged change to a character. Operations record intent ("take 7 fire
@@ -60,6 +61,22 @@ export const OPERATION_PAYLOADS = {
     })
     .strict(),
   adjustCurrency: z.object({ coin: z.enum(["cp", "sp", "ep", "gp", "pp"]), delta: z.number().int() }).strict(),
+  addEffect: z
+    .object({
+      instanceId: z.string(),
+      effect: z.string(),
+      custom: z.object({ name: z.string(), modifiers: z.array(Modifier) }).strict().optional(),
+      rounds: z.number().int().min(1).optional(),
+      level: z.number().int().min(1).optional(),
+      from: z.string().optional(),
+    })
+    .strict(),
+  removeEffect: z.object({ instanceId: z.string() }).strict(),
+  updateEffect: z
+    .object({ instanceId: z.string(), rounds: z.number().int().min(0).nullable().optional(), level: z.number().int().min(1).optional() })
+    .strict(),
+  /** End of the character's turn: timed effects lose a round; those reaching 0 end. */
+  endTurn: z.object({}).strict(),
   deathSave: z.object({ result: z.enum(["success", "failure", "critSuccess", "critFailure"]) }).strict(),
   toggle: z.object({ name: z.string(), on: z.boolean() }).strict(),
   /** Generic edit of a stored value, e.g. path ["abilities","str"]. Validated after applying. */
@@ -84,6 +101,10 @@ export const Operation = z.discriminatedUnion("type", [
   OperationBase.extend({ type: z.literal("removeItem"), payload: OPERATION_PAYLOADS.removeItem }),
   OperationBase.extend({ type: z.literal("setItem"), payload: OPERATION_PAYLOADS.setItem }),
   OperationBase.extend({ type: z.literal("adjustCurrency"), payload: OPERATION_PAYLOADS.adjustCurrency }),
+  OperationBase.extend({ type: z.literal("addEffect"), payload: OPERATION_PAYLOADS.addEffect }),
+  OperationBase.extend({ type: z.literal("removeEffect"), payload: OPERATION_PAYLOADS.removeEffect }),
+  OperationBase.extend({ type: z.literal("updateEffect"), payload: OPERATION_PAYLOADS.updateEffect }),
+  OperationBase.extend({ type: z.literal("endTurn"), payload: OPERATION_PAYLOADS.endTurn }),
   OperationBase.extend({ type: z.literal("deathSave"), payload: OPERATION_PAYLOADS.deathSave }),
   OperationBase.extend({ type: z.literal("toggle"), payload: OPERATION_PAYLOADS.toggle }),
   OperationBase.extend({ type: z.literal("setField"), payload: OPERATION_PAYLOADS.setField }),

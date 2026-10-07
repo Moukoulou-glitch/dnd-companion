@@ -43,8 +43,8 @@ export function evalExpr(expr: ValueExpr, ctx: ExprContext): Term[] {
 
     const dice = DICE.exec(t);
     if (dice) {
-      if (sign < 0) throw new Error(`Negative dice are not supported: "${expr}"`);
-      return { kind: "dice", dice: `${dice[1] || "1"}d${dice[2]}` };
+      // Negative dice (Bane's -1d4) keep their sign in the dice string.
+      return { kind: "dice", dice: `${sign < 0 ? "-" : ""}${dice[1] || "1"}d${dice[2]}` };
     }
     if (t === "pb") return { kind: "flat", value: sign * ctx.pb, label: "Proficiency bonus" };
     if (t === "level") return { kind: "flat", value: sign * ctx.level, label: "Character level" };
