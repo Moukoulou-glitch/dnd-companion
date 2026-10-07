@@ -168,6 +168,10 @@ export function App() {
   /** Options ticked in the composer that are also features used on your turn (Steady Aim) get recorded. */
   const recordOptions = (labels: string[]) => {
     const cur = live.current;
+    // A Bardic Inspiration die is lost once it's rolled.
+    for (const e of cur.sheet?.effects ?? []) {
+      if (e.usedUp && labels.includes(e.usedUp)) cur.act("removeEffect", { instanceId: e.instanceId }, `${e.name} used: it's gone.`);
+    }
     const cb = cur.character?.combat;
     if (!cb) return;
     for (const label of labels) {
@@ -234,9 +238,11 @@ export function App() {
                 }),
               }
             : {})}
-          onUse={(rolled, free, check) => {
-            const payload = { action: a.id, ...(rolled === undefined ? {} : { rolled }), ...(free ? { free: true } : {}) };
-            const label = free ? `${a.name} switched on (nothing spent).` : current.roll && rolled !== undefined ? `${a.name}: ${rolled} ${current.roll.label}.` : `${a.name} used.`;
+          onUse={(rolled, free, check, choice) => {
+            const payload = { action: a.id, ...(rolled === undefined ? {} : { rolled }), ...(free ? { free: true } : {}), ...(choice ? { choice } : {}) };
+            const label = choice
+              ? `${a.name}: ${choice}. Use your reaction when the trigger happens.`
+              : free ? `${a.name} switched on (nothing spent).` : current.roll && rolled !== undefined ? `${a.name}: ${rolled} ${current.roll.label}.` : `${a.name} used.`;
             if (free) {
               live.current.act("useAction", payload, label);
               return close();
@@ -736,6 +742,7 @@ export function App() {
         title={`Concentration on ${name}`}
         base={live.current.sheet!.saves.con}
         dc={dc}
+        onOptionsUsed={recordOptions}
         physical={live.current.character?.settings.physicalDice ?? true}
         onPhysicalChange={(p) => live.current.act("setField", { path: ["settings", "physicalDice"], value: p }, p ? "Rolling your own dice." : "The app rolls for you.")}
         onRolled={(r) => live.current.addRoll(r)}
@@ -789,6 +796,7 @@ export function App() {
         damageOnly={damageOnly}
         notes={notes}
         optionInfo={optionInfoFor(spellAsAttack(sp, level))}
+        onOptionsUsed={recordOptions}
         {...(beams && beams > 1 ? { repeat: { count: beams, what: sp.beams!.what } } : {})}
         {...(portent && !damageOnly ? { portent } : {})}
         healing={!!sp.heal && !sp.damage}

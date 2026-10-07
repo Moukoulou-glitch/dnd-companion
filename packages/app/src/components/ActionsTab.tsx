@@ -109,8 +109,10 @@ export function ActionsTab({
         <section>
           <details className="common-actions">
             <summary>
+              <span className="ca-icon" aria-hidden="true">⚔</span>
               <h2>Actions anyone can take</h2>
-              <span className="row-sub">Dash, Dodge, Hide, Grapple, Shove and more</span>
+              <span className="ca-arrow" aria-hidden="true">▸</span>
+              <span className="row-sub">{new Set(common.map((a) => a.name.replace(/ \(.*\)$/, ""))).size} actions: Dash, Dodge, Ready, Hide, Grapple, Shove…</span>
             </summary>
             {commonGroups.map((g) => (
               <div key={g.economy}>

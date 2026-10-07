@@ -135,7 +135,7 @@ describe("Μπέρεν (Ranger 4) matches his sheet", () => {
       ["Fey Step", 1, "short"],
       ["Favored Foe", 2, "long"],
       ["Primal Awareness: Speak with Animals", 1, "long"],
-      ["Magic Initiate: free 1st-level spell", 1, "long"],
+      ["Magic Initiate: Guiding Bolt", 1, "long"],
     ]);
   });
 

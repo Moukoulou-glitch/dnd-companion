@@ -28,7 +28,7 @@ export function FeaturePanel({
   text?: string[] | undefined;
   physical: boolean;
   /** The third argument: the skill to roll right after (Hide: stealth). */
-  onUse: (rolled?: number, free?: boolean, check?: string) => void;
+  onUse: (rolled?: number, free?: boolean, check?: string, choice?: string) => void;
   /** Skills it can roll, with their names and bonuses. */
   checks?: { skill: string; name: string; bonus: string }[];
 }) {
@@ -86,7 +86,18 @@ export function FeaturePanel({
           )}
         </>
       )}
-      {a.infoOnly ? null : checks && checks.length > 0 ? (
+      {a.infoOnly ? null : a.choose ? (
+        <>
+          <p className="sub-head">{a.choose.label}</p>
+          <div className="choice-grid">
+            {a.choose.options.map((o) => (
+              <button key={o} className="big" onClick={() => onUse(undefined, false, undefined, o)}>
+                {o}
+              </button>
+            ))}
+          </div>
+        </>
+      ) : checks && checks.length > 0 ? (
         <>
           {checks.map((ch) => (
             <button key={ch.skill} className="big wide primary" style={{ marginBottom: 8 }} onClick={() => onUse(undefined, false, ch.skill)}>

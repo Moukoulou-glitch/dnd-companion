@@ -373,3 +373,45 @@ describe("the actions anyone can take", () => {
     expect(log.character.concentration).toBeUndefined();
   });
 });
+
+describe("fifth round of table feedback", () => {
+  const start = (name: string) => {
+    const log = logFor(name);
+    log.record("startCombat", {});
+    log.record("startTurn", {});
+    return log;
+  };
+
+  it("Dodge lasts one round: it survives the end of your turn and ends when the next one starts", () => {
+    const log = start("beren");
+    log.record("useAction", { action: "common-dodge" });
+    expect(sheetOf(log).effects.find((e) => e.name === "Dodge")!.rounds).toBe(1);
+    log.record("endTurn", {});
+    expect(sheetOf(log).effects.some((e) => e.name === "Dodge")).toBe(true);
+    log.record("startTurn", {});
+    expect(sheetOf(log).effects.some((e) => e.name === "Dodge")).toBe(false);
+  });
+
+  it("Ready names what was readied, for one round", () => {
+    const log = start("beren");
+    log.record("useAction", { action: "common-ready", choice: "Attack" });
+    expect(sheetOf(log).effects.find((e) => e.name === "Ready: Attack")).toMatchObject({ rounds: 1 });
+    log.record("useAction", { action: "common-ready", choice: "Dash" });
+    expect(sheetOf(log).effects.filter((e) => e.name.startsWith("Ready")).map((e) => e.name)).toEqual(["Ready: Dash"]);
+  });
+
+  it("Healing Surge is gone; Bardic Inspiration goes up to d12 and lasts 10 minutes", () => {
+    expect(sheetOf(logFor("beren")).actions.some((a) => a.name === "Healing Surge")).toBe(false);
+    expect(reg.get("other:bardic-inspiration-d12", "effect").minutes).toBe(10);
+    const log = logFor("beren");
+    log.record("addEffect", { instanceId: "bi", effect: "other:bardic-inspiration-d10" });
+    const e = sheetOf(log).effects[0]!;
+    expect(e).toMatchObject({ minutes: 10, usedUp: "Bardic Inspiration" });
+  });
+
+  it("Μπέρεν's Magic Initiate spell is Guiding Bolt", () => {
+    const s = sheetOf(logFor("beren"));
+    expect(s.resources.find((r) => r.id === "magic-initiate-spell")!.name).toBe("Magic Initiate: Guiding Bolt");
+    expect(s.actions.find((a) => a.id === "magic-initiate-spell")).toMatchObject({ name: "Guiding Bolt (free)", spells: [{ id: "spell:guiding-bolt" }] });
+  });
+});

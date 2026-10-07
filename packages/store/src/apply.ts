@@ -392,9 +392,11 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
         else notes.push("You weren't concentrating on anything.");
       }
       if (a.untilTurnStart) {
-        const entry: Character["effects"][number] = { id: `${op.id}-turn`, effect: "custom", custom: { name: a.name, modifiers: [] }, from: a.source, untilTurnStart: true };
+        // One round: it ends when your next turn starts (Dodge, Ready: Attack).
+        const name = op.payload.choice ? `${a.name}: ${op.payload.choice}` : a.name;
+        const entry: Character["effects"][number] = { id: `${op.id}-turn`, effect: "custom", custom: { name, modifiers: [] }, from: a.source, untilTurnStart: true, rounds: 1 };
         if (a.toggles.length) entry.toggles = a.toggles;
-        removeEffects(c.effects.filter((e) => e.effect === "custom" && e.custom?.name === a.name));
+        removeEffects(c.effects.filter((e) => e.effect === "custom" && (e.custom?.name === a.name || e.custom?.name.startsWith(`${a.name}: `))));
         c.effects.push(entry);
       }
       if (a.duration) {
@@ -704,7 +706,8 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
 
     case "endTurn": {
       const ended = c.effects.filter((e) => {
-        if (e.rounds === undefined) return false;
+        // Dodge and Ready last until your next turn starts, not to the end of this one.
+        if (e.rounds === undefined || e.untilTurnStart) return false;
         e.rounds -= 1;
         return e.rounds <= 0;
       });

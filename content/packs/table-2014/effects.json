@@ -856,7 +856,7 @@
       "id": "other:bardic-inspiration-d6",
       "name": "Bardic Inspiration (d6)",
       "category": "other",
-      "summary": "Add the die to one attack, check or save within 10 minutes.",
+      "summary": "Add the die to one attack roll, ability check or saving throw within 10 minutes, even after seeing the d20 (before the DM says how it went). Remove it once you use it.",
       "source": {
         "pack": "table-2014",
         "book": "PHB",
@@ -870,7 +870,7 @@
           "mode": "suggested",
           "label": "Bardic Inspiration",
           "when": {
-            "text": "once; remove it after using it"
+            "text": "once within 10 minutes; the die is then gone"
           }
         },
         {
@@ -880,7 +880,7 @@
           "mode": "suggested",
           "label": "Bardic Inspiration",
           "when": {
-            "text": "once; remove it after using it"
+            "text": "once within 10 minutes; the die is then gone"
           }
         },
         {
@@ -890,17 +890,19 @@
           "mode": "suggested",
           "label": "Bardic Inspiration",
           "when": {
-            "text": "once; remove it after using it"
+            "text": "once within 10 minutes; the die is then gone"
           }
         }
-      ]
+      ],
+      "minutes": 10,
+      "usedUp": true
     },
     {
       "kind": "effect",
       "id": "other:bardic-inspiration-d8",
       "name": "Bardic Inspiration (d8)",
       "category": "other",
-      "summary": "Add the die to one attack, check or save within 10 minutes.",
+      "summary": "Add the die to one attack roll, ability check or saving throw within 10 minutes, even after seeing the d20 (before the DM says how it went). Remove it once you use it.",
       "source": {
         "pack": "table-2014",
         "book": "PHB",
@@ -914,7 +916,7 @@
           "mode": "suggested",
           "label": "Bardic Inspiration",
           "when": {
-            "text": "once; remove it after using it"
+            "text": "once within 10 minutes; the die is then gone"
           }
         },
         {
@@ -924,7 +926,7 @@
           "mode": "suggested",
           "label": "Bardic Inspiration",
           "when": {
-            "text": "once; remove it after using it"
+            "text": "once within 10 minutes; the die is then gone"
           }
         },
         {
@@ -934,10 +936,104 @@
           "mode": "suggested",
           "label": "Bardic Inspiration",
           "when": {
-            "text": "once; remove it after using it"
+            "text": "once within 10 minutes; the die is then gone"
           }
         }
-      ]
+      ],
+      "minutes": 10,
+      "usedUp": true
+    },
+    {
+      "kind": "effect",
+      "id": "other:bardic-inspiration-d10",
+      "name": "Bardic Inspiration (d10)",
+      "category": "other",
+      "summary": "Add the die to one attack roll, ability check or saving throw within 10 minutes, even after seeing the d20 (before the DM says how it went). Remove it once you use it.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 53
+      },
+      "modifiers": [
+        {
+          "selector": "roll.attack.*",
+          "op": "add",
+          "value": "1d10",
+          "mode": "suggested",
+          "label": "Bardic Inspiration",
+          "when": {
+            "text": "once within 10 minutes; the die is then gone"
+          }
+        },
+        {
+          "selector": "roll.save.*",
+          "op": "add",
+          "value": "1d10",
+          "mode": "suggested",
+          "label": "Bardic Inspiration",
+          "when": {
+            "text": "once within 10 minutes; the die is then gone"
+          }
+        },
+        {
+          "selector": "roll.check.*",
+          "op": "add",
+          "value": "1d10",
+          "mode": "suggested",
+          "label": "Bardic Inspiration",
+          "when": {
+            "text": "once within 10 minutes; the die is then gone"
+          }
+        }
+      ],
+      "minutes": 10,
+      "usedUp": true
+    },
+    {
+      "kind": "effect",
+      "id": "other:bardic-inspiration-d12",
+      "name": "Bardic Inspiration (d12)",
+      "category": "other",
+      "summary": "Add the die to one attack roll, ability check or saving throw within 10 minutes, even after seeing the d20 (before the DM says how it went). Remove it once you use it.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 53
+      },
+      "modifiers": [
+        {
+          "selector": "roll.attack.*",
+          "op": "add",
+          "value": "1d12",
+          "mode": "suggested",
+          "label": "Bardic Inspiration",
+          "when": {
+            "text": "once within 10 minutes; the die is then gone"
+          }
+        },
+        {
+          "selector": "roll.save.*",
+          "op": "add",
+          "value": "1d12",
+          "mode": "suggested",
+          "label": "Bardic Inspiration",
+          "when": {
+            "text": "once within 10 minutes; the die is then gone"
+          }
+        },
+        {
+          "selector": "roll.check.*",
+          "op": "add",
+          "value": "1d12",
+          "mode": "suggested",
+          "label": "Bardic Inspiration",
+          "when": {
+            "text": "once within 10 minutes; the die is then gone"
+          }
+        }
+      ],
+      "minutes": 10,
+      "usedUp": true
     },
     {
       "kind": "effect",

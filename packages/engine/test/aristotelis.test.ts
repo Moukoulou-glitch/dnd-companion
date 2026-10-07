@@ -99,7 +99,7 @@ describe("Αριστοτέλης (Wizard 4)", () => {
       ["Arcane Recovery", 0, 1],
       ["Portent rolls", 2, 2],
       ["Fey Touched: Misty Step", 1, 1],
-      ["Fey Touched: 1st-level spell", 1, 1],
+      ["Fey Touched: Dissonant Whispers", 1, 1],
       ["Charm of Sunlight", 1, 1],
     ]);
   });

@@ -181,7 +181,7 @@
       "id": "feature:action-ready",
       "name": "Ready",
       "common": true,
-      "summary": "Choose a trigger and an action (or a move); when it happens before your next turn, use your reaction to do it. A readied spell is cast now, held with concentration, and released with the reaction.",
+      "summary": "Choose a trigger and an action (or a move). When the trigger happens before your next turn starts, use your reaction to do it. A readied spell is cast now (the slot is spent) and held with concentration until you release it.",
       "source": {
         "pack": "table-2014",
         "book": "PHB",
@@ -193,7 +193,23 @@
             "id": "common-ready",
             "name": "Ready",
             "economy": "action",
-            "note": "Choose a trigger and an action (or a move); when it happens before your next turn, use your reaction to do it. A readied spell is cast now, held with concentration, and released with the reaction."
+            "note": "Choose a trigger and an action (or a move). When the trigger happens before your next turn starts, use your reaction to do it. A readied spell is cast now (the slot is spent) and held with concentration until you release it.",
+            "untilTurnStart": true,
+            "choose": {
+              "label": "Ready which action?",
+              "options": [
+                "Attack",
+                "Cast a Spell",
+                "Dash",
+                "Disengage",
+                "Dodge",
+                "Help",
+                "Hide",
+                "Search",
+                "Use an Object",
+                "Move"
+              ]
+            }
           }
         ]
       }
@@ -669,28 +685,6 @@
                 "athletics"
               ]
             }
-          }
-        ]
-      }
-    },
-    {
-      "kind": "feature",
-      "id": "feature:action-healing-surge",
-      "name": "Healing Surge",
-      "common": true,
-      "summary": "DMG optional rule. Spend up to half your Hit Dice, rolling each plus Constitution; once per short or long rest. Spend them from the Hit Dice on Play.",
-      "source": {
-        "pack": "table-2014",
-        "book": "DMG",
-        "page": 266
-      },
-      "grant": {
-        "actions": [
-          {
-            "id": "common-healing-surge",
-            "name": "Healing Surge",
-            "economy": "action",
-            "note": "DMG optional rule. Spend up to half your Hit Dice, rolling each plus Constitution; once per short or long rest. Spend them from the Hit Dice on Play."
           }
         ]
       }

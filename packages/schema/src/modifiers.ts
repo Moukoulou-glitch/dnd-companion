@@ -254,6 +254,8 @@ export const ActionDef = z
     untilTurnStart: z.boolean().optional(),
     /** Ends your concentration. */
     endsConcentration: z.boolean().optional(),
+    /** Asks what to pick when used (Ready: which action), and names the effect after it. */
+    choose: z.object({ label: z.string(), options: z.array(z.string()).min(1) }).strict().optional(),
     /** Nothing to record: the panel only explains, and points to where it's done (Attack: the weapons above). */
     infoOnly: z.boolean().optional(),
   })

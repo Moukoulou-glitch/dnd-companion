@@ -17,7 +17,7 @@ describe("using features", () => {
     expect(names("agaklis")).toEqual(
       expect.arrayContaining(["Rage", "Ancestral Protectors", "Spirit Shield", "Ignite Flame Tongue"]),
     );
-    expect(names("beren")).toEqual(expect.arrayContaining(["Fey Step", "Favored Foe", "Command companion", "Magic Initiate spell (free)"]));
+    expect(names("beren")).toEqual(expect.arrayContaining(["Fey Step", "Favored Foe", "Command companion", "Guiding Bolt (free)"]));
     const dread = sheetOf(logFor("elissaios")).actions.find((a) => a.id === "form-of-dread")!;
     expect(dread.cost).toEqual({ resource: "form-of-dread", name: "Form of Dread", amount: 1, remaining: 3 });
     expect(dread.tempHp).toEqual({ dice: ["1d10"], flat: 1, text: "1d10 + 1" });

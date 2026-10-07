@@ -1472,27 +1472,63 @@ ol.levels li[data-on="true"] {
   background: none;
 }
 
-/* Actions anyone can take: one tappable heading, opened when needed. */
+/* Actions anyone can take: a gold card of its own, opened when needed. */
+.common-actions {
+  border: 1px solid var(--gold);
+  border-radius: var(--radius-m);
+  background: var(--gold-soft);
+  padding: 4px 12px 12px;
+}
 .common-actions > summary {
   list-style: none;
   cursor: pointer;
-  display: flex;
-  align-items: baseline;
-  gap: 10px;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 2px 12px;
+  padding: 10px 0 6px;
 }
 .common-actions > summary::-webkit-details-marker {
   display: none;
 }
+.common-actions .ca-icon {
+  grid-row: span 2;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--gold);
+  color: var(--bg);
+  font-size: 1.3rem;
+}
 .common-actions > summary h2 {
   margin: 0;
+  color: var(--gold);
 }
-.common-actions > summary h2::after {
-  content: " ▸";
+.common-actions .ca-arrow {
+  grid-row: span 2;
+  color: var(--gold);
+  font-size: 1.2rem;
+  transition: transform 0.15s;
 }
-.common-actions[open] > summary h2::after {
-  content: " ▾";
+.common-actions[open] .ca-arrow {
+  transform: rotate(90deg);
 }
 .common-actions .sub-head {
   margin-top: 14px;
+  color: var(--gold);
+}
+.common-actions .group .row {
+  border-left: 3px solid var(--gold);
+}
+.common-actions .ca-tag {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.choice-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
 }

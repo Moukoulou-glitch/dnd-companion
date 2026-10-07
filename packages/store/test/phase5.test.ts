@@ -30,7 +30,7 @@ describe("each character's spells", () => {
     expect(spell(log, "ray-of-frost").ready).toBe("always");
     expect(spell(log, "misty-step").list.id).toBe("fey-touched");
     expect(spell(log, "misty-step").cast.free?.name).toBe("Fey Touched: Misty Step");
-    expect(spell(log, "dissonant-whispers").cast.free?.name).toBe("Fey Touched: 1st-level spell");
+    expect(spell(log, "dissonant-whispers").cast.free?.name).toBe("Fey Touched: Dissonant Whispers");
     expect(spell(log, "hellish-rebuke").save).toEqual({ ability: "dex", dc: 10, onSuccess: "half" });
     expect(spell(log, "ray-of-frost").attack!.total).toBe(6);
     expect(s.spellcasting.find((x) => x.id === "wizard")!.prepared).toEqual({ count: 0, max: 8 });

@@ -148,6 +148,7 @@ export interface ActionResult {
   /** One of the actions anyone can take (Dash, Dodge, Grapple): listed in their own section. */
   common?: boolean;
   check?: { skills: string[]; dc?: number };
+  choose?: { label: string; options: string[] };
   asAttack?: boolean;
   dash?: boolean;
   untilTurnStart?: boolean;
@@ -192,6 +193,8 @@ export interface EffectResult {
   includes: { id: string; name: string }[];
   /** Ends when you attack or cast a spell (Invisibility). */
   endsOn?: ("attack" | "cast")[];
+  /** Gone once its bonus is used in a roll (Bardic Inspiration): the label to look for. */
+  usedUp?: string;
 }
 
 export interface ResourceResult {
@@ -791,7 +794,12 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
         for (const id of s.choices[ch.id] ?? []) {
           const def = reg.has(id) ? reg.get(id, "spell") : undefined;
           const granted: GrantedSpellRef = {};
-          if (def && def.level > 0 && ch.resource) granted.resource = ch.resource;
+          if (def && def.level > 0 && ch.resource) {
+            granted.resource = ch.resource;
+            // "Magic Initiate: free 1st-level spell" becomes "Magic Initiate: Guiding Bolt".
+            const res = resources.find((r) => r.id === ch.resource);
+            if (res) res.name = `${res.name.split(":")[0]}: ${def.name}`;
+          }
           spellDefs.set(`${ownList}|${id}`, { def, list: ownList, prepared: true, granted });
         }
       }
@@ -906,6 +914,9 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
       if (a.cost) {
         const free = spells.filter((sp) => sp.cast.free?.resource === a.cost!.resource).map((sp) => ({ id: sp.id, list: sp.list.id }));
         if (free.length) entry.spells = free;
+        // "Magic Initiate spell (free)" becomes "Guiding Bolt (free)" once the spell is picked.
+        const only = free.length === 1 ? spells.find((sp) => sp.id === free[0]!.id) : undefined;
+        if (only && / spell \(free\)$/.test(a.name)) entry.name = `${only.name} (free)`;
       }
       if (a.stopsMovement) entry.stopsMovement = true;
       if (a.note) entry.note = a.note;
@@ -919,6 +930,7 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
       if (s.common) entry.common = true;
       for (const k of ["asAttack", "dash", "untilTurnStart", "endsConcentration", "infoOnly"] as const) if (a[k]) entry[k] = true;
       if (a.check) entry.check = a.check;
+      if (a.choose) entry.choose = a.choose;
       actions.push(entry);
     }
   }
@@ -963,6 +975,10 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
     if (def?.upcast) r.upcast = { baseLevel: def.upcast.baseLevel, castLevel: e.castLevel ?? def.upcast.baseLevel };
     if (def?.levelNotes) r.levelNotes = def.levelNotes;
     if (def?.endsOn) r.endsOn = def.endsOn;
+    if (def?.usedUp) {
+      const label = def.modifiers.find((m) => m.label)?.label;
+      if (label) r.usedUp = label;
+    }
     if (def) {
       const walk = (ids: string[]) => {
         for (const id of ids) {
