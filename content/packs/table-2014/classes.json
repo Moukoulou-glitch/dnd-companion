@@ -305,6 +305,155 @@
             "economy": "bonus",
             "note": "Your beast acts on your turn; otherwise it takes the Dodge action. It can also attack in place of one of your attacks."
           }
+        ],
+        "companions": [
+          {
+            "id": "primal-beast",
+            "name": "Primal beast",
+            "spellcasting": "ranger",
+            "combatNote": "Acts on your turn. It takes the Dodge action unless you spend a bonus action to command it, or give up one of your attacks to have it attack. If you're incapacitated it acts on its own.",
+            "revive": {
+              "note": "Within an hour of its death, touch it as an action and spend a spell slot: it returns after 1 minute with all its hit points."
+            },
+            "forms": [
+              {
+                "id": "land",
+                "name": "Beast of the Land",
+                "size": "Medium",
+                "type": "beast",
+                "ac": "13 + pb",
+                "hp": {
+                  "base": 5,
+                  "perLevel": 5,
+                  "class": "class:ranger"
+                },
+                "speed": "40 ft., climb 40 ft.",
+                "abilities": {
+                  "str": 14,
+                  "dex": 14,
+                  "con": 15,
+                  "int": 8,
+                  "wis": 14,
+                  "cha": 11
+                },
+                "checkBonus": "pb",
+                "senses": "Darkvision 60 ft.",
+                "languages": "Understands the languages you speak",
+                "traits": [
+                  {
+                    "name": "Primal Bond",
+                    "summary": "Adds your proficiency bonus to its ability checks and saving throws (included in its numbers here)."
+                  },
+                  {
+                    "name": "Charge",
+                    "summary": "If it moves at least 20 ft straight toward a target and then hits with its maul on the same turn, the target takes an extra 1d6 slashing damage and, if a creature, must succeed on a Strength save against your spell save DC or be knocked prone."
+                  }
+                ],
+                "attacks": [
+                  {
+                    "name": "Maul",
+                    "kind": "melee",
+                    "toHit": "spell",
+                    "reach": "5 ft.",
+                    "damage": "1d8",
+                    "damageBonus": "2 + pb",
+                    "damageType": "slashing"
+                  }
+                ]
+              },
+              {
+                "id": "sea",
+                "name": "Beast of the Sea",
+                "size": "Medium",
+                "type": "beast",
+                "ac": "13 + pb",
+                "hp": {
+                  "base": 5,
+                  "perLevel": 5,
+                  "class": "class:ranger"
+                },
+                "speed": "5 ft., swim 60 ft.",
+                "abilities": {
+                  "str": 14,
+                  "dex": 14,
+                  "con": 15,
+                  "int": 8,
+                  "wis": 14,
+                  "cha": 11
+                },
+                "checkBonus": "pb",
+                "senses": "Darkvision 60 ft.",
+                "languages": "Understands the languages you speak",
+                "traits": [
+                  {
+                    "name": "Primal Bond",
+                    "summary": "Adds your proficiency bonus to its ability checks and saving throws (included in its numbers here)."
+                  },
+                  {
+                    "name": "Amphibious",
+                    "summary": "Breathes both air and water."
+                  }
+                ],
+                "attacks": [
+                  {
+                    "name": "Binding Strike",
+                    "kind": "melee",
+                    "toHit": "spell",
+                    "reach": "5 ft.",
+                    "damage": "1d6",
+                    "damageBonus": "2 + pb",
+                    "damageType": "piercing",
+                    "note": "Piercing or bludgeoning (your choice). On a hit the target is grappled (escape DC = your spell save DC); while grappling, the beast can't use this attack on another target."
+                  }
+                ]
+              },
+              {
+                "id": "sky",
+                "name": "Beast of the Sky",
+                "size": "Small",
+                "type": "beast",
+                "ac": "13 + pb",
+                "hp": {
+                  "base": 4,
+                  "perLevel": 4,
+                  "class": "class:ranger"
+                },
+                "speed": "10 ft., fly 60 ft.",
+                "abilities": {
+                  "str": 6,
+                  "dex": 16,
+                  "con": 13,
+                  "int": 8,
+                  "wis": 14,
+                  "cha": 11
+                },
+                "checkBonus": "pb",
+                "senses": "Darkvision 60 ft.",
+                "languages": "Understands the languages you speak",
+                "traits": [
+                  {
+                    "name": "Primal Bond",
+                    "summary": "Adds your proficiency bonus to its ability checks and saving throws (included in its numbers here)."
+                  },
+                  {
+                    "name": "Flyby",
+                    "summary": "Doesn't provoke opportunity attacks when it flies out of an enemy's reach."
+                  }
+                ],
+                "attacks": [
+                  {
+                    "name": "Shred",
+                    "kind": "melee",
+                    "toHit": "spell",
+                    "reach": "5 ft.",
+                    "damage": "1d4",
+                    "damageBonus": "3 + pb",
+                    "damageType": "slashing"
+                  }
+                ]
+              }
+            ]
+          }
         ]
       }
     }

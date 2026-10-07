@@ -122,6 +122,7 @@ export function SpellPanel({
   sheet,
   hasSelfEffect,
   onCast,
+  initialCast,
   onPrepare,
   onRollAttack,
   onRollDamage,
@@ -130,11 +131,13 @@ export function SpellPanel({
   sheet: DerivedSheet;
   hasSelfEffect: boolean;
   onCast: (level: number, using: "slot" | "pact" | "free" | "ritual" | "none", selfEffect: boolean) => void;
+  /** Opens already cast at this level (after a turn warning was confirmed). */
+  initialCast?: number | undefined;
   onPrepare: (prepared: boolean) => void;
   onRollAttack: (level: number) => void;
   onRollDamage: (level: number) => void;
 }) {
-  const [cast, setCast] = useState<number | null>(null);
+  const [cast, setCast] = useState<number | null>(initialCast ?? null);
   const [onMe, setOnMe] = useState(hasSelfEffect && /self/i.test(sp.range));
   const slotsLeft = (lvl: number) => {
     const s = sheet.spellSlots.find((x) => x.level === lvl);

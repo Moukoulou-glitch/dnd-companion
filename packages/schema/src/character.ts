@@ -99,6 +99,41 @@ export const Note = z
   .strict();
 export type Note = z.infer<typeof Note>;
 
+/** What the character has used on the current turn of a combat. */
+export const CombatState = z
+  .object({
+    round: z.number().int().min(1).default(1),
+    /** Between "Start my turn" and "End my turn". */
+    myTurn: z.boolean().default(false),
+    /** At least one turn started in this combat, so the next one is a new round. */
+    hadTurn: z.boolean().default(false),
+    action: z.number().int().min(0).default(0),
+    bonus: z.number().int().min(0).default(0),
+    reaction: z.number().int().min(0).default(0),
+    /** Attacks made with the Attack action this turn (Extra Attack allows more than one). */
+    attacks: z.number().int().min(0).default(0),
+    /** Feet moved this turn. */
+    moved: z.number().int().min(0).default(0),
+    /** Dash taken this turn (each adds your speed). */
+    dashes: z.number().int().min(0).default(0),
+    /** 2014: after a bonus-action spell, the only other spell this turn is an action cantrip. */
+    bonusSpell: z.boolean().default(false),
+    /** A spell of 1st level or higher cast with an action this turn. */
+    leveledActionSpell: z.boolean().default(false),
+  })
+  .strict();
+export type CombatState = z.infer<typeof CombatState>;
+
+/** A companion's state: which form it has, its name and hit points. HP missing means full. */
+export const CompanionState = z
+  .object({
+    form: z.string().optional(),
+    name: z.string().optional(),
+    hp: z.object({ current: z.number().int().min(0), temp: z.number().int().min(0).default(0) }).strict().optional(),
+  })
+  .strict();
+export type CompanionState = z.infer<typeof CompanionState>;
+
 export const Character = z
   .object({
     id: z.string(),
@@ -149,6 +184,10 @@ export const Character = z
     /** Named on/off states the engine reads, e.g. "raging". */
     toggles: z.array(z.string()).default([]),
     inspiration: z.boolean().default(false),
+    /** Present while the character is in a combat. */
+    combat: CombatState.optional(),
+    /** Companions from features (Primal Companion), keyed by companion id. */
+    companions: z.record(z.string(), CompanionState).default({}),
     /** Per-character preferences. Real dice is the default: most players at the table roll physical dice. */
     settings: z
       .object({ physicalDice: z.boolean().default(true) })

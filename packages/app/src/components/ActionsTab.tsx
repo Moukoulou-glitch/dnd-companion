@@ -11,9 +11,9 @@ export function damageText(a: WeaponAttack): string {
   return `${a.damage.dice}${bonus} ${a.damage.type}${extra}`;
 }
 
-function AttackRow({ a, openRoll }: { a: WeaponAttack; openRoll: OpenRoll }) {
+function AttackRow({ a, openAttack }: { a: WeaponAttack; openAttack: (a: WeaponAttack) => void }) {
   return (
-    <button className="row" onClick={() => openRoll(a.name, a.attack, a)}>
+    <button className="row" onClick={() => openAttack(a)}>
       <div className="row-main">
         <div className="row-title">{a.name}</div>
         <div className="row-sub">{damageText(a)}</div>
@@ -48,11 +48,13 @@ export function ActionsTab({
   sheet,
   open,
   openRoll,
+  openAttack,
   openFeature,
 }: {
   sheet: DerivedSheet;
   open: Open;
   openRoll: OpenRoll;
+  openAttack: (a: WeaponAttack) => void;
   openFeature: (a: ActionResult) => void;
 }) {
   const features = (e: ActionResult["economy"]) => sheet.actions.filter((a) => a.economy === e);
@@ -70,7 +72,7 @@ export function ActionsTab({
           <h2>{g.title}</h2>
           <div className="group">
             {g.attacks.map((a) => (
-              <AttackRow key={`${a.attackId}-${a.itemInstanceId ?? ""}-${a.mode}`} a={a} openRoll={openRoll} />
+              <AttackRow key={`${a.attackId}-${a.itemInstanceId ?? ""}-${a.mode}`} a={a} openAttack={openAttack} />
             ))}
             {g.features.map((a) => (
               <FeatureRow key={a.id} a={a} openFeature={openFeature} />
@@ -117,7 +119,6 @@ export function ActionsTab({
               </button>
             ))}
           </div>
-          <p className="note">Spell lists and casting come in a later phase.</p>
         </section>
       )}
     </main>

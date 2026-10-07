@@ -18,11 +18,12 @@ export const OperationBase = z.object({
 
 export const OPERATION_PAYLOADS = {
   /** Damage of one type; resistances, temp HP and 0 HP are handled when applied. */
-  damage: z.object({ amount: z.number().int().min(0), damageType: z.string().optional() }).strict(),
+  /** `companion` sends it to a companion instead of the character. */
+  damage: z.object({ amount: z.number().int().min(0), damageType: z.string().optional(), companion: z.string().optional() }).strict(),
   /** Healing, capped at maximum HP. Healing from 0 HP clears death saves. */
-  heal: z.object({ amount: z.number().int().min(0) }).strict(),
+  heal: z.object({ amount: z.number().int().min(0), companion: z.string().optional() }).strict(),
   /** Gain temporary HP: they don't stack, so the higher value is kept. 0 clears them. */
-  setTempHp: z.object({ amount: z.number().int().min(0) }).strict(),
+  setTempHp: z.object({ amount: z.number().int().min(0), companion: z.string().optional() }).strict(),
   /** Set current HP directly (DM ruling, correction). Clamped to 0..max. */
   setHp: z.object({ current: z.number().int() }).strict(),
   spendResource: z.object({ resource: z.string(), amount: z.number().int().min(1).default(1) }).strict(),
@@ -93,6 +94,26 @@ export const OPERATION_PAYLOADS = {
     .strict(),
   endConcentration: z.object({}).strict(),
   setPrepared: z.object({ spell: z.string(), list: z.string(), prepared: z.boolean() }).strict(),
+  /** Enter a combat: turn tracking starts. */
+  startCombat: z.object({}).strict(),
+  /** Start of the character's turn: action, bonus action, reaction and movement come back. */
+  startTurn: z.object({}).strict(),
+  endCombat: z.object({}).strict(),
+  /**
+   * Mark part of the turn as used (or given back with a negative count).
+   * `attack` counts one attack of the Attack action; `dash` adds your speed.
+   */
+  useEconomy: z
+    .object({
+      kind: z.enum(["action", "bonus", "reaction", "attack", "move"]),
+      amount: z.number().int().default(1),
+      dash: z.boolean().default(false),
+    })
+    .strict(),
+  /** Choose a companion's form or name; a new form arrives with full HP. */
+  setCompanion: z.object({ companion: z.string(), form: z.string().optional(), name: z.string().optional() }).strict(),
+  /** Bring a companion back with full HP, spending a spell slot of `level`. */
+  reviveCompanion: z.object({ companion: z.string(), level: z.number().int().min(1).max(9), pact: z.boolean().default(false) }).strict(),
   deathSave: z.object({ result: z.enum(["success", "failure", "critSuccess", "critFailure"]) }).strict(),
   toggle: z.object({ name: z.string(), on: z.boolean() }).strict(),
   /** Generic edit of a stored value, e.g. path ["abilities","str"]. Validated after applying. */
@@ -124,6 +145,12 @@ export const Operation = z.discriminatedUnion("type", [
   OperationBase.extend({ type: z.literal("castSpell"), payload: OPERATION_PAYLOADS.castSpell }),
   OperationBase.extend({ type: z.literal("endConcentration"), payload: OPERATION_PAYLOADS.endConcentration }),
   OperationBase.extend({ type: z.literal("setPrepared"), payload: OPERATION_PAYLOADS.setPrepared }),
+  OperationBase.extend({ type: z.literal("startCombat"), payload: OPERATION_PAYLOADS.startCombat }),
+  OperationBase.extend({ type: z.literal("startTurn"), payload: OPERATION_PAYLOADS.startTurn }),
+  OperationBase.extend({ type: z.literal("endCombat"), payload: OPERATION_PAYLOADS.endCombat }),
+  OperationBase.extend({ type: z.literal("useEconomy"), payload: OPERATION_PAYLOADS.useEconomy }),
+  OperationBase.extend({ type: z.literal("setCompanion"), payload: OPERATION_PAYLOADS.setCompanion }),
+  OperationBase.extend({ type: z.literal("reviveCompanion"), payload: OPERATION_PAYLOADS.reviveCompanion }),
   OperationBase.extend({ type: z.literal("deathSave"), payload: OPERATION_PAYLOADS.deathSave }),
   OperationBase.extend({ type: z.literal("toggle"), payload: OPERATION_PAYLOADS.toggle }),
   OperationBase.extend({ type: z.literal("setField"), payload: OPERATION_PAYLOADS.setField }),

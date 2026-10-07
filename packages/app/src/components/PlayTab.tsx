@@ -1,6 +1,7 @@
 import type { DerivedSheet } from "@dnd/engine";
 import type { Character, OperationType } from "@dnd/schema";
 import type { RollRecord } from "../rolls";
+import { CombatCard, CompanionCard } from "./Combat";
 
 type Act = (type: OperationType, payload: unknown, label: string) => void;
 
@@ -38,6 +39,9 @@ export function PlayTab({
   openHitDie,
   rolls,
   openRollHistory,
+  onStartCombat,
+  openMove,
+  openCompanion,
 }: {
   character: Character;
   sheet: DerivedSheet;
@@ -46,6 +50,9 @@ export function PlayTab({
   openHitDie: (die: string) => void;
   rolls: RollRecord[];
   openRollHistory: () => void;
+  onStartCombat: () => void;
+  openMove: () => void;
+  openCompanion: (id: string) => void;
 }) {
   const down = character.hp.current === 0;
   const slotsUsed = (level: number) => character.slotsUsed[String(level)] ?? 0;
@@ -61,7 +68,20 @@ export function PlayTab({
         </button>
       </section>
 
-      {sheet.effects.some((e) => e.rounds !== undefined) && (
+      <CombatCard character={character} sheet={sheet} act={act} onStartCombat={onStartCombat} openMove={openMove} />
+
+      {sheet.companions.length > 0 && (
+        <section>
+          <h2>Companion</h2>
+          <div className="group">
+            {sheet.companions.map((comp) => (
+              <CompanionCard key={comp.id} comp={comp} onOpen={() => openCompanion(comp.id)} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {!character.combat && sheet.effects.some((e) => e.rounds !== undefined) && (
         <button className="big wide" onClick={() => act("endTurn", {}, "Turn ended.")}>
           End of my turn
           <span className="sub">

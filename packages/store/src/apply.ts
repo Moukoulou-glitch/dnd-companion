@@ -1,5 +1,5 @@
-import { Character, type Operation } from "@dnd/schema";
-import { derive, type ContentRegistry } from "@dnd/engine";
+import { Character, CombatState, type Operation } from "@dnd/schema";
+import { castingEconomy, derive, type ContentRegistry } from "@dnd/engine";
 
 /** Something the player should do next, e.g. roll a concentration check. */
 export type Prompt = { kind: "concentration"; dc: number; spell: string };
@@ -34,9 +34,42 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
   const sheet = derive(c, reg);
   const maxHp = sheet.hpMax.total;
 
+  /** The companion an HP operation targets, with its current HP filled in. */
+  const companionTarget = (id: string | undefined) => {
+    if (!id) return undefined;
+    const comp = sheet.companions.find((x) => x.id === id);
+    if (!comp?.form) {
+      notes.push(comp ? `${comp.name} has no form yet: choose one first.` : `No companion "${id}".`);
+      return null;
+    }
+    const state = (c.companions[id] ??= {});
+    state.hp ??= { current: comp.form.hpMax.total, temp: 0 };
+    return { comp, state: state as typeof state & { hp: { current: number; temp: number } }, max: comp.form.hpMax.total };
+  };
+
+  /** Marks part of the turn as used when in combat; the Play screen already warned if it was spent. */
+  const spendTurn = (economy: string, extra?: (cb: NonNullable<Character["combat"]>) => void) => {
+    const cb = c.combat;
+    if (!cb) return;
+    if (economy === "action") cb.action += 1;
+    else if (economy === "bonus") cb.bonus += 1;
+    else if (economy === "reaction") cb.reaction += 1;
+    extra?.(cb);
+  };
+
   switch (op.type) {
     case "damage": {
       const { amount, damageType } = op.payload;
+      if (op.payload.companion) {
+        const t = companionTarget(op.payload.companion);
+        if (!t) break;
+        const absorbed = Math.min(t.state.hp.temp, amount);
+        t.state.hp.temp -= absorbed;
+        t.state.hp.current = Math.max(0, t.state.hp.current - (amount - absorbed));
+        notes.push(`${t.comp.name}: ${t.state.hp.current} of ${t.max} HP.`);
+        if (t.state.hp.current === 0) notes.push(`${t.comp.name} drops to 0 HP and dies.${t.comp.reviveNote ? ` ${t.comp.reviveNote}` : ""}`);
+        break;
+      }
       let dmg = amount;
       if (damageType) {
         if (sheet.defenses.immune.includes(damageType)) {
@@ -93,6 +126,13 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
     }
 
     case "heal": {
+      if (op.payload.companion) {
+        const t = companionTarget(op.payload.companion);
+        if (!t) break;
+        if (t.state.hp.current === 0) notes.push(`${t.comp.name} is dead: healing doesn't bring it back. Revive it instead.`);
+        else t.state.hp.current = Math.min(t.max, t.state.hp.current + op.payload.amount);
+        break;
+      }
       const before = c.hp.current;
       c.hp.current = Math.min(maxHp, before + op.payload.amount);
       if (before === 0 && c.hp.current > 0) {
@@ -104,6 +144,13 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
     }
 
     case "setTempHp": {
+      if (op.payload.companion) {
+        const t = companionTarget(op.payload.companion);
+        if (!t) break;
+        if (op.payload.amount === 0 || op.payload.amount > t.state.hp.temp) t.state.hp.temp = op.payload.amount;
+        else notes.push(`Temporary HP don't stack: keeping ${t.state.hp.temp}.`);
+        break;
+      }
       const { amount } = op.payload;
       if (amount === 0) c.hp.temp = 0;
       else if (amount > c.hp.temp) c.hp.temp = amount;
@@ -195,6 +242,7 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
           if (back > 0) c.hitDiceUsed[p.die] = spent - back;
           regain -= back;
         }
+        for (const comp of sheet.companions) if (c.companions[comp.id]) delete c.companions[comp.id]!.hp;
         notes.push("Long rest: HP full, spell slots and long-rest features restored, half your Hit Dice regained.");
       }
       if (restored.length) notes.push(`Restored: ${restored.join(", ")}.`);
@@ -214,6 +262,7 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
         c.resourcesUsed[a.cost.resource] = Math.min(max, used + a.cost.amount);
       }
       if (a.toggles.length) c.toggles = [...new Set([...c.toggles, ...a.toggles])];
+      spendTurn(a.economy);
       const rolled = op.payload.rolled;
       if (a.tempHp && rolled !== undefined) {
         if (rolled > c.hp.temp) {
@@ -317,6 +366,11 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
         else if (c.concentration) c.effects = c.effects.filter((e) => !e.concentration);
         c.concentration = { spell: sp.id, name: sp.name };
       }
+      const economy = using === "ritual" ? "free" : castingEconomy(sp.castingTime);
+      spendTurn(economy, (cb) => {
+        if (economy === "bonus") cb.bonusSpell = true;
+        if (economy === "action" && sp.level > 0) cb.leveledActionSpell = true;
+      });
       const effectId = sp.id.replace(/^spell:/, "effect:");
       const selfDef = reg.find(effectId, "effect");
       if (selfEffect && selfDef) {
@@ -405,6 +459,88 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
         return false;
       });
       if (ended.length) notes.push(`Ended: ${ended.join(", ")}.`);
+      if (c.combat) c.combat.myTurn = false;
+      if (c.toggles.includes("raging")) notes.push("Still raging? It ends if you didn't attack a hostile creature or take damage since your last turn.");
+      break;
+    }
+
+    case "startCombat": {
+      if (c.combat) notes.push("Already in combat.");
+      else c.combat = CombatState.parse({});
+      notes.push("Roll initiative.");
+      break;
+    }
+
+    case "startTurn": {
+      const prev = c.combat;
+      const round = !prev ? 1 : prev.hadTurn && !prev.myTurn ? prev.round + 1 : prev.round;
+      if (prev?.myTurn) notes.push("Your turn had already started: everything is back for a fresh turn.");
+      c.combat = CombatState.parse({ round, myTurn: true, hadTurn: true });
+      notes.push(`Round ${round}: action, bonus action, reaction and movement are back.`);
+      break;
+    }
+
+    case "endCombat": {
+      if (!c.combat) notes.push("Not in combat.");
+      delete c.combat;
+      const timed = c.effects.filter((e) => e.rounds !== undefined);
+      if (timed.length) notes.push(`Still running: ${timed.map((e) => e.custom?.name ?? reg.find(reg.effectId(e.effect), "effect")?.name ?? e.effect).join(", ")}.`);
+      break;
+    }
+
+    case "useEconomy": {
+      const { kind, amount, dash } = op.payload;
+      const cb = c.combat;
+      if (!cb) {
+        notes.push("Not in combat: nothing to track.");
+        break;
+      }
+      const add = (n: number) => Math.max(0, n + amount);
+      if (kind === "attack") {
+        // The first attack of the turn uses the action; taking the last one back returns it.
+        const before = cb.attacks;
+        cb.attacks = add(cb.attacks);
+        if (before === 0 && cb.attacks > 0) cb.action += 1;
+        if (before > 0 && cb.attacks === 0) cb.action = Math.max(0, cb.action - 1);
+      } else if (kind === "move") cb.moved = add(cb.moved);
+      else cb[kind] = add(cb[kind]);
+      if (dash) cb.dashes = Math.max(0, cb.dashes + Math.sign(amount));
+      break;
+    }
+
+    case "setCompanion": {
+      const { companion, form, name } = op.payload;
+      const comp = sheet.companions.find((x) => x.id === companion);
+      if (!comp) {
+        notes.push(`No companion "${companion}".`);
+        break;
+      }
+      const state = (c.companions[companion] ??= {});
+      if (form !== undefined && form !== state.form) {
+        state.form = form;
+        delete state.hp;
+        notes.push(`${comp.forms.find((f) => f.id === form)?.name ?? form} arrives with full hit points.`);
+      }
+      if (name !== undefined) state.name = name;
+      break;
+    }
+
+    case "reviveCompanion": {
+      const { companion, level, pact } = op.payload;
+      const t = companionTarget(companion);
+      if (!t) break;
+      if (pact) {
+        if (!sheet.pactSlots || c.pactSlotsUsed >= sheet.pactSlots.count) notes.push("No Pact Magic slots left. Revived anyway.");
+        else c.pactSlotsUsed += 1;
+      } else {
+        const total = sheet.spellSlots.find((x) => x.level === level)?.total ?? 0;
+        const used = c.slotsUsed[String(level)] ?? 0;
+        if (used >= total) notes.push(`No level ${level} slots left. Revived anyway.`);
+        else c.slotsUsed[String(level)] = used + 1;
+      }
+      spendTurn("action");
+      t.state.hp = { current: t.max, temp: 0 };
+      notes.push(`${t.comp.name} returns after 1 minute with all ${t.max} hit points.`);
       break;
     }
 

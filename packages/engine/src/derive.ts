@@ -18,6 +18,7 @@ import { sum, signed, signedDice, type Breakdown, type DicePart, type Part, type
 import { evalExpr, evalFlat, type ExprContext } from "./expr.js";
 import type { ContentRegistry } from "./registry.js";
 import { collectSources, type Source } from "./sources.js";
+import { deriveCompanion, type CompanionResult } from "./companions.js";
 import { spellSlots } from "./spellSlots.js";
 
 export interface AbilityResult {
@@ -196,6 +197,10 @@ export interface DerivedSheet {
   toggles: { name: string; label: string; on: boolean }[];
   /** Race traits, background, class and subclass features, feats and table rules, in sheet order, with their text when loaded. */
   features: FeatureEntry[];
+  /** Companions from features (Primal Companion), with their stat blocks. */
+  companions: CompanionResult[];
+  /** Attacks per Attack action: 2 with Extra Attack. */
+  attacksPerAction: number;
   /** Data problems found while deriving (missing choices, too many attuned items). */
   warnings: string[];
 }
@@ -886,6 +891,8 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
     defenses,
     senses,
     features: featureEntries(sources, reg),
+    companions: sources.flatMap((s) => (s.grant.companions ?? []).map((d) => deriveCompanion(d, s.label, c.companions[d.id], ctxFor(s), spellcasting))),
+    attacksPerAction: sources.some((s) => /^feature:extra-attack/.test(s.id)) ? 2 : 1,
     warnings,
   };
   if (slots.pact) sheet.pactSlots = slots.pact;

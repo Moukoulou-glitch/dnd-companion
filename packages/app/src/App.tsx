@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
-import { formatBonus } from "@dnd/engine";
+import { castingEconomy, formatBonus, turnWarnings, type TurnIntent } from "@dnd/engine";
 import type { ComposerBase } from "@dnd/dice";
 import type { ActionResult, EffectResult, SpellResult, WeaponAttack } from "@dnd/engine";
 import { ActionsTab } from "./components/ActionsTab";
+import { CompanionPanel, MovePanel } from "./components/Combat";
 import { Composer, ResultView } from "./components/Composer";
 import { AddEffectPanel, EffectChips, EffectPanel } from "./components/Effects";
 import { FeaturePanel } from "./components/FeaturePanel";
@@ -54,6 +55,43 @@ export function App() {
   if (!s.character || !s.sheet) return <p style={{ padding: 16 }}>No characters on this device yet.</p>;
 
   const { character: c, sheet } = s;
+
+  /**
+   * Checks what the player is about to do against the turn's rules. With no
+   * problems it goes ahead at once; otherwise it lists them and offers
+   * "Use anyway". It never blocks. `back` reopens the panel the warning
+   * replaced: cancelled, or after going ahead.
+   */
+  const guard = (intent: TurnIntent, proceed: () => void, back?: { cancelled?: () => void; done?: () => void }) => {
+    const cur = live.current;
+    const warnings = cur.character && cur.sheet ? turnWarnings(cur.character, cur.sheet, intent) : [];
+    if (!warnings.length) return proceed();
+    open(intent.name, () => (
+      <>
+        <p className="sub-head">Before you do that</p>
+        <ul className="warn-list">
+          {warnings.map((w) => (
+            <li key={w}>{w}</li>
+          ))}
+        </ul>
+        <div className="big-actions">
+          <button className="big" onClick={() => (back?.cancelled ? back.cancelled() : close())}>
+            Cancel
+          </button>
+          <button
+            className="big primary"
+            onClick={() => {
+              proceed();
+              if (back?.done) back.done();
+              else close();
+            }}
+          >
+            Use anyway
+          </button>
+        </div>
+      </>
+    ));
+  };
   const hpNow = Math.min(c.hp.current, sheet.hpMax.total);
   const hpPct = Math.round((hpNow / sheet.hpMax.total) * 100);
 
@@ -126,10 +164,12 @@ export function App() {
           a={current}
           text={feature?.text}
           physical={live.current.character?.settings.physicalDice ?? true}
-          onUse={(rolled) => {
-            live.current.act("useAction", rolled === undefined ? { action: a.id } : { action: a.id, rolled }, `${a.name} used.`);
-            close();
-          }}
+          onUse={(rolled) =>
+            guard({ name: current.name, economy: current.economy }, () => {
+              live.current.act("useAction", rolled === undefined ? { action: a.id } : { action: a.id, rolled }, `${a.name} used.`);
+              close();
+            })
+          }
         />
       );
     });
@@ -143,6 +183,94 @@ export function App() {
       return <ItemPanel inst={inst} def={registry.get(inst.item, "item")} act={live.current.act} close={close} />;
     });
   };
+
+  /** Weapon attacks on your turn use the Attack action (Extra Attack counts); off your turn they're a reaction (opportunity attack). */
+  const openAttack = (a: WeaponAttack) => {
+    const cb = live.current.character?.combat;
+    const reaction = !!cb && !cb.myTurn && a.action === "attack";
+    const economy = reaction ? "reaction" : a.action === "bonus" ? "bonus" : "action";
+    guard({ name: a.name, economy, attack: economy === "action" }, () => {
+      if (cb) {
+        const kind = economy === "action" ? "attack" : economy;
+        const label = kind === "attack" ? `Attack ${cb.attacks + 1} of ${live.current.sheet?.attacksPerAction ?? 1}.` : reaction ? "Reaction used (opportunity attack)." : "Bonus action used.";
+        live.current.act("useEconomy", { kind }, label);
+      }
+      openRoll(a.name, a.attack, a);
+    });
+  };
+
+  const startCombat = () => {
+    s.act("startCombat", {}, "Combat started.");
+    openRoll("Initiative", sheet.initiative);
+  };
+
+  const openMove = () =>
+    open("Movement", () => (
+      <MovePanel
+        character={live.current.character!}
+        sheet={live.current.sheet!}
+        act={live.current.act}
+        onDash={(economy) =>
+          guard({ name: "Dash", economy }, () => live.current.act("useEconomy", { kind: economy, dash: true }, "Dash: your speed again."), {
+            cancelled: openMove,
+            done: openMove,
+          })
+        }
+      />
+    ));
+
+  const openCompanionHp = (id: string) =>
+    open("Companion's hit points", () => (
+      <HpPad
+        onDamage={(amount) => {
+          live.current.act("damage", { amount, companion: id }, `Companion took ${amount} damage.`);
+          openCompanion(id);
+        }}
+        onHeal={(amount) => {
+          live.current.act("heal", { amount, companion: id }, `Companion healed ${amount}.`);
+          openCompanion(id);
+        }}
+        onTemp={(amount) => {
+          live.current.act("setTempHp", { amount, companion: id }, `Companion: ${amount} temporary HP.`);
+          openCompanion(id);
+        }}
+      />
+    ));
+
+  const openCompanion = (id: string) =>
+    open(sheet.companions.find((x) => x.id === id)?.name ?? "Companion", () => {
+      const comp = live.current.sheet?.companions.find((x) => x.id === id);
+      if (!comp) return <p className="note">This companion is gone.</p>;
+      const command = live.current.sheet?.actions.find((a) => a.featureId && comp.source && a.economy === "bonus" && a.source === comp.source);
+      return (
+        <CompanionPanel
+          comp={comp}
+          character={live.current.character!}
+          sheet={live.current.sheet!}
+          act={live.current.act}
+          open={open}
+          openRoll={openRoll}
+          openHp={() => openCompanionHp(id)}
+          onCommand={() =>
+            guard(
+              { name: `Command ${comp.name}`, economy: "bonus" },
+              () =>
+                command
+                  ? live.current.act("useAction", { action: command.id }, `${comp.name} commanded.`)
+                  : live.current.act("useEconomy", { kind: "bonus" }, `${comp.name} commanded.`),
+              { cancelled: () => openCompanion(id), done: () => openCompanion(id) },
+            )
+          }
+          onAttackInstead={() =>
+            guard(
+              { name: `${comp.name} attacks`, economy: "action", attack: true },
+              () => live.current.act("useEconomy", { kind: "attack" }, `${comp.name} attacks in place of one of your attacks.`),
+              { cancelled: () => openCompanion(id), done: () => openCompanion(id) },
+            )
+          }
+        />
+      );
+    });
 
   const openTrait = (id: string) => {
     const f = sheet.features.find((x) => x.id === id);
@@ -190,7 +318,7 @@ export function App() {
     open(`Concentrating on ${conc.name}`, () => <ConcentrationPanel onCheck={openConcentrationCheck} onEnd={() => { live.current.act("endConcentration", {}, "Concentration ended."); close(); }} />);
   };
 
-  const openSpell = (first: SpellResult) =>
+  const openSpell = (first: SpellResult, castAt?: number) =>
     open(first.name, () => {
       const sp = live.current.sheet?.spells.find((x) => x.id === first.id && x.list.id === first.list.id) ?? first;
       const roller = (level: number, damageOnly: boolean) =>
@@ -212,8 +340,13 @@ export function App() {
           sp={sp}
           sheet={live.current.sheet!}
           hasSelfEffect={registry.has(sp.id.replace(/^spell:/, "effect:"))}
+          initialCast={castAt}
           onCast={(level, using, selfEffect) =>
-            live.current.act("castSpell", { spell: sp.id, list: sp.list.id, level, using, selfEffect }, `${sp.name} cast.`)
+            guard(
+              { name: sp.name, economy: using === "ritual" ? "free" : castingEconomy(sp.castingTime), spell: { level: sp.level, concentration: sp.concentration } },
+              () => live.current.act("castSpell", { spell: sp.id, list: sp.list.id, level, using, selfEffect }, `${sp.name} cast.`),
+              { cancelled: () => openSpell(sp), done: () => openSpell(sp, level) },
+            )
           }
           onPrepare={(prepared) => live.current.act("setPrepared", { spell: sp.id, list: sp.list.id, prepared }, `${sp.name} ${prepared ? "prepared" : "unprepared"}.`)}
           onRollAttack={(level) => roller(level, false)}
@@ -328,9 +461,20 @@ export function App() {
       </header>
 
       {tab === "play" && (
-        <PlayTab character={c} sheet={sheet} act={s.act} openHp={openHp} openHitDie={openHitDie} rolls={s.rolls} openRollHistory={openRollHistory} />
+        <PlayTab
+          character={c}
+          sheet={sheet}
+          act={s.act}
+          openHp={openHp}
+          openHitDie={openHitDie}
+          rolls={s.rolls}
+          openRollHistory={openRollHistory}
+          onStartCombat={startCombat}
+          openMove={openMove}
+          openCompanion={openCompanion}
+        />
       )}
-      {tab === "actions" && <ActionsTab sheet={sheet} open={open} openRoll={openRoll} openFeature={openFeature} />}
+      {tab === "actions" && <ActionsTab sheet={sheet} open={open} openRoll={openRoll} openAttack={openAttack} openFeature={openFeature} />}
       {tab === "spells" && <SpellsTab sheet={sheet} openSpell={openSpell} />}
       {tab === "sheet" && <SheetTab sheet={sheet} open={open} openRoll={openRoll} openTrait={openTrait} />}
       {tab === "inventory" && (

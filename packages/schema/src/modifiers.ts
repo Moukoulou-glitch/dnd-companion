@@ -215,6 +215,59 @@ export const ActionDef = z
 export type ActionDef = z.infer<typeof ActionDef>;
 
 /** Everything a source (race, class level, feat, item, manual entry) gives a character. */
+/** An attack a companion makes. "spell" uses the owner's spell attack modifier. */
+export const CompanionAttack = z
+  .object({
+    name: z.string(),
+    kind: z.enum(["melee", "ranged"]).default("melee"),
+    toHit: z.union([z.literal("spell"), ValueExpr]),
+    reach: z.string().optional(),
+    /** Damage dice, e.g. "1d8". */
+    damage: z.string(),
+    /** Flat damage added to the dice, e.g. "2 + pb". */
+    damageBonus: ValueExpr.optional(),
+    damageType: DamageType,
+    note: z.string().optional(),
+  })
+  .strict();
+
+/** One stat block a companion can take (Beast of the Land, Sea or Sky). */
+export const CompanionForm = z
+  .object({
+    id: z.string(),
+    name: z.string(),
+    size: z.string(),
+    type: z.string(),
+    ac: ValueExpr,
+    /** HP maximum: base + perLevel × levels in `class`. */
+    hp: z.object({ base: z.number().int(), perLevel: z.number().int(), class: DefId }).strict(),
+    speed: z.string(),
+    abilities: z.record(Ability, z.number().int().min(1).max(30)),
+    /** Added to every ability check and saving throw (Primal Bond). */
+    checkBonus: ValueExpr.optional(),
+    senses: z.string().optional(),
+    languages: z.string().optional(),
+    traits: z.array(z.object({ name: z.string(), summary: z.string() }).strict()).default([]),
+    attacks: z.array(CompanionAttack).default([]),
+  })
+  .strict();
+export type CompanionForm = z.infer<typeof CompanionForm>;
+
+export const CompanionDef = z
+  .object({
+    id: z.string(),
+    name: z.string(),
+    /** Spellcasting id whose attack modifier and save DC the companion uses. */
+    spellcasting: z.string().optional(),
+    forms: z.array(CompanionForm).min(1),
+    /** How it acts in combat, shown on the Play screen. */
+    combatNote: z.string().optional(),
+    /** Bringing it back: spend a spell slot of 1st level or higher. */
+    revive: z.object({ note: z.string() }).strict().optional(),
+  })
+  .strict();
+export type CompanionDef = z.infer<typeof CompanionDef>;
+
 export const Grant = z
   .object({
     abilityBonuses: z.record(Ability, z.number()).optional(),
@@ -228,6 +281,7 @@ export const Grant = z
     spellcasting: SpellcastingDef.optional(),
     spells: z.array(GrantedSpell).optional(),
     senses: z.record(z.string(), z.number()).optional(),
+    companions: z.array(CompanionDef).optional(),
   })
   .strict();
 export type Grant = z.infer<typeof Grant>;
