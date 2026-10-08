@@ -404,6 +404,8 @@ export const ChoiceDef = z
       })
       .strict()
       .optional(),
+    /** Feature choices: any feature a background gives (a custom background borrows one). */
+    featuresOf: z.literal("background").optional(),
     /** Spell choices with a `from` list: other spells it may be swapped for later (Divine affinity: any cleric spell), listed after with a note. */
     orSpells: z.object({ classes: z.array(z.string()), minLevel: z.number().int().min(0).max(9).optional(), upToSlots: z.boolean().optional(), note: z.string() }).strict().optional(),
   })

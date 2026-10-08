@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { buildItems, choiceOptions, classSpellOptions, derive, multiclassIssues, newCharacter, spellListOf } from "@dnd/engine";
 import { tableRegistry } from "../../engine/test/helpers.js";
+import { CharacterLog } from "../src/log.js";
+import { HybridClock } from "../src/clock.js";
 
 const reg = tableRegistry();
 
@@ -84,5 +86,50 @@ describe("Divine Soul", () => {
     expect(aff.slice(0, 5).map((o) => o.value)).toContain("spell:bless");
     expect(aff.some((o) => o.value === "spell:spiritual-weapon" && /cleric spell, when replacing/.test(o.detail ?? ""))).toBe(true);
     expect(aff.some((o) => o.value === "spell:magic-missile")).toBe(false);
+  });
+});
+
+describe("Backstory, notes, calendar and a custom background", () => {
+  let t = 1_791_000_000_000;
+  const log = () => {
+    const c = newCharacter({ id: "b", name: "B", race: "race:human", class: "class:rogue", abilities: { str: 8, dex: 16, con: 12, int: 12, wis: 12, cha: 14 } }, reg);
+    return new CharacterLog(c, reg, new HybridClock("test", () => (t += 60000)), "player");
+  };
+  it("notes are dated with the real time, edited, and deleted", () => {
+    const l = log();
+    l.record("setStory", { traits: "I hum when I lie.", session: 4 });
+    l.record("addNote", { title: "The mill", body: "Met Agatha.", category: "gold", session: 4, gameDate: "Κλέα, 25 Δανάη 521" });
+    const n = l.character.notes[0]!;
+    expect(n).toMatchObject({ title: "The mill", category: "gold", session: 4, gameDate: "Κλέα, 25 Δανάη 521" });
+    expect(new Date(n.createdAt!).getTime()).toBeGreaterThan(1_790_000_000_000);
+    l.record("updateNote", { id: n.id, body: "Met Agatha, she lied." });
+    expect(l.character.notes[0]!.updatedAt! > n.createdAt!).toBe(true);
+    l.record("removeNote", { id: n.id });
+    expect(l.character.notes).toHaveLength(0);
+    expect(l.character.story).toMatchObject({ traits: "I hum when I lie.", session: 4 });
+  });
+  it("the in-world clock moves with rests unless switched off", () => {
+    const l = log();
+    l.record("setCalendar", { kind: "mithiologio", minutes: 1000 });
+    l.record("rest", { kind: "long" });
+    expect(l.character.story.calendar.minutes).toBe(1480);
+    l.record("setCalendar", { followRests: false, add: 20 });
+    l.record("rest", { kind: "short" });
+    expect(l.character.story.calendar.minutes).toBe(1500);
+  });
+  it("a custom background asks for two tools or languages in the chosen mix", () => {
+    const l = log();
+    l.record("setDetails", { background: "background:custom" });
+    l.record("setCustomBackground", { name: "Smuggler", languages: 1, featureName: "Hidden Docks", featureText: "Safe passage by river." });
+    l.record("setChoice", { source: "background:custom", choice: "skills", values: ["stealth", "deception"] });
+    const items = buildItems(l.character, reg).filter((i) => i.source === "background:custom");
+    expect(items.map((i) => [i.choice!.id, i.need])).toEqual([
+      ["skills", 2],
+      ["languages", 1],
+      ["tools", 1],
+    ]);
+    const sheet = derive(l.character, reg);
+    expect(sheet.features.find((f) => f.id === "background:custom-feature")?.name).toBe("Hidden Docks");
+    expect(sheet.skills.deception.proficiency).toBe(1);
   });
 });

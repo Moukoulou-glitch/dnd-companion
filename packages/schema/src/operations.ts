@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { Extra, ExtraTag } from "./character.js";
+import { CalendarDef, Extra, ExtraTag } from "./character.js";
 import { DefId } from "./core.js";
 import { Modifier } from "./modifiers.js";
 
@@ -288,6 +288,24 @@ export const OPERATION_PAYLOADS = {
   setDetails: z
     .object({ name: z.string().optional(), player: z.string().optional(), alignment: z.string().optional(), race: z.string().optional(), background: z.string().nullable().optional() })
     .strict(),
+  /** Personality, backstory and the session number. */
+  setStory: z.object({ traits: z.string().max(4000).optional(), ideals: z.string().max(4000).optional(), bonds: z.string().max(4000).optional(), flaws: z.string().max(4000).optional(), backstory: z.string().max(100000).optional(), session: z.number().int().min(0).optional() }).strict(),
+  /** The in-world calendar: which one, a custom one, the time (set or moved on). */
+  setCalendar: z
+    .object({
+      kind: z.enum(["normal", "mithiologio", "custom"]).optional(),
+      custom: CalendarDef.optional(),
+      minutes: z.number().int().min(0).optional(),
+      add: z.number().int().optional(),
+      followRests: z.boolean().optional(),
+    })
+    .strict(),
+  /** A note; it is dated with the real time it was written. */
+  addNote: z.object({ title: z.string().max(200), body: z.string().max(20000), category: z.string().default("none"), pinned: z.boolean().optional(), session: z.number().int().min(0).optional(), gameDate: z.string().max(120).optional() }).strict(),
+  updateNote: z.object({ id: z.string(), title: z.string().max(200).optional(), body: z.string().max(20000).optional(), category: z.string().optional(), pinned: z.boolean().optional(), session: z.number().int().min(0).nullable().optional() }).strict(),
+  removeNote: z.object({ id: z.string() }).strict(),
+  /** The player's own background: its name, how many languages (the rest tools), and a feature written by hand. */
+  setCustomBackground: z.object({ name: z.string().max(60).optional(), languages: z.number().int().min(0).max(2).optional(), featureName: z.string().max(80).optional(), featureText: z.string().max(2000).optional() }).strict(),
   /** Add a spell to a class list (known spells, a wizard's spellbook, cantrips), or take it away. */
   /** `cost`: gold taken from the spellbook fund for copying it (wizard). */
   learnSpell: z.object({ spell: z.string(), list: z.string(), cost: z.number().min(0).optional() }).strict(),
@@ -381,6 +399,12 @@ export const Operation = z.discriminatedUnion("type", [
   OperationBase.extend({ type: z.literal("setDeathSaves"), payload: OPERATION_PAYLOADS.setDeathSaves }),
   OperationBase.extend({ type: z.literal("toggle"), payload: OPERATION_PAYLOADS.toggle }),
   OperationBase.extend({ type: z.literal("setField"), payload: OPERATION_PAYLOADS.setField }),
+  OperationBase.extend({ type: z.literal("setStory"), payload: OPERATION_PAYLOADS.setStory }),
+  OperationBase.extend({ type: z.literal("setCalendar"), payload: OPERATION_PAYLOADS.setCalendar }),
+  OperationBase.extend({ type: z.literal("addNote"), payload: OPERATION_PAYLOADS.addNote }),
+  OperationBase.extend({ type: z.literal("updateNote"), payload: OPERATION_PAYLOADS.updateNote }),
+  OperationBase.extend({ type: z.literal("removeNote"), payload: OPERATION_PAYLOADS.removeNote }),
+  OperationBase.extend({ type: z.literal("setCustomBackground"), payload: OPERATION_PAYLOADS.setCustomBackground }),
 ]);
 export type Operation = z.infer<typeof Operation>;
 export type OperationInput = z.input<typeof Operation>;

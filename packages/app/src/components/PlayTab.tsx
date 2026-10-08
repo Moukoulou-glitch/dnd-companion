@@ -27,7 +27,7 @@ function Identity({ c, onBackground }: { c: Character; onBackground: () => void 
   const cap = (s: string) => s.replace(/^./, (x) => x.toUpperCase());
   const parts: [string, string][] = [
     ["Race", race?.name ?? c.race],
-    ["Background", bg?.name ?? "none"],
+    ["Background", c.background === "background:custom" ? `${c.customBackground?.name || "You don't know me!"} (custom)` : bg?.name ?? "none"],
     ["Alignment", c.alignment ? ALIGNMENTS[c.alignment.toUpperCase()] ?? c.alignment : "not set"],
     ["Creature", race ? `${cap(race.size)} ${race.creatureType ?? "humanoid"}` : "humanoid"],
   ];

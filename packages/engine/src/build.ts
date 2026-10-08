@@ -170,7 +170,15 @@ export function buildItems(c: Character, reg: ContentRegistry): BuildItem[] {
     seen.add(s.id);
     for (const ch of defChoices(c, reg, s.id)) {
       if (ch.newOnly && !c.builtInApp) continue;
-      const need = countOf(c, reg, ch);
+      let need = countOf(c, reg, ch);
+      // A custom background: two tools or languages in any mix, and a feature written by hand counts as chosen.
+      if (s.id === "background:custom") {
+        const cb = c.customBackground ?? { languages: 1 };
+        if (ch.id === "languages") need = cb.languages;
+        if (ch.id === "tools") need = 2 - cb.languages;
+        if (ch.id === "feature" && c.customBackground?.featureName) continue;
+        if (!need) continue;
+      }
       const picked = c.choices[s.id]?.[ch.id] ?? [];
       const strict = fromFeats.has(s.id) || !OVER_OK.has(ch.kind);
       const item: BuildItem = { key: `${s.id}|${ch.id}`, kind: "choice", sourceName: s.label, label: ch.label, done: picked.length >= need, need, picked, source: s.id, choice: ch, ...(strict ? { strict } : {}), ...(picked.length > need ? { over: true } : {}) };
@@ -256,6 +264,20 @@ export function choiceOptions(ch: ChoiceDef, reg: ContentRegistry, slotMax?: num
     case "option":
       return (from ?? []).map((o) => ({ value: o, label: o.replace(/^./, (x) => x.toUpperCase()) }));
     case "feature":
+      if (!from && ch.featuresOf === "background") {
+        // Every background's feature, named with the background it comes from.
+        return reg
+          .list("background")
+          .filter((b) => b.id !== "background:custom")
+          .flatMap((b) =>
+            b.features.map((id) => {
+              const f = reg.find(id, "feature");
+              return { value: id, label: f?.name ?? id, detail: `${b.name}${f?.summary ? ` · ${f.summary}` : ""}` };
+            }),
+          )
+          .filter((o, i, all) => all.findIndex((x) => x.value === o.value) === i)
+          .sort((a, b) => a.label.localeCompare(b.label));
+      }
       return (from ?? []).map((id) => {
         const f = reg.find(id, "feature");
         return { value: id, label: f?.name ?? id, ...(f?.summary ? { detail: f.summary } : {}) };

@@ -179,6 +179,8 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
 
   /** Time passes: long effects and concentration count down; anything reaching 0 ends. */
   const passMinutes = (minutes: number) => {
+    // The in-world clock moves too, unless the player keeps it by hand.
+    if (c.story.calendar.followRests) c.story.calendar.minutes += minutes;
     const ended: Character["effects"] = [];
     for (const e of c.effects) {
       if (e.minutes !== undefined) {
@@ -1654,6 +1656,64 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
 
     case "forgetSpell": {
       c.spells = c.spells.filter((x) => !(x.spell === op.payload.spell && x.list === op.payload.list));
+      break;
+    }
+
+    case "setStory": {
+      Object.assign(c.story, op.payload);
+      break;
+    }
+
+    case "setCalendar": {
+      const cal = c.story.calendar;
+      const { kind, custom, minutes, add, followRests } = op.payload;
+      if (kind) cal.kind = kind;
+      if (custom) cal.custom = custom;
+      if (minutes !== undefined) cal.minutes = minutes;
+      if (add) cal.minutes = Math.max(0, cal.minutes + add);
+      if (followRests !== undefined) cal.followRests = followRests;
+      break;
+    }
+
+    case "addNote": {
+      const at = new Date(Number(op.at.slice(0, 13)) || Date.now()).toISOString();
+      const { title, body, category, pinned, session, gameDate } = op.payload;
+      c.notes.unshift({ id: op.id, title, body, category, pinned: !!pinned, createdAt: at, updatedAt: at, ...(session !== undefined ? { session } : {}), ...(gameDate ? { gameDate } : {}) });
+      break;
+    }
+
+    case "updateNote": {
+      const n = c.notes.find((x) => x.id === op.payload.id);
+      if (!n) break;
+      const { title, body, category, pinned, session } = op.payload;
+      if (title !== undefined) n.title = title;
+      if (body !== undefined) n.body = body;
+      if (category !== undefined) n.category = category;
+      if (pinned !== undefined) n.pinned = pinned;
+      if (session === null) delete n.session;
+      else if (session !== undefined) n.session = session;
+      n.updatedAt = new Date(Number(op.at.slice(0, 13)) || Date.now()).toISOString();
+      break;
+    }
+
+    case "removeNote": {
+      c.notes = c.notes.filter((x) => x.id !== op.payload.id);
+      break;
+    }
+
+    case "setCustomBackground": {
+      const cur = (c.customBackground ??= { name: "", languages: 1 });
+      const { name, languages, featureName, featureText } = op.payload;
+      if (name !== undefined) cur.name = name;
+      if (languages !== undefined) cur.languages = languages;
+      if (featureName !== undefined) {
+        if (featureName) cur.featureName = featureName;
+        else delete cur.featureName;
+      }
+      if (featureText !== undefined) {
+        if (featureText) cur.featureText = featureText;
+        else delete cur.featureText;
+      }
       break;
     }
 

@@ -1310,10 +1310,16 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
     },
     defenses,
     senses,
-    features: featureEntries(sources, reg).map((f) => {
-      const dc = dcOf(FEATURE_DCS[f.id]);
-      return dc ? { ...f, dc } : f;
-    }),
+    features: [
+      ...featureEntries(sources, reg).map((f) => {
+        const dc = dcOf(FEATURE_DCS[f.id]);
+        return dc ? { ...f, dc } : f;
+      }),
+      // A custom background's feature written by the player.
+      ...(c.background === "background:custom" && c.customBackground?.featureName
+        ? [{ id: "background:custom-feature", name: c.customBackground.featureName, kind: "background" as const, source: "Your own background", ...(c.customBackground.featureText ? { summary: c.customBackground.featureText } : {}) }]
+        : []),
+    ],
     extras: c.extras.map((x) => ({
       id: x.id,
       kind: x.kind,

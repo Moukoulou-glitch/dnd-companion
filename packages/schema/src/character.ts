@@ -105,10 +105,68 @@ export type SpellInstance = z.infer<typeof SpellInstance>;
 export const Note = z
   .object({
     id: z.string(),
+    /** Colour tag: "red", "gold", "green", "teal", "blue", "purple", or "none". */
     category: z.string(),
     title: z.string(),
     body: z.string(),
     pinned: z.boolean().default(false),
+    /** Real date and time it was written and last changed (ISO). */
+    createdAt: z.string().optional(),
+    updatedAt: z.string().optional(),
+    /** Session number it belongs to. */
+    session: z.number().int().min(0).optional(),
+    /** The in-world date when it was written, as shown by the character's calendar. */
+    gameDate: z.string().optional(),
+  })
+  .strict();
+
+/** A calendar made by the table: months with their days, the week, hours in a day. */
+export const CalendarDef = z
+  .object({
+    name: z.string().max(60),
+    months: z.array(z.object({ name: z.string().max(40), days: z.number().int().min(1).max(400) }).strict()).min(1).max(40),
+    weekdays: z.array(z.string().max(30)).min(1).max(20),
+    hoursPerDay: z.number().int().min(1).max(100).default(24),
+    /** Shown after the year ("After the Schism"). */
+    era: z.string().max(60).optional(),
+  })
+  .strict();
+export type CalendarDef = z.infer<typeof CalendarDef>;
+
+/** Who the character is, their story and the in-world time. */
+export const Story = z
+  .object({
+    traits: z.string().max(4000).default(""),
+    ideals: z.string().max(4000).default(""),
+    bonds: z.string().max(4000).default(""),
+    flaws: z.string().max(4000).default(""),
+    backstory: z.string().max(100000).default(""),
+    /** The session being played now, for new notes. */
+    session: z.number().int().min(0).default(1),
+    calendar: z
+      .object({
+        kind: z.enum(["normal", "mithiologio", "custom"]).default("normal"),
+        custom: CalendarDef.optional(),
+        /** Minutes since the first minute of year 1. */
+        minutes: z.number().int().min(0).default(0),
+        /** Moves with rests and "time passes". */
+        followRests: z.boolean().default(true),
+      })
+      .strict()
+      .default({}),
+  })
+  .strict();
+export type Story = z.infer<typeof Story>;
+
+/** A background made by the player ("You don't know me!"). */
+export const CustomBackground = z
+  .object({
+    name: z.string().max(60).default(""),
+    /** Of the two tool proficiencies or languages, how many are languages. */
+    languages: z.number().int().min(0).max(2).default(1),
+    /** A feature written by the player, when not taken from another background. */
+    featureName: z.string().max(80).optional(),
+    featureText: z.string().max(2000).optional(),
   })
   .strict();
 export type Note = z.infer<typeof Note>;
@@ -388,6 +446,8 @@ export const Character = z
       .strict()
       .default({}),
     notes: z.array(Note).default([]),
+    story: Story.default({}),
+    customBackground: CustomBackground.optional(),
   })
   .strict();
 export type Character = z.infer<typeof Character>;

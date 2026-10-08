@@ -15,6 +15,8 @@ import { AddEffectPanel, EffectChips, EffectPanel } from "./components/Effects";
 import { FeaturePanel } from "./components/FeaturePanel";
 import { DcBig, Reminders } from "./components/DcBig";
 import { DistributePanel } from "./components/Distribute";
+import { BackstoryTab } from "./components/BackstoryTab";
+import { CUSTOM_BG, CustomBackgroundWizard } from "./components/CustomBackground";
 import { HpPad } from "./components/HpPad";
 import { AbilityAdjustPanel, MaxHpPanel, SummonMaxHp } from "./components/Adjust";
 import { DamageReducePanel } from "./components/Monk";
@@ -34,7 +36,7 @@ import { useCharacters } from "./useCharacters";
 import { formatMinutes } from "./time";
 import { vibrateFor, type HpState } from "./vibrate";
 
-type Tab = "play" | "actions" | "spells" | "sheet" | "inventory";
+type Tab = "play" | "actions" | "spells" | "sheet" | "inventory" | "story";
 
 interface GrowingArea {
   question: string;
@@ -72,6 +74,7 @@ const TABS: { id: Tab; label: string }[] = [
   { id: "spells", label: "Spells" },
   { id: "sheet", label: "Sheet" },
   { id: "inventory", label: "Items" },
+  { id: "story", label: "Backstory" },
 ];
 
 function rollDie(sides: number): number {
@@ -188,9 +191,15 @@ export function App() {
 
   /** Another background: its proficiencies and choices follow; gear from the old one stays. */
   const openBackground = () => open("Background", () => <BackgroundPicker current={live.current.character?.background} onPick={(id) => {
+    if (id === CUSTOM_BG) return openCustomBackground();
     live.current.act("setDetails", { background: id }, `Background: ${registry.find(id, "background")?.name ?? id}.`);
     close();
   }} />);
+  /** "You don't know me! (custom)": a background of your own, step by step. */
+  const openCustomBackground = () =>
+    open("You don't know me! (custom)", () =>
+      live.current.character ? <CustomBackgroundWizard c={live.current.character} reg={registry} act={live.current.act} done={close} /> : null,
+    );
 
   /** A death saving throw: what the d20 shows decides it. */
   const openDeathSave = () => {
@@ -2034,6 +2043,7 @@ export function App() {
           }
           open={open}
           openRoll={openRoll} openTrait={openTrait} openSkill={openSkill} openAddExtra={openAddExtra} openExtra={openExtra} />}
+      {tab === "story" && <BackstoryTab c={c} act={s.act} />}
       {tab === "inventory" && (
         <InventoryTab character={c} registry={registry} openItem={openItem} openAdd={openAdd} openCoin={openCoin} sheet={sheet} act={s.act} />
       )}

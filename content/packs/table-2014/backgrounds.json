@@ -60,6 +60,67 @@
           ]
         }
       ]
+    },
+    {
+      "kind": "background",
+      "id": "background:custom",
+      "name": "You don't know me! (custom)",
+      "summary": "Your own background (PHB p. 125): any two skills, two tool proficiencies or languages in any mix, a feature borrowed from another background or agreed with your DM, and gear from a background's package or bought with coin.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 125
+      },
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "skill",
+            "target": {
+              "choice": "skills"
+            }
+          },
+          {
+            "kind": "language",
+            "target": {
+              "choice": "languages"
+            }
+          },
+          {
+            "kind": "tool",
+            "target": {
+              "choice": "tools"
+            }
+          }
+        ]
+      },
+      "features": [],
+      "choices": [
+        {
+          "id": "skills",
+          "label": "Skills",
+          "kind": "skill",
+          "count": 2
+        },
+        {
+          "id": "languages",
+          "label": "Languages",
+          "kind": "language",
+          "count": 2
+        },
+        {
+          "id": "tools",
+          "label": "Tool proficiencies",
+          "kind": "tool",
+          "count": 2
+        },
+        {
+          "id": "feature",
+          "label": "Background feature",
+          "kind": "feature",
+          "count": 1,
+          "featuresOf": "background"
+        }
+      ]
     }
   ]
 }

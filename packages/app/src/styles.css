@@ -2320,3 +2320,192 @@ button.mpip {
   border-color: var(--conc, #a98bf0);
   color: var(--conc, #a98bf0);
 }
+
+.row.custom-bg {
+  border: 1px dashed var(--gold);
+  border-radius: var(--radius-m);
+  margin-bottom: 10px;
+  width: 100%;
+}
+.wizard-steps {
+  display: flex;
+  gap: 6px;
+  list-style: none;
+  padding: 0;
+  margin: 0 0 8px;
+}
+.wizard-steps button {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--muted);
+  font-weight: 700;
+}
+.wizard-steps li[aria-current="step"] button {
+  border-color: var(--gold);
+  color: var(--gold);
+  background: var(--gold-soft);
+}
+.story-field {
+  display: grid;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+.story-text {
+  width: 100%;
+  box-sizing: border-box;
+  background: var(--panel-raised);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-m);
+  padding: 10px 12px;
+  font: inherit;
+  font-size: 1rem;
+  line-height: 1.45;
+  resize: vertical;
+}
+.story-text:focus {
+  outline: 2px solid var(--focus);
+}
+
+/* Six tabs on a phone: a little tighter. */
+@media (max-width: 420px) {
+  .tab {
+    font-size: 14px;
+    padding: 0 2px;
+  }
+}
+
+/* Backstory page */
+.backstory section {
+  margin-bottom: 18px;
+}
+.story-text.big {
+  min-height: 220px;
+}
+.backstory mark {
+  background: var(--gold-soft);
+  color: var(--gold);
+  border-radius: 3px;
+}
+.found {
+  border-left: 3px solid var(--gold);
+  padding: 4px 10px;
+  margin-bottom: 8px;
+}
+.found p {
+  margin: 4px 0;
+}
+.world-time .world-date {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-m);
+  padding: 12px 14px;
+  margin-bottom: 8px;
+}
+.world-day {
+  font-size: 1.35rem;
+  font-weight: 800;
+}
+.world-year {
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+.time-buttons,
+.note-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 8px 0;
+  align-items: center;
+}
+.time-buttons .chip {
+  min-height: 36px;
+}
+.chip[aria-pressed="true"],
+.chip[aria-checked="true"] {
+  border-color: var(--text);
+  box-shadow: 0 0 0 2px var(--text) inset;
+}
+.chip.swatch {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+}
+.chip.swatch.none {
+  background: transparent;
+  border-style: dashed;
+}
+.swatch.red,
+.note-card.red {
+  --note: #e0505c;
+}
+.swatch.gold,
+.note-card.gold {
+  --note: #d9a441;
+}
+.swatch.green,
+.note-card.green {
+  --note: #5cc27a;
+}
+.swatch.teal,
+.note-card.teal {
+  --note: #55bcb1;
+}
+.swatch.blue,
+.note-card.blue {
+  --note: #7da4e8;
+}
+.swatch.purple,
+.note-card.purple {
+  --note: #a98bf0;
+}
+.chip.swatch:not(.none) {
+  background: var(--note);
+  border-color: var(--note);
+}
+.notes-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+.note-card {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-left: 6px solid var(--note, var(--line));
+  border-radius: var(--radius-m);
+  padding: 10px 12px;
+  color: var(--text);
+}
+.note-card.editing {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.note-body {
+  margin: 6px 0;
+  white-space: pre-wrap;
+  color: var(--text);
+}
+.note-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+.note-filters .pin {
+  margin-left: auto;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+.choose-calendar,
+.set-date {
+  margin-top: 10px;
+}

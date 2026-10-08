@@ -55,6 +55,7 @@ export function collectSources(c: Character, reg: ContentRegistry): Source[] {
     const bg = reg.get(c.background, "background");
     out.push({ id: bg.id, label: bg.name, grant: bg.grant ?? {}, choices: choicesFor(bg.id) });
     bg.features.forEach(pushFeature);
+    pushChosenFeatures(bg.id, bg.choices);
   }
 
   c.classes.forEach((cl, index) => {
