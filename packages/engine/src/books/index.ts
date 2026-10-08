@@ -241,6 +241,7 @@ export function bookPack(files: BookFile[], base: ContentRegistry): { pack: Cont
   for (const kind of ["feature", "subclass", "feat", "background"] as const) {
     for (const d of base.list(kind)) for (const n of namesOf(d)) byName.set(n, [...(byName.get(n) ?? []), d]);
   }
+  const raceFeatures = new Set(base.list("race").flatMap((r) => r.features));
   for (const group of named) {
     for (const e of group.entries) {
       // The table doesn't play the Artificer: none of its feats, features or infusions come in.
@@ -251,6 +252,8 @@ export function bookPack(files: BookFile[], base: ContentRegistry): { pack: Cont
         // The actions anyone can take only get text from the actions file, and only they do.
         if (group.kind === "action") return isCommon(d);
         if (isCommon(d)) return false;
+        // A race file's traits only go to races' traits (Aasimar's Radiant Soul isn't the warlock's).
+        if (group.kind === "trait") return d.kind === "feature" && raceFeatures.has(d.id);
         if (group.kind === "feat") return d.kind === "feat";
         if (group.kind === "background") return d.kind === "background";
         if (d.kind !== "feature" && d.kind !== "subclass") return false;

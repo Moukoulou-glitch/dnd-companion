@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildItems, choiceOptions, classSpellOptions, derive, multiclassIssues, newCharacter, spellListOf } from "@dnd/engine";
+import { bookPack, buildItems, choiceOptions, classSpellOptions, derive, multiclassIssues, newCharacter, spellListOf } from "@dnd/engine";
 import { tableRegistry } from "../../engine/test/helpers.js";
 import { CharacterLog } from "../src/log.js";
 import { HybridClock } from "../src/clock.js";
@@ -131,5 +131,20 @@ describe("Backstory, notes, calendar and a custom background", () => {
     const sheet = derive(l.character, reg);
     expect(sheet.features.find((f) => f.id === "background:custom-feature")?.name).toBe("Hidden Docks");
     expect(sheet.skills.deception.proficiency).toBe(1);
+  });
+});
+
+describe("Volo's races", () => {
+  it("are playable from the table pack, and a races file only gives them their text", () => {
+    const c = newCharacter({ id: "l", name: "L", race: "race:lizardfolk", class: "class:fighter", abilities: { str: 14, dex: 14, con: 14, int: 10, wis: 10, cha: 10 } }, reg);
+    expect(derive(c, reg).ac.total).toBe(15);
+    expect(reg.find("race:protector-aasimar", "race")?.group).toBe("Aasimar");
+    // A made-up file in the races-sublist layout (not the book's words).
+    const text = ["## Aasimar (Protector)", "", "- **Ability Scores:** Charisma +2; Wisdom +1", "- **Size:** Medium", "- **Speed:** 30 feet", "", "***Radiant Soul.*** Sample words for a test.", "", "---"].join("\n");
+    const { pack, report } = bookPack([{ name: "races-sublist_test.md", text }], reg);
+    expect(report.added.race).toBeUndefined();
+    const ids = pack.definitions.filter((d) => d.text?.length).map((d) => d.id);
+    expect(ids).toContain("feature:aasimar-radiant-soul");
+    expect(ids).not.toContain("feature:celestial-radiant-soul");
   });
 });

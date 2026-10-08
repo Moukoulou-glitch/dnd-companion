@@ -26,6 +26,15 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 - **Warlock**: Gift of the Sea swim speed, Elemental Gift flight and its genie-kind resistance, Awakened Mind telepathy, Beguiling Defenses' charm immunity, Hex Warrior's Charisma for weapon attacks, Genie's Wrath damage type.
 - **Wizard**: Arcane Ward is tracked as full after each long rest even before it's created; Savant features, Minor Alchemy, Focused Conjuration, Durable Summons, Split Enchantment, Alter Memories, Malleable Illusions, Master of Hexes, Sanctuary Vessel, Master Scrivener; Transmuter's Stone benefit; Grim Harvest healing (note); Durable Magic uses a switch you turn on while concentrating.
 
+## Races (Volo's)
+- Swim and climb speeds (Lizardfolk, Triton, Tabaxi) aren't tracked, like every non-walking speed.
+- Traits that unlock at 3rd or 5th level (Aasimar transformations, Triton's Gust of Wind, Yuan-ti's Suggestion) are there from 1st with "from 3rd level" in the name.
+- Triton's Wall of Water isn't in the spell content (it's an XGtE spell); cast it from the book.
+- Long-Limbed reach, Powerful Build, Surprise Attack's once per combat and Feline Agility's recharge are reminders, not tracked.
+
+## Backstory and calendars
+- The Μηθειολόγιο copy has the months, week, seasons and era from the table's Fantasy Calendar; moons, events and named years aren't shown, and the app doesn't sync with the website (set the date by hand if it moves on there).
+
 ## Auras and tags
 - Aura effects from allies (Add an effect → Other) don't know whether you're inside the aura or whether its owner is conscious: remove them yourself.
 - Twilight Sanctuary's per-turn temporary hit points aren't rolled for other creatures; the reminder says what to do.

@@ -1225,6 +1225,1854 @@
           }
         ]
       }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:aasimar-celestial-resistance",
+      "name": "Celestial Resistance",
+      "summary": "Resistance to necrotic and radiant damage.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VGtM",
+        "page": 105
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.necrotic",
+            "op": "resist",
+            "label": "Celestial Resistance"
+          },
+          {
+            "selector": "defense.resist.radiant",
+            "op": "resist",
+            "label": "Celestial Resistance"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:aasimar-healing-hands",
+      "name": "Healing Hands",
+      "summary": "Action, once per long rest: touch a creature to restore hit points equal to your level.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VGtM",
+        "page": 105
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "healing-hands",
+            "name": "Healing Hands",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "healing-hands",
+            "name": "Healing Hands",
+            "economy": "action",
+            "cost": {
+              "resource": "healing-hands"
+            },
+            "heal": "level",
+            "note": "Touch a creature: it regains hit points equal to your level."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:aasimar-light-bearer",
+      "name": "Light Bearer",
+      "summary": "You know the Light cantrip (Charisma).",
+      "source": {
+        "pack": "table-2014",
+        "book": "VGtM",
+        "page": 105
+      },
+      "grant": {
+        "spellcasting": {
+          "id": "aasimar",
+          "label": "Aasimar",
+          "ability": "cha",
+          "progression": "none"
+        },
+        "spells": [
+          {
+            "spell": "spell:light",
+            "name": "Light",
+            "casting": "At will"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:aasimar-necrotic-shroud",
+      "name": "Necrotic Shroud",
+      "summary": "From 3rd level, an action once per long rest: for 1 minute (end it as a bonus action) creatures within 10 ft that can see you make a Charisma save (8 + proficiency + Charisma) or are frightened of you until the end of your next turn, and once on each of your turns one target you damage takes extra necrotic damage equal to your level.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VGtM",
+        "page": 105
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "celestial-revelation",
+            "name": "Necrotic Shroud",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "necrotic-shroud",
+            "name": "Necrotic Shroud",
+            "economy": "action",
+            "cost": {
+              "resource": "celestial-revelation"
+            },
+            "toggles": [
+              "necrotic-shroud"
+            ],
+            "duration": {
+              "rounds": 10
+            },
+            "note": "From 3rd level. Nearby creatures that see you: Charisma save or frightened until the end of your next turn. Once per turn, extra necrotic damage equal to your level."
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.damage.*",
+            "op": "add",
+            "value": "level",
+            "mode": "suggested",
+            "label": "Necrotic Shroud (necrotic)",
+            "when": {
+              "toggle": "necrotic-shroud",
+              "text": "once on each of your turns"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:aasimar-radiant-soul",
+      "name": "Radiant Soul",
+      "summary": "From 3rd level, an action once per long rest: for 1 minute (end it as a bonus action) you have a flying speed of 30 ft, and once on each of your turns one target you damage takes extra radiant damage equal to your level.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VGtM",
+        "page": 105
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "celestial-revelation",
+            "name": "Radiant Soul",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "radiant-soul",
+            "name": "Radiant Soul",
+            "economy": "action",
+            "cost": {
+              "resource": "celestial-revelation"
+            },
+            "toggles": [
+              "radiant-soul"
+            ],
+            "duration": {
+              "rounds": 10
+            },
+            "note": "From 3rd level. Flying speed 30 ft; once per turn, extra radiant damage equal to your level."
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.damage.*",
+            "op": "add",
+            "value": "level",
+            "mode": "suggested",
+            "label": "Radiant Soul (radiant)",
+            "when": {
+              "toggle": "radiant-soul",
+              "text": "once on each of your turns"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:aasimar-radiant-consumption",
+      "name": "Radiant Consumption",
+      "summary": "From 3rd level, an action once per long rest: for 1 minute (end it as a bonus action) you shed bright light; at the end of each of your turns you and every creature within 10 ft take radiant damage equal to half your level (rounded up), and once on each of your turns one target you damage takes extra radiant damage equal to your level.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VGtM",
+        "page": 105
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "celestial-revelation",
+            "name": "Radiant Consumption",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "radiant-consumption",
+            "name": "Radiant Consumption",
+            "economy": "action",
+            "cost": {
+              "resource": "celestial-revelation"
+            },
+            "toggles": [
+              "radiant-consumption"
+            ],
+            "duration": {
+              "rounds": 10
+            },
+            "note": "From 3rd level. Bright light 10 ft; end of each of your turns, you and creatures within 10 ft take radiant damage equal to half your level. Once per turn, extra radiant damage equal to your level."
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.damage.*",
+            "op": "add",
+            "value": "level",
+            "mode": "suggested",
+            "label": "Radiant Consumption (radiant)",
+            "when": {
+              "toggle": "radiant-consumption",
+              "text": "once on each of your turns"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "race",
+      "id": "race:fallen-aasimar",
+      "name": "Fallen Aasimar",
+      "summary": "Celestial-touched: darkvision, resistance to necrotic and radiant damage, Healing Hands, the Light cantrip, and from 3rd level a transformation once per long rest. Fallen: Necrotic Shroud.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VGtM",
+        "page": 105
+      },
+      "size": "medium",
+      "speed": 30,
+      "grant": {
+        "abilityBonuses": {
+          "cha": 2,
+          "str": 1
+        },
+        "proficiencies": [
+          {
+            "kind": "language",
+            "target": "Common"
+          },
+          {
+            "kind": "language",
+            "target": "Celestial"
+          }
+        ],
+        "senses": {
+          "darkvision": 60
+        }
+      },
+      "features": [
+        "feature:trait-darkvision",
+        "feature:aasimar-celestial-resistance",
+        "feature:aasimar-healing-hands",
+        "feature:aasimar-light-bearer",
+        "feature:aasimar-necrotic-shroud"
+      ],
+      "group": "Aasimar"
+    },
+    {
+      "kind": "race",
+      "id": "race:protector-aasimar",
+      "name": "Protector Aasimar",
+      "summary": "Celestial-touched: darkvision, resistance to necrotic and radiant damage, Healing Hands, the Light cantrip, and from 3rd level a transformation once per long rest. Protector: Radiant Soul (flight).",
+      "source": {
+        "pack": "table-2014",
+        "book": "VGtM",
+        "page": 105
+      },
+      "size": "medium",
+      "speed": 30,
+      "grant": {
+        "abilityBonuses": {
+          "cha": 2,
+          "wis": 1
+        },
+        "proficiencies": [
+          {
+            "kind": "language",
+            "target": "Common"
+          },
+          {
+            "kind": "language",
+            "target": "Celestial"
+          }
+        ],
+        "senses": {
+          "darkvision": 60
+        }
+      },
+      "features": [
+        "feature:trait-darkvision",
+        "feature:aasimar-celestial-resistance",
+        "feature:aasimar-healing-hands",
+        "feature:aasimar-light-bearer",
+        "feature:aasimar-radiant-soul"
+      ],
+      "group": "Aasimar"
+    },
+    {
+      "kind": "race",
+      "id": "race:scourge-aasimar",
+      "name": "Scourge Aasimar",
+      "summary": "Celestial-touched: darkvision, resistance to necrotic and radiant damage, Healing Hands, the Light cantrip, and from 3rd level a transformation once per long rest. Scourge: Radiant Consumption.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VGtM",
+        "page": 105
+      },
+      "size": "medium",
+      "speed": 30,
+      "grant": {
+        "abilityBonuses": {
+          "cha": 2,
+          "con": 1
+        },
+        "proficiencies": [
+          {
+            "kind": "language",
+            "target": "Common"
+          },
+          {
+            "kind": "language",
+            "target": "Celestial"
+          }
+        ],
+        "senses": {
+          "darkvision": 60
+        }
+      },
+      "features": [
+        "feature:trait-darkvision",
+        "feature:aasimar-celestial-resistance",
+        "feature:aasimar-healing-hands",
+        "feature:aasimar-light-bearer",
+        "feature:aasimar-radiant-consumption"
+      ],
+      "group": "Aasimar"
+    },
+    {
+      "kind": "feature",
+      "id": "feature:vgtm-powerful-build",
+      "name": "Powerful Build",
+      "summary": "You count as one size larger for carrying capacity and what you can push, drag or lift.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VGtM",
+        "page": 119
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:bugbear-long-limbed",
+      "name": "Long-Limbed",
+      "summary": "Your melee attacks on your own turn have 5 ft more reach.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VGtM",
+        "page": 119
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:bugbear-sneaky",
+      "name": "Sneaky",
+      "summary": "Proficiency in Stealth.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VGtM",
+        "page": 119
+      },
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "skill",
+            "target": "stealth"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:bugbear-surprise-attack",
+      "name": "Surprise Attack",
+      "summary": "Once per combat, if you hit a creature you surprised during your first turn, the attack deals 2d6 extra damage.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VGtM",
+        "page": 119
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.damage.*",
+            "op": "add",
+            "value": "2d6",
+            "mode": "suggested",
+            "label": "Surprise Attack",
+            "oncePerTurn": true,
+            "when": {
+              "text": "the target is surprised, on your first turn; once per combat"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "race",
+      "id": "race:bugbear",
+      "name": "Bugbear",
+      "summary": "Big, stealthy goblinoid: darkvision, long reach on your turn, Stealth, and a 2d6 Surprise Attack.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VGtM",
+        "page": 119
+      },
+      "size": "medium",
+      "speed": 30,
+      "grant": {
+        "abilityBonuses": {
+          "str": 2,
+          "dex": 1
+        },
+        "proficiencies": [
+          {
+            "kind": "language",
+            "target": "Common"
+          },
+          {
+            "kind": "language",
+            "target": "Goblin"
+          }
+        ],
+        "senses": {
+          "darkvision": 60
+        }
+      },
+      "features": [
+        "feature:trait-darkvision",
+        "feature:bugbear-long-limbed",
+        "feature:vgtm-powerful-build",
+        "feature:bugbear-sneaky",
+        "feature:bugbear-surprise-attack"
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:firbolg-magic",
+      "name": "Firbolg Magic",
+      "summary": "Detect Magic and Disguise Self (you can look up to 3 ft shorter), each once per short or long rest; Wisdom is the casting ability.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VGtM",
+        "page": 107
+      },
+      "grant": {
+        "spellcasting": {
+          "id": "firbolg-magic",
+          "label": "Firbolg Magic",
+          "ability": "wis",
+          "progression": "none"
+        },
+        "resources": [
+          {
+            "id": "firbolg-detect-magic",
+            "name": "Firbolg Magic: Detect Magic",
+            "max": 1,
+            "reset": "short"
+          },
+          {
+            "id": "firbolg-disguise-self",
+            "name": "Firbolg Magic: Disguise Self",
+            "max": 1,
+            "reset": "short"
+          }
+        ],
+        "spells": [
+          {
+            "spell": "spell:detect-magic",
+            "name": "Detect Magic",
+            "casting": "Once per short rest",
+            "resource": "firbolg-detect-magic"
+          },
+          {
+            "spell": "spell:disguise-self",
+            "name": "Disguise Self",
+            "casting": "Once per short rest",
+            "resource": "firbolg-disguise-self"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:firbolg-hidden-step",
+      "name": "Hidden Step",
+      "summary": "Bonus action, once per short or long rest: invisible until the start of your next turn, or until you attack, roll damage or force a save.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VGtM",
+        "page": 107
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "hidden-step",
+            "name": "Hidden Step",
+            "max": 1,
+            "reset": "short"
+          }
+        ],
+        "actions": [
+          {
+            "id": "hidden-step",
+            "name": "Hidden Step",
+            "economy": "bonus",
+            "cost": {
+              "resource": "hidden-step"
+            },
+            "toggles": [
+              "hidden-step"
+            ],
+            "untilTurnStart": true,
+            "note": "Invisible until the start of your next turn; ends if you attack, roll damage or force a saving throw."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:firbolg-speech-of-beast-and-leaf",
+      "name": "Speech of Beast and Leaf",
+      "summary": "Beasts and plants understand the meaning of your words (you don't understand them), and you have advantage on Charisma checks to influence them.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VGtM",
+        "page": 107
+      }
+    },
+    {
+      "kind": "race",
+      "id": "race:firbolg",
+      "name": "Firbolg",
+      "summary": "Gentle forest giant-kin: a little druidic magic, a short invisibility, and a way with beasts and plants.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VGtM",
+        "page": 107
+      },
+      "size": "medium",
+      "speed": 30,
+      "grant": {
+        "abilityBonuses": {
+          "wis": 2,
+          "str": 1
+        },
+        "proficiencies": [
+          {
+            "kind": "language",
+            "target": "Common"
+          },
+          {
+            "kind": "language",
+            "target": "Elvish"
+          },
+          {
+            "kind": "language",
+            "target": "Giant"
+          }
+        ]
+      },
+      "features": [
+        "feature:firbolg-magic",
+        "feature:firbolg-hidden-step",
+        "feature:vgtm-powerful-build",
+        "feature:firbolg-speech-of-beast-and-leaf"
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:goblin-fury-of-the-small",
+      "name": "Fury of the Small",
+      "summary": "Once per short or long rest, when you damage a creature larger than you with an attack or spell, add damage equal to your level.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VGtM",
+        "page": 119
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "fury-of-the-small",
+            "name": "Fury of the Small",
+            "max": 1,
+            "reset": "short"
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.damage.*",
+            "op": "add",
+            "value": "level",
+            "mode": "suggested",
+            "label": "Fury of the Small",
+            "when": {
+              "text": "the target is larger than you; once per short rest"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:goblin-nimble-escape",
+      "name": "Nimble Escape",
+      "summary": "Disengage or Hide as a bonus action on each of your turns.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VGtM",
+        "page": 119
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "nimble-escape",
+            "name": "Nimble Escape",
+            "economy": "bonus",
+            "choose": {
+              "label": "Which?",
+              "options": [
+                "Disengage",
+                "Hide"
+              ]
+            },
+            "note": "Disengage or Hide as a bonus action."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "race",
+      "id": "race:goblin",
+      "name": "Goblin",
+      "summary": "Small and quick: darkvision, extra damage against bigger foes, and Disengage or Hide as a bonus action.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VGtM",
+        "page": 119
+      },
+      "size": "small",
+      "speed": 30,
+      "grant": {
+        "abilityBonuses": {
+          "dex": 2,
+          "con": 1
+        },
+        "proficiencies": [
+          {
+            "kind": "language",
+            "target": "Common"
+          },
+          {
+            "kind": "language",
+            "target": "Goblin"
+          }
+        ],
+        "senses": {
+          "darkvision": 60
+        }
+      },
+      "features": [
+        "feature:trait-darkvision",
+        "feature:goblin-fury-of-the-small",
+        "feature:goblin-nimble-escape"
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:goliath-natural-athlete",
+      "name": "Natural Athlete",
+      "summary": "Proficiency in Athletics.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VGtM",
+        "page": 109
+      },
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "skill",
+            "target": "athletics"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:goliath-stones-endurance",
+      "name": "Stone's Endurance",
+      "summary": "Reaction when you take damage, once per short or long rest: roll a d12, add your Constitution modifier, and take that much less damage.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VGtM",
+        "page": 109
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "stones-endurance",
+            "name": "Stone's Endurance",
+            "max": 1,
+            "reset": "short"
+          }
+        ],
+        "actions": [
+          {
+            "id": "stones-endurance",
+            "name": "Stone's Endurance",
+            "economy": "reaction",
+            "cost": {
+              "resource": "stones-endurance"
+            },
+            "roll": {
+              "dice": "1d12 + mod.con",
+              "label": "damage prevented"
+            },
+            "note": "When you take damage: reduce it by 1d12 + your Constitution modifier."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:goliath-mountain-born",
+      "name": "Mountain Born",
+      "summary": "Resistance to cold damage; at home at high altitude.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VGtM",
+        "page": 109
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.cold",
+            "op": "resist",
+            "label": "Mountain Born"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "race",
+      "id": "race:goliath",
+      "name": "Goliath",
+      "summary": "Mountain-born giant-kin: Athletics, cold resistance, and Stone's Endurance to shrug off a hit.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VGtM",
+        "page": 109
+      },
+      "size": "medium",
+      "speed": 30,
+      "grant": {
+        "abilityBonuses": {
+          "str": 2,
+          "con": 1
+        },
+        "proficiencies": [
+          {
+            "kind": "language",
+            "target": "Common"
+          },
+          {
+            "kind": "language",
+            "target": "Giant"
+          }
+        ]
+      },
+      "features": [
+        "feature:goliath-natural-athlete",
+        "feature:goliath-stones-endurance",
+        "feature:vgtm-powerful-build",
+        "feature:goliath-mountain-born"
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:hobgoblin-martial-training",
+      "name": "Martial Training",
+      "summary": "Proficiency with two martial weapons of your choice and with light armor.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VGtM",
+        "page": 119
+      },
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "armor",
+            "target": "light"
+          },
+          {
+            "kind": "weapon",
+            "target": {
+              "choice": "weapons"
+            }
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "weapons",
+          "label": "Martial weapons",
+          "kind": "option",
+          "count": 2,
+          "from": [
+            "battleaxe",
+            "flail",
+            "glaive",
+            "greataxe",
+            "greatsword",
+            "halberd",
+            "lance",
+            "longsword",
+            "maul",
+            "morningstar",
+            "pike",
+            "rapier",
+            "scimitar",
+            "shortsword",
+            "trident",
+            "war pick",
+            "warhammer",
+            "whip",
+            "blowgun",
+            "hand crossbow",
+            "heavy crossbow",
+            "longbow",
+            "net"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:hobgoblin-saving-face",
+      "name": "Saving Face",
+      "summary": "Once per short or long rest, when you miss an attack or fail a check or save, add a bonus equal to the number of allies you can see within 30 ft (at most +5).",
+      "source": {
+        "pack": "table-2014",
+        "book": "VGtM",
+        "page": 119
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "saving-face",
+            "name": "Saving Face",
+            "max": 1,
+            "reset": "short"
+          }
+        ],
+        "actions": [
+          {
+            "id": "saving-face",
+            "name": "Saving Face",
+            "economy": "free",
+            "cost": {
+              "resource": "saving-face"
+            },
+            "note": "After a miss or a failed check or save: + the allies you see within 30 ft (max +5)."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "race",
+      "id": "race:hobgoblin",
+      "name": "Hobgoblin",
+      "summary": "Disciplined goblinoid: darkvision, two martial weapons and light armor, and Saving Face.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VGtM",
+        "page": 119
+      },
+      "size": "medium",
+      "speed": 30,
+      "grant": {
+        "abilityBonuses": {
+          "con": 2,
+          "int": 1
+        },
+        "proficiencies": [
+          {
+            "kind": "language",
+            "target": "Common"
+          },
+          {
+            "kind": "language",
+            "target": "Goblin"
+          }
+        ],
+        "senses": {
+          "darkvision": 60
+        }
+      },
+      "features": [
+        "feature:trait-darkvision",
+        "feature:hobgoblin-martial-training",
+        "feature:hobgoblin-saving-face"
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:kenku-expert-forgery",
+      "name": "Expert Forgery",
+      "summary": "You can copy handwriting and craftwork, with advantage on checks to make forgeries or duplicates.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VGtM",
+        "page": 111
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:kenku-training",
+      "name": "Kenku Training",
+      "summary": "Proficiency in two of Acrobatics, Deception, Stealth and Sleight of Hand.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VGtM",
+        "page": 111
+      },
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "skill",
+            "target": {
+              "choice": "skills"
+            }
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "skills",
+          "label": "Skills",
+          "kind": "skill",
+          "count": 2,
+          "from": [
+            "acrobatics",
+            "deception",
+            "stealth",
+            "sleightOfHand"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:kenku-mimicry",
+      "name": "Mimicry",
+      "summary": "You can imitate sounds and voices you've heard; a listener sees through it with Insight against your Deception.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VGtM",
+        "page": 111
+      }
+    },
+    {
+      "kind": "race",
+      "id": "race:kenku",
+      "name": "Kenku",
+      "summary": "Flightless bird-folk: forgers and mimics who speak only through Mimicry (they read and write Common and Auran).",
+      "source": {
+        "pack": "table-2014",
+        "book": "VGtM",
+        "page": 111
+      },
+      "size": "medium",
+      "speed": 30,
+      "grant": {
+        "abilityBonuses": {
+          "dex": 2,
+          "wis": 1
+        },
+        "proficiencies": [
+          {
+            "kind": "language",
+            "target": "Common"
+          },
+          {
+            "kind": "language",
+            "target": "Auran"
+          }
+        ]
+      },
+      "features": [
+        "feature:kenku-expert-forgery",
+        "feature:kenku-training",
+        "feature:kenku-mimicry"
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:kobold-grovel-cower-and-beg",
+      "name": "Grovel, Cower, and Beg",
+      "summary": "Action, once per short or long rest: until the end of your next turn, allies have advantage on attacks against enemies within 10 ft of you that you can see.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VGtM",
+        "page": 119
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "grovel",
+            "name": "Grovel, Cower, and Beg",
+            "max": 1,
+            "reset": "short"
+          }
+        ],
+        "actions": [
+          {
+            "id": "grovel",
+            "name": "Grovel, Cower, and Beg",
+            "economy": "action",
+            "cost": {
+              "resource": "grovel"
+            },
+            "toggles": [
+              "grovel"
+            ],
+            "duration": {
+              "rounds": 1
+            },
+            "note": "Allies get advantage on attacks against enemies within 10 ft of you that you can see, until the end of your next turn."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:kobold-pack-tactics",
+      "name": "Pack Tactics",
+      "summary": "Advantage on an attack against a creature with an ally of yours within 5 ft of it who isn't incapacitated.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VGtM",
+        "page": 119
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.attack.*",
+            "op": "advantage",
+            "mode": "suggested",
+            "label": "Pack Tactics",
+            "when": {
+              "text": "an ally within 5 ft of the target, not incapacitated"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:kobold-sunlight-sensitivity",
+      "name": "Sunlight Sensitivity",
+      "summary": "Disadvantage on attacks, and on Perception that relies on sight, when you, the target or what you look at is in direct sunlight.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VGtM",
+        "page": 119
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.attack.*",
+            "op": "disadvantage",
+            "mode": "suggested",
+            "label": "Sunlight Sensitivity",
+            "when": {
+              "text": "in direct sunlight"
+            }
+          },
+          {
+            "selector": "roll.check.skill.perception",
+            "op": "disadvantage",
+            "mode": "suggested",
+            "label": "Sunlight Sensitivity",
+            "when": {
+              "text": "sight, in direct sunlight"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "race",
+      "id": "race:kobold",
+      "name": "Kobold",
+      "summary": "Small draconic scavengers: darkvision, Pack Tactics, Grovel, Cower, and Beg, but bothered by sunlight.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VGtM",
+        "page": 119
+      },
+      "size": "small",
+      "speed": 30,
+      "grant": {
+        "abilityBonuses": {
+          "dex": 2
+        },
+        "proficiencies": [
+          {
+            "kind": "language",
+            "target": "Common"
+          },
+          {
+            "kind": "language",
+            "target": "Draconic"
+          }
+        ],
+        "senses": {
+          "darkvision": 60
+        }
+      },
+      "features": [
+        "feature:trait-darkvision",
+        "feature:kobold-grovel-cower-and-beg",
+        "feature:kobold-pack-tactics",
+        "feature:kobold-sunlight-sensitivity"
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:lizardfolk-swim-speed",
+      "name": "Swim Speed",
+      "summary": "Swimming speed 30 ft.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VGtM",
+        "page": 113
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:lizardfolk-bite",
+      "name": "Bite",
+      "summary": "Your bite is a natural weapon for unarmed strikes: 1d6 piercing + Strength.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VGtM",
+        "page": 113
+      },
+      "grant": {
+        "attacks": [
+          {
+            "id": "lizardfolk-bite",
+            "name": "Bite",
+            "category": "simple",
+            "kind": "melee",
+            "damage": "1d6",
+            "damageType": "piercing"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:lizardfolk-cunning-artisan",
+      "name": "Cunning Artisan",
+      "summary": "During a short rest, turn bone and hide from a slain Small or larger creature into a shield, a club, a javelin or 1d4 darts or blowgun needles (with a blade, like a dagger).",
+      "source": {
+        "pack": "table-2014",
+        "book": "VGtM",
+        "page": 113
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:lizardfolk-hold-breath",
+      "name": "Hold Breath",
+      "summary": "You can hold your breath for up to 15 minutes.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VGtM",
+        "page": 113
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:lizardfolk-hunters-lore",
+      "name": "Hunter's Lore",
+      "summary": "Proficiency in two of Animal Handling, Nature, Perception, Stealth and Survival.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VGtM",
+        "page": 113
+      },
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "skill",
+            "target": {
+              "choice": "skills"
+            }
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "skills",
+          "label": "Skills",
+          "kind": "skill",
+          "count": 2,
+          "from": [
+            "animalHandling",
+            "nature",
+            "perception",
+            "stealth",
+            "survival"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:lizardfolk-natural-armor",
+      "name": "Natural Armor",
+      "summary": "Without armor your AC is 13 + Dexterity; a shield still adds.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VGtM",
+        "page": 113
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.ac",
+            "op": "acBase",
+            "value": "13 + mod.dex",
+            "label": "Natural Armor",
+            "when": {
+              "noArmor": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:lizardfolk-hungry-jaws",
+      "name": "Hungry Jaws",
+      "summary": "Bonus action, once per short or long rest: a bite attack; on a hit you gain temporary hit points equal to your Constitution modifier (at least 1).",
+      "source": {
+        "pack": "table-2014",
+        "book": "VGtM",
+        "page": 113
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "hungry-jaws",
+            "name": "Hungry Jaws",
+            "max": 1,
+            "reset": "short"
+          }
+        ],
+        "actions": [
+          {
+            "id": "hungry-jaws",
+            "name": "Hungry Jaws",
+            "economy": "bonus",
+            "cost": {
+              "resource": "hungry-jaws"
+            },
+            "tempHp": "mod1.con",
+            "note": "Bite as a bonus action; on a hit, temporary hit points equal to your Constitution modifier (min 1)."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "race",
+      "id": "race:lizardfolk",
+      "name": "Lizardfolk",
+      "summary": "Cold-eyed reptilian hunters: natural armor 13 + Dex, a bite, swimming, and Hungry Jaws.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VGtM",
+        "page": 113
+      },
+      "size": "medium",
+      "speed": 30,
+      "grant": {
+        "abilityBonuses": {
+          "con": 2,
+          "wis": 1
+        },
+        "proficiencies": [
+          {
+            "kind": "language",
+            "target": "Common"
+          },
+          {
+            "kind": "language",
+            "target": "Draconic"
+          }
+        ]
+      },
+      "features": [
+        "feature:lizardfolk-swim-speed",
+        "feature:lizardfolk-bite",
+        "feature:lizardfolk-cunning-artisan",
+        "feature:lizardfolk-hold-breath",
+        "feature:lizardfolk-hunters-lore",
+        "feature:lizardfolk-natural-armor",
+        "feature:lizardfolk-hungry-jaws"
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:orc-aggressive",
+      "name": "Aggressive",
+      "summary": "Bonus action: move up to your speed toward a hostile creature you can see or hear, ending closer to it.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VGtM",
+        "page": 120
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "orc-aggressive",
+            "name": "Aggressive",
+            "economy": "bonus",
+            "dash": true,
+            "note": "Move up to your speed toward an enemy you can see or hear."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:orc-primal-intuition",
+      "name": "Primal Intuition",
+      "summary": "Proficiency in two of Animal Handling, Insight, Intimidation, Medicine, Nature, Perception and Survival.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VGtM",
+        "page": 120
+      },
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "skill",
+            "target": {
+              "choice": "skills"
+            }
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "skills",
+          "label": "Skills",
+          "kind": "skill",
+          "count": 2,
+          "from": [
+            "animalHandling",
+            "insight",
+            "intimidation",
+            "medicine",
+            "nature",
+            "perception",
+            "survival"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "race",
+      "id": "race:orc",
+      "name": "Orc",
+      "summary": "Fierce and driven: darkvision, a bonus-action charge, two instinct skills and Powerful Build.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VGtM",
+        "page": 120
+      },
+      "size": "medium",
+      "speed": 30,
+      "grant": {
+        "abilityBonuses": {
+          "str": 2,
+          "con": 1
+        },
+        "proficiencies": [
+          {
+            "kind": "language",
+            "target": "Common"
+          },
+          {
+            "kind": "language",
+            "target": "Orc"
+          }
+        ],
+        "senses": {
+          "darkvision": 60
+        }
+      },
+      "features": [
+        "feature:trait-darkvision",
+        "feature:orc-aggressive",
+        "feature:orc-primal-intuition",
+        "feature:vgtm-powerful-build"
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:tabaxi-feline-agility",
+      "name": "Feline Agility",
+      "summary": "When you move on your turn in combat, double your speed until the end of the turn; to use it again, move 0 ft on one of your turns first.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VGtM",
+        "page": 115
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "feline-agility",
+            "name": "Feline Agility",
+            "economy": "free",
+            "toggles": [
+              "feline-agility"
+            ],
+            "duration": {
+              "rounds": 1
+            },
+            "note": "Double speed this turn. Recharges after a turn where you move 0 ft."
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "stat.speed.walk",
+            "op": "multiply",
+            "value": 2,
+            "label": "Feline Agility",
+            "when": {
+              "toggle": "feline-agility"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:tabaxi-cats-claws",
+      "name": "Cat's Claws",
+      "summary": "Climbing speed 20 ft; your claws are natural weapons for unarmed strikes: 1d4 slashing + Strength.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VGtM",
+        "page": 115
+      },
+      "grant": {
+        "attacks": [
+          {
+            "id": "tabaxi-claws",
+            "name": "Claws",
+            "category": "simple",
+            "kind": "melee",
+            "damage": "1d4",
+            "damageType": "slashing"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:tabaxi-cats-talent",
+      "name": "Cat's Talent",
+      "summary": "Proficiency in Perception and Stealth.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VGtM",
+        "page": 115
+      },
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "skill",
+            "target": "perception"
+          },
+          {
+            "kind": "skill",
+            "target": "stealth"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "race",
+      "id": "race:tabaxi",
+      "name": "Tabaxi",
+      "summary": "Curious cat-folk: darkvision, claws and climbing, Perception and Stealth, and bursts of double speed.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VGtM",
+        "page": 115
+      },
+      "size": "medium",
+      "speed": 30,
+      "grant": {
+        "abilityBonuses": {
+          "dex": 2,
+          "cha": 1
+        },
+        "proficiencies": [
+          {
+            "kind": "language",
+            "target": "Common"
+          },
+          {
+            "kind": "language",
+            "target": {
+              "choice": "language"
+            }
+          }
+        ],
+        "senses": {
+          "darkvision": 60
+        }
+      },
+      "features": [
+        "feature:trait-darkvision",
+        "feature:tabaxi-feline-agility",
+        "feature:tabaxi-cats-claws",
+        "feature:tabaxi-cats-talent"
+      ],
+      "choices": [
+        {
+          "id": "language",
+          "label": "Language",
+          "kind": "language",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:triton-swim-speed",
+      "name": "Swim Speed",
+      "summary": "Swimming speed 30 ft.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VGtM",
+        "page": 118
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:triton-amphibious",
+      "name": "Amphibious",
+      "summary": "You breathe air and water.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VGtM",
+        "page": 118
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:triton-control-air-and-water",
+      "name": "Control Air and Water",
+      "summary": "Fog Cloud; from 3rd level Gust of Wind; from 5th level Wall of Water. Each once per long rest, Charisma as the casting ability.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VGtM",
+        "page": 118
+      },
+      "grant": {
+        "spellcasting": {
+          "id": "triton",
+          "label": "Triton",
+          "ability": "cha",
+          "progression": "none"
+        },
+        "resources": [
+          {
+            "id": "triton-fog-cloud",
+            "name": "Control Air and Water: Fog Cloud",
+            "max": 1,
+            "reset": "long"
+          },
+          {
+            "id": "triton-gust-of-wind",
+            "name": "Control Air and Water: Gust of Wind (3rd level+)",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "spells": [
+          {
+            "spell": "spell:fog-cloud",
+            "name": "Fog Cloud",
+            "casting": "Once per long rest",
+            "resource": "triton-fog-cloud"
+          },
+          {
+            "spell": "spell:gust-of-wind",
+            "name": "Gust of Wind (from 3rd level)",
+            "casting": "Once per long rest",
+            "resource": "triton-gust-of-wind"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:triton-emissary-of-the-sea",
+      "name": "Emissary of the Sea",
+      "summary": "Water-breathing beasts understand simple ideas you speak (you don't understand them).",
+      "source": {
+        "pack": "table-2014",
+        "book": "VGtM",
+        "page": 118
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:triton-guardians-of-the-depths",
+      "name": "Guardians of the Depths",
+      "summary": "Resistance to cold damage, and you ignore the drawbacks of deep water.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VGtM",
+        "page": 118
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.cold",
+            "op": "resist",
+            "label": "Guardians of the Depths"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "race",
+      "id": "race:triton",
+      "name": "Triton",
+      "summary": "Guardians of the deep: amphibious, swimming, cold resistance and a little air and water magic.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VGtM",
+        "page": 118
+      },
+      "size": "medium",
+      "speed": 30,
+      "grant": {
+        "abilityBonuses": {
+          "str": 1,
+          "con": 1,
+          "cha": 1
+        },
+        "proficiencies": [
+          {
+            "kind": "language",
+            "target": "Common"
+          },
+          {
+            "kind": "language",
+            "target": "Primordial"
+          }
+        ],
+        "senses": {
+          "darkvision": 60
+        }
+      },
+      "features": [
+        "feature:triton-swim-speed",
+        "feature:triton-amphibious",
+        "feature:triton-control-air-and-water",
+        "feature:trait-darkvision",
+        "feature:triton-emissary-of-the-sea",
+        "feature:triton-guardians-of-the-depths"
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:yuan-ti-innate-spellcasting",
+      "name": "Innate Spellcasting",
+      "summary": "Poison Spray cantrip; Animal Friendship at will on snakes only; from 3rd level Suggestion once per long rest. Charisma is the casting ability.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VGtM",
+        "page": 120
+      },
+      "grant": {
+        "spellcasting": {
+          "id": "yuan-ti",
+          "label": "Yuan-ti",
+          "ability": "cha",
+          "progression": "none"
+        },
+        "resources": [
+          {
+            "id": "yuan-ti-suggestion",
+            "name": "Innate Spellcasting: Suggestion (3rd level+)",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "spells": [
+          {
+            "spell": "spell:poison-spray",
+            "name": "Poison Spray",
+            "casting": "At will"
+          },
+          {
+            "spell": "spell:animal-friendship",
+            "name": "Animal Friendship (snakes only)",
+            "casting": "At will"
+          },
+          {
+            "spell": "spell:suggestion",
+            "name": "Suggestion (from 3rd level)",
+            "casting": "Once per long rest",
+            "resource": "yuan-ti-suggestion"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:yuan-ti-magic-resistance",
+      "name": "Magic Resistance",
+      "summary": "Advantage on saving throws against spells and other magical effects.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VGtM",
+        "page": 120
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.save.*",
+            "op": "advantage",
+            "mode": "suggested",
+            "label": "Magic Resistance",
+            "when": {
+              "text": "against spells and other magic"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:yuan-ti-poison-immunity",
+      "name": "Poison Immunity",
+      "summary": "Immune to poison damage and the poisoned condition.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VGtM",
+        "page": 120
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.immune.poison",
+            "op": "immune",
+            "label": "Poison Immunity"
+          },
+          {
+            "selector": "defense.immune.poisoned",
+            "op": "immune",
+            "label": "Poison Immunity"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "race",
+      "id": "race:yuan-ti-pureblood",
+      "name": "Yuan-ti Pureblood",
+      "summary": "Serpent-blooded humans: darkvision, magic resistance, poison immunity and innate snake magic.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VGtM",
+        "page": 120
+      },
+      "size": "medium",
+      "speed": 30,
+      "grant": {
+        "abilityBonuses": {
+          "cha": 2,
+          "int": 1
+        },
+        "proficiencies": [
+          {
+            "kind": "language",
+            "target": "Common"
+          },
+          {
+            "kind": "language",
+            "target": "Abyssal"
+          },
+          {
+            "kind": "language",
+            "target": "Draconic"
+          }
+        ],
+        "senses": {
+          "darkvision": 60
+        }
+      },
+      "features": [
+        "feature:trait-darkvision",
+        "feature:yuan-ti-innate-spellcasting",
+        "feature:yuan-ti-magic-resistance",
+        "feature:yuan-ti-poison-immunity"
+      ]
     }
   ]
 }

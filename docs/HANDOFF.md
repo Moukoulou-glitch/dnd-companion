@@ -34,3 +34,10 @@ For whoever (a new Claude conversation) picks this up. Read this, docs/NOT-TRACK
 - Monk: Monk.tsx (Deflect Missiles/Slow Fall panel), App openFlurry/openReduce, table-2014/monk.json (Way of Mercy).
 - Character by hand: Adjust.tsx (ability adjust, max HP Reduction/Increase, HP rolls), Extras (weapon/armor proficiencies), BackgroundPicker.
 - Play: death saves, Inspiration (golden d20s), vibration (vibrate.ts), flash (flash.ts), Charm of Sunlight (GROWING_AREAS in App).
+- Feature DCs: engine/src/dcs.ts (FEATURE_DCS by feature id); always-on feature tags and switch reminders: engine/src/tags.ts; UI components DcBig/Reminders.
+- Ability limits: derive AbilityResult.max and asiOver; Permanent change in Adjust.tsx (abilityAdjust.permanent); multiclassIssues uses derived scores.
+- Preserve Life: components/Distribute.tsx (openPreserveLife in App).
+- Divine Soul list: Grant.spellListAdds + engine spellListOf(); ChoiceDef.orSpells for the affinity swap.
+- Backstory tab: components/BackstoryTab.tsx, calendar.ts (normal, Μηθειολόγιο, custom); Character.story, notes (dated by op.at), ops setStory/setCalendar/addNote/updateNote/removeNote; rests move the clock (passMinutes).
+- Custom background: background:custom in table backgrounds.json, Character.customBackground, components/CustomBackground.tsx (wizard), buildItems adjusts the language/tool split.
+- Volo's races: table-2014/races.json (book "VGtM"), own-words summaries; the races-sublist md the user imports gives them text (race-file traits only attach to race features).
