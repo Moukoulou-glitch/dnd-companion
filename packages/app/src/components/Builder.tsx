@@ -11,6 +11,7 @@ import {
   multiclassIssues,
   signed,
   copyCost,
+  itemsForTag,
   type BuildItem,
   type ContentRegistry,
   type DerivedSheet,
@@ -18,6 +19,7 @@ import {
 import { ABILITIES, ABILITY_NAMES, SKILL_NAMES, type Ability, type Character, type ExtraNote, type OperationType, type Skill } from "@dnd/schema";
 import { RichText } from "./Conditions";
 import { ExtraBox, ExtraNoteForm, KIND_NAMES } from "./Extras";
+import { shortText } from "../text";
 
 type Act = (type: OperationType, payload: unknown, label: string) => void;
 type Panel = (title: string, body: ReactNode | (() => ReactNode)) => void;
@@ -185,11 +187,166 @@ export interface NewCharacterInput {
   class: string;
   background?: string;
   abilities: Record<Ability, number>;
+  equipment?: { item: string; quantity: number }[];
+  gear?: string[];
+  gold?: number;
+}
+
+/** What the equipment step decided. */
+interface KitState {
+  mode: "kit" | "gold";
+  /** Per class option: which choice ((a), (b)...). */
+  choice: number[];
+  /** "Any martial weapon" picks, keyed "option.pick.n". */
+  picked: Record<string, string>;
+  gold?: number;
+}
+
+/** The equipment, gear and gold the step adds up to. */
+function kitResult(reg: ContentRegistry, cls: string | undefined, background: string | undefined, k: KitState): Pick<NewCharacterInput, "equipment" | "gear" | "gold"> {
+  if (k.mode === "gold") return k.gold ? { gold: k.gold } : {};
+  const se = cls ? reg.find(cls, "class")?.startingEquipment : undefined;
+  const bg = background ? reg.find(background, "background")?.equipment : undefined;
+  const equipment = [...(se?.fixed ?? []), ...(bg?.fixed ?? [])].map((x) => ({ item: x.item, quantity: x.quantity }));
+  (se?.options ?? []).forEach((o, oi) => {
+    const ch = o.choices[k.choice[oi] ?? 0] ?? o.choices[0]!;
+    equipment.push(...ch.items.map((x) => ({ item: x.item, quantity: x.quantity })));
+    ch.picks.forEach((p, pi) => {
+      for (let n = 0; n < p.count; n++) {
+        const id = k.picked[`${oi}.${pi}.${n}`];
+        if (id) equipment.push({ item: id, quantity: 1 });
+      }
+    });
+  });
+  const gold = Number(bg?.gold ?? 0) || 0;
+  return { equipment, ...(bg?.other?.length ? { gear: bg.other } : {}), ...(gold ? { gold } : {}) };
+}
+
+const itemLabel = (reg: ContentRegistry, x: { item: string; quantity: number }) => `${x.quantity > 1 ? `${x.quantity} ` : ""}${reg.find(x.item, "item")?.name ?? x.item}`;
+
+/** Starting equipment from the class and background, or the class's starting gold instead (PHB p. 143). */
+function EquipmentStep({ reg, cls, background, kit, setKit }: { reg: ContentRegistry; cls?: string; background?: string; kit: KitState; setKit: (k: KitState) => void }) {
+  const classDef = cls ? reg.find(cls, "class") : undefined;
+  const se = classDef?.startingEquipment;
+  const bgDef = background ? reg.find(background, "background") : undefined;
+  const bg = bgDef?.equipment;
+  const goldDice = se?.gold;
+  return (
+    <>
+      <div className="segmented" role="radiogroup" aria-label="Starting equipment">
+        <button role="radio" aria-checked={kit.mode === "kit"} onClick={() => setKit({ ...kit, mode: "kit" })}>
+          Equipment
+        </button>
+        <button role="radio" aria-checked={kit.mode === "gold"} onClick={() => setKit({ ...kit, mode: "gold" })} disabled={!goldDice}>
+          Gold instead
+        </button>
+      </div>
+      {kit.mode === "gold" ? (
+        <>
+          <p className="note">
+            Instead of the equipment from your class and background, start with {goldDice?.replace("*", " × ")} gp and buy what you want.
+          </p>
+          <div className="fund">
+            <label>
+              <span>Gold</span>
+              <input type="number" min={0} inputMode="numeric" value={kit.gold ?? ""} onChange={(e) => setKit({ ...kit, gold: Number(e.target.value) || 0 })} placeholder="gp" />
+            </label>
+            <button
+              className="big"
+              onClick={() => {
+                const [dice, mult] = (goldDice ?? "0").split("*");
+                setKit({ ...kit, gold: roll(dice!).total * Number(mult ?? 1) });
+              }}
+            >
+              Roll {goldDice?.replace("*", " × ")}
+            </button>
+          </div>
+        </>
+      ) : (
+        <>
+          {!se && <p className="note">This class has no starting equipment in the content yet. Add items later from the Items page.</p>}
+          {se && (
+            <>
+              <p className="sub-head">{classDef!.name}</p>
+              {se.fixed.length > 0 && <p className="note">You get {se.fixed.map((x) => itemLabel(reg, x)).join(", ")}.</p>}
+              {se.options.map((o, oi) => (
+                <div key={oi} className="kit-option">
+                  {o.label && <p className="note">{o.label}</p>}
+                  <div className="group">
+                    {o.choices.map((ch, ci) => {
+                      const on = (kit.choice[oi] ?? 0) === ci;
+                      return (
+                        <div key={ci} className={`row check kit-choice${on ? " on" : ""}`}>
+                          <input
+                            type="radio"
+                            name={`kit-${oi}`}
+                            checked={on}
+                            onChange={() => {
+                              const choice = [...kit.choice];
+                              choice[oi] = ci;
+                              setKit({ ...kit, choice });
+                            }}
+                            aria-label={`Option ${String.fromCharCode(97 + ci)}`}
+                          />
+                          <div className="row-main">
+                            <div className="row-title">
+                              ({String.fromCharCode(97 + ci)}) {[...ch.items.map((x) => itemLabel(reg, x)), ...ch.picks.map((p) => p.label)].join(", ")}
+                            </div>
+                            {on &&
+                              ch.picks.map((p, pi) =>
+                                Array.from({ length: p.count }, (_, n) => {
+                                  const key = `${oi}.${pi}.${n}`;
+                                  const opts = itemsForTag(reg, p.tag);
+                                  return (
+                                    <select
+                                      key={key}
+                                      className="kit-select"
+                                      value={kit.picked[key] ?? ""}
+                                      onChange={(e) => setKit({ ...kit, picked: { ...kit.picked, [key]: e.target.value } })}
+                                      aria-label={p.label}
+                                    >
+                                      <option value="">Choose {p.label.replace(/^(a|an|any|two)\s+/i, "").toLowerCase()}…</option>
+                                      {opts.map((d) => (
+                                        <option key={d.id} value={d.id}>
+                                          {d.name}
+                                        </option>
+                                      ))}
+                                    </select>
+                                  );
+                                }),
+                              )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </>
+          )}
+          {bgDef && (
+            <>
+              <p className="sub-head">{bgDef.name}</p>
+              {bg ? (
+                <p className="note">
+                  {[...bg.fixed.map((x) => itemLabel(reg, x)), ...(bg.other ?? []), ...(bg.gold ? [`${bg.gold} gp`] : [])].join(", ")}.
+                  {bg.other?.length ? " Things without an item of their own go in as named gear." : ""}
+                </p>
+              ) : (
+                <p className="note">No equipment list for this background: load the backgrounds book file, or add items later.</p>
+              )}
+            </>
+          )}
+        </>
+      )}
+    </>
+  );
 }
 
 /** The new character wizard: who, race, class, abilities, background; the rest is chosen on the checklist after. */
 export function NewCharacterPanel({ reg, onCreate }: { reg: ContentRegistry; onCreate: (input: NewCharacterInput) => void }) {
-  const steps = ["Who", "Race", "Class", "Abilities", "Background", "Ready"] as const;
+  const steps = ["Who", "Race", "Class", "Abilities", "Background", "Equipment", "Ready"] as const;
+  const [kit, setKit] = useState<KitState>({ mode: "kit", choice: [], picked: {} });
   const [step, setStep] = useState(0);
   const [name, setName] = useState("");
   const [player, setPlayer] = useState("");
@@ -206,7 +363,7 @@ export function NewCharacterPanel({ reg, onCreate }: { reg: ContentRegistry; onC
   const raceDef = race ? reg.find(race, "race") : undefined;
   const classDef = cls ? reg.find(cls, "class") : undefined;
 
-  const canNext = [name.trim().length > 0, !!race, !!cls, true, true, true][step];
+  const canNext = [name.trim().length > 0, !!race, !!cls, true, true, true, true][step];
   const next = () => setStep((s) => Math.min(steps.length - 1, s + 1));
 
   return (
@@ -251,7 +408,7 @@ export function NewCharacterPanel({ reg, onCreate }: { reg: ContentRegistry; onC
             next();
           }}
           group={(r) => r.group}
-          sub={(r) => [r.summary, bonusText(r.grant?.abilityBonuses), r.choices?.some((c) => c.kind === "ability") ? "+1 to abilities you pick" : ""].filter(Boolean).join(" · ")}
+          sub={(r) => [r.summary ?? shortText(r.text), bonusText(r.grant?.abilityBonuses), r.choices?.some((c) => c.kind === "ability") ? "+1 to abilities you pick" : ""].filter(Boolean).join(" · ")}
         />
       )}
 
@@ -279,12 +436,14 @@ export function NewCharacterPanel({ reg, onCreate }: { reg: ContentRegistry; onC
               setBackground(b.id || undefined);
               next();
             }}
-            sub={(b) => ("summary" in b ? (b.summary as string | undefined) : undefined) ?? ""}
+            sub={(b) => ("summary" in b ? b.summary : undefined) ?? ("text" in b ? shortText(b.text) : "")}
           />
         </>
       )}
 
-      {step === 5 && (
+      {step === 5 && <EquipmentStep reg={reg} {...(cls ? { cls } : {})} {...(background ? { background } : {})} kit={kit} setKit={setKit} />}
+
+      {step === 6 && (
         <>
           <div className="identity">
             <div>
@@ -317,6 +476,7 @@ export function NewCharacterPanel({ reg, onCreate }: { reg: ContentRegistry; onC
                 class: cls!,
                 ...(background ? { background } : {}),
                 abilities: scores,
+                ...kitResult(reg, cls, background, kit),
               })
             }
           >
@@ -325,7 +485,7 @@ export function NewCharacterPanel({ reg, onCreate }: { reg: ContentRegistry; onC
         </>
       )}
 
-      {step < 5 && step !== 1 && step !== 2 && step !== 4 && (
+      {step < 6 && step !== 1 && step !== 2 && step !== 4 && (
         <button className="big primary wide" style={{ marginTop: 14 }} disabled={!canNext} onClick={next}>
           Next: {steps[step + 1]}
         </button>
@@ -558,7 +718,7 @@ function SubclassEditor({ item, reg, act, back }: { item: BuildItem; reg: Conten
           act("setSubclass", { class: item.class, subclass: s.id }, `${s.name} chosen.`);
           back();
         }}
-        sub={(s) => s.summary ?? ""}
+        sub={(s) => s.summary ?? shortText(s.text)}
       />
     </>
   );
@@ -630,7 +790,7 @@ function AsiEditor({ item, c, reg, act, back }: { item: BuildItem; c: Character;
               act("chooseAsi", { class: item.class, level: item.level, feat: f.id }, `${f.name} taken.`);
               back();
             }}
-            sub={(f) => f.summary ?? ""}
+            sub={(f) => f.summary ?? shortText(f.text)}
           />
         </>
       )}

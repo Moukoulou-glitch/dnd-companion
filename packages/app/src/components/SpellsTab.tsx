@@ -1,7 +1,7 @@
 import { RichText } from "./Conditions";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { ABILITY_NAMES } from "@dnd/schema";
-import { signed, type DerivedSheet, type SpellResult, type WeaponAttack } from "@dnd/engine";
+import { signed, type ContentRegistry, type DerivedSheet, type SpellResult, type WeaponAttack } from "@dnd/engine";
 
 const LEVEL_NAME = ["Cantrips", "1st level", "2nd level", "3rd level", "4th level", "5th level", "6th level", "7th level", "8th level", "9th level"];
 
@@ -39,15 +39,65 @@ function tags(sp: SpellResult): string {
   return t.join(", ");
 }
 
-export function SpellsTab({ sheet, openSpell }: { sheet: DerivedSheet; openSpell: (sp: SpellResult) => void }) {
-  const [show, setShow] = useState<"ready" | "all">("ready");
-  const hasUnprepared = sheet.spells.some((s) => s.ready === "not prepared");
-  const visible = sheet.spells.filter((s) => show === "all" || s.ready !== "not prepared");
-  const levels = [...new Set(visible.map((s) => s.level))].sort((a, b) => a - b);
+/** A casting class's list, for the "<Class> spell list" view. */
+export interface ClassList {
+  /** Spellcasting id, also the class list name ("wizard"). */
+  id: string;
+  className: string;
+  kind: "wizard" | "prepared" | "known";
+  maxLevel: number;
+}
+
+type ListRow = { sp: SpellResult; info?: undefined } | { sp?: undefined; info: { id: string; name: string; level: number; school: string; castingTime: string; ritual: boolean; concentration: boolean } };
+
+export function SpellsTab({
+  sheet,
+  openSpell,
+  classLists,
+  reg,
+  openSpellInfo,
+}: {
+  sheet: DerivedSheet;
+  openSpell: (sp: SpellResult) => void;
+  classLists: ClassList[];
+  reg: ContentRegistry;
+  openSpellInfo: (id: string) => void;
+}) {
+  const [view, setView] = useState<string>("ready");
+  const wizard = classLists.find((l) => l.kind === "wizard");
+  const anyPrepared = classLists.some((l) => l.kind !== "known");
+  // Wizard: Prepared today, Whole spellbook, Wizard spell list. Prepared casters: Prepared today, <Class> spell list. Known casters: Known spells, <Class> spell list.
+  const views: { id: string; label: string }[] = [
+    { id: "ready", label: anyPrepared ? "Prepared today" : "Known spells" },
+    ...(wizard ? [{ id: "book", label: "Whole spellbook" }] : []),
+    ...classLists.map((l) => ({ id: `list:${l.id}`, label: `${l.className} spell list` })),
+  ];
+  const current = views.some((v) => v.id === view) ? view : "ready";
+  const listOf = current.startsWith("list:") ? classLists.find((l) => `list:${l.id}` === current) : undefined;
+
+  const rows: ListRow[] = useMemo(() => {
+    if (current === "ready") return sheet.spells.filter((s) => s.ready !== "not prepared").map((sp) => ({ sp }));
+    if (current === "book") return sheet.spells.filter((s) => s.list.id === wizard?.id).map((sp) => ({ sp }));
+    if (!listOf) return [];
+    const mine = new Map(sheet.spells.filter((s) => s.list.id === listOf.id).map((s) => [s.id, s]));
+    // A prepared caster's whole list is already on the sheet; known casters and wizards see the rest for reference.
+    if (listOf.kind === "prepared") return [...mine.values()].map((sp) => ({ sp }));
+    return reg
+      .list("spell")
+      .filter((d) => d.classes.includes(listOf.id) && d.level <= listOf.maxLevel)
+      .map((d) => {
+        const sp = mine.get(d.id);
+        return sp ? { sp } : { info: { id: d.id, name: d.name, level: d.level, school: d.school, castingTime: d.castingTime, ritual: d.ritual, concentration: d.concentration } };
+      });
+  }, [current, sheet, reg, listOf, wizard]);
+
+  const levelOf = (r: ListRow) => (r.sp ? r.sp.level : r.info!.level);
+  const levels = [...new Set(rows.map(levelOf))].sort((a, b) => a - b);
   const slotsLeft = (lvl: number) => {
     const s = sheet.spellSlots.find((x) => x.level === lvl);
     return s ? s.total - s.used : 0;
   };
+  const missingTag = listOf?.kind === "wizard" ? "not in your spellbook" : "not known";
 
   return (
     <main>
@@ -72,16 +122,16 @@ export function SpellsTab({ sheet, openSpell }: { sheet: DerivedSheet; openSpell
         </div>
       </section>
 
-      {hasUnprepared && (
-        <div className="segmented small" role="radiogroup" aria-label="Show">
-          <button role="radio" aria-checked={show === "ready"} onClick={() => setShow("ready")}>
-            Ready today
-          </button>
-          <button role="radio" aria-checked={show === "all"} onClick={() => setShow("all")}>
-            Whole spellbook
-          </button>
+      {views.length > 1 && (
+        <div className={`segmented small${views.length > 2 ? " three" : ""}`} role="radiogroup" aria-label="Show">
+          {views.map((v) => (
+            <button key={v.id} role="radio" aria-checked={current === v.id} onClick={() => setView(v.id)}>
+              {v.label}
+            </button>
+          ))}
         </div>
       )}
+      {listOf && listOf.kind !== "prepared" && <p className="note">Every {listOf.className.toLowerCase()} spell up to level {listOf.maxLevel}, for reference. Yours are bright.</p>}
 
       {levels.map((lvl) => (
         <section key={lvl}>
@@ -90,26 +140,36 @@ export function SpellsTab({ sheet, openSpell }: { sheet: DerivedSheet; openSpell
             {lvl > 0 && sheet.spellSlots.some((x) => x.level === lvl) ? `, ${slotsLeft(lvl)} slots left` : ""}
           </h2>
           <div className="group">
-            {visible
-              .filter((s) => s.level === lvl)
-              .map((sp) => (
-                <button
-                  className={`row${sp.ready === "not prepared" ? " dim" : ""}`}
-                  key={`${sp.list.id}-${sp.id}`}
-                  onClick={() => openSpell(sp)}
-                >
-                  <div className="row-main">
-                    <div className="row-title">{sp.name}</div>
-                    <div className="row-sub">{tags(sp)}</div>
-                  </div>
-                  <span className="row-tags">
-                    {sheet.concentration?.spell === sp.id && <span className="tag conc">concentrating</span>}
-                    {sp.ready === "prepared" && <span className="tag adv">prepared</span>}
-                    {sp.fromFeature && <span className="tag">{sp.fromFeature}</span>}
-                  </span>
-                  <span className="num spell-num">{sp.attack ? signed(sp.attack.total) : sp.save ? `DC ${sp.save.dc}` : ""}</span>
-                </button>
-              ))}
+            {rows
+              .filter((r) => levelOf(r) === lvl)
+              .map((r) =>
+                r.sp ? (
+                  <button className={`row${r.sp.ready === "not prepared" ? " dim" : ""}`} key={`${r.sp.list.id}-${r.sp.id}`} onClick={() => openSpell(r.sp!)}>
+                    <div className="row-main">
+                      <div className="row-title">{r.sp.name}</div>
+                      <div className="row-sub">{tags(r.sp)}</div>
+                    </div>
+                    <span className="row-tags">
+                      {sheet.concentration?.spell === r.sp.id && <span className="tag conc">concentrating</span>}
+                      {r.sp.ready === "prepared" && <span className="tag adv">prepared</span>}
+                      {r.sp.fromFeature && <span className="tag">{r.sp.fromFeature}</span>}
+                    </span>
+                    <span className="num spell-num">{r.sp.attack ? signed(r.sp.attack.total) : r.sp.save ? `DC ${r.sp.save.dc}` : ""}</span>
+                  </button>
+                ) : (
+                  <button className="row dim" key={`info-${r.info!.id}`} onClick={() => openSpellInfo(r.info!.id)}>
+                    <div className="row-main">
+                      <div className="row-title">{r.info!.name}</div>
+                      <div className="row-sub">
+                        {[r.info!.castingTime, r.info!.concentration ? "concentration" : "", r.info!.ritual ? "ritual" : ""].filter(Boolean).join(", ")}
+                      </div>
+                    </div>
+                    <span className="row-tags">
+                      <span className="tag">{missingTag}</span>
+                    </span>
+                  </button>
+                ),
+              )}
           </div>
         </section>
       ))}

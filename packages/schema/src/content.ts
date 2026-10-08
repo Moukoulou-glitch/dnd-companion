@@ -55,6 +55,45 @@ export const FeatureDef = z
   .strict();
 export type FeatureDef = z.infer<typeof FeatureDef>;
 
+/** Items and how many. */
+export const EquipCount = z.object({ item: DefId, quantity: z.number().int().min(1).default(1) }).strict();
+export type EquipCount = z.infer<typeof EquipCount>;
+
+/**
+ * Starting equipment: what everyone gets, and choices like "(a) chain mail or
+ * (b) leather armor, longbow and 20 arrows". A choice can also be "any martial
+ * weapon": a pick from items with that tag. `gold` is the alternative of
+ * starting wealth instead ("5d4*10"), or the coins a background comes with.
+ */
+export const StartingEquipment = z
+  .object({
+    fixed: z.array(EquipCount).default([]),
+    options: z
+      .array(
+        z
+          .object({
+            label: z.string(),
+            choices: z
+              .array(
+                z
+                  .object({
+                    items: z.array(EquipCount).default([]),
+                    picks: z.array(z.object({ tag: z.string(), count: z.number().int().min(1), label: z.string() }).strict()).default([]),
+                  })
+                  .strict(),
+              )
+              .min(1),
+          })
+          .strict(),
+      )
+      .default([]),
+    gold: z.string().optional(),
+    /** Things the content has no item for ("a letter from a dead colleague"). */
+    other: z.array(z.string()).optional(),
+  })
+  .strict();
+export type StartingEquipment = z.infer<typeof StartingEquipment>;
+
 export const ClassFeatureRef = z
   .object({ level: z.number().int().min(1).max(20), feature: DefId })
   .strict();
@@ -89,6 +128,7 @@ export const ClassDef = z
     multiclassPrereq: z.object({ abilities: z.record(Ability, z.number().int()), any: z.boolean().optional() }).strict().optional(),
     /** Features of an earlier pack's version of this class that this one drops (Tasha's ranger replaces Favored Enemy). */
     replaces: z.array(DefId).optional(),
+    startingEquipment: StartingEquipment.optional(),
   })
   .strict();
 export type ClassDef = z.infer<typeof ClassDef>;
@@ -128,6 +168,7 @@ export const BackgroundDef = z
     grant: Grant.optional(),
     choices: z.array(ChoiceDef).optional(),
     features: z.array(DefId).default([]),
+    equipment: StartingEquipment.optional(),
   })
   .strict();
 export type BackgroundDef = z.infer<typeof BackgroundDef>;
@@ -203,6 +244,11 @@ export const ItemDef = z
     requiresAttunement: z.boolean().default(false),
     /** Applies while equipped (and attuned, if attunement is required). */
     grant: Grant.optional(),
+    cost: z.object({ amount: z.number(), unit: z.enum(["cp", "sp", "ep", "gp", "pp"]) }).strict().optional(),
+    /** Equipment categories ("martial-weapons", "musical-instruments", "holy-symbols") for "any ..." choices. */
+    tags: z.array(z.string()).optional(),
+    /** What a pack holds (Explorer's Pack): unpacked into these items at character creation. */
+    contents: z.array(EquipCount).optional(),
   })
   .strict();
 export type ItemDef = z.infer<typeof ItemDef>;
@@ -303,7 +349,64 @@ export const SpellDef = z
   .strict();
 export type SpellDef = z.infer<typeof SpellDef>;
 
+/** An action in a creature's stat block; `attack` when it's an attack roll the app can make. */
+export const CreatureAction = z
+  .object({
+    name: z.string(),
+    text: z.string().default(""),
+    attack: z
+      .object({
+        kind: z.enum(["melee", "ranged"]),
+        toHit: z.number().int(),
+        reach: z.string().optional(),
+        /** Damage dice ("2d6"); the flat part is `damageBonus`. */
+        damage: z.string(),
+        damageBonus: z.number().int().default(0),
+        damageType: DamageType,
+      })
+      .strict()
+      .optional(),
+  })
+  .strict();
+export type CreatureAction = z.infer<typeof CreatureAction>;
+
+/** A creature's stat block: beasts for Wild Shape and Polymorph, elementals for a Moon druid. */
+export const CreatureDef = z
+  .object({
+    ...base,
+    kind: z.literal("creature"),
+    size: z.string(),
+    type: z.string(),
+    alignment: z.string().optional(),
+    ac: z.number().int(),
+    acNote: z.string().optional(),
+    hp: z.number().int().min(1),
+    hitDice: z.string().optional(),
+    speed: z
+      .object({ walk: z.number().int().default(0), swim: z.number().int().optional(), fly: z.number().int().optional(), climb: z.number().int().optional(), burrow: z.number().int().optional(), hover: z.boolean().optional() })
+      .strict(),
+    abilities: z.record(Ability, z.number().int().min(1).max(30)),
+    saves: z.record(Ability, z.number().int()).optional(),
+    /** Skill bonuses by skill key ("perception": 4). */
+    skills: z.record(z.string(), z.number().int()).optional(),
+    senses: z.record(z.string(), z.number().int()).optional(),
+    languages: z.string().optional(),
+    /** Challenge rating as a number (1/4 = 0.25). */
+    cr: z.number().min(0),
+    resist: z.array(z.string()).optional(),
+    immune: z.array(z.string()).optional(),
+    vulnerable: z.array(z.string()).optional(),
+    conditionImmune: z.array(z.string()).optional(),
+    traits: z.array(z.object({ name: z.string(), text: z.string() }).strict()).default([]),
+    actions: z.array(CreatureAction).default([]),
+    bonusActions: z.array(CreatureAction).optional(),
+    reactions: z.array(CreatureAction).optional(),
+  })
+  .strict();
+export type CreatureDef = z.infer<typeof CreatureDef>;
+
 export const Definition = z.discriminatedUnion("kind", [
+  CreatureDef,
   SpellDef,
   EffectDef,
   FeatureDef,

@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
-import { buildItems, castingEconomy, formatBonus, materialNeed, newCharacter, signed, turnWarnings, type TurnIntent } from "@dnd/engine";
+import { buildItems, castingEconomy, formatBonus, materialNeed, maxSpellLevel, newCharacter, signed, turnWarnings, type TurnIntent } from "@dnd/engine";
 import { SKILL_NAMES, type Character, type Skill } from "@dnd/schema";
-import type { ComposerBase } from "@dnd/dice";
+import { roll as rollDice, type ComposerBase } from "@dnd/dice";
+import { ShapePanel, TransformPanel } from "./components/Shapes";
 import type { ActionResult, EffectResult, SpellResult, WeaponAttack } from "@dnd/engine";
 import { ActionsTab } from "./components/ActionsTab";
 import { CompanionPanel, MovePanel } from "./components/Combat";
@@ -21,7 +22,7 @@ import { PlayTab, type PlayPrompts } from "./components/PlayTab";
 import { Choose, Confirm, PoolRollPanel, SlotSpendPanel, SpendDiePanel } from "./components/Prompts";
 import { BottomSheet, BreakdownLines } from "./components/Sheet";
 import { SheetTab } from "./components/SheetTab";
-import { SpellPanel, SpellsTab, spellAsAttack } from "./components/SpellsTab";
+import { SpellPanel, SpellsTab, spellAsAttack, type ClassList } from "./components/SpellsTab";
 import { useCharacters } from "./useCharacters";
 import { formatMinutes } from "./time";
 
@@ -225,7 +226,63 @@ export function App() {
       />
     ));
 
+  /** Wild Shape or Polymorph: choose the creature. */
+  const openTransform = (kind: "wildshape" | "polymorph") =>
+    open(kind === "wildshape" ? "Wild Shape" : "Polymorph", () =>
+      live.current.sheet && live.current.character ? (
+        <TransformPanel
+          kind={kind}
+          sheet={live.current.sheet}
+          reg={registry}
+          character={live.current.character}
+          onPick={(k, d, uses) =>
+            guard(
+              { name: k === "wildshape" ? "Wild Shape" : "Polymorph", economy: k === "wildshape" ? (live.current.sheet?.wildShape?.bonusAction ? "bonus" : "action") : "free" },
+              () => {
+                live.current.act("transform", { kind: k, creature: d.id, uses }, `${k === "wildshape" ? "Wild Shape" : "Polymorphed"}: ${d.name}.`);
+                openShape();
+              },
+              { cancelled: () => openTransform(k) },
+            )
+          }
+        />
+      ) : null,
+    );
+
+  /** The stat block while transformed. */
+  const openShape = () =>
+    open(live.current.sheet?.shape?.name ?? "Your form", () => {
+      const cur = live.current;
+      const s = cur.sheet?.shape;
+      if (!s || !cur.sheet || !cur.character) return <p className="note">You're back in your normal form.</p>;
+      return (
+        <ShapePanel
+          shape={s}
+          sheet={cur.sheet}
+          act={cur.act}
+          openRoll={openRoll}
+          openHp={openHp}
+          normalHp={{ current: cur.character.hp.current, max: cur.sheet.hpMax.total }}
+          onRevert={() =>
+            guard({ name: "Change back", economy: s.kind === "wildshape" ? "bonus" : "free" }, () => {
+              live.current.act("revert", {}, "Back in your normal form.");
+              close();
+            })
+          }
+          onHealSlot={(level) =>
+            guard({ name: "Combat Wild Shape healing", economy: "bonus" }, () => {
+              const healed = rollDice(`${level}d8`).total;
+              live.current.act("spendSlot", { level }, `Level ${level} slot spent.`);
+              live.current.act("heal", { amount: healed }, `Combat Wild Shape: ${level}d8 = ${healed} HP.`);
+              openShape();
+            })
+          }
+        />
+      );
+    });
+
   const openFeature = (a: ActionResult) => {
+    if (a.id === "wild-shape") return openTransform("wildshape");
     // A free cast (Haunted: Invisibility) opens the spell itself, where the free use casts it.
     const free = a.spells?.[0] && live.current.sheet?.spells.find((x) => x.id === a.spells![0]!.id && x.list.id === a.spells![0]!.list);
     if (free) return openSpell(free);
@@ -802,6 +859,29 @@ export function App() {
     });
   };
 
+  /** The casting classes, for the Spells tab's views. */
+  const classLists: ClassList[] = c.classes.flatMap((cl) => {
+    const def = registry.find(cl.class, "class");
+    const sc = def?.spellcasting;
+    if (!def || !sc || sc.progression === "none" || cl.level < (def.spellcastingFromLevel ?? 1)) return [];
+    const kind: ClassList["kind"] = def.id === "class:wizard" ? "wizard" : def.spellPreparation === "prepared" ? "prepared" : "known";
+    return [{ id: sc.id, className: def.name, kind, maxLevel: maxSpellLevel(def, cl.level) }];
+  });
+
+  /** A spell the character doesn't have: just its details. */
+  const openSpellInfo = (id: string) => {
+    const d = registry.find(id, "spell");
+    if (!d) return;
+    open(d.name, () => (
+      <>
+        <p className="row-sub">
+          {d.level === 0 ? `${d.school} cantrip` : `Level ${d.level} ${d.school.toLowerCase()}`} · {d.castingTime} · {d.range} · {d.duration}
+        </p>
+        <BookText text={d.text} summary={d.summary} source={[d.source.book, d.source.page ? `p. ${d.source.page}` : ""].filter(Boolean).join(" ") || d.source.pack} />
+      </>
+    ));
+  };
+
   /** Something the table gave beyond the rules. */
   const openAddExtra = () => open("Add something extra", () => (live.current.sheet ? <AddExtraPanel sheet={live.current.sheet} reg={registry} act={live.current.act} done={close} /> : null));
   const openExtra = (id: string) =>
@@ -974,6 +1054,18 @@ export function App() {
         attack={spellAsAttack(sp, level)}
         damageOnly={damageOnly}
         notes={notes}
+        typeChoices={(sp.typeChoices ?? []).flatMap((tc) => {
+          const options = tc.kind === "awakened" ? tc.byLevel?.[level] ?? [] : tc.options;
+          if (!options.length) return [];
+          return [
+            {
+              label: tc.label,
+              options,
+              ...(tc.kind === "awakened" ? { note: "A damage type from another spell of this slot's level in your spellbook." } : {}),
+              ...(tc.cost ? { onUse: () => live.current.act("spendResource", { resource: tc.cost!.resource, amount: tc.cost!.amount }, `${tc.label.split(",")[0]}: ${tc.cost!.amount} point spent.`) } : {}),
+            },
+          ];
+        })}
         optionInfo={optionInfoFor(spellAsAttack(sp, level))}
         onOptionsUsed={recordOptions}
         {...(beams && beams > 1 ? { repeat: { count: beams, what: sp.beams!.what } } : {})}
@@ -1269,10 +1361,12 @@ export function App() {
           onInitiative={rollInitiative}
           openMove={openMove}
           openCompanion={openCompanion}
+          openShape={openShape}
+          openTransform={openTransform}
         />
       )}
       {tab === "actions" && <ActionsTab sheet={sheet} open={open} openRoll={openRoll} openAttack={openAttack} openFeature={openFeature} />}
-      {tab === "spells" && <SpellsTab sheet={sheet} openSpell={openSpell} />}
+      {tab === "spells" && <SpellsTab sheet={sheet} openSpell={openSpell} classLists={classLists} reg={registry} openSpellInfo={openSpellInfo} />}
       {tab === "sheet" && <SheetTab sheet={sheet} open={open} openRoll={openRoll} openTrait={openTrait} openSkill={openSkill} openAddExtra={openAddExtra} openExtra={openExtra} />}
       {tab === "inventory" && (
         <InventoryTab character={c} registry={registry} openItem={openItem} openAdd={openAdd} openCoin={openCoin} sheet={sheet} act={s.act} />

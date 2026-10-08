@@ -234,6 +234,31 @@ const RACES = `## Elf
 ***Fey Ancestry.*** Sample fey ancestry text.
 
 ***Trance.*** Sample trance text.
+
+## Testfolk
+
+- **Ability Scores:** Choose one of: (a) Choose any +2; choose any other +1 (b) Choose three different +1
+- **Creature Type:** Fey
+- **Size:** Small
+- **Speed:** 35 feet
+
+***Darkvision.*** Sample darkvision text, 60 feet.
+
+***Odd Gift.*** Sample gift text.
+
+***Languages.*** Sample: Common and one other language.
+
+## Elf (Moon)
+
+- **Ability Scores:** Dexterity +2; Wisdom +1
+- **Size:** Medium
+- **Speed:** 30 feet
+
+***Fey Ancestry.*** Sample fey ancestry text.
+
+***Moonlit.*** Sample moon text.
+
+***Languages.*** Sample: Common and Elvish.
 `;
 
 describe("book text loaded on the device", () => {
@@ -348,6 +373,20 @@ describe("book text loaded on the device", () => {
     expect(def("feature:long-road")?.text).toEqual(["Sample road text."]);
   });
 
+  it("races the content doesn't have become playable", () => {
+    expect(def("race:testfolk")).toMatchObject({
+      size: "small",
+      speed: 35,
+      creatureType: "fey",
+      grant: { abilityChoice: { choice: "abilities", amount: 1 }, senses: { darkvision: 60 } },
+      choices: [{ id: "language" }, { id: "abilities", count: 2 }],
+    });
+    expect((def("race:testfolk") as { features: string[] }).features).toContain("feature:testfolk-odd-gift");
+    expect(def("race:moon-elf")).toMatchObject({ name: "Moon Elf", group: "Elf", grant: { abilityBonuses: { dex: 2, wis: 1 } } });
+    // A trait the content already has keeps its mechanics.
+    expect((def("race:moon-elf") as { features: string[] }).features).toContain("feature:fey-ancestry");
+  });
+
   it("a character with a book subclass gets its features", () => {
     const reg = tableRegistry();
     reg.add(pack);
@@ -360,9 +399,10 @@ describe("book text loaded on the device", () => {
   });
 
   it("items: weapons and armor get stats, magic versions take their base's stats", () => {
-    expect(def("item:glaive")).toMatchObject({ category: "weapon", weapon: { category: "martial", kind: "melee", damage: "1d10", damageType: "slashing", properties: ["heavy", "reach", "two-handed"] } });
+    // The SRD pack has the glaive already; the book only adds magic versions.
+    expect(def("item:glaive") ?? base.find("item:glaive", "item")).toMatchObject({ category: "weapon", weapon: { category: "martial", kind: "melee", damage: "1d10", damageType: "slashing", properties: ["heavy", "reach", "two-handed"] } });
     expect(def("item:2-glaive")).toMatchObject({ name: "+2 Glaive", weapon: { damage: "1d10" }, magic: { rarity: "rare", bonus: 2 } });
-    expect(def("item:half-plate-armor")).toMatchObject({ category: "armor", armor: { category: "medium", base: 15 }, weight: 40 });
+    expect(def("item:half-plate-armor") ?? base.find("item:half-plate-armor", "item")).toMatchObject({ category: "armor", armor: { category: "medium", base: 15 }, weight: 40 });
     expect(def("item:lantern-of-testing")).toMatchObject({ category: "wondrous", requiresAttunement: true, magic: { rarity: "rare" }, weight: 2 });
   });
 

@@ -1,4 +1,5 @@
 import { HitDiceRow } from "./HitDice";
+import { ShapeCard } from "./Shapes";
 import type { DerivedSheet, ResourceResult } from "@dnd/engine";
 import type { Character, OperationType } from "@dnd/schema";
 import type { RollRecord } from "../rolls";
@@ -108,7 +109,11 @@ export function PlayTab({
   openCompanion,
   prompts,
   onInitiative,
+  openShape,
+  openTransform,
 }: {
+  openShape: () => void;
+  openTransform: (kind: "wildshape" | "polymorph") => void;
   character: Character;
   sheet: DerivedSheet;
   act: Act;
@@ -138,6 +143,8 @@ export function PlayTab({
       </section>
 
       <CombatCard character={character} sheet={sheet} act={act} onStartCombat={onStartCombat} openMove={openMove} onInitiative={onInitiative} />
+
+      <ShapeCard sheet={sheet} onOpen={openShape} onTransform={openTransform} />
 
       {sheet.companions.length > 0 && (
         <section>

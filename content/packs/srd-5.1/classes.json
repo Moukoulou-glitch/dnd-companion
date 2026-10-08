@@ -304,6 +304,69 @@
         16,
         19
       ],
+      "startingEquipment": {
+        "fixed": [
+          {
+            "item": "item:explorers-pack",
+            "quantity": 1
+          },
+          {
+            "item": "item:javelin",
+            "quantity": 4
+          }
+        ],
+        "options": [
+          {
+            "label": "(a) a greataxe or (b) any martial melee weapon",
+            "choices": [
+              {
+                "items": [
+                  {
+                    "item": "item:greataxe",
+                    "quantity": 1
+                  }
+                ],
+                "picks": []
+              },
+              {
+                "items": [],
+                "picks": [
+                  {
+                    "tag": "martial-melee-weapons",
+                    "count": 1,
+                    "label": "any martial melee weapon"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "label": "(a) two handaxes or (b) any simple weapon",
+            "choices": [
+              {
+                "items": [
+                  {
+                    "item": "item:handaxe",
+                    "quantity": 2
+                  }
+                ],
+                "picks": []
+              },
+              {
+                "items": [],
+                "picks": [
+                  {
+                    "tag": "simple-weapons",
+                    "count": 1,
+                    "label": "any simple weapon"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "gold": "2d4*10"
+      },
       "multiclassPrereq": {
         "abilities": {
           "str": 13
@@ -690,6 +753,101 @@
         16,
         19
       ],
+      "startingEquipment": {
+        "fixed": [
+          {
+            "item": "item:leather-armor",
+            "quantity": 1
+          },
+          {
+            "item": "item:dagger",
+            "quantity": 1
+          }
+        ],
+        "options": [
+          {
+            "label": "(a) a rapier, (b) a longsword, or (c) any simple weapon",
+            "choices": [
+              {
+                "items": [
+                  {
+                    "item": "item:rapier",
+                    "quantity": 1
+                  }
+                ],
+                "picks": []
+              },
+              {
+                "items": [
+                  {
+                    "item": "item:longsword",
+                    "quantity": 1
+                  }
+                ],
+                "picks": []
+              },
+              {
+                "items": [],
+                "picks": [
+                  {
+                    "tag": "simple-weapons",
+                    "count": 1,
+                    "label": "any simple weapon"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "label": "(a) a diplomat’s pack or (b) an entertainer’s pack",
+            "choices": [
+              {
+                "items": [
+                  {
+                    "item": "item:diplomats-pack",
+                    "quantity": 1
+                  }
+                ],
+                "picks": []
+              },
+              {
+                "items": [
+                  {
+                    "item": "item:entertainers-pack",
+                    "quantity": 1
+                  }
+                ],
+                "picks": []
+              }
+            ]
+          },
+          {
+            "label": "(a) a lute or (b) any other musical instrument",
+            "choices": [
+              {
+                "items": [
+                  {
+                    "item": "item:lute",
+                    "quantity": 1
+                  }
+                ],
+                "picks": []
+              },
+              {
+                "items": [],
+                "picks": [
+                  {
+                    "tag": "musical-instruments",
+                    "count": 1,
+                    "label": "any other musical instrument"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "gold": "5d4*10"
+      },
       "multiclassChoices": [
         {
           "id": "skills",
@@ -1024,6 +1182,138 @@
         16,
         19
       ],
+      "startingEquipment": {
+        "fixed": [
+          {
+            "item": "item:shield",
+            "quantity": 1
+          }
+        ],
+        "options": [
+          {
+            "label": "(a) a mace or (b) a warhammer (if proficient)",
+            "choices": [
+              {
+                "items": [
+                  {
+                    "item": "item:mace",
+                    "quantity": 1
+                  }
+                ],
+                "picks": []
+              },
+              {
+                "items": [
+                  {
+                    "item": "item:warhammer",
+                    "quantity": 1
+                  }
+                ],
+                "picks": []
+              }
+            ]
+          },
+          {
+            "label": "(a) scale mail, (b) leather armor, or (c) chain mail (if proficient)",
+            "choices": [
+              {
+                "items": [
+                  {
+                    "item": "item:scale-mail",
+                    "quantity": 1
+                  }
+                ],
+                "picks": []
+              },
+              {
+                "items": [
+                  {
+                    "item": "item:leather-armor",
+                    "quantity": 1
+                  }
+                ],
+                "picks": []
+              },
+              {
+                "items": [
+                  {
+                    "item": "item:chain-mail",
+                    "quantity": 1
+                  }
+                ],
+                "picks": []
+              }
+            ]
+          },
+          {
+            "label": "(a) a light crossbow and 20 bolts or (b) any simple weapon",
+            "choices": [
+              {
+                "items": [
+                  {
+                    "item": "item:light-crossbow",
+                    "quantity": 1
+                  },
+                  {
+                    "item": "item:crossbow-bolt",
+                    "quantity": 20
+                  }
+                ],
+                "picks": []
+              },
+              {
+                "items": [],
+                "picks": [
+                  {
+                    "tag": "simple-weapons",
+                    "count": 1,
+                    "label": "any simple weapon"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "label": "(a) a priest’s pack or (b) an explorer’s pack",
+            "choices": [
+              {
+                "items": [
+                  {
+                    "item": "item:priests-pack",
+                    "quantity": 1
+                  }
+                ],
+                "picks": []
+              },
+              {
+                "items": [
+                  {
+                    "item": "item:explorers-pack",
+                    "quantity": 1
+                  }
+                ],
+                "picks": []
+              }
+            ]
+          },
+          {
+            "label": "holy symbol",
+            "choices": [
+              {
+                "items": [],
+                "picks": [
+                  {
+                    "tag": "holy-symbols",
+                    "count": 1,
+                    "label": "Holy Symbols"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "gold": "5d4*10"
+      },
       "progression": {
         "cantrips": [
           3,
@@ -1320,6 +1610,84 @@
         16,
         19
       ],
+      "startingEquipment": {
+        "fixed": [
+          {
+            "item": "item:leather-armor",
+            "quantity": 1
+          },
+          {
+            "item": "item:explorers-pack",
+            "quantity": 1
+          }
+        ],
+        "options": [
+          {
+            "label": "(a) a wooden shield or (b) any simple weapon",
+            "choices": [
+              {
+                "items": [
+                  {
+                    "item": "item:shield",
+                    "quantity": 1
+                  }
+                ],
+                "picks": []
+              },
+              {
+                "items": [],
+                "picks": [
+                  {
+                    "tag": "simple-weapons",
+                    "count": 1,
+                    "label": "any simple weapon"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "label": "(a) a scimitar or (b) any simple melee weapon",
+            "choices": [
+              {
+                "items": [
+                  {
+                    "item": "item:scimitar",
+                    "quantity": 1
+                  }
+                ],
+                "picks": []
+              },
+              {
+                "items": [],
+                "picks": [
+                  {
+                    "tag": "simple-melee-weapons",
+                    "count": 1,
+                    "label": "any simple melee weapon"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "label": "druidic focus",
+            "choices": [
+              {
+                "items": [],
+                "picks": [
+                  {
+                    "tag": "druidic-foci",
+                    "count": 1,
+                    "label": "Druidic Foci"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "gold": "2d4*10"
+      },
       "progression": {
         "cantrips": [
           2,
@@ -1817,6 +2185,123 @@
         16,
         19
       ],
+      "startingEquipment": {
+        "fixed": [],
+        "options": [
+          {
+            "label": "(a) chain mail or (b) leather armor, longbow, and 20 arrows",
+            "choices": [
+              {
+                "items": [
+                  {
+                    "item": "item:chain-mail",
+                    "quantity": 1
+                  }
+                ],
+                "picks": []
+              },
+              {
+                "items": [
+                  {
+                    "item": "item:leather-armor",
+                    "quantity": 1
+                  },
+                  {
+                    "item": "item:longbow",
+                    "quantity": 1
+                  },
+                  {
+                    "item": "item:arrows",
+                    "quantity": 20
+                  }
+                ],
+                "picks": []
+              }
+            ]
+          },
+          {
+            "label": "(a) a martial weapon and a shield or (b) two martial weapons",
+            "choices": [
+              {
+                "items": [
+                  {
+                    "item": "item:shield",
+                    "quantity": 1
+                  }
+                ],
+                "picks": [
+                  {
+                    "tag": "martial-weapons",
+                    "count": 1,
+                    "label": "a martial weapon"
+                  }
+                ]
+              },
+              {
+                "items": [],
+                "picks": [
+                  {
+                    "tag": "martial-weapons",
+                    "count": 2,
+                    "label": "two martial weapons"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "label": "(a) a light crossbow and 20 bolts or (b) two handaxes",
+            "choices": [
+              {
+                "items": [
+                  {
+                    "item": "item:light-crossbow",
+                    "quantity": 1
+                  },
+                  {
+                    "item": "item:crossbow-bolt",
+                    "quantity": 20
+                  }
+                ],
+                "picks": []
+              },
+              {
+                "items": [
+                  {
+                    "item": "item:handaxe",
+                    "quantity": 2
+                  }
+                ],
+                "picks": []
+              }
+            ]
+          },
+          {
+            "label": "(a) a dungeoneer’s pack or (b) an explorer’s pack",
+            "choices": [
+              {
+                "items": [
+                  {
+                    "item": "item:dungeoneers-pack",
+                    "quantity": 1
+                  }
+                ],
+                "picks": []
+              },
+              {
+                "items": [
+                  {
+                    "item": "item:explorers-pack",
+                    "quantity": 1
+                  }
+                ],
+                "picks": []
+              }
+            ]
+          }
+        ],
+        "gold": "5d4*10"
+      },
       "multiclassPrereq": {
         "abilities": {
           "str": 13,
@@ -2486,6 +2971,64 @@
         16,
         19
       ],
+      "startingEquipment": {
+        "fixed": [
+          {
+            "item": "item:dart",
+            "quantity": 10
+          }
+        ],
+        "options": [
+          {
+            "label": "(a) a shortsword or (b) any simple weapon",
+            "choices": [
+              {
+                "items": [
+                  {
+                    "item": "item:shortsword",
+                    "quantity": 1
+                  }
+                ],
+                "picks": []
+              },
+              {
+                "items": [],
+                "picks": [
+                  {
+                    "tag": "simple-weapons",
+                    "count": 1,
+                    "label": "any simple weapon"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "label": "(a) a dungeoneer’s pack or (b) an explorer’s pack",
+            "choices": [
+              {
+                "items": [
+                  {
+                    "item": "item:dungeoneers-pack",
+                    "quantity": 1
+                  }
+                ],
+                "picks": []
+              },
+              {
+                "items": [
+                  {
+                    "item": "item:explorers-pack",
+                    "quantity": 1
+                  }
+                ],
+                "picks": []
+              }
+            ]
+          }
+        ],
+        "gold": "5d4"
+      },
       "multiclassPrereq": {
         "abilities": {
           "dex": 13,
@@ -2915,6 +3458,109 @@
         16,
         19
       ],
+      "startingEquipment": {
+        "fixed": [
+          {
+            "item": "item:chain-mail",
+            "quantity": 1
+          }
+        ],
+        "options": [
+          {
+            "label": "(a) a martial weapon and a shield or (b) two martial weapons",
+            "choices": [
+              {
+                "items": [
+                  {
+                    "item": "item:shield",
+                    "quantity": 1
+                  }
+                ],
+                "picks": [
+                  {
+                    "tag": "martial-weapons",
+                    "count": 1,
+                    "label": "a martial weapon"
+                  }
+                ]
+              },
+              {
+                "items": [],
+                "picks": [
+                  {
+                    "tag": "martial-weapons",
+                    "count": 2,
+                    "label": "two martial weapons"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "label": "(a) five javelins or (b) any simple melee weapon",
+            "choices": [
+              {
+                "items": [
+                  {
+                    "item": "item:javelin",
+                    "quantity": 5
+                  }
+                ],
+                "picks": []
+              },
+              {
+                "items": [],
+                "picks": [
+                  {
+                    "tag": "simple-weapons",
+                    "count": 1,
+                    "label": "any simple weapon"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "label": "(a) a priest’s pack or (b) an explorer’s pack",
+            "choices": [
+              {
+                "items": [
+                  {
+                    "item": "item:priests-pack",
+                    "quantity": 1
+                  }
+                ],
+                "picks": []
+              },
+              {
+                "items": [
+                  {
+                    "item": "item:explorers-pack",
+                    "quantity": 1
+                  }
+                ],
+                "picks": []
+              }
+            ]
+          },
+          {
+            "label": "holy symbol",
+            "choices": [
+              {
+                "items": [],
+                "picks": [
+                  {
+                    "tag": "holy-symbols",
+                    "count": 1,
+                    "label": "Holy Symbols"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "gold": "5d4*10"
+      },
       "multiclassPrereq": {
         "abilities": {
           "str": 13,
@@ -3467,6 +4113,91 @@
         16,
         19
       ],
+      "startingEquipment": {
+        "fixed": [
+          {
+            "item": "item:longbow",
+            "quantity": 1
+          },
+          {
+            "item": "item:arrows",
+            "quantity": 20
+          }
+        ],
+        "options": [
+          {
+            "label": "(a) scale mail or (b) leather armor",
+            "choices": [
+              {
+                "items": [
+                  {
+                    "item": "item:scale-mail",
+                    "quantity": 1
+                  }
+                ],
+                "picks": []
+              },
+              {
+                "items": [
+                  {
+                    "item": "item:leather-armor",
+                    "quantity": 1
+                  }
+                ],
+                "picks": []
+              }
+            ]
+          },
+          {
+            "label": "(a) two shortswords or (b) two simple melee weapons",
+            "choices": [
+              {
+                "items": [
+                  {
+                    "item": "item:shortsword",
+                    "quantity": 2
+                  }
+                ],
+                "picks": []
+              },
+              {
+                "items": [],
+                "picks": [
+                  {
+                    "tag": "simple-melee-weapons",
+                    "count": 2,
+                    "label": "two simple melee weapons"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "label": "(a) a dungeoneer’s pack or (b) an explorer’s pack",
+            "choices": [
+              {
+                "items": [
+                  {
+                    "item": "item:dungeoneers-pack",
+                    "quantity": 1
+                  }
+                ],
+                "picks": []
+              },
+              {
+                "items": [
+                  {
+                    "item": "item:explorers-pack",
+                    "quantity": 1
+                  }
+                ],
+                "picks": []
+              }
+            ]
+          }
+        ],
+        "gold": "5d4*10"
+      },
       "multiclassChoices": [
         {
           "id": "skills",
@@ -3886,6 +4617,107 @@
         16,
         19
       ],
+      "startingEquipment": {
+        "fixed": [
+          {
+            "item": "item:leather-armor",
+            "quantity": 1
+          },
+          {
+            "item": "item:dagger",
+            "quantity": 2
+          },
+          {
+            "item": "item:thieves-tools",
+            "quantity": 1
+          }
+        ],
+        "options": [
+          {
+            "label": "(a) a rapier or (b) a shortsword",
+            "choices": [
+              {
+                "items": [
+                  {
+                    "item": "item:rapier",
+                    "quantity": 1
+                  }
+                ],
+                "picks": []
+              },
+              {
+                "items": [
+                  {
+                    "item": "item:shortsword",
+                    "quantity": 1
+                  }
+                ],
+                "picks": []
+              }
+            ]
+          },
+          {
+            "label": "(a) a shortbow and quiver of 20 arrows or (b) a shortsword",
+            "choices": [
+              {
+                "items": [
+                  {
+                    "item": "item:shortbow",
+                    "quantity": 1
+                  },
+                  {
+                    "item": "item:arrows",
+                    "quantity": 20
+                  }
+                ],
+                "picks": []
+              },
+              {
+                "items": [
+                  {
+                    "item": "item:shortsword",
+                    "quantity": 1
+                  }
+                ],
+                "picks": []
+              }
+            ]
+          },
+          {
+            "label": "(a) a burglar’s pack, (b) a dungeoneer’s pack, or (c) an explorer’s pack",
+            "choices": [
+              {
+                "items": [
+                  {
+                    "item": "item:burglars-pack",
+                    "quantity": 1
+                  }
+                ],
+                "picks": []
+              },
+              {
+                "items": [
+                  {
+                    "item": "item:dungeoneers-pack",
+                    "quantity": 1
+                  }
+                ],
+                "picks": []
+              },
+              {
+                "items": [
+                  {
+                    "item": "item:explorers-pack",
+                    "quantity": 1
+                  }
+                ],
+                "picks": []
+              }
+            ]
+          }
+        ],
+        "gold": "4d4*10"
+      },
       "multiclassChoices": [
         {
           "id": "skills",
@@ -4033,7 +4865,9 @@
             "feature:metamagic-heightened-spell",
             "feature:metamagic-quickened-spell",
             "feature:metamagic-subtle-spell",
-            "feature:metamagic-twinned-spell"
+            "feature:metamagic-twinned-spell",
+            "feature:metamagic-seeking-spell",
+            "feature:metamagic-transmuted-spell"
           ]
         }
       ]
@@ -4281,7 +5115,9 @@
             "feature:metamagic-heightened-spell",
             "feature:metamagic-quickened-spell",
             "feature:metamagic-subtle-spell",
-            "feature:metamagic-twinned-spell"
+            "feature:metamagic-twinned-spell",
+            "feature:metamagic-seeking-spell",
+            "feature:metamagic-transmuted-spell"
           ]
         }
       ]
@@ -4313,7 +5149,9 @@
             "feature:metamagic-heightened-spell",
             "feature:metamagic-quickened-spell",
             "feature:metamagic-subtle-spell",
-            "feature:metamagic-twinned-spell"
+            "feature:metamagic-twinned-spell",
+            "feature:metamagic-seeking-spell",
+            "feature:metamagic-transmuted-spell"
           ]
         }
       ]
@@ -4437,6 +5275,92 @@
         16,
         19
       ],
+      "startingEquipment": {
+        "fixed": [
+          {
+            "item": "item:dagger",
+            "quantity": 2
+          }
+        ],
+        "options": [
+          {
+            "label": "(a) a light crossbow and 20 bolts or (b) any simple weapon",
+            "choices": [
+              {
+                "items": [
+                  {
+                    "item": "item:light-crossbow",
+                    "quantity": 1
+                  },
+                  {
+                    "item": "item:crossbow-bolt",
+                    "quantity": 20
+                  }
+                ],
+                "picks": []
+              },
+              {
+                "items": [],
+                "picks": [
+                  {
+                    "tag": "simple-weapons",
+                    "count": 1,
+                    "label": "any simple weapon"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "label": "(a) a component pouch or (b) an arcane focus",
+            "choices": [
+              {
+                "items": [
+                  {
+                    "item": "item:component-pouch",
+                    "quantity": 1
+                  }
+                ],
+                "picks": []
+              },
+              {
+                "items": [],
+                "picks": [
+                  {
+                    "tag": "arcane-foci",
+                    "count": 1,
+                    "label": "arcane focus"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "label": "(a) a dungeoneer’s pack or (b) an explorer’s pack",
+            "choices": [
+              {
+                "items": [
+                  {
+                    "item": "item:dungeoneers-pack",
+                    "quantity": 1
+                  }
+                ],
+                "picks": []
+              },
+              {
+                "items": [
+                  {
+                    "item": "item:explorers-pack",
+                    "quantity": 1
+                  }
+                ],
+                "picks": []
+              }
+            ]
+          }
+        ],
+        "gold": "3d4*10"
+      },
       "progression": {
         "cantrips": [
           4,
@@ -5554,6 +6478,111 @@
         16,
         19
       ],
+      "startingEquipment": {
+        "fixed": [
+          {
+            "item": "item:dagger",
+            "quantity": 2
+          },
+          {
+            "item": "item:leather-armor",
+            "quantity": 1
+          }
+        ],
+        "options": [
+          {
+            "label": "(a) a light crossbow and 20 bolts or (b) any simple weapon",
+            "choices": [
+              {
+                "items": [
+                  {
+                    "item": "item:light-crossbow",
+                    "quantity": 1
+                  },
+                  {
+                    "item": "item:crossbow-bolt",
+                    "quantity": 20
+                  }
+                ],
+                "picks": []
+              },
+              {
+                "items": [],
+                "picks": [
+                  {
+                    "tag": "simple-weapons",
+                    "count": 1,
+                    "label": "any simple weapon"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "label": "(a) a component pouch or (b) an arcane focus",
+            "choices": [
+              {
+                "items": [
+                  {
+                    "item": "item:component-pouch",
+                    "quantity": 1
+                  }
+                ],
+                "picks": []
+              },
+              {
+                "items": [],
+                "picks": [
+                  {
+                    "tag": "arcane-foci",
+                    "count": 1,
+                    "label": "arcane focus"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "label": "(a) a scholar’s pack or (b) a dungeoneer’s pack",
+            "choices": [
+              {
+                "items": [
+                  {
+                    "item": "item:scholars-pack",
+                    "quantity": 1
+                  }
+                ],
+                "picks": []
+              },
+              {
+                "items": [
+                  {
+                    "item": "item:dungeoneers-pack",
+                    "quantity": 1
+                  }
+                ],
+                "picks": []
+              }
+            ]
+          },
+          {
+            "label": "any simple weapon",
+            "choices": [
+              {
+                "items": [],
+                "picks": [
+                  {
+                    "tag": "simple-weapons",
+                    "count": 1,
+                    "label": "Simple Weapons"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "gold": "4d4*10"
+      },
       "progression": {
         "cantrips": [
           2,
@@ -5780,6 +6809,87 @@
         16,
         19
       ],
+      "startingEquipment": {
+        "fixed": [
+          {
+            "item": "item:spellbook",
+            "quantity": 1
+          }
+        ],
+        "options": [
+          {
+            "label": "(a) a quarterstaff or (b) a dagger",
+            "choices": [
+              {
+                "items": [
+                  {
+                    "item": "item:quarterstaff",
+                    "quantity": 1
+                  }
+                ],
+                "picks": []
+              },
+              {
+                "items": [
+                  {
+                    "item": "item:dagger",
+                    "quantity": 1
+                  }
+                ],
+                "picks": []
+              }
+            ]
+          },
+          {
+            "label": "(a) a component pouch or (b) an arcane focus",
+            "choices": [
+              {
+                "items": [
+                  {
+                    "item": "item:component-pouch",
+                    "quantity": 1
+                  }
+                ],
+                "picks": []
+              },
+              {
+                "items": [],
+                "picks": [
+                  {
+                    "tag": "arcane-foci",
+                    "count": 1,
+                    "label": "arcane focus"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "label": "(a) a scholar’s pack or (b) an explorer’s pack",
+            "choices": [
+              {
+                "items": [
+                  {
+                    "item": "item:scholars-pack",
+                    "quantity": 1
+                  }
+                ],
+                "picks": []
+              },
+              {
+                "items": [
+                  {
+                    "item": "item:explorers-pack",
+                    "quantity": 1
+                  }
+                ],
+                "picks": []
+              }
+            ]
+          }
+        ],
+        "gold": "4d4*10"
+      },
       "progression": {
         "cantrips": [
           3,

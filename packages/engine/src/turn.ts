@@ -50,6 +50,7 @@ export function turnWarnings(c: Character, sheet: DerivedSheet, intent: TurnInte
 
   if (intent.spell) {
     if (c.toggles.includes("raging")) out.push("You can't cast spells while raging.");
+    if (c.shape && !(c.shape.kind === "wildshape" && sheet.wildShape?.beastSpells)) out.push(`You can't cast spells in ${c.shape.kind === "wildshape" ? "Wild Shape" : "a polymorphed form"}.`);
     if (intent.spell.concentration && c.concentration) {
       out.push(`You're concentrating on ${c.concentration.name}: casting ${intent.name} ends it.`);
     }

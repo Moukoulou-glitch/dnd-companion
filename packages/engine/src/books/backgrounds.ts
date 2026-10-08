@@ -9,6 +9,8 @@ export interface BookBackground {
   proficiencies: Proficiency[];
   choices: ChoiceDef[];
   feature?: { name: string; text: string[] };
+  /** The Equipment line, split into its pieces: each with the item names the export links (in *italics*). */
+  equipment?: { pieces: { text: string; links: string[] }[]; gold?: number };
 }
 
 const ARTISAN = TOOLS.slice(0, TOOLS.indexOf("Woodcarver's tools") + 1);
@@ -110,7 +112,17 @@ export function parseBackgrounds(text: string, excluded: string[] = []): BookBac
     const sections = splitHeadings(e.lines.join("\n"), "####");
     const f = sections.find((s) => /^Feature: /.test(s.name) && !/Choose a Feature/i.test(s.name));
     if (f) feature = { name: f.name.replace(/^Feature: /, ""), text: paragraphs(f.lines) };
-    out.push({ name: e.name, text: body, proficiencies, choices, ...(feature ? { feature } : {}) });
+    const eqLine = /^[-*]\s+\*\*Equipment:\*\*\s*(.+)$/m.exec(e.lines.join("\n"))?.[1];
+    let equipment: BookBackground["equipment"];
+    if (eqLine) {
+      const gold = Number(/(\d+)\s*gp\b/i.exec(eqLine)?.[1] ?? 0) || undefined;
+      const pieces = eqLine
+        .split(/,\s*(?![^()]*\))|\s+and\s+(?=(?:a|an|the)\b)/)
+        .map((p) => ({ text: clean(p).replace(/^(and|a set of|a|an)\s+/i, "").trim(), links: [...p.matchAll(/\*([^*]+)\*/g)].map((m) => m[1]!.trim()) }))
+        .filter((p) => p.text && !/\d+\s*gp\b/i.test(p.text));
+      equipment = { pieces, ...(gold ? { gold } : {}) };
+    }
+    out.push({ name: e.name, text: body, proficiencies, choices, ...(feature ? { feature } : {}), ...(equipment ? { equipment } : {}) });
   }
   return out;
 }

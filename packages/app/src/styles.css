@@ -1936,3 +1936,43 @@ ol.levels li[data-on="true"] {
 .over-save {
   margin-top: 14px;
 }
+
+/* Starting equipment */
+.kit-option {
+  margin-bottom: 12px;
+}
+.kit-option .note {
+  margin-bottom: 6px;
+}
+.kit-choice.on {
+  background: var(--panel-raised);
+}
+.kit-select {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  font: inherit;
+  padding: 8px 10px;
+  border-radius: var(--radius-s);
+  border: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--text);
+}
+
+.type-choice {
+  margin: 8px 0 12px;
+}
+
+/* Wild Shape and Polymorph */
+details.beyond {
+  margin: 12px 0;
+}
+details.beyond > summary {
+  cursor: pointer;
+  color: var(--muted);
+  font-weight: 700;
+  padding: 6px 0;
+}
+.shape-card .row-title::before {
+  content: "🐾 ";
+}

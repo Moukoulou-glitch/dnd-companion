@@ -1,5 +1,5 @@
 import { Character, CombatState, type Operation } from "@dnd/schema";
-import { FLEX_COST, castingEconomy, derive, evalFlat, levelGains, materialNeed, multiclassIssues, type ContentRegistry } from "@dnd/engine";
+import { FLEX_COST, castingEconomy, derive, evalFlat, levelGains, materialNeed, multiclassIssues, shapeIssues, type ContentRegistry } from "@dnd/engine";
 
 /** Something the player should do next, e.g. roll a concentration check. */
 export type Prompt = { kind: "concentration"; dc: number; spell: string };
@@ -17,6 +17,10 @@ function endConcentration(c: Character, notes: string[], why: string) {
   notes.push(`${why} Concentration on ${c.concentration.name} ended.`);
   delete c.concentration;
   c.effects = c.effects.filter((e) => !e.concentration);
+  if (c.shape?.ownSpell) {
+    delete c.shape;
+    notes.push("Polymorph ends: you're back in your normal form.");
+  }
 }
 
 const clone = <T>(v: T): T => structuredClone(v);
@@ -176,7 +180,8 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
 
   switch (op.type) {
     case "damage": {
-      const { amount, damageType } = op.payload;
+      let { amount, damageType } = op.payload;
+      let concAsked = false;
       if (op.payload.companion) {
         const t = companionTarget(op.payload.companion);
         if (!t) break;
@@ -189,6 +194,40 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
           t.state.states = [];
         }
         break;
+      }
+      // Wild Shape or Polymorph: the creature's hit points go first; at 0 you change back and the rest carries over.
+      if (c.shape) {
+        const d = reg.find(c.shape.creature, "creature");
+        let sd = amount;
+        if (damageType && d) {
+          if (d.immune?.includes(damageType)) sd = 0;
+          else {
+            if (d.resist?.includes(damageType)) sd = Math.floor(sd / 2);
+            if (d.vulnerable?.includes(damageType)) sd *= 2;
+          }
+          if (sd !== amount) notes.push(`${d.name} ${sd === 0 ? "is immune" : sd < amount ? "resists" : "is vulnerable"}: ${sd} damage.`);
+        }
+        if (c.concentration && sd > 0) {
+          prompts.push({ kind: "concentration", dc: Math.max(10, Math.floor(sd / 2)), spell: c.concentration.name });
+          concAsked = true;
+        }
+        c.shape.hp -= sd;
+        const name = d?.name ?? "Your form";
+        if (c.shape.hp > 0) {
+          notes.push(`${name}: ${c.shape.hp} of ${d?.hp ?? "?"} HP.`);
+          break;
+        }
+        const overflow = -c.shape.hp;
+        const own = c.shape.ownSpell;
+        delete c.shape;
+        if (own && c.concentration?.spell === "spell:polymorph") {
+          delete c.concentration;
+          c.effects = c.effects.filter((e) => !e.concentration);
+        }
+        notes.push(`${name} drops to 0 HP: you're back in your normal form${overflow > 0 ? `, and ${overflow} damage carries over` : ""}.`);
+        if (overflow === 0) break;
+        amount = overflow;
+        damageType = undefined;
       }
       let dmg = amount;
       if (damageType) {
@@ -233,7 +272,7 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
       if (concentrating) {
         if (c.hp.current === 0) endConcentration(c, notes, "Dropped to 0 HP.");
         // 2014: DC 10 or half the damage taken, whichever is higher. Temp HP still count as damage taken.
-        else prompts.push({ kind: "concentration", dc: Math.max(10, Math.floor(dmg / 2)), spell: concentrating.name });
+        else if (!concAsked) prompts.push({ kind: "concentration", dc: Math.max(10, Math.floor(dmg / 2)), spell: concentrating.name });
       }
       if (c.hp.current === 0 && before > 0) {
         const overflow = rest - before;
@@ -253,6 +292,13 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
         if (!t) break;
         if (t.state.hp.current === 0) notes.push(`${t.comp.name} is dead: healing doesn't bring it back. Revive it instead.`);
         else t.state.hp.current = Math.min(t.max, t.state.hp.current + op.payload.amount);
+        break;
+      }
+      if (c.shape) {
+        const d = reg.find(c.shape.creature, "creature");
+        const max = d?.hp ?? c.shape.hp;
+        c.shape.hp = Math.min(max, c.shape.hp + op.payload.amount);
+        notes.push(`${d?.name ?? "Your form"}: ${c.shape.hp} of ${max} HP.`);
         break;
       }
       const before = c.hp.current;
@@ -366,6 +412,49 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
       break;
     }
 
+    case "transform": {
+      const { kind, creature, uses } = op.payload;
+      const d = reg.find(creature, "creature");
+      if (!d) {
+        notes.push("That creature isn't in the content on this device.");
+        break;
+      }
+      let ownSpell = false;
+      if (kind === "wildshape") {
+        const res = sheet.resources.find((r) => r.id === "wild-shape");
+        if (!res) notes.push("No Wild Shape uses on this character. Done anyway.");
+        else if (uses > 0) {
+          if (res.remaining < uses) notes.push(`Wild Shape: ${res.remaining} use${res.remaining === 1 ? "" : "s"} left. Done anyway.`);
+          c.resourcesUsed[res.id] = Math.min(res.max, (c.resourcesUsed[res.id] ?? 0) + uses);
+        }
+        for (const issue of shapeIssues(d, kind, sheet.wildShape, 0)) notes.push(`Beyond the rules: ${issue}`);
+        spendTurn(sheet.wildShape?.bonusAction ? "bonus" : "action");
+        notes.push(`${d.name}: ${d.hp} HP, AC ${d.ac}.${sheet.wildShape ? ` Up to ${sheet.wildShape.hours} hour${sheet.wildShape.hours === 1 ? "" : "s"}.` : ""}`);
+      } else {
+        ownSpell = c.concentration?.spell === "spell:polymorph";
+        notes.push(`Polymorphed into ${d.name}: ${d.hp} HP, AC ${d.ac}.`);
+      }
+      c.shape = { kind, creature, hp: d.hp, ...(ownSpell ? { ownSpell } : {}) };
+      break;
+    }
+
+    case "revert": {
+      if (!c.shape) {
+        notes.push("Already in your normal form.");
+        break;
+      }
+      const d = reg.find(c.shape.creature, "creature");
+      // Leaving Wild Shape early takes a bonus action; Polymorph ends when the spell does.
+      if (c.shape.kind === "wildshape" && !op.payload.why) spendTurn("bonus");
+      if (c.shape.ownSpell && c.concentration?.spell === "spell:polymorph") {
+        delete c.concentration;
+        c.effects = c.effects.filter((e) => !e.concentration);
+      }
+      delete c.shape;
+      notes.push(`${op.payload.why ?? `No longer ${d?.name ?? "transformed"}`}: back in your normal form with ${c.hp.current} HP.`);
+      break;
+    }
+
     case "restoreHitDie": {
       const used = c.hitDiceUsed[op.payload.die] ?? 0;
       if (used === 0) notes.push(`No spent ${op.payload.die} Hit Dice.`);
@@ -406,6 +495,10 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
         c.extraSlots = {};
         c.hp.current = maxHp;
         c.hp.temp = 0;
+        if (c.shape) {
+          delete c.shape;
+          notes.push("A long rest is longer than a transformation lasts: back in your normal form.");
+        }
         c.deathSaves = { successes: 0, failures: 0 };
         // Regain spent Hit Dice up to half the character's total (minimum 1), largest dice first.
         let regain = Math.max(1, Math.floor(sheet.level / 2));

@@ -38,6 +38,12 @@ interface Props {
   notes?: string[];
   /** Shown above the roll (a skill the table gave beyond the rules: its tag and reason). */
   header?: ReactNode;
+  /**
+   * Ways to change the damage type (Chromatic Orb's choice, Transmuted Spell,
+   * Awakened Spellbook). `onUse` runs when damage is rolled with a type from it
+   * (Transmuted Spell spends its sorcery point).
+   */
+  typeChoices?: { label: string; options: string[]; note?: string; onUse?: () => void }[];
   /** Foretelling rolls that can replace the d20 (Portent). */
   portent?: { values: number[]; onUse: (index: number) => void };
   /**
@@ -257,7 +263,8 @@ export function ResultView({ r }: { r: RollRecord }) {
   );
 }
 
-export function Composer({ title, base, attack, physical, onPhysicalChange, onRolled, damageOnly, healing, onHealSelf, dc, onCheck, notes, header, portent, onOptionsUsed, optionInfo, onCommit, repeat, onDamageOptions }: Props) {
+export function Composer({ title, base, attack, physical, onPhysicalChange, onRolled, damageOnly, healing, onHealSelf, dc, onCheck, notes, header, typeChoices, portent, onOptionsUsed, optionInfo, onCommit, repeat, onDamageOptions }: Props) {
+  const [typePick, setTypePick] = useState<{ via: number; type: string } | null>(null);
   const preselected = base.suggestions.filter((sg) => optionInfo?.[sg.label]?.preselect).map((sg) => sg.label);
   const [choices, setChoices] = useState<ComposerChoices>({ enabled: preselected, manual: "none", extra: 0 });
   // Which of several attacks this is, and whether it has been made (marked on the turn) yet.
@@ -307,13 +314,13 @@ export function Composer({ title, base, attack, physical, onPhysicalChange, onRo
         return p.key ? { ...sg, apply: { ...sg.apply, dice: [slots.dice(p.key, p.extra)] } } : sg;
       }),
     };
-    const c = composeDamage(attack.damage.dice, attack.damage.type, bonus, damageChoices, attack.attackId.startsWith("spell:") ? attack.name : "Weapon");
+    const c = composeDamage(attack.damage.dice, typePick?.type ?? attack.damage.type, bonus, damageChoices, attack.attackId.startsWith("spell:") ? attack.name : "Weapon");
     if (!stage.crit) return c;
     const extra = attack.damage.critExtraDice.reduce((n, p) => n + p.value, 0);
     const natural20 = stage.attackRecord?.natural === 20 || !stage.attackRecord;
     return withCrit(c, extra, natural20 ? attack.damage.onCrit : []);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [attack, stage, damageChoices, slotPick, optionInfo]);
+  }, [attack, stage, damageChoices, slotPick, optionInfo, typePick]);
 
   const [attackMode, setAttackMode] = useState<string | undefined>();
 
@@ -359,6 +366,7 @@ export function Composer({ title, base, attack, physical, onPhysicalChange, onRo
       const p = pickFor(label);
       if (p.key) info.slots!.onSpend(p.key);
     }
+    if (typePick && typePick.type !== attack!.damage.type) typeChoices?.[typePick.via]?.onUse?.();
     onDamageOptions?.(damageChoices.enabled);
     onRolled(rec);
     setEntering(false);
@@ -500,6 +508,22 @@ export function Composer({ title, base, attack, physical, onPhysicalChange, onRo
           <p className="warn">You rolled this attack with disadvantage: Sneak Attack can't apply. Leave it on only if your DM says so.</p>
         )}
         <FormulaLines c={damage} />
+        {(typeChoices ?? []).map((tc, i) => (
+          <div className="type-choice" key={tc.label}>
+            <p className="sub-head">Damage type: {tc.label}</p>
+            <div className="choice-grid">
+              {[...new Set([...(i === 0 && attack?.damage.type && !tc.options.includes(attack.damage.type) ? [attack.damage.type] : []), ...tc.options])].map((t) => {
+                const on = typePick ? typePick.via === i && typePick.type === t : t === attack?.damage.type;
+                return (
+                  <button key={t} className="tag" aria-pressed={on} onClick={() => setTypePick(t === attack?.damage.type ? null : { via: i, type: t })} style={{ textTransform: "capitalize" }}>
+                    {t}
+                  </button>
+                );
+              })}
+            </div>
+            {tc.note && <p className="note">{tc.note}</p>}
+          </div>
+        ))}
         <Options base={damageBase} choices={damageChoices} setChoices={setDamageChoices} withManual={false} />
         {smites.map(([label, info]) => {
           const p = pickFor(label);

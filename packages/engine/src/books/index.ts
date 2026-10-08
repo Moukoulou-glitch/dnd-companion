@@ -1,7 +1,9 @@
-import type { BackgroundDef, ContentPack, Definition, FeatureDef, ItemDef, SubclassDef } from "@dnd/schema";
+import type { BackgroundDef, ContentPack, Definition, FeatureDef, ItemDef, RaceDef, SubclassDef } from "@dnd/schema";
 import type { ContentRegistry } from "../registry.js";
 import { entryFileKind, looksLikeClassPage, parseClassPageParts, parseEntries, parseRaceTraits, type ClassPageParts, type TextEntry } from "./entries.js";
 import { parseBackgrounds, type BookBackground } from "./backgrounds.js";
+import { parseBookRaces, type BookRace } from "./races.js";
+import { looksLikeBestiary, parseBestiary } from "./bestiary.js";
 import { looksLikeItems, parseItems } from "./items.js";
 import { looksLikeSpells, parseSpells } from "./spells.js";
 import { slug } from "./text.js";
@@ -16,7 +18,7 @@ export interface BookFile {
   text: string;
 }
 
-export type BookFileKind = "spells" | "items" | "feats" | "races" | "backgrounds" | "class page" | "actions" | "options" | "unknown";
+export type BookFileKind = "spells" | "items" | "feats" | "races" | "backgrounds" | "class page" | "actions" | "options" | "bestiary" | "unknown";
 
 export interface BookReport {
   files: { name: string; kind: BookFileKind; entries: number }[];
@@ -34,6 +36,7 @@ export function bookFileKind(text: string): BookFileKind {
   if (looksLikeSpells(text)) return "spells";
   if (looksLikeItems(text)) return "items";
   if (looksLikeClassPage(text)) return "class page";
+  if (looksLikeBestiary(text)) return "bestiary";
   if (/^## Dash\s*$/m.test(text) && /^## (Dodge|Disengage)\s*$/m.test(text)) return "actions";
   // Optional features (Eldritch Invocations, Metamagic, Fighting Styles...): text for those features, never new feats.
   if (/^\*Type: (Eldritch Invocation|Metamagic|Fighting Style|Pact Boon|Maneuver|Artificer Infusion|Rune)/im.test(text)) return "options";
@@ -119,6 +122,7 @@ export function bookPack(files: BookFile[], base: ContentRegistry): { pack: Cont
   const named: { kind: "feat" | "background" | "trait" | "feature" | "action"; entries: TextEntry[]; classId?: string }[] = [];
   const pages: { parts: ClassPageParts; classId: string }[] = [];
   const bookBackgrounds = new Map<string, BookBackground>();
+  const bookRaces: BookRace[] = [];
   // Which class or subclass lists each feature, so a class page's text stays with its own class.
   const owner = new Map<string, string>();
   for (const d of [...base.list("class"), ...base.list("subclass")]) {
@@ -149,6 +153,7 @@ export function bookPack(files: BookFile[], base: ContentRegistry): { pack: Cont
     } else if (kind === "races") {
       const e = parseRaceTraits(f.text);
       named.push({ kind: "trait", entries: e });
+      bookRaces.push(...parseBookRaces(f.text, excluded));
       count = e.length;
     } else if (kind === "options") {
       const e = parseEntries(f.text, excluded).map((x) => ({ ...x, text: x.text.filter((p) => !/^Type: /.test(p)) }));
@@ -158,6 +163,15 @@ export function bookPack(files: BookFile[], base: ContentRegistry): { pack: Cont
       const e = parseEntries(f.text);
       named.push({ kind: "action", entries: e });
       count = e.length;
+    } else if (kind === "bestiary") {
+      // Creatures the content doesn't have are added; the SRD's own keep theirs (and get no book text).
+      const cs = parseBestiary(f.text, BOOK_PACK_ID, excluded);
+      for (const cdef of cs) {
+        if (base.has(cdef.id) || out.has(cdef.id)) continue;
+        out.set(cdef.id, cdef);
+        report.added.creature = (report.added.creature ?? 0) + 1;
+      }
+      count = cs.length;
     } else if (kind === "class page") {
       const parts = parseClassPageParts(f.text, [...classByName.keys()]);
       const classId = parts.className ? classByName.get(norm(parts.className)) : undefined;
@@ -207,6 +221,21 @@ export function bookPack(files: BookFile[], base: ContentRegistry): { pack: Cont
     });
   }
 
+  // A book background's Equipment line: linked names the app has an item for become items, the rest stay as words.
+  const itemBySlug = new Map(base.list("item").map((i) => [slug(i.name), i.id]));
+  const equipmentOf = (bg: BookBackground): BackgroundDef["equipment"] | undefined => {
+    if (!bg.equipment) return undefined;
+    const find = (n: string) => itemBySlug.get(slug(n)) ?? itemBySlug.get(slug(n).replace(/s$/, "")) ?? itemBySlug.get(`${slug(n)}s`);
+    const fixed: { item: string; quantity: number }[] = [];
+    const other: string[] = [];
+    for (const p of bg.equipment.pieces) {
+      const id = p.links.length === 1 && !/\bor\b|of your choice/i.test(p.text) ? find(p.links[0]!) : undefined;
+      if (id) fixed.push({ item: id, quantity: Number(/^(\d+)\s/.exec(p.text)?.[1] ?? 1) });
+      else other.push(p.text);
+    }
+    return { fixed, options: [], ...(bg.equipment.gold ? { gold: String(bg.equipment.gold) } : {}), ...(other.length ? { other } : {}) };
+  };
+
   // Named text: matched to existing definitions by name; new feats and backgrounds are added.
   const byName = new Map<string, Definition[]>();
   for (const kind of ["feature", "subclass", "feat", "background"] as const) {
@@ -230,7 +259,13 @@ export function bookPack(files: BookFile[], base: ContentRegistry): { pack: Cont
         }
         return group.classId ? false : true;
       });
-      for (const d of new Set(matches)) attach(d, e.text);
+      const bgBook = group.kind === "background" ? bookBackgrounds.get(e.name) : undefined;
+      for (const d of new Set(matches))
+        attach(d, e.text, (copy) => {
+          // A table background without its starting equipment takes the book's.
+          const eq = bgBook && copy.kind === "background" && !copy.equipment ? equipmentOf(bgBook) : undefined;
+          if (eq && copy.kind === "background") copy.equipment = eq;
+        });
       if (matches.length || (group.kind !== "feat" && group.kind !== "background")) continue;
       const id = `${group.kind}:${slug(e.name)}`;
       if (base.has(id) || out.has(id)) continue;
@@ -240,6 +275,8 @@ export function bookPack(files: BookFile[], base: ContentRegistry): { pack: Cont
         // A new background works in the builder: its skills, tools and languages, and its feature.
         const d = def as BackgroundDef;
         if (bg.proficiencies.length) d.grant = { proficiencies: bg.proficiencies };
+        const eq = equipmentOf(bg);
+        if (eq) d.equipment = eq;
         if (bg.choices.length) d.choices = bg.choices;
         if (bg.feature) {
           const fid = `feature:${slug(bg.feature.name)}`;
@@ -253,6 +290,65 @@ export function bookPack(files: BookFile[], base: ContentRegistry): { pack: Cont
       out.set(id, def);
       added(group.kind);
     }
+  }
+
+  // Races the content doesn't have become playable: their ability scores, size, speed, languages and traits.
+  const raceNames = bookRaces.map((r) => r.name);
+  const raceTraitIds = new Set(base.list("race").flatMap((r) => r.features));
+  const traitByName = new Map<string, string>();
+  for (const id of raceTraitIds) {
+    const f = base.find(id, "feature");
+    if (f && !traitByName.has(norm(f.name))) traitByName.set(norm(f.name), id);
+  }
+  for (const br of bookRaces) {
+    if (/\(Base\)$/i.test(br.name) || raceNames.some((n) => n.startsWith(`${br.name} (`))) continue;
+    const paren = /^(.+?) \((.+)\)$/.exec(br.name);
+    const cands = [br.name, ...(paren ? [paren[2]!, `${paren[2]} ${paren[1]}`, `${paren[1]} ${paren[2]}`] : [])].map(norm);
+    if (base.list("race").some((r) => namesOf(r).some((n) => cands.includes(n)))) continue;
+    const id = `race:${slug(paren ? `${paren[2]} ${paren[1]}` : br.name)}`;
+    if (base.has(id) || out.has(id)) continue;
+    const raceSlug = id.replace(/^race:/, "");
+    const features: string[] = [];
+    for (const t of br.traits) {
+      const known = traitByName.get(norm(t.name));
+      if (known) {
+        features.push(known);
+        continue;
+      }
+      const fid = `feature:${raceSlug}-${slug(t.name)}`;
+      if (!out.has(fid) && !base.has(fid)) {
+        out.set(fid, { kind: "feature", id: fid, name: t.name, source: { pack: BOOK_PACK_ID }, text: t.text } as Definition);
+        added("feature");
+      }
+      features.push(fid);
+    }
+    const grant: NonNullable<RaceDef["grant"]> = {
+      proficiencies: [...br.languages.map((l) => ({ kind: "language" as const, target: l })), ...(br.languageChoice ? [{ kind: "language" as const, target: { choice: "language" } }] : [])],
+    };
+    const choices: NonNullable<RaceDef["choices"]> = [];
+    if (br.languageChoice) choices.push({ id: "language", label: "Language", kind: "language", count: br.languageChoice });
+    if (br.abilities === "choose") {
+      // Choose +2/+1 or +1/+1/+1: two +1s here, and one more from the lineage feature (repeat one for +2).
+      grant.abilityChoice = { choice: "abilities", amount: 1 };
+      choices.push({ id: "abilities", label: "Ability scores (+1 each)", kind: "ability", count: 2, newOnly: true });
+      if (base.has("feature:lineage-ability-scores")) features.unshift("feature:lineage-ability-scores");
+    } else if (Object.keys(br.abilities).length) grant.abilityBonuses = br.abilities;
+    if (br.darkvision) grant.senses = { darkvision: br.darkvision };
+    const race = {
+      kind: "race",
+      id,
+      name: paren ? `${paren[2]} ${paren[1]}` : br.name,
+      source: { pack: BOOK_PACK_ID },
+      size: br.size,
+      speed: br.speed,
+      ...(br.creatureType ? { creatureType: br.creatureType } : {}),
+      ...(paren ? { group: paren[1] } : {}),
+      grant,
+      ...(choices.length ? { choices } : {}),
+      features,
+    };
+    out.set(id, race as Definition);
+    added("race");
   }
 
   // Class pages: subclasses the content already has get their text; the others are added, feature by feature.

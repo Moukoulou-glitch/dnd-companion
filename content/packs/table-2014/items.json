@@ -555,6 +555,16 @@
       "magic": {
         "rarity": "common"
       }
+    },
+    {
+      "kind": "item",
+      "id": "item:other-gear",
+      "name": "Other gear",
+      "summary": "Something your background or the table gave you that has no entry of its own; it carries the name you see.",
+      "source": {
+        "pack": "table-2014"
+      },
+      "category": "gear"
     }
   ]
 }

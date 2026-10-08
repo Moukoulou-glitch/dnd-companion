@@ -1,0 +1,54 @@
+{
+  "definitions": [
+    {
+      "kind": "feature",
+      "id": "feature:metamagic-seeking-spell",
+      "name": "Metamagic: Seeking Spell",
+      "summary": "2 sorcery points: reroll the d20 of a spell attack you missed and use the new roll; works alongside another Metamagic option.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCE",
+        "page": 66
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "seeking-spell",
+            "name": "Seeking Spell",
+            "economy": "free",
+            "cost": {
+              "resource": "sorcery-points",
+              "amount": 2
+            },
+            "note": "After missing with a spell attack: reroll the d20 and use the new roll. Can be combined with another Metamagic option."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:metamagic-transmuted-spell",
+      "name": "Metamagic: Transmuted Spell",
+      "summary": "1 sorcery point: a spell dealing acid, cold, fire, lightning, poison or thunder damage deals another of those types instead. Pick the new type when you roll its damage.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCE",
+        "page": 66
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "transmuted-spell",
+            "name": "Transmuted Spell",
+            "economy": "free",
+            "cost": {
+              "resource": "sorcery-points"
+            },
+            "infoOnly": true,
+            "note": "Pick the new damage type in the spell's damage roll: the point is spent when you roll."
+          }
+        ]
+      }
+    }
+  ]
+}

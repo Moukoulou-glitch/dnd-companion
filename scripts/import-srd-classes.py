@@ -5,7 +5,7 @@ Acolyte background from the open 5e-database JSON (SRD 5.1, CC-BY-4.0).
 
     python3 scripts/import-srd-classes.py <path to 5e-database/src/2014/en>
 
-Writes content/packs/srd-5.1/{classes,races,backgrounds}.json. Text is the
+Writes content/packs/srd-5.1/{classes,races,backgrounds,items}.json. Text is the
 SRD's own (allowed by its licence); summaries are written here, in our words.
 The table pack's versions of the same classes, features and races win over
 these where both exist (see mergeClass in the engine's registry).
@@ -33,6 +33,133 @@ subraces = load("Subraces")
 traits = {t["index"]: t for t in load("Traits")}
 backgrounds = load("Backgrounds")
 equipment_categories = {c["index"]: c for c in load("Equipment-Categories")}
+equipment = {e["index"]: e for e in load("Equipment")}
+
+# ---- Equipment (SRD 5.1, CC-BY) ----
+# Names read like the books and the players' book files ("Light Crossbow", not "Crossbow, light"),
+# so a loaded book adds its text to the same item instead of making a second one.
+ITEM_ALIAS = {"arrow": "arrows"}
+
+
+def item_name(e):
+    n = e["name"]
+    m = re.match(r"^(.+?), (.+)$", n)
+    if m and not re.search(r"\(", n):
+        n = f"{m.group(2)} {m.group(1)}"
+    return n[0].upper() + n[1:]
+
+
+def item_id(index):
+    e = equipment.get(index)
+    slug = re.sub(r"[^a-z0-9]+", "-", item_name(e).lower().replace("'", "").replace("’", "")).strip("-") if e else index
+    return f"item:{ITEM_ALIAS.get(slug, slug)}"
+
+
+TAGS = {}
+for ci, c in equipment_categories.items():
+    for ref in c.get("equipment", []):
+        TAGS.setdefault(ref["index"], []).append(ci)
+
+WEAPON_PROPS = {"ammunition", "finesse", "heavy", "light", "loading", "reach", "special", "thrown", "two-handed", "versatile"}
+
+
+def item_def(e):
+    cat = e["equipment_category"]["index"]
+    gear = (e.get("gear_category") or {}).get("index")
+    d = {"kind": "item", "id": item_id(e["index"]), "name": item_name(e), "source": SOURCE}
+    if cat == "weapon":
+        d["category"] = "weapon"
+        props = [p["index"] for p in e.get("properties", []) if p["index"] in WEAPON_PROPS]
+        w = {
+            "category": e["weapon_category"].lower(),
+            "kind": e["weapon_range"].lower(),
+            "group": re.sub(r"[^a-z]+", " ", item_name(e).lower()).strip(),
+            "damage": (e.get("damage") or {}).get("damage_dice", "0"),
+            "damageType": ((e.get("damage") or {}).get("damage_type") or {}).get("index", "bludgeoning"),
+            "properties": props,
+        }
+        if e.get("two_handed_damage"):
+            w["versatileDamage"] = e["two_handed_damage"]["damage_dice"]
+        rng = e.get("throw_range") if "thrown" in props else (e.get("range") if e["weapon_range"] == "Ranged" else None)
+        if rng and rng.get("long"):
+            w["range"] = [rng["normal"], rng["long"]]
+        d["weapon"] = w
+    elif cat == "armor":
+        if e["armor_category"] == "Shield":
+            d["category"] = "shield"
+            d["shieldBonus"] = e["armor_class"]["base"]
+        else:
+            d["category"] = "armor"
+            a = {"category": e["armor_category"].lower(), "base": e["armor_class"]["base"], "stealthDisadvantage": bool(e.get("stealth_disadvantage"))}
+            if e.get("str_minimum"):
+                a["strengthRequired"] = e["str_minimum"]
+            d["armor"] = a
+    elif cat == "tools":
+        d["category"] = "tool"
+    elif gear == "ammunition":
+        d["category"] = "ammunition"
+    elif gear in ("arcane-foci", "druidic-foci", "holy-symbols"):
+        d["category"] = "focus"
+    else:
+        d["category"] = "gear"
+    if e.get("weight"):
+        d["weight"] = e["weight"]
+    if e.get("cost"):
+        d["cost"] = {"amount": e["cost"]["quantity"], "unit": e["cost"]["unit"]}
+    tags = [t for t in TAGS.get(e["index"], []) if t not in ("weapon", "armor", "adventuring-gear", "tools")]
+    if tags:
+        d["tags"] = tags
+    if e.get("contents"):
+        d["contents"] = [{"item": item_id(x["item"]["index"]), "quantity": x["quantity"]} for x in e["contents"]]
+    desc = [x for x in (e.get("desc") or []) if x.strip()]
+    if desc:
+        d["text"] = desc
+    return d
+
+
+item_defs = [item_def(e) for e in equipment.values() if e["equipment_category"]["index"] != "mounts-and-vehicles"]
+
+
+def equip_count(ref):
+    return {"item": item_id(ref["index"]), "quantity": 1}
+
+
+def equip_option(o):
+    """One way to fill a starting-equipment choice: some items, and picks from a category."""
+    t = o.get("option_type")
+    if t == "counted_reference":
+        return {"items": [{"item": item_id(o["of"]["index"]), "quantity": o["count"]}], "picks": []}
+    if t == "choice":
+        ch = o["choice"]
+        cat = ch["from"]["equipment_category"]["index"]
+        return {"items": [], "picks": [{"tag": cat, "count": ch.get("choose", 1), "label": ch.get("desc") or equipment_categories[cat]["name"]}]}
+    if t == "multiple":
+        out = {"items": [], "picks": []}
+        for x in o["items"]:
+            sub = equip_option(x)
+            out["items"] += sub["items"]
+            out["picks"] += sub["picks"]
+        return out
+    return None
+
+
+def starting_options(opts):
+    out = []
+    for o in opts:
+        fr = o["from"]
+        if fr["option_set_type"] == "equipment_category":
+            cat = fr["equipment_category"]["index"]
+            out.append({"label": o.get("desc") or equipment_categories[cat]["name"], "choices": [{"items": [], "picks": [{"tag": cat, "count": o.get("choose", 1), "label": equipment_categories[cat]["name"]}]}]})
+            continue
+        choices = [x for x in (equip_option(op) for op in fr.get("options", [])) if x]
+        if choices:
+            out.append({"label": o.get("desc", ""), "choices": choices})
+    return out
+
+
+# Starting wealth by class (PHB p. 143), for taking gold instead of the equipment.
+START_GOLD = {"barbarian": "2d4*10", "bard": "5d4*10", "cleric": "5d4*10", "druid": "2d4*10", "fighter": "5d4*10", "monk": "5d4",
+              "paladin": "5d4*10", "ranger": "5d4*10", "rogue": "4d4*10", "sorcerer": "3d4*10", "warlock": "4d4*10", "wizard": "4d4*10"}
 
 SKILL_IDS = {
     "acrobatics": "acrobatics", "animal-handling": "animalHandling", "arcana": "arcana", "athletics": "athletics",
@@ -50,6 +177,8 @@ TABLE_INVOCATIONS = [f"feature:invocation-{n}" for n in (
     "protection-of-the-talisman", "rebuke-of-the-talisman", "relentless-hex", "shroud-of-shadow", "tomb-of-levistus",
     "tricksters-escape", "undying-servitude")]
 TABLE_PACT_BOONS = ["feature:pact-of-the-talisman"]
+# Tasha's Metamagic options, defined in the table pack (metamagic.json).
+TABLE_METAMAGIC = ["feature:metamagic-seeking-spell", "feature:metamagic-transmuted-spell"]
 
 # Our own one-line summaries.
 CLASS_SUMMARY = {
@@ -349,7 +478,7 @@ def feature_choices(f):
         grant["proficiencies"] = [{"kind": "expertise", "target": {"choice": "skills"}}]
     if "subfeature_options" in spec:
         so = spec["subfeature_options"]
-        extra = TABLE_PACT_BOONS if f["index"] == "pact-boon" else []
+        extra = TABLE_PACT_BOONS if f["index"] == "pact-boon" else TABLE_METAMAGIC if f["index"].startswith("metamagic") else []
         choices.append({"id": "option", "label": f["name"], "kind": "feature", "count": so["choose"], "from": [fid(o["index"]) for o in options_of(so)] + extra})
     if "invocations" in spec:
         choices.append({"id": "invocations", "label": "Eldritch Invocations", "kind": "feature", "count": 2, "countBy": "invocations", "from": [fid(o["index"]) for o in spec["invocations"]] + TABLE_INVOCATIONS})
@@ -474,6 +603,11 @@ for c in classes:
         "subclassTitle": flavor,
         "choices": choices,
         "asiLevels": asi,
+    }
+    d["startingEquipment"] = {
+        "fixed": [{"item": item_id(x["equipment"]["index"]), "quantity": x["quantity"]} for x in c["starting_equipment"]],
+        "options": starting_options(c["starting_equipment_options"]),
+        "gold": START_GOLD[ci],
     }
     if mc_choices:
         d["multiclassChoices"] = mc_choices
@@ -660,7 +794,99 @@ for b in backgrounds:
         "grant": {"proficiencies": profs},
         "choices": choices,
         "features": [feat_id],
+        "equipment": {
+            "fixed": [{"item": item_id(x["equipment"]["index"]), "quantity": x["quantity"]} for x in b.get("starting_equipment", [])],
+            "options": starting_options(b.get("starting_equipment_options", [])),
+            "gold": "15",
+        },
     })
+
+
+# ---- Creatures: beasts (Wild Shape, Polymorph) and the four elementals (a Moon druid's Elemental Wild Shape) ----
+SKILL_KEYS = {"animal-handling": "animalHandling", "sleight-of-hand": "sleightOfHand"}
+
+
+def ft(v):
+    m = re.match(r"(\d+)", str(v))
+    return int(m.group(1)) if m else 0
+
+
+def creature_action(a):
+    d = {"name": a["name"], "text": a.get("desc", "")}
+    m = re.search(r"(Melee|Ranged) Weapon Attack:\s*\+(\d+) to hit,\s*(reach|range) ([^,]+)", d["text"])
+    dmg = (a.get("damage") or [None])[0]
+    if m and dmg and dmg.get("damage_dice") and dmg.get("damage_type"):
+        dm = re.match(r"(\d+d\d+)\s*([+-]\s*\d+)?", dmg["damage_dice"].replace(" ", ""))
+        if dm:
+            d["attack"] = {
+                "kind": m.group(1).lower(),
+                "toHit": int(m.group(2)),
+                "reach": m.group(4).strip(),
+                "damage": dm.group(1),
+                "damageBonus": int((dm.group(2) or "0").replace(" ", "")),
+                "damageType": dmg["damage_type"]["index"],
+            }
+    return d
+
+
+def creature_def(m):
+    sp = m.get("speed", {})
+    speed = {"walk": ft(sp.get("walk", 0))}
+    for k in ("swim", "fly", "climb", "burrow"):
+        if sp.get(k):
+            speed[k] = ft(sp[k])
+    if sp.get("hover"):
+        speed["hover"] = True
+    saves, skills = {}, {}
+    for p in m.get("proficiencies", []):
+        idx = p["proficiency"]["index"]
+        if idx.startswith("saving-throw-"):
+            saves[idx[len("saving-throw-"):]] = p["value"]
+        elif idx.startswith("skill-"):
+            k = idx[6:]
+            skills[SKILL_KEYS.get(k, k)] = p["value"]
+    senses = {k: ft(v) for k, v in m.get("senses", {}).items() if k != "passive_perception" and ft(v)}
+    ac = m["armor_class"][0]
+    d = {
+        "kind": "creature",
+        "id": f"creature:{m['index']}",
+        "name": m["name"],
+        "source": SOURCE,
+        "size": m["size"],
+        "type": m["type"],
+        "alignment": m.get("alignment", ""),
+        "ac": ac["value"],
+        "hp": m["hit_points"],
+        "hitDice": m.get("hit_points_roll") or m.get("hit_dice", ""),
+        "speed": speed,
+        "abilities": {"str": m["strength"], "dex": m["dexterity"], "con": m["constitution"], "int": m["intelligence"], "wis": m["wisdom"], "cha": m["charisma"]},
+        "cr": m["challenge_rating"],
+        "traits": [{"name": t["name"], "text": t["desc"]} for t in m.get("special_abilities", [])],
+        "actions": [creature_action(a) for a in m.get("actions", [])],
+    }
+    if ac.get("type") and ac["type"] != "dex":
+        d["acNote"] = ac["type"]
+    if saves:
+        d["saves"] = saves
+    if skills:
+        d["skills"] = skills
+    if senses:
+        d["senses"] = senses
+    if m.get("languages"):
+        d["languages"] = m["languages"]
+    for src, key in (("damage_resistances", "resist"), ("damage_immunities", "immune"), ("damage_vulnerabilities", "vulnerable")):
+        if m.get(src):
+            d[key] = m[src]
+    if m.get("condition_immunities"):
+        d["conditionImmune"] = [c["index"] for c in m["condition_immunities"]]
+    if m.get("reactions"):
+        d["reactions"] = [creature_action(a) for a in m["reactions"]]
+    return d
+
+
+monsters = load("Monsters")
+ELEMENTALS = {"air-elemental", "earth-elemental", "fire-elemental", "water-elemental"}
+creature_defs = [creature_def(m) for m in monsters if m["type"] == "beast" or m["index"] in ELEMENTALS]
 
 
 def write(name, items):
@@ -670,5 +896,7 @@ def write(name, items):
 write("classes.json", classes_out)
 write("races.json", list(race_defs.values()))
 write("backgrounds.json", bg_defs)
+write("items.json", item_defs)
+write("creatures.json", creature_defs)
 print(f"{sum(1 for d in classes_out if d['kind']=='class')} classes, {sum(1 for d in classes_out if d['kind']=='subclass')} subclasses, "
       f"{sum(1 for d in classes_out if d['kind']=='feature')} features, {sum(1 for d in race_defs.values() if d['kind']=='race')} races, {len(bg_defs)//2} background")

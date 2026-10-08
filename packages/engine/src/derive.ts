@@ -22,6 +22,7 @@ import { collectSources, type Source } from "./sources.js";
 import { deriveCompanion, type CompanionResult } from "./companions.js";
 import { spellSlots } from "./spellSlots.js";
 import { materialNeed } from "./materials.js";
+import { deriveShape, wildShapeLimits, type ShapeResult, type WildShapeLimits } from "./shapes.js";
 
 export interface AbilityResult {
   score: Breakdown;
@@ -100,6 +101,12 @@ export interface SpellResult {
   list: { id: string; label: string };
   /** Feature, feat or race it comes from, when not a class list (Infernal Legacy, Fey Touched). */
   fromFeature?: string;
+  /**
+   * Ways to change its damage type: the spell's own choice (Chromatic Orb),
+   * Transmuted Spell (1 sorcery point), Awakened Spellbook (a type from
+   * another spellbook spell of the slot's level, so options by slot level).
+   */
+  typeChoices?: { kind: "spell" | "transmuted" | "awakened"; label: string; options: string[]; byLevel?: Record<number, string[]>; cost?: { resource: string; amount: number } }[];
   /** Separate attacks per cast (Eldritch Blast beams by character level, Scorching Ray rays by slot). */
   beams?: { byLevel: Record<number, number>; what: string };
   /** The spell's duration as a timer: rounds up to 1 minute, minutes beyond. */
@@ -257,6 +264,10 @@ export interface DerivedSheet {
   features: FeatureEntry[];
   /** Companions from features (Primal Companion), with their stat blocks. */
   companions: CompanionResult[];
+  /** A druid's Wild Shape limits (CR, flying and swimming, hours, bonus action). */
+  wildShape?: WildShapeLimits;
+  /** The stat block in use while in Wild Shape or polymorphed. */
+  shape?: ShapeResult;
   /** What the table gave beyond the rules, with a readable name and why. */
   extras: { id: string; kind: Character["extras"][number]["kind"]; value: string; name: string; tag: string; reason: string }[];
   /**
@@ -865,6 +876,47 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
     const k = keys.at(-1) ?? Math.min(...Object.keys(table).map(Number));
     return table[String(k)]!;
   };
+  // Changing a spell's damage type.
+  const DAMAGE_TYPES = ["acid", "bludgeoning", "cold", "fire", "force", "lightning", "necrotic", "piercing", "poison", "psychic", "radiant", "slashing", "thunder"];
+  const TRANSMUTABLE = ["acid", "cold", "fire", "lightning", "poison", "thunder"];
+  const hasTransmuted = sources.some((s) => s.id === "feature:metamagic-transmuted-spell");
+  const hasAwakened = sources.some((s) => /awakened spellbook/i.test(s.label));
+  const awakenedByLevel: Record<number, string[]> = {};
+  if (hasAwakened) {
+    for (const x of c.spells.filter((x) => x.list === "wizard")) {
+      const d = reg.find(x.spell, "spell");
+      const t = d?.damage?.type;
+      if (d && t && d.level > 0) awakenedByLevel[d.level] = [...new Set([...(awakenedByLevel[d.level] ?? []), t])];
+    }
+  }
+  const damageTypeChoices = (def: { id: string; text: string[]; summary?: string; level: number }, type: string | undefined, list: string): NonNullable<SpellResult["typeChoices"]> => {
+    const out: NonNullable<SpellResult["typeChoices"]> = [];
+    // The spell's own choice: a list of three or more damage types joined with "or", where the caster chooses.
+    const T = DAMAGE_TYPES.join("|");
+    const re = new RegExp(`\\b((?:${T})(?:(?:,\\s+(?:or\\s+)?|\\s+or\\s+)(?:${T})){2,})\\b`, "i");
+    for (const p of [...def.text, ...(def.summary ? [def.summary] : [])]) {
+      const m = re.exec(p);
+      if (m && /choose|choice|of your choosing/i.test(p)) {
+        // "(acid, cold, fire...)" in a summary reads the same.
+        out.push({ kind: "spell", label: "the spell's choice", options: m[1]!.split(/,\s+(?:or\s+)?|\s+or\s+/).map((x) => x.toLowerCase()).filter(Boolean) });
+        break;
+      }
+    }
+    if (hasTransmuted && type && TRANSMUTABLE.includes(type)) {
+      const pts = resources.find((r) => r.id === "sorcery-points") ?? resources.find((r) => /metamagic/i.test(r.name));
+      out.push({ kind: "transmuted", label: "Transmuted Spell, 1 sorcery point", options: TRANSMUTABLE, ...(pts ? { cost: { resource: pts.id, amount: 1 } } : {}) });
+    }
+    if (hasAwakened && list === "wizard" && def.level > 0 && type) {
+      const byLevel: Record<number, string[]> = {};
+      for (let l = def.level; l <= 9; l++) {
+        const others = (awakenedByLevel[l] ?? []).filter((t) => t !== type);
+        if (others.length) byLevel[l] = others;
+      }
+      if (Object.keys(byLevel).length) out.push({ kind: "awakened", label: "Awakened Spellbook", options: [], byLevel });
+    }
+    return out;
+  };
+
   const spells: SpellResult[] = [];
   for (const { def, list, prepared, granted } of spellDefs.values()) {
     if (!def) continue;
@@ -923,6 +975,8 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
       r.damageBonus = roll(["roll.damage.spell", `roll.damage.spell.${def.id.replace(/^spell:/, "")}`], []);
     }
     if (def.heal) r.heal = { byLevel: levelsFor(def.heal.atSlot)! };
+    const typeChoices = r.damage ? damageTypeChoices(def, r.damage.type, list) : [];
+    if (typeChoices.length) r.typeChoices = typeChoices;
     if (!granted?.atWill && list === pactList && slots.pact && def.level > 0 && def.level <= slots.pact.level) {
       r.cast.pact = { level: slots.pact.level, remaining: Math.max(0, slots.pact.count - c.pactSlotsUsed) };
     }
@@ -1133,6 +1187,23 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
   };
   if (slots.pact) sheet.pactSlots = slots.pact;
   if (c.concentration) sheet.concentration = c.concentration;
+  // Wild Shape and Polymorph.
+  const limits = wildShapeLimits(c, sheet.features.map((f) => f.name));
+  if (limits) sheet.wildShape = limits;
+  // Combat Wild Shape: transforming is a bonus action.
+  if (limits?.bonusAction) for (const a of sheet.actions) if (a.id === "wild-shape") a.economy = "bonus";
+  const shape = deriveShape(
+    c,
+    reg,
+    {
+      abilities: Object.fromEntries(ABILITIES.map((a) => [a, sheet.abilities[a].score.total])) as Record<Ability, number>,
+      pb,
+      saves: Object.fromEntries(ABILITIES.map((a) => [a, sheet.saves[a].proficient ? 1 : 0])) as Record<Ability, number>,
+      skills: Object.fromEntries(SKILLS.map((k) => [k, Number(sheet.skills[k].proficiency) || 0])) as Record<Skill, number>,
+    },
+    limits,
+  );
+  if (shape) sheet.shape = shape;
   return sheet;
 }
 

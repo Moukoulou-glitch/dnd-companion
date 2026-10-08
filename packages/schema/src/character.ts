@@ -270,6 +270,20 @@ export const Character = z
     extraNotes: z.record(z.string(), ExtraNote).default({}),
     /** Spells with a costly or consumed material component: whether the character has it now, by spell id. */
     components: z.record(DefId, z.boolean()).default({}),
+    /**
+     * Wild Shape or Polymorph: the creature's stat block replaces yours, and
+     * its hit points take damage first (PHB p. 66, p. 266).
+     */
+    shape: z
+      .object({
+        kind: z.enum(["wildshape", "polymorph"]),
+        creature: DefId,
+        hp: z.number().int().min(0),
+        /** Polymorph cast by this character on themselves: it ends with their concentration. */
+        ownSpell: z.boolean().optional(),
+      })
+      .strict()
+      .optional(),
     /** Wizard: gold set aside for copying spells into the spellbook (materials and fine inks). */
     spellbookFunds: z.number().min(0).default(0),
     /**

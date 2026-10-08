@@ -1,0 +1,4700 @@
+{
+  "definitions": [
+    {
+      "kind": "item",
+      "id": "item:club",
+      "name": "Club",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "weapon",
+      "weapon": {
+        "category": "simple",
+        "kind": "melee",
+        "group": "club",
+        "damage": "1d4",
+        "damageType": "bludgeoning",
+        "properties": [
+          "light"
+        ]
+      },
+      "weight": 2,
+      "cost": {
+        "amount": 1,
+        "unit": "sp"
+      },
+      "tags": [
+        "simple-weapons",
+        "melee-weapons",
+        "simple-melee-weapons"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:dagger",
+      "name": "Dagger",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "weapon",
+      "weapon": {
+        "category": "simple",
+        "kind": "melee",
+        "group": "dagger",
+        "damage": "1d4",
+        "damageType": "piercing",
+        "properties": [
+          "finesse",
+          "light",
+          "thrown"
+        ],
+        "range": [
+          20,
+          60
+        ]
+      },
+      "weight": 1,
+      "cost": {
+        "amount": 2,
+        "unit": "gp"
+      },
+      "tags": [
+        "simple-weapons",
+        "melee-weapons",
+        "simple-melee-weapons"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:greatclub",
+      "name": "Greatclub",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "weapon",
+      "weapon": {
+        "category": "simple",
+        "kind": "melee",
+        "group": "greatclub",
+        "damage": "1d8",
+        "damageType": "bludgeoning",
+        "properties": [
+          "two-handed"
+        ]
+      },
+      "weight": 10,
+      "cost": {
+        "amount": 2,
+        "unit": "sp"
+      },
+      "tags": [
+        "simple-weapons",
+        "melee-weapons",
+        "simple-melee-weapons"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:handaxe",
+      "name": "Handaxe",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "weapon",
+      "weapon": {
+        "category": "simple",
+        "kind": "melee",
+        "group": "handaxe",
+        "damage": "1d6",
+        "damageType": "slashing",
+        "properties": [
+          "light",
+          "thrown"
+        ],
+        "range": [
+          20,
+          60
+        ]
+      },
+      "weight": 2,
+      "cost": {
+        "amount": 5,
+        "unit": "gp"
+      },
+      "tags": [
+        "simple-weapons",
+        "melee-weapons",
+        "simple-melee-weapons"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:javelin",
+      "name": "Javelin",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "weapon",
+      "weapon": {
+        "category": "simple",
+        "kind": "melee",
+        "group": "javelin",
+        "damage": "1d6",
+        "damageType": "piercing",
+        "properties": [
+          "thrown"
+        ],
+        "range": [
+          30,
+          120
+        ]
+      },
+      "weight": 2,
+      "cost": {
+        "amount": 5,
+        "unit": "sp"
+      },
+      "tags": [
+        "simple-weapons",
+        "melee-weapons",
+        "simple-melee-weapons"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:light-hammer",
+      "name": "Light hammer",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "weapon",
+      "weapon": {
+        "category": "simple",
+        "kind": "melee",
+        "group": "light hammer",
+        "damage": "1d4",
+        "damageType": "bludgeoning",
+        "properties": [
+          "light",
+          "thrown"
+        ],
+        "range": [
+          20,
+          60
+        ]
+      },
+      "weight": 2,
+      "cost": {
+        "amount": 2,
+        "unit": "gp"
+      },
+      "tags": [
+        "simple-weapons",
+        "melee-weapons",
+        "simple-melee-weapons"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:mace",
+      "name": "Mace",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "weapon",
+      "weapon": {
+        "category": "simple",
+        "kind": "melee",
+        "group": "mace",
+        "damage": "1d6",
+        "damageType": "bludgeoning",
+        "properties": []
+      },
+      "weight": 4,
+      "cost": {
+        "amount": 5,
+        "unit": "gp"
+      },
+      "tags": [
+        "simple-weapons",
+        "melee-weapons",
+        "simple-melee-weapons"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:quarterstaff",
+      "name": "Quarterstaff",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "weapon",
+      "weapon": {
+        "category": "simple",
+        "kind": "melee",
+        "group": "quarterstaff",
+        "damage": "1d6",
+        "damageType": "bludgeoning",
+        "properties": [
+          "versatile"
+        ],
+        "versatileDamage": "1d8"
+      },
+      "weight": 4,
+      "cost": {
+        "amount": 2,
+        "unit": "sp"
+      },
+      "tags": [
+        "simple-weapons",
+        "melee-weapons",
+        "simple-melee-weapons"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:sickle",
+      "name": "Sickle",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "weapon",
+      "weapon": {
+        "category": "simple",
+        "kind": "melee",
+        "group": "sickle",
+        "damage": "1d4",
+        "damageType": "slashing",
+        "properties": [
+          "light"
+        ]
+      },
+      "weight": 2,
+      "cost": {
+        "amount": 1,
+        "unit": "gp"
+      },
+      "tags": [
+        "simple-weapons",
+        "melee-weapons",
+        "simple-melee-weapons"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:spear",
+      "name": "Spear",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "weapon",
+      "weapon": {
+        "category": "simple",
+        "kind": "melee",
+        "group": "spear",
+        "damage": "1d6",
+        "damageType": "piercing",
+        "properties": [
+          "thrown",
+          "versatile"
+        ],
+        "versatileDamage": "1d8",
+        "range": [
+          20,
+          60
+        ]
+      },
+      "weight": 3,
+      "cost": {
+        "amount": 1,
+        "unit": "gp"
+      },
+      "tags": [
+        "simple-weapons",
+        "melee-weapons",
+        "simple-melee-weapons"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:light-crossbow",
+      "name": "Light Crossbow",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "weapon",
+      "weapon": {
+        "category": "simple",
+        "kind": "ranged",
+        "group": "light crossbow",
+        "damage": "1d8",
+        "damageType": "piercing",
+        "properties": [
+          "ammunition",
+          "loading",
+          "two-handed"
+        ],
+        "range": [
+          80,
+          320
+        ]
+      },
+      "weight": 5,
+      "cost": {
+        "amount": 25,
+        "unit": "gp"
+      },
+      "tags": [
+        "simple-weapons",
+        "ranged-weapons",
+        "simple-ranged-weapons"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:dart",
+      "name": "Dart",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "weapon",
+      "weapon": {
+        "category": "simple",
+        "kind": "ranged",
+        "group": "dart",
+        "damage": "1d4",
+        "damageType": "piercing",
+        "properties": [
+          "finesse",
+          "thrown"
+        ],
+        "range": [
+          20,
+          60
+        ]
+      },
+      "weight": 0.25,
+      "cost": {
+        "amount": 5,
+        "unit": "cp"
+      },
+      "tags": [
+        "simple-weapons",
+        "ranged-weapons",
+        "simple-ranged-weapons"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:shortbow",
+      "name": "Shortbow",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "weapon",
+      "weapon": {
+        "category": "simple",
+        "kind": "ranged",
+        "group": "shortbow",
+        "damage": "1d6",
+        "damageType": "piercing",
+        "properties": [
+          "ammunition",
+          "two-handed"
+        ],
+        "range": [
+          80,
+          320
+        ]
+      },
+      "weight": 2,
+      "cost": {
+        "amount": 25,
+        "unit": "gp"
+      },
+      "tags": [
+        "simple-weapons",
+        "ranged-weapons",
+        "simple-ranged-weapons"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:sling",
+      "name": "Sling",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "weapon",
+      "weapon": {
+        "category": "simple",
+        "kind": "ranged",
+        "group": "sling",
+        "damage": "1d4",
+        "damageType": "bludgeoning",
+        "properties": [
+          "ammunition"
+        ],
+        "range": [
+          30,
+          120
+        ]
+      },
+      "cost": {
+        "amount": 1,
+        "unit": "sp"
+      },
+      "tags": [
+        "simple-weapons",
+        "ranged-weapons",
+        "simple-ranged-weapons"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:battleaxe",
+      "name": "Battleaxe",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "weapon",
+      "weapon": {
+        "category": "martial",
+        "kind": "melee",
+        "group": "battleaxe",
+        "damage": "1d8",
+        "damageType": "slashing",
+        "properties": [
+          "versatile"
+        ],
+        "versatileDamage": "1d10"
+      },
+      "weight": 4,
+      "cost": {
+        "amount": 10,
+        "unit": "gp"
+      },
+      "tags": [
+        "martial-weapons",
+        "melee-weapons",
+        "martial-melee-weapons"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:flail",
+      "name": "Flail",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "weapon",
+      "weapon": {
+        "category": "martial",
+        "kind": "melee",
+        "group": "flail",
+        "damage": "1d8",
+        "damageType": "bludgeoning",
+        "properties": []
+      },
+      "weight": 2,
+      "cost": {
+        "amount": 10,
+        "unit": "gp"
+      },
+      "tags": [
+        "martial-weapons",
+        "melee-weapons",
+        "martial-melee-weapons"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:glaive",
+      "name": "Glaive",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "weapon",
+      "weapon": {
+        "category": "martial",
+        "kind": "melee",
+        "group": "glaive",
+        "damage": "1d10",
+        "damageType": "slashing",
+        "properties": [
+          "heavy",
+          "reach",
+          "two-handed"
+        ]
+      },
+      "weight": 6,
+      "cost": {
+        "amount": 20,
+        "unit": "gp"
+      },
+      "tags": [
+        "martial-weapons",
+        "melee-weapons",
+        "martial-melee-weapons"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:greataxe",
+      "name": "Greataxe",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "weapon",
+      "weapon": {
+        "category": "martial",
+        "kind": "melee",
+        "group": "greataxe",
+        "damage": "1d12",
+        "damageType": "slashing",
+        "properties": [
+          "heavy",
+          "two-handed"
+        ]
+      },
+      "weight": 7,
+      "cost": {
+        "amount": 30,
+        "unit": "gp"
+      },
+      "tags": [
+        "martial-weapons",
+        "melee-weapons",
+        "martial-melee-weapons"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:greatsword",
+      "name": "Greatsword",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "weapon",
+      "weapon": {
+        "category": "martial",
+        "kind": "melee",
+        "group": "greatsword",
+        "damage": "2d6",
+        "damageType": "slashing",
+        "properties": [
+          "heavy",
+          "two-handed"
+        ]
+      },
+      "weight": 6,
+      "cost": {
+        "amount": 50,
+        "unit": "gp"
+      },
+      "tags": [
+        "martial-weapons",
+        "melee-weapons",
+        "martial-melee-weapons"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:halberd",
+      "name": "Halberd",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "weapon",
+      "weapon": {
+        "category": "martial",
+        "kind": "melee",
+        "group": "halberd",
+        "damage": "1d10",
+        "damageType": "slashing",
+        "properties": [
+          "heavy",
+          "reach",
+          "two-handed"
+        ]
+      },
+      "weight": 6,
+      "cost": {
+        "amount": 20,
+        "unit": "gp"
+      },
+      "tags": [
+        "martial-weapons",
+        "melee-weapons",
+        "martial-melee-weapons"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:lance",
+      "name": "Lance",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "weapon",
+      "weapon": {
+        "category": "martial",
+        "kind": "melee",
+        "group": "lance",
+        "damage": "1d12",
+        "damageType": "piercing",
+        "properties": [
+          "reach",
+          "special"
+        ]
+      },
+      "weight": 6,
+      "cost": {
+        "amount": 10,
+        "unit": "gp"
+      },
+      "tags": [
+        "martial-weapons",
+        "melee-weapons",
+        "martial-melee-weapons"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:longsword",
+      "name": "Longsword",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "weapon",
+      "weapon": {
+        "category": "martial",
+        "kind": "melee",
+        "group": "longsword",
+        "damage": "1d8",
+        "damageType": "slashing",
+        "properties": [
+          "versatile"
+        ],
+        "versatileDamage": "1d10"
+      },
+      "weight": 3,
+      "cost": {
+        "amount": 15,
+        "unit": "gp"
+      },
+      "tags": [
+        "martial-weapons",
+        "melee-weapons",
+        "martial-melee-weapons"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:maul",
+      "name": "Maul",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "weapon",
+      "weapon": {
+        "category": "martial",
+        "kind": "melee",
+        "group": "maul",
+        "damage": "2d6",
+        "damageType": "bludgeoning",
+        "properties": [
+          "heavy",
+          "two-handed"
+        ]
+      },
+      "weight": 10,
+      "cost": {
+        "amount": 10,
+        "unit": "gp"
+      },
+      "tags": [
+        "martial-weapons",
+        "melee-weapons",
+        "martial-melee-weapons"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:morningstar",
+      "name": "Morningstar",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "weapon",
+      "weapon": {
+        "category": "martial",
+        "kind": "melee",
+        "group": "morningstar",
+        "damage": "1d8",
+        "damageType": "piercing",
+        "properties": []
+      },
+      "weight": 4,
+      "cost": {
+        "amount": 15,
+        "unit": "gp"
+      },
+      "tags": [
+        "martial-weapons",
+        "melee-weapons",
+        "martial-melee-weapons"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:pike",
+      "name": "Pike",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "weapon",
+      "weapon": {
+        "category": "martial",
+        "kind": "melee",
+        "group": "pike",
+        "damage": "1d10",
+        "damageType": "piercing",
+        "properties": [
+          "heavy",
+          "reach",
+          "two-handed"
+        ]
+      },
+      "weight": 18,
+      "cost": {
+        "amount": 5,
+        "unit": "gp"
+      },
+      "tags": [
+        "martial-weapons",
+        "melee-weapons",
+        "martial-melee-weapons"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:rapier",
+      "name": "Rapier",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "weapon",
+      "weapon": {
+        "category": "martial",
+        "kind": "melee",
+        "group": "rapier",
+        "damage": "1d8",
+        "damageType": "piercing",
+        "properties": [
+          "finesse"
+        ]
+      },
+      "weight": 2,
+      "cost": {
+        "amount": 25,
+        "unit": "gp"
+      },
+      "tags": [
+        "martial-weapons",
+        "melee-weapons",
+        "martial-melee-weapons"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:scimitar",
+      "name": "Scimitar",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "weapon",
+      "weapon": {
+        "category": "martial",
+        "kind": "melee",
+        "group": "scimitar",
+        "damage": "1d6",
+        "damageType": "slashing",
+        "properties": [
+          "finesse",
+          "light"
+        ]
+      },
+      "weight": 3,
+      "cost": {
+        "amount": 25,
+        "unit": "gp"
+      },
+      "tags": [
+        "martial-weapons",
+        "melee-weapons",
+        "martial-melee-weapons"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:shortsword",
+      "name": "Shortsword",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "weapon",
+      "weapon": {
+        "category": "martial",
+        "kind": "melee",
+        "group": "shortsword",
+        "damage": "1d6",
+        "damageType": "piercing",
+        "properties": [
+          "finesse",
+          "light"
+        ]
+      },
+      "weight": 2,
+      "cost": {
+        "amount": 10,
+        "unit": "gp"
+      },
+      "tags": [
+        "martial-weapons",
+        "melee-weapons",
+        "martial-melee-weapons"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:trident",
+      "name": "Trident",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "weapon",
+      "weapon": {
+        "category": "martial",
+        "kind": "melee",
+        "group": "trident",
+        "damage": "1d6",
+        "damageType": "piercing",
+        "properties": [
+          "thrown",
+          "versatile"
+        ],
+        "versatileDamage": "1d8",
+        "range": [
+          20,
+          60
+        ]
+      },
+      "weight": 4,
+      "cost": {
+        "amount": 5,
+        "unit": "gp"
+      },
+      "tags": [
+        "martial-weapons",
+        "melee-weapons",
+        "martial-melee-weapons"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:war-pick",
+      "name": "War pick",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "weapon",
+      "weapon": {
+        "category": "martial",
+        "kind": "melee",
+        "group": "war pick",
+        "damage": "1d8",
+        "damageType": "piercing",
+        "properties": []
+      },
+      "weight": 2,
+      "cost": {
+        "amount": 5,
+        "unit": "gp"
+      },
+      "tags": [
+        "martial-weapons",
+        "melee-weapons",
+        "martial-melee-weapons"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:warhammer",
+      "name": "Warhammer",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "weapon",
+      "weapon": {
+        "category": "martial",
+        "kind": "melee",
+        "group": "warhammer",
+        "damage": "1d8",
+        "damageType": "bludgeoning",
+        "properties": [
+          "versatile"
+        ],
+        "versatileDamage": "1d10"
+      },
+      "weight": 2,
+      "cost": {
+        "amount": 15,
+        "unit": "gp"
+      },
+      "tags": [
+        "martial-weapons",
+        "melee-weapons",
+        "martial-melee-weapons"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:whip",
+      "name": "Whip",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "weapon",
+      "weapon": {
+        "category": "martial",
+        "kind": "melee",
+        "group": "whip",
+        "damage": "1d4",
+        "damageType": "slashing",
+        "properties": [
+          "finesse",
+          "reach"
+        ]
+      },
+      "weight": 3,
+      "cost": {
+        "amount": 2,
+        "unit": "gp"
+      },
+      "tags": [
+        "martial-weapons",
+        "melee-weapons",
+        "martial-melee-weapons"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:blowgun",
+      "name": "Blowgun",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "weapon",
+      "weapon": {
+        "category": "martial",
+        "kind": "ranged",
+        "group": "blowgun",
+        "damage": "1",
+        "damageType": "piercing",
+        "properties": [
+          "ammunition",
+          "loading"
+        ],
+        "range": [
+          25,
+          100
+        ]
+      },
+      "weight": 1,
+      "cost": {
+        "amount": 10,
+        "unit": "gp"
+      },
+      "tags": [
+        "martial-weapons",
+        "ranged-weapons",
+        "martial-ranged-weapons"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:hand-crossbow",
+      "name": "Hand Crossbow",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "weapon",
+      "weapon": {
+        "category": "martial",
+        "kind": "ranged",
+        "group": "hand crossbow",
+        "damage": "1d6",
+        "damageType": "piercing",
+        "properties": [
+          "ammunition",
+          "light",
+          "loading"
+        ],
+        "range": [
+          30,
+          120
+        ]
+      },
+      "weight": 3,
+      "cost": {
+        "amount": 75,
+        "unit": "gp"
+      },
+      "tags": [
+        "martial-weapons",
+        "ranged-weapons",
+        "martial-ranged-weapons"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:heavy-crossbow",
+      "name": "Heavy Crossbow",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "weapon",
+      "weapon": {
+        "category": "martial",
+        "kind": "ranged",
+        "group": "heavy crossbow",
+        "damage": "1d10",
+        "damageType": "piercing",
+        "properties": [
+          "ammunition",
+          "heavy",
+          "loading",
+          "two-handed"
+        ],
+        "range": [
+          100,
+          400
+        ]
+      },
+      "weight": 18,
+      "cost": {
+        "amount": 50,
+        "unit": "gp"
+      },
+      "tags": [
+        "martial-weapons",
+        "ranged-weapons",
+        "martial-ranged-weapons"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:longbow",
+      "name": "Longbow",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "weapon",
+      "weapon": {
+        "category": "martial",
+        "kind": "ranged",
+        "group": "longbow",
+        "damage": "1d8",
+        "damageType": "piercing",
+        "properties": [
+          "ammunition",
+          "heavy",
+          "two-handed"
+        ],
+        "range": [
+          150,
+          600
+        ]
+      },
+      "weight": 2,
+      "cost": {
+        "amount": 50,
+        "unit": "gp"
+      },
+      "tags": [
+        "martial-weapons",
+        "ranged-weapons",
+        "martial-ranged-weapons"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:net",
+      "name": "Net",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "weapon",
+      "weapon": {
+        "category": "martial",
+        "kind": "ranged",
+        "group": "net",
+        "damage": "0",
+        "damageType": "bludgeoning",
+        "properties": [
+          "thrown",
+          "special"
+        ],
+        "range": [
+          5,
+          15
+        ]
+      },
+      "weight": 3,
+      "cost": {
+        "amount": 1,
+        "unit": "gp"
+      },
+      "tags": [
+        "martial-weapons",
+        "ranged-weapons",
+        "martial-ranged-weapons"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:padded-armor",
+      "name": "Padded Armor",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "armor",
+      "armor": {
+        "category": "light",
+        "base": 11,
+        "stealthDisadvantage": true
+      },
+      "weight": 8,
+      "cost": {
+        "amount": 5,
+        "unit": "gp"
+      },
+      "tags": [
+        "light-armor"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:leather-armor",
+      "name": "Leather Armor",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "armor",
+      "armor": {
+        "category": "light",
+        "base": 11,
+        "stealthDisadvantage": false
+      },
+      "weight": 10,
+      "cost": {
+        "amount": 10,
+        "unit": "gp"
+      },
+      "tags": [
+        "light-armor"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:studded-leather-armor",
+      "name": "Studded Leather Armor",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "armor",
+      "armor": {
+        "category": "light",
+        "base": 12,
+        "stealthDisadvantage": false
+      },
+      "weight": 13,
+      "cost": {
+        "amount": 45,
+        "unit": "gp"
+      },
+      "tags": [
+        "light-armor"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:hide-armor",
+      "name": "Hide Armor",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "armor",
+      "armor": {
+        "category": "medium",
+        "base": 12,
+        "stealthDisadvantage": false
+      },
+      "weight": 12,
+      "cost": {
+        "amount": 10,
+        "unit": "gp"
+      },
+      "tags": [
+        "medium-armor"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:chain-shirt",
+      "name": "Chain Shirt",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "armor",
+      "armor": {
+        "category": "medium",
+        "base": 13,
+        "stealthDisadvantage": false
+      },
+      "weight": 20,
+      "cost": {
+        "amount": 50,
+        "unit": "gp"
+      },
+      "tags": [
+        "medium-armor"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:scale-mail",
+      "name": "Scale Mail",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "armor",
+      "armor": {
+        "category": "medium",
+        "base": 14,
+        "stealthDisadvantage": true
+      },
+      "weight": 45,
+      "cost": {
+        "amount": 50,
+        "unit": "gp"
+      },
+      "tags": [
+        "medium-armor"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:breastplate",
+      "name": "Breastplate",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "armor",
+      "armor": {
+        "category": "medium",
+        "base": 14,
+        "stealthDisadvantage": false
+      },
+      "weight": 20,
+      "cost": {
+        "amount": 400,
+        "unit": "gp"
+      },
+      "tags": [
+        "medium-armor"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:half-plate-armor",
+      "name": "Half Plate Armor",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "armor",
+      "armor": {
+        "category": "medium",
+        "base": 15,
+        "stealthDisadvantage": true
+      },
+      "weight": 40,
+      "cost": {
+        "amount": 750,
+        "unit": "gp"
+      },
+      "tags": [
+        "medium-armor"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:ring-mail",
+      "name": "Ring Mail",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "armor",
+      "armor": {
+        "category": "heavy",
+        "base": 14,
+        "stealthDisadvantage": true
+      },
+      "weight": 40,
+      "cost": {
+        "amount": 30,
+        "unit": "gp"
+      },
+      "tags": [
+        "heavy-armor"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:chain-mail",
+      "name": "Chain Mail",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "armor",
+      "armor": {
+        "category": "heavy",
+        "base": 16,
+        "stealthDisadvantage": true,
+        "strengthRequired": 13
+      },
+      "weight": 55,
+      "cost": {
+        "amount": 75,
+        "unit": "gp"
+      },
+      "tags": [
+        "heavy-armor"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:splint-armor",
+      "name": "Splint Armor",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "armor",
+      "armor": {
+        "category": "heavy",
+        "base": 17,
+        "stealthDisadvantage": true,
+        "strengthRequired": 15
+      },
+      "weight": 60,
+      "cost": {
+        "amount": 200,
+        "unit": "gp"
+      },
+      "tags": [
+        "heavy-armor"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:plate-armor",
+      "name": "Plate Armor",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "armor",
+      "armor": {
+        "category": "heavy",
+        "base": 18,
+        "stealthDisadvantage": true,
+        "strengthRequired": 15
+      },
+      "weight": 65,
+      "cost": {
+        "amount": 1500,
+        "unit": "gp"
+      },
+      "tags": [
+        "heavy-armor"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:shield",
+      "name": "Shield",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "shield",
+      "shieldBonus": 2,
+      "weight": 6,
+      "cost": {
+        "amount": 10,
+        "unit": "gp"
+      },
+      "tags": [
+        "shields"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:abacus",
+      "name": "Abacus",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 2,
+      "cost": {
+        "amount": 2,
+        "unit": "gp"
+      },
+      "tags": [
+        "standard-gear"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:acid-vial",
+      "name": "Acid (vial)",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 1,
+      "cost": {
+        "amount": 25,
+        "unit": "gp"
+      },
+      "tags": [
+        "standard-gear"
+      ],
+      "text": [
+        "As an action, you can splash the contents of this vial onto a creature within 5 feet of you or throw the vial up to 20 feet, shattering it on impact. In either case, make a ranged attack against a creature or object, treating the acid as an improvised weapon.",
+        "On a hit, the target takes 2d6 acid damage."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:alchemists-fire-flask",
+      "name": "Alchemist's fire (flask)",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 1,
+      "cost": {
+        "amount": 50,
+        "unit": "gp"
+      },
+      "tags": [
+        "standard-gear"
+      ],
+      "text": [
+        "This sticky, adhesive fluid ignites when exposed to air.",
+        "As an action, you can throw this flask up to 20 feet, shattering it on impact. Make a ranged attack against a creature or object, treating the alchemist's fire as an improvised weapon.",
+        "On a hit, the target takes 1d4 fire damage at the start of each of its turns. A creature can end this damage by using its action to make a DC 10 Dexterity check to extinguish the flames."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:alms-box",
+      "name": "Alms box",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "cost": {
+        "amount": 0,
+        "unit": "cp"
+      },
+      "tags": [
+        "standard-gear"
+      ],
+      "text": [
+        "A small box for alms, typically found in a priest's pack."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:arrows",
+      "name": "Arrow",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "ammunition",
+      "weight": 1,
+      "cost": {
+        "amount": 1,
+        "unit": "gp"
+      },
+      "tags": [
+        "ammunition",
+        "standard-gear"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:block-of-incense",
+      "name": "Block of incense",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "cost": {
+        "amount": 0,
+        "unit": "cp"
+      },
+      "tags": [
+        "standard-gear"
+      ],
+      "text": [
+        "A block of incense, typically found in a priest's pack."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:blowgun-needle",
+      "name": "Blowgun needle",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "ammunition",
+      "weight": 1,
+      "cost": {
+        "amount": 1,
+        "unit": "gp"
+      },
+      "tags": [
+        "ammunition",
+        "standard-gear"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:censer",
+      "name": "Censer",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "cost": {
+        "amount": 0,
+        "unit": "cp"
+      },
+      "tags": [
+        "standard-gear"
+      ],
+      "text": [
+        "A censer, typically found in a priest's pack."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:crossbow-bolt",
+      "name": "Crossbow bolt",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "ammunition",
+      "weight": 1.5,
+      "cost": {
+        "amount": 1,
+        "unit": "gp"
+      },
+      "tags": [
+        "ammunition",
+        "standard-gear"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:sling-bullet",
+      "name": "Sling bullet",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "ammunition",
+      "weight": 1.5,
+      "cost": {
+        "amount": 4,
+        "unit": "cp"
+      },
+      "tags": [
+        "ammunition",
+        "standard-gear"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:amulet",
+      "name": "Amulet",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "focus",
+      "weight": 1,
+      "cost": {
+        "amount": 5,
+        "unit": "gp"
+      },
+      "tags": [
+        "holy-symbols"
+      ],
+      "text": [
+        "A holy symbol is a representation of a god or pantheon. It might be an amulet depicting a symbol representing a deity, the same symbol carefully engraved or inlaid as an emblem on a shield, or a tiny box holding a fragment of a sacred relic.",
+        "Appendix B lists the symbols commonly associated with many gods in the multiverse. A cleric or paladin can use a holy symbol as a spellcasting focus. To use the symbol in this way, the caster must hold it in hand, wear it visibly, or bear it on a shield."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:antitoxin-vial",
+      "name": "Antitoxin (vial)",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "cost": {
+        "amount": 50,
+        "unit": "gp"
+      },
+      "tags": [
+        "standard-gear"
+      ],
+      "text": [
+        "A creature that drinks this vial of liquid gains advantage on saving throws against poison for 1 hour. It confers no benefit to undead or constructs."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:crystal",
+      "name": "Crystal",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "focus",
+      "weight": 1,
+      "cost": {
+        "amount": 10,
+        "unit": "gp"
+      },
+      "tags": [
+        "arcane-foci"
+      ],
+      "text": [
+        "An arcane focus is a special item--an orb, a crystal, a rod, a specially constructed staff, a wand-like length of wood, or some similar item--designed to channel the power of arcane spells. A sorcerer, warlock, or wizard can use such an item as a spellcasting focus."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:orb",
+      "name": "Orb",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "focus",
+      "weight": 3,
+      "cost": {
+        "amount": 20,
+        "unit": "gp"
+      },
+      "tags": [
+        "arcane-foci"
+      ],
+      "text": [
+        "An arcane focus is a special item--an orb, a crystal, a rod, a specially constructed staff, a wand-like length of wood, or some similar item--designed to channel the power of arcane spells. A sorcerer, warlock, or wizard can use such an item as a spellcasting focus."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:rod",
+      "name": "Rod",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "focus",
+      "weight": 2,
+      "cost": {
+        "amount": 10,
+        "unit": "gp"
+      },
+      "tags": [
+        "arcane-foci"
+      ],
+      "text": [
+        "An arcane focus is a special item--an orb, a crystal, a rod, a specially constructed staff, a wand-like length of wood, or some similar item--designed to channel the power of arcane spells. A sorcerer, warlock, or wizard can use such an item as a spellcasting focus."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:staff",
+      "name": "Staff",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "focus",
+      "weight": 4,
+      "cost": {
+        "amount": 5,
+        "unit": "gp"
+      },
+      "tags": [
+        "arcane-foci"
+      ],
+      "text": [
+        "An arcane focus is a special item--an orb, a crystal, a rod, a specially constructed staff, a wand-like length of wood, or some similar item--designed to channel the power of arcane spells. A sorcerer, warlock, or wizard can use such an item as a spellcasting focus."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:wand",
+      "name": "Wand",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "focus",
+      "weight": 1,
+      "cost": {
+        "amount": 10,
+        "unit": "gp"
+      },
+      "tags": [
+        "arcane-foci"
+      ],
+      "text": [
+        "An arcane focus is a special item--an orb, a crystal, a rod, a specially constructed staff, a wand-like length of wood, or some similar item--designed to channel the power of arcane spells. A sorcerer, warlock, or wizard can use such an item as a spellcasting focus."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:backpack",
+      "name": "Backpack",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 5,
+      "cost": {
+        "amount": 2,
+        "unit": "gp"
+      },
+      "tags": [
+        "standard-gear"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:ball-bearings-bag-of-1-000",
+      "name": "Ball bearings (bag of 1,000)",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 2,
+      "cost": {
+        "amount": 1,
+        "unit": "gp"
+      },
+      "tags": [
+        "standard-gear"
+      ],
+      "text": [
+        "As an action, you can spill these tiny metal balls from their pouch to cover a level, square area that is 10 feet on a side.",
+        "A creature moving across the covered area must succeed on a DC 10 Dexterity saving throw or fall prone.",
+        "A creature moving through the area at half speed doesn't need to make the save."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:barrel",
+      "name": "Barrel",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 70,
+      "cost": {
+        "amount": 2,
+        "unit": "gp"
+      },
+      "tags": [
+        "standard-gear"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:basket",
+      "name": "Basket",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 2,
+      "cost": {
+        "amount": 4,
+        "unit": "sp"
+      },
+      "tags": [
+        "standard-gear"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:bedroll",
+      "name": "Bedroll",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 7,
+      "cost": {
+        "amount": 1,
+        "unit": "gp"
+      },
+      "tags": [
+        "standard-gear"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:bell",
+      "name": "Bell",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "cost": {
+        "amount": 1,
+        "unit": "gp"
+      },
+      "tags": [
+        "standard-gear"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:blanket",
+      "name": "Blanket",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 3,
+      "cost": {
+        "amount": 5,
+        "unit": "sp"
+      },
+      "tags": [
+        "standard-gear"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:block-and-tackle",
+      "name": "Block and tackle",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 5,
+      "cost": {
+        "amount": 1,
+        "unit": "gp"
+      },
+      "tags": [
+        "standard-gear"
+      ],
+      "text": [
+        "A set of pulleys with a cable threaded through them and a hook to attach to objects, a block and tackle allows you to hoist up to four times the weight you can normally lift."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:book",
+      "name": "Book",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 5,
+      "cost": {
+        "amount": 25,
+        "unit": "gp"
+      },
+      "tags": [
+        "standard-gear"
+      ],
+      "text": [
+        "A book might contain poetry, historical accounts, information pertaining to a particular field of lore, diagrams and notes on gnomish contraptions, or just about anything else that can be represented using text or pictures. A book of spells is a spellbook (described later in this section)."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:glass-bottle",
+      "name": "Glass Bottle",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 2,
+      "cost": {
+        "amount": 2,
+        "unit": "gp"
+      },
+      "tags": [
+        "standard-gear"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:bucket",
+      "name": "Bucket",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 2,
+      "cost": {
+        "amount": 5,
+        "unit": "cp"
+      },
+      "tags": [
+        "standard-gear"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:caltrops",
+      "name": "Caltrops",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 2,
+      "cost": {
+        "amount": 5,
+        "unit": "cp"
+      },
+      "tags": [
+        "standard-gear"
+      ],
+      "text": [
+        "As an action, you can spread a bag of caltrops to cover a square area that is 5 feet on a side.",
+        "Any creature that enters the area must succeed on a DC 15 Dexterity saving throw or stop moving this turn and take 1 piercing damage.",
+        "Taking this damage reduces the creature's walking speed by 10 feet until the creature regains at least 1 hit point.",
+        "A creature moving through the area at half speed doesn't need to make the save."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:candle",
+      "name": "Candle",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "cost": {
+        "amount": 1,
+        "unit": "cp"
+      },
+      "tags": [
+        "standard-gear"
+      ],
+      "text": [
+        "For 1 hour, a candle sheds bright light in a 5-foot radius and dim light for an additional 5 feet."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:crossbow-bolt-case",
+      "name": "Crossbow bolt Case",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 1,
+      "cost": {
+        "amount": 1,
+        "unit": "gp"
+      },
+      "tags": [
+        "standard-gear"
+      ],
+      "text": [
+        "This wooden case can hold up to twenty crossbow bolts."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:map-or-scroll-case",
+      "name": "Map or scroll Case",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 1,
+      "cost": {
+        "amount": 1,
+        "unit": "gp"
+      },
+      "tags": [
+        "standard-gear"
+      ],
+      "text": [
+        "This cylindrical leather case can hold up to ten rolled-up sheets of paper or five rolled-up sheets of parchment."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:chain-10-feet",
+      "name": "Chain (10 feet)",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 10,
+      "cost": {
+        "amount": 5,
+        "unit": "gp"
+      },
+      "tags": [
+        "standard-gear"
+      ],
+      "text": [
+        "A chain has 10 hit points. It can be burst with a successful DC 20 Strength check."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:chalk-1-piece",
+      "name": "Chalk (1 piece)",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "cost": {
+        "amount": 1,
+        "unit": "cp"
+      },
+      "tags": [
+        "standard-gear"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:chest",
+      "name": "Chest",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 25,
+      "cost": {
+        "amount": 5,
+        "unit": "gp"
+      },
+      "tags": [
+        "standard-gear"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:common-clothes",
+      "name": "Common Clothes",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 3,
+      "cost": {
+        "amount": 5,
+        "unit": "sp"
+      },
+      "tags": [
+        "standard-gear"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:costume-clothes",
+      "name": "Costume Clothes",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 4,
+      "cost": {
+        "amount": 5,
+        "unit": "gp"
+      },
+      "tags": [
+        "standard-gear"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:fine-clothes",
+      "name": "Fine Clothes",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 6,
+      "cost": {
+        "amount": 15,
+        "unit": "gp"
+      },
+      "tags": [
+        "standard-gear"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:travelers-clothes",
+      "name": "Traveler's Clothes",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 4,
+      "cost": {
+        "amount": 2,
+        "unit": "gp"
+      },
+      "tags": [
+        "standard-gear"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:component-pouch",
+      "name": "Component pouch",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 2,
+      "cost": {
+        "amount": 25,
+        "unit": "gp"
+      },
+      "tags": [
+        "standard-gear"
+      ],
+      "text": [
+        "A component pouch is a small, watertight leather belt pouch that has compartments to hold all the material components and other special items you need to cast your spells, except for those components that have a specific cost (as indicated in a spell's description)."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:crowbar",
+      "name": "Crowbar",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 5,
+      "cost": {
+        "amount": 2,
+        "unit": "gp"
+      },
+      "tags": [
+        "standard-gear"
+      ],
+      "text": [
+        "Using a crowbar grants advantage to Strength checks where the crowbar's leverage can be applied."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:sprig-of-mistletoe",
+      "name": "Sprig of mistletoe",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "focus",
+      "cost": {
+        "amount": 1,
+        "unit": "gp"
+      },
+      "tags": [
+        "druidic-foci"
+      ],
+      "text": [
+        "A druidic focus might be a sprig of mistletoe or holly, a wand or scepter made of yew or another special wood, a staff drawn whole out of a living tree, or a totem object incorporating feathers, fur, bones, and teeth from sacred animals. A druid can use such an object as a spellcasting focus."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:totem",
+      "name": "Totem",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "focus",
+      "cost": {
+        "amount": 1,
+        "unit": "gp"
+      },
+      "tags": [
+        "druidic-foci"
+      ],
+      "text": [
+        "A druidic focus might be a sprig of mistletoe or holly, a wand or scepter made of yew or another special wood, a staff drawn whole out of a living tree, or a totem object incorporating feathers, fur, bones, and teeth from sacred animals. A druid can use such an object as a spellcasting focus."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:wooden-staff",
+      "name": "Wooden staff",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "focus",
+      "weight": 4,
+      "cost": {
+        "amount": 5,
+        "unit": "gp"
+      },
+      "tags": [
+        "druidic-foci"
+      ],
+      "text": [
+        "A druidic focus might be a sprig of mistletoe or holly, a wand or scepter made of yew or another special wood, a staff drawn whole out of a living tree, or a totem object incorporating feathers, fur, bones, and teeth from sacred animals. A druid can use such an object as a spellcasting focus."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:yew-wand",
+      "name": "Yew wand",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "focus",
+      "weight": 1,
+      "cost": {
+        "amount": 10,
+        "unit": "gp"
+      },
+      "tags": [
+        "druidic-foci"
+      ],
+      "text": [
+        "A druidic focus might be a sprig of mistletoe or holly, a wand or scepter made of yew or another special wood, a staff drawn whole out of a living tree, or a totem object incorporating feathers, fur, bones, and teeth from sacred animals. A druid can use such an object as a spellcasting focus."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:emblem",
+      "name": "Emblem",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "focus",
+      "cost": {
+        "amount": 5,
+        "unit": "gp"
+      },
+      "tags": [
+        "holy-symbols"
+      ],
+      "text": [
+        "A holy symbol is a representation of a god or pantheon. It might be an amulet depicting a symbol representing a deity, the same symbol carefully engraved or inlaid as an emblem on a shield, or a tiny box holding a fragment of a sacred relic.",
+        "Appendix B lists the symbols commonly associated with many gods in the multiverse. A cleric or paladin can use a holy symbol as a spellcasting focus. To use the symbol in this way, the caster must hold it in hand, wear it visibly, or bear it on a shield."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:fishing-tackle",
+      "name": "Fishing tackle",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 4,
+      "cost": {
+        "amount": 1,
+        "unit": "gp"
+      },
+      "tags": [
+        "standard-gear"
+      ],
+      "text": [
+        "This kit includes a wooden rod, silken line, corkwood bobbers, steel hooks, lead sinkers, velvet lures, and narrow netting."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:flask-or-tankard",
+      "name": "Flask or tankard",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 1,
+      "cost": {
+        "amount": 2,
+        "unit": "cp"
+      },
+      "tags": [
+        "standard-gear"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:grappling-hook",
+      "name": "Grappling hook",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 4,
+      "cost": {
+        "amount": 2,
+        "unit": "gp"
+      },
+      "tags": [
+        "standard-gear"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:hammer",
+      "name": "Hammer",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 3,
+      "cost": {
+        "amount": 1,
+        "unit": "gp"
+      },
+      "tags": [
+        "standard-gear"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:sledge-hammer",
+      "name": "Sledge Hammer",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 10,
+      "cost": {
+        "amount": 2,
+        "unit": "gp"
+      },
+      "tags": [
+        "standard-gear"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:holy-water-flask",
+      "name": "Holy water (flask)",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 1,
+      "cost": {
+        "amount": 25,
+        "unit": "gp"
+      },
+      "tags": [
+        "standard-gear"
+      ],
+      "text": [
+        "As an action, you can splash the contents of this flask onto a creature within 5 feet of you or throw it up to 20 feet, shattering it on impact. In either case, make a ranged attack against a target creature, treating the holy water as an improvised weapon.",
+        "If the target is a fiend or undead, it takes 2d6 radiant damage.",
+        "A cleric or paladin may create holy water by performing a special ritual.",
+        "The ritual takes 1 hour to perform, uses 25 gp worth of powdered silver, and requires the caster to expend a 1st-level spell slot."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:hourglass",
+      "name": "Hourglass",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 1,
+      "cost": {
+        "amount": 25,
+        "unit": "gp"
+      },
+      "tags": [
+        "standard-gear",
+        "standard-gear"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:hunting-trap",
+      "name": "Hunting trap",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 25,
+      "cost": {
+        "amount": 5,
+        "unit": "gp"
+      },
+      "tags": [
+        "standard-gear",
+        "standard-gear"
+      ],
+      "text": [
+        "When you use your action to set it, this trap forms a saw-toothed steel ring that snaps shut when a creature steps on a pressure plate in the center. The trap is affixed by a heavy chain to an immobile object, such as a tree or a spike driven into the ground.",
+        "A creature that steps on the plate must succeed on a DC 13 Dexterity saving throw or take 1d4 piercing damage and stop moving. Thereafter, until the creature breaks free of the trap, its movement is limited by the length of the chain (typically 3 feet long).",
+        "A creature can use its action to make a DC 13 Strength check, freeing itself or another creature within its reach on a success. Each failed check deals 1 piercing damage to the trapped creature."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:ink-1-ounce-bottle",
+      "name": "Ink (1 ounce bottle)",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "cost": {
+        "amount": 10,
+        "unit": "gp"
+      },
+      "tags": [
+        "standard-gear",
+        "standard-gear"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:ink-pen",
+      "name": "Ink pen",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "cost": {
+        "amount": 2,
+        "unit": "cp"
+      },
+      "tags": [
+        "standard-gear",
+        "standard-gear"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:jug-or-pitcher",
+      "name": "Jug or pitcher",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 4,
+      "cost": {
+        "amount": 2,
+        "unit": "cp"
+      },
+      "tags": [
+        "standard-gear"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:climbers-kit",
+      "name": "Climber's Kit",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 12,
+      "cost": {
+        "amount": 25,
+        "unit": "gp"
+      },
+      "tags": [
+        "kits"
+      ],
+      "text": [
+        "A climber's kit includes special pitons, boot tips, gloves, and a harness. You can use the climber's kit as an action to anchor yourself; when you do, you can't fall more than 25 feet from the point where you anchored yourself, and you can't climb more than 25 feet away from that point without undoing the anchor."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:disguise-kit",
+      "name": "Disguise Kit",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 3,
+      "cost": {
+        "amount": 25,
+        "unit": "gp"
+      },
+      "tags": [
+        "kits"
+      ],
+      "text": [
+        "This pouch of cosmetics, hair dye, and small props lets you create disguises that change your physical appearance. Proficiency with this kit lets you add your proficiency bonus to any ability checks you make to create a visual disguise."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:forgery-kit",
+      "name": "Forgery Kit",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 5,
+      "cost": {
+        "amount": 15,
+        "unit": "gp"
+      },
+      "tags": [
+        "kits"
+      ],
+      "text": [
+        "This small box contains a variety of papers and parchments, pens and inks, seals and sealing wax, gold and silver leaf, and other supplies necessary to create convincing forgeries of physical documents. Proficiency with this kit lets you add your proficiency bonus to any ability checks you make to create a physical forgery of a document."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:herbalism-kit",
+      "name": "Herbalism Kit",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 3,
+      "cost": {
+        "amount": 5,
+        "unit": "gp"
+      },
+      "tags": [
+        "kits"
+      ],
+      "text": [
+        "This kit contains a variety of instruments such as clippers, mortar and pestle, and pouches and vials used by herbalists to create remedies and potions. Proficiency with this kit lets you add your proficiency bonus to any ability checks you make to identify or apply herbs. Also, proficiency with this kit is required to create antitoxin and potions of healing."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:healers-kit",
+      "name": "Healer's Kit",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 3,
+      "cost": {
+        "amount": 5,
+        "unit": "gp"
+      },
+      "tags": [
+        "kits"
+      ],
+      "text": [
+        "This kit is a leather pouch containing bandages, salves, and splints. The kit has ten uses. As an action, you can expend one use of the kit to stabilize a creature that has 0 hit points, without needing to make a Wisdom (Medicine) check."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:mess-kit",
+      "name": "Mess Kit",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 1,
+      "cost": {
+        "amount": 2,
+        "unit": "sp"
+      },
+      "tags": [
+        "kits"
+      ],
+      "text": [
+        "This tin box contains a cup and simple cutlery. The box clamps together, and one side can be used as a cooking pan and the other as a plate or shallow bowl."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:poisoners-kit",
+      "name": "Poisoner's Kit",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 2,
+      "cost": {
+        "amount": 50,
+        "unit": "gp"
+      },
+      "tags": [
+        "kits"
+      ],
+      "text": [
+        "A poisoner's kit includes the vials, chemicals, and other equipment necessary for the creation of poisons. Proficiency with this kit lets you add your proficiency bonus to any ability checks you make to craft or use poisons."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:ladder-10-foot",
+      "name": "Ladder (10-foot)",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 25,
+      "cost": {
+        "amount": 1,
+        "unit": "sp"
+      },
+      "tags": [
+        "standard-gear"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:lamp",
+      "name": "Lamp",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 1,
+      "cost": {
+        "amount": 5,
+        "unit": "sp"
+      },
+      "tags": [
+        "standard-gear"
+      ],
+      "text": [
+        "A lamp casts bright light in a 15-foot radius and dim light for an additional 30 feet. Once lit, it burns for 6 hours on a flask (1 pint) of oil."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:bullseye-lantern",
+      "name": "Bullseye Lantern",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 2,
+      "cost": {
+        "amount": 10,
+        "unit": "gp"
+      },
+      "tags": [
+        "standard-gear"
+      ],
+      "text": [
+        "A bullseye lantern casts bright light in a 60-foot cone and dim light for an additional 60 feet. Once lit, it burns for 6 hours on a flask (1 pint) of oil."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:hooded-lantern",
+      "name": "Hooded Lantern",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 2,
+      "cost": {
+        "amount": 5,
+        "unit": "gp"
+      },
+      "tags": [
+        "standard-gear"
+      ],
+      "text": [
+        "A hooded lantern casts bright light in a 30-foot radius and dim light for an additional 30 feet. Once lit, it burns for 6 hours on a flask (1 pint) of oil. As an action, you can lower the hood, reducing the light to dim light in a 5-foot radius."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:little-bag-of-sand",
+      "name": "Little bag of sand",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "cost": {
+        "amount": 0,
+        "unit": "cp"
+      },
+      "tags": [
+        "standard-gear"
+      ],
+      "text": [
+        "A small bag of sand, typically found in a scholar's pack."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:lock",
+      "name": "Lock",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 1,
+      "cost": {
+        "amount": 10,
+        "unit": "gp"
+      },
+      "tags": [
+        "standard-gear"
+      ],
+      "text": [
+        "A key is provided with the lock. Without the key, a creature proficient with thieves' tools can pick this lock with a successful DC 15 Dexterity check. Your GM may decide that better locks are available for higher prices."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:magnifying-glass",
+      "name": "Magnifying glass",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "cost": {
+        "amount": 100,
+        "unit": "gp"
+      },
+      "tags": [
+        "standard-gear"
+      ],
+      "text": [
+        "This lens allows a closer look at small objects. It is also useful as a substitute for flint and steel when starting fires. Lighting a fire with a magnifying glass requires light as bright as sunlight to focus, tinder to ignite, and about 5 minutes for the fire to ignite.",
+        "A magnifying glass grants advantage on any ability check made to appraise or inspect an item that is small or highly detailed."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:manacles",
+      "name": "Manacles",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 6,
+      "cost": {
+        "amount": 2,
+        "unit": "gp"
+      },
+      "tags": [
+        "standard-gear"
+      ],
+      "text": [
+        "These metal restraints can bind a Small or Medium creature. Escaping the manacles requires a successful DC 20 Dexterity check. Breaking them requires a successful DC 20 Strength check.",
+        "Each set of manacles comes with one key. Without the key, a creature proficient with thieves' tools can pick the manacles' lock with a successful DC 15 Dexterity check. Manacles have 15 hit points."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:steel-mirror",
+      "name": "Steel Mirror",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 0.5,
+      "cost": {
+        "amount": 5,
+        "unit": "gp"
+      },
+      "tags": [
+        "standard-gear"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:oil-flask",
+      "name": "Oil (flask)",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 1,
+      "cost": {
+        "amount": 1,
+        "unit": "sp"
+      },
+      "tags": [
+        "standard-gear"
+      ],
+      "text": [
+        "Oil usually comes in a clay flask that holds 1 pint.",
+        "As an action, you can splash the oil in this flask onto a creature within 5 feet of you or throw it up to 20 feet, shattering it on impact. Make a ranged attack against a target creature or object, treating the oil as an improvised weapon.",
+        "On a hit, the target is covered in oil. If the target takes any fire damage before the oil dries (after 1 minute), the target takes an additional 5 fire damage from the burning oil.",
+        "You can also pour a flask of oil on the ground to cover a 5-foot-square area, provided that the surface is level.",
+        "If lit, the oil burns for 2 rounds and deals 5 fire damage to any creature that enters the area or ends its turn in the area. A creature can take this damage only once per turn."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:paper-one-sheet",
+      "name": "Paper (one sheet)",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "cost": {
+        "amount": 2,
+        "unit": "sp"
+      },
+      "tags": [
+        "standard-gear"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:parchment-one-sheet",
+      "name": "Parchment (one sheet)",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "cost": {
+        "amount": 1,
+        "unit": "sp"
+      },
+      "tags": [
+        "standard-gear"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:perfume-vial",
+      "name": "Perfume (vial)",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "cost": {
+        "amount": 5,
+        "unit": "gp"
+      },
+      "tags": [
+        "standard-gear"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:miners-pick",
+      "name": "Miner's Pick",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 10,
+      "cost": {
+        "amount": 2,
+        "unit": "gp"
+      },
+      "tags": [
+        "standard-gear"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:piton",
+      "name": "Piton",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 0.25,
+      "cost": {
+        "amount": 5,
+        "unit": "cp"
+      },
+      "tags": [
+        "standard-gear"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:poison-basic-vial",
+      "name": "Poison, basic (vial)",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "cost": {
+        "amount": 100,
+        "unit": "gp"
+      },
+      "tags": [
+        "standard-gear"
+      ],
+      "text": [
+        "You can use the poison in this vial to coat one slashing or piercing weapon or up to three pieces of ammunition. Applying the poison takes an action. A creature hit by the poisoned weapon or ammunition must make a DC 10 Constitution saving throw or take 1d4 poison damage. Once applied, the poison retains potency for 1 minute before drying."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:pole-10-foot",
+      "name": "Pole (10-foot)",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 7,
+      "cost": {
+        "amount": 5,
+        "unit": "cp"
+      },
+      "tags": [
+        "standard-gear"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:iron-pot",
+      "name": "Iron Pot",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 10,
+      "cost": {
+        "amount": 2,
+        "unit": "gp"
+      },
+      "tags": [
+        "standard-gear"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:pouch",
+      "name": "Pouch",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 1,
+      "cost": {
+        "amount": 5,
+        "unit": "sp"
+      },
+      "tags": [
+        "standard-gear"
+      ],
+      "text": [
+        "A cloth or leather pouch can hold up to 20 sling bullets or 50 blowgun needles, among other things. A compartmentalized pouch for holding spell components is called a component pouch (described earlier in this section)."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:quiver",
+      "name": "Quiver",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 1,
+      "cost": {
+        "amount": 1,
+        "unit": "gp"
+      },
+      "tags": [
+        "standard-gear"
+      ],
+      "text": [
+        "A quiver can hold up to 20 arrows."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:portable-ram",
+      "name": "Portable Ram",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 35,
+      "cost": {
+        "amount": 4,
+        "unit": "gp"
+      },
+      "tags": [
+        "standard-gear"
+      ],
+      "text": [
+        "You can use a portable ram to break down doors. When doing so, you gain a +4 bonus on the Strength check. One other character can help you use the ram, giving you advantage on this check."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:rations-1-day",
+      "name": "Rations (1 day)",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 2,
+      "cost": {
+        "amount": 5,
+        "unit": "sp"
+      },
+      "tags": [
+        "standard-gear"
+      ],
+      "text": [
+        "Rations consist of dry foods suitable for extended travel, including jerky, dried fruit, hardtack, and nuts."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:reliquary",
+      "name": "Reliquary",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "focus",
+      "weight": 2,
+      "cost": {
+        "amount": 5,
+        "unit": "gp"
+      },
+      "tags": [
+        "holy-symbols"
+      ],
+      "text": [
+        "A holy symbol is a representation of a god or pantheon. It might be an amulet depicting a symbol representing a deity, the same symbol carefully engraved or inlaid as an emblem on a shield, or a tiny box holding a fragment of a sacred relic.",
+        "Appendix B lists the symbols commonly associated with many gods in the multiverse. A cleric or paladin can use a holy symbol as a spellcasting focus. To use the symbol in this way, the caster must hold it in hand, wear it visibly, or bear it on a shield."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:robes",
+      "name": "Robes",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 4,
+      "cost": {
+        "amount": 1,
+        "unit": "gp"
+      },
+      "tags": [
+        "standard-gear"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:rope-hempen-50-feet",
+      "name": "Rope, hempen (50 feet)",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 10,
+      "cost": {
+        "amount": 1,
+        "unit": "gp"
+      },
+      "tags": [
+        "standard-gear"
+      ],
+      "text": [
+        "Rope, whether made of hemp or silk, has 2 hit points and can be burst with a DC 17 Strength check."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:rope-silk-50-feet",
+      "name": "Rope, silk (50 feet)",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 5,
+      "cost": {
+        "amount": 10,
+        "unit": "gp"
+      },
+      "tags": [
+        "standard-gear"
+      ],
+      "text": [
+        "Rope, whether made of hemp or silk, has 2 hit points and can be burst with a DC 17 Strength check."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:sack",
+      "name": "Sack",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 0.5,
+      "cost": {
+        "amount": 1,
+        "unit": "cp"
+      },
+      "tags": [
+        "standard-gear"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:merchants-scale",
+      "name": "Merchant's Scale",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 3,
+      "cost": {
+        "amount": 5,
+        "unit": "gp"
+      },
+      "tags": [
+        "standard-gear"
+      ],
+      "text": [
+        "A scale includes a small balance, pans, and a suitable assortment of weights up to 2 pounds. With it, you can measure the exact weight of small objects, such as raw precious metals or trade goods, to help determine their worth."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:sealing-wax",
+      "name": "Sealing wax",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "cost": {
+        "amount": 5,
+        "unit": "sp"
+      },
+      "tags": [
+        "standard-gear"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:shovel",
+      "name": "Shovel",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 5,
+      "cost": {
+        "amount": 2,
+        "unit": "gp"
+      },
+      "tags": [
+        "standard-gear"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:signal-whistle",
+      "name": "Signal whistle",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "cost": {
+        "amount": 5,
+        "unit": "cp"
+      },
+      "tags": [
+        "standard-gear"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:signet-ring",
+      "name": "Signet ring",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "cost": {
+        "amount": 5,
+        "unit": "gp"
+      },
+      "tags": [
+        "standard-gear"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:small-knife",
+      "name": "Small knife",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "cost": {
+        "amount": 0,
+        "unit": "cp"
+      },
+      "tags": [
+        "standard-gear"
+      ],
+      "text": [
+        "A small knife, typically found in a scholar's pack."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:soap",
+      "name": "Soap",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "cost": {
+        "amount": 2,
+        "unit": "cp"
+      },
+      "tags": [
+        "standard-gear"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:spellbook",
+      "name": "Spellbook",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 3,
+      "cost": {
+        "amount": 50,
+        "unit": "gp"
+      },
+      "tags": [
+        "standard-gear"
+      ],
+      "text": [
+        "Essential for wizards, a spellbook is a leather-bound tome with 100 blank vellum pages suitable for recording spells."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:iron-spike",
+      "name": "Iron Spike",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 5,
+      "cost": {
+        "amount": 1,
+        "unit": "sp"
+      },
+      "tags": [
+        "standard-gear"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:spyglass",
+      "name": "Spyglass",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 1,
+      "cost": {
+        "amount": 1000,
+        "unit": "gp"
+      },
+      "tags": [
+        "standard-gear"
+      ],
+      "text": [
+        "Objects viewed through a spyglass are magnified to twice their size."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:string-10-feet",
+      "name": "String (10 feet)",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "cost": {
+        "amount": 0,
+        "unit": "cp"
+      },
+      "tags": [
+        "standard-gear"
+      ],
+      "text": [
+        "A 10-foot length of string, typically found in a burglar's pack."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:two-person-tent",
+      "name": "Two-person Tent",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 20,
+      "cost": {
+        "amount": 2,
+        "unit": "gp"
+      },
+      "tags": [
+        "standard-gear"
+      ],
+      "text": [
+        "A simple and portable canvas shelter, a tent sleeps two."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:tinderbox",
+      "name": "Tinderbox",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 1,
+      "cost": {
+        "amount": 5,
+        "unit": "sp"
+      },
+      "tags": [
+        "standard-gear"
+      ],
+      "text": [
+        "This small container holds flint, fire steel, and tinder (usually dry cloth soaked in light oil) used to kindle a fire. Using it to light a torch--or anything else with abundant, exposed fuel--takes an action.",
+        "Lighting any other fire takes 1 minute."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:torch",
+      "name": "Torch",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 1,
+      "cost": {
+        "amount": 1,
+        "unit": "cp"
+      },
+      "tags": [
+        "standard-gear"
+      ],
+      "text": [
+        "A torch burns for 1 hour, providing bright light in a 20-foot radius and dim light for an additional 20 feet. If you make a melee attack with a burning torch and hit, it deals 1 fire damage."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:vestments",
+      "name": "Vestments",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "cost": {
+        "amount": 0,
+        "unit": "cp"
+      },
+      "tags": [
+        "standard-gear"
+      ],
+      "text": [
+        "Religious clothing, typically found in a priest's pack."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:vial",
+      "name": "Vial",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "cost": {
+        "amount": 1,
+        "unit": "gp"
+      },
+      "tags": [
+        "standard-gear"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:waterskin",
+      "name": "Waterskin",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 5,
+      "cost": {
+        "amount": 2,
+        "unit": "sp"
+      },
+      "tags": [
+        "standard-gear"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:whetstone",
+      "name": "Whetstone",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 1,
+      "cost": {
+        "amount": 1,
+        "unit": "cp"
+      },
+      "tags": [
+        "standard-gear"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:burglars-pack",
+      "name": "Burglar's Pack",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "cost": {
+        "amount": 16,
+        "unit": "gp"
+      },
+      "tags": [
+        "equipment-packs"
+      ],
+      "contents": [
+        {
+          "item": "item:backpack",
+          "quantity": 1
+        },
+        {
+          "item": "item:ball-bearings-bag-of-1-000",
+          "quantity": 1
+        },
+        {
+          "item": "item:string-10-feet",
+          "quantity": 1
+        },
+        {
+          "item": "item:bell",
+          "quantity": 1
+        },
+        {
+          "item": "item:candle",
+          "quantity": 5
+        },
+        {
+          "item": "item:crowbar",
+          "quantity": 1
+        },
+        {
+          "item": "item:hammer",
+          "quantity": 1
+        },
+        {
+          "item": "item:piton",
+          "quantity": 10
+        },
+        {
+          "item": "item:hooded-lantern",
+          "quantity": 1
+        },
+        {
+          "item": "item:oil-flask",
+          "quantity": 2
+        },
+        {
+          "item": "item:rations-1-day",
+          "quantity": 5
+        },
+        {
+          "item": "item:tinderbox",
+          "quantity": 1
+        },
+        {
+          "item": "item:waterskin",
+          "quantity": 1
+        },
+        {
+          "item": "item:rope-hempen-50-feet",
+          "quantity": 1
+        }
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:diplomats-pack",
+      "name": "Diplomat's Pack",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "cost": {
+        "amount": 39,
+        "unit": "gp"
+      },
+      "tags": [
+        "equipment-packs"
+      ],
+      "contents": [
+        {
+          "item": "item:chest",
+          "quantity": 1
+        },
+        {
+          "item": "item:map-or-scroll-case",
+          "quantity": 2
+        },
+        {
+          "item": "item:fine-clothes",
+          "quantity": 1
+        },
+        {
+          "item": "item:ink-1-ounce-bottle",
+          "quantity": 1
+        },
+        {
+          "item": "item:ink-pen",
+          "quantity": 1
+        },
+        {
+          "item": "item:lamp",
+          "quantity": 1
+        },
+        {
+          "item": "item:oil-flask",
+          "quantity": 2
+        },
+        {
+          "item": "item:paper-one-sheet",
+          "quantity": 5
+        },
+        {
+          "item": "item:perfume-vial",
+          "quantity": 1
+        },
+        {
+          "item": "item:sealing-wax",
+          "quantity": 1
+        },
+        {
+          "item": "item:soap",
+          "quantity": 1
+        }
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:dungeoneers-pack",
+      "name": "Dungeoneer's Pack",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "cost": {
+        "amount": 12,
+        "unit": "gp"
+      },
+      "tags": [
+        "equipment-packs"
+      ],
+      "contents": [
+        {
+          "item": "item:backpack",
+          "quantity": 1
+        },
+        {
+          "item": "item:crowbar",
+          "quantity": 1
+        },
+        {
+          "item": "item:hammer",
+          "quantity": 1
+        },
+        {
+          "item": "item:piton",
+          "quantity": 10
+        },
+        {
+          "item": "item:torch",
+          "quantity": 10
+        },
+        {
+          "item": "item:tinderbox",
+          "quantity": 1
+        },
+        {
+          "item": "item:rations-1-day",
+          "quantity": 10
+        },
+        {
+          "item": "item:waterskin",
+          "quantity": 1
+        },
+        {
+          "item": "item:rope-hempen-50-feet",
+          "quantity": 1
+        }
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:entertainers-pack",
+      "name": "Entertainer's Pack",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "cost": {
+        "amount": 40,
+        "unit": "gp"
+      },
+      "tags": [
+        "equipment-packs"
+      ],
+      "contents": [
+        {
+          "item": "item:backpack",
+          "quantity": 1
+        },
+        {
+          "item": "item:bedroll",
+          "quantity": 1
+        },
+        {
+          "item": "item:costume-clothes",
+          "quantity": 2
+        },
+        {
+          "item": "item:candle",
+          "quantity": 5
+        },
+        {
+          "item": "item:rations-1-day",
+          "quantity": 5
+        },
+        {
+          "item": "item:waterskin",
+          "quantity": 1
+        },
+        {
+          "item": "item:disguise-kit",
+          "quantity": 1
+        }
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:explorers-pack",
+      "name": "Explorer's Pack",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "cost": {
+        "amount": 10,
+        "unit": "gp"
+      },
+      "tags": [
+        "equipment-packs"
+      ],
+      "contents": [
+        {
+          "item": "item:backpack",
+          "quantity": 1
+        },
+        {
+          "item": "item:bedroll",
+          "quantity": 1
+        },
+        {
+          "item": "item:mess-kit",
+          "quantity": 1
+        },
+        {
+          "item": "item:tinderbox",
+          "quantity": 1
+        },
+        {
+          "item": "item:torch",
+          "quantity": 10
+        },
+        {
+          "item": "item:rations-1-day",
+          "quantity": 10
+        },
+        {
+          "item": "item:waterskin",
+          "quantity": 1
+        },
+        {
+          "item": "item:rope-hempen-50-feet",
+          "quantity": 1
+        }
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:priests-pack",
+      "name": "Priest's Pack",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "cost": {
+        "amount": 19,
+        "unit": "gp"
+      },
+      "tags": [
+        "equipment-packs"
+      ],
+      "contents": [
+        {
+          "item": "item:backpack",
+          "quantity": 1
+        },
+        {
+          "item": "item:blanket",
+          "quantity": 1
+        },
+        {
+          "item": "item:candle",
+          "quantity": 10
+        },
+        {
+          "item": "item:tinderbox",
+          "quantity": 1
+        },
+        {
+          "item": "item:rations-1-day",
+          "quantity": 2
+        },
+        {
+          "item": "item:waterskin",
+          "quantity": 1
+        },
+        {
+          "item": "item:alms-box",
+          "quantity": 1
+        },
+        {
+          "item": "item:block-of-incense",
+          "quantity": 2
+        },
+        {
+          "item": "item:censer",
+          "quantity": 1
+        },
+        {
+          "item": "item:vestments",
+          "quantity": 1
+        }
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:scholars-pack",
+      "name": "Scholar's Pack",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "cost": {
+        "amount": 40,
+        "unit": "gp"
+      },
+      "tags": [
+        "equipment-packs"
+      ],
+      "contents": [
+        {
+          "item": "item:backpack",
+          "quantity": 1
+        },
+        {
+          "item": "item:book",
+          "quantity": 1
+        },
+        {
+          "item": "item:ink-1-ounce-bottle",
+          "quantity": 1
+        },
+        {
+          "item": "item:ink-pen",
+          "quantity": 1
+        },
+        {
+          "item": "item:parchment-one-sheet",
+          "quantity": 10
+        },
+        {
+          "item": "item:little-bag-of-sand",
+          "quantity": 1
+        },
+        {
+          "item": "item:small-knife",
+          "quantity": 1
+        }
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:alchemists-supplies",
+      "name": "Alchemist's Supplies",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "tool",
+      "weight": 8,
+      "cost": {
+        "amount": 50,
+        "unit": "gp"
+      },
+      "tags": [
+        "artisans-tools"
+      ],
+      "text": [
+        "These special tools include the items needed to pursue a craft or trade. The table shows examples of the most common types of tools, each providing items related to a single craft. Proficiency with a set of artisan's tools lets you add your proficiency bonus to any ability checks you make using the tools in your craft. Each type of artisan's tools requires a separate proficiency."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:brewers-supplies",
+      "name": "Brewer's Supplies",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "tool",
+      "weight": 9,
+      "cost": {
+        "amount": 20,
+        "unit": "gp"
+      },
+      "tags": [
+        "artisans-tools"
+      ],
+      "text": [
+        "These special tools include the items needed to pursue a craft or trade. The table shows examples of the most common types of tools, each providing items related to a single craft. Proficiency with a set of artisan's tools lets you add your proficiency bonus to any ability checks you make using the tools in your craft. Each type of artisan's tools requires a separate proficiency."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:calligraphers-supplies",
+      "name": "Calligrapher's Supplies",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "tool",
+      "weight": 5,
+      "cost": {
+        "amount": 10,
+        "unit": "gp"
+      },
+      "tags": [
+        "artisans-tools"
+      ],
+      "text": [
+        "These special tools include the items needed to pursue a craft or trade. The table shows examples of the most common types of tools, each providing items related to a single craft. Proficiency with a set of artisan's tools lets you add your proficiency bonus to any ability checks you make using the tools in your craft. Each type of artisan's tools requires a separate proficiency."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:carpenters-tools",
+      "name": "Carpenter's Tools",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "tool",
+      "weight": 6,
+      "cost": {
+        "amount": 8,
+        "unit": "gp"
+      },
+      "tags": [
+        "artisans-tools"
+      ],
+      "text": [
+        "These special tools include the items needed to pursue a craft or trade. The table shows examples of the most common types of tools, each providing items related to a single craft. Proficiency with a set of artisan's tools lets you add your proficiency bonus to any ability checks you make using the tools in your craft. Each type of artisan's tools requires a separate proficiency."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:cartographers-tools",
+      "name": "Cartographer's Tools",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "tool",
+      "weight": 6,
+      "cost": {
+        "amount": 15,
+        "unit": "gp"
+      },
+      "tags": [
+        "artisans-tools"
+      ],
+      "text": [
+        "These special tools include the items needed to pursue a craft or trade. The table shows examples of the most common types of tools, each providing items related to a single craft. Proficiency with a set of artisan's tools lets you add your proficiency bonus to any ability checks you make using the tools in your craft. Each type of artisan's tools requires a separate proficiency."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:cobblers-tools",
+      "name": "Cobbler's Tools",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "tool",
+      "weight": 5,
+      "cost": {
+        "amount": 5,
+        "unit": "gp"
+      },
+      "tags": [
+        "artisans-tools"
+      ],
+      "text": [
+        "These special tools include the items needed to pursue a craft or trade. The table shows examples of the most common types of tools, each providing items related to a single craft. Proficiency with a set of artisan's tools lets you add your proficiency bonus to any ability checks you make using the tools in your craft. Each type of artisan's tools requires a separate proficiency."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:cooks-utensils",
+      "name": "Cook's utensils",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "tool",
+      "weight": 8,
+      "cost": {
+        "amount": 1,
+        "unit": "gp"
+      },
+      "tags": [
+        "artisans-tools"
+      ],
+      "text": [
+        "These special tools include the items needed to pursue a craft or trade. The table shows examples of the most common types of tools, each providing items related to a single craft. Proficiency with a set of artisan's tools lets you add your proficiency bonus to any ability checks you make using the tools in your craft. Each type of artisan's tools requires a separate proficiency."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:glassblowers-tools",
+      "name": "Glassblower's Tools",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "tool",
+      "weight": 5,
+      "cost": {
+        "amount": 30,
+        "unit": "gp"
+      },
+      "tags": [
+        "artisans-tools"
+      ],
+      "text": [
+        "These special tools include the items needed to pursue a craft or trade. The table shows examples of the most common types of tools, each providing items related to a single craft. Proficiency with a set of artisan's tools lets you add your proficiency bonus to any ability checks you make using the tools in your craft. Each type of artisan's tools requires a separate proficiency."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:jewelers-tools",
+      "name": "Jeweler's Tools",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "tool",
+      "weight": 2,
+      "cost": {
+        "amount": 25,
+        "unit": "gp"
+      },
+      "tags": [
+        "artisans-tools"
+      ],
+      "text": [
+        "These special tools include the items needed to pursue a craft or trade. The table shows examples of the most common types of tools, each providing items related to a single craft. Proficiency with a set of artisan's tools lets you add your proficiency bonus to any ability checks you make using the tools in your craft. Each type of artisan's tools requires a separate proficiency."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:leatherworkers-tools",
+      "name": "Leatherworker's Tools",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "tool",
+      "weight": 5,
+      "cost": {
+        "amount": 5,
+        "unit": "gp"
+      },
+      "tags": [
+        "artisans-tools"
+      ],
+      "text": [
+        "These special tools include the items needed to pursue a craft or trade. The table shows examples of the most common types of tools, each providing items related to a single craft. Proficiency with a set of artisan's tools lets you add your proficiency bonus to any ability checks you make using the tools in your craft. Each type of artisan's tools requires a separate proficiency."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:masons-tools",
+      "name": "Mason's Tools",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "tool",
+      "weight": 8,
+      "cost": {
+        "amount": 10,
+        "unit": "gp"
+      },
+      "tags": [
+        "artisans-tools"
+      ],
+      "text": [
+        "These special tools include the items needed to pursue a craft or trade. The table shows examples of the most common types of tools, each providing items related to a single craft. Proficiency with a set of artisan's tools lets you add your proficiency bonus to any ability checks you make using the tools in your craft. Each type of artisan's tools requires a separate proficiency."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:painters-supplies",
+      "name": "Painter's Supplies",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "tool",
+      "weight": 5,
+      "cost": {
+        "amount": 10,
+        "unit": "gp"
+      },
+      "tags": [
+        "artisans-tools"
+      ],
+      "text": [
+        "These special tools include the items needed to pursue a craft or trade. The table shows examples of the most common types of tools, each providing items related to a single craft. Proficiency with a set of artisan's tools lets you add your proficiency bonus to any ability checks you make using the tools in your craft. Each type of artisan's tools requires a separate proficiency."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:potters-tools",
+      "name": "Potter's Tools",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "tool",
+      "weight": 3,
+      "cost": {
+        "amount": 10,
+        "unit": "gp"
+      },
+      "tags": [
+        "artisans-tools"
+      ],
+      "text": [
+        "These special tools include the items needed to pursue a craft or trade. The table shows examples of the most common types of tools, each providing items related to a single craft. Proficiency with a set of artisan's tools lets you add your proficiency bonus to any ability checks you make using the tools in your craft. Each type of artisan's tools requires a separate proficiency."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:smiths-tools",
+      "name": "Smith's Tools",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "tool",
+      "weight": 8,
+      "cost": {
+        "amount": 20,
+        "unit": "gp"
+      },
+      "tags": [
+        "artisans-tools"
+      ],
+      "text": [
+        "These special tools include the items needed to pursue a craft or trade. The table shows examples of the most common types of tools, each providing items related to a single craft. Proficiency with a set of artisan's tools lets you add your proficiency bonus to any ability checks you make using the tools in your craft. Each type of artisan's tools requires a separate proficiency."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:tinkers-tools",
+      "name": "Tinker's Tools",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "tool",
+      "weight": 10,
+      "cost": {
+        "amount": 50,
+        "unit": "gp"
+      },
+      "tags": [
+        "artisans-tools"
+      ],
+      "text": [
+        "These special tools include the items needed to pursue a craft or trade. The table shows examples of the most common types of tools, each providing items related to a single craft. Proficiency with a set of artisan's tools lets you add your proficiency bonus to any ability checks you make using the tools in your craft. Each type of artisan's tools requires a separate proficiency."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:weavers-tools",
+      "name": "Weaver's Tools",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "tool",
+      "weight": 5,
+      "cost": {
+        "amount": 1,
+        "unit": "gp"
+      },
+      "tags": [
+        "artisans-tools"
+      ],
+      "text": [
+        "These special tools include the items needed to pursue a craft or trade. The table shows examples of the most common types of tools, each providing items related to a single craft. Proficiency with a set of artisan's tools lets you add your proficiency bonus to any ability checks you make using the tools in your craft. Each type of artisan's tools requires a separate proficiency."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:woodcarvers-tools",
+      "name": "Woodcarver's Tools",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "tool",
+      "weight": 5,
+      "cost": {
+        "amount": 1,
+        "unit": "gp"
+      },
+      "tags": [
+        "artisans-tools"
+      ],
+      "text": [
+        "These special tools include the items needed to pursue a craft or trade. The table shows examples of the most common types of tools, each providing items related to a single craft. Proficiency with a set of artisan's tools lets you add your proficiency bonus to any ability checks you make using the tools in your craft. Each type of artisan's tools requires a separate proficiency."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:dice-set",
+      "name": "Dice Set",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "tool",
+      "cost": {
+        "amount": 1,
+        "unit": "sp"
+      },
+      "tags": [
+        "gaming-sets"
+      ],
+      "text": [
+        "This item encompasses a wide range of game pieces, including dice and decks of cards (for games such as Three-Dragon Ante). A few common examples appear on the Tools table, but other kinds of gaming sets exist. If you are proficient with a gaming set, you can add your proficiency bonus to ability checks you make to play a game with that set. Each type of gaming set requires a separate proficiency."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:playing-card-set",
+      "name": "Playing Card Set",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "tool",
+      "cost": {
+        "amount": 5,
+        "unit": "sp"
+      },
+      "tags": [
+        "gaming-sets"
+      ],
+      "text": [
+        "This item encompasses a wide range of game pieces, including dice and decks of cards (for games such as Three-Dragon Ante). A few common examples appear on the Tools table, but other kinds of gaming sets exist. If you are proficient with a gaming set, you can add your proficiency bonus to ability checks you make to play a game with that set. Each type of gaming set requires a separate proficiency."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:bagpipes",
+      "name": "Bagpipes",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "tool",
+      "weight": 6,
+      "cost": {
+        "amount": 30,
+        "unit": "gp"
+      },
+      "tags": [
+        "musical-instruments"
+      ],
+      "text": [
+        "Several of the most common types of musical instruments are shown on the table as examples. If you have proficiency with a given musical instrument, you can add your proficiency bonus to any ability checks you make to play music with the instrument. A bard can use a musical instrument as a spellcasting focus. Each type of musical instrument requires a separate proficiency."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:drum",
+      "name": "Drum",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "tool",
+      "weight": 3,
+      "cost": {
+        "amount": 6,
+        "unit": "gp"
+      },
+      "tags": [
+        "musical-instruments"
+      ],
+      "text": [
+        "Several of the most common types of musical instruments are shown on the table as examples. If you have proficiency with a given musical instrument, you can add your proficiency bonus to any ability checks you make to play music with the instrument. A bard can use a musical instrument as a spellcasting focus. Each type of musical instrument requires a separate proficiency."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:dulcimer",
+      "name": "Dulcimer",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "tool",
+      "weight": 10,
+      "cost": {
+        "amount": 25,
+        "unit": "gp"
+      },
+      "tags": [
+        "musical-instruments"
+      ],
+      "text": [
+        "Several of the most common types of musical instruments are shown on the table as examples. If you have proficiency with a given musical instrument, you can add your proficiency bonus to any ability checks you make to play music with the instrument. A bard can use a musical instrument as a spellcasting focus. Each type of musical instrument requires a separate proficiency."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:flute",
+      "name": "Flute",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "tool",
+      "weight": 1,
+      "cost": {
+        "amount": 2,
+        "unit": "gp"
+      },
+      "tags": [
+        "musical-instruments"
+      ],
+      "text": [
+        "Several of the most common types of musical instruments are shown on the table as examples. If you have proficiency with a given musical instrument, you can add your proficiency bonus to any ability checks you make to play music with the instrument. A bard can use a musical instrument as a spellcasting focus. Each type of musical instrument requires a separate proficiency."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:lute",
+      "name": "Lute",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "tool",
+      "weight": 2,
+      "cost": {
+        "amount": 35,
+        "unit": "gp"
+      },
+      "tags": [
+        "musical-instruments"
+      ],
+      "text": [
+        "Several of the most common types of musical instruments are shown on the table as examples. If you have proficiency with a given musical instrument, you can add your proficiency bonus to any ability checks you make to play music with the instrument. A bard can use a musical instrument as a spellcasting focus. Each type of musical instrument requires a separate proficiency."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:lyre",
+      "name": "Lyre",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "tool",
+      "weight": 2,
+      "cost": {
+        "amount": 30,
+        "unit": "gp"
+      },
+      "tags": [
+        "musical-instruments"
+      ],
+      "text": [
+        "Several of the most common types of musical instruments are shown on the table as examples. If you have proficiency with a given musical instrument, you can add your proficiency bonus to any ability checks you make to play music with the instrument. A bard can use a musical instrument as a spellcasting focus. Each type of musical instrument requires a separate proficiency."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:horn",
+      "name": "Horn",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "tool",
+      "weight": 2,
+      "cost": {
+        "amount": 3,
+        "unit": "gp"
+      },
+      "tags": [
+        "musical-instruments"
+      ],
+      "text": [
+        "Several of the most common types of musical instruments are shown on the table as examples. If you have proficiency with a given musical instrument, you can add your proficiency bonus to any ability checks you make to play music with the instrument. A bard can use a musical instrument as a spellcasting focus. Each type of musical instrument requires a separate proficiency."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:pan-flute",
+      "name": "Pan flute",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "tool",
+      "weight": 2,
+      "cost": {
+        "amount": 12,
+        "unit": "gp"
+      },
+      "tags": [
+        "musical-instruments"
+      ],
+      "text": [
+        "Several of the most common types of musical instruments are shown on the table as examples. If you have proficiency with a given musical instrument, you can add your proficiency bonus to any ability checks you make to play music with the instrument. A bard can use a musical instrument as a spellcasting focus. Each type of musical instrument requires a separate proficiency."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:shawm",
+      "name": "Shawm",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "tool",
+      "weight": 1,
+      "cost": {
+        "amount": 2,
+        "unit": "gp"
+      },
+      "tags": [
+        "musical-instruments"
+      ],
+      "text": [
+        "Several of the most common types of musical instruments are shown on the table as examples. If you have proficiency with a given musical instrument, you can add your proficiency bonus to any ability checks you make to play music with the instrument. A bard can use a musical instrument as a spellcasting focus. Each type of musical instrument requires a separate proficiency."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:viol",
+      "name": "Viol",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "tool",
+      "weight": 1,
+      "cost": {
+        "amount": 30,
+        "unit": "gp"
+      },
+      "tags": [
+        "musical-instruments"
+      ],
+      "text": [
+        "Several of the most common types of musical instruments are shown on the table as examples. If you have proficiency with a given musical instrument, you can add your proficiency bonus to any ability checks you make to play music with the instrument. A bard can use a musical instrument as a spellcasting focus. Each type of musical instrument requires a separate proficiency."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:navigators-tools",
+      "name": "Navigator's Tools",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "tool",
+      "weight": 2,
+      "cost": {
+        "amount": 25,
+        "unit": "gp"
+      },
+      "tags": [
+        "other-tools"
+      ],
+      "text": [
+        "This set of instruments is used for navigation at sea. Proficiency with navigator's tools lets you chart a ship's course and follow navigation charts. In addition, these tools allow you to add your proficiency bonus to any ability check you make to avoid getting lost at sea."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:thieves-tools",
+      "name": "Thieves' Tools",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "tool",
+      "weight": 1,
+      "cost": {
+        "amount": 25,
+        "unit": "gp"
+      },
+      "tags": [
+        "other-tools"
+      ],
+      "text": [
+        "This set of tools includes a small file, a set of lock picks, a small mirror mounted on a metal handle, a set of narrow-bladed scissors, and a pair of pliers. Proficiency with these tools lets you add your proficiency bonus to any ability checks you make to disarm traps or open locks."
+      ]
+    }
+  ]
+}

@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { LANGUAGES, TOOLS, type ContentRegistry, type DerivedSheet } from "@dnd/engine";
+import { shortText } from "../text";
 import { ABILITY_NAMES, EXTRA_TAGS, SKILLS, SKILL_NAMES, type Ability, type ExtraNote, type ExtraTag, type OperationType, type Skill } from "@dnd/schema";
 
 type Act = (type: OperationType, payload: unknown, label: string) => unknown;
@@ -157,7 +158,7 @@ export function AddExtraPanel({ sheet, reg, act, done }: { sheet: DerivedSheet; 
     if (kind === "expertise") return SKILLS.map((s) => ({ value: s, label: SKILL_NAMES[s], sub: sheet.skills[s].proficiency > 0 ? "proficient" : "not proficient yet", have: sheet.skills[s].proficiency === 2 }));
     if (kind === "language") return LANGUAGES.map((l) => ({ value: l, label: l, have: sheet.proficiencies.languages.includes(l) }));
     if (kind === "tool") return TOOLS.map((t) => ({ value: t, label: t, have: sheet.proficiencies.tools.some((x) => x.toLowerCase() === t.toLowerCase()) }));
-    if (kind === "feat") return reg.list("feat").map((f) => ({ value: f.id, label: f.name, ...(f.summary ? { sub: f.summary } : {}), have: sheet.features.some((x) => x.id === f.id) }));
+    if (kind === "feat") return reg.list("feat").map((f) => ({ value: f.id, label: f.name, ...(f.summary || f.text?.length ? { sub: f.summary ?? shortText(f.text) } : {}), have: sheet.features.some((x) => x.id === f.id) }));
     return reg
       .list("spell")
       .sort((a, b) => a.level - b.level || a.name.localeCompare(b.name))

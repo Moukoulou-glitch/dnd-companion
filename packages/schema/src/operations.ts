@@ -37,6 +37,10 @@ export const OPERATION_PAYLOADS = {
   spendHitDie: z.object({ die: z.string(), roll: z.number().int().min(1) }).strict(),
   /** A spent Hit Die back by hand (the app asks first). No HP change. */
   restoreHitDie: z.object({ die: z.string() }).strict(),
+  /** Wild Shape (spends uses: 2 for an elemental) or Polymorph into a creature. */
+  transform: z.object({ kind: z.enum(["wildshape", "polymorph"]), creature: DefId, uses: z.number().int().min(0).max(2).default(1) }).strict(),
+  /** Back to your normal form. */
+  revert: z.object({ why: z.string().optional() }).strict(),
   addExtra: Extra,
   updateExtra: z.object({ id: z.string(), tag: ExtraTag.optional(), reason: z.string().max(250).optional() }).strict(),
   removeExtra: z.object({ id: z.string() }).strict(),
@@ -214,6 +218,8 @@ export const Operation = z.discriminatedUnion("type", [
   OperationBase.extend({ type: z.literal("restoreSlot"), payload: OPERATION_PAYLOADS.restoreSlot }),
   OperationBase.extend({ type: z.literal("spendHitDie"), payload: OPERATION_PAYLOADS.spendHitDie }),
   OperationBase.extend({ type: z.literal("restoreHitDie"), payload: OPERATION_PAYLOADS.restoreHitDie }),
+  OperationBase.extend({ type: z.literal("transform"), payload: OPERATION_PAYLOADS.transform }),
+  OperationBase.extend({ type: z.literal("revert"), payload: OPERATION_PAYLOADS.revert }),
   OperationBase.extend({ type: z.literal("addExtra"), payload: OPERATION_PAYLOADS.addExtra }),
   OperationBase.extend({ type: z.literal("updateExtra"), payload: OPERATION_PAYLOADS.updateExtra }),
   OperationBase.extend({ type: z.literal("removeExtra"), payload: OPERATION_PAYLOADS.removeExtra }),

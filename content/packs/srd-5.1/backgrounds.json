@@ -51,7 +51,37 @@
       ],
       "features": [
         "feature:shelter-of-the-faithful"
-      ]
+      ],
+      "equipment": {
+        "fixed": [
+          {
+            "item": "item:common-clothes",
+            "quantity": 1
+          },
+          {
+            "item": "item:pouch",
+            "quantity": 1
+          }
+        ],
+        "options": [
+          {
+            "label": "Holy Symbols",
+            "choices": [
+              {
+                "items": [],
+                "picks": [
+                  {
+                    "tag": "holy-symbols",
+                    "count": 1,
+                    "label": "Holy Symbols"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "gold": "15"
+      }
     }
   ]
 }

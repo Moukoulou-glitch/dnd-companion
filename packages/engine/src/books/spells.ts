@@ -45,7 +45,13 @@ export function spellMechanics(level: number, text: string[], higher: string[]):
   const save = /(?:make|succeed on|fail) an? (Strength|Dexterity|Constitution|Intelligence|Wisdom|Charisma) saving throw/i.exec(all);
   const halfOnSave = /half as much damage on a successful/i.test(all);
 
-  const dmg = new RegExp(`(\\d+d\\d+)(?: \\+ your spellcasting ability modifier)? (${DAMAGE_TYPES}) damage`, "i").exec(all);
+  let dmg = new RegExp(`(\\d+d\\d+)(?: \\+ your spellcasting ability modifier)? (${DAMAGE_TYPES}) damage`, "i").exec(all);
+  // "3d8 damage of the type you chose" (Chromatic Orb): the first type of the list the caster chooses from.
+  if (!dmg) {
+    const plain = /(\d+d\d+) damage/i.exec(all);
+    const listed = new RegExp(`\\b(${DAMAGE_TYPES}), (?:(?:${DAMAGE_TYPES}), )+(?:or )?(?:${DAMAGE_TYPES})\\b`, "i").exec(all);
+    if (plain && listed && /choose|choice/i.test(all)) dmg = Object.assign([`${plain[1]} ${listed[1]} damage`, plain[1]!, listed[1]!], { index: plain.index, input: all }) as unknown as RegExpExecArray;
+  }
   if (dmg) {
     const withMod = /\+ your spellcasting ability modifier/.test(dmg[0]) ? " + MOD" : "";
     const base = dmg[1]! + withMod;

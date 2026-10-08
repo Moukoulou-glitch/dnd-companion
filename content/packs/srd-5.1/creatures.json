@@ -1,0 +1,5017 @@
+{
+  "definitions": [
+    {
+      "kind": "creature",
+      "id": "creature:air-elemental",
+      "name": "Air Elemental",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Large",
+      "type": "elemental",
+      "alignment": "neutral",
+      "ac": 15,
+      "hp": 90,
+      "hitDice": "12d10+24",
+      "speed": {
+        "walk": 0,
+        "fly": 90,
+        "hover": true
+      },
+      "abilities": {
+        "str": 14,
+        "dex": 20,
+        "con": 14,
+        "int": 6,
+        "wis": 10,
+        "cha": 6
+      },
+      "cr": 5,
+      "traits": [
+        {
+          "name": "Air Form",
+          "text": "The elemental can enter a hostile creature's space and stop there. It can move through a space as narrow as 1 inch wide without squeezing."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Multiattack",
+          "text": "The elemental makes two slam attacks."
+        },
+        {
+          "name": "Slam",
+          "text": "Melee Weapon Attack: +8 to hit, reach 5 ft., one target. Hit: 14 (2d8 + 5) bludgeoning damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 8,
+            "reach": "5 ft.",
+            "damage": "2d8",
+            "damageBonus": 5,
+            "damageType": "bludgeoning"
+          }
+        },
+        {
+          "name": "Whirlwind",
+          "text": "Each creature in the elemental's space must make a DC 13 Strength saving throw. On a failure, a target takes 15 (3d8 + 2) bludgeoning damage and is flung up 20 feet away from the elemental in a random direction and knocked prone. If a thrown target strikes an object, such as a wall or floor, the target takes 3 (1d6) bludgeoning damage for every 10 feet it was thrown. If the target is thrown at another creature, that creature must succeed on a DC 13 Dexterity saving throw or take the same damage and be knocked prone.\nIf the saving throw is successful, the target takes half the bludgeoning damage and isn't flung away or knocked prone."
+        }
+      ],
+      "senses": {
+        "darkvision": 60
+      },
+      "languages": "Auran",
+      "resist": [
+        "lightning",
+        "thunder",
+        "bludgeoning, piercing, and slashing from nonmagical weapons"
+      ],
+      "immune": [
+        "poison"
+      ],
+      "conditionImmune": [
+        "exhaustion",
+        "grappled",
+        "paralyzed",
+        "petrified",
+        "poisoned",
+        "prone",
+        "restrained",
+        "unconscious"
+      ]
+    },
+    {
+      "kind": "creature",
+      "id": "creature:ape",
+      "name": "Ape",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Medium",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 12,
+      "hp": 19,
+      "hitDice": "3d8+6",
+      "speed": {
+        "walk": 30,
+        "climb": 30
+      },
+      "abilities": {
+        "str": 16,
+        "dex": 14,
+        "con": 14,
+        "int": 6,
+        "wis": 12,
+        "cha": 7
+      },
+      "cr": 0.5,
+      "traits": [],
+      "actions": [
+        {
+          "name": "Multiattack",
+          "text": "The ape makes two fist attacks."
+        },
+        {
+          "name": "Fist",
+          "text": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 6 (1d6 + 3) bludgeoning damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 5,
+            "reach": "5 ft.",
+            "damage": "1d6",
+            "damageBonus": 3,
+            "damageType": "bludgeoning"
+          }
+        },
+        {
+          "name": "Rock",
+          "text": "Ranged Weapon Attack: +5 to hit, range 25/50 ft., one target. Hit: 6 (1d6 + 3) bludgeoning damage.",
+          "attack": {
+            "kind": "ranged",
+            "toHit": 5,
+            "reach": "25/50 ft.",
+            "damage": "1d6",
+            "damageBonus": 3,
+            "damageType": "bludgeoning"
+          }
+        }
+      ],
+      "skills": {
+        "athletics": 5,
+        "perception": 3
+      }
+    },
+    {
+      "kind": "creature",
+      "id": "creature:axe-beak",
+      "name": "Axe Beak",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Large",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 11,
+      "hp": 19,
+      "hitDice": "3d10+3",
+      "speed": {
+        "walk": 50
+      },
+      "abilities": {
+        "str": 14,
+        "dex": 12,
+        "con": 12,
+        "int": 2,
+        "wis": 10,
+        "cha": 5
+      },
+      "cr": 0.25,
+      "traits": [],
+      "actions": [
+        {
+          "name": "Beak",
+          "text": "Melee Weapon Attack: +4 to hit, reach 5 ft., one target. Hit: 6 (1d8 + 2) slashing damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 4,
+            "reach": "5 ft.",
+            "damage": "1d8",
+            "damageBonus": 2,
+            "damageType": "slashing"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "creature",
+      "id": "creature:baboon",
+      "name": "Baboon",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Small",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 12,
+      "hp": 3,
+      "hitDice": "1d6",
+      "speed": {
+        "walk": 30,
+        "climb": 30
+      },
+      "abilities": {
+        "str": 8,
+        "dex": 14,
+        "con": 11,
+        "int": 4,
+        "wis": 12,
+        "cha": 6
+      },
+      "cr": 0,
+      "traits": [
+        {
+          "name": "Pack Tactics",
+          "text": "The baboon has advantage on an attack roll against a creature if at least one of the baboon's allies is within 5 ft. of the creature and the ally isn't incapacitated."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Bite",
+          "text": "Melee Weapon Attack: +1 to hit, reach 5 ft., one target. Hit: 1 (1d4 - 1) piercing damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 1,
+            "reach": "5 ft.",
+            "damage": "1d4",
+            "damageBonus": -1,
+            "damageType": "piercing"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "creature",
+      "id": "creature:badger",
+      "name": "Badger",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Tiny",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 10,
+      "hp": 3,
+      "hitDice": "1d4+1",
+      "speed": {
+        "walk": 20,
+        "burrow": 5
+      },
+      "abilities": {
+        "str": 4,
+        "dex": 11,
+        "con": 12,
+        "int": 2,
+        "wis": 12,
+        "cha": 5
+      },
+      "cr": 0,
+      "traits": [
+        {
+          "name": "Keen Smell",
+          "text": "The badger has advantage on Wisdom (Perception) checks that rely on smell."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Bite",
+          "text": "Melee Weapon Attack: +2 to hit, reach 5 ft., one target. Hit: 1 piercing damage."
+        }
+      ],
+      "senses": {
+        "darkvision": 30
+      }
+    },
+    {
+      "kind": "creature",
+      "id": "creature:bat",
+      "name": "Bat",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Tiny",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 12,
+      "hp": 1,
+      "hitDice": "1d4-1",
+      "speed": {
+        "walk": 5,
+        "fly": 30
+      },
+      "abilities": {
+        "str": 2,
+        "dex": 15,
+        "con": 8,
+        "int": 2,
+        "wis": 12,
+        "cha": 4
+      },
+      "cr": 0,
+      "traits": [
+        {
+          "name": "Echolocation",
+          "text": "The bat can't use its blindsight while deafened."
+        },
+        {
+          "name": "Keen Hearing",
+          "text": "The bat has advantage on Wisdom (Perception) checks that rely on hearing."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Bite",
+          "text": "Melee Weapon Attack: +0 to hit, reach 5 ft., one creature. Hit: 1 piercing damage."
+        }
+      ],
+      "senses": {
+        "blindsight": 60
+      }
+    },
+    {
+      "kind": "creature",
+      "id": "creature:black-bear",
+      "name": "Black Bear",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Medium",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 11,
+      "hp": 19,
+      "hitDice": "3d8+6",
+      "speed": {
+        "walk": 40,
+        "climb": 30
+      },
+      "abilities": {
+        "str": 15,
+        "dex": 10,
+        "con": 14,
+        "int": 2,
+        "wis": 12,
+        "cha": 7
+      },
+      "cr": 0.5,
+      "traits": [
+        {
+          "name": "Keen Smell",
+          "text": "The bear has advantage on Wisdom (Perception) checks that rely on smell."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Multiattack",
+          "text": "The bear makes two attacks: one with its bite and one with its claws."
+        },
+        {
+          "name": "Bite",
+          "text": "Melee Weapon Attack: +3 to hit, reach 5 ft., one target. Hit: 5 (1d6 + 2) piercing damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 3,
+            "reach": "5 ft.",
+            "damage": "1d6",
+            "damageBonus": 2,
+            "damageType": "piercing"
+          }
+        },
+        {
+          "name": "Claws",
+          "text": "Melee Weapon Attack: +3 to hit, reach 5 ft., one target. Hit: 7 (2d4 + 2) slashing damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 3,
+            "reach": "5 ft.",
+            "damage": "2d4",
+            "damageBonus": 2,
+            "damageType": "slashing"
+          }
+        }
+      ],
+      "acNote": "natural"
+    },
+    {
+      "kind": "creature",
+      "id": "creature:blood-hawk",
+      "name": "Blood Hawk",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Small",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 12,
+      "hp": 7,
+      "hitDice": "2d6",
+      "speed": {
+        "walk": 10,
+        "fly": 60
+      },
+      "abilities": {
+        "str": 6,
+        "dex": 14,
+        "con": 10,
+        "int": 3,
+        "wis": 14,
+        "cha": 5
+      },
+      "cr": 0.125,
+      "traits": [
+        {
+          "name": "Keen Sight",
+          "text": "The hawk has advantage on Wisdom (Perception) checks that rely on sight."
+        },
+        {
+          "name": "Pack Tactics",
+          "text": "The hawk has advantage on an attack roll against a creature if at least one of the hawk's allies is within 5 ft. of the creature and the ally isn't incapacitated."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Beak",
+          "text": "Melee Weapon Attack: +4 to hit, reach 5 ft., one target. Hit: 4 (1d4 + 2) piercing damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 4,
+            "reach": "5 ft.",
+            "damage": "1d4",
+            "damageBonus": 2,
+            "damageType": "piercing"
+          }
+        }
+      ],
+      "skills": {
+        "perception": 4
+      }
+    },
+    {
+      "kind": "creature",
+      "id": "creature:boar",
+      "name": "Boar",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Medium",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 11,
+      "hp": 11,
+      "hitDice": "2d8+2",
+      "speed": {
+        "walk": 40
+      },
+      "abilities": {
+        "str": 13,
+        "dex": 11,
+        "con": 12,
+        "int": 2,
+        "wis": 9,
+        "cha": 5
+      },
+      "cr": 0.25,
+      "traits": [
+        {
+          "name": "Charge",
+          "text": "If the boar moves at least 20 ft. straight toward a target and then hits it with a tusk attack on the same turn, the target takes an extra 3 (1d6) slashing damage. If the target is a creature, it must succeed on a DC 11 Strength saving throw or be knocked prone."
+        },
+        {
+          "name": "Relentless",
+          "text": "If the boar takes 7 damage or less that would reduce it to 0 hit points, it is reduced to 1 hit point instead."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Tusk",
+          "text": "Melee Weapon Attack: +3 to hit, reach 5 ft., one target. Hit: 4 (1d6 + 1) slashing damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 3,
+            "reach": "5 ft.",
+            "damage": "1d6",
+            "damageBonus": 1,
+            "damageType": "slashing"
+          }
+        }
+      ],
+      "acNote": "natural"
+    },
+    {
+      "kind": "creature",
+      "id": "creature:brown-bear",
+      "name": "Brown Bear",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Large",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 11,
+      "hp": 34,
+      "hitDice": "4d10+12",
+      "speed": {
+        "walk": 40,
+        "climb": 30
+      },
+      "abilities": {
+        "str": 19,
+        "dex": 10,
+        "con": 16,
+        "int": 2,
+        "wis": 13,
+        "cha": 7
+      },
+      "cr": 1,
+      "traits": [
+        {
+          "name": "Keen Smell",
+          "text": "The bear has advantage on Wisdom (Perception) checks that rely on smell."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Multiattack",
+          "text": "The bear makes two attacks: one with its bite and one with its claws."
+        },
+        {
+          "name": "Bite",
+          "text": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 8 (1d8 + 4) piercing damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 5,
+            "reach": "5 ft.",
+            "damage": "1d8",
+            "damageBonus": 4,
+            "damageType": "piercing"
+          }
+        },
+        {
+          "name": "Claws",
+          "text": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 11 (2d6 + 4) slashing damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 5,
+            "reach": "5 ft.",
+            "damage": "2d6",
+            "damageBonus": 4,
+            "damageType": "slashing"
+          }
+        }
+      ],
+      "acNote": "natural",
+      "skills": {
+        "perception": 3
+      }
+    },
+    {
+      "kind": "creature",
+      "id": "creature:camel",
+      "name": "Camel",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Large",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 9,
+      "hp": 15,
+      "hitDice": "2d10+4",
+      "speed": {
+        "walk": 50
+      },
+      "abilities": {
+        "str": 16,
+        "dex": 8,
+        "con": 14,
+        "int": 2,
+        "wis": 8,
+        "cha": 5
+      },
+      "cr": 0.125,
+      "traits": [],
+      "actions": [
+        {
+          "name": "Bite",
+          "text": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 2 (1d4) bludgeoning damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 5,
+            "reach": "5 ft.",
+            "damage": "1d4",
+            "damageBonus": 0,
+            "damageType": "bludgeoning"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "creature",
+      "id": "creature:cat",
+      "name": "Cat",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Tiny",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 12,
+      "hp": 2,
+      "hitDice": "1d4",
+      "speed": {
+        "walk": 40,
+        "climb": 30
+      },
+      "abilities": {
+        "str": 3,
+        "dex": 15,
+        "con": 10,
+        "int": 3,
+        "wis": 12,
+        "cha": 7
+      },
+      "cr": 0,
+      "traits": [
+        {
+          "name": "Keen Smell",
+          "text": "The cat has advantage on Wisdom (Perception) checks that rely on smell."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Claws",
+          "text": "Melee Weapon Attack: +0 to hit, reach 5 ft., one target. Hit: 1 slashing damage."
+        }
+      ],
+      "skills": {
+        "perception": 3,
+        "stealth": 4
+      }
+    },
+    {
+      "kind": "creature",
+      "id": "creature:constrictor-snake",
+      "name": "Constrictor Snake",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Large",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 12,
+      "hp": 13,
+      "hitDice": "2d10+2",
+      "speed": {
+        "walk": 30,
+        "swim": 30
+      },
+      "abilities": {
+        "str": 15,
+        "dex": 14,
+        "con": 12,
+        "int": 1,
+        "wis": 10,
+        "cha": 3
+      },
+      "cr": 0.25,
+      "traits": [],
+      "actions": [
+        {
+          "name": "Bite",
+          "text": "Melee Weapon Attack: +4 to hit, reach 5 ft., one creature. Hit: 5 (1d6 + 2) piercing damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 4,
+            "reach": "5 ft.",
+            "damage": "1d6",
+            "damageBonus": 2,
+            "damageType": "piercing"
+          }
+        },
+        {
+          "name": "Constrict",
+          "text": "Melee Weapon Attack: +4 to hit, reach 5 ft., one creature. Hit: 6 (1d8 + 2) bludgeoning damage, and the target is grappled (escape DC 14). Until this grapple ends, the creature is restrained, and the snake can't constrict another target.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 4,
+            "reach": "5 ft.",
+            "damage": "1d8",
+            "damageBonus": 2,
+            "damageType": "bludgeoning"
+          }
+        }
+      ],
+      "senses": {
+        "blindsight": 10
+      }
+    },
+    {
+      "kind": "creature",
+      "id": "creature:crab",
+      "name": "Crab",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Tiny",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 11,
+      "hp": 2,
+      "hitDice": "1d4",
+      "speed": {
+        "walk": 20,
+        "swim": 20
+      },
+      "abilities": {
+        "str": 2,
+        "dex": 11,
+        "con": 10,
+        "int": 1,
+        "wis": 8,
+        "cha": 2
+      },
+      "cr": 0,
+      "traits": [
+        {
+          "name": "Amphibious",
+          "text": "The crab can breathe air and water."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Claw",
+          "text": "Melee Weapon Attack: +0 to hit, reach 5 ft., one target. Hit: 1 bludgeoning damage."
+        }
+      ],
+      "acNote": "natural",
+      "skills": {
+        "stealth": 2
+      },
+      "senses": {
+        "blindsight": 30
+      }
+    },
+    {
+      "kind": "creature",
+      "id": "creature:crocodile",
+      "name": "Crocodile",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Large",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 12,
+      "hp": 19,
+      "hitDice": "3d10+3",
+      "speed": {
+        "walk": 20,
+        "swim": 20
+      },
+      "abilities": {
+        "str": 15,
+        "dex": 10,
+        "con": 13,
+        "int": 2,
+        "wis": 10,
+        "cha": 5
+      },
+      "cr": 0.5,
+      "traits": [
+        {
+          "name": "Hold Breath",
+          "text": "The crocodile can hold its breath for 15 minutes."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Bite",
+          "text": "Melee Weapon Attack: +4 to hit, reach 5 ft., one creature. Hit: 7 (1d10 + 2) piercing damage, and the target is grappled (escape DC 12). Until this grapple ends, the target is restrained, and the crocodile can't bite another target",
+          "attack": {
+            "kind": "melee",
+            "toHit": 4,
+            "reach": "5 ft.",
+            "damage": "1d10",
+            "damageBonus": 2,
+            "damageType": "piercing"
+          }
+        }
+      ],
+      "acNote": "natural",
+      "skills": {
+        "stealth": 2
+      }
+    },
+    {
+      "kind": "creature",
+      "id": "creature:deer",
+      "name": "Deer",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Medium",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 13,
+      "hp": 4,
+      "hitDice": "1d8",
+      "speed": {
+        "walk": 50
+      },
+      "abilities": {
+        "str": 11,
+        "dex": 16,
+        "con": 11,
+        "int": 2,
+        "wis": 14,
+        "cha": 5
+      },
+      "cr": 0,
+      "traits": [],
+      "actions": [
+        {
+          "name": "Bite",
+          "text": "Melee Weapon Attack: +2 to hit, reach 5 ft., one target. Hit: 2 (1d4) piercing damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 2,
+            "reach": "5 ft.",
+            "damage": "1d4",
+            "damageBonus": 0,
+            "damageType": "piercing"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "creature",
+      "id": "creature:dire-wolf",
+      "name": "Dire Wolf",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Large",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 14,
+      "hp": 37,
+      "hitDice": "5d10+10",
+      "speed": {
+        "walk": 50
+      },
+      "abilities": {
+        "str": 17,
+        "dex": 15,
+        "con": 15,
+        "int": 3,
+        "wis": 12,
+        "cha": 7
+      },
+      "cr": 1,
+      "traits": [
+        {
+          "name": "Keen Hearing and Smell",
+          "text": "The wolf has advantage on Wisdom (Perception) checks that rely on hearing or smell."
+        },
+        {
+          "name": "Pack Tactics",
+          "text": "The wolf has advantage on an attack roll against a creature if at least one of the wolf's allies is within 5 ft. of the creature and the ally isn't incapacitated."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Bite",
+          "text": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 10 (2d6 + 3) piercing damage. If the target is a creature, it must succeed on a DC 13 Strength saving throw or be knocked prone.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 5,
+            "reach": "5 ft.",
+            "damage": "2d6",
+            "damageBonus": 3,
+            "damageType": "piercing"
+          }
+        }
+      ],
+      "acNote": "natural",
+      "skills": {
+        "perception": 3,
+        "stealth": 4
+      }
+    },
+    {
+      "kind": "creature",
+      "id": "creature:draft-horse",
+      "name": "Draft Horse",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Large",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 10,
+      "hp": 19,
+      "hitDice": "3d10+3",
+      "speed": {
+        "walk": 40
+      },
+      "abilities": {
+        "str": 18,
+        "dex": 10,
+        "con": 12,
+        "int": 2,
+        "wis": 11,
+        "cha": 7
+      },
+      "cr": 0.25,
+      "traits": [],
+      "actions": [
+        {
+          "name": "Hooves",
+          "text": "Melee Weapon Attack: +6 to hit, reach 5 ft., one target. Hit: 9 (2d4 + 4) bludgeoning damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 6,
+            "reach": "5 ft.",
+            "damage": "2d4",
+            "damageBonus": 4,
+            "damageType": "bludgeoning"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "creature",
+      "id": "creature:eagle",
+      "name": "Eagle",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Small",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 12,
+      "hp": 3,
+      "hitDice": "1d6",
+      "speed": {
+        "walk": 10,
+        "fly": 60
+      },
+      "abilities": {
+        "str": 6,
+        "dex": 15,
+        "con": 10,
+        "int": 2,
+        "wis": 14,
+        "cha": 7
+      },
+      "cr": 0,
+      "traits": [
+        {
+          "name": "Keen Sight",
+          "text": "The eagle has advantage on Wisdom (Perception) checks that rely on sight."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Talons",
+          "text": "Melee Weapon Attack: +4 to hit, reach 5 ft., one target. Hit: 4 (1d4 + 2) slashing damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 4,
+            "reach": "5 ft.",
+            "damage": "1d4",
+            "damageBonus": 2,
+            "damageType": "slashing"
+          }
+        }
+      ],
+      "skills": {
+        "perception": 4
+      }
+    },
+    {
+      "kind": "creature",
+      "id": "creature:earth-elemental",
+      "name": "Earth Elemental",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Large",
+      "type": "elemental",
+      "alignment": "neutral",
+      "ac": 17,
+      "hp": 126,
+      "hitDice": "12d10+60",
+      "speed": {
+        "walk": 30,
+        "burrow": 30
+      },
+      "abilities": {
+        "str": 20,
+        "dex": 8,
+        "con": 20,
+        "int": 5,
+        "wis": 10,
+        "cha": 5
+      },
+      "cr": 5,
+      "traits": [
+        {
+          "name": "Earth Glide",
+          "text": "The elemental can burrow through nonmagical, unworked earth and stone. While doing so, the elemental doesn't disturb the material it moves through."
+        },
+        {
+          "name": "Siege Monster",
+          "text": "The elemental deals double damage to objects and structures."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Multiattack",
+          "text": "The elemental makes two slam attacks."
+        },
+        {
+          "name": "Slam",
+          "text": "Melee Weapon Attack: +8 to hit, reach 10 ft., one target. Hit: 14 (2d8 + 5) bludgeoning damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 8,
+            "reach": "10 ft.",
+            "damage": "2d8",
+            "damageBonus": 5,
+            "damageType": "bludgeoning"
+          }
+        }
+      ],
+      "acNote": "natural",
+      "senses": {
+        "darkvision": 60,
+        "tremorsense": 60
+      },
+      "languages": "Terran",
+      "resist": [
+        "bludgeoning, piercing, and slashing from nonmagical weapons"
+      ],
+      "immune": [
+        "poison"
+      ],
+      "vulnerable": [
+        "thunder"
+      ],
+      "conditionImmune": [
+        "exhaustion",
+        "paralyzed",
+        "petrified",
+        "poisoned",
+        "unconscious"
+      ]
+    },
+    {
+      "kind": "creature",
+      "id": "creature:elephant",
+      "name": "Elephant",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Huge",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 12,
+      "hp": 76,
+      "hitDice": "8d12+24",
+      "speed": {
+        "walk": 40
+      },
+      "abilities": {
+        "str": 22,
+        "dex": 9,
+        "con": 17,
+        "int": 3,
+        "wis": 11,
+        "cha": 6
+      },
+      "cr": 4,
+      "traits": [
+        {
+          "name": "Trampling Charge",
+          "text": "If the elephant moves at least 20 ft. straight toward a creature and then hits it with a gore attack on the same turn, that target must succeed on a DC 12 Strength saving throw or be knocked prone. If the target is prone, the elephant can make one stomp attack against it as a bonus action."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Gore",
+          "text": "Melee Weapon Attack: +8 to hit, reach 5 ft., one target. Hit: 19 (3d8 + 6) piercing damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 8,
+            "reach": "5 ft.",
+            "damage": "3d8",
+            "damageBonus": 6,
+            "damageType": "piercing"
+          }
+        },
+        {
+          "name": "Stomp",
+          "text": "Melee Weapon Attack: +8 to hit, reach 5 ft., one prone creature. Hit: 22 (3d10 + 6) bludgeoning damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 8,
+            "reach": "5 ft.",
+            "damage": "3d10",
+            "damageBonus": 6,
+            "damageType": "bludgeoning"
+          }
+        }
+      ],
+      "acNote": "natural"
+    },
+    {
+      "kind": "creature",
+      "id": "creature:elk",
+      "name": "Elk",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Large",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 10,
+      "hp": 13,
+      "hitDice": "2d10+2",
+      "speed": {
+        "walk": 50
+      },
+      "abilities": {
+        "str": 16,
+        "dex": 10,
+        "con": 12,
+        "int": 2,
+        "wis": 10,
+        "cha": 6
+      },
+      "cr": 0.25,
+      "traits": [
+        {
+          "name": "Charge",
+          "text": "If the elk moves at least 20 ft. straight toward a target and then hits it with a ram attack on the same turn, the target takes an extra 7 (2d6) damage. If the target is a creature, it must succeed on a DC 13 Strength saving throw or be knocked prone."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Ram",
+          "text": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 6 (1d6 + 3) bludgeoning damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 5,
+            "reach": "5 ft.",
+            "damage": "1d6",
+            "damageBonus": 3,
+            "damageType": "bludgeoning"
+          }
+        },
+        {
+          "name": "Hooves",
+          "text": "Melee Weapon Attack: +5 to hit, reach 5 ft., one prone creature. Hit: 8 (2d4 + 3) bludgeoning damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 5,
+            "reach": "5 ft.",
+            "damage": "2d4",
+            "damageBonus": 3,
+            "damageType": "bludgeoning"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "creature",
+      "id": "creature:fire-elemental",
+      "name": "Fire Elemental",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Large",
+      "type": "elemental",
+      "alignment": "neutral",
+      "ac": 13,
+      "hp": 102,
+      "hitDice": "12d10+36",
+      "speed": {
+        "walk": 50
+      },
+      "abilities": {
+        "str": 10,
+        "dex": 17,
+        "con": 16,
+        "int": 6,
+        "wis": 10,
+        "cha": 7
+      },
+      "cr": 5,
+      "traits": [
+        {
+          "name": "Fire Form",
+          "text": "The elemental can move through a space as narrow as 1 inch wide without squeezing. A creature that touches the elemental or hits it with a melee attack while within 5 ft. of it takes 5 (1d10) fire damage. In addition, the elemental can enter a hostile creature's space and stop there. The first time it enters a creature's space on a turn, that creature takes 5 (1d10) fire damage and catches fire; until someone takes an action to douse the fire, the creature takes 5 (1d10) fire damage at the start of each of its turns."
+        },
+        {
+          "name": "Illumination",
+          "text": "The elemental sheds bright light in a 30-foot radius and dim light in an additional 30 ft.."
+        },
+        {
+          "name": "Water Susceptibility",
+          "text": "For every 5 ft. the elemental moves in water, or for every gallon of water splashed on it, it takes 1 cold damage."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Multiattack",
+          "text": "The elemental makes two touch attacks."
+        },
+        {
+          "name": "Touch",
+          "text": "Melee Weapon Attack: +6 to hit, reach 5 ft., one target. Hit: 10 (2d6 + 3) fire damage. If the target is a creature or a flammable object, it ignites. Until a creature takes an action to douse the fire, the target takes 5 (1d10) fire damage at the start of each of its turns.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 6,
+            "reach": "5 ft.",
+            "damage": "2d6",
+            "damageBonus": 3,
+            "damageType": "fire"
+          }
+        }
+      ],
+      "senses": {
+        "darkvision": 60
+      },
+      "languages": "Ignan",
+      "resist": [
+        "bludgeoning, piercing, and slashing from nonmagical weapons"
+      ],
+      "immune": [
+        "fire",
+        "poison"
+      ],
+      "conditionImmune": [
+        "exhaustion",
+        "grappled",
+        "paralyzed",
+        "petrified",
+        "poisoned",
+        "prone",
+        "restrained",
+        "unconscious"
+      ]
+    },
+    {
+      "kind": "creature",
+      "id": "creature:flying-snake",
+      "name": "Flying Snake",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Tiny",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 14,
+      "hp": 5,
+      "hitDice": "2d4",
+      "speed": {
+        "walk": 30,
+        "swim": 30,
+        "fly": 60
+      },
+      "abilities": {
+        "str": 4,
+        "dex": 18,
+        "con": 11,
+        "int": 2,
+        "wis": 12,
+        "cha": 5
+      },
+      "cr": 0.125,
+      "traits": [
+        {
+          "name": "Flyby",
+          "text": "The snake doesn't provoke opportunity attacks when it flies out of an enemy's reach."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Bite",
+          "text": "Melee Weapon Attack: +6 to hit, reach 5 ft., one target. Hit: 1 piercing damage plus 7 (3d4) poison damage."
+        }
+      ],
+      "senses": {
+        "blindsight": 10
+      }
+    },
+    {
+      "kind": "creature",
+      "id": "creature:frog",
+      "name": "Frog",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Tiny",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 11,
+      "hp": 1,
+      "hitDice": "1d4-1",
+      "speed": {
+        "walk": 20,
+        "swim": 20
+      },
+      "abilities": {
+        "str": 1,
+        "dex": 13,
+        "con": 8,
+        "int": 1,
+        "wis": 8,
+        "cha": 3
+      },
+      "cr": 0,
+      "traits": [
+        {
+          "name": "Amphibious",
+          "text": "The frog can breathe air and water"
+        },
+        {
+          "name": "Standing Leap",
+          "text": "The frog's long jump is up to 10 ft. and its high jump is up to 5 ft., with or without a running start."
+        }
+      ],
+      "actions": [],
+      "skills": {
+        "perception": 1,
+        "stealth": 3
+      },
+      "senses": {
+        "darkvision": 30
+      }
+    },
+    {
+      "kind": "creature",
+      "id": "creature:giant-ape",
+      "name": "Giant Ape",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Huge",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 12,
+      "hp": 157,
+      "hitDice": "15d12+60",
+      "speed": {
+        "walk": 40,
+        "climb": 40
+      },
+      "abilities": {
+        "str": 23,
+        "dex": 14,
+        "con": 18,
+        "int": 7,
+        "wis": 12,
+        "cha": 7
+      },
+      "cr": 7,
+      "traits": [],
+      "actions": [
+        {
+          "name": "Multiattack",
+          "text": "The ape makes two fist attacks."
+        },
+        {
+          "name": "Fist",
+          "text": "Melee Weapon Attack: +9 to hit, reach 10 ft., one target. Hit: 22 (3d10 + 6) bludgeoning damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 9,
+            "reach": "10 ft.",
+            "damage": "3d10",
+            "damageBonus": 6,
+            "damageType": "bludgeoning"
+          }
+        },
+        {
+          "name": "Rock",
+          "text": "Ranged Weapon Attack: +9 to hit, range 50/100 ft., one target. Hit: 30 (7d6 + 6) bludgeoning damage.",
+          "attack": {
+            "kind": "ranged",
+            "toHit": 9,
+            "reach": "50/100 ft.",
+            "damage": "7d6",
+            "damageBonus": 6,
+            "damageType": "bludgeoning"
+          }
+        }
+      ],
+      "skills": {
+        "athletics": 9,
+        "perception": 4
+      }
+    },
+    {
+      "kind": "creature",
+      "id": "creature:giant-badger",
+      "name": "Giant Badger",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Medium",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 10,
+      "hp": 13,
+      "hitDice": "2d8+4",
+      "speed": {
+        "walk": 30,
+        "burrow": 10
+      },
+      "abilities": {
+        "str": 13,
+        "dex": 10,
+        "con": 15,
+        "int": 2,
+        "wis": 12,
+        "cha": 5
+      },
+      "cr": 0.25,
+      "traits": [
+        {
+          "name": "Keen Smell",
+          "text": "The badger has advantage on Wisdom (Perception) checks that rely on smell."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Multiattack",
+          "text": "The badger makes two attacks: one with its bite and one with its claws."
+        },
+        {
+          "name": "Bite",
+          "text": "Melee Weapon Attack: +3 to hit, reach 5 ft., one target. Hit: 4 (1d6 + 1) piercing damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 3,
+            "reach": "5 ft.",
+            "damage": "1d6",
+            "damageBonus": 1,
+            "damageType": "piercing"
+          }
+        },
+        {
+          "name": "Claws",
+          "text": "Melee Weapon Attack: +3 to hit, reach 5 ft., one target. Hit: 6 (2d4 + 1) slashing damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 3,
+            "reach": "5 ft.",
+            "damage": "2d4",
+            "damageBonus": 1,
+            "damageType": "slashing"
+          }
+        }
+      ],
+      "senses": {
+        "darkvision": 30
+      }
+    },
+    {
+      "kind": "creature",
+      "id": "creature:giant-bat",
+      "name": "Giant Bat",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Large",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 13,
+      "hp": 22,
+      "hitDice": "4d10",
+      "speed": {
+        "walk": 10,
+        "fly": 60
+      },
+      "abilities": {
+        "str": 15,
+        "dex": 16,
+        "con": 11,
+        "int": 2,
+        "wis": 12,
+        "cha": 6
+      },
+      "cr": 0.25,
+      "traits": [
+        {
+          "name": "Echolocation",
+          "text": "The bat can't use its blindsight while deafened."
+        },
+        {
+          "name": "Keen Hearing",
+          "text": "The bat has advantage on Wisdom (Perception) checks that rely on hearing."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Bite",
+          "text": "Melee Weapon Attack: +4 to hit, reach 5 ft., one creature. Hit: 5 (1d6 + 2) piercing damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 4,
+            "reach": "5 ft.",
+            "damage": "1d6",
+            "damageBonus": 2,
+            "damageType": "piercing"
+          }
+        }
+      ],
+      "senses": {
+        "blindsight": 60
+      }
+    },
+    {
+      "kind": "creature",
+      "id": "creature:giant-boar",
+      "name": "Giant Boar",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Large",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 12,
+      "hp": 42,
+      "hitDice": "5d10+15",
+      "speed": {
+        "walk": 40
+      },
+      "abilities": {
+        "str": 17,
+        "dex": 10,
+        "con": 16,
+        "int": 2,
+        "wis": 7,
+        "cha": 5
+      },
+      "cr": 2,
+      "traits": [
+        {
+          "name": "Charge",
+          "text": "If the boar moves at least 20 ft. straight toward a target and then hits it with a tusk attack on the same turn, the target takes an extra 7 (2d6) slashing damage. If the target is a creature, it must succeed on a DC 13 Strength saving throw or be knocked prone."
+        },
+        {
+          "name": "Relentless",
+          "text": "If the boar takes 10 damage or less that would reduce it to 0 hit points, it is reduced to 1 hit point instead."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Tusk",
+          "text": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 10 (2d6 + 3) slashing damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 5,
+            "reach": "5 ft.",
+            "damage": "2d6",
+            "damageBonus": 3,
+            "damageType": "slashing"
+          }
+        }
+      ],
+      "acNote": "natural"
+    },
+    {
+      "kind": "creature",
+      "id": "creature:giant-centipede",
+      "name": "Giant Centipede",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Small",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 13,
+      "hp": 4,
+      "hitDice": "1d6+1",
+      "speed": {
+        "walk": 30,
+        "climb": 30
+      },
+      "abilities": {
+        "str": 5,
+        "dex": 14,
+        "con": 12,
+        "int": 1,
+        "wis": 7,
+        "cha": 3
+      },
+      "cr": 0.25,
+      "traits": [],
+      "actions": [
+        {
+          "name": "Bite",
+          "text": "Melee Weapon Attack: +4 to hit, reach 5 ft., one creature. Hit: 4 (1d4 + 2) piercing damage, and the target must succeed on a DC 11 Constitution saving throw or take 10 (3d6) poison damage. If the poison damage reduces the target to 0 hit points, the target is stable but poisoned for 1 hour, even after regaining hit points, and is paralyzed while poisoned in this way.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 4,
+            "reach": "5 ft.",
+            "damage": "1d4",
+            "damageBonus": 2,
+            "damageType": "piercing"
+          }
+        }
+      ],
+      "acNote": "natural",
+      "senses": {
+        "blindsight": 30
+      }
+    },
+    {
+      "kind": "creature",
+      "id": "creature:giant-constrictor-snake",
+      "name": "Giant Constrictor Snake",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Huge",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 12,
+      "hp": 60,
+      "hitDice": "8d12+8",
+      "speed": {
+        "walk": 30,
+        "swim": 30
+      },
+      "abilities": {
+        "str": 19,
+        "dex": 14,
+        "con": 12,
+        "int": 1,
+        "wis": 10,
+        "cha": 3
+      },
+      "cr": 2,
+      "traits": [],
+      "actions": [
+        {
+          "name": "Bite",
+          "text": "Melee Weapon Attack: +6 to hit, reach 10 ft., one creature. Hit: 11 (2d6 + 4) piercing damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 6,
+            "reach": "10 ft.",
+            "damage": "2d6",
+            "damageBonus": 4,
+            "damageType": "piercing"
+          }
+        },
+        {
+          "name": "Constrict",
+          "text": "Melee Weapon Attack: +6 to hit, reach 5 ft., one creature. Hit: 13 (2d8 + 4) bludgeoning damage, and the target is grappled (escape DC 16). Until this grapple ends, the creature is restrained, and the snake can't constrict another target.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 6,
+            "reach": "5 ft.",
+            "damage": "2d8",
+            "damageBonus": 4,
+            "damageType": "bludgeoning"
+          }
+        }
+      ],
+      "skills": {
+        "perception": 2
+      },
+      "senses": {
+        "blindsight": 10
+      }
+    },
+    {
+      "kind": "creature",
+      "id": "creature:giant-crab",
+      "name": "Giant Crab",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Medium",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 15,
+      "hp": 13,
+      "hitDice": "3d8",
+      "speed": {
+        "walk": 30,
+        "swim": 30
+      },
+      "abilities": {
+        "str": 13,
+        "dex": 15,
+        "con": 11,
+        "int": 1,
+        "wis": 9,
+        "cha": 3
+      },
+      "cr": 0.125,
+      "traits": [
+        {
+          "name": "Amphibious",
+          "text": "The crab can breathe air and water."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Claw",
+          "text": "Melee Weapon Attack: +3 to hit, reach 5 ft., one target. Hit: 4 (1d6 + 1) bludgeoning damage, and the target is grappled (escape DC 11). The crab has two claws, each of which can grapple only one target.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 3,
+            "reach": "5 ft.",
+            "damage": "1d6",
+            "damageBonus": 1,
+            "damageType": "bludgeoning"
+          }
+        }
+      ],
+      "acNote": "natural",
+      "skills": {
+        "stealth": 4
+      },
+      "senses": {
+        "blindsight": 30
+      }
+    },
+    {
+      "kind": "creature",
+      "id": "creature:giant-crocodile",
+      "name": "Giant Crocodile",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Huge",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 14,
+      "hp": 85,
+      "hitDice": "9d12+27",
+      "speed": {
+        "walk": 30,
+        "swim": 50
+      },
+      "abilities": {
+        "str": 21,
+        "dex": 9,
+        "con": 17,
+        "int": 2,
+        "wis": 10,
+        "cha": 7
+      },
+      "cr": 5,
+      "traits": [
+        {
+          "name": "Hold Breath",
+          "text": "The crocodile can hold its breath for 30 minutes."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Multiattack",
+          "text": "The crocodile makes two attacks: one with its bite and one with its tail."
+        },
+        {
+          "name": "Bite",
+          "text": "Melee Weapon Attack: +8 to hit, reach 5 ft., one target. Hit: 21 (3d10 + 5) piercing damage, and the target is grappled (escape DC 16). Until this grapple ends, the target is restrained, and the crocodile can't bite another target.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 8,
+            "reach": "5 ft.",
+            "damage": "3d10",
+            "damageBonus": 5,
+            "damageType": "piercing"
+          }
+        },
+        {
+          "name": "Tail",
+          "text": "Melee Weapon Attack: +8 to hit, reach 10 ft., one target not grappled by the crocodile. Hit: 14 (2d8 + 5) bludgeoning damage. If the target is a creature, it must succeed on a DC 16 Strength saving throw or be knocked prone.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 8,
+            "reach": "10 ft.",
+            "damage": "2d8",
+            "damageBonus": 5,
+            "damageType": "bludgeoning"
+          }
+        }
+      ],
+      "acNote": "natural",
+      "skills": {
+        "stealth": 5
+      }
+    },
+    {
+      "kind": "creature",
+      "id": "creature:giant-eagle",
+      "name": "Giant Eagle",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Large",
+      "type": "beast",
+      "alignment": "neutral good",
+      "ac": 13,
+      "hp": 26,
+      "hitDice": "4d10+4",
+      "speed": {
+        "walk": 10,
+        "fly": 80
+      },
+      "abilities": {
+        "str": 16,
+        "dex": 17,
+        "con": 13,
+        "int": 8,
+        "wis": 14,
+        "cha": 10
+      },
+      "cr": 1,
+      "traits": [
+        {
+          "name": "Keen Sight",
+          "text": "The eagle has advantage on Wisdom (Perception) checks that rely on sight."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Multiattack",
+          "text": "The eagle makes two attacks: one with its beak and one with its talons."
+        },
+        {
+          "name": "Beak",
+          "text": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 6 (1d6 + 3) piercing damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 5,
+            "reach": "5 ft.",
+            "damage": "1d6",
+            "damageBonus": 3,
+            "damageType": "piercing"
+          }
+        },
+        {
+          "name": "Talons",
+          "text": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 10 (2d6 + 3) slashing damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 5,
+            "reach": "5 ft.",
+            "damage": "2d6",
+            "damageBonus": 3,
+            "damageType": "slashing"
+          }
+        }
+      ],
+      "skills": {
+        "perception": 4
+      },
+      "languages": "Giant Eagle, understands Common and Auran but can't speak"
+    },
+    {
+      "kind": "creature",
+      "id": "creature:giant-elk",
+      "name": "Giant Elk",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Huge",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 14,
+      "hp": 42,
+      "hitDice": "5d12+10",
+      "speed": {
+        "walk": 60
+      },
+      "abilities": {
+        "str": 19,
+        "dex": 16,
+        "con": 14,
+        "int": 7,
+        "wis": 14,
+        "cha": 10
+      },
+      "cr": 2,
+      "traits": [
+        {
+          "name": "Charge",
+          "text": "If the elk moves at least 20 ft. straight toward a target and then hits it with a ram attack on the same turn, the target takes an extra 7 (2d6) damage. If the target is a creature, it must succeed on a DC 14 Strength saving throw or be knocked prone."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Ram",
+          "text": "Melee Weapon Attack: +6 to hit, reach 10 ft., one target. Hit: 11 (2d6 + 4) bludgeoning damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 6,
+            "reach": "10 ft.",
+            "damage": "2d6",
+            "damageBonus": 4,
+            "damageType": "bludgeoning"
+          }
+        },
+        {
+          "name": "Hooves",
+          "text": "Melee Weapon Attack: +6 to hit, reach 5 ft., one prone creature. Hit: 22 (4d8 + 4) bludgeoning damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 6,
+            "reach": "5 ft.",
+            "damage": "4d8",
+            "damageBonus": 4,
+            "damageType": "bludgeoning"
+          }
+        }
+      ],
+      "acNote": "natural",
+      "skills": {
+        "perception": 4
+      },
+      "languages": "Giant Elk, understands Common, Elvish, and Sylvan but can't speak"
+    },
+    {
+      "kind": "creature",
+      "id": "creature:giant-fire-beetle",
+      "name": "Giant Fire Beetle",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Small",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 13,
+      "hp": 4,
+      "hitDice": "1d6+1",
+      "speed": {
+        "walk": 30
+      },
+      "abilities": {
+        "str": 8,
+        "dex": 10,
+        "con": 12,
+        "int": 1,
+        "wis": 7,
+        "cha": 3
+      },
+      "cr": 0,
+      "traits": [
+        {
+          "name": "Illumination",
+          "text": "The beetle sheds bright light in a 10-foot radius and dim light for an additional 10 ft.."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Bite",
+          "text": "Melee Weapon Attack: +1 to hit, reach 5 ft., one target. Hit: 2 (1d6 - 1) slashing damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 1,
+            "reach": "5 ft.",
+            "damage": "1d6",
+            "damageBonus": -1,
+            "damageType": "slashing"
+          }
+        }
+      ],
+      "acNote": "natural",
+      "senses": {
+        "blindsight": 30
+      }
+    },
+    {
+      "kind": "creature",
+      "id": "creature:giant-frog",
+      "name": "Giant Frog",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Medium",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 11,
+      "hp": 18,
+      "hitDice": "4d8",
+      "speed": {
+        "walk": 30,
+        "swim": 30
+      },
+      "abilities": {
+        "str": 12,
+        "dex": 13,
+        "con": 11,
+        "int": 2,
+        "wis": 10,
+        "cha": 3
+      },
+      "cr": 0.25,
+      "traits": [
+        {
+          "name": "Amphibious",
+          "text": "The frog can breathe air and water"
+        },
+        {
+          "name": "Standing Leap",
+          "text": "The frog's long jump is up to 20 ft. and its high jump is up to 10 ft., with or without a running start."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Bite",
+          "text": "Melee Weapon Attack: +3 to hit, reach 5 ft., one target. Hit: 4 (1d6 + 1) piercing damage, and the target is grappled (escape DC 11). Until this grapple ends, the target is restrained, and the frog can't bite another target.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 3,
+            "reach": "5 ft.",
+            "damage": "1d6",
+            "damageBonus": 1,
+            "damageType": "piercing"
+          }
+        },
+        {
+          "name": "Swallow",
+          "text": "The frog makes one bite attack against a Small or smaller target it is grappling. If the attack hits, the target is swallowed, and the grapple ends. The swallowed target is blinded and restrained, it has total cover against attacks and other effects outside the frog, and it takes 5 (2d4) acid damage at the start of each of the frog's turns. The frog can have only one target swallowed at a time. If the frog dies, a swallowed creature is no longer restrained by it and can escape from the corpse using 5 ft. of movement, exiting prone."
+        }
+      ],
+      "skills": {
+        "perception": 2,
+        "stealth": 3
+      },
+      "senses": {
+        "darkvision": 30
+      }
+    },
+    {
+      "kind": "creature",
+      "id": "creature:giant-goat",
+      "name": "Giant Goat",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Large",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 11,
+      "hp": 19,
+      "hitDice": "3d10+3",
+      "speed": {
+        "walk": 40
+      },
+      "abilities": {
+        "str": 17,
+        "dex": 11,
+        "con": 12,
+        "int": 3,
+        "wis": 12,
+        "cha": 6
+      },
+      "cr": 0.5,
+      "traits": [
+        {
+          "name": "Charge",
+          "text": "If the goat moves at least 20 ft. straight toward a target and then hits it with a ram attack on the same turn, the target takes an extra 5 (2d4) bludgeoning damage. If the target is a creature, it must succeed on a DC 13 Strength saving throw or be knocked prone."
+        },
+        {
+          "name": "Sure-Footed",
+          "text": "The goat has advantage on Strength and Dexterity saving throws made against effects that would knock it prone."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Ram",
+          "text": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 8 (2d4 + 3) bludgeoning damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 5,
+            "reach": "5 ft.",
+            "damage": "2d4",
+            "damageBonus": 3,
+            "damageType": "bludgeoning"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "creature",
+      "id": "creature:giant-hyena",
+      "name": "Giant Hyena",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Large",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 12,
+      "hp": 45,
+      "hitDice": "6d10+12",
+      "speed": {
+        "walk": 50
+      },
+      "abilities": {
+        "str": 16,
+        "dex": 14,
+        "con": 14,
+        "int": 2,
+        "wis": 12,
+        "cha": 7
+      },
+      "cr": 1,
+      "traits": [
+        {
+          "name": "Rampage",
+          "text": "When the hyena reduces a creature to 0 hit points with a melee attack on its turn, the hyena can take a bonus action to move up to half its speed and make a bite attack."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Bite",
+          "text": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 10 (2d6 + 3) piercing damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 5,
+            "reach": "5 ft.",
+            "damage": "2d6",
+            "damageBonus": 3,
+            "damageType": "piercing"
+          }
+        }
+      ],
+      "skills": {
+        "perception": 3
+      }
+    },
+    {
+      "kind": "creature",
+      "id": "creature:giant-lizard",
+      "name": "Giant Lizard",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Large",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 12,
+      "hp": 19,
+      "hitDice": "3d10+3",
+      "speed": {
+        "walk": 30,
+        "climb": 30
+      },
+      "abilities": {
+        "str": 15,
+        "dex": 12,
+        "con": 13,
+        "int": 2,
+        "wis": 10,
+        "cha": 5
+      },
+      "cr": 0.25,
+      "traits": [],
+      "actions": [
+        {
+          "name": "Bite",
+          "text": "Melee Weapon Attack: +4 to hit, reach 5 ft., one target. Hit: 6 (1d8 + 2) piercing damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 4,
+            "reach": "5 ft.",
+            "damage": "1d8",
+            "damageBonus": 2,
+            "damageType": "piercing"
+          }
+        }
+      ],
+      "acNote": "natural",
+      "senses": {
+        "darkvision": 30
+      }
+    },
+    {
+      "kind": "creature",
+      "id": "creature:giant-octopus",
+      "name": "Giant Octopus",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Large",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 11,
+      "hp": 52,
+      "hitDice": "8d10+8",
+      "speed": {
+        "walk": 10,
+        "swim": 60
+      },
+      "abilities": {
+        "str": 17,
+        "dex": 13,
+        "con": 13,
+        "int": 4,
+        "wis": 10,
+        "cha": 4
+      },
+      "cr": 1,
+      "traits": [
+        {
+          "name": "Hold Breath",
+          "text": "While out of water, the octopus can hold its breath for 1 hour."
+        },
+        {
+          "name": "Underwater Camouflage",
+          "text": "The octopus has advantage on Dexterity (Stealth) checks made while underwater."
+        },
+        {
+          "name": "Water Breathing",
+          "text": "The octopus can breathe only underwater."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Tentacles",
+          "text": "Melee Weapon Attack: +5 to hit, reach 15 ft., one target. Hit: 10 (2d6 + 3) bludgeoning damage. If the target is a creature, it is grappled (escape DC 16). Until this grapple ends, the target is restrained, and the octopus can't use its tentacles on another target.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 5,
+            "reach": "15 ft.",
+            "damage": "2d6",
+            "damageBonus": 3,
+            "damageType": "bludgeoning"
+          }
+        },
+        {
+          "name": "Ink Cloud",
+          "text": "A 20-foot-radius cloud of ink extends all around the octopus if it is underwater. The area is heavily obscured for 1 minute, although a significant current can disperse the ink. After releasing the ink, the octopus can use the Dash action as a bonus action."
+        }
+      ],
+      "skills": {
+        "perception": 4,
+        "stealth": 5
+      },
+      "senses": {
+        "darkvision": 60
+      }
+    },
+    {
+      "kind": "creature",
+      "id": "creature:giant-owl",
+      "name": "Giant Owl",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Large",
+      "type": "beast",
+      "alignment": "neutral",
+      "ac": 12,
+      "hp": 19,
+      "hitDice": "3d10+3",
+      "speed": {
+        "walk": 5,
+        "fly": 60
+      },
+      "abilities": {
+        "str": 13,
+        "dex": 15,
+        "con": 12,
+        "int": 8,
+        "wis": 13,
+        "cha": 10
+      },
+      "cr": 0.25,
+      "traits": [
+        {
+          "name": "Flyby",
+          "text": "The owl doesn't provoke opportunity attacks when it flies out of an enemy's reach."
+        },
+        {
+          "name": "Keen Hearing and Sight",
+          "text": "The owl has advantage on Wisdom (Perception) checks that rely on hearing or sight."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Talons",
+          "text": "Melee Weapon Attack: +3 to hit, reach 5 ft., one target. Hit: 8 (2d6 + 1) slashing damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 3,
+            "reach": "5 ft.",
+            "damage": "2d6",
+            "damageBonus": 1,
+            "damageType": "slashing"
+          }
+        }
+      ],
+      "skills": {
+        "perception": 5,
+        "stealth": 4
+      },
+      "senses": {
+        "darkvision": 120
+      },
+      "languages": "Giant Owl, understands Common, Elvish, and Sylvan but can't speak"
+    },
+    {
+      "kind": "creature",
+      "id": "creature:giant-poisonous-snake",
+      "name": "Giant Poisonous Snake",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Medium",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 14,
+      "hp": 11,
+      "hitDice": "2d8+2",
+      "speed": {
+        "walk": 30,
+        "swim": 30
+      },
+      "abilities": {
+        "str": 10,
+        "dex": 18,
+        "con": 13,
+        "int": 2,
+        "wis": 10,
+        "cha": 3
+      },
+      "cr": 0.25,
+      "traits": [],
+      "actions": [
+        {
+          "name": "Bite",
+          "text": "Melee Weapon Attack: +6 to hit, reach 10 ft., one target. Hit: 6 (1d4 + 4) piercing damage, and the target must make a DC 11 Constitution saving throw, taking 10 (3d6) poison damage on a failed save, or half as much damage on a successful one.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 6,
+            "reach": "10 ft.",
+            "damage": "1d4",
+            "damageBonus": 4,
+            "damageType": "piercing"
+          }
+        }
+      ],
+      "skills": {
+        "perception": 2
+      },
+      "senses": {
+        "blindsight": 10
+      }
+    },
+    {
+      "kind": "creature",
+      "id": "creature:giant-rat",
+      "name": "Giant Rat",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Small",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 12,
+      "hp": 7,
+      "hitDice": "2d6",
+      "speed": {
+        "walk": 30
+      },
+      "abilities": {
+        "str": 7,
+        "dex": 15,
+        "con": 11,
+        "int": 2,
+        "wis": 10,
+        "cha": 4
+      },
+      "cr": 0.125,
+      "traits": [
+        {
+          "name": "Keen Smell",
+          "text": "The rat has advantage on Wisdom (Perception) checks that rely on smell."
+        },
+        {
+          "name": "Pack Tactics",
+          "text": "The rat has advantage on an attack roll against a creature if at least one of the rat's allies is within 5 ft. of the creature and the ally isn't incapacitated."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Bite",
+          "text": "Melee Weapon Attack: +4 to hit, reach 5 ft., one target. Hit: 4 (1d4 + 2) piercing damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 4,
+            "reach": "5 ft.",
+            "damage": "1d4",
+            "damageBonus": 2,
+            "damageType": "piercing"
+          }
+        }
+      ],
+      "senses": {
+        "darkvision": 60
+      }
+    },
+    {
+      "kind": "creature",
+      "id": "creature:giant-rat-diseased",
+      "name": "Giant Rat (Diseased)",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Small",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 12,
+      "hp": 7,
+      "hitDice": "2d6",
+      "speed": {
+        "walk": 30
+      },
+      "abilities": {
+        "str": 7,
+        "dex": 15,
+        "con": 11,
+        "int": 2,
+        "wis": 10,
+        "cha": 4
+      },
+      "cr": 0.125,
+      "traits": [
+        {
+          "name": "Keen Smell",
+          "text": "The rat has advantage on Wisdom (Perception) checks that rely on smell."
+        },
+        {
+          "name": "Pack Tactics",
+          "text": "The rat has advantage on an attack roll against a creature if at least one of the rat's allies is within 5 ft. of the creature and the ally isn't incapacitated."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Bite",
+          "text": "Melee Weapon Attack: +4 to hit, reach 5 ft., one target. Hit: 3 (1d4 + 2) piercing damage. If the target is a creature, it must succeed on a DC 10 Constitution saving throw or contract a disease. Until the disease is cured, the target can't regain hit points except by magical means, and the target's hit point maximum decreases by 3 (1d6) every 24 hours. If the target's hit point maximum drops to 0 as a result of this disease, the target dies.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 4,
+            "reach": "5 ft.",
+            "damage": "1d4",
+            "damageBonus": 2,
+            "damageType": "piercing"
+          }
+        }
+      ],
+      "senses": {
+        "darkvision": 60
+      }
+    },
+    {
+      "kind": "creature",
+      "id": "creature:giant-scorpion",
+      "name": "Giant Scorpion",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Large",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 15,
+      "hp": 52,
+      "hitDice": "7d10+14",
+      "speed": {
+        "walk": 40
+      },
+      "abilities": {
+        "str": 15,
+        "dex": 13,
+        "con": 15,
+        "int": 1,
+        "wis": 9,
+        "cha": 3
+      },
+      "cr": 3,
+      "traits": [],
+      "actions": [
+        {
+          "name": "Claw",
+          "text": "Melee Weapon Attack: +4 to hit, reach 5 ft., one target. Hit: 6 (1d8 + 2) bludgeoning damage, and the target is grappled (escape DC 12). The scorpion has two claws, each of which can grapple only one target.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 4,
+            "reach": "5 ft.",
+            "damage": "1d8",
+            "damageBonus": 2,
+            "damageType": "bludgeoning"
+          }
+        },
+        {
+          "name": "Multiattack",
+          "text": "The scorpion makes three attacks: two with its claws and one with its sting."
+        },
+        {
+          "name": "Sting",
+          "text": "Melee Weapon Attack: +4 to hit, reach 5 ft., one creature. Hit: 7 (1d10 + 2) piercing damage, and the target must make a DC 12 Constitution saving throw, taking 22 (4d10) poison damage on a failed save, or half as much damage on a successful one.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 4,
+            "reach": "5 ft.",
+            "damage": "1d10",
+            "damageBonus": 2,
+            "damageType": "piercing"
+          }
+        }
+      ],
+      "acNote": "natural",
+      "senses": {
+        "blindsight": 60
+      }
+    },
+    {
+      "kind": "creature",
+      "id": "creature:giant-sea-horse",
+      "name": "Giant Sea Horse",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Large",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 13,
+      "hp": 16,
+      "hitDice": "3d10",
+      "speed": {
+        "walk": 0,
+        "swim": 40
+      },
+      "abilities": {
+        "str": 12,
+        "dex": 15,
+        "con": 11,
+        "int": 2,
+        "wis": 12,
+        "cha": 5
+      },
+      "cr": 0.5,
+      "traits": [
+        {
+          "name": "Charge",
+          "text": "If the sea horse moves at least 20 ft. straight toward a target and then hits it with a ram attack on the same turn, the target takes an extra 7 (2d6) bludgeoning damage. If the target is a creature, it must succeed on a DC 11 Strength saving throw or be knocked prone."
+        },
+        {
+          "name": "Water Breathing",
+          "text": "The sea horse can breathe only underwater."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Ram",
+          "text": "Melee Weapon Attack: +3 to hit, reach 5 ft., one target. Hit: 4 (1d6 + 1) bludgeoning damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 3,
+            "reach": "5 ft.",
+            "damage": "1d6",
+            "damageBonus": 1,
+            "damageType": "bludgeoning"
+          }
+        }
+      ],
+      "acNote": "natural"
+    },
+    {
+      "kind": "creature",
+      "id": "creature:giant-shark",
+      "name": "Giant Shark",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Huge",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 13,
+      "hp": 126,
+      "hitDice": "11d12+55",
+      "speed": {
+        "walk": 0,
+        "swim": 50
+      },
+      "abilities": {
+        "str": 23,
+        "dex": 11,
+        "con": 21,
+        "int": 1,
+        "wis": 10,
+        "cha": 5
+      },
+      "cr": 5,
+      "traits": [
+        {
+          "name": "Blood Frenzy",
+          "text": "The shark has advantage on melee attack rolls against any creature that doesn't have all its hit points."
+        },
+        {
+          "name": "Water Breathing",
+          "text": "The shark can breathe only underwater."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Bite",
+          "text": "Melee Weapon Attack: +9 to hit, reach 5 ft., one target. Hit: 22 (3d10 + 6) piercing damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 9,
+            "reach": "5 ft.",
+            "damage": "3d10",
+            "damageBonus": 6,
+            "damageType": "piercing"
+          }
+        }
+      ],
+      "acNote": "natural",
+      "skills": {
+        "perception": 3
+      },
+      "senses": {
+        "blindsight": 60
+      }
+    },
+    {
+      "kind": "creature",
+      "id": "creature:giant-spider",
+      "name": "Giant Spider",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Large",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 14,
+      "hp": 26,
+      "hitDice": "4d10+4",
+      "speed": {
+        "walk": 30,
+        "climb": 30
+      },
+      "abilities": {
+        "str": 14,
+        "dex": 16,
+        "con": 12,
+        "int": 2,
+        "wis": 11,
+        "cha": 4
+      },
+      "cr": 1,
+      "traits": [
+        {
+          "name": "Spider Climb",
+          "text": "The spider can climb difficult surfaces, including upside down on ceilings, without needing to make an ability check."
+        },
+        {
+          "name": "Web Sense",
+          "text": "While in contact with a web, the spider knows the exact location of any other creature in contact with the same web."
+        },
+        {
+          "name": "Web Walker",
+          "text": "The spider ignores movement restrictions caused by webbing."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Bite",
+          "text": "Melee Weapon Attack: +5 to hit, reach 5 ft., one creature. Hit: 7 (1d8 + 3) piercing damage, and the target must make a DC 11 Constitution saving throw, taking 9 (2d8) poison damage on a failed save, or half as much damage on a successful one. If the poison damage reduces the target to 0 hit points, the target is stable but poisoned for 1 hour, even after regaining hit points, and is paralyzed while poisoned in this way.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 5,
+            "reach": "5 ft.",
+            "damage": "1d8",
+            "damageBonus": 3,
+            "damageType": "piercing"
+          }
+        },
+        {
+          "name": "Web",
+          "text": "Ranged Weapon Attack: +5 to hit, range 30/60 ft., one creature. Hit: The target is restrained by webbing. As an action, the restrained target can make a DC 12 Strength check, bursting the webbing on a success. The webbing can also be attacked and destroyed (AC 10; hp 5; vulnerability to fire damage; immunity to bludgeoning, poison, and psychic damage)."
+        }
+      ],
+      "acNote": "natural",
+      "skills": {
+        "stealth": 7
+      },
+      "senses": {
+        "blindsight": 10,
+        "darkvision": 60
+      }
+    },
+    {
+      "kind": "creature",
+      "id": "creature:giant-toad",
+      "name": "Giant Toad",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Large",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 11,
+      "hp": 39,
+      "hitDice": "6d10+6",
+      "speed": {
+        "walk": 20,
+        "swim": 40
+      },
+      "abilities": {
+        "str": 15,
+        "dex": 13,
+        "con": 13,
+        "int": 2,
+        "wis": 10,
+        "cha": 3
+      },
+      "cr": 1,
+      "traits": [
+        {
+          "name": "Amphibious",
+          "text": "The toad can breathe air and water"
+        },
+        {
+          "name": "Standing Leap",
+          "text": "The toad's long jump is up to 20 ft. and its high jump is up to 10 ft., with or without a running start."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Bite",
+          "text": "Melee Weapon Attack: +4 to hit, reach 5 ft., one target. Hit: 7 (1d10 + 2) piercing damage plus 5 (1d10) poison damage, and the target is grappled (escape DC 13). Until this grapple ends, the target is restrained, and the toad can't bite another target.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 4,
+            "reach": "5 ft.",
+            "damage": "1d10",
+            "damageBonus": 2,
+            "damageType": "piercing"
+          }
+        },
+        {
+          "name": "Swallow",
+          "text": "The toad makes one bite attack against a Medium or smaller target it is grappling. If the attack hits, the target is swallowed, and the grapple ends. The swallowed target is blinded and restrained, it has total cover against attacks and other effects outside the toad, and it takes 10 (3d6) acid damage at the start of each of the toad's turns. The toad can have only one target swallowed at a time.\nIf the toad dies, a swallowed creature is no longer restrained by it and can escape from the corpse using 5 feet of movement, exiting prone."
+        }
+      ],
+      "senses": {
+        "darkvision": 30
+      }
+    },
+    {
+      "kind": "creature",
+      "id": "creature:giant-vulture",
+      "name": "Giant Vulture",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Large",
+      "type": "beast",
+      "alignment": "neutral evil",
+      "ac": 10,
+      "hp": 22,
+      "hitDice": "3d10+6",
+      "speed": {
+        "walk": 10,
+        "fly": 60
+      },
+      "abilities": {
+        "str": 15,
+        "dex": 10,
+        "con": 15,
+        "int": 6,
+        "wis": 12,
+        "cha": 7
+      },
+      "cr": 1,
+      "traits": [
+        {
+          "name": "Keen Sight and Smell",
+          "text": "The vulture has advantage on Wisdom (Perception) checks that rely on sight or smell."
+        },
+        {
+          "name": "Pack Tactics",
+          "text": "The vulture has advantage on an attack roll against a creature if at least one of the vulture's allies is within 5 ft. of the creature and the ally isn't incapacitated."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Multiattack",
+          "text": "The vulture makes two attacks: one with its beak and one with its talons."
+        },
+        {
+          "name": "Beak",
+          "text": "Melee Weapon Attack: +4 to hit, reach 5 ft., one target. Hit: 7 (2d4 + 2) piercing damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 4,
+            "reach": "5 ft.",
+            "damage": "2d4",
+            "damageBonus": 2,
+            "damageType": "piercing"
+          }
+        },
+        {
+          "name": "Talons",
+          "text": "Melee Weapon Attack: +4 to hit, reach 5 ft., one target. Hit: 9 (2d6 + 2) slashing damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 4,
+            "reach": "5 ft.",
+            "damage": "2d6",
+            "damageBonus": 2,
+            "damageType": "slashing"
+          }
+        }
+      ],
+      "skills": {
+        "perception": 3
+      },
+      "languages": "understands Common but can't speak"
+    },
+    {
+      "kind": "creature",
+      "id": "creature:giant-wasp",
+      "name": "Giant Wasp",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Medium",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 12,
+      "hp": 13,
+      "hitDice": "3d8",
+      "speed": {
+        "walk": 10,
+        "swim": 50,
+        "fly": 50
+      },
+      "abilities": {
+        "str": 10,
+        "dex": 14,
+        "con": 10,
+        "int": 1,
+        "wis": 10,
+        "cha": 3
+      },
+      "cr": 0.5,
+      "traits": [],
+      "actions": [
+        {
+          "name": "Sting",
+          "text": "Melee Weapon Attack: +4 to hit, reach 5 ft., one creature. Hit: 5 (1d6 + 2) piercing damage, and the target must make a DC 11 Constitution saving throw, taking 10 (3d6) poison damage on a failed save, or half as much damage on a successful one. If the poison damage reduces the target to 0 hit points, the target is stable but poisoned for 1 hour, even after regaining hit points, and is paralyzed while poisoned in this way.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 4,
+            "reach": "5 ft.",
+            "damage": "1d6",
+            "damageBonus": 2,
+            "damageType": "piercing"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "creature",
+      "id": "creature:giant-weasel",
+      "name": "Giant Weasel",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Medium",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 13,
+      "hp": 9,
+      "hitDice": "2d8",
+      "speed": {
+        "walk": 40
+      },
+      "abilities": {
+        "str": 11,
+        "dex": 16,
+        "con": 10,
+        "int": 4,
+        "wis": 12,
+        "cha": 5
+      },
+      "cr": 0.125,
+      "traits": [
+        {
+          "name": "Keen Hearing and Smell",
+          "text": "The weasel has advantage on Wisdom (Perception) checks that rely on hearing or smell."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Bite",
+          "text": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 5 (1d4 + 3) piercing damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 5,
+            "reach": "5 ft.",
+            "damage": "1d4",
+            "damageBonus": 3,
+            "damageType": "piercing"
+          }
+        }
+      ],
+      "skills": {
+        "perception": 3,
+        "stealth": 5
+      },
+      "senses": {
+        "darkvision": 60
+      }
+    },
+    {
+      "kind": "creature",
+      "id": "creature:giant-wolf-spider",
+      "name": "Giant Wolf Spider",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Medium",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 13,
+      "hp": 11,
+      "hitDice": "2d8+2",
+      "speed": {
+        "walk": 40,
+        "climb": 40
+      },
+      "abilities": {
+        "str": 12,
+        "dex": 16,
+        "con": 13,
+        "int": 3,
+        "wis": 12,
+        "cha": 4
+      },
+      "cr": 0.25,
+      "traits": [
+        {
+          "name": "Spider Climb",
+          "text": "The spider can climb difficult surfaces, including upside down on ceilings, without needing to make an ability check."
+        },
+        {
+          "name": "Web Sense",
+          "text": "While in contact with a web, the spider knows the exact location of any other creature in contact with the same web."
+        },
+        {
+          "name": "Web Walker",
+          "text": "The spider ignores movement restrictions caused by webbing."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Bite",
+          "text": "Melee Weapon Attack: +3 to hit, reach 5 ft., one creature. Hit: 4 (1d6 + 1) piercing damage, and the target must make a DC 11 Constitution saving throw, taking 7 (2d6) poison damage on a failed save, or half as much damage on a successful one. If the poison damage reduces the target to 0 hit points, the target is stable but poisoned for 1 hour, even after regaining hit points, and is paralyzed while poisoned in this way.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 3,
+            "reach": "5 ft.",
+            "damage": "1d6",
+            "damageBonus": 1,
+            "damageType": "piercing"
+          }
+        }
+      ],
+      "skills": {
+        "perception": 3,
+        "stealth": 7
+      },
+      "senses": {
+        "blindsight": 10,
+        "darkvision": 60
+      }
+    },
+    {
+      "kind": "creature",
+      "id": "creature:goat",
+      "name": "Goat",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Medium",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 10,
+      "hp": 4,
+      "hitDice": "1d8",
+      "speed": {
+        "walk": 40
+      },
+      "abilities": {
+        "str": 12,
+        "dex": 10,
+        "con": 11,
+        "int": 2,
+        "wis": 10,
+        "cha": 5
+      },
+      "cr": 0,
+      "traits": [
+        {
+          "name": "Charge",
+          "text": "If the goat moves at least 20 ft. straight toward a target and then hits it with a ram attack on the same turn, the target takes an extra 2 (1d4) bludgeoning damage. If the target is a creature, it must succeed on a DC 10 Strength saving throw or be knocked prone."
+        },
+        {
+          "name": "Sure-Footed",
+          "text": "The goat has advantage on Strength and Dexterity saving throws made against effects that would knock it prone."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Ram",
+          "text": "Melee Weapon Attack: +3 to hit, reach 5 ft., one target. Hit: 3 (1d4 + 1) bludgeoning damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 3,
+            "reach": "5 ft.",
+            "damage": "1d4",
+            "damageBonus": 1,
+            "damageType": "bludgeoning"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "creature",
+      "id": "creature:hawk",
+      "name": "Hawk",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Tiny",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 13,
+      "hp": 1,
+      "hitDice": "1d4-1",
+      "speed": {
+        "walk": 10,
+        "fly": 60
+      },
+      "abilities": {
+        "str": 5,
+        "dex": 16,
+        "con": 8,
+        "int": 2,
+        "wis": 14,
+        "cha": 6
+      },
+      "cr": 0,
+      "traits": [
+        {
+          "name": "Keen Sight",
+          "text": "The hawk has advantage on Wisdom (Perception) checks that rely on sight."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Talons",
+          "text": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 1 slashing damage."
+        }
+      ],
+      "skills": {
+        "perception": 4
+      }
+    },
+    {
+      "kind": "creature",
+      "id": "creature:hunter-shark",
+      "name": "Hunter Shark",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Large",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 12,
+      "hp": 45,
+      "hitDice": "6d10+12",
+      "speed": {
+        "walk": 0,
+        "swim": 40
+      },
+      "abilities": {
+        "str": 18,
+        "dex": 13,
+        "con": 15,
+        "int": 1,
+        "wis": 10,
+        "cha": 4
+      },
+      "cr": 2,
+      "traits": [
+        {
+          "name": "Blood Frenzy",
+          "text": "The shark has advantage on melee attack rolls against any creature that doesn't have all its hit points."
+        },
+        {
+          "name": "Water Breathing",
+          "text": "The shark can breathe only underwater."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Bite",
+          "text": "Melee Weapon Attack: +6 to hit, reach 5 ft., one target. Hit: 13 (2d8 + 4) piercing damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 6,
+            "reach": "5 ft.",
+            "damage": "2d8",
+            "damageBonus": 4,
+            "damageType": "piercing"
+          }
+        }
+      ],
+      "skills": {
+        "perception": 2
+      },
+      "senses": {
+        "darkvision": 30
+      }
+    },
+    {
+      "kind": "creature",
+      "id": "creature:hyena",
+      "name": "Hyena",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Medium",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 11,
+      "hp": 5,
+      "hitDice": "1d8+1",
+      "speed": {
+        "walk": 50
+      },
+      "abilities": {
+        "str": 11,
+        "dex": 13,
+        "con": 12,
+        "int": 2,
+        "wis": 12,
+        "cha": 5
+      },
+      "cr": 0,
+      "traits": [
+        {
+          "name": "Pack Tactics",
+          "text": "The hyena has advantage on an attack roll against a creature if at least one of the hyena's allies is within 5 ft. of the creature and the ally isn't incapacitated."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Bite",
+          "text": "Melee Weapon Attack: +2 to hit, reach 5 ft., one target. Hit: 3 (1d6) piercing damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 2,
+            "reach": "5 ft.",
+            "damage": "1d6",
+            "damageBonus": 0,
+            "damageType": "piercing"
+          }
+        }
+      ],
+      "skills": {
+        "perception": 3
+      }
+    },
+    {
+      "kind": "creature",
+      "id": "creature:jackal",
+      "name": "Jackal",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Small",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 12,
+      "hp": 3,
+      "hitDice": "1d6",
+      "speed": {
+        "walk": 40
+      },
+      "abilities": {
+        "str": 8,
+        "dex": 15,
+        "con": 11,
+        "int": 3,
+        "wis": 12,
+        "cha": 6
+      },
+      "cr": 0,
+      "traits": [
+        {
+          "name": "Keen Hearing and Smell",
+          "text": "The jackal has advantage on Wisdom (Perception) checks that rely on hearing or smell."
+        },
+        {
+          "name": "Pack Tactics",
+          "text": "The jackal has advantage on an attack roll against a creature if at least one of the jackal's allies is within 5 ft. of the creature and the ally isn't incapacitated."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Bite",
+          "text": "Melee Weapon Attack: +1 to hit, reach 5 ft., one target. Hit: 1 (1d4 - 1) piercing damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 1,
+            "reach": "5 ft.",
+            "damage": "1d4",
+            "damageBonus": -1,
+            "damageType": "piercing"
+          }
+        }
+      ],
+      "skills": {
+        "perception": 3
+      }
+    },
+    {
+      "kind": "creature",
+      "id": "creature:killer-whale",
+      "name": "Killer Whale",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Huge",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 12,
+      "hp": 90,
+      "hitDice": "12d12+12",
+      "speed": {
+        "walk": 0,
+        "swim": 60
+      },
+      "abilities": {
+        "str": 19,
+        "dex": 10,
+        "con": 13,
+        "int": 3,
+        "wis": 12,
+        "cha": 7
+      },
+      "cr": 3,
+      "traits": [
+        {
+          "name": "Echolocation",
+          "text": "The whale can't use its blindsight while deafened."
+        },
+        {
+          "name": "Hold Breath",
+          "text": "The whale can hold its breath for 30 minutes"
+        },
+        {
+          "name": "Keen Hearing",
+          "text": "The whale has advantage on Wisdom (Perception) checks that rely on hearing."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Bite",
+          "text": "Melee Weapon Attack: +6 to hit, reach 5 ft., one target. Hit: 21 (5d6 + 4) piercing damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 6,
+            "reach": "5 ft.",
+            "damage": "5d6",
+            "damageBonus": 4,
+            "damageType": "piercing"
+          }
+        }
+      ],
+      "acNote": "natural",
+      "skills": {
+        "perception": 3
+      },
+      "senses": {
+        "blindsight": 120
+      }
+    },
+    {
+      "kind": "creature",
+      "id": "creature:lion",
+      "name": "Lion",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Large",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 12,
+      "hp": 26,
+      "hitDice": "4d10+4",
+      "speed": {
+        "walk": 50
+      },
+      "abilities": {
+        "str": 17,
+        "dex": 15,
+        "con": 13,
+        "int": 3,
+        "wis": 12,
+        "cha": 8
+      },
+      "cr": 1,
+      "traits": [
+        {
+          "name": "Keen Smell",
+          "text": "The lion has advantage on Wisdom (Perception) checks that rely on smell."
+        },
+        {
+          "name": "Pack Tactics",
+          "text": "The lion has advantage on an attack roll against a creature if at least one of the lion's allies is within 5 ft. of the creature and the ally isn't incapacitated."
+        },
+        {
+          "name": "Pounce",
+          "text": "If the lion moves at least 20 ft. straight toward a creature and then hits it with a claw attack on the same turn, that target must succeed on a DC 13 Strength saving throw or be knocked prone. If the target is prone, the lion can make one bite attack against it as a bonus action."
+        },
+        {
+          "name": "Running Leap",
+          "text": "With a 10-foot running start, the lion can long jump up to 25 ft.."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Bite",
+          "text": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 7 (1d8 + 3) piercing damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 5,
+            "reach": "5 ft.",
+            "damage": "1d8",
+            "damageBonus": 3,
+            "damageType": "piercing"
+          }
+        },
+        {
+          "name": "Claw",
+          "text": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 6 (1d6 + 3) slashing damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 5,
+            "reach": "5 ft.",
+            "damage": "1d6",
+            "damageBonus": 3,
+            "damageType": "slashing"
+          }
+        }
+      ],
+      "skills": {
+        "perception": 3,
+        "stealth": 6
+      }
+    },
+    {
+      "kind": "creature",
+      "id": "creature:lizard",
+      "name": "Lizard",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Tiny",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 10,
+      "hp": 2,
+      "hitDice": "1d4",
+      "speed": {
+        "walk": 20,
+        "climb": 20
+      },
+      "abilities": {
+        "str": 2,
+        "dex": 11,
+        "con": 10,
+        "int": 1,
+        "wis": 8,
+        "cha": 3
+      },
+      "cr": 0,
+      "traits": [],
+      "actions": [
+        {
+          "name": "Bite",
+          "text": "Melee Weapon Attack: +0 to hit, reach 5 ft., one target. Hit: 1 piercing damage."
+        }
+      ],
+      "senses": {
+        "darkvision": 30
+      }
+    },
+    {
+      "kind": "creature",
+      "id": "creature:mammoth",
+      "name": "Mammoth",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Huge",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 13,
+      "hp": 126,
+      "hitDice": "11d12+55",
+      "speed": {
+        "walk": 40
+      },
+      "abilities": {
+        "str": 24,
+        "dex": 9,
+        "con": 21,
+        "int": 3,
+        "wis": 11,
+        "cha": 6
+      },
+      "cr": 6,
+      "traits": [
+        {
+          "name": "Trampling Charge",
+          "text": "If the mammoth moves at least 20 ft. straight toward a creature and then hits it with a gore attack on the same turn, that target must succeed on a DC 18 Strength saving throw or be knocked prone. If the target is prone, the mammoth can make one stomp attack against it as a bonus action."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Gore",
+          "text": "Melee Weapon Attack: +10 to hit, reach 10 ft., one target. Hit: 25 (4d8 + 7) piercing damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 10,
+            "reach": "10 ft.",
+            "damage": "4d8",
+            "damageBonus": 7,
+            "damageType": "piercing"
+          }
+        },
+        {
+          "name": "Stomp",
+          "text": "Melee Weapon Attack: +10 to hit, reach 5 ft., one prone creature. Hit: 29 (4d10 + 7) bludgeoning damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 10,
+            "reach": "5 ft.",
+            "damage": "4d10",
+            "damageBonus": 7,
+            "damageType": "bludgeoning"
+          }
+        }
+      ],
+      "acNote": "natural"
+    },
+    {
+      "kind": "creature",
+      "id": "creature:mastiff",
+      "name": "Mastiff",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Medium",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 12,
+      "hp": 5,
+      "hitDice": "1d8+1",
+      "speed": {
+        "walk": 40
+      },
+      "abilities": {
+        "str": 13,
+        "dex": 14,
+        "con": 12,
+        "int": 3,
+        "wis": 12,
+        "cha": 7
+      },
+      "cr": 0.125,
+      "traits": [
+        {
+          "name": "Keen Hearing and Smell",
+          "text": "The mastiff has advantage on Wisdom (Perception) checks that rely on hearing or smell."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Bite",
+          "text": "Melee Weapon Attack: +3 to hit, reach 5 ft., one target. Hit: 4 (1d6 + 1) piercing damage. If the target is a creature, it must succeed on a DC 11 Strength saving throw or be knocked prone.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 3,
+            "reach": "5 ft.",
+            "damage": "1d6",
+            "damageBonus": 1,
+            "damageType": "piercing"
+          }
+        }
+      ],
+      "skills": {
+        "perception": 3
+      }
+    },
+    {
+      "kind": "creature",
+      "id": "creature:mule",
+      "name": "Mule",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Medium",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 10,
+      "hp": 11,
+      "hitDice": "2d8+2",
+      "speed": {
+        "walk": 40
+      },
+      "abilities": {
+        "str": 14,
+        "dex": 10,
+        "con": 13,
+        "int": 2,
+        "wis": 10,
+        "cha": 5
+      },
+      "cr": 0.125,
+      "traits": [
+        {
+          "name": "Beast of Burden",
+          "text": "The mule is considered to be a Large animal for the purpose of determining its carrying capacity."
+        },
+        {
+          "name": "Sure-Footed",
+          "text": "The mule has advantage on Strength and Dexterity saving throws made against effects that would knock it prone."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Hooves",
+          "text": "Melee Weapon Attack: +2 to hit, reach 5 ft., one target. Hit: 4 (1d4 + 2) bludgeoning damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 2,
+            "reach": "5 ft.",
+            "damage": "1d4",
+            "damageBonus": 2,
+            "damageType": "bludgeoning"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "creature",
+      "id": "creature:octopus",
+      "name": "Octopus",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Small",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 12,
+      "hp": 3,
+      "hitDice": "1d6",
+      "speed": {
+        "walk": 5,
+        "swim": 30
+      },
+      "abilities": {
+        "str": 4,
+        "dex": 15,
+        "con": 11,
+        "int": 3,
+        "wis": 10,
+        "cha": 4
+      },
+      "cr": 0,
+      "traits": [
+        {
+          "name": "Hold Breath",
+          "text": "While out of water, the octopus can hold its breath for 30 minutes."
+        },
+        {
+          "name": "Underwater Camouflage",
+          "text": "The octopus has advantage on Dexterity (Stealth) checks made while underwater."
+        },
+        {
+          "name": "Water Breathing",
+          "text": "The octopus can breathe only underwater."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Tentacles",
+          "text": "Melee Weapon Attack: +4 to hit, reach 5 ft., one target. Hit: 1 bludgeoning damage, and the target is grappled (escape DC 10). Until this grapple ends, the octopus can't use its tentacles on another target."
+        },
+        {
+          "name": "Ink Cloud",
+          "text": "A 5-foot-radius cloud of ink extends all around the octopus if it is underwater. The area is heavily obscured for 1 minute, although a significant current can disperse the ink. After releasing the ink, the octopus can use the Dash action as a bonus action."
+        }
+      ],
+      "skills": {
+        "perception": 2,
+        "stealth": 4
+      },
+      "senses": {
+        "darkvision": 30
+      }
+    },
+    {
+      "kind": "creature",
+      "id": "creature:owl",
+      "name": "Owl",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Tiny",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 11,
+      "hp": 1,
+      "hitDice": "1d4-1",
+      "speed": {
+        "walk": 5,
+        "fly": 60
+      },
+      "abilities": {
+        "str": 3,
+        "dex": 13,
+        "con": 8,
+        "int": 2,
+        "wis": 12,
+        "cha": 7
+      },
+      "cr": 0,
+      "traits": [
+        {
+          "name": "Flyby",
+          "text": "The owl doesn't provoke opportunity attacks when it flies out of an enemy's reach."
+        },
+        {
+          "name": "Keen Hearing and Sight",
+          "text": "The owl has advantage on Wisdom (Perception) checks that rely on hearing or sight."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Talons",
+          "text": "Melee Weapon Attack: +3 to hit, reach 5 ft., one target. Hit: 1 slashing damage."
+        }
+      ],
+      "skills": {
+        "perception": 3,
+        "stealth": 3
+      },
+      "senses": {
+        "darkvision": 120
+      }
+    },
+    {
+      "kind": "creature",
+      "id": "creature:panther",
+      "name": "Panther",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Medium",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 12,
+      "hp": 13,
+      "hitDice": "3d8",
+      "speed": {
+        "walk": 50,
+        "climb": 40
+      },
+      "abilities": {
+        "str": 14,
+        "dex": 15,
+        "con": 10,
+        "int": 3,
+        "wis": 14,
+        "cha": 7
+      },
+      "cr": 0.25,
+      "traits": [
+        {
+          "name": "Keen Smell",
+          "text": "The panther has advantage on Wisdom (Perception) checks that rely on smell."
+        },
+        {
+          "name": "Pounce",
+          "text": "If the panther moves at least 20 ft. straight toward a creature and then hits it with a claw attack on the same turn, that target must succeed on a DC 12 Strength saving throw or be knocked prone. If the target is prone, the panther can make one bite attack against it as a bonus action."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Bite",
+          "text": "Melee Weapon Attack: +4 to hit, reach 5 ft., one target. Hit: 5 (1d6 + 2) piercing damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 4,
+            "reach": "5 ft.",
+            "damage": "1d6",
+            "damageBonus": 2,
+            "damageType": "piercing"
+          }
+        },
+        {
+          "name": "Claw",
+          "text": "Melee Weapon Attack: +4 to hit, reach 5 ft., one target. Hit: 4 (1d4 + 2) slashing damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 4,
+            "reach": "5 ft.",
+            "damage": "1d4",
+            "damageBonus": 2,
+            "damageType": "slashing"
+          }
+        }
+      ],
+      "skills": {
+        "perception": 4,
+        "stealth": 6
+      }
+    },
+    {
+      "kind": "creature",
+      "id": "creature:plesiosaurus",
+      "name": "Plesiosaurus",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Large",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 13,
+      "hp": 68,
+      "hitDice": "8d10+24",
+      "speed": {
+        "walk": 20,
+        "swim": 40
+      },
+      "abilities": {
+        "str": 18,
+        "dex": 15,
+        "con": 16,
+        "int": 2,
+        "wis": 12,
+        "cha": 5
+      },
+      "cr": 2,
+      "traits": [
+        {
+          "name": "Hold Breath",
+          "text": "The plesiosaurus can hold its breath for 1 hour."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Bite",
+          "text": "Melee Weapon Attack: +6 to hit, reach 10 ft., one target. Hit: 14 (3d6 + 4) piercing damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 6,
+            "reach": "10 ft.",
+            "damage": "3d6",
+            "damageBonus": 4,
+            "damageType": "piercing"
+          }
+        }
+      ],
+      "acNote": "natural",
+      "skills": {
+        "perception": 3,
+        "stealth": 4
+      }
+    },
+    {
+      "kind": "creature",
+      "id": "creature:poisonous-snake",
+      "name": "Poisonous Snake",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Tiny",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 13,
+      "hp": 2,
+      "hitDice": "1d4",
+      "speed": {
+        "walk": 30,
+        "swim": 30
+      },
+      "abilities": {
+        "str": 2,
+        "dex": 16,
+        "con": 11,
+        "int": 1,
+        "wis": 10,
+        "cha": 3
+      },
+      "cr": 0.125,
+      "traits": [],
+      "actions": [
+        {
+          "name": "Bite",
+          "text": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 1 piercing damage, and the target must make a DC 10 Constitution saving throw, taking 5 (2d4) poison damage on a failed save, or half as much damage on a successful one."
+        }
+      ],
+      "senses": {
+        "blindsight": 10
+      }
+    },
+    {
+      "kind": "creature",
+      "id": "creature:polar-bear",
+      "name": "Polar Bear",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Large",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 12,
+      "hp": 42,
+      "hitDice": "5d10+15",
+      "speed": {
+        "walk": 40,
+        "swim": 30
+      },
+      "abilities": {
+        "str": 20,
+        "dex": 10,
+        "con": 16,
+        "int": 2,
+        "wis": 13,
+        "cha": 7
+      },
+      "cr": 2,
+      "traits": [
+        {
+          "name": "Keen Smell",
+          "text": "The bear has advantage on Wisdom (Perception) checks that rely on smell."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Multiattack",
+          "text": "The bear makes two attacks: one with its bite and one with its claws."
+        },
+        {
+          "name": "Bite",
+          "text": "Melee Weapon Attack: +7 to hit, reach 5 ft., one target. Hit: 9 (1d8 + 5) piercing damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 7,
+            "reach": "5 ft.",
+            "damage": "1d8",
+            "damageBonus": 5,
+            "damageType": "piercing"
+          }
+        },
+        {
+          "name": "Claws",
+          "text": "Melee Weapon Attack: +7 to hit, reach 5 ft., one target. Hit: 12 (2d6 + 5) slashing damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 7,
+            "reach": "5 ft.",
+            "damage": "2d6",
+            "damageBonus": 5,
+            "damageType": "slashing"
+          }
+        }
+      ],
+      "acNote": "natural",
+      "skills": {
+        "perception": 3
+      }
+    },
+    {
+      "kind": "creature",
+      "id": "creature:pony",
+      "name": "Pony",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Medium",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 10,
+      "hp": 11,
+      "hitDice": "2d8+2",
+      "speed": {
+        "walk": 40
+      },
+      "abilities": {
+        "str": 15,
+        "dex": 10,
+        "con": 13,
+        "int": 2,
+        "wis": 11,
+        "cha": 7
+      },
+      "cr": 0.125,
+      "traits": [],
+      "actions": [
+        {
+          "name": "Hooves",
+          "text": "Melee Weapon Attack: +4 to hit, reach 5 ft., one target. Hit: 7 (2d4 + 2) bludgeoning damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 4,
+            "reach": "5 ft.",
+            "damage": "2d4",
+            "damageBonus": 2,
+            "damageType": "bludgeoning"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "creature",
+      "id": "creature:quipper",
+      "name": "Quipper",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Tiny",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 13,
+      "hp": 1,
+      "hitDice": "1d4-1",
+      "speed": {
+        "walk": 0,
+        "swim": 40
+      },
+      "abilities": {
+        "str": 2,
+        "dex": 16,
+        "con": 9,
+        "int": 1,
+        "wis": 7,
+        "cha": 2
+      },
+      "cr": 0,
+      "traits": [
+        {
+          "name": "Blood Frenzy",
+          "text": "The quipper has advantage on melee attack rolls against any creature that doesn't have all its hit points."
+        },
+        {
+          "name": "Water Breathing",
+          "text": "The quipper can breathe only underwater."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Bite",
+          "text": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 1 piercing damage."
+        }
+      ],
+      "senses": {
+        "darkvision": 60
+      }
+    },
+    {
+      "kind": "creature",
+      "id": "creature:rat",
+      "name": "Rat",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Tiny",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 10,
+      "hp": 1,
+      "hitDice": "1d4-1",
+      "speed": {
+        "walk": 20
+      },
+      "abilities": {
+        "str": 2,
+        "dex": 11,
+        "con": 9,
+        "int": 2,
+        "wis": 10,
+        "cha": 4
+      },
+      "cr": 0,
+      "traits": [
+        {
+          "name": "Keen Smell",
+          "text": "The rat has advantage on Wisdom (Perception) checks that rely on smell."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Bite",
+          "text": "Melee Weapon Attack: +0 to hit, reach 5 ft., one target. Hit: 1 piercing damage."
+        }
+      ],
+      "senses": {
+        "darkvision": 30
+      }
+    },
+    {
+      "kind": "creature",
+      "id": "creature:raven",
+      "name": "Raven",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Tiny",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 12,
+      "hp": 1,
+      "hitDice": "1d4-1",
+      "speed": {
+        "walk": 10,
+        "fly": 50
+      },
+      "abilities": {
+        "str": 2,
+        "dex": 14,
+        "con": 8,
+        "int": 2,
+        "wis": 12,
+        "cha": 6
+      },
+      "cr": 0,
+      "traits": [
+        {
+          "name": "Mimicry",
+          "text": "The raven can mimic simple sounds it has heard, such as a person whispering, a baby crying, or an animal chittering. A creature that hears the sounds can tell they are imitations with a successful DC 10 Wisdom (Insight) check."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Beak",
+          "text": "Melee Weapon Attack: +4 to hit, reach 5 ft., one target. Hit: 1 piercing damage."
+        }
+      ],
+      "skills": {
+        "perception": 3
+      }
+    },
+    {
+      "kind": "creature",
+      "id": "creature:reef-shark",
+      "name": "Reef Shark",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Medium",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 12,
+      "hp": 22,
+      "hitDice": "4d8+4",
+      "speed": {
+        "walk": 0,
+        "swim": 40
+      },
+      "abilities": {
+        "str": 14,
+        "dex": 13,
+        "con": 13,
+        "int": 1,
+        "wis": 10,
+        "cha": 4
+      },
+      "cr": 0.5,
+      "traits": [
+        {
+          "name": "Pack Tactics",
+          "text": "The shark has advantage on an attack roll against a creature if at least one of the shark's allies is within 5 ft. of the creature and the ally isn't incapacitated."
+        },
+        {
+          "name": "Water Breathing",
+          "text": "The shark can breathe only underwater."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Bite",
+          "text": "Melee Weapon Attack: +4 to hit, reach 5 ft., one target. Hit: 6 (1d8 + 2) piercing damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 4,
+            "reach": "5 ft.",
+            "damage": "1d8",
+            "damageBonus": 2,
+            "damageType": "piercing"
+          }
+        }
+      ],
+      "acNote": "natural",
+      "skills": {
+        "perception": 2
+      },
+      "senses": {
+        "blindsight": 30
+      }
+    },
+    {
+      "kind": "creature",
+      "id": "creature:rhinoceros",
+      "name": "Rhinoceros",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Large",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 11,
+      "hp": 45,
+      "hitDice": "6d10+12",
+      "speed": {
+        "walk": 40
+      },
+      "abilities": {
+        "str": 21,
+        "dex": 8,
+        "con": 15,
+        "int": 2,
+        "wis": 12,
+        "cha": 6
+      },
+      "cr": 2,
+      "traits": [
+        {
+          "name": "Charge",
+          "text": "If the rhinoceros moves at least 20 ft. straight toward a target and then hits it with a gore attack on the same turn, the target takes an extra 9 (2d8) bludgeoning damage. If the target is a creature, it must succeed on a DC 15 Strength saving throw or be knocked prone."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Gore",
+          "text": "Melee Weapon Attack: +7 to hit, reach 5 ft., one target. Hit: 14 (2d8 + 5) bludgeoning damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 7,
+            "reach": "5 ft.",
+            "damage": "2d8",
+            "damageBonus": 5,
+            "damageType": "bludgeoning"
+          }
+        }
+      ],
+      "acNote": "natural"
+    },
+    {
+      "kind": "creature",
+      "id": "creature:riding-horse",
+      "name": "Riding Horse",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Large",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 10,
+      "hp": 13,
+      "hitDice": "2d10+2",
+      "speed": {
+        "walk": 60
+      },
+      "abilities": {
+        "str": 16,
+        "dex": 10,
+        "con": 12,
+        "int": 2,
+        "wis": 11,
+        "cha": 7
+      },
+      "cr": 0.25,
+      "traits": [],
+      "actions": [
+        {
+          "name": "Hooves",
+          "text": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 8 (2d4 + 3) bludgeoning damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 5,
+            "reach": "5 ft.",
+            "damage": "2d4",
+            "damageBonus": 3,
+            "damageType": "bludgeoning"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "creature",
+      "id": "creature:saber-toothed-tiger",
+      "name": "Saber-Toothed Tiger",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Large",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 12,
+      "hp": 52,
+      "hitDice": "7d10+14",
+      "speed": {
+        "walk": 40
+      },
+      "abilities": {
+        "str": 18,
+        "dex": 14,
+        "con": 15,
+        "int": 3,
+        "wis": 12,
+        "cha": 8
+      },
+      "cr": 2,
+      "traits": [
+        {
+          "name": "Keen Smell",
+          "text": "The tiger has advantage on Wisdom (Perception) checks that rely on smell."
+        },
+        {
+          "name": "Pounce",
+          "text": "If the tiger moves at least 20 ft. straight toward a creature and then hits it with a claw attack on the same turn, that target must succeed on a DC 14 Strength saving throw or be knocked prone. If the target is prone, the tiger can make one bite attack against it as a bonus action."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Bite",
+          "text": "Melee Weapon Attack: +6 to hit, reach 5 ft., one target. Hit: 10 (1d10 + 5) piercing damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 6,
+            "reach": "5 ft.",
+            "damage": "1d10",
+            "damageBonus": 5,
+            "damageType": "piercing"
+          }
+        },
+        {
+          "name": "Claw",
+          "text": "Melee Weapon Attack: +6 to hit, reach 5 ft., one target. Hit: 12 (2d6 + 5) slashing damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 6,
+            "reach": "5 ft.",
+            "damage": "2d6",
+            "damageBonus": 5,
+            "damageType": "slashing"
+          }
+        }
+      ],
+      "skills": {
+        "perception": 3,
+        "stealth": 6
+      }
+    },
+    {
+      "kind": "creature",
+      "id": "creature:scorpion",
+      "name": "Scorpion",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Tiny",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 11,
+      "hp": 1,
+      "hitDice": "1d4-1",
+      "speed": {
+        "walk": 10
+      },
+      "abilities": {
+        "str": 2,
+        "dex": 11,
+        "con": 8,
+        "int": 1,
+        "wis": 8,
+        "cha": 2
+      },
+      "cr": 0,
+      "traits": [],
+      "actions": [
+        {
+          "name": "Sting",
+          "text": "Melee Weapon Attack: +2 to hit, reach 5 ft., one creature. Hit: 1 piercing damage, and the target must make a DC 9 Constitution saving throw, taking 4 (1d8) poison damage on a failed save, or half as much damage on a successful one."
+        }
+      ],
+      "acNote": "natural",
+      "senses": {
+        "blindsight": 10
+      }
+    },
+    {
+      "kind": "creature",
+      "id": "creature:sea-horse",
+      "name": "Sea Horse",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Tiny",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 11,
+      "hp": 1,
+      "hitDice": "1d4-1",
+      "speed": {
+        "walk": 0,
+        "swim": 20
+      },
+      "abilities": {
+        "str": 1,
+        "dex": 12,
+        "con": 8,
+        "int": 1,
+        "wis": 10,
+        "cha": 2
+      },
+      "cr": 0,
+      "traits": [
+        {
+          "name": "Water Breathing",
+          "text": "The sea horse can breathe only underwater."
+        }
+      ],
+      "actions": []
+    },
+    {
+      "kind": "creature",
+      "id": "creature:spider",
+      "name": "Spider",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Tiny",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 12,
+      "hp": 1,
+      "hitDice": "1d4-1",
+      "speed": {
+        "walk": 20,
+        "climb": 20
+      },
+      "abilities": {
+        "str": 2,
+        "dex": 14,
+        "con": 8,
+        "int": 1,
+        "wis": 10,
+        "cha": 2
+      },
+      "cr": 0,
+      "traits": [
+        {
+          "name": "Spider Climb",
+          "text": "The spider can climb difficult surfaces, including upside down on ceilings, without needing to make an ability check."
+        },
+        {
+          "name": "Web Sense",
+          "text": "While in contact with a web, the spider knows the exact location of any other creature in contact with the same web."
+        },
+        {
+          "name": "Web Walker",
+          "text": "The spider ignores movement restrictions caused by webbing."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Bite",
+          "text": "Melee Weapon Attack: +4 to hit, reach 5 ft., one creature. Hit: 1 piercing damage, and the target must succeed on a DC 9 Constitution saving throw or take 2 (1d4) poison damage."
+        }
+      ],
+      "skills": {
+        "stealth": 4
+      },
+      "senses": {
+        "darkvision": 30
+      }
+    },
+    {
+      "kind": "creature",
+      "id": "creature:stirge",
+      "name": "Stirge",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Tiny",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 14,
+      "hp": 2,
+      "hitDice": "1d4",
+      "speed": {
+        "walk": 10,
+        "fly": 40
+      },
+      "abilities": {
+        "str": 4,
+        "dex": 16,
+        "con": 11,
+        "int": 2,
+        "wis": 8,
+        "cha": 6
+      },
+      "cr": 0.125,
+      "traits": [],
+      "actions": [
+        {
+          "name": "Blood Drain",
+          "text": "Melee Weapon Attack: +5 to hit, reach 5 ft., one creature. Hit: 5 (1d4 + 3) piercing damage, and the stirge attaches to the target. While attached, the stirge doesn't attack. Instead, at the start of each of the stirge's turns, the target loses 5 (1d4 + 3) hit points due to blood loss.\nThe stirge can detach itself by spending 5 feet of its movement. It does so after it drains 10 hit points of blood from the target or the target dies. A creature, including the target, can use its action to detach the stirge.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 5,
+            "reach": "5 ft.",
+            "damage": "1d4",
+            "damageBonus": 3,
+            "damageType": "piercing"
+          }
+        }
+      ],
+      "acNote": "natural",
+      "senses": {
+        "darkvision": 60
+      }
+    },
+    {
+      "kind": "creature",
+      "id": "creature:tiger",
+      "name": "Tiger",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Large",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 12,
+      "hp": 37,
+      "hitDice": "5d10+10",
+      "speed": {
+        "walk": 40
+      },
+      "abilities": {
+        "str": 17,
+        "dex": 15,
+        "con": 14,
+        "int": 3,
+        "wis": 12,
+        "cha": 8
+      },
+      "cr": 1,
+      "traits": [
+        {
+          "name": "Keen Smell",
+          "text": "The tiger has advantage on Wisdom (Perception) checks that rely on smell."
+        },
+        {
+          "name": "Pounce",
+          "text": "If the tiger moves at least 20 ft. straight toward a creature and then hits it with a claw attack on the same turn, that target must succeed on a DC 13 Strength saving throw or be knocked prone. If the target is prone, the tiger can make one bite attack against it as a bonus action."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Bite",
+          "text": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 8 (1d10 + 3) piercing damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 5,
+            "reach": "5 ft.",
+            "damage": "1d10",
+            "damageBonus": 3,
+            "damageType": "piercing"
+          }
+        },
+        {
+          "name": "Claw",
+          "text": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 7 (1d8 + 3) slashing damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 5,
+            "reach": "5 ft.",
+            "damage": "1d8",
+            "damageBonus": 3,
+            "damageType": "slashing"
+          }
+        }
+      ],
+      "skills": {
+        "perception": 3,
+        "stealth": 6
+      },
+      "senses": {
+        "darkvision": 60
+      }
+    },
+    {
+      "kind": "creature",
+      "id": "creature:triceratops",
+      "name": "Triceratops",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Huge",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 13,
+      "hp": 95,
+      "hitDice": "10d12+30",
+      "speed": {
+        "walk": 50
+      },
+      "abilities": {
+        "str": 22,
+        "dex": 9,
+        "con": 17,
+        "int": 2,
+        "wis": 11,
+        "cha": 5
+      },
+      "cr": 5,
+      "traits": [
+        {
+          "name": "Trampling Charge",
+          "text": "If the triceratops moves at least 20 ft. straight toward a creature and then hits it with a gore attack on the same turn, that target must succeed on a DC 13 Strength saving throw or be knocked prone. If the target is prone, the triceratops can make one stomp attack against it as a bonus action."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Gore",
+          "text": "Melee Weapon Attack: +9 to hit, reach 5 ft., one target. Hit: 24 (4d8 + 6) piercing damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 9,
+            "reach": "5 ft.",
+            "damage": "4d8",
+            "damageBonus": 6,
+            "damageType": "piercing"
+          }
+        },
+        {
+          "name": "Stomp",
+          "text": "Melee Weapon Attack: +9 to hit, reach 5 ft., one prone creature. Hit: 22 (3d10 + 6) bludgeoning damage",
+          "attack": {
+            "kind": "melee",
+            "toHit": 9,
+            "reach": "5 ft.",
+            "damage": "3d10",
+            "damageBonus": 6,
+            "damageType": "bludgeoning"
+          }
+        }
+      ],
+      "acNote": "natural"
+    },
+    {
+      "kind": "creature",
+      "id": "creature:tyrannosaurus-rex",
+      "name": "Tyrannosaurus Rex",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Huge",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 13,
+      "hp": 136,
+      "hitDice": "13d12+52",
+      "speed": {
+        "walk": 50
+      },
+      "abilities": {
+        "str": 25,
+        "dex": 10,
+        "con": 19,
+        "int": 2,
+        "wis": 12,
+        "cha": 9
+      },
+      "cr": 8,
+      "traits": [],
+      "actions": [
+        {
+          "name": "Multiattack",
+          "text": "The tyrannosaurus makes two attacks: one with its bite and one with its tail. It can't make both attacks against the same target."
+        },
+        {
+          "name": "Bite",
+          "text": "Melee Weapon Attack: +10 to hit, reach 10 ft., one target. Hit: 33 (4d12 + 7) piercing damage. If the target is a Medium or smaller creature, it is grappled (escape DC 17). Until this grapple ends, the target is restrained, and the tyrannosaurus can't bite another target.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 10,
+            "reach": "10 ft.",
+            "damage": "4d12",
+            "damageBonus": 7,
+            "damageType": "piercing"
+          }
+        },
+        {
+          "name": "Tail",
+          "text": "Melee Weapon Attack: +10 to hit, reach 10 ft., one target. Hit: 20 (3d8 + 7) bludgeoning damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 10,
+            "reach": "10 ft.",
+            "damage": "3d8",
+            "damageBonus": 7,
+            "damageType": "bludgeoning"
+          }
+        }
+      ],
+      "acNote": "natural",
+      "skills": {
+        "perception": 4
+      }
+    },
+    {
+      "kind": "creature",
+      "id": "creature:vulture",
+      "name": "Vulture",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Medium",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 10,
+      "hp": 5,
+      "hitDice": "1d8+1",
+      "speed": {
+        "walk": 10,
+        "fly": 50
+      },
+      "abilities": {
+        "str": 7,
+        "dex": 10,
+        "con": 13,
+        "int": 2,
+        "wis": 12,
+        "cha": 4
+      },
+      "cr": 0,
+      "traits": [
+        {
+          "name": "Keen Sight and Smell",
+          "text": "The vulture has advantage on Wisdom (Perception) checks that rely on sight or smell."
+        },
+        {
+          "name": "Pack Tactics",
+          "text": "The vulture has advantage on an attack roll against a creature if at least one of the vulture's allies is within 5 ft. of the creature and the ally isn't incapacitated."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Beak",
+          "text": "Melee Weapon Attack: +2 to hit, reach 5 ft., one target. Hit: 2 (1d4) piercing damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 2,
+            "reach": "5 ft.",
+            "damage": "1d4",
+            "damageBonus": 0,
+            "damageType": "piercing"
+          }
+        }
+      ],
+      "skills": {
+        "perception": 3
+      }
+    },
+    {
+      "kind": "creature",
+      "id": "creature:warhorse",
+      "name": "Warhorse",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Large",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 11,
+      "hp": 19,
+      "hitDice": "3d10+3",
+      "speed": {
+        "walk": 60
+      },
+      "abilities": {
+        "str": 18,
+        "dex": 12,
+        "con": 13,
+        "int": 2,
+        "wis": 12,
+        "cha": 7
+      },
+      "cr": 0.5,
+      "traits": [
+        {
+          "name": "Trampling Charge",
+          "text": "If the horse moves at least 20 ft. straight toward a creature and then hits it with a hooves attack on the same turn, that target must succeed on a DC 14 Strength saving throw or be knocked prone. If the target is prone, the horse can make another attack with its hooves against it as a bonus action."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Hooves",
+          "text": "Melee Weapon Attack: +6 to hit, reach 5 ft., one target. Hit: 11 (2d6 + 4) bludgeoning damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 6,
+            "reach": "5 ft.",
+            "damage": "2d6",
+            "damageBonus": 4,
+            "damageType": "bludgeoning"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "creature",
+      "id": "creature:water-elemental",
+      "name": "Water Elemental",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Large",
+      "type": "elemental",
+      "alignment": "neutral",
+      "ac": 14,
+      "hp": 114,
+      "hitDice": "12d10+48",
+      "speed": {
+        "walk": 30,
+        "swim": 90
+      },
+      "abilities": {
+        "str": 18,
+        "dex": 14,
+        "con": 18,
+        "int": 5,
+        "wis": 10,
+        "cha": 8
+      },
+      "cr": 5,
+      "traits": [
+        {
+          "name": "Water Form",
+          "text": "The elemental can enter a hostile creature's space and stop there. It can move through a space as narrow as 1 inch wide without squeezing."
+        },
+        {
+          "name": "Freeze",
+          "text": "If the elemental takes cold damage, it partially freezes; its speed is reduced by 20 ft. until the end of its next turn."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Multiattack",
+          "text": "The elemental makes two slam attacks."
+        },
+        {
+          "name": "Slam",
+          "text": "Melee Weapon Attack: +7 to hit, reach 5 ft., one target. Hit: 13 (2d8 + 4) bludgeoning damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 7,
+            "reach": "5 ft.",
+            "damage": "2d8",
+            "damageBonus": 4,
+            "damageType": "bludgeoning"
+          }
+        },
+        {
+          "name": "Whelm",
+          "text": "Each creature in the elemental's space must make a DC 15 Strength saving throw. On a failure, a target takes 13 (2d8 + 4) bludgeoning damage. If it is Large or smaller, it is also grappled (escape DC 14). Until this grapple ends, the target is restrained and unable to breathe unless it can breathe water. If the saving throw is successful, the target is pushed out of the elemental's space.\nThe elemental can grapple one Large creature or up to two Medium or smaller creatures at one time. At the start of each of the elemental's turns, each target grappled by it takes 13 (2d8 + 4) bludgeoning damage. A creature within 5 feet of the elemental can pull a creature or object out of it by taking an action to make a DC 14 Strength and succeeding."
+        }
+      ],
+      "acNote": "natural",
+      "senses": {
+        "darkvision": 60
+      },
+      "languages": "Aquan",
+      "resist": [
+        "acid",
+        "bludgeoning, piercing, and slashing from nonmagical weapons"
+      ],
+      "immune": [
+        "poison"
+      ],
+      "conditionImmune": [
+        "exhaustion",
+        "grappled",
+        "paralyzed",
+        "petrified",
+        "poisoned",
+        "prone",
+        "restrained",
+        "unconscious"
+      ]
+    },
+    {
+      "kind": "creature",
+      "id": "creature:weasel",
+      "name": "Weasel",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Tiny",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 13,
+      "hp": 1,
+      "hitDice": "1d4-1",
+      "speed": {
+        "walk": 30
+      },
+      "abilities": {
+        "str": 3,
+        "dex": 16,
+        "con": 8,
+        "int": 2,
+        "wis": 12,
+        "cha": 3
+      },
+      "cr": 0,
+      "traits": [
+        {
+          "name": "Keen Hearing and Smell",
+          "text": "The weasel has advantage on Wisdom (Perception) checks that rely on hearing or smell."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Bite",
+          "text": "Melee Weapon Attack: +5 to hit, reach 5 ft., one creature. Hit: 1 piercing damage."
+        }
+      ],
+      "skills": {
+        "perception": 3,
+        "stealth": 5
+      }
+    },
+    {
+      "kind": "creature",
+      "id": "creature:wolf",
+      "name": "Wolf",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "size": "Medium",
+      "type": "beast",
+      "alignment": "unaligned",
+      "ac": 13,
+      "hp": 11,
+      "hitDice": "2d8+2",
+      "speed": {
+        "walk": 40
+      },
+      "abilities": {
+        "str": 12,
+        "dex": 15,
+        "con": 12,
+        "int": 3,
+        "wis": 12,
+        "cha": 6
+      },
+      "cr": 0.25,
+      "traits": [
+        {
+          "name": "Keen Hearing and Smell",
+          "text": "The wolf has advantage on Wisdom (Perception) checks that rely on hearing or smell."
+        },
+        {
+          "name": "Pack Tactics",
+          "text": "The wolf has advantage on an attack roll against a creature if at least one of the wolf's allies is within 5 ft. of the creature and the ally isn't incapacitated."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Bite",
+          "text": "Melee Weapon Attack: +4 to hit, reach 5 ft., one target. Hit: 7 (2d4 + 2) piercing damage. If the target is a creature, it must succeed on a DC 11 Strength saving throw or be knocked prone.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 4,
+            "reach": "5 ft.",
+            "damage": "2d4",
+            "damageBonus": 2,
+            "damageType": "piercing"
+          }
+        }
+      ],
+      "acNote": "natural",
+      "skills": {
+        "perception": 3,
+        "stealth": 4
+      }
+    }
+  ]
+}

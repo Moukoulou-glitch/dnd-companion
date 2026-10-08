@@ -1,4 +1,4 @@
-import { ABILITIES, ABILITY_NAMES, Character, SKILL_NAMES, SKILLS, type Ability, type ChoiceDef, type ClassDef, type Skill } from "@dnd/schema";
+import { ABILITIES, ABILITY_NAMES, Character, SKILL_NAMES, SKILLS, type Ability, type ChoiceDef, type ClassDef, type ItemDef, type Skill } from "@dnd/schema";
 import type { ContentRegistry } from "./registry.js";
 import { collectSources } from "./sources.js";
 import { derive } from "./derive.js";
@@ -332,6 +332,34 @@ export function multiclassIssues(c: Character, reg: ContentRegistry, classId: st
 }
 
 /** A new level 1 character, at full hit points (the hit die plus Constitution, and any race bonus). */
+/** Items for "any martial weapon" and the like: tagged by the SRD, or (for book items) known by their stats. */
+export function itemsForTag(reg: ContentRegistry, tag: string): ItemDef[] {
+  const byStats = (d: ItemDef): boolean => {
+    const w = d.weapon;
+    if (!w || d.magic) return false;
+    const m = /^(simple|martial)(?:-(melee|ranged))?-weapons$/.exec(tag);
+    if (m) return w.category === m[1] && (!m[2] || w.kind === m[2]);
+    if (tag === "melee-weapons" || tag === "ranged-weapons") return w.kind === tag.split("-")[0];
+    return false;
+  };
+  return reg
+    .list("item")
+    .filter((d) => d.tags?.includes(tag) || byStats(d))
+    .sort((a, b) => a.name.localeCompare(b.name));
+}
+
+/** Packs (Explorer's Pack) become what they hold, so rations and torches can be used one by one. */
+export function unpack(reg: ContentRegistry, items: { item: string; quantity: number }[]): { item: string; quantity: number }[] {
+  const out = new Map<string, number>();
+  const add = (id: string, q: number) => out.set(id, (out.get(id) ?? 0) + q);
+  for (const x of items) {
+    const d = reg.find(x.item, "item");
+    if (d?.contents?.length) for (const y of d.contents) add(y.item, y.quantity * x.quantity);
+    else add(x.item, x.quantity);
+  }
+  return [...out].map(([item, quantity]) => ({ item, quantity }));
+}
+
 export function newCharacter(
   input: {
   id: string;
@@ -342,6 +370,11 @@ export function newCharacter(
   background?: string;
   alignment?: string;
   player?: string;
+  /** Starting equipment picked in the builder (packs are unpacked). */
+  equipment?: { item: string; quantity: number }[];
+  /** Things with no item in the content ("a letter from a dead colleague"), kept by name. */
+  gear?: string[];
+  gold?: number;
   },
   reg: ContentRegistry,
 ): Character {
@@ -360,6 +393,21 @@ export function newCharacter(
     asiBaseline: {},
     builtInApp: true,
   });
+  // Starting equipment: armor and a shield are put on; everything else is carried.
+  let n = 0;
+  let armorOn = false;
+  let shieldOn = false;
+  for (const x of unpack(reg, input.equipment ?? [])) {
+    const d = reg.find(x.item, "item");
+    if (!d) continue;
+    const wear = (d.category === "armor" && !armorOn) || (d.category === "shield" && !shieldOn);
+    if (d.category === "armor" && wear) armorOn = true;
+    if (d.category === "shield" && wear) shieldOn = true;
+    c.inventory.push({ id: `start-${++n}`, item: d.id, quantity: x.quantity, equipped: wear, attuned: false });
+  }
+  if (input.gear?.length && reg.find("item:other-gear", "item"))
+    for (const g of input.gear) c.inventory.push({ id: `start-${++n}`, item: "item:other-gear", quantity: 1, equipped: false, attuned: false, name: g.replace(/^./, (x) => x.toUpperCase()) });
+  if (input.gold) c.currency.gp = (c.currency.gp ?? 0) + input.gold;
   c.hp.current = derive(c, reg).hpMax.total;
   return c;
 }

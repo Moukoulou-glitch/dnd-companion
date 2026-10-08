@@ -9,3 +9,4 @@ export * from "./companions.js";
 export * from "./turn.js";
 export * from "./build.js";
 export { copyCost, materialNeed } from "./materials.js";
+export { deriveShape, shapeIssues, wildShapeLimits, type ShapeResult, type WildShapeLimits } from "./shapes.js";
