@@ -1982,3 +1982,20 @@ details.beyond > summary {
 .shape-card .row-title::before {
   content: "🐾 ";
 }
+
+/* A summoned creature row whose name opens its own panel. */
+button.row-main.plain {
+  background: none;
+  border: 0;
+  padding: 0;
+  text-align: left;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.big.static {
+  cursor: default;
+}
+.trait-text .tag {
+  margin: -4px 0 8px;
+}

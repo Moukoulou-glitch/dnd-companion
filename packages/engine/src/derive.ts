@@ -1203,7 +1203,15 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
     },
     limits,
   );
-  if (shape) sheet.shape = shape;
+  if (shape) {
+    sheet.shape = shape;
+    // In a form, initiative uses its Dexterity (Wild Shape keeps your other bonuses, like Alert); its Multiattack sets the attacks.
+    const dexMod = shape.abilities.dex.modifier;
+    const kept = shape.kind === "wildshape" ? sheet.initiative.parts.filter((p) => !/dexterity/i.test(p.label)) : [];
+    const parts = [{ label: `${shape.name}'s Dexterity modifier`, value: dexMod }, ...kept];
+    sheet.initiative = { ...sheet.initiative, parts, total: parts.reduce((t, p) => t + p.value, 0) };
+    sheet.attacksPerAction = shape.attacksPerAction;
+  }
   return sheet;
 }
 

@@ -3,7 +3,7 @@ import { buildItems, castingEconomy, formatBonus, materialNeed, maxSpellLevel, n
 import { SKILL_NAMES, type Character, type Skill } from "@dnd/schema";
 import { roll as rollDice, type ComposerBase } from "@dnd/dice";
 import { ShapePanel, TransformPanel } from "./components/Shapes";
-import { SummonGroupPanel, SummonPicker } from "./components/Summons";
+import { SummonGroupPanel, SummonMemberPanel, SummonPicker } from "./components/Summons";
 import type { ShapeKind } from "@dnd/engine";
 import type { ActionResult, EffectResult, SpellResult, WeaponAttack } from "@dnd/engine";
 import { ActionsTab } from "./components/ActionsTab";
@@ -201,6 +201,7 @@ export function App() {
       dc?: number;
       /** Read when the panel draws, so it shows the latest (an extra's reason). */
       header?: () => ReactNode;
+      damageOnly?: boolean;
     } = {},
   ) =>
     open(title, () => (
@@ -208,6 +209,7 @@ export function App() {
         title={title}
         base={base}
         {...(opts.header ? { header: opts.header() } : {})}
+        {...(opts.damageOnly ? { damageOnly: true } : {})}
         {...(attack ? { attack } : {})}
         {...(opts.notes ? { notes: opts.notes } : {})}
         {...(opts.optionInfo ? { optionInfo: opts.optionInfo } : {})}
@@ -257,6 +259,49 @@ export function App() {
       ) : null,
     );
 
+  /** Dice a creature's trait deals on its own (Heated Body: 1d10 fire). */
+  const openTraitRoll = (title: string, dice: string, type?: string) => {
+    const empty = { total: 0, parts: [], dice: [], advantage: [], disadvantage: [], suggestions: [] };
+    const m = /^(\d+d\d+)([+-]\d+)?$/.exec(dice);
+    const a: WeaponAttack = {
+      attackId: `trait:${title}`,
+      name: title,
+      mode: "melee",
+      action: "attack",
+      ability: "str",
+      proficient: false,
+      attack: empty,
+      damage: { dice: m?.[1] ?? dice, type: type ?? "", bonus: m?.[2] ? { ...empty, total: Number(m[2]), parts: [{ label: "Bonus", value: Number(m[2]) }] } : empty, onCrit: [], critExtraDice: [] },
+      properties: [],
+    };
+    openRoll(title, empty, a, { damageOnly: true });
+  };
+
+  /** One summoned creature: its turn, effects, concentration, HP, attacks. */
+  const openSummonMember = (id: string) =>
+    open("Summoned creature", () => {
+      const cur = live.current.character;
+      const m = cur?.summons.find((s) => s.id === id);
+      if (!cur || !m) return <p className="note">It's gone.</p>;
+      return (
+        <SummonMemberPanel
+          member={m}
+          reg={registry}
+          act={live.current.act}
+          inCombat={!!cur.combat}
+          openHp={() => openSummonHp(id)}
+          onTraitRoll={openTraitRoll}
+          openAttack={(a) => {
+            const kind = a.action === "bonus" ? "bonus" : "attack";
+            openRoll(a.name, a.attack, a, {
+              onCommit: () => live.current.act("summonEconomy", { id, kind, used: true }, kind === "bonus" ? "Its bonus action." : "Its attack."),
+            });
+          }}
+          back={() => openSummonGroup(m.group)}
+        />
+      );
+    });
+
   /** After casting a summoning spell: pick the creatures. */
   const openSummon = (summonId: string, slot: number) =>
     open(registry.find(summonId, "summon")?.name ?? "Summon", () => (
@@ -305,7 +350,7 @@ export function App() {
   const openSummonGroup = (group: string) =>
     open("Summoned", () =>
       live.current.character ? (
-        <SummonGroupPanel character={live.current.character} reg={registry} group={group} act={live.current.act} openRoll={openRoll} openHp={openSummonHp} rollInitiative={rollSummonInit} />
+        <SummonGroupPanel character={live.current.character} reg={registry} group={group} act={live.current.act} openRoll={openRoll} openHp={openSummonHp} rollInitiative={rollSummonInit} openMember={openSummonMember} />
       ) : null,
     );
 
@@ -322,6 +367,8 @@ export function App() {
           act={cur.act}
           openRoll={openRoll}
           openHp={openHp}
+          openAttack={openAttack}
+          onTraitRoll={openTraitRoll}
           normalHp={{ current: cur.character.hp.current, max: cur.sheet.hpMax.total }}
           onRevert={() =>
             guard({ name: "Change back", economy: s.kind === "wildshape" ? "bonus" : "free" }, () => {

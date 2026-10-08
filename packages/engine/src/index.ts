@@ -9,4 +9,4 @@ export * from "./companions.js";
 export * from "./turn.js";
 export * from "./build.js";
 export { copyCost, materialNeed } from "./materials.js";
-export { creatureBlock, deriveShape, shapeIssues, summonOptions, wildShapeLimits, type ShapeKind, type ShapeResult, type WildShapeLimits } from "./shapes.js";
+export { creatureBlock, deriveShape, multiattackCount, shapeIssues, summonOptions, traitDice, wildShapeLimits, type ShapeKind, type ShapeResult, type WildShapeLimits } from "./shapes.js";

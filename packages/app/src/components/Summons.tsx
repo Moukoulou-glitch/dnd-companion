@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { creatureBlock, formatBonus, signed, summonOptions, type ContentRegistry, type RollBreakdown, type WeaponAttack } from "@dnd/engine";
 import { ABILITIES, ABILITY_NAMES, type Character, type CreatureDef, type OperationType } from "@dnd/schema";
 import { RichText } from "./Conditions";
+import { TextList } from "./Shapes";
 
 type Act = (type: OperationType, payload: unknown, label: string) => unknown;
 
@@ -133,6 +134,7 @@ export function SummonGroupPanel({
   openRoll,
   openHp,
   rollInitiative,
+  openMember,
 }: {
   character: Character;
   reg: ContentRegistry;
@@ -141,6 +143,8 @@ export function SummonGroupPanel({
   openRoll: (title: string, base: RollBreakdown, attack?: WeaponAttack) => void;
   openHp: (id: string) => void;
   rollInitiative: (group: string, id?: string) => void;
+  /** One creature's own turn, effects and concentration. */
+  openMember: (id: string) => void;
 }) {
   const members = character.summons.filter((s) => s.group === group);
   if (!members.length) return <p className="note">They're gone.</p>;
@@ -155,15 +159,18 @@ export function SummonGroupPanel({
           const d = reg.find(m.creature, "creature");
           return (
             <div className="row" key={m.id}>
-              <div className="row-main">
+              <button className="row-main plain" onClick={() => openMember(m.id)}>
                 <div className="row-title">
-                  {m.name ?? d?.name ?? m.creature} {members.length > 1 ? i + 1 : ""}
+                  {m.name ?? d?.name ?? m.creature} {members.length > 1 ? i + 1 : ""} ›
                 </div>
                 <div className="row-sub">
                   AC {d?.ac ?? "?"}
                   {!shared && m.initiative !== undefined ? ` · initiative ${m.initiative}` : ""}
+                  {m.used && (m.used.action || m.used.bonus || m.used.reaction) ? ` · ${[m.used.action && "action", m.used.bonus && "bonus", m.used.reaction && "reaction"].filter(Boolean).join(", ")} used` : ""}
+                  {m.effects?.length ? ` · ${m.effects.map((e) => reg.find(e.effect, "effect")?.name ?? e.effect).join(", ")}` : ""}
+                  {m.concentrating ? ` · concentrating on ${m.concentrating}` : ""}
                 </div>
-              </div>
+              </button>
               <button className={`chip${m.hp === 0 ? " danger-text" : ""}`} onClick={() => openHp(m.id)}>
                 {m.hp}/{d?.hp ?? "?"} HP
               </button>
@@ -230,6 +237,192 @@ export function SummonGroupPanel({
           </section>
         );
       })}
+    </>
+  );
+}
+
+type Member = Character["summons"][number];
+
+/** One summoned creature: its own action economy, effects on it, what it concentrates on, its stat block. */
+export function SummonMemberPanel({
+  member: m,
+  reg,
+  act,
+  inCombat,
+  openHp,
+  onTraitRoll,
+  openAttack,
+  back,
+}: {
+  member: Member;
+  reg: ContentRegistry;
+  act: Act;
+  inCombat: boolean;
+  openHp: () => void;
+  onTraitRoll: (title: string, dice: string, type?: string) => void;
+  /** Rolls the attack; using it marks the creature's action (or bonus action). */
+  openAttack: (a: WeaponAttack) => void;
+  back: () => void;
+}) {
+  const [adding, setAdding] = useState(false);
+  const [q, setQ] = useState("");
+  const [conc, setConc] = useState("");
+  const b = creatureBlock(reg, m.creature);
+  const name = m.name ?? b?.name ?? m.creature;
+  const used = m.used ?? { action: false, bonus: false, reaction: false, attacks: 0 };
+  const perAction = b ? b.attacksPerAction : 1;
+  const pill = (kind: "action" | "bonus" | "reaction", label: string) => (
+    <button
+      className={`chip${used[kind] ? " on" : ""}`}
+      aria-pressed={used[kind]}
+      onClick={() => act("summonEconomy", { id: m.id, kind, used: !used[kind] }, used[kind] ? `${name}'s ${label.toLowerCase()} is back.` : `${name}'s ${label.toLowerCase()} used.`)}
+    >
+      {label}
+      {kind === "action" && perAction > 1 && used.attacks > 0 ? ` (${used.attacks}/${perAction} attacks)` : ""}
+    </button>
+  );
+  const effects = reg
+    .list("effect")
+    .filter((e) => !e.transform)
+    .filter((e) => e.name.toLowerCase().includes(q.trim().toLowerCase()))
+    .sort((a, b2) => (a.category === b2.category ? a.name.localeCompare(b2.name) : a.category === "condition" ? -1 : 1));
+  return (
+    <>
+      <button className="link" onClick={back}>
+        ‹ All summoned
+      </button>
+      <h2 className="sub-head">{name}</h2>
+      <div className="big-actions">
+        <button className={`big${m.hp === 0 ? " danger-text" : ""}`} onClick={openHp}>
+          {m.hp}/{b?.hp.max ?? "?"} HP<span className="sub">damage or heal</span>
+        </button>
+        {b && (
+          <div className="big static">
+            AC {b.ac}
+            <span className="sub">speed {b.speed}</span>
+          </div>
+        )}
+      </div>
+
+      <h2 className="sub-head">Its turn</h2>
+      <div className="choice-grid" aria-label={`${name}'s action economy`}>
+        {pill("action", "Action")}
+        {pill("bonus", "Bonus")}
+        {pill("reaction", "Reaction")}
+        <button className="chip" onClick={() => act("summonEconomy", { id: m.id, newTurn: true }, `${name}'s turn: everything is back.`)}>
+          New turn
+        </button>
+      </div>
+      {!inCombat && <p className="note">Not in combat: track it anyway if you like.</p>}
+
+      <h2 className="sub-head">Effects on it</h2>
+      <div className="choice-grid">
+        {(m.effects ?? []).map((e) => {
+          const def = reg.find(e.effect, "effect");
+          return (
+            <button key={e.id} className="chip on" aria-label={`Remove ${def?.name ?? e.effect}`} onClick={() => act("summonEffect", { id: m.id, effect: e.effect, add: false }, `${def?.name ?? "Effect"} ends on ${name}.`)}>
+              {def?.name ?? e.effect}
+              {e.rounds !== undefined ? ` · ${e.rounds} rd` : ""} ✕
+            </button>
+          );
+        })}
+        <button className="chip" onClick={() => setAdding(!adding)}>
+          {adding ? "Done" : "+ Effect"}
+        </button>
+      </div>
+      {adding && (
+        <>
+          <input className="search" type="search" placeholder="Search conditions and spells" value={q} onChange={(e) => setQ(e.target.value)} />
+          <div className="group" style={{ maxHeight: 260, overflowY: "auto" }}>
+            {effects.map((e) => (
+              <button
+                key={e.id}
+                className="row"
+                onClick={() => {
+                  act("summonEffect", { id: m.id, effect: e.id, add: true, ...(e.rounds ? { rounds: e.rounds } : {}) }, `${e.name} on ${name}.`);
+                  setAdding(false);
+                  setQ("");
+                }}
+              >
+                <div className="row-main">
+                  <div className="row-title">{e.name}</div>
+                  <div className="row-sub">
+                    {e.category}
+                    {e.rounds ? ` · ${e.rounds} rounds` : ""}
+                  </div>
+                </div>
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+
+      <h2 className="sub-head">Concentration</h2>
+      {m.concentrating ? (
+        <div className="row">
+          <div className="row-main">
+            <div className="row-title">{m.concentrating}</div>
+            <div className="row-sub">Damage: Constitution save, DC 10 or half the damage.</div>
+          </div>
+          {b && (
+            <button className="chip" onClick={() => onTraitRoll(`${name}: Constitution save`, `1d20${b.saves.con.total >= 0 ? "+" : ""}${b.saves.con.total}`)}>
+              Con save {signed(b.saves.con.total)}
+            </button>
+          )}
+          <button className="chip" onClick={() => act("summonConcentration", { id: m.id, spell: null }, `${name} stops concentrating.`)}>
+            End
+          </button>
+        </div>
+      ) : (
+        <div className="row">
+          <input className="search" placeholder="Spell it concentrates on" value={conc} onChange={(e) => setConc(e.target.value)} aria-label="Spell it concentrates on" />
+          <button
+            className="chip"
+            disabled={!conc.trim()}
+            onClick={() => {
+              act("summonConcentration", { id: m.id, spell: conc.trim() }, `${name} concentrates on ${conc.trim()}.`);
+              setConc("");
+            }}
+          >
+            Start
+          </button>
+        </div>
+      )}
+
+      {b && (
+        <>
+          {b.attacks.length > 0 && (
+            <>
+              <h2 className="sub-head">Attacks{perAction > 1 ? ` · ${perAction} per Attack action` : ""}</h2>
+              <div className="group">
+                {b.attacks.map((a) => (
+                  <button key={a.name} className="row" onClick={() => openAttack(a)}>
+                    <div className="row-main">
+                      <div className="row-title">{a.name}</div>
+                      <div className="row-sub">
+                        {a.damage.dice}
+                        {a.damage.bonus.total ? signed(a.damage.bonus.total) : ""} {a.damage.type}
+                        {a.note ? ` · ${a.note}` : ""}
+                        {a.action === "bonus" ? " · bonus action" : ""}
+                      </div>
+                    </div>
+                    <span className="num">{formatBonus({ total: a.attack.total, dice: [] })}</span>
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+          <div className="choice-grid" style={{ margin: "8px 0" }}>
+            {ABILITIES.map((ab) => (
+              <span key={ab} className="tag">
+                {ABILITY_NAMES[ab].slice(0, 3)} {b.abilities[ab].score} ({signed(b.abilities[ab].modifier)})
+              </span>
+            ))}
+          </div>
+          <TextList title="Traits" items={b.traits} onRoll={(n, dice, type) => onTraitRoll(`${name}: ${n}`, dice, type)} />
+          <TextList title="Actions" items={b.actions.filter((a) => !b.attacks.some((x) => x.name === a.name))} onRoll={(n, dice, type) => onTraitRoll(`${name}: ${n}`, dice, type)} />
+        </>
+      )}
     </>
   );
 }

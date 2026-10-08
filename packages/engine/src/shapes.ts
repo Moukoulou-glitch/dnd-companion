@@ -86,9 +86,46 @@ export interface ShapeResult {
   traits: { name: string; text: string }[];
   actions: { name: string; text: string }[];
   attacks: (WeaponAttack & { note?: string })[];
+  /** Attacks per Attack action, from its Multiattack. */
+  attacksPerAction: number;
   /** Wild Shape: hours it can last. */
   hours?: number;
   notes: string[];
+}
+
+const DMG = "acid|bludgeoning|cold|fire|force|lightning|necrotic|piercing|poison|psychic|radiant|slashing|thunder";
+
+/**
+ * Extra damage an attack always deals ("plus 7 (2d6) poison damage") is
+ * rolled with it; a trait that adds dice to one of the creature's attacks
+ * (the boar's Charge: +2d6 after moving 20 ft) is offered to turn on.
+ */
+function riderBonus(d: CreatureDef, a: { name: string; text: string }, flat: number): RollBreakdown {
+  const r = flatRoll(flat ? [{ label: `${d.name}'s damage bonus`, value: flat }] : []);
+  const plus = new RegExp(`plus \\d+ \\((\\d+d\\d+(?:\\s*[+-]\\s*\\d+)?)\\) (${DMG}) damage`, "gi");
+  for (const m of a.text.matchAll(plus)) r.dice.push({ label: `${a.name}: extra ${m[2]!.toLowerCase()}`, dice: m[1]!.replace(/\s/g, ""), damageType: m[2]!.toLowerCase() });
+  const attackWord = a.name.toLowerCase().replace(/s$/, "");
+  for (const t of d.traits) {
+    const m = new RegExp(`extra \\d+ \\((\\d+d\\d+)\\)(?: (${DMG}))? damage`, "i").exec(t.text);
+    if (!m || !new RegExp(`\\b${attackWord}`, "i").test(t.text)) continue;
+    r.suggestions.push({ label: t.name, effect: `+${m[1]}`, reason: t.text.split(/(?<=\.)\s/)[0]!, apply: { flat: 0, dice: [m[1]!], ...(m[2] ? { damageType: m[2].toLowerCase() } : {}) } });
+  }
+  return r;
+}
+
+/** Dice a trait deals on its own (Heated Body: 1d10 fire to whoever hits it), to roll from its stat block. */
+export function traitDice(text: string): { dice: string; type?: string } | undefined {
+  const m = new RegExp(`\\d+ \\((\\d+d\\d+(?:\\s*[+-]\\s*\\d+)?)\\)(?: (${DMG}))? damage`, "i").exec(text);
+  return m ? { dice: m[1]!.replace(/\s/g, ""), ...(m[2] ? { type: m[2].toLowerCase() } : {}) } : undefined;
+}
+
+/** Attacks per Attack action: what Multiattack says ("makes two attacks"), else one. */
+export function multiattackCount(d: CreatureDef): number {
+  const m = d.actions.find((a) => /^multiattack/i.test(a.name));
+  if (!m) return 1;
+  const words: Record<string, number> = { two: 2, three: 3, four: 4, five: 5 };
+  const n = /makes (two|three|four|five) /i.exec(m.text)?.[1];
+  return n ? words[n.toLowerCase()]! : 2;
 }
 
 const flatRoll = (parts: Part[]): RollBreakdown => ({ total: parts.reduce((t, p) => t + p.value, 0), parts, dice: [], advantage: [], disadvantage: [], suggestions: [] });
@@ -162,7 +199,7 @@ export function deriveShape(
         ability: "str",
         proficient: true,
         attack: flatRoll([{ label: `${d.name}'s attack bonus`, value: at.toHit }]),
-        damage: { dice: at.damage, type: at.damageType, bonus: flatRoll(at.damageBonus ? [{ label: `${d.name}'s damage bonus`, value: at.damageBonus }] : []), onCrit: [], critExtraDice: [] },
+        damage: { dice: at.damage, type: at.damageType, bonus: riderBonus(d, a, at.damageBonus), onCrit: [], critExtraDice: [] },
         properties: [],
       };
       if (at.reach) w.note = `${at.kind === "melee" ? "Reach" : "Range"} ${at.reach}`;
@@ -195,6 +232,7 @@ export function deriveShape(
     traits: d.traits,
     actions: [...d.actions, ...(d.bonusActions ?? []).map((a) => ({ ...a, name: `${a.name} (bonus action)` })), ...(d.reactions ?? []).map((a) => ({ ...a, name: `${a.name} (reaction)` }))].map((a) => ({ name: a.name, text: a.text })),
     attacks,
+    attacksPerAction: multiattackCount(d),
     notes,
   };
   if (d.acNote) r.acNote = d.acNote;

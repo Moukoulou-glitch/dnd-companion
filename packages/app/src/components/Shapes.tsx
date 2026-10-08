@@ -1,5 +1,5 @@
 import { useMemo, useState, type ReactNode } from "react";
-import { formatBonus, shapeIssues, signed, type ContentRegistry, type DerivedSheet, type RollBreakdown, type ShapeKind, type ShapeResult, type WeaponAttack } from "@dnd/engine";
+import { formatBonus, shapeIssues, signed, traitDice, type ContentRegistry, type DerivedSheet, type RollBreakdown, type ShapeKind, type ShapeResult, type WeaponAttack } from "@dnd/engine";
 import { ABILITIES, ABILITY_NAMES, SKILLS, SKILL_NAMES, type Character, type CreatureDef, type OperationType } from "@dnd/schema";
 import { RichText } from "./Conditions";
 
@@ -160,7 +160,12 @@ export function ShapePanel({
   onRevert,
   onHealSlot,
   normalHp,
+  openAttack,
+  onTraitRoll,
 }: {
+  /** Rolls an attack and marks the turn, like your own attacks. */
+  openAttack: (a: WeaponAttack) => void;
+  onTraitRoll: (title: string, dice: string, type?: string) => void;
   normalHp: { current: number; max: number };
   shape: ShapeResult;
   sheet: DerivedSheet;
@@ -230,7 +235,7 @@ export function ShapePanel({
           <h2 className="sub-head">Attacks</h2>
           <div className="group">
             {s.attacks.map((a) => (
-              <button key={a.name} className="row" onClick={() => openRoll(`${s.name}: ${a.name}`, a.attack, a)}>
+              <button key={a.name} className="row" onClick={() => openAttack(a)}>
                 <div className="row-main">
                   <div className="row-title">{a.name}</div>
                   <div className="row-sub">
@@ -293,8 +298,8 @@ export function ShapePanel({
         </div>
       </details>
 
-      {s.traits.length > 0 && <TextList title="Traits" items={s.traits} />}
-      {s.actions.length > 0 && <TextList title="Actions" items={s.actions} />}
+      {s.traits.length > 0 && <TextList title="Traits" items={s.traits} onRoll={(t, d, ty) => onTraitRoll(`${s.name}: ${t}`, d, ty)} />}
+      {s.actions.length > 0 && <TextList title="Actions" items={s.actions.filter((a) => !s.attacks.some((x) => x.name === a.name))} onRoll={(t, d, ty) => onTraitRoll(`${s.name}: ${t}`, d, ty)} />}
       <button className="link danger-text" style={{ marginTop: 12 }} onClick={() => act("revert", { why: "Dropped to 0 or the DM ended it" }, "Back to normal.")}>
         It ended another way (no bonus action)
       </button>
@@ -302,15 +307,28 @@ export function ShapePanel({
   );
 }
 
-function TextList({ title, items }: { title: string; items: { name: string; text: string }[] }): ReactNode {
+/** Traits and actions as text; any that deal dice of their own get a button to roll them (Heated Body, Charge). */
+export function TextList({ title, items, onRoll }: { title: string; items: { name: string; text: string }[]; onRoll?: (name: string, dice: string, type?: string) => void }): ReactNode {
+  if (!items.length) return null;
   return (
     <>
       <h2 className="sub-head">{title}</h2>
-      {items.map((t) => (
-        <p key={t.name} className="note">
-          <b>{t.name}.</b> <RichText text={t.text} />
-        </p>
-      ))}
+      {items.map((t) => {
+        const d = onRoll ? traitDice(t.text) : undefined;
+        return (
+          <div key={t.name} className="trait-text">
+            <p className="note">
+              <b>{t.name}.</b> <RichText text={t.text} />
+            </p>
+            {d && (
+              <button className="tag" onClick={() => onRoll!(t.name, d.dice, d.type)}>
+                Roll {d.dice}
+                {d.type ? ` ${d.type}` : ""}
+              </button>
+            )}
+          </div>
+        );
+      })}
     </>
   );
 }

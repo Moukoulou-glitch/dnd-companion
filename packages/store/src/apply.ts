@@ -462,13 +462,72 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
       const x = c.summons.find((s) => s.id === op.payload.id);
       if (!x) break;
       const max = reg.find(x.creature, "creature")?.hp ?? op.payload.hp;
+      const lost = x.hp - Math.min(max, op.payload.hp);
       x.hp = Math.min(max, op.payload.hp);
+      // Its own concentration: damage asks for a Constitution save (DC 10 or half the damage); at 0 HP it ends.
+      if (x.concentrating && lost > 0) {
+        if (x.hp === 0) delete x.concentrating;
+        else notes.push(`It's concentrating on ${x.concentrating}: Constitution save, DC ${Math.max(10, Math.floor(lost / 2))}.`);
+      }
       if (x.hp === 0) notes.push(`${x.name ?? reg.find(x.creature, "creature")?.name ?? "It"} drops to 0 HP.`);
       break;
     }
 
     case "summonInitiative": {
       for (const x of c.summons) if (x.group === op.payload.group && (!op.payload.id || x.id === op.payload.id)) x.initiative = op.payload.value;
+      break;
+    }
+
+    case "summonEconomy": {
+      const x = c.summons.find((s) => s.id === op.payload.id);
+      if (!x) break;
+      const u = (x.used ??= { action: false, bonus: false, reaction: false, attacks: 0 });
+      if (op.payload.newTurn) {
+        x.used = { action: false, bonus: false, reaction: false, attacks: 0 };
+        // Its timed effects count down at the start of its turn.
+        const left = (x.effects ?? []).map((e) => (e.rounds !== undefined ? { ...e, rounds: e.rounds - 1 } : e));
+        const gone = left.filter((e) => e.rounds === 0);
+        x.effects = left.filter((e) => e.rounds !== 0);
+        if (gone.length) notes.push(`Ended on it: ${gone.map((e) => reg.find(reg.effectId(e.effect), "effect")?.name ?? e.effect).join(", ")}.`);
+        break;
+      }
+      const k = op.payload.kind;
+      if (k === "attack") {
+        if (op.payload.used) {
+          if (u.attacks === 0) u.action = true;
+          u.attacks += 1;
+          const per = (() => {
+            const d = reg.find(x.creature, "creature");
+            const m = d?.actions.find((a) => /^multiattack/i.test(a.name));
+            const n = m ? /makes (two|three|four|five) /i.exec(m.text)?.[1] : undefined;
+            return n ? ({ two: 2, three: 3, four: 4, five: 5 } as Record<string, number>)[n.toLowerCase()]! : m ? 2 : 1;
+          })();
+          if (u.attacks > per) notes.push(`That's attack ${u.attacks} of ${per} for its Attack action.`);
+        } else {
+          u.attacks = Math.max(0, u.attacks - 1);
+          if (u.attacks === 0) u.action = false;
+        }
+      } else if (k) {
+        if (op.payload.used && u[k]) notes.push(`Its ${k === "bonus" ? "bonus action" : k} is already used this turn. Used anyway.`);
+        u[k] = op.payload.used;
+      }
+      break;
+    }
+
+    case "summonEffect": {
+      const x = c.summons.find((s) => s.id === op.payload.id);
+      if (!x) break;
+      const effect = reg.effectId(op.payload.effect);
+      if (op.payload.add) x.effects = [...(x.effects ?? []), { id: `${x.id}-${Date.now().toString(36)}-${(x.effects ?? []).length}`, effect, ...(op.payload.rounds ? { rounds: op.payload.rounds } : {}) }];
+      else x.effects = (x.effects ?? []).filter((e) => e.effect !== effect && e.id !== op.payload.effect);
+      break;
+    }
+
+    case "summonConcentration": {
+      const x = c.summons.find((s) => s.id === op.payload.id);
+      if (!x) break;
+      if (op.payload.spell) x.concentrating = op.payload.spell;
+      else delete x.concentrating;
       break;
     }
 
@@ -850,10 +909,15 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
 
     case "setPrepared": {
       const { spell, list, prepared } = op.payload;
-      const inst = c.spells.find((x) => x.spell === spell && x.list === list);
+      let inst = c.spells.find((x) => x.spell === spell && x.list === list);
       if (!inst) {
-        notes.push("That spell isn't on this character's lists.");
-        break;
+        // Clerics, druids and paladins prepare from their whole class list: the spell is added as it's prepared.
+        if (!sheet.spells.some((x) => x.id === spell && x.list.id === list)) {
+          notes.push("That spell isn't on this character's lists.");
+          break;
+        }
+        inst = { spell, list, prepared: false };
+        c.spells.push(inst);
       }
       inst.prepared = prepared;
       const sc = sheet.spellcasting.find((x) => x.id === list);

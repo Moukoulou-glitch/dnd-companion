@@ -48,6 +48,14 @@ export const OPERATION_PAYLOADS = {
   /** A summoned creature's hit points (after damage or healing worked out in the app). */
   summonHp: z.object({ id: z.string(), hp: z.number().int().min(0) }).strict(),
   summonInitiative: z.object({ group: z.string(), id: z.string().optional(), value: z.number().int() }).strict(),
+  /** A summoned creature's turn: use or give back its action, bonus action, reaction or an attack; `newTurn` resets them. */
+  summonEconomy: z
+    .object({ id: z.string(), kind: z.enum(["action", "bonus", "reaction", "attack"]).optional(), used: z.boolean().default(true), newTurn: z.boolean().optional() })
+    .strict(),
+  /** Put an effect on a summoned creature, or take it off. */
+  summonEffect: z.object({ id: z.string(), effect: DefId, add: z.boolean(), rounds: z.number().int().min(1).optional() }).strict(),
+  /** A spell the summoned creature concentrates on (null when it ends). */
+  summonConcentration: z.object({ id: z.string(), spell: z.string().nullable() }).strict(),
   /** One creature, or a whole group, goes. */
   dismiss: z.object({ id: z.string().optional(), group: z.string().optional() }).strict(),
   /** Back to your normal form. */
@@ -235,6 +243,9 @@ export const Operation = z.discriminatedUnion("type", [
   OperationBase.extend({ type: z.literal("summonHp"), payload: OPERATION_PAYLOADS.summonHp }),
   OperationBase.extend({ type: z.literal("summonInitiative"), payload: OPERATION_PAYLOADS.summonInitiative }),
   OperationBase.extend({ type: z.literal("dismiss"), payload: OPERATION_PAYLOADS.dismiss }),
+  OperationBase.extend({ type: z.literal("summonEconomy"), payload: OPERATION_PAYLOADS.summonEconomy }),
+  OperationBase.extend({ type: z.literal("summonEffect"), payload: OPERATION_PAYLOADS.summonEffect }),
+  OperationBase.extend({ type: z.literal("summonConcentration"), payload: OPERATION_PAYLOADS.summonConcentration }),
   OperationBase.extend({ type: z.literal("addExtra"), payload: OPERATION_PAYLOADS.addExtra }),
   OperationBase.extend({ type: z.literal("updateExtra"), payload: OPERATION_PAYLOADS.updateExtra }),
   OperationBase.extend({ type: z.literal("removeExtra"), payload: OPERATION_PAYLOADS.removeExtra }),
