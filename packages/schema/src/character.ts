@@ -344,6 +344,8 @@ export const Character = z
             concentrating: z.string().optional(),
             /** Its own spells used: "N/day" uses by spell, slots by "slot:<level>". */
             spellUses: z.record(z.string(), z.number().int().min(0)).optional(),
+            /** Maximum hit points changed by hand (a vampire's bite). */
+            maxHpAdjust: z.object({ reduce: z.number().int().min(0).default(0), increase: z.number().int().min(0).default(0) }).strict().optional(),
           })
           .strict(),
       )

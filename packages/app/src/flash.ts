@@ -19,7 +19,7 @@ export const LIGHT_SPELLS = new Set([
   "spell:create-bonfire",
 ]);
 /** Features that make light: blinks like a spell of that level, or one steady light for `hold` ms (a Flame Tongue igniting). */
-export const LIGHT_FEATURES: Record<string, number | { hold: number }> = { "charm-of-sunlight": 5, "ignite-flame-tongue": { hold: 2000 } };
+export const LIGHT_FEATURES: Record<string, number | { hold: number }> = { "charm-of-sunlight": 5, "charm-of-sunlight-join": 5, "ignite-flame-tongue": { hold: 2000 } };
 
 const KEY = "flash-light-spells";
 

@@ -6,7 +6,7 @@ import { BreakdownLines } from "./Sheet";
 type Act = (type: OperationType, payload: unknown, label: string) => unknown;
 
 /** A number with − and + and a box to type into. */
-function NumberStep({ label, sub, value, onChange, min = 0, max = 999 }: { label: string; sub?: string; value: number; onChange: (n: number) => void; min?: number; max?: number }) {
+export function NumberStep({ label, sub, value, onChange, min = 0, max = 999 }: { label: string; sub?: string; value: number; onChange: (n: number) => void; min?: number; max?: number }) {
   const [text, setText] = useState(String(value));
   const [last, setLast] = useState(value);
   if (last !== value) {
@@ -150,6 +150,26 @@ export function MaxHpPanel({ character, sheet, reg, act }: { character: Characte
         );
       })}
       <p className="note">Constitution modifier {signed(sheet.abilities.con.modifier)} is added for every level.</p>
+    </>
+  );
+}
+
+/** A summoned creature's maximum hit points changed by hand. */
+export function SummonMaxHp({ member, reg, act }: { member: Character["summons"][number]; reg: ContentRegistry; act: Act }) {
+  const adj = member.maxHpAdjust ?? { reduce: 0, increase: 0 };
+  const base = reg.find(member.creature, "creature")?.hp ?? member.hp;
+  return (
+    <>
+      <h2 className="sub-head">Maximum hit points</h2>
+      <div className="group">
+        <NumberStep label="Reduction" sub="A vampire's bite, a curse" value={adj.reduce} onChange={(n) => act("summonMaxHpAdjust", { id: member.id, reduce: n }, `Its maximum reduced by ${n}.`)} />
+        <NumberStep label="Increase" sub="By hand" value={adj.increase} onChange={(n) => act("summonMaxHpAdjust", { id: member.id, increase: n }, `Its maximum increased by ${n}.`)} />
+      </div>
+      {(adj.reduce > 0 || adj.increase > 0) && (
+        <button className="link" onClick={() => act("summonMaxHpAdjust", { id: member.id, reduce: 0, increase: 0 }, "Back to its normal maximum.")}>
+          Back to normal ({base} before effects)
+        </button>
+      )}
     </>
   );
 }

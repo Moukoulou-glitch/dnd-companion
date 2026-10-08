@@ -1406,6 +1406,28 @@
       "reminders": [
         "At 0 HP you change back and extra damage carries over. Held for the full hour, it lasts until dispelled."
       ]
+    },
+    {
+      "kind": "effect",
+      "id": "effect:barkskin",
+      "name": "Barkskin",
+      "category": "spell",
+      "summary": "AC can't be less than 16, whatever armor is worn.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 217
+      },
+      "modifiers": [
+        {
+          "selector": "stat.ac",
+          "op": "acBase",
+          "value": 16,
+          "label": "Barkskin"
+        }
+      ],
+      "minutes": 60,
+      "concentration": true
     }
   ]
 }

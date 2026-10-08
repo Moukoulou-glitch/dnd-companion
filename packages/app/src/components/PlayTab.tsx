@@ -140,14 +140,6 @@ export function PlayTab({
   return (
     <main>
       <Identity c={character} />
-      <section className="big-actions" aria-label="Hit points">
-        <button className="big damage" onClick={openHp}>
-          Damage
-        </button>
-        <button className="big heal" onClick={openHp}>
-          Heal
-        </button>
-      </section>
 
       <CombatCard character={character} sheet={sheet} act={act} onStartCombat={onStartCombat} openMove={openMove} onInitiative={onInitiative} onLimited={openLimited} />
 

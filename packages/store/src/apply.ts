@@ -626,6 +626,20 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
       break;
     }
 
+    case "summonMaxHpAdjust": {
+      const x = c.summons.find((s) => s.id === op.payload.id);
+      if (!x) break;
+      const adj = (x.maxHpAdjust ??= { reduce: 0, increase: 0 });
+      if (op.payload.reduce !== undefined) adj.reduce = op.payload.reduce;
+      if (op.payload.increase !== undefined) adj.increase = op.payload.increase;
+      if (!adj.reduce && !adj.increase) delete x.maxHpAdjust;
+      const max = (reg.find(x.creature, "creature")?.hp ?? x.hp) + summonHpBonus(x, reg);
+      // Like yours: the maximum moves; current hit points can't stay above it.
+      x.hp = Math.max(0, Math.min(max, x.hp));
+      notes.push(`Its maximum hit points: ${max}.`);
+      break;
+    }
+
     case "setInspiration": {
       const before = c.inspirations ?? 0;
       c.inspirations = op.payload.count;
@@ -684,6 +698,10 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
       if (!x) break;
       const who = x.name ?? reg.find(x.creature, "creature")?.name ?? "It";
       const { key, max, economy, spell } = op.payload;
+      if (op.payload.restore) {
+        if (key && x.spellUses?.[key]) x.spellUses[key] -= 1;
+        break;
+      }
       if (key) {
         const uses = (x.spellUses ??= {});
         uses[key] = (uses[key] ?? 0) + 1;

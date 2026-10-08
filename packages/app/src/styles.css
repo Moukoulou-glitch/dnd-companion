@@ -2061,20 +2061,6 @@ button.row-main.plain {
   font-size: 13px;
   margin: 8px 0 4px;
 }
-.pips {
-  display: inline-flex;
-  gap: 4px;
-  vertical-align: middle;
-}
-.pip {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  border: 1px solid var(--gold);
-}
-.pip.on {
-  background: var(--gold);
-}
 
 /* "‹ Back to Gargoyle" around a summoned creature's roll. */
 .link.back-link {
@@ -2116,4 +2102,30 @@ button.row-main.plain {
 }
 .ability.drained {
   border-color: var(--hp);
+}
+
+/* Small use markers (a summoned creature's attacks, spells per day, Legendary Resistance). */
+.mpips {
+  display: inline-flex;
+  gap: 6px;
+  vertical-align: middle;
+  flex-wrap: wrap;
+}
+.mpip {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1.5px dashed var(--muted);
+  background: transparent;
+  opacity: 0.55;
+  padding: 0;
+}
+button.mpip {
+  width: 22px;
+  height: 22px;
+}
+.mpip.on {
+  border: 1.5px solid var(--gold);
+  background: var(--gold);
+  opacity: 1;
 }

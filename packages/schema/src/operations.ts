@@ -63,6 +63,8 @@ export const OPERATION_PAYLOADS = {
   summonEffectEdit: z
     .object({ id: z.string(), instance: z.string(), rounds: z.number().int().min(0).nullable().optional(), slotLevel: z.number().int().min(1).max(9).optional(), choice: z.string().optional() })
     .strict(),
+  /** A summoned creature's maximum hit points changed by hand. */
+  summonMaxHpAdjust: z.object({ id: z.string(), reduce: z.number().int().min(0).optional(), increase: z.number().int().min(0).optional() }).strict(),
   /** Inspiration on hand. */
   setInspiration: z.object({ count: z.number().int().min(0).max(10) }).strict(),
   /** Maximum hit points reduced or increased by hand. */
@@ -90,6 +92,8 @@ export const OPERATION_PAYLOADS = {
       max: z.number().int().min(0).optional(),
       economy: z.enum(["action", "bonus", "reaction", "none"]).default("action"),
       concentration: z.boolean().optional(),
+      /** Give a use back instead (tapping a spent marker). */
+      restore: z.boolean().optional(),
     })
     .strict(),
   summonInitiative: z.object({ group: z.string(), id: z.string().optional(), value: z.number().int() }).strict(),
@@ -314,6 +318,7 @@ export const Operation = z.discriminatedUnion("type", [
   OperationBase.extend({ type: z.literal("summonCast"), payload: OPERATION_PAYLOADS.summonCast }),
   OperationBase.extend({ type: z.literal("summonEffectEdit"), payload: OPERATION_PAYLOADS.summonEffectEdit }),
   OperationBase.extend({ type: z.literal("setInspiration"), payload: OPERATION_PAYLOADS.setInspiration }),
+  OperationBase.extend({ type: z.literal("summonMaxHpAdjust"), payload: OPERATION_PAYLOADS.summonMaxHpAdjust }),
   OperationBase.extend({ type: z.literal("setMaxHpAdjust"), payload: OPERATION_PAYLOADS.setMaxHpAdjust }),
   OperationBase.extend({ type: z.literal("setAbilityAdjust"), payload: OPERATION_PAYLOADS.setAbilityAdjust }),
   OperationBase.extend({ type: z.literal("setHpRoll"), payload: OPERATION_PAYLOADS.setHpRoll }),

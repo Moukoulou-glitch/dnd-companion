@@ -6,6 +6,9 @@ import { TextList } from "./Shapes";
 
 type Act = (type: OperationType, payload: unknown, label: string) => unknown;
 
+/** Rounds as time: 3 rounds, 4 min, 8 h. */
+const roundsText = (r: number) => (r < 10 ? `${r} rd` : r < 600 ? `${Math.round(r / 10)} min` : `${Math.round((r / 600) * 10) / 10} h`);
+
 const crText = (n: number) => (n === 0.125 ? "1/8" : n === 0.25 ? "1/4" : n === 0.5 ? "1/2" : String(n));
 
 /** After casting a summoning spell: which creatures, and how many (warned past the limit, never blocked). */
@@ -277,12 +280,22 @@ export function spellUseKey(spell: { name: string; id?: string }, g?: CreatureSp
 export const castEconomy = (castingTime: string): "action" | "bonus" | "reaction" | "none" =>
   /bonus/i.test(castingTime) ? "bonus" : /reaction/i.test(castingTime) ? "reaction" : /^1 action/i.test(castingTime) ? "action" : "none";
 
-function Pips({ left, total }: { left: number; total: number }) {
+/** Uses as dots: gold while available, hollow once used. Tap a gold one to use it, a hollow one to get it back. */
+function Pips({ left, total, onUse, onRestore, what = "use" }: { left: number; total: number; onUse?: () => void; onRestore?: () => void; what?: string }) {
   return (
-    <span className="pips" aria-label={`${left} of ${total} left`}>
-      {Array.from({ length: total }, (_, i) => (
-        <span key={i} className={i < left ? "pip on" : "pip"} />
-      ))}
+    <span className="mpips" aria-label={`${left} of ${total} left`}>
+      {Array.from({ length: total }, (_, i) =>
+        onUse || onRestore ? (
+          <button
+            key={i}
+            className={i < left ? "mpip on" : "mpip"}
+            aria-label={i < left ? `Use one ${what}` : `Give one ${what} back`}
+            onClick={() => (i < left ? onUse?.() : onRestore?.())}
+          />
+        ) : (
+          <span key={i} className={i < left ? "mpip on" : "mpip"} />
+        ),
+      )}
     </span>
   );
 }
@@ -440,6 +453,16 @@ export function SummonMemberPanel({
   const left = (mode: string) => Math.max(0, (speeds[mode] ?? 0) * (1 + used.dashes) - used.moved);
   const editing = (m.effects ?? []).find((e) => e.id === editEffect);
   const editingDef = editing ? reg.find(editing.effect, "effect") : undefined;
+  // "Legendary Resistance (3/Day)", "Breath Weapon (Recharge 5–6)": uses to mark.
+  const limitedUses = b
+    ? [...b.traits, ...b.actions].flatMap((t): { key: string; name: string; max: number; recharge?: string }[] => {
+        const day = /\((\d+)\/day\)/i.exec(t.name);
+        if (day) return [{ key: `use:${t.name}`, name: t.name.replace(/\s*\([^)]*\)\s*$/, ""), max: Number(day[1]) }];
+        const rech = /\((recharge[^)]*|recharges after a (?:short or )?long rest)\)/i.exec(t.name);
+        if (rech) return [{ key: `use:${t.name}`, name: t.name.replace(/\s*\([^)]*\)\s*$/, ""), max: 1, recharge: rech[1]! }];
+        return [];
+      })
+    : [];
   return (
     <>
       <button className="link" onClick={back}>
@@ -547,8 +570,8 @@ export function SummonMemberPanel({
       <h2 className="sub-head">Effects on it</h2>
       <div className="switches effects" role="group" aria-label={`Effects on ${name}`}>
         {m.concentrating && (
-          <button className="chip conc" onClick={() => act("summonConcentration", { id: m.id, spell: null }, `${name} stops concentrating.`)} aria-label={`Concentrating on ${m.concentrating}. End it`}>
-            ◎ {m.concentrating} ✕
+          <button className="chip conc" onClick={() => document.getElementById(`conc-${m.id}`)?.scrollIntoView({ block: "center", behavior: "smooth" })} aria-label={`Concentrating on ${m.concentrating}. Details`}>
+            ◎ {m.concentrating}
           </button>
         )}
         <button className="chip add" onClick={onAddEffect}>
@@ -561,7 +584,7 @@ export function SummonMemberPanel({
             <button key={e.id} className={`chip ${d?.category ?? "other"}${editEffect === e.id ? " editing" : ""}`} aria-label={`${d?.name ?? e.effect}: details`} onClick={() => setEditEffect(editEffect === e.id ? null : e.id)}>
               {d?.name ?? e.effect}
               {e.choice ? ` ${e.choice}` : ""}
-              {e.rounds !== undefined ? ` (${e.rounds})` : ""}
+              {e.rounds !== undefined ? ` (${roundsText(e.rounds)})` : ""}
               {immune ? " · immune" : ""}
             </button>
           );
@@ -574,7 +597,7 @@ export function SummonMemberPanel({
             <b>{editingDef.name}.</b> {editingDef.summary}
           </p>
           <div className="row">
-            <span className="row-main">{editing.rounds !== undefined ? `${editing.rounds} round${editing.rounds === 1 ? "" : "s"} left` : "No timer"}</span>
+            <span className="row-main">{editing.rounds !== undefined ? `${editing.rounds} round${editing.rounds === 1 ? "" : "s"} left (${roundsText(editing.rounds)})` : "No timer"}</span>
             <div className="stepper">
               <button aria-label="One round less" onClick={() => act("summonEffectEdit", { id: m.id, instance: editing.id, rounds: Math.max(0, (editing.rounds ?? 1) - 1) }, "One round less.")}>
                 −
@@ -585,9 +608,9 @@ export function SummonMemberPanel({
             </div>
           </div>
           <div className="choice-grid">
-            {[1, 10, 100].map((r) => (
+            {[1, 10, 100, 600].map((r) => (
               <button key={r} className={`chip${editing.rounds === r ? " on" : ""}`} onClick={() => act("summonEffectEdit", { id: m.id, instance: editing.id, rounds: r }, `${r} rounds.`)}>
-                {r === 1 ? "1 round" : r === 10 ? "1 minute" : "10 minutes"}
+                {r === 1 ? "1 round" : r === 10 ? "1 minute" : r === 100 ? "10 minutes" : "1 hour"}
               </button>
             ))}
             <button className={`chip${editing.rounds === undefined ? " on" : ""}`} onClick={() => act("summonEffectEdit", { id: m.id, instance: editing.id, rounds: null }, "No timer.")}>
@@ -634,7 +657,9 @@ export function SummonMemberPanel({
         </div>
       )}
 
-      <h2 className="sub-head">Concentration</h2>
+      <h2 className="sub-head" id={`conc-${m.id}`}>
+        Concentration
+      </h2>
       {m.concentrating ? (
         <div className="group">
           <div className="row">
@@ -733,6 +758,34 @@ export function SummonMemberPanel({
           onRoll={(n, dice, type) => onTraitRoll(`${name}: ${n}`, dice, type)}
           onUse={(n, kind) => tryUse(kind, n, () => act("summonEconomy", { id: m.id, kind, used: true }, `${name}: ${n}.`))}
         />
+      )}
+
+      {b && limitedUses.length > 0 && (
+        <>
+          <h2 className="sub-head">Limited uses</h2>
+          <div className="group">
+            {limitedUses.map((u) => {
+              const usedN = m.spellUses?.[u.key] ?? 0;
+              return (
+                <div key={u.key} className="row">
+                  <div className="row-main">
+                    <div className="row-title">{u.name}</div>
+                    <div className="row-sub">
+                      {Math.max(0, u.max - usedN)} of {u.max} left{u.recharge ? ` · ${u.recharge}` : ""}
+                    </div>
+                  </div>
+                  <Pips
+                    left={Math.max(0, u.max - usedN)}
+                    total={u.max}
+                    what={u.name}
+                    onUse={() => act("summonCast", { id: m.id, spell: u.name, key: u.key, max: u.max, economy: "none" }, `${name}: ${u.name} used.`)}
+                    onRestore={() => act("summonCast", { id: m.id, spell: u.name, key: u.key, economy: "none", restore: true }, `${name}: one ${u.name} back.`)}
+                  />
+                </div>
+              );
+            })}
+          </div>
+        </>
       )}
 
       <h2 className="sub-head">Actions anyone can take</h2>
@@ -865,7 +918,15 @@ export function SummonSpellPanel({
   const cast = def ? creatureCasting(def, source.info) : undefined;
   const economy = castEconomy(sd?.castingTime ?? "1 action");
   const levels = slotGroup && sd ? (source.info?.groups ?? []).filter((g) => g.level !== undefined && g.level >= sd.level).map((g) => g.level!) : [];
+  const selfEffect = sd ? reg.find(reg.effectId(sd.id), "effect") : undefined;
+  const [onSelf, setOnSelf] = useState(!!selfEffect && /^(self|touch)/i.test(sd?.range ?? ""));
   const doCast = () => {
+    if (selfEffect && onSelf)
+      act(
+        "summonEffect",
+        { id: m.id, effect: selfEffect.id, add: true, ...(selfEffect.rounds ? { rounds: selfEffect.rounds } : selfEffect.minutes ? { rounds: selfEffect.minutes * 10 } : {}), ...(selfEffect.upcast && level >= selfEffect.upcast.baseLevel ? { slotLevel: level } : {}) },
+        `${selfEffect.name} on ${name}.`,
+      );
     act(
       "summonCast",
       { id: m.id, spell: sd?.name ?? spell.name, ...(key ? { key } : {}), ...(slotMax !== undefined ? { max: slotMax } : {}), economy, ...(sd?.concentration ? { concentration: true } : {}) },
@@ -916,6 +977,15 @@ export function SummonSpellPanel({
       )}
       {key && slotMax !== undefined && usedN >= slotMax && <p className="over-banner">None left. Cast anyway if your DM agrees.</p>}
       {m.concentrating && sd?.concentration && <p className="note">Casting this ends its concentration on {m.concentrating}.</p>}
+      {selfEffect && (
+        <label className="row">
+          <div className="row-main">
+            <div className="row-title">On itself</div>
+            <div className="row-sub">{name} gets {selfEffect.name}: {selfEffect.summary}</div>
+          </div>
+          <input type="checkbox" checked={onSelf} onChange={(e) => setOnSelf(e.target.checked)} />
+        </label>
+      )}
       <button className="big primary wide" onClick={doCast}>
         Cast{economy !== "none" ? ` · ${economy === "bonus" ? "bonus action" : economy}` : ""}
       </button>

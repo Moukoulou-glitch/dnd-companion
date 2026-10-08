@@ -14,7 +14,7 @@ import { Composer, ResultView, type OptionInfo } from "./components/Composer";
 import { AddEffectPanel, EffectChips, EffectPanel } from "./components/Effects";
 import { FeaturePanel } from "./components/FeaturePanel";
 import { HpPad } from "./components/HpPad";
-import { AbilityAdjustPanel, MaxHpPanel } from "./components/Adjust";
+import { AbilityAdjustPanel, MaxHpPanel, SummonMaxHp } from "./components/Adjust";
 import { AddExtraPanel, ExtraEditor, ExtraInline, skillExtra } from "./components/Extras";
 import { AddItemPanel, CoinPanel, InventoryTab, ItemPanel } from "./components/InventoryTab";
 import { bookReport, registry } from "./content";
@@ -30,6 +30,24 @@ import { useCharacters } from "./useCharacters";
 import { formatMinutes } from "./time";
 
 type Tab = "play" | "actions" | "spells" | "sheet" | "inventory";
+
+interface GrowingArea {
+  question: string;
+  what: string;
+  base: number;
+  per: number;
+  detail: (joined: number) => string;
+}
+/** Areas that grow when allies join with their reaction. */
+const GROWING_AREAS: Record<string, GrowingArea> = {
+  "charm-of-sunlight": {
+    question: "How many allies within 60 ft used their reaction to join, each spending their own Charm?",
+    what: "Sphere of sunlight",
+    base: 10,
+    per: 10,
+    detail: (n) => (n ? `Each of the ${n} gets a crown of light of their own that moves with them.` : "Just your crown of light. Allies who earned the Charm with you can still join with their reaction."),
+  },
+};
 const TABS: { id: Tab; label: string }[] = [
   { id: "play", label: "Play" },
   { id: "actions", label: "Actions" },
@@ -48,6 +66,7 @@ export function App() {
   const s = useCharacters();
   // Panels opened earlier read the latest state through this ref, never a stale copy.
   const live = useRef(s);
+  const growJoin = useRef(0);
   live.current = s;
   const [tab, setTab] = useState<Tab>("play");
   // A panel's body is rendered on every app render, so it always shows the current character.
@@ -298,6 +317,43 @@ export function App() {
     openRoll(title, empty, a, { ...extra, damageOnly: true });
   };
 
+  /** An area that grows with each ally who joins (Charm of Sunlight): how many joined, and the radius. */
+  const openGrowingArea = (title: string, g: GrowingArea) =>
+    open(title, () => {
+      const [n, setN] = [growJoin.current, (v: number) => {
+        growJoin.current = v;
+        openGrowingArea(title, g);
+      }];
+      return (
+        <>
+          <p className="note">{g.question}</p>
+          <div className="stepper" style={{ justifyContent: "center", margin: "8px auto", width: "fit-content" }}>
+            <button aria-label="One fewer" disabled={n === 0} onClick={() => setN(Math.max(0, n - 1))}>
+              −
+            </button>
+            <span>{n}</span>
+            <button aria-label="One more" onClick={() => setN(n + 1)}>
+              +
+            </button>
+          </div>
+          <p className="formula">
+            {g.what}: {g.base + g.per * n}-foot radius
+          </p>
+          <p className="note">{g.detail(n)}</p>
+          <button
+            className="big primary wide"
+            onClick={() => {
+              live.current.setToast({ id: Date.now(), text: `${g.what}: ${g.base + g.per * n}-foot radius (${n} joined).`, canUndo: false });
+              growJoin.current = 0;
+              close();
+            }}
+          >
+            Done
+          </button>
+        </>
+      );
+    });
+
   /** Rolls for a summoned creature come back to its stat block, and use up its Bardic Inspiration. */
   const summonRollOpts = (id: string) => {
     const m = live.current.character?.summons.find((x) => x.id === id);
@@ -343,7 +399,7 @@ export function App() {
                 act={live.current.act}
                 close={() => openSummonMember(id)}
                 onPick={(d, choice) => {
-                  live.current.act("summonEffect", { id, effect: d.id, add: true, ...(d.rounds ? { rounds: d.rounds } : {}), ...(choice ? { choice } : {}) }, `${d.name} on ${m.name ?? registry.find(m.creature, "creature")?.name ?? "it"}.`);
+                  live.current.act("summonEffect", { id, effect: d.id, add: true, ...(d.rounds ? { rounds: d.rounds } : d.minutes ? { rounds: d.minutes * 10 } : {}), ...(choice ? { choice } : {}) }, `${d.name} on ${m.name ?? registry.find(m.creature, "creature")?.name ?? "it"}.`);
                   openSummonMember(id);
                 }}
               />
@@ -419,9 +475,16 @@ export function App() {
       return (
         <HpPad
           sourceToggles
+          below={m ? <SummonMaxHp member={m} reg={registry} act={live.current.act} /> : null}
           onDamage={(amount, type, src) => {
-            if (m) live.current.act("summonHp", { id, damage: amount, ...(type ? { type } : {}), ...src }, `${amount}${type ? ` ${src?.magical ? "magical " : ""}${type}` : ""} damage.`);
-            back();
+            if (!m) return back();
+            const before = m.hp;
+            live.current.act("summonHp", { id, damage: amount, ...(type ? { type } : {}), ...src }, `${amount}${type ? ` ${src?.magical ? "magical " : ""}${type}` : ""} damage.`);
+            const now = live.current.character?.summons.find((x) => x.id === id);
+            const lost = before - (now?.hp ?? before);
+            // Concentrating and still up: the Constitution save (DC 10 or half the damage).
+            if (now?.concentrating && lost > 0 && now.hp > 0) openSummonConcCheck(id, Math.max(10, Math.floor(lost / 2)), fromMember);
+            else back();
           }}
           onHeal={(amount) => {
             if (m) live.current.act("summonHp", { id, hp: Math.min(max, m.hp + amount) }, `Healed ${amount}.`);
@@ -432,6 +495,34 @@ export function App() {
         />
       );
     });
+
+  /** A summoned creature's concentration save after damage; a failure ends it. */
+  const openSummonConcCheck = (id: string, dc: number, fromMember: boolean) => {
+    const m = live.current.character?.summons.find((x) => x.id === id);
+    if (!m) return;
+    const b = summonBlock(registry, m);
+    const name = m.name ?? b?.name ?? "It";
+    const back = () => (fromMember ? openSummonMember(id) : openSummonGroup(m.group));
+    open(`${name}: concentration`, () => (
+      <>
+        <button className="link back-link" onClick={back}>
+          ‹ Back to {name}
+        </button>
+        <Composer
+          title={`${name}: concentration on ${m.concentrating}`}
+          base={b?.saves.con ?? { total: 0, parts: [], dice: [], advantage: [], disadvantage: [], suggestions: [] }}
+          dc={dc}
+          onOptionsUsed={summonRollOpts(id).onOptionsUsed}
+          physical={live.current.character?.settings.physicalDice ?? true}
+          onPhysicalChange={(p) => live.current.act("setField", { path: ["settings", "physicalDice"], value: p }, p ? "Rolling your own dice." : "The app rolls for you.")}
+          onRolled={(r) => live.current.addRoll(r)}
+          onCheck={(passed) => {
+            if (!passed) live.current.act("summonConcentration", { id, spell: null }, `${name} loses concentration.`);
+          }}
+        />
+      </>
+    ));
+  };
 
   const openSummonGroup = (group: string) =>
     open("Summoned", () =>
@@ -537,7 +628,9 @@ export function App() {
                   flashForFeature(current.id);
                   const sk = check as Skill | undefined;
                   const base = sk && live.current.sheet?.skills[sk];
-                  if (sk && base) openRoll(`${current.name}: ${SKILL_NAMES[sk]}`, base, undefined, current.check?.dc !== undefined ? { dc: current.check.dc } : {});
+                  const grows = GROWING_AREAS[current.id];
+                  if (grows) openGrowingArea(current.name, grows);
+                  else if (sk && base) openRoll(`${current.name}: ${SKILL_NAMES[sk]}`, base, undefined, current.check?.dc !== undefined ? { dc: current.check.dc } : {});
                   else close();
                 },
               );

@@ -471,7 +471,8 @@ const safeTerms = (v: Parameters<typeof evalExpr>[0], ctx: ExprContext) => {
 export function summonHpBonus(m: SummonMember, reg: ContentRegistry): number {
   const d = reg.find(m.creature, "creature");
   if (!d) return 0;
-  let n = 0;
+  // Changed by hand, then effects (Aid).
+  let n = (m.maxHpAdjust?.increase ?? 0) - (m.maxHpAdjust?.reduce ?? 0);
   for (const a of memberMods(reg, m, d)) {
     if (a.mod.selector !== "stat.hp.max" || a.mod.op !== "add" || a.mod.value === undefined) continue;
     for (const t of safeTerms(a.mod.value, a.ctx)) if (t.kind === "flat") n += t.value;
@@ -536,12 +537,15 @@ export function summonBlock(reg: ContentRegistry, m: SummonMember): ShapeResult 
   r.spellAttack = applyTo(flatRoll([]), ["roll.attack.spell.ranged", "roll.attack.spell.melee"]);
   // Stats: AC, speed, hit points, defenses.
   let ac = b.ac;
+  let acFloor = 0;
   let walk = d.speed.walk ?? 0;
   const multipliers: number[] = [];
   let cap: number | undefined;
   for (const a of all) {
     const flat = a.mod.value !== undefined ? safeTerms(a.mod.value, a.ctx).reduce((s, t) => s + (t.kind === "flat" ? t.value : 0), 0) : 0;
     if (a.mod.selector === "stat.ac" && a.mod.op === "add") ac += flat;
+    // Barkskin: AC can't be less than 16 (Mage Armor's formula uses its Dexterity).
+    if (a.mod.selector === "stat.ac" && a.mod.op === "acBase") acFloor = Math.max(acFloor, flat);
     if (a.mod.selector === "stat.speed.walk") {
       if (a.mod.op === "add") walk += flat;
       if (a.mod.op === "multiply") multipliers.push(flat || 1);
@@ -552,7 +556,7 @@ export function summonBlock(reg: ContentRegistry, m: SummonMember): ShapeResult 
   }
   for (const x of multipliers) walk = Math.floor(walk * x);
   if (cap !== undefined) walk = Math.min(walk, cap);
-  r.ac = ac;
+  r.ac = Math.max(ac, acFloor);
   r.walk = walk;
   // Haste doubles every speed; Grappled-style caps stop them all.
   r.speeds = Object.fromEntries(
