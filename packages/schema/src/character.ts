@@ -302,9 +302,21 @@ export const Character = z
             initiative: z.number().int().optional(),
             concentration: z.boolean().optional(),
             /** Its own turn: what it has used. Reset when its turn starts. */
-            used: z.object({ action: z.boolean().default(false), bonus: z.boolean().default(false), reaction: z.boolean().default(false), attacks: z.number().int().min(0).default(0) }).strict().optional(),
+            used: z
+              .object({
+                action: z.boolean().default(false),
+                bonus: z.boolean().default(false),
+                reaction: z.boolean().default(false),
+                attacks: z.number().int().min(0).default(0),
+                moved: z.number().int().min(0).default(0),
+                dashes: z.number().int().min(0).default(0),
+              })
+              .strict()
+              .optional(),
             /** Conditions and spells on it (Bless, Frightened), with rounds when timed. */
-            effects: z.array(z.object({ id: z.string(), effect: DefId, rounds: z.number().int().min(0).optional() }).strict()).optional(),
+            effects: z
+              .array(z.object({ id: z.string(), effect: DefId, rounds: z.number().int().min(0).optional(), choice: z.string().optional(), slotLevel: z.number().int().min(1).max(9).optional() }).strict())
+              .optional(),
             /** A spell it is concentrating on itself. */
             concentrating: z.string().optional(),
             /** Its own spells used: "N/day" uses by spell, slots by "slot:<level>". */

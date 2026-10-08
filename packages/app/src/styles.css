@@ -2075,3 +2075,9 @@ button.row-main.plain {
 .pip.on {
   background: var(--gold);
 }
+
+/* "‹ Back to Gargoyle" around a summoned creature's roll. */
+.link.back-link {
+  display: block;
+  margin: 4px auto 8px;
+}

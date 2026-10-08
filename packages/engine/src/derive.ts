@@ -1211,6 +1211,8 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
     const parts = [{ label: `${shape.name}'s Dexterity modifier`, value: dexMod }, ...kept];
     sheet.initiative = { ...sheet.initiative, parts, total: parts.reduce((t, p) => t + p.value, 0) };
     sheet.attacksPerAction = shape.attacksPerAction;
+    // Its walking speed replaces yours (Haste and the like still apply).
+    if (shape.walk !== undefined) sheet.speed = statWith("stat.speed.walk", [{ label: `${shape.name}'s speed`, value: shape.walk }]);
   }
   return sheet;
 }

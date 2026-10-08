@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { creatureBlock, creatureCasting, creatureSpells, formatBonus, signed, summonOptions, type ContentRegistry, type CreatureSpellGroup, type CreatureSpells, type RollBreakdown, type WeaponAttack } from "@dnd/engine";
+import { creatureBlock, creatureCasting, summonBlock, creatureSpells, formatBonus, signed, summonOptions, type ContentRegistry, type CreatureSpellGroup, type CreatureSpells, type RollBreakdown, type WeaponAttack } from "@dnd/engine";
 import { ABILITIES, ABILITY_NAMES, SKILL_NAMES, type Character, type CreatureDef, type OperationType, type Skill, type SpellDef } from "@dnd/schema";
 import { RichText } from "./Conditions";
 import { TextList } from "./Shapes";
@@ -385,10 +385,13 @@ export function SummonMemberPanel({
   const [common, setCommon] = useState<string | null>(null);
   const [init, setInit] = useState<string>(m.initiative !== undefined ? String(m.initiative) : "");
   const def = reg.find(m.creature, "creature");
-  const b = creatureBlock(reg, m.creature);
+  const b = summonBlock(reg, m);
+  const [moving, setMoving] = useState(false);
   const spells = useMemo(() => (def ? creatureSpells(reg, def) : []), [reg, def]);
   const name = m.name ?? b?.name ?? m.creature;
-  const used = m.used ?? { action: false, bonus: false, reaction: false, attacks: 0 };
+  const used = { action: false, bonus: false, reaction: false, attacks: 0, moved: 0, dashes: 0, ...m.used };
+  const fastest = def ? Math.max(b?.walk ?? def.speed.walk ?? 0, def.speed.fly ?? 0, def.speed.swim ?? 0, def.speed.climb ?? 0) : 0;
+  const allowed = fastest * (1 + used.dashes);
   const perAction = b ? b.attacksPerAction : 1;
   const own = spells.flatMap((sp) => sp.groups.flatMap((g) => g.spells));
   const sourceOf = (sp: { name: string; id?: string }): SpellSource => {
@@ -467,11 +470,36 @@ export function SummonMemberPanel({
           {economy("action", "Action")}
           {economy("bonus", "Bonus")}
           {economy("reaction", "Reaction")}
-          <button className="pill" onClick={() => act("summonEconomy", { id: m.id, newTurn: true }, `${name}'s turn: everything is back.`)}>
-            <b>New turn</b>
-            <small>reset</small>
+          <button className="pill" data-used={allowed > 0 && used.moved >= allowed} onClick={() => setMoving(!moving)}>
+            <b>Move</b>
+            <small>
+              {Math.max(0, allowed - used.moved)} of {allowed} ft
+            </small>
           </button>
         </div>
+        {moving && (
+          <div className="choice-grid">
+            {[5, 10, 15, 20, 30].map((ft) => (
+              <button key={ft} className="chip" onClick={() => act("summonEconomy", { id: m.id, move: ft }, `${name} moves ${ft} ft.`)}>
+                +{ft} ft
+              </button>
+            ))}
+            <button className="chip" disabled={used.moved === 0} onClick={() => act("summonEconomy", { id: m.id, move: -5 }, "5 ft taken back.")}>
+              −5 ft
+            </button>
+            <button className="chip" onClick={() => act("summonEconomy", { id: m.id, dash: true, kind: "action", used: true }, `${name} dashes: +${fastest} ft.`)}>
+              Dash (action)
+            </button>
+            {used.dashes > 0 && (
+              <button className="chip" onClick={() => act("summonEconomy", { id: m.id, dash: false, kind: "action", used: false }, "Dash taken back.")}>
+                Undo Dash
+              </button>
+            )}
+          </div>
+        )}
+        <button className="link" onClick={() => act("summonEconomy", { id: m.id, newTurn: true }, `${name}'s turn: everything is back.`)}>
+          New turn for {name}: everything back
+        </button>
         {!inCombat && <p className="note">Not in combat: track it anyway if you like.</p>}
       </section>
 
@@ -489,8 +517,9 @@ export function SummonMemberPanel({
           const d = reg.find(e.effect, "effect");
           const immune = d?.category === "condition" && (defenses?.conditions ?? []).some((k) => k.toLowerCase() === d.name.toLowerCase());
           return (
-            <button key={e.id} className={`chip ${d?.category ?? "other"}`} aria-label={`Remove ${d?.name ?? e.effect}`} onClick={() => act("summonEffect", { id: m.id, effect: e.id, add: false }, `${d?.name ?? "Effect"} ends on ${name}.`)}>
+            <button key={e.id} className={`chip ${d?.category ?? "other"}`} aria-label={`Remove ${d?.name ?? e.effect}`} onClick={() => act("summonEffect", { id: m.id, effect: e.effect, instance: e.id, add: false }, `${d?.name ?? "Effect"} ends on ${name}.`)}>
               {d?.name ?? e.effect}
+              {e.choice ? ` ${e.choice}` : ""}
               {e.rounds !== undefined ? ` (${e.rounds})` : ""}
               {immune ? " · immune" : ""} ✕
             </button>
@@ -576,12 +605,12 @@ export function SummonMemberPanel({
                   <div className="row-sub">
                     {a.damage.dice}
                     {a.damage.bonus.total ? signed(a.damage.bonus.total) : ""} {a.damage.type}
-                    {a.damage.bonus.dice.map((d) => ` + ${d.dice} ${d.damageType ?? ""}`).join("")}
+                    {a.damage.bonus.dice.map((d) => ` + ${d.dice}${d.damageType ? ` ${d.damageType}` : ""}`).join("")}
                     {a.note ? ` · ${a.note}` : ""}
                     {a.action === "bonus" ? " · bonus action" : ""}
                   </div>
                 </div>
-                <span className="num">{formatBonus({ total: a.attack.total, dice: [] })}</span>
+                <span className="num">{formatBonus(a.attack)}</span>
               </button>
             ))}
           </div>
@@ -635,14 +664,35 @@ export function SummonMemberPanel({
 
       {b && (
         <>
-          <h2 className="sub-head">Abilities · tap for a save</h2>
-          <div className="choice-grid" style={{ margin: "8px 0" }}>
+          <h2 className="sub-head">Abilities · checks and saves</h2>
+          <div className="group">
             {ABILITIES.map((ab) => (
-              <button key={ab} className="tag" onClick={() => onCheck(`${name}: ${ABILITY_NAMES[ab]} save`, b.saves[ab])}>
-                {ABILITY_NAMES[ab].slice(0, 3)} {b.abilities[ab].score} ({signed(b.abilities[ab].modifier)}) · save {signed(b.saves[ab].total)}
-              </button>
+              <div key={ab} className="row">
+                <button className="row-main plain" onClick={() => onCheck(`${name}: ${ABILITY_NAMES[ab]} check`, b.checks?.[ab] ?? b.saves[ab])}>
+                  <div className="row-title">
+                    {ABILITY_NAMES[ab]} {b.abilities[ab].score} ({signed(b.abilities[ab].modifier)})
+                  </div>
+                  <div className="row-sub">tap for a check</div>
+                </button>
+                <button className="chip" onClick={() => onCheck(`${name}: ${ABILITY_NAMES[ab]} save`, b.saves[ab])}>
+                  save {signed(b.saves[ab].total)}
+                </button>
+              </div>
             ))}
           </div>
+          <details className="skills">
+            <summary className="sub-head">Skills</summary>
+            <div className="group">
+              {(Object.keys(b.skills) as Skill[]).map((sk) => (
+                <button key={sk} className="row" onClick={() => onCheck(`${name}: ${SKILL_NAMES[sk]}`, b.skills[sk])}>
+                  <div className="row-main">
+                    <div className="row-title">{SKILL_NAMES[sk]}</div>
+                  </div>
+                  <span className="num">{formatBonus(b.skills[sk])}</span>
+                </button>
+              ))}
+            </div>
+          </details>
           <TextList title="Traits" items={b.traits} onRoll={(n, dice, type) => onTraitRoll(`${name}: ${n}`, dice, type)} />
         </>
       )}

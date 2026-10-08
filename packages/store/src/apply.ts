@@ -1,5 +1,14 @@
-import { Character, CombatState, type Operation } from "@dnd/schema";
-import { FLEX_COST, castingEconomy, derive, evalFlat, levelGains, materialNeed, multiclassIssues, shapeIssues, type ContentRegistry } from "@dnd/engine";
+import { Character, CombatState, type Operation, type ValueExpr } from "@dnd/schema";
+import { FLEX_COST, castingEconomy, derive, evalFlat, levelGains, materialNeed, multiclassIssues, shapeIssues, summonHpBonus, type ContentRegistry } from "@dnd/engine";
+
+/** A number from an expression, or 0 when it can't be worked out here. */
+const evalFlatSafe = (v: ValueExpr, ctx: Parameters<typeof evalFlat>[1]): number => {
+  try {
+    return evalFlat(v, ctx);
+  } catch {
+    return 0;
+  }
+};
 
 /** Something the player should do next, e.g. roll a concentration check. */
 export type Prompt = { kind: "concentration"; dc: number; spell: string };
@@ -487,7 +496,7 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
         }
         target = Math.max(0, x.hp - amount);
       }
-      const max = def?.hp ?? target;
+      const max = (def?.hp ?? target) + summonHpBonus(x, reg);
       const lost = x.hp - Math.min(max, target);
       x.hp = Math.min(max, target);
       // Its own concentration: damage asks for a Constitution save (DC 10 or half the damage); at 0 HP it ends.
@@ -507,9 +516,9 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
     case "summonEconomy": {
       const x = c.summons.find((s) => s.id === op.payload.id);
       if (!x) break;
-      const u = (x.used ??= { action: false, bonus: false, reaction: false, attacks: 0 });
+      const u = (x.used ??= { action: false, bonus: false, reaction: false, attacks: 0, moved: 0, dashes: 0 });
       if (op.payload.newTurn) {
-        x.used = { action: false, bonus: false, reaction: false, attacks: 0 };
+        x.used = { action: false, bonus: false, reaction: false, attacks: 0, moved: 0, dashes: 0 };
         // Its timed effects count down at the start of its turn.
         const left = (x.effects ?? []).map((e) => (e.rounds !== undefined ? { ...e, rounds: e.rounds - 1 } : e));
         const gone = left.filter((e) => e.rounds === 0);
@@ -517,6 +526,13 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
         if (gone.length) notes.push(`Ended on it: ${gone.map((e) => reg.find(reg.effectId(e.effect), "effect")?.name ?? e.effect).join(", ")}.`);
         break;
       }
+      if (op.payload.move !== undefined) {
+        u.moved = Math.max(0, (u.moved ?? 0) + op.payload.move);
+        const d = reg.find(x.creature, "creature");
+        const speed = Math.max(d?.speed.walk ?? 0, d?.speed.fly ?? 0, d?.speed.swim ?? 0) * (1 + (u.dashes ?? 0));
+        if (speed && u.moved > speed) notes.push(`${u.moved} ft is beyond its ${speed} ft this turn.`);
+      }
+      if (op.payload.dash !== undefined) u.dashes = Math.max(0, (u.dashes ?? 0) + (op.payload.dash ? 1 : -1));
       const k = op.payload.kind;
       if (k === "attack") {
         if (op.payload.used) {
@@ -550,8 +566,41 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
         if (ed && ed.category === "condition" && (cd?.conditionImmune ?? []).some((k) => k.toLowerCase() === ed.name.toLowerCase()))
           notes.push(`${x.name ?? cd?.name ?? "It"} is immune to being ${ed.name.toLowerCase()}. Added anyway.`);
       }
-      if (op.payload.add) x.effects = [...(x.effects ?? []), { id: `${x.id}-${Date.now().toString(36)}-${(x.effects ?? []).length}`, effect, ...(op.payload.rounds ? { rounds: op.payload.rounds } : {}) }];
-      else x.effects = (x.effects ?? []).filter((e) => e.effect !== effect && e.id !== op.payload.effect);
+      const def = reg.find(effect, "effect");
+      const ctxFor = (slotLevel?: number) => ({ pb: 2, mods: { str: 0, dex: 0, con: 0, int: 0, wis: 0, cha: 0 }, level: 1, classLevels: {}, slotLevel: slotLevel ?? def?.upcast?.baseLevel ?? 1 });
+      // Aid: the maximum and the current hit points both go up, and come back down when it ends.
+      const hpGain = (slotLevel?: number) => {
+        let n = 0;
+        for (const m of def?.modifiers ?? []) if (m.selector === "stat.hp.max" && m.op === "add" && m.value !== undefined) n += evalFlatSafe(m.value, ctxFor(slotLevel));
+        return n;
+      };
+      if (op.payload.add) {
+        const inst = {
+          // The operation's own id: the same every time the log is replayed.
+          id: op.id,
+          effect,
+          ...(op.payload.rounds ? { rounds: op.payload.rounds } : {}),
+          ...(op.payload.choice ? { choice: op.payload.choice } : {}),
+          ...(op.payload.slotLevel ? { slotLevel: op.payload.slotLevel } : {}),
+        };
+        x.effects = [...(x.effects ?? []), inst];
+        const gain = hpGain(op.payload.slotLevel);
+        if (gain > 0 && x.hp > 0) {
+          x.hp += gain;
+          notes.push(`+${gain} hit points (maximum and current).`);
+        }
+      } else {
+        const gone = (x.effects ?? []).filter((e) => (op.payload.instance ? e.id === op.payload.instance : e.effect === effect || e.id === op.payload.effect));
+        x.effects = (x.effects ?? []).filter((e) => !gone.includes(e));
+        for (const g of gone) {
+          const loss = hpGain(g.slotLevel);
+          if (loss > 0) {
+            const max = (reg.find(x.creature, "creature")?.hp ?? x.hp) + summonHpBonus(x, reg);
+            x.hp = Math.min(x.hp, max);
+          }
+        }
+        if (!gone.length) notes.push("That effect isn't on it.");
+      }
       break;
     }
 
@@ -566,7 +615,7 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
         if (max !== undefined && uses[key]! > max) notes.push(`Beyond its stat block: ${uses[key]} of ${max}${key.startsWith("slot:") ? ` level ${key.slice(5)} slots` : " a day"}.`);
       }
       if (economy !== "none") {
-        const u = (x.used ??= { action: false, bonus: false, reaction: false, attacks: 0 });
+        const u = (x.used ??= { action: false, bonus: false, reaction: false, attacks: 0, moved: 0, dashes: 0 });
         if (u[economy]) notes.push(`Its ${economy === "bonus" ? "bonus action" : economy} was already used this turn.`);
         u[economy] = true;
       }

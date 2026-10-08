@@ -1,6 +1,8 @@
-import { ABILITIES, ABILITY_NAMES, SKILLS, SKILL_NAMES, type Ability, type Character, type CreatureDef, type Skill, type SpellDef } from "@dnd/schema";
+import { ABILITIES, ABILITY_NAMES, SKILLS, SKILL_NAMES, type Ability, type Character, type CreatureDef, type Modifier, type Skill, type SpellDef } from "@dnd/schema";
 import type { Part, RollBreakdown } from "./breakdown.js";
 import type { ContentRegistry } from "./registry.js";
+import { evalExpr, type ExprContext } from "./expr.js";
+import { signed as signedN, signedDice } from "./breakdown.js";
 import type { WeaponAttack } from "./derive.js";
 
 /** What a druid's Wild Shape allows right now (PHB p. 66; Circle of the Moon p. 69). */
@@ -88,6 +90,12 @@ export interface ShapeResult {
   attacks: (WeaponAttack & { note?: string })[];
   /** Attacks per Attack action, from its Multiattack. */
   attacksPerAction: number;
+  /** Walking speed in feet. */
+  walk?: number;
+  /** Summoned creatures with effects: plain ability checks, initiative, spell attacks. */
+  checks?: Record<Ability, RollBreakdown>;
+  initiative?: RollBreakdown;
+  spellAttack?: RollBreakdown;
   /** Wild Shape: hours it can last. */
   hours?: number;
   notes: string[];
@@ -375,6 +383,7 @@ export function deriveShape(
     ac: d.ac,
     hp: { current: Math.min(s.hp, d.hp), max: d.hp },
     speed,
+    walk: d.speed.walk ?? 0,
     abilities,
     saves,
     skills,
@@ -423,4 +432,124 @@ export function summonOptions(reg: ContentRegistry, summon: string, slot: number
         .sort((a, b) => b.cr - a.cr || a.name.localeCompare(b.name));
   const count = pickCount(s.count);
   return { creatures, tiers, ...(count ? { count } : {}) };
+}
+
+type SummonMember = Character["summons"][number];
+
+const selectorMatches = (selector: string, key: string) => selector === key || (selector.endsWith(".*") && (key === selector.slice(0, -2) || key.startsWith(selector.slice(0, -1))));
+
+/** Every modifier from the effects on a summoned creature, with their context. */
+function memberMods(reg: ContentRegistry, m: SummonMember, d: CreatureDef) {
+  const mods = Object.fromEntries(ABILITIES.map((a) => [a, Math.floor(((d.abilities[a] ?? 10) - 10) / 2)])) as Record<Ability, number>;
+  const out: { label: string; mod: CreatureDef["traits"] extends unknown ? NonNullable<ReturnType<typeof reg.find<"effect">>>["modifiers"][number] : never; ctx: ExprContext }[] = [];
+  for (const e of m.effects ?? []) {
+    const def = reg.find(e.effect, "effect");
+    if (!def) continue;
+    const ctx: ExprContext = { pb: pbForCr(d.cr), mods, level: Math.max(1, Math.ceil(d.cr)), classLevels: {}, slotLevel: e.slotLevel ?? def.upcast?.baseLevel ?? 1 };
+    for (const mod of def.modifiers) {
+      const value = typeof mod.value === "string" ? mod.value.replace(/\{choice\}/g, e.choice ?? "d6") : mod.value;
+      out.push({ label: mod.label ?? def.name, mod: { ...mod, ...(value !== undefined ? { value } : {}) }, ctx });
+    }
+  }
+  return out;
+}
+
+const safeTerms = (v: Parameters<typeof evalExpr>[0], ctx: ExprContext) => {
+  try {
+    return evalExpr(v, ctx);
+  } catch {
+    return [];
+  }
+};
+
+/** Extra maximum hit points from effects on it (Aid). */
+export function summonHpBonus(m: SummonMember, reg: ContentRegistry): number {
+  const d = reg.find(m.creature, "creature");
+  if (!d) return 0;
+  let n = 0;
+  for (const a of memberMods(reg, m, d)) {
+    if (a.mod.selector !== "stat.hp.max" || a.mod.op !== "add" || a.mod.value === undefined) continue;
+    for (const t of safeTerms(a.mod.value, a.ctx)) if (t.kind === "flat") n += t.value;
+  }
+  return n;
+}
+
+/**
+ * A summoned creature's stat block with the effects on it applied: Bless and
+ * Bardic Inspiration on its rolls, Poisoned's disadvantage, Haste's AC and
+ * speed, Aid's hit points, resistances from spells.
+ */
+export function summonBlock(reg: ContentRegistry, m: SummonMember): ShapeResult | undefined {
+  const d = reg.find(m.creature, "creature");
+  const b = creatureBlock(reg, m.creature, m.hp);
+  if (!d || !b) return b;
+  const all = memberMods(reg, m, d);
+  const applyTo = (r: RollBreakdown, keys: string[]): RollBreakdown => {
+    const out: RollBreakdown = { ...r, parts: [...r.parts], dice: [...r.dice], advantage: [...r.advantage], disadvantage: [...r.disadvantage], suggestions: [...r.suggestions] };
+    for (const a of all) {
+      if (!keys.some((k) => selectorMatches(a.mod.selector, k))) continue;
+      const { mod } = a;
+      if (mod.op === "autoFail") {
+        out.autoFail = [...(out.autoFail ?? []), a.label];
+        continue;
+      }
+      if (!["add", "advantage", "disadvantage"].includes(mod.op)) continue;
+      const terms = mod.value !== undefined ? safeTerms(mod.value, a.ctx) : [];
+      if (mod.mode === "suggested" || mod.when?.text || mod.when?.toggle) {
+        const apply: { flat: number; dice: string[]; mode?: "advantage" | "disadvantage" } = { flat: 0, dice: [] };
+        if (mod.op === "advantage" || mod.op === "disadvantage") apply.mode = mod.op;
+        for (const t of terms) t.kind === "dice" ? apply.dice.push(t.dice) : (apply.flat += t.value);
+        const effect = mod.op !== "add" ? mod.op : terms.map((t) => (t.kind === "dice" ? signedDice(t.dice) : signedN(t.value))).join(" ");
+        out.suggestions.push({ label: a.label, effect, ...(mod.when?.text ? { reason: mod.when.text } : {}), apply });
+        continue;
+      }
+      if (mod.op === "advantage") out.advantage.push(a.label);
+      else if (mod.op === "disadvantage") out.disadvantage.push(a.label);
+      else
+        for (const t of terms) {
+          if (t.kind === "dice") out.dice.push({ label: a.label, dice: t.dice });
+          else out.parts.push({ label: a.label, value: t.value });
+        }
+    }
+    out.total = out.parts.reduce((s, p) => s + p.value, 0);
+    return out;
+  };
+  const SKILL_AB: Record<string, Ability> = {
+    athletics: "str", acrobatics: "dex", sleightOfHand: "dex", stealth: "dex", arcana: "int", history: "int", investigation: "int", nature: "int", religion: "int",
+    animalHandling: "wis", insight: "wis", medicine: "wis", perception: "wis", survival: "wis", deception: "cha", intimidation: "cha", performance: "cha", persuasion: "cha",
+  };
+  const r: ShapeResult = { ...b, defenses: { ...b.defenses, resist: [...b.defenses.resist], immune: [...b.defenses.immune], vulnerable: [...b.defenses.vulnerable] } };
+  r.saves = Object.fromEntries(ABILITIES.map((ab) => [ab, applyTo(b.saves[ab], [`roll.save.${ab}`])])) as ShapeResult["saves"];
+  r.skills = Object.fromEntries(SKILLS.map((sk) => [sk, applyTo(b.skills[sk], [`roll.check.${SKILL_AB[sk] ?? "wis"}`, `roll.check.skill.${sk}`])])) as ShapeResult["skills"];
+  r.checks = Object.fromEntries(ABILITIES.map((ab) => [ab, applyTo(flatRoll([{ label: `${ABILITY_NAMES[ab]} modifier`, value: b.abilities[ab].modifier }]), [`roll.check.${ab}`])])) as ShapeResult["saves"];
+  r.initiative = applyTo(flatRoll([{ label: `${d.name}'s Dexterity modifier`, value: b.abilities.dex.modifier }]), ["roll.initiative", "roll.check.dex"]);
+  r.attacks = b.attacks.map((a) => ({
+    ...a,
+    attack: applyTo(a.attack, [`roll.attack.weapon.${a.mode === "melee" ? "melee" : "ranged"}`]),
+    damage: { ...a.damage, bonus: applyTo(a.damage.bonus, [`roll.damage.weapon.${a.mode === "melee" ? "melee" : "ranged"}`]) },
+  }));
+  r.spellAttack = applyTo(flatRoll([]), ["roll.attack.spell.ranged", "roll.attack.spell.melee"]);
+  // Stats: AC, speed, hit points, defenses.
+  let ac = b.ac;
+  let walk = d.speed.walk ?? 0;
+  const multipliers: number[] = [];
+  let cap: number | undefined;
+  for (const a of all) {
+    const flat = a.mod.value !== undefined ? safeTerms(a.mod.value, a.ctx).reduce((s, t) => s + (t.kind === "flat" ? t.value : 0), 0) : 0;
+    if (a.mod.selector === "stat.ac" && a.mod.op === "add") ac += flat;
+    if (a.mod.selector === "stat.speed.walk") {
+      if (a.mod.op === "add") walk += flat;
+      if (a.mod.op === "multiply") multipliers.push(flat || 1);
+      if (a.mod.op === "set") cap = Math.min(cap ?? Infinity, flat);
+    }
+    const def = /^defense\.(resist|immune|vulnerable)\.(.+)$/.exec(a.mod.selector);
+    if (def && !r.defenses[def[1] as "resist"].includes(def[2]!)) r.defenses[def[1] as "resist"].push(def[2]!);
+  }
+  for (const x of multipliers) walk = Math.floor(walk * x);
+  if (cap !== undefined) walk = Math.min(walk, cap);
+  r.ac = ac;
+  r.walk = walk;
+  r.hp = { current: m.hp, max: d.hp + summonHpBonus(m, reg) };
+  if (walk !== (d.speed.walk ?? 0)) r.speed = r.speed.replace(/^\d+ ft/, `${walk} ft`);
+  return r;
 }

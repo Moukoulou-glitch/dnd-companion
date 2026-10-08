@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
-import { buildItems, castingEconomy, creatureSpellRoll, formatBonus, materialNeed, maxSpellLevel, newCharacter, signed, turnWarnings, type TurnIntent } from "@dnd/engine";
+import { buildItems, castingEconomy, creatureSpellRoll, formatBonus, summonBlock, materialNeed, maxSpellLevel, newCharacter, signed, turnWarnings, type TurnIntent } from "@dnd/engine";
 import { SKILL_NAMES, type Character, type Skill } from "@dnd/schema";
 import { roll as rollDice, type ComposerBase } from "@dnd/dice";
 import { ShapePanel, TransformPanel } from "./components/Shapes";
@@ -202,9 +202,19 @@ export function App() {
       /** Read when the panel draws, so it shows the latest (an extra's reason). */
       header?: () => ReactNode;
       damageOnly?: boolean;
+      /** A way back to where the roll came from (a summoned creature's stat block). */
+      back?: { label: string; to: () => void };
+      /** Options turned on in the roll, for someone other than you (a summoned creature's Bardic Inspiration). */
+      onOptionsUsed?: (labels: string[]) => void;
     } = {},
   ) =>
     open(title, () => (
+      <>
+      {opts.back && (
+        <button className="link back-link" onClick={opts.back.to}>
+          ‹ {opts.back.label}
+        </button>
+      )}
       <Composer
         title={title}
         base={base}
@@ -218,7 +228,7 @@ export function App() {
         {...(opts.onDamageOptions ? { onDamageOptions: opts.onDamageOptions } : {})}
         {...(opts.dc !== undefined ? { dc: opts.dc } : {})}
         {...(portentFor() ? { portent: portentFor()! } : {})}
-        onOptionsUsed={recordOptions}
+        onOptionsUsed={opts.onOptionsUsed ?? recordOptions}
         physical={live.current.character?.settings.physicalDice ?? true}
         onPhysicalChange={(p) =>
           live.current.act("setField", { path: ["settings", "physicalDice"], value: p }, p ? "Rolling your own dice." : "The app rolls for you.")
@@ -228,6 +238,12 @@ export function App() {
           opts.onTotal?.(r.total);
         }}
       />
+      {opts.back && (
+        <button className="link back-link" onClick={opts.back.to}>
+          ‹ {opts.back.label}
+        </button>
+      )}
+      </>
     ));
 
   /** Wild Shape or Polymorph: choose the creature. */
@@ -260,7 +276,7 @@ export function App() {
     );
 
   /** Dice a creature's trait deals on its own (Heated Body: 1d10 fire). */
-  const openTraitRoll = (title: string, dice: string, type?: string) => {
+  const openTraitRoll = (title: string, dice: string, type?: string, extra: Parameters<typeof openRoll>[3] = {}) => {
     const empty = { total: 0, parts: [], dice: [], advantage: [], disadvantage: [], suggestions: [] };
     const m = /^(\d+d\d+)([+-]\d+)?$/.exec(dice);
     const a: WeaponAttack = {
@@ -274,7 +290,23 @@ export function App() {
       damage: { dice: m?.[1] ?? dice, type: type ?? "", bonus: m?.[2] ? { ...empty, total: Number(m[2]), parts: [{ label: "Bonus", value: Number(m[2]) }] } : empty, onCrit: [], critExtraDice: [] },
       properties: [],
     };
-    openRoll(title, empty, a, { damageOnly: true });
+    openRoll(title, empty, a, { ...extra, damageOnly: true });
+  };
+
+  /** Rolls for a summoned creature come back to its stat block, and use up its Bardic Inspiration. */
+  const summonRollOpts = (id: string) => {
+    const m = live.current.character?.summons.find((x) => x.id === id);
+    const name = m ? m.name ?? registry.find(m.creature, "creature")?.name ?? "it" : "it";
+    return {
+      back: { label: `Back to ${name}`, to: () => openSummonMember(id) },
+      onOptionsUsed: (labels: string[]) => {
+        const cur = live.current.character?.summons.find((x) => x.id === id);
+        for (const e of cur?.effects ?? []) {
+          const d = registry.find(e.effect, "effect");
+          if (d?.usedUp && d.modifiers.some((mod) => labels.includes(mod.label ?? d.name))) live.current.act("summonEffect", { id, effect: e.effect, instance: e.id, add: false }, `${d.name} used: it's gone.`);
+        }
+      },
+    };
   };
 
   /** One summoned creature: its turn, effects, concentration, HP, attacks. */
@@ -290,17 +322,23 @@ export function App() {
           act={live.current.act}
           inCombat={!!cur.combat}
           openHp={() => openSummonHp(id, true)}
-          onTraitRoll={openTraitRoll}
-          onCheck={(title, base) => openRoll(title, base)}
-          onRollInitiative={() => rollSummonInit(m.group, m.id)}
+          onTraitRoll={(title, dice, type) => openTraitRoll(title, dice, type, summonRollOpts(id))}
+          onCheck={(title, base) => openRoll(title, base, undefined, summonRollOpts(id))}
+          onRollInitiative={() => {
+            const b = summonBlock(registry, m);
+            openRoll(`${b?.name ?? "It"}: initiative`, b?.initiative ?? { total: 0, parts: [], dice: [], advantage: [], disadvantage: [], suggestions: [] }, undefined, {
+              ...summonRollOpts(id),
+              onTotal: (n) => live.current.act("summonInitiative", { group: m.group, id, value: n }, `Initiative ${n}.`),
+            });
+          }}
           onAddEffect={() =>
             open(`Effect on ${m.name ?? registry.find(m.creature, "creature")?.name ?? "it"}`, () => (
               <AddEffectPanel
                 registry={registry}
                 act={live.current.act}
                 close={() => openSummonMember(id)}
-                onPick={(d) => {
-                  live.current.act("summonEffect", { id, effect: d.id, add: true, ...(d.rounds ? { rounds: d.rounds } : {}) }, `${d.name} on ${m.name ?? registry.find(m.creature, "creature")?.name ?? "it"}.`);
+                onPick={(d, choice) => {
+                  live.current.act("summonEffect", { id, effect: d.id, add: true, ...(d.rounds ? { rounds: d.rounds } : {}), ...(choice ? { choice } : {}) }, `${d.name} on ${m.name ?? registry.find(m.creature, "creature")?.name ?? "it"}.`);
                   openSummonMember(id);
                 }}
               />
@@ -310,6 +348,7 @@ export function App() {
           openAttack={(a) => {
             const kind = a.action === "bonus" ? "bonus" : "attack";
             openRoll(a.name, a.attack, a, {
+              ...summonRollOpts(id),
               onCommit: () => live.current.act("summonEconomy", { id, kind, used: true }, kind === "bonus" ? "Its bonus action." : "Its attack."),
             });
           }}
@@ -335,7 +374,9 @@ export function App() {
             const d = registry.find(m.creature, "creature");
             if (!d) return openSummonMember(id);
             const a = creatureSpellRoll(d, sp, level, source.info);
-            openRoll(`${d.name}: ${sp.name}`, a.attack, a, sp.attack ? {} : { damageOnly: true });
+            const sa = summonBlock(registry, m)?.spellAttack;
+            if (sa) a.attack = { ...sa, parts: [...a.attack.parts, ...sa.parts], total: a.attack.total + sa.total };
+            openRoll(`${d.name}: ${sp.name}`, a.attack, a, { ...summonRollOpts(id), ...(sp.attack ? {} : { damageOnly: true }), ...(a.saveNote ? { notes: [a.saveNote] } : {}) });
           }}
         />
       );

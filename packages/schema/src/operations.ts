@@ -63,10 +63,30 @@ export const OPERATION_PAYLOADS = {
   summonInitiative: z.object({ group: z.string(), id: z.string().optional(), value: z.number().int() }).strict(),
   /** A summoned creature's turn: use or give back its action, bonus action, reaction or an attack; `newTurn` resets them. */
   summonEconomy: z
-    .object({ id: z.string(), kind: z.enum(["action", "bonus", "reaction", "attack"]).optional(), used: z.boolean().default(true), newTurn: z.boolean().optional() })
+    .object({
+      id: z.string(),
+      kind: z.enum(["action", "bonus", "reaction", "attack"]).optional(),
+      used: z.boolean().default(true),
+      newTurn: z.boolean().optional(),
+      /** Feet moved (negative takes some back). */
+      move: z.number().int().optional(),
+      /** Dash: more movement this turn (false takes one back). */
+      dash: z.boolean().optional(),
+    })
     .strict(),
   /** Put an effect on a summoned creature, or take it off. */
-  summonEffect: z.object({ id: z.string(), effect: DefId, add: z.boolean(), rounds: z.number().int().min(1).optional() }).strict(),
+  summonEffect: z
+    .object({
+      id: z.string(),
+      effect: DefId,
+      add: z.boolean(),
+      rounds: z.number().int().min(1).optional(),
+      choice: z.string().optional(),
+      slotLevel: z.number().int().min(1).max(9).optional(),
+      /** Removing: which one, when it has the same effect twice. */
+      instance: z.string().optional(),
+    })
+    .strict(),
   /** A spell the summoned creature concentrates on (null when it ends). */
   summonConcentration: z.object({ id: z.string(), spell: z.string().nullable() }).strict(),
   /** One creature, or a whole group, goes. */
