@@ -57,6 +57,17 @@ export function AbilityAdjustPanel({ ab, character, sheet, act }: { ab: Ability;
           {name} is {score}. A shadow's Strength drain kills at 0.
         </p>
       )}
+      {sheet.abilities[ab].asiOver && (
+        <p className="over-banner" role="alert">
+          <strong>Ability Score Improvements took {name} above 20.</strong> They can't: "you can't increase an ability score above 20 using this feature". Change the improvement in Choices (Build).
+        </p>
+      )}
+      {!sheet.abilities[ab].asiOver && score > sheet.abilities[ab].max && adj.setTo === undefined && (
+        <p className="over-banner" role="alert">
+          {name} is {score}, above its maximum of {sheet.abilities[ab].max}.
+        </p>
+      )}
+      <PermanentChange ab={ab} character={character} sheet={sheet} act={act} />
       <h2 className="sub-head">Change it by hand</h2>
       <div className="group">
         <NumberStep label="Bonus" value={adj.bonus} max={30} onChange={(n) => set({ bonus: n }, `${name} bonus ${n}.`)} />
@@ -94,6 +105,89 @@ export function AbilityAdjustPanel({ ab, character, sheet, act }: { ab: Ability;
             Remove
           </button>
         )}
+      </div>
+    </>
+  );
+}
+
+/**
+ * A permanent change to a score, with where it came from: a Manual of Gainful
+ * Exercise (+2 Strength, maximum 22), a Tome, a wish, a lasting curse.
+ */
+function PermanentChange({ ab, character, sheet, act }: { ab: Ability; character: Character; sheet: DerivedSheet; act: Act }) {
+  const name = ABILITY_NAMES[ab];
+  const list = character.abilityAdjust[ab]?.permanent ?? [];
+  const [sign, setSign] = useState<1 | -1>(1);
+  const [amount, setAmount] = useState(2);
+  const [from, setFrom] = useState("");
+  const [raise, setRaise] = useState(true);
+  const [newMax, setNewMax] = useState(String(Math.max(20, sheet.abilities[ab].max) + 2));
+  const add = () => {
+    const n = sign * amount;
+    const max = sign > 0 && raise && Number(newMax) > 20 ? Number(newMax) : undefined;
+    act(
+      "setAbilityAdjust",
+      { ability: ab, addPermanent: { amount: n, from: from.trim(), ...(max ? { newMax: max } : {}) } },
+      `${name} ${n > 0 ? "+" : ""}${n} for good${from.trim() ? ` (${from.trim()})` : ""}${max ? `, maximum ${max}` : ""}.`,
+    );
+    setFrom("");
+  };
+  return (
+    <>
+      <h2 className="sub-head">Permanent change</h2>
+      <p className="note">For good, like a Manual of Gainful Exercise (+2 Strength, and the maximum becomes 22) or a Manual of Quickness of Action (Dexterity). Counts for everything, multiclassing included.</p>
+      {list.length > 0 && (
+        <div className="group">
+          {list.map((p, i) => (
+            <div className="row" key={i}>
+              <div className="row-main">
+                <div className="row-title">
+                  {p.amount > 0 ? "+" : ""}
+                  {p.amount} {p.from ? `from ${p.from}` : ""}
+                </div>
+                {p.newMax && <div className="row-sub">Maximum {p.newMax}</div>}
+              </div>
+              <button className="link" onClick={() => act("setAbilityAdjust", { ability: ab, removePermanent: i }, `${name}: permanent change removed.`)}>
+                Remove
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+      <div className="segmented small" role="radiogroup" aria-label="Bonus or penalty">
+        <button role="radio" aria-checked={sign === 1} onClick={() => setSign(1)}>
+          Bonus
+        </button>
+        <button role="radio" aria-checked={sign === -1} onClick={() => setSign(-1)}>
+          Penalty
+        </button>
+      </div>
+      <div className="group">
+        <NumberStep label={sign > 0 ? "Bonus" : "Penalty"} value={amount} min={1} max={10} onChange={setAmount} />
+        {sign > 0 && (
+          <label className="row">
+            <div className="row-main">
+              <div className="row-title">Is there a new maximum?</div>
+              <div className="row-sub">A Manual raises the maximum by 2</div>
+            </div>
+            <input type="checkbox" checked={raise} onChange={(e) => setRaise(e.target.checked)} />
+          </label>
+        )}
+        {sign > 0 && raise && (
+          <div className="row">
+            <div className="row-main">
+              <div className="row-title">New maximum</div>
+            </div>
+            <input className="search" inputMode="numeric" value={newMax} onChange={(e) => setNewMax(e.target.value.replace(/[^0-9]/g, ""))} aria-label="New maximum" style={{ maxWidth: 90 }} />
+          </div>
+        )}
+      </div>
+      <input className="search" placeholder="From (Manual of Gainful Exercise)" value={from} maxLength={60} onChange={(e) => setFrom(e.target.value)} aria-label="Permanent change from" />
+      <div className="big-actions">
+        <button className="big primary" disabled={!from.trim()} onClick={add}>
+          Add {sign > 0 ? "+" : "−"}
+          {amount} for good
+        </button>
       </div>
     </>
   );

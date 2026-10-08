@@ -2183,3 +2183,61 @@ button.mpip {
   opacity: 0.4;
   cursor: default;
 }
+
+.row-sub.bad {
+  color: var(--danger, #c0392b);
+  font-weight: 600;
+}
+
+.ability.over-max {
+  outline: 2px solid var(--danger, #c62828);
+  outline-offset: -2px;
+}
+.ability .over-tag {
+  display: block;
+  font-style: normal;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--danger, #c62828);
+}
+
+.dc-big {
+  margin: 8px 0 12px;
+  border: 2px solid var(--gold);
+  background: var(--gold-soft);
+  border-radius: 12px;
+  padding: 8px 12px;
+}
+.dc-big > summary {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  cursor: pointer;
+}
+.dc-big > summary::-webkit-details-marker {
+  display: none;
+}
+.dc-big .dc-num {
+  font-size: 1.6rem;
+  font-weight: 800;
+}
+.dc-big .dc-save {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+.dc-big small {
+  opacity: 0.7;
+  flex-basis: 100%;
+}
+.tag.dc-tag {
+  font-weight: 800;
+  color: var(--gold);
+  font-size: 0.85rem;
+}
+
+.over-banner .link {
+  color: #fff;
+  text-decoration: underline;
+}

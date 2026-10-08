@@ -685,7 +685,10 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
         if (rest.setNote) cur.setNote = rest.setNote;
         else delete cur.setNote;
       }
-      if (!cur.bonus && !cur.penalty && cur.setTo === undefined) delete c.abilityAdjust[ability];
+      if (rest.addPermanent && rest.addPermanent.amount) (cur.permanent ??= []).push(rest.addPermanent);
+      if (rest.removePermanent !== undefined) cur.permanent?.splice(rest.removePermanent, 1);
+      if (cur.permanent && !cur.permanent.length) delete cur.permanent;
+      if (!cur.bonus && !cur.penalty && cur.setTo === undefined && !cur.permanent) delete c.abilityAdjust[ability];
       const score = derive(c, reg).abilities[ability].score.total;
       if (score <= 0) notes.push(`${ability.toUpperCase()} is ${score}. A shadow's Strength drain kills at 0.`);
       break;
@@ -800,7 +803,7 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
         if (!adj?.penalty || !adj.penaltyEndsOnRest) continue;
         adj.penalty = 0;
         notes.push(`${ab.toUpperCase()} penalty ends with the rest.`);
-        if (!adj.bonus && adj.setTo === undefined) delete c.abilityAdjust[ab as keyof typeof c.abilityAdjust];
+        if (!adj.bonus && adj.setTo === undefined && !adj.permanent) delete c.abilityAdjust[ab as keyof typeof c.abilityAdjust];
       }
       const resets = kind === "short" ? ["short"] : ["short", "long", "dawn"];
       const restored = sheet.resources.filter((r) => resets.includes(r.reset) && r.used > 0).map((r) => r.name);

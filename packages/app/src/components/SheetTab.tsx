@@ -63,12 +63,13 @@ export function SheetTab({
           {ABILITIES.map((ab) => (
             <button
               key={ab}
-              className={`ability${character.abilityAdjust[ab]?.penalty ? " drained" : character.abilityAdjust[ab] ? " adjusted" : ""}`}
+              className={`ability${character.abilityAdjust[ab]?.penalty ? " drained" : character.abilityAdjust[ab] ? " adjusted" : ""}${sheet.abilities[ab].asiOver ? " over-max" : ""}`}
               onClick={() => openAbility(ab)}
             >
               <small>{ABILITY_NAMES[ab]}</small>
               <b>{signed(sheet.abilities[ab].modifier)}</b>
               <span>{sheet.abilities[ab].score.total}</span>
+              {sheet.abilities[ab].asiOver && <em className="over-tag">over 20</em>}
             </button>
           ))}
         </div>
@@ -142,6 +143,7 @@ export function SheetTab({
                 <div className="row-title">{f.name}</div>
                 <div className="row-sub">{f.summary ?? KIND_LABEL[f.kind]}</div>
               </div>
+              {f.dc && <span className="tag dc-tag">DC {f.dc.value}</span>}
               {featTag(f.id) && <span className="tag extra-tag">{featTag(f.id)}</span>}
               {f.text && <span className="tag">text</span>}
             </button>

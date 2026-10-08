@@ -1,4 +1,5 @@
 import { RichText } from "./Conditions";
+import { DcBig } from "./DcBig";
 import { useState } from "react";
 import { roll } from "@dnd/dice";
 import type { ActionResult } from "@dnd/engine";
@@ -51,6 +52,7 @@ export function FeaturePanel({
         {a.limited ? `An extra action from ${a.source}, once on each of your turns, on top of your own` : economyLabel(a.economy)}
         {a.common || a.limited ? "" : `, from ${a.source}`}
       </p>
+      {a.dc && <DcBig dc={a.dc} />}
       {a.note && (
         <p>
           <RichText text={a.note} />

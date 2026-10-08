@@ -10,3 +10,4 @@ export * from "./turn.js";
 export * from "./build.js";
 export { copyCost, materialNeed } from "./materials.js";
 export { attackVariants, damageAfterDefenses, defenseCovers, type DamageSource, summonBlock, summonHpBonus, creatureBlock, creatureCasting, creatureSpellRoll, creatureSpells, deriveShape, type CreatureSpellGroup, type CreatureSpells, multiattackCount, shapeIssues, summonOptions, traitDice, wildShapeLimits, type ShapeKind, type ShapeResult, type WildShapeLimits } from "./shapes.js";
+export * from "./dcs.js";

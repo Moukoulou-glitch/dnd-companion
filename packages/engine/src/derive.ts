@@ -18,6 +18,7 @@ import {
 } from "@dnd/schema";
 import { sum, signed, signedDice, type Breakdown, type DicePart, type Part, type RollBreakdown, type Suggestion } from "./breakdown.js";
 import { evalExpr, evalFlat, type ExprContext } from "./expr.js";
+import { ACTION_DCS, FEATURE_DCS, type DcSpec } from "./dcs.js";
 import type { ContentRegistry } from "./registry.js";
 import { collectSources, type Source } from "./sources.js";
 import { deriveCompanion, type CompanionResult } from "./companions.js";
@@ -28,6 +29,10 @@ import { deriveShape, wildShapeLimits, type ShapeResult, type WildShapeLimits } 
 export interface AbilityResult {
   score: Breakdown;
   modifier: number;
+  /** The highest the score may normally go: 20, or more from a permanent change (Manual of Gainful Exercise: 22). */
+  max: number;
+  /** Ability Score Improvements took the score above 20, which they can't do. */
+  asiOver?: boolean;
 }
 
 export interface SaveResult extends RollBreakdown {
@@ -173,6 +178,16 @@ export interface ActionResult {
   untilTurnStart?: boolean;
   endsConcentration?: boolean;
   infoOnly?: boolean;
+  /** The DC a creature saves against (Stunning Strike: your ki save DC). */
+  dc?: FeatureDc;
+}
+
+/** A feature's save DC, worked out, with what the save is. */
+export interface FeatureDc {
+  value: number;
+  save: string;
+  name: string;
+  breakdown: Breakdown;
 }
 
 /** A trait, feature, feat or rule on the character, for reading. */
@@ -185,6 +200,7 @@ export interface FeatureEntry {
   source: string;
   /** One of the actions anyone can take: shown in the Actions tab's own section, not with the features. */
   common?: boolean;
+  dc?: FeatureDc;
 }
 
 /** An active effect or condition, for the status strip. */
@@ -355,12 +371,24 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
       const bonus = (s.grant.abilityBonuses?.[ab] ?? 0) + chosenBonus(s, ab);
       if (bonus) parts.push({ label: s.label, value: bonus });
     }
+    let fromAsi = 0;
     for (const a of c.asi) {
       const n = a.abilities?.[ab];
       if (n) parts.push({ label: `Ability Score Improvement (${reg.find(a.class, "class")?.name ?? a.class} ${a.level})`, value: n });
+      fromAsi += n ?? 0;
+    }
+    // "You can't increase an ability score above 20 using this feature" (PHB p. 15).
+    const beforeHand = parts.reduce((t, p) => t + p.value, 0);
+    const asiOver = fromAsi > 0 && beforeHand > 20;
+    if (asiOver) warnings.push(`${ABILITY_NAMES[ab]} is ${beforeHand} from Ability Score Improvements, but they can't raise a score above 20. Take ${Math.min(fromAsi, beforeHand - 20)} back, or put it in another ability.`);
+    // Permanent changes (Manual of Gainful Exercise: +2, and the maximum becomes 22; a curse: -1).
+    const adj = c.abilityAdjust?.[ab];
+    let max = 20;
+    for (const p of adj?.permanent ?? []) {
+      parts.push({ label: `${p.amount > 0 ? "Permanent bonus" : "Permanent penalty"}${p.from ? ` (${p.from})` : ""}`, value: p.amount });
+      if (p.newMax) max = Math.max(max, p.newMax);
     }
     // Changed by hand: a bonus, a penalty (Strength drain), then "becomes N" (Amulet of Health) if that's higher.
-    const adj = c.abilityAdjust?.[ab];
     if (adj?.bonus) parts.push({ label: "Bonus (by hand)", value: adj.bonus });
     if (adj?.penalty) parts.push({ label: adj.penaltyEndsOnRest ? "Penalty (until a rest)" : "Penalty (by hand)", value: -adj.penalty });
     if (adj?.setTo !== undefined) {
@@ -369,8 +397,8 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
     }
     const score = sum(parts);
     if (score.total <= 0) warnings.push(`${ABILITY_NAMES[ab]} is ${score.total}: at 0 the character dies (Strength drain) or worse. Check with your DM.`);
-    if (score.total > 20 && adj?.setTo === undefined) warnings.push(`${ABILITY_NAMES[ab]} is ${score.total}, above the usual maximum of 20.`);
-    abilities[ab] = { score, modifier: Math.floor((score.total - 10) / 2) };
+    if (score.total > max && adj?.setTo === undefined && !asiOver) warnings.push(`${ABILITY_NAMES[ab]} is ${score.total}, above ${max === 20 ? "the usual maximum of 20" : `its maximum of ${max}`}.`);
+    abilities[ab] = { score, modifier: Math.floor((score.total - 10) / 2), max, ...(asiOver ? { asiOver } : {}) };
   }
   const mods = Object.fromEntries(ABILITIES.map((a) => [a, abilities[a].modifier])) as Record<Ability, number>;
   const ctx: ExprContext = { pb, mods, level, classLevels };
@@ -845,6 +873,20 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
     attack: sum([pbPart(), abilityPart(sc.ability), ...statAdds("stat.spell.attack")]),
   }));
   const slots = spellSlots(casterLevels);
+  /** A feature's DC: a class's spell save DC, or 8 + proficiency + the best of some abilities. */
+  const dcOf = (spec: DcSpec | undefined): FeatureDc | undefined => {
+    if (!spec) return undefined;
+    let breakdown: Breakdown | undefined;
+    if (typeof spec.by === "string") {
+      const cls = spec.by.slice(6);
+      breakdown = spellcasting.find((x) => x.id === cls)?.saveDc;
+      if (!breakdown) return undefined;
+    } else {
+      const best = [...spec.by].sort((a, b) => mods[b] - mods[a])[0]!;
+      breakdown = sum([{ label: "Base", value: 8 }, pbPart(), abilityPart(best)]);
+    }
+    return { value: breakdown.total, save: spec.save, name: spec.name, breakdown };
+  };
 
   // Resources.
   const resources: ResourceResult[] = [];
@@ -1112,6 +1154,8 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
         delete entry.cost;
       }
       if (a.spendAmount) entry.spendAmount = a.spendAmount;
+      const dc = dcOf(ACTION_DCS[a.id] ?? (entry.featureId ? FEATURE_DCS[entry.featureId] : undefined));
+      if (dc) entry.dc = dc;
       actions.push(entry);
     }
   }
@@ -1217,7 +1261,10 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
     },
     defenses,
     senses,
-    features: featureEntries(sources, reg),
+    features: featureEntries(sources, reg).map((f) => {
+      const dc = dcOf(FEATURE_DCS[f.id]);
+      return dc ? { ...f, dc } : f;
+    }),
     extras: c.extras.map((x) => ({
       id: x.id,
       kind: x.kind,

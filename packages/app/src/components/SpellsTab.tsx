@@ -64,6 +64,7 @@ export function SpellsTab({
   openSpellInfo: (id: string) => void;
 }) {
   const [view, setView] = useState<string>("ready");
+  const [q, setQ] = useState("");
   const wizard = classLists.find((l) => l.kind === "wizard");
   const anyPrepared = classLists.some((l) => l.kind !== "known");
   // Wizard: Prepared today, Whole spellbook, Wizard spell list. Prepared casters: Prepared today, <Class> spell list. Known casters: Known spells, <Class> spell list.
@@ -92,7 +93,17 @@ export function SpellsTab({
   }, [current, sheet, reg, listOf, wizard]);
 
   const levelOf = (r: ListRow) => (r.sp ? r.sp.level : r.info!.level);
-  const levels = [...new Set(rows.map(levelOf))].sort((a, b) => a - b);
+  // Search by name, school, or words like "ritual" and "concentration".
+  const needle = q.trim().toLowerCase();
+  const shownRows = needle
+    ? rows.filter((r) => {
+        const hay = r.sp
+          ? `${r.sp.name} ${tags(r.sp)} ${reg.find(r.sp.id, "spell")?.school ?? ""}`
+          : `${r.info!.name} ${r.info!.school ?? ""} ${r.info!.ritual ? "ritual" : ""} ${r.info!.concentration ? "concentration" : ""}`;
+        return hay.toLowerCase().includes(needle);
+      })
+    : rows;
+  const levels = [...new Set(shownRows.map(levelOf))].sort((a, b) => a - b);
   const slotsLeft = (lvl: number) => {
     const s = sheet.spellSlots.find((x) => x.level === lvl);
     return s ? s.total - s.used : 0;
@@ -131,6 +142,10 @@ export function SpellsTab({
           ))}
         </div>
       )}
+      {rows.length > 0 && (
+        <input className="search" type="search" placeholder={`Search ${views.find((v) => v.id === current)?.label.toLowerCase() ?? "spells"}`} value={q} onChange={(e) => setQ(e.target.value)} aria-label="Search spells" />
+      )}
+      {needle && !shownRows.length && <p className="note">No spell matches “{q.trim()}”.</p>}
       {listOf && listOf.kind !== "prepared" && <p className="note">Every {listOf.className.toLowerCase()} spell up to level {listOf.maxLevel}, for reference. Yours are bright.</p>}
 
       {levels.map((lvl) => (
@@ -140,7 +155,7 @@ export function SpellsTab({
             {lvl > 0 && sheet.spellSlots.some((x) => x.level === lvl) ? `, ${slotsLeft(lvl)} slots left` : ""}
           </h2>
           <div className="group">
-            {rows
+            {shownRows
               .filter((r) => levelOf(r) === lvl)
               .map((r) =>
                 r.sp ? (

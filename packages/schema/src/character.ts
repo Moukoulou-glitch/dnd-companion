@@ -277,6 +277,10 @@ export const Character = z
             penaltyEndsOnRest: z.boolean().default(false),
             setTo: z.number().int().min(1).max(30).optional(),
             setNote: z.string().max(60).optional(),
+            /** Permanent changes (Manual of Gainful Exercise +2, maximum 22), each with where it came from. */
+            permanent: z
+              .array(z.object({ amount: z.number().int().min(-30).max(30), from: z.string().max(60).default(""), newMax: z.number().int().min(1).max(30).optional() }).strict())
+              .optional(),
           })
           .strict(),
       )

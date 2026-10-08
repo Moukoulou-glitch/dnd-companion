@@ -78,6 +78,10 @@ export const OPERATION_PAYLOADS = {
       penaltyEndsOnRest: z.boolean().optional(),
       setTo: z.number().int().min(1).max(30).nullable().optional(),
       setNote: z.string().max(60).optional(),
+      /** Add a permanent change (Manual of Gainful Exercise). */
+      addPermanent: z.object({ amount: z.number().int().min(-30).max(30), from: z.string().max(60).default(""), newMax: z.number().int().min(1).max(30).optional() }).strict().optional(),
+      /** Remove the permanent change at this index. */
+      removePermanent: z.number().int().min(0).optional(),
     })
     .strict(),
   /** A hit point roll for a level (index 0 is the first level that was rolled for that class). */

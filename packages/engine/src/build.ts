@@ -204,7 +204,9 @@ export function buildItems(c: Character, reg: ContentRegistry): BuildItem[] {
       for (const lvl of def.asiLevels ?? []) {
         if (lvl > cl.level || lvl <= settled) continue;
         const rec = c.asi.find((a) => a.class === def.id && a.level === lvl);
+        const asiOver = Object.keys(rec?.abilities ?? {}).some((a) => (sheet ??= derive(c, reg)).abilities[a as Ability]?.asiOver);
         out.push({
+          ...(asiOver ? { over: true, strict: true } : {}),
           key: `${def.id}|asi|${lvl}`,
           kind: "asi",
           sourceName: `${def.name} ${lvl}`,
@@ -329,12 +331,14 @@ export function levelGains(c: Character, reg: ContentRegistry, classId: string):
 /** Multiclassing needs the minimum scores of the new class and of every class you already have (PHB p. 163). */
 export function multiclassIssues(c: Character, reg: ContentRegistry, classId: string, scores?: Record<Ability, number>): string[] {
   const out: string[] = [];
+  let sheet: ReturnType<typeof derive> | undefined;
   const check = (id: string) => {
     const def = reg.find(id, "class");
     const p = def?.multiclassPrereq;
     if (!def || !p) return;
     const entries = Object.entries(p.abilities) as [Ability, number][];
-    const ok = (a: Ability, n: number) => (scores?.[a] ?? c.abilities[a] ?? 10) >= n;
+    // Your scores as they stand: race, Ability Score Improvements, items and changes by hand all count.
+    const ok = (a: Ability, n: number) => (scores?.[a] ?? (sheet ??= derive(c, reg)).abilities[a].score.total) >= n;
     const met = p.any ? entries.some(([a, n]) => ok(a, n)) : entries.every(([a, n]) => ok(a, n));
     if (!met) out.push(`${def.name} needs ${entries.map(([a, n]) => `${ABILITY_NAMES[a]} ${n}`).join(p.any ? " or " : " and ")}.`);
   };

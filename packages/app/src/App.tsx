@@ -13,6 +13,7 @@ import { ConditionLinks, RichText } from "./components/Conditions";
 import { Composer, ResultView, type OptionInfo } from "./components/Composer";
 import { AddEffectPanel, EffectChips, EffectPanel } from "./components/Effects";
 import { FeaturePanel } from "./components/FeaturePanel";
+import { DcBig } from "./components/DcBig";
 import { HpPad } from "./components/HpPad";
 import { AbilityAdjustPanel, MaxHpPanel, SummonMaxHp } from "./components/Adjust";
 import { DamageReducePanel } from "./components/Monk";
@@ -1385,6 +1386,7 @@ export function App() {
       return (
         <>
           {x && <ExtraInline extra={x} act={live.current.act} />}
+          {f.dc && <DcBig dc={f.dc} />}
           <BookText text={f.text} summary={f.summary} source={f.source} />
         </>
       );

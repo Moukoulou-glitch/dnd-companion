@@ -11,6 +11,7 @@ import {
   multiclassIssues,
   signed,
   copyCost,
+  derive,
   itemsForTag,
   type BuildItem,
   type ContentRegistry,
@@ -739,13 +740,20 @@ function AsiEditor({ item, c, reg, act, back }: { item: BuildItem; c: Character;
   const [inc, setInc] = useState<Partial<Record<Ability, number>>>(rec?.abilities ?? {});
   const [q, setQ] = useState("");
   const total = Object.values(inc).reduce((n, v) => n + (v ?? 0), 0);
+  // Scores before this improvement, without changes by hand: "you can't increase an ability score above 20 using this feature".
+  const before = useMemo(() => derive({ ...c, asi: c.asi.filter((a) => a !== rec), abilityAdjust: {} }, reg).abilities, [c, rec, reg]);
+  const [blocked, setBlocked] = useState<Ability | null>(null);
+  const [allowOver, setAllowOver] = useState(false);
   const bump = (a: Ability, d: number) => {
     const v = (inc[a] ?? 0) + d;
     if (v < 0 || v > 2 || total + d > 2) return;
+    if (d > 0 && before[a].score.total + v > 20 && !allowOver) return setBlocked(a);
+    setBlocked(null);
     const next = { ...inc, [a]: v };
     if (!v) delete next[a];
     setInc(next);
   };
+  const overNow = ABILITIES.filter((a) => (inc[a] ?? 0) > 0 && before[a].score.total + (inc[a] ?? 0) > 20);
   const feats = reg.list("feat").filter((f) => f.name.toLowerCase().includes(q.trim().toLowerCase()));
   return (
     <>
@@ -759,12 +767,38 @@ function AsiEditor({ item, c, reg, act, back }: { item: BuildItem; c: Character;
       </div>
       {mode === "abilities" ? (
         <>
-          <p className="note">+2 to one ability, or +1 to two. {2 - total} left.</p>
+          <p className="note">+2 to one ability, or +1 to two, never above 20. {2 - total} left.</p>
+          {blocked && (
+            <div className="over-banner" role="alert">
+              <strong>{ABILITY_NAMES[blocked]} can't go above 20 with an Ability Score Improvement.</strong> It's {before[blocked].score.total} now
+              {inc[blocked] ? ` (+${inc[blocked]} here)` : ""}. Put the point in another ability.
+              <div>
+                <button
+                  className="link"
+                  onClick={() => {
+                    setAllowOver(true);
+                    setBlocked(null);
+                  }}
+                >
+                  My DM allows it anyway
+                </button>
+              </div>
+            </div>
+          )}
+          {overNow.length > 0 && !blocked && (
+            <p className="over-banner" role="alert">
+              Over 20 with this improvement: {overNow.map((a) => `${ABILITY_NAMES[a]} ${before[a].score.total + (inc[a] ?? 0)}`).join(", ")}. The rules don't allow it; keep it only if your DM agreed.
+            </p>
+          )}
           <div className="group">
             {ABILITIES.map((a) => (
               <div className="row" key={a}>
                 <div className="row-main">
                   <div className="row-title">{ABILITY_NAMES[a]}</div>
+                  <div className={`row-sub${before[a].score.total + (inc[a] ?? 0) > 20 ? " bad" : ""}`}>
+                    {before[a].score.total}
+                    {inc[a] ? ` → ${before[a].score.total + inc[a]}` : before[a].score.total >= 20 ? " · at the maximum" : ""}
+                  </div>
                 </div>
                 <div className="stepper">
                   <button aria-label={`Less ${ABILITY_NAMES[a]}`} onClick={() => bump(a, -1)}>
@@ -786,7 +820,7 @@ function AsiEditor({ item, c, reg, act, back }: { item: BuildItem; c: Character;
               back();
             }}
           >
-            Save
+            {overNow.length ? "Save anyway (DM allowed)" : "Save"}
           </button>
         </>
       ) : (
