@@ -461,15 +461,41 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
     case "summonHp": {
       const x = c.summons.find((s) => s.id === op.payload.id);
       if (!x) break;
-      const max = reg.find(x.creature, "creature")?.hp ?? op.payload.hp;
-      const lost = x.hp - Math.min(max, op.payload.hp);
-      x.hp = Math.min(max, op.payload.hp);
+      const def = reg.find(x.creature, "creature");
+      const who = x.name ?? def?.name ?? "It";
+      let target = op.payload.hp ?? x.hp;
+      if (op.payload.damage !== undefined) {
+        // Its stat block's defenses, plus any from effects on it (Protection from Energy, Stoneskin).
+        const type = op.payload.type?.toLowerCase();
+        const has = (k: "resist" | "immune" | "vulnerable") =>
+          !!type &&
+          ((def?.[k] ?? []).includes(type) ||
+            (x.effects ?? []).some((e) => (reg.find(e.effect, "effect")?.modifiers ?? []).some((m) => m.selector === `defense.${k}.${type}`)));
+        let amount = op.payload.damage;
+        if (has("immune")) {
+          notes.push(`${who} is immune to ${type} damage: no damage.`);
+          amount = 0;
+        } else {
+          if (has("resist")) {
+            amount = Math.floor(amount / 2);
+            notes.push(`${who} resists ${type}: ${amount} damage.`);
+          }
+          if (has("vulnerable")) {
+            amount *= 2;
+            notes.push(`${who} is vulnerable to ${type}: ${amount} damage.`);
+          }
+        }
+        target = Math.max(0, x.hp - amount);
+      }
+      const max = def?.hp ?? target;
+      const lost = x.hp - Math.min(max, target);
+      x.hp = Math.min(max, target);
       // Its own concentration: damage asks for a Constitution save (DC 10 or half the damage); at 0 HP it ends.
       if (x.concentrating && lost > 0) {
         if (x.hp === 0) delete x.concentrating;
         else notes.push(`It's concentrating on ${x.concentrating}: Constitution save, DC ${Math.max(10, Math.floor(lost / 2))}.`);
       }
-      if (x.hp === 0) notes.push(`${x.name ?? reg.find(x.creature, "creature")?.name ?? "It"} drops to 0 HP.`);
+      if (x.hp === 0 && lost > 0) notes.push(`${who} drops to 0 HP.`);
       break;
     }
 
@@ -518,8 +544,36 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
       const x = c.summons.find((s) => s.id === op.payload.id);
       if (!x) break;
       const effect = reg.effectId(op.payload.effect);
+      if (op.payload.add) {
+        const ed = reg.find(effect, "effect");
+        const cd = reg.find(x.creature, "creature");
+        if (ed && ed.category === "condition" && (cd?.conditionImmune ?? []).some((k) => k.toLowerCase() === ed.name.toLowerCase()))
+          notes.push(`${x.name ?? cd?.name ?? "It"} is immune to being ${ed.name.toLowerCase()}. Added anyway.`);
+      }
       if (op.payload.add) x.effects = [...(x.effects ?? []), { id: `${x.id}-${Date.now().toString(36)}-${(x.effects ?? []).length}`, effect, ...(op.payload.rounds ? { rounds: op.payload.rounds } : {}) }];
       else x.effects = (x.effects ?? []).filter((e) => e.effect !== effect && e.id !== op.payload.effect);
+      break;
+    }
+
+    case "summonCast": {
+      const x = c.summons.find((s) => s.id === op.payload.id);
+      if (!x) break;
+      const who = x.name ?? reg.find(x.creature, "creature")?.name ?? "It";
+      const { key, max, economy, spell } = op.payload;
+      if (key) {
+        const uses = (x.spellUses ??= {});
+        uses[key] = (uses[key] ?? 0) + 1;
+        if (max !== undefined && uses[key]! > max) notes.push(`Beyond its stat block: ${uses[key]} of ${max}${key.startsWith("slot:") ? ` level ${key.slice(5)} slots` : " a day"}.`);
+      }
+      if (economy !== "none") {
+        const u = (x.used ??= { action: false, bonus: false, reaction: false, attacks: 0 });
+        if (u[economy]) notes.push(`Its ${economy === "bonus" ? "bonus action" : economy} was already used this turn.`);
+        u[economy] = true;
+      }
+      if (op.payload.concentration) {
+        if (x.concentrating && x.concentrating !== spell) notes.push(`${x.concentrating} ends: ${who} now concentrates on ${spell}.`);
+        x.concentrating = spell;
+      }
       break;
     }
 

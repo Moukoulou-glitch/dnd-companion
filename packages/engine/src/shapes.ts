@@ -1,4 +1,4 @@
-import { ABILITIES, ABILITY_NAMES, SKILLS, SKILL_NAMES, type Ability, type Character, type CreatureDef, type Skill } from "@dnd/schema";
+import { ABILITIES, ABILITY_NAMES, SKILLS, SKILL_NAMES, type Ability, type Character, type CreatureDef, type Skill, type SpellDef } from "@dnd/schema";
 import type { Part, RollBreakdown } from "./breakdown.js";
 import type { ContentRegistry } from "./registry.js";
 import type { WeaponAttack } from "./derive.js";
@@ -113,6 +113,156 @@ function riderBonus(d: CreatureDef, a: { name: string; text: string }, flat: num
   return r;
 }
 
+type AttackLine = NonNullable<CreatureDef["actions"][number]["attack"]> & { variant?: string };
+
+/** "8 (1d8 + 4)" or a flat "1": dice and the flat part. */
+function dmg(diceText: string | undefined, flatText: string | undefined, sign?: string, n?: string): { damage: string; damageBonus: number } {
+  if (diceText) return { damage: diceText, damageBonus: n ? (sign === "-" ? -1 : 1) * Number(n) : 0 };
+  return { damage: String(flatText ?? "0"), damageBonus: 0 };
+}
+
+const shortCond = (cond: string) =>
+  /two hands/i.test(cond) ? "two-handed" : cond.replace(/^(?:if|when|while|with)\s+(?:used\s+)?(?:with\s+)?/i, "").replace(/\s+to make a (?:melee|ranged) attack$/i, "").trim();
+
+/**
+ * An attack read from its text, with the variants its stat block gives
+ * ("+6 to hit with shillelagh", "or 8 (1d10 + 3) … if used with two hands").
+ */
+export function attackVariants(a: { name: string; text: string; attack?: CreatureDef["actions"][number]["attack"] }): AttackLine[] {
+  const text = a.text;
+  const head = /(Melee|Ranged)(?: or Ranged)? (?:Weapon|Spell) Attack:/i.exec(text);
+  const hit = /\+(\d+) to hit/i.exec(text);
+  const D = `(?:\\d+\\s*\\((\\d+d\\d+)(?:\\s*([+-])\\s*(\\d+))?\\)|(\\d+))\\s*(${DMG}) damage`;
+  const main = new RegExp(`Hit:\\s*${D}`, "i").exec(text);
+  let base: AttackLine | undefined = a.attack ? { ...a.attack } : undefined;
+  if (!base && head && hit && main) {
+    const reach = /(?:reach|range) ([^,]+?)(?:,|\s+one\b)/i.exec(text)?.[1]?.trim();
+    base = {
+      kind: head[1]!.toLowerCase() === "melee" ? "melee" : "ranged",
+      toHit: Number(hit[1]),
+      ...(reach ? { reach } : {}),
+      ...dmg(main[1], main[4], main[2], main[3]),
+      damageType: main[5]!.toLowerCase() as AttackLine["damageType"],
+    };
+  }
+  if (!base) return [];
+  const out: AttackLine[] = [base];
+  const alt = new RegExp(`,?\\s*or ${D}\\s+((?:if|when|while|with)[^,.;]+)`, "i").exec(text);
+  if (alt) {
+    const cond = alt[6]!.trim();
+    const altHit = /\(\+(\d+) to hit ((?:with|while|when|if)[^)]+)\)/i.exec(text);
+    const words = (x: string) => x.toLowerCase().split(/\W+/).filter((w) => w.length > 3 && !["with", "when", "while", "used"].includes(w));
+    const sameCond = altHit && words(altHit[2]!).some((w) => words(cond).includes(w));
+    out.push({ ...base, ...dmg(alt[1], alt[4], alt[2], alt[3]), damageType: alt[5]!.toLowerCase() as AttackLine["damageType"], toHit: sameCond ? Number(altHit![1]) : base.toHit, variant: shortCond(cond) });
+  }
+  return out;
+}
+
+export interface CreatureSpellGroup {
+  /** "At will", "3/day each", "1st level (4 slots)". */
+  label: string;
+  /** Uses each (N/day each) or for the group (N/day). */
+  perDay?: number;
+  shared?: boolean;
+  /** Spell slots of this level. */
+  slots?: number;
+  level?: number;
+  spells: { name: string; id?: string }[];
+}
+
+export interface CreatureSpells {
+  trait: string;
+  ability?: string;
+  dc?: number;
+  attack?: number;
+  /** Caster level, for cantrip damage. */
+  casterLevel?: number;
+  groups: CreatureSpellGroup[];
+}
+
+/** The spells in a stat block's Spellcasting or Innate Spellcasting trait, matched to the spells the app knows. */
+export function creatureSpells(reg: ContentRegistry, d: Pick<CreatureDef, "traits">): CreatureSpells[] {
+  const byName = new Map(reg.list("spell").map((sp) => [sp.name.toLowerCase(), sp.id]));
+  const out: CreatureSpells[] = [];
+  for (const t of d.traits) {
+    if (!/spellcasting/i.test(t.name)) continue;
+    const r: CreatureSpells = { trait: t.name, groups: [] };
+    const ab = /ability is (\w+)/i.exec(t.text)?.[1];
+    if (ab) r.ability = ab;
+    const dc = /spell save DC (\d+)/i.exec(t.text)?.[1];
+    if (dc) r.dc = Number(dc);
+    const atk = /([+-]\d+) to hit with spell attacks/i.exec(t.text)?.[1];
+    if (atk) r.attack = Number(atk);
+    const lvl = /(\d+)(?:st|nd|rd|th)-level spellcaster/i.exec(t.text)?.[1];
+    if (lvl) r.casterLevel = Number(lvl);
+    for (const raw of t.text.split(/\n+/)) {
+      const line = raw.replace(/^[-*•]\s*/, "").replace(/\*/g, "").trim();
+      const m = /^(At will|Cantrips(?: \(at will\))?|\d+\/day(?: each)?|(\d+)(?:st|nd|rd|th) level \((\d+) slots?\))\s*:\s*(.+)$/i.exec(line);
+      if (!m) continue;
+      const g: CreatureSpellGroup = { label: m[1]!, spells: [] };
+      const per = /^(\d+)\/day( each)?/i.exec(m[1]!);
+      if (per) {
+        g.perDay = Number(per[1]);
+        if (!per[2]) g.shared = true;
+      }
+      if (m[2]) {
+        g.level = Number(m[2]);
+        g.slots = Number(m[3]);
+      }
+      for (const part of m[4]!.split(/,(?![^(]*\))/)) {
+        const name = part.replace(/\([^)]*\)/g, "").trim();
+        if (!name) continue;
+        const id = byName.get(name.toLowerCase());
+        g.spells.push(id ? { name, id } : { name });
+      }
+      r.groups.push(g);
+    }
+    out.push(r);
+  }
+  return out;
+}
+
+const pbForCr = (cr: number) => (cr < 5 ? 2 : cr < 9 ? 3 : cr < 13 ? 4 : cr < 17 ? 5 : cr < 21 ? 6 : cr < 25 ? 7 : cr < 29 ? 8 : 9);
+const ABILITY_WORD: Record<string, Ability> = { strength: "str", dexterity: "dex", constitution: "con", intelligence: "int", wisdom: "wis", charisma: "cha" };
+
+/** How a creature casts: its stat block's DC and attack, else 8 + proficiency by CR + its best mental ability. */
+export function creatureCasting(d: CreatureDef, info?: CreatureSpells): { ability: Ability; dc: number; attack: number; casterLevel: number } {
+  const mod = (a: Ability) => Math.floor(((d.abilities[a] ?? 10) - 10) / 2);
+  const named = info?.ability ? ABILITY_WORD[info.ability.toLowerCase()] : undefined;
+  const ability = named ?? (["int", "wis", "cha"] as Ability[]).reduce((best, a) => (mod(a) > mod(best) ? a : best), "cha" as Ability);
+  const pb = pbForCr(d.cr);
+  return {
+    ability,
+    dc: info?.dc ?? 8 + pb + mod(ability),
+    attack: info?.attack ?? (info?.dc !== undefined ? info.dc - 8 : pb + mod(ability)),
+    casterLevel: info?.casterLevel ?? Math.max(1, Math.ceil(d.cr)),
+  };
+}
+
+/** A spell a creature casts, as a roll: its spell attack, the damage at this level, and the save to note. */
+export function creatureSpellRoll(d: CreatureDef, sp: SpellDef, level: number, info?: CreatureSpells): WeaponAttack & { saveNote?: string } {
+  const cast = creatureCasting(d, info);
+  const mod = Math.floor(((d.abilities[cast.ability] ?? 10) - 10) / 2);
+  const table = sp.damage?.atSlot ?? sp.damage?.atCharacterLevel ?? sp.heal?.atSlot;
+  const key = sp.damage?.atCharacterLevel && !sp.damage.atSlot ? cast.casterLevel : level;
+  const keys = table ? Object.keys(table).map(Number).filter((k) => k <= key).sort((a, b) => b - a) : [];
+  const raw = table && keys.length ? table[String(keys[0])]! : table ? Object.values(table)[0]! : "0";
+  const dice = raw.replace(/\s+/g, "").replace(/MOD/g, String(mod)).replace(/\+-/g, "-");
+  const a: WeaponAttack & { saveNote?: string } = {
+    attackId: `creature-spell:${d.id}:${sp.id}`,
+    name: sp.name,
+    mode: sp.attack === "melee" ? "melee" : "ranged",
+    action: "attack",
+    ability: cast.ability,
+    proficient: true,
+    attack: flatRoll([{ label: `${d.name}'s spell attack`, value: cast.attack }]),
+    damage: { dice, type: sp.damage?.type ?? (sp.heal ? "healing" : ""), bonus: flatRoll([]), onCrit: [], critExtraDice: [] },
+    properties: [],
+  };
+  if (sp.save) a.saveNote = `DC ${cast.dc} ${ABILITY_NAMES[sp.save.ability]} saving throw${sp.save.onSuccess === "half" ? ": half damage on a success" : sp.save.onSuccess === "none" ? ": no damage on a success" : ""}.`;
+  return a;
+}
+
 /** Dice a trait deals on its own (Heated Body: 1d10 fire to whoever hits it), to roll from its stat block. */
 export function traitDice(text: string): { dice: string; type?: string } | undefined {
   const m = new RegExp(`\\d+ \\((\\d+d\\d+(?:\\s*[+-]\\s*\\d+)?)\\)(?: (${DMG}))? damage`, "i").exec(text);
@@ -187,13 +337,12 @@ export function deriveShape(
   const speed = [sp.walk ? `${sp.walk} ft` : "", ...(["climb", "swim", "fly", "burrow"] as const).filter((k) => sp[k]).map((k) => `${k} ${sp[k]} ft${k === "fly" && sp.hover ? " (hover)" : ""}`)]
     .filter(Boolean)
     .join(", ");
-  const attacks = [...d.actions, ...(d.bonusActions ?? [])]
-    .filter((a) => a.attack)
-    .map((a) => {
-      const at = a.attack!;
+  const attacks = [...d.actions, ...(d.bonusActions ?? [])].flatMap((a) =>
+    attackVariants(a).map((at) => {
+      const name = at.variant ? `${a.name} (${at.variant})` : a.name;
       const w: WeaponAttack & { note?: string } = {
-        attackId: `shape:${d.id}:${a.name}`,
-        name: a.name,
+        attackId: `shape:${d.id}:${name}`,
+        name,
         mode: at.kind,
         action: (d.bonusActions ?? []).includes(a) ? "bonus" : "attack",
         ability: "str",
@@ -204,7 +353,8 @@ export function deriveShape(
       };
       if (at.reach) w.note = `${at.kind === "melee" ? "Reach" : "Range"} ${at.reach}`;
       return w;
-    });
+    }),
+  );
   const notes = wild
     ? [
         "You can't cast spells" + (limits?.beastSpells ? " except with Beast Spells (no material components with a cost)." : ", but concentration on a spell you already cast holds."),

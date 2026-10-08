@@ -46,7 +46,20 @@ export const OPERATION_PAYLOADS = {
     .object({ spell: DefId, group: z.string(), creatures: z.array(z.object({ creature: DefId, count: z.number().int().min(1) }).strict()).min(1), concentration: z.boolean().optional() })
     .strict(),
   /** A summoned creature's hit points (after damage or healing worked out in the app). */
-  summonHp: z.object({ id: z.string(), hp: z.number().int().min(0) }).strict(),
+  /** Set its hit points, or deal damage of a type (its resistances, immunities and vulnerabilities apply). */
+  summonHp: z.object({ id: z.string(), hp: z.number().int().min(0).optional(), damage: z.number().int().min(0).optional(), type: z.string().optional() }).strict(),
+  /** It casts a spell: a use of "N/day" or a slot, its action economy, its concentration. */
+  summonCast: z
+    .object({
+      id: z.string(),
+      spell: z.string(),
+      /** What the use counts against ("spell:entangle", "slot:3"); left out for at will. */
+      key: z.string().optional(),
+      max: z.number().int().min(0).optional(),
+      economy: z.enum(["action", "bonus", "reaction", "none"]).default("action"),
+      concentration: z.boolean().optional(),
+    })
+    .strict(),
   summonInitiative: z.object({ group: z.string(), id: z.string().optional(), value: z.number().int() }).strict(),
   /** A summoned creature's turn: use or give back its action, bonus action, reaction or an attack; `newTurn` resets them. */
   summonEconomy: z
@@ -244,6 +257,7 @@ export const Operation = z.discriminatedUnion("type", [
   OperationBase.extend({ type: z.literal("summonInitiative"), payload: OPERATION_PAYLOADS.summonInitiative }),
   OperationBase.extend({ type: z.literal("dismiss"), payload: OPERATION_PAYLOADS.dismiss }),
   OperationBase.extend({ type: z.literal("summonEconomy"), payload: OPERATION_PAYLOADS.summonEconomy }),
+  OperationBase.extend({ type: z.literal("summonCast"), payload: OPERATION_PAYLOADS.summonCast }),
   OperationBase.extend({ type: z.literal("summonEffect"), payload: OPERATION_PAYLOADS.summonEffect }),
   OperationBase.extend({ type: z.literal("summonConcentration"), payload: OPERATION_PAYLOADS.summonConcentration }),
   OperationBase.extend({ type: z.literal("addExtra"), payload: OPERATION_PAYLOADS.addExtra }),

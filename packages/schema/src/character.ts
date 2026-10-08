@@ -307,6 +307,8 @@ export const Character = z
             effects: z.array(z.object({ id: z.string(), effect: DefId, rounds: z.number().int().min(0).optional() }).strict()).optional(),
             /** A spell it is concentrating on itself. */
             concentrating: z.string().optional(),
+            /** Its own spells used: "N/day" uses by spell, slots by "slot:<level>". */
+            spellUses: z.record(z.string(), z.number().int().min(0)).optional(),
           })
           .strict(),
       )

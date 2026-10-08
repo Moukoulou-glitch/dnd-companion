@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
-import { buildItems, castingEconomy, formatBonus, materialNeed, maxSpellLevel, newCharacter, signed, turnWarnings, type TurnIntent } from "@dnd/engine";
+import { buildItems, castingEconomy, creatureSpellRoll, formatBonus, materialNeed, maxSpellLevel, newCharacter, signed, turnWarnings, type TurnIntent } from "@dnd/engine";
 import { SKILL_NAMES, type Character, type Skill } from "@dnd/schema";
 import { roll as rollDice, type ComposerBase } from "@dnd/dice";
 import { ShapePanel, TransformPanel } from "./components/Shapes";
-import { SummonGroupPanel, SummonMemberPanel, SummonPicker } from "./components/Summons";
+import { SummonGroupPanel, SummonMemberPanel, SummonPicker, SummonSpellPanel, type SpellSource } from "./components/Summons";
 import type { ShapeKind } from "@dnd/engine";
 import type { ActionResult, EffectResult, SpellResult, WeaponAttack } from "@dnd/engine";
 import { ActionsTab } from "./components/ActionsTab";
@@ -289,8 +289,24 @@ export function App() {
           reg={registry}
           act={live.current.act}
           inCombat={!!cur.combat}
-          openHp={() => openSummonHp(id)}
+          openHp={() => openSummonHp(id, true)}
           onTraitRoll={openTraitRoll}
+          onCheck={(title, base) => openRoll(title, base)}
+          onRollInitiative={() => rollSummonInit(m.group, m.id)}
+          onAddEffect={() =>
+            open(`Effect on ${m.name ?? registry.find(m.creature, "creature")?.name ?? "it"}`, () => (
+              <AddEffectPanel
+                registry={registry}
+                act={live.current.act}
+                close={() => openSummonMember(id)}
+                onPick={(d) => {
+                  live.current.act("summonEffect", { id, effect: d.id, add: true, ...(d.rounds ? { rounds: d.rounds } : {}) }, `${d.name} on ${m.name ?? registry.find(m.creature, "creature")?.name ?? "it"}.`);
+                  openSummonMember(id);
+                }}
+              />
+            ))
+          }
+          onSpell={(spell, source) => openSummonSpell(id, spell, source)}
           openAttack={(a) => {
             const kind = a.action === "bonus" ? "bonus" : "attack";
             openRoll(a.name, a.attack, a, {
@@ -298,6 +314,29 @@ export function App() {
             });
           }}
           back={() => openSummonGroup(m.group)}
+        />
+      );
+    });
+
+  /** A spell a summoned creature casts. */
+  const openSummonSpell = (id: string, spell: { name: string; id?: string }, source: SpellSource) =>
+    open(spell.id ? registry.find(spell.id, "spell")?.name ?? spell.name : spell.name, () => {
+      const m = live.current.character?.summons.find((x) => x.id === id);
+      if (!m) return <p className="note">It's gone.</p>;
+      return (
+        <SummonSpellPanel
+          member={m}
+          reg={registry}
+          spell={spell}
+          source={source}
+          act={live.current.act}
+          back={() => openSummonMember(id)}
+          onRoll={(sp, level) => {
+            const d = registry.find(m.creature, "creature");
+            if (!d) return openSummonMember(id);
+            const a = creatureSpellRoll(d, sp, level, source.info);
+            openRoll(`${d.name}: ${sp.name}`, a.attack, a, sp.attack ? {} : { damageOnly: true });
+          }}
         />
       );
     });
@@ -326,15 +365,15 @@ export function App() {
     live.current.act("summonInitiative", { group, ...(id ? { id } : {}), value: r + dex }, `Initiative ${r} ${dex >= 0 ? "+" : "−"} ${Math.abs(dex)} = ${r + dex}.`);
   };
 
-  const openSummonHp = (id: string) =>
+  const openSummonHp = (id: string, fromMember = false) =>
     open("Summoned creature's hit points", () => {
       const m = live.current.character?.summons.find((s) => s.id === id);
       const max = m ? registry.find(m.creature, "creature")?.hp ?? m.hp : 0;
-      const back = () => (m ? openSummonGroup(m.group) : close());
+      const back = () => (m ? (fromMember ? openSummonMember(id) : openSummonGroup(m.group)) : close());
       return (
         <HpPad
-          onDamage={(amount) => {
-            if (m) live.current.act("summonHp", { id, hp: Math.max(0, m.hp - amount) }, `${amount} damage.`);
+          onDamage={(amount, type) => {
+            if (m) live.current.act("summonHp", { id, damage: amount, ...(type ? { type } : {}) }, `${amount}${type ? ` ${type}` : ""} damage.`);
             back();
           }}
           onHeal={(amount) => {
@@ -369,9 +408,15 @@ export function App() {
           openHp={openHp}
           openAttack={openAttack}
           onTraitRoll={openTraitRoll}
+          onUseAction={(name, economy) =>
+            guard({ name, economy }, () => {
+              if (live.current.character?.combat) live.current.act("useEconomy", { kind: economy, amount: 1 }, `${name}: ${economy === "bonus" ? "bonus action" : economy} used.`);
+            })
+          }
           normalHp={{ current: cur.character.hp.current, max: cur.sheet.hpMax.total }}
           onRevert={() =>
             guard({ name: "Change back", economy: s.kind === "wildshape" ? "bonus" : "free" }, () => {
+              if (s.kind === "wildshape" && live.current.character?.combat) live.current.act("useEconomy", { kind: "bonus", amount: 1 }, "Bonus action used.");
               live.current.act("revert", {}, "Back in your normal form.");
               close();
             })
@@ -380,6 +425,7 @@ export function App() {
             guard({ name: "Combat Wild Shape healing", economy: "bonus" }, () => {
               const healed = rollDice(`${level}d8`).total;
               live.current.act("spendSlot", { level }, `Level ${level} slot spent.`);
+              if (live.current.character?.combat) live.current.act("useEconomy", { kind: "bonus", amount: 1 }, "Bonus action used.");
               live.current.act("heal", { amount: healed }, `Combat Wild Shape: ${level}d8 = ${healed} HP.`);
               openShape();
             })

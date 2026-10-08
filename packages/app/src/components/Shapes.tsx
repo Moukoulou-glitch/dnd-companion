@@ -162,7 +162,10 @@ export function ShapePanel({
   normalHp,
   openAttack,
   onTraitRoll,
+  onUseAction,
 }: {
+  /** A stat block action used in combat (Fey Charm): marks the turn. */
+  onUseAction?: (name: string, economy: "action" | "bonus" | "reaction") => void;
   /** Rolls an attack and marks the turn, like your own attacks. */
   openAttack: (a: WeaponAttack) => void;
   onTraitRoll: (title: string, dice: string, type?: string) => void;
@@ -299,7 +302,14 @@ export function ShapePanel({
       </details>
 
       {s.traits.length > 0 && <TextList title="Traits" items={s.traits} onRoll={(t, d, ty) => onTraitRoll(`${s.name}: ${t}`, d, ty)} />}
-      {s.actions.length > 0 && <TextList title="Actions" items={s.actions.filter((a) => !s.attacks.some((x) => x.name === a.name))} onRoll={(t, d, ty) => onTraitRoll(`${s.name}: ${t}`, d, ty)} />}
+      {s.actions.length > 0 && (
+        <TextList
+          title="Actions"
+          items={s.actions.filter((a) => !s.attacks.some((x) => x.name === a.name))}
+          onRoll={(t, d, ty) => onTraitRoll(`${s.name}: ${t}`, d, ty)}
+          {...(onUseAction ? { onUse: onUseAction } : {})}
+        />
+      )}
       <button className="link danger-text" style={{ marginTop: 12 }} onClick={() => act("revert", { why: "Dropped to 0 or the DM ended it" }, "Back to normal.")}>
         It ended another way (no bonus action)
       </button>
@@ -307,24 +317,51 @@ export function ShapePanel({
   );
 }
 
-/** Traits and actions as text; any that deal dice of their own get a button to roll them (Heated Body, Charge). */
-export function TextList({ title, items, onRoll }: { title: string; items: { name: string; text: string }[]; onRoll?: (name: string, dice: string, type?: string) => void }): ReactNode {
+/** Which part of a turn a stat block action takes, from its name ("Fey Charm", "Leadership (bonus action)"). */
+export const actionEconomy = (name: string): "action" | "bonus" | "reaction" => (/\(bonus action\)$/i.test(name) ? "bonus" : /\(reaction\)$/i.test(name) ? "reaction" : "action");
+
+/** Traits and actions as text; any that deal dice of their own get a button to roll them (Heated Body, Charge); actions can be used. */
+export function TextList({
+  title,
+  items,
+  onRoll,
+  onUse,
+}: {
+  title: string;
+  items: { name: string; text: string }[];
+  onRoll?: (name: string, dice: string, type?: string) => void;
+  /** Use it: marks the action, bonus action or reaction. */
+  onUse?: (name: string, economy: "action" | "bonus" | "reaction") => void;
+}): ReactNode {
   if (!items.length) return null;
   return (
     <>
       <h2 className="sub-head">{title}</h2>
       {items.map((t) => {
         const d = onRoll ? traitDice(t.text) : undefined;
+        const dc = /DC (\d+) (\w+) saving throw/i.exec(t.text);
+        const economy = actionEconomy(t.name);
+        const usable = onUse && !/^multiattack/i.test(t.name);
         return (
           <div key={t.name} className="trait-text">
             <p className="note">
               <b>{t.name}.</b> <RichText text={t.text} />
             </p>
-            {d && (
-              <button className="tag" onClick={() => onRoll!(t.name, d.dice, d.type)}>
-                Roll {d.dice}
-                {d.type ? ` ${d.type}` : ""}
-              </button>
+            {(d || usable) && (
+              <div className="choice-row">
+                {usable && (
+                  <button className="tag use" onClick={() => onUse!(t.name, economy)}>
+                    Use · {economy === "bonus" ? "bonus action" : economy}
+                  </button>
+                )}
+                {dc && <span className="tag">DC {dc[1]} {dc[2]}</span>}
+                {d && (
+                  <button className="tag" onClick={() => onRoll!(t.name, d.dice, d.type)}>
+                    Roll {d.dice}
+                    {d.type ? ` ${d.type}` : ""}
+                  </button>
+                )}
+              </div>
             )}
           </div>
         );

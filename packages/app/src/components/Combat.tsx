@@ -63,7 +63,7 @@ export function CombatCard({
       <div className="pills">
         <button
           className="pill"
-          data-used={actionsLeft <= 0 && cb.attacks === 0}
+          data-used={actionsLeft <= 0 && (cb.attacks === 0 || cb.attacks >= max)}
           onClick={() =>
             cb.attacks > 0
               ? act("useEconomy", { kind: "attack", amount: -1 }, "One attack taken back.")
@@ -75,7 +75,7 @@ export function CombatCard({
         >
           <b>{actionsTotal > 1 ? `Actions ×${actionsTotal}` : "Action"}</b>
           <small>
-            {cb.attacks > 0 ? `${cb.attacks} of ${max} attacks` : actionsLeft <= 0 ? "used" : actionsTotal > 1 ? `${actionsLeft} free` : "free"}
+            {cb.attacks > 0 ? `${cb.attacks} of ${max} attack${max === 1 ? "" : "s"}${cb.attacks >= max && actionsLeft <= 0 ? " · used" : ""}` : actionsLeft <= 0 ? "used" : actionsTotal > 1 ? `${actionsLeft} free` : "free"}
           </small>
         </button>
         {limited.map((a) => {
