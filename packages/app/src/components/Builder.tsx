@@ -615,8 +615,11 @@ function ItemEditor({ itemKey, get, reg, act, back }: { itemKey: string; get: ()
 }
 
 function ChoiceEditor({ item, reg, act, back, note }: { item: BuildItem; reg: ContentRegistry; act: Act; back: () => void; note?: ExtraNote }) {
-  const options = useMemo(() => choiceOptions(item.choice!, reg), [item.choice, reg]);
+  const options = useMemo(() => choiceOptions(item.choice!, reg, item.slotMax), [item.choice, reg, item.slotMax]);
   const [picked, setPicked] = useState<string[]>(item.picked);
+  // Eldritch Knight, Arcane Trickster: most picks from two schools, a few from any.
+  const lim = item.choice!.spells?.schoolLimit;
+  const outside = lim ? picked.filter((id) => !lim.schools.includes(reg.find(id, "spell")?.school.toLowerCase() ?? "")).length : 0;
   const [q, setQ] = useState("");
   const shown = options.filter((o) => o.label.toLowerCase().includes(q.trim().toLowerCase()));
   // Feats (and single picks like a fighting style) keep their numbers; skills, languages, tools and spells can go over.
@@ -627,6 +630,12 @@ function ChoiceEditor({ item, reg, act, back, note }: { item: BuildItem; reg: Co
       <p className="note">
         Pick {item.need}. {picked.length} picked.{item.strict && item.source?.startsWith("feat") ? " A feat gives exactly this many." : ""}
       </p>
+      {lim && (
+        <p className={`note${outside > (item.freeSchool ?? 0) ? " danger-text" : ""}`}>
+          All but {item.freeSchool ?? 0} must be {lim.schools.join(" or ")}. From other schools: {outside} of {item.freeSchool ?? 0}.
+          {item.slotMax ? ` Spells up to level ${item.slotMax}, your highest slot.` : ""}
+        </p>
+      )}
       {picked.length > item.need && <OverBanner item={item} count={picked.length} />}
       {picked.length > item.need && note && <ExtraBox note={note} />}
       {options.length > 12 && <input className="search" type="search" placeholder="Search" value={q} onChange={(e) => setQ(e.target.value)} />}

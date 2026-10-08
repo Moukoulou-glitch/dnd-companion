@@ -185,7 +185,8 @@
           "id": "arcane-trickster",
           "label": "Arcane Trickster",
           "ability": "int",
-          "progression": "third"
+          "progression": "third",
+          "levelsOf": "class:rogue"
         },
         "spells": [
           {
@@ -195,7 +196,43 @@
             "list": "arcane-trickster"
           }
         ]
-      }
+      },
+      "choices": [
+        {
+          "id": "cantrips",
+          "label": "Cantrips (besides Mage Hand)",
+          "kind": "spell",
+          "count": 2,
+          "countBy": "atCantrips",
+          "spells": {
+            "classes": [
+              "wizard"
+            ],
+            "level": 0
+          }
+        },
+        {
+          "id": "spells",
+          "label": "Spells known",
+          "kind": "spell",
+          "count": 3,
+          "countBy": "atSpellsKnown",
+          "spells": {
+            "classes": [
+              "wizard"
+            ],
+            "minLevel": 1,
+            "upToSlots": true,
+            "schoolLimit": {
+              "schools": [
+                "enchantment",
+                "illusion"
+              ],
+              "freeBy": "atFreeSchool"
+            }
+          }
+        }
+      ]
     },
     {
       "kind": "feature",

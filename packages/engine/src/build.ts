@@ -1,7 +1,7 @@
 import { ABILITIES, ABILITY_NAMES, Character, SKILL_NAMES, SKILLS, type Ability, type ChoiceDef, type ClassDef, type ItemDef, type Skill } from "@dnd/schema";
 import type { ContentRegistry } from "./registry.js";
 import { collectSources } from "./sources.js";
-import { derive } from "./derive.js";
+import { derive, schoolFreePicks } from "./derive.js";
 
 /**
  * Building and levelling a character: what's still to choose, what each
@@ -117,6 +117,10 @@ export interface BuildItem {
   list?: string;
   spellKind?: "cantrips" | "known" | "spellbook";
   maxLevel?: number;
+  /** Spell choices limited to the slots the character has (Eldritch Knight): the highest slot level. */
+  slotMax?: number;
+  /** Spell choices with a school limit: how many may come from any school now. */
+  freeSchool?: number;
 }
 
 const defChoices = (c: Character, reg: ContentRegistry, id: string): ChoiceDef[] => {
@@ -160,6 +164,7 @@ export function buildItems(c: Character, reg: ContentRegistry): BuildItem[] {
     for (const ch of def?.choices ?? []) if (ch.kind === "feature") for (const v of c.choices[f.feat]?.[ch.id] ?? []) fromFeats.add(v);
   }
   const OVER_OK = new Set(["skill", "language", "tool", "spell"]);
+  let sheet: ReturnType<typeof derive> | undefined;
   for (const s of collectSources(c, reg)) {
     if (s.common || seen.has(s.id) || !/^(race|class|background|feature|feat):/.test(s.id)) continue;
     seen.add(s.id);
@@ -168,7 +173,13 @@ export function buildItems(c: Character, reg: ContentRegistry): BuildItem[] {
       const need = countOf(c, reg, ch);
       const picked = c.choices[s.id]?.[ch.id] ?? [];
       const strict = fromFeats.has(s.id) || !OVER_OK.has(ch.kind);
-      out.push({ key: `${s.id}|${ch.id}`, kind: "choice", sourceName: s.label, label: ch.label, done: picked.length >= need, need, picked, source: s.id, choice: ch, ...(strict ? { strict } : {}), ...(picked.length > need ? { over: true } : {}) });
+      const item: BuildItem = { key: `${s.id}|${ch.id}`, kind: "choice", sourceName: s.label, label: ch.label, done: picked.length >= need, need, picked, source: s.id, choice: ch, ...(strict ? { strict } : {}), ...(picked.length > need ? { over: true } : {}) };
+      if (ch.spells?.upToSlots) {
+        const slots = (sheet ??= derive(c, reg)).spellSlots.filter((x) => x.total > 0).map((x) => x.level);
+        item.slotMax = slots.length ? Math.max(...slots) : 1;
+      }
+      if (ch.spells?.schoolLimit) item.freeSchool = schoolFreePicks(c, reg, ch.spells.schoolLimit.freeBy);
+      out.push(item);
     }
   }
 
@@ -229,7 +240,7 @@ export function buildItems(c: Character, reg: ContentRegistry): BuildItem[] {
 }
 
 /** What a choice can be: skills, abilities, languages, tools, options, features or spells. */
-export function choiceOptions(ch: ChoiceDef, reg: ContentRegistry): ChoiceOption[] {
+export function choiceOptions(ch: ChoiceDef, reg: ContentRegistry, slotMax?: number): ChoiceOption[] {
   const from = ch.from && ch.from.length ? ch.from : undefined;
   switch (ch.kind) {
     case "skill":
@@ -249,7 +260,8 @@ export function choiceOptions(ch: ChoiceDef, reg: ContentRegistry): ChoiceOption
       });
     case "spell": {
       const lvl = ch.spells?.level;
-      return spellOptions(reg, ch.spells?.classes, lvl ?? 0, lvl ?? ch.spells?.maxLevel ?? 9, ch.spells?.schools, ch.spells?.ritual);
+      const max = Math.min(ch.spells?.maxLevel ?? 9, ch.spells?.upToSlots && slotMax !== undefined ? slotMax : 9);
+      return spellOptions(reg, ch.spells?.classes, lvl ?? ch.spells?.minLevel ?? 0, lvl ?? max, ch.spells?.schools, ch.spells?.ritual);
     }
   }
 }

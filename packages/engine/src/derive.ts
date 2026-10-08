@@ -14,6 +14,7 @@ import {
   type Skill,
   type SpellcastingDef,
   type ValueExpr,
+  type ChoiceDef,
 } from "@dnd/schema";
 import { sum, signed, signedDice, type Breakdown, type DicePart, type Part, type RollBreakdown, type Suggestion } from "./breakdown.js";
 import { evalExpr, evalFlat, type ExprContext } from "./expr.js";
@@ -832,6 +833,9 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
     if (!sc || casters.some((x) => x.id === sc.id)) continue;
     const ability = resolveAbility(sc, s);
     if (ability) casters.push({ id: sc.id, label: sc.label, ability });
+    // A subclass caster (Eldritch Knight, Arcane Trickster): slots from its class's levels.
+    const lvl = sc.levelsOf ? c.classes.find((x) => x.class === sc.levelsOf)?.level : undefined;
+    if (lvl) casterLevels.push({ progression: sc.progression, level: lvl });
   }
   const spellcasting: SpellcastingResult[] = casters.map((sc) => ({
     id: sc.id,
@@ -906,6 +910,22 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
           spellDefs.set(`${ownList}|${id}`, { def, list: ownList, prepared: true, granted });
         }
       }
+    }
+  }
+  // Spells that must mostly come from some schools (Eldritch Knight: abjuration and evocation).
+  for (const s of sources) {
+    if (!reg.has(s.id) || !/^(feature|feat):/.test(s.id)) continue;
+    const d = reg.get(s.id, s.id.startsWith("feat:") ? "feat" : "feature") as { choices?: ChoiceDef[] };
+    for (const ch of d.choices ?? []) {
+      const lim = ch.spells?.schoolLimit;
+      if (!lim) continue;
+      const free = schoolFreePicks(c, reg, lim.freeBy);
+      const outside = (s.choices[ch.id] ?? []).filter((id) => {
+        const sp = reg.find(id, "spell");
+        return sp && sp.level > 0 && !lim.schools.includes(sp.school.toLowerCase());
+      });
+      if (outside.length > free)
+        warnings.push(`${s.label}: ${outside.length} spells outside ${lim.schools.join(" and ")}; you may have ${free} from any school at your level.`);
     }
   }
   const preparedLists = new Set(
@@ -1301,4 +1321,13 @@ export function durationTimer(duration: string): { rounds?: number; minutes?: nu
   if (unit === "round") return { rounds: n };
   const minutes = unit === "minute" ? n : unit === "hour" ? n * 60 : n * 1440;
   return minutes <= 1 ? { rounds: minutes * 10 } : { minutes };
+}
+
+/** How many spells may come from any school (a class table, e.g. "ekFreeSchool"), at the class's level. */
+export function schoolFreePicks(c: Character, reg: ContentRegistry, table: string): number {
+  for (const cl of c.classes) {
+    const t = reg.find(cl.class, "class")?.progression?.[table];
+    if (t) return t[cl.level - 1] ?? 0;
+  }
+  return 0;
 }

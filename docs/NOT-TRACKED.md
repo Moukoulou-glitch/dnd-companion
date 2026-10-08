@@ -3,7 +3,6 @@
 Things the app shows as a description only, or tracks partly. Kept up to date as rounds land; strike items when they become tracked.
 
 ## Engine limits (affect several features)
-- **Subclass spellcasters' slots**: Eldritch Knight and Arcane Trickster get their spell DC and attack, but no spell slots or spells-known limits (slots are only computed from a class's own spellcasting). The abjuration/evocation and enchantment/illusion school limits aren't enforced.
 - **Swim, fly, climb speeds granted by features** (Storm Herald Sea, Totem Eagle, Gift of the Sea, Elemental Gift, Beast's climb/swim): no selector for them; only walking speed and forms' speeds are tracked.
 - **"Resistance to damage from spells"** (Aura of Warding, Spell Resistance): can't be expressed; only typed resistances.
 - **Spells appearing only from a higher level inside one feature** (Shadow Magic's Darkness shows from 1st with a "from 3rd" note).

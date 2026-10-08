@@ -171,6 +171,8 @@ export const SpellcastingDef = z
     /** Fixed, or the ability the player picked on the granting feat ({ choice: "ability" }). */
     ability: z.union([Ability, ChoiceRef]),
     progression: Progression,
+    /** A subclass's spellcasting (Eldritch Knight): its slots follow this class's levels. */
+    levelsOf: DefId.optional(),
   })
   .strict();
 export type SpellcastingDef = z.infer<typeof SpellcastingDef>;
@@ -384,6 +386,15 @@ export const ChoiceDef = z
         schools: z.array(z.string()).optional(),
         /** Only spells with the ritual tag (Book of Ancient Secrets). */
         ritual: z.boolean().optional(),
+        /** Leveled spells only from this level (Eldritch Knight's spells known: 1). */
+        minLevel: z.number().int().min(0).max(9).optional(),
+        /** No higher than the character's highest spell slot. */
+        upToSlots: z.boolean().optional(),
+        /**
+         * Most picks must come from these schools; `freeBy` names the class
+         * table of how many may come from any school (Eldritch Knight: 1 at 3rd, +1 at 8th, 14th, 20th).
+         */
+        schoolLimit: z.object({ schools: z.array(z.string()).min(1), freeBy: z.string() }).strict().optional(),
       })
       .strict()
       .optional(),

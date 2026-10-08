@@ -191,6 +191,28 @@
           5,
           5,
           5
+        ],
+        "ekFreeSchool": [
+          0,
+          0,
+          1,
+          1,
+          1,
+          1,
+          1,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          4
         ]
       }
     },
@@ -547,7 +569,7 @@
         },
         {
           "id": "spells",
-          "label": "Spells known (abjuration or evocation, except the free picks)",
+          "label": "Spells known",
           "kind": "spell",
           "count": 3,
           "countBy": "ekSpellsKnown",
@@ -555,7 +577,15 @@
             "classes": [
               "wizard"
             ],
-            "maxLevel": 4
+            "minLevel": 1,
+            "upToSlots": true,
+            "schoolLimit": {
+              "schools": [
+                "abjuration",
+                "evocation"
+              ],
+              "freeBy": "ekFreeSchool"
+            }
           }
         }
       ],
@@ -564,7 +594,8 @@
           "id": "eldritch-knight",
           "label": "Eldritch Knight",
           "ability": "int",
-          "progression": "third"
+          "progression": "third",
+          "levelsOf": "class:fighter"
         }
       }
     },
