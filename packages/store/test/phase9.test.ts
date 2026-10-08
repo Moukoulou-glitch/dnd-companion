@@ -117,3 +117,56 @@ describe("damage type choices", () => {
     expect(hands.typeChoices?.find((x) => x.kind === "transmuted")).toMatchObject({ cost: { resource: "sorcery-points", amount: 1 } });
   });
 });
+
+describe("Polymorph from an effect, Haste's lethargy, summons, levels", () => {
+  it("a Polymorph effect holds the form: removing it ends the form, and the form ending removes it", () => {
+    const log = druid(2);
+    log.record("addEffect", { instanceId: "poly", effect: "effect:polymorph" });
+    log.record("transform", { kind: "polymorph", creature: "creature:giant-ape", uses: 0, effect: "poly" });
+    expect(sheetOf(log).shape?.name).toBe("Giant Ape");
+    log.record("removeEffect", { instanceId: "poly" });
+    expect(log.character.shape).toBeUndefined();
+    log.record("addEffect", { instanceId: "tp", effect: "effect:true-polymorph" });
+    log.record("transform", { kind: "truepolymorph", creature: "creature:imp", uses: 0, effect: "tp" });
+    log.record("damage", { amount: 200 });
+    expect(log.character.shape).toBeUndefined();
+    expect(log.character.effects.some((e) => e.id === "tp")).toBe(false);
+  });
+
+  it("Haste ending brings lethargy until after your next turn, with a warning", () => {
+    const log = druid(2);
+    log.record("startCombat", {});
+    log.record("startTurn", {});
+    log.record("addEffect", { instanceId: "h", effect: "effect:haste" });
+    log.record("removeEffect", { instanceId: "h" });
+    expect(log.character.effects.find((e) => e.effect === "effect:haste-lethargy")?.rounds).toBe(2);
+    expect(turnWarnings(log.character, sheetOf(log), { name: "Attack", economy: "action" }).join(" ")).toMatch(/lethargy/);
+    log.record("endTurn", {});
+    log.record("startTurn", {});
+    expect(log.character.effects.some((e) => e.effect === "effect:haste-lethargy")).toBe(true);
+    log.record("endTurn", {});
+    expect(log.character.effects.some((e) => e.effect === "effect:haste-lethargy")).toBe(false);
+  });
+
+  it("summoned creatures have hit points and go when concentration ends", async () => {
+    const { summonOptions } = await import("@dnd/engine");
+    expect(summonOptions(reg, "summon:conjure-animals", 5)!.tiers[0]).toEqual({ maxCr: 2, count: 2 });
+    expect(summonOptions(reg, "summon:animate-dead", 4)!.count).toBe(3);
+    const log = druid(5);
+    log.record("castSpell", { spell: "spell:conjure-animals", list: "druid", level: 3, using: "none", selfEffect: false });
+    log.record("summon", { spell: "spell:conjure-animals", group: "g", creatures: [{ creature: "creature:wolf", count: 2 }], concentration: true });
+    expect(log.character.summons.map((s) => s.hp)).toEqual([11, 11]);
+    log.record("summonHp", { id: log.character.summons[0]!.id, hp: 4 });
+    log.record("summonInitiative", { group: "g", value: 14 });
+    expect(log.character.summons.every((s) => s.initiative === 14)).toBe(true);
+    log.record("endConcentration", {});
+    expect(log.character.summons).toEqual([]);
+  });
+
+  it("taking a level back below the subclass level removes the subclass", () => {
+    const log = druid(2, "subclass:land");
+    log.record("levelDown", { class: "class:druid" });
+    expect(log.character.classes[0]).toMatchObject({ level: 1 });
+    expect(log.character.classes[0]!.subclass).toBeUndefined();
+  });
+});

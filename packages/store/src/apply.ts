@@ -17,6 +17,11 @@ function endConcentration(c: Character, notes: string[], why: string) {
   notes.push(`${why} Concentration on ${c.concentration.name} ended.`);
   delete c.concentration;
   c.effects = c.effects.filter((e) => !e.concentration);
+  const conjured = c.summons.filter((s) => s.concentration);
+  if (conjured.length) {
+    c.summons = c.summons.filter((s) => !s.concentration);
+    notes.push(`${conjured.length === 1 ? "The summoned creature disappears" : `${conjured.length} summoned creatures disappear`}.`);
+  }
   if (c.shape?.ownSpell) {
     delete c.shape;
     notes.push("Polymorph ends: you're back in your normal form.");
@@ -431,10 +436,46 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
         spendTurn(sheet.wildShape?.bonusAction ? "bonus" : "action");
         notes.push(`${d.name}: ${d.hp} HP, AC ${d.ac}.${sheet.wildShape ? ` Up to ${sheet.wildShape.hours} hour${sheet.wildShape.hours === 1 ? "" : "s"}.` : ""}`);
       } else {
-        ownSpell = c.concentration?.spell === "spell:polymorph";
-        notes.push(`Polymorphed into ${d.name}: ${d.hp} HP, AC ${d.ac}.`);
+        ownSpell = c.concentration?.spell === (kind === "truepolymorph" ? "spell:true-polymorph" : "spell:polymorph");
+        notes.push(`${kind === "truepolymorph" ? "True Polymorph" : "Polymorphed"}: ${d.name}, ${d.hp} HP, AC ${d.ac}.`);
       }
-      c.shape = { kind, creature, hp: d.hp, ...(ownSpell ? { ownSpell } : {}) };
+      c.shape = { kind, creature, hp: d.hp, ...(ownSpell ? { ownSpell } : {}), ...(op.payload.effect ? { effect: op.payload.effect } : {}) };
+      break;
+    }
+
+    case "summon": {
+      const { spell, group, creatures, concentration } = op.payload;
+      let n = c.summons.length;
+      for (const x of creatures) {
+        const d = reg.find(x.creature, "creature");
+        if (!d) {
+          notes.push(`${x.creature} isn't in the content on this device.`);
+          continue;
+        }
+        for (let i = 0; i < x.count; i++) c.summons.push({ id: `${group}-${++n}`, creature: d.id, hp: d.hp, spell, group, ...(concentration ? { concentration } : {}) });
+      }
+      notes.push(`${creatures.map((x) => `${x.count > 1 ? `${x.count} × ` : ""}${reg.find(x.creature, "creature")?.name ?? x.creature}`).join(", ")} ${creatures.reduce((t, x) => t + x.count, 0) > 1 ? "appear" : "appears"}.`);
+      break;
+    }
+
+    case "summonHp": {
+      const x = c.summons.find((s) => s.id === op.payload.id);
+      if (!x) break;
+      const max = reg.find(x.creature, "creature")?.hp ?? op.payload.hp;
+      x.hp = Math.min(max, op.payload.hp);
+      if (x.hp === 0) notes.push(`${x.name ?? reg.find(x.creature, "creature")?.name ?? "It"} drops to 0 HP.`);
+      break;
+    }
+
+    case "summonInitiative": {
+      for (const x of c.summons) if (x.group === op.payload.group && (!op.payload.id || x.id === op.payload.id)) x.initiative = op.payload.value;
+      break;
+    }
+
+    case "dismiss": {
+      const before = c.summons.length;
+      c.summons = c.summons.filter((s) => !(op.payload.id ? s.id === op.payload.id : s.group === op.payload.group));
+      if (c.summons.length === before) notes.push("Nothing to dismiss.");
       break;
     }
 
@@ -1210,6 +1251,12 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
         c.classes.splice(idx, 1);
       } else {
         cl.level -= 1;
+        // Below the level that gives the subclass, it goes too.
+        const sl = reg.find(cl.class, "class")?.subclassLevel ?? 99;
+        if (cl.subclass && cl.level < sl) {
+          notes.push(`${reg.find(cl.subclass, "subclass")?.name ?? "Subclass"} removed: it comes at level ${sl}.`);
+          delete cl.subclass;
+        }
         const counted = idx === 0 ? cl.level - 1 : cl.level;
         if (cl.hpRolls && cl.hpRolls.length > counted) cl.hpRolls = cl.hpRolls.slice(0, counted);
       }
@@ -1340,12 +1387,25 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
     }
   }
 
+  // A form held by an effect (Polymorph): the effect gone ends the form, and the form ending ends the effect.
+  if (c.shape?.effect && !c.effects.some((e) => e.id === c.shape!.effect)) {
+    notes.push(`${reg.find(c.shape.creature, "creature")?.name ?? "The form"} ends with the spell: back in your normal form.`);
+    delete c.shape;
+  }
+  if (input.shape?.effect && c.shape?.effect !== input.shape.effect && c.effects.some((e) => e.id === input.shape!.effect)) {
+    c.effects = c.effects.filter((e) => e.id !== input.shape!.effect);
+  }
+
   // Effects that say something when they end (Haste's lethargy), however they ended.
   const still = new Set(c.effects.map((e) => e.id));
   for (const e of input.effects) {
     if (still.has(e.id) || e.effect === "custom") continue;
     const def = reg.find(reg.effectId(e.effect), "effect");
     if (def?.endNote) notes.push(`${def.name} ends: ${def.endNote}`);
+    // What follows it (Haste's lethargy), until after your next turn: ending on your turn, this turn's end doesn't count.
+    if (def?.afterEffect && reg.find(def.afterEffect, "effect") && !c.effects.some((x) => x.effect === def.afterEffect)) {
+      c.effects.push({ id: `${e.id}-after`, effect: def.afterEffect, rounds: c.combat?.myTurn ? 2 : 1 });
+    }
   }
   if (c.combat?.hasteAttack && !c.effects.some((e) => reg.find(reg.effectId(e.effect), "effect")?.actions?.some((a) => a.limited))) c.combat.hasteAttack = false;
 

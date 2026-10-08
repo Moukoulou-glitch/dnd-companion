@@ -38,7 +38,18 @@ export const OPERATION_PAYLOADS = {
   /** A spent Hit Die back by hand (the app asks first). No HP change. */
   restoreHitDie: z.object({ die: z.string() }).strict(),
   /** Wild Shape (spends uses: 2 for an elemental) or Polymorph into a creature. */
-  transform: z.object({ kind: z.enum(["wildshape", "polymorph"]), creature: DefId, uses: z.number().int().min(0).max(2).default(1) }).strict(),
+  transform: z
+    .object({ kind: z.enum(["wildshape", "polymorph", "truepolymorph"]), creature: DefId, uses: z.number().int().min(0).max(2).default(1), effect: z.string().optional() })
+    .strict(),
+  /** Creatures from a summoning spell. */
+  summon: z
+    .object({ spell: DefId, group: z.string(), creatures: z.array(z.object({ creature: DefId, count: z.number().int().min(1) }).strict()).min(1), concentration: z.boolean().optional() })
+    .strict(),
+  /** A summoned creature's hit points (after damage or healing worked out in the app). */
+  summonHp: z.object({ id: z.string(), hp: z.number().int().min(0) }).strict(),
+  summonInitiative: z.object({ group: z.string(), id: z.string().optional(), value: z.number().int() }).strict(),
+  /** One creature, or a whole group, goes. */
+  dismiss: z.object({ id: z.string().optional(), group: z.string().optional() }).strict(),
   /** Back to your normal form. */
   revert: z.object({ why: z.string().optional() }).strict(),
   addExtra: Extra,
@@ -220,6 +231,10 @@ export const Operation = z.discriminatedUnion("type", [
   OperationBase.extend({ type: z.literal("restoreHitDie"), payload: OPERATION_PAYLOADS.restoreHitDie }),
   OperationBase.extend({ type: z.literal("transform"), payload: OPERATION_PAYLOADS.transform }),
   OperationBase.extend({ type: z.literal("revert"), payload: OPERATION_PAYLOADS.revert }),
+  OperationBase.extend({ type: z.literal("summon"), payload: OPERATION_PAYLOADS.summon }),
+  OperationBase.extend({ type: z.literal("summonHp"), payload: OPERATION_PAYLOADS.summonHp }),
+  OperationBase.extend({ type: z.literal("summonInitiative"), payload: OPERATION_PAYLOADS.summonInitiative }),
+  OperationBase.extend({ type: z.literal("dismiss"), payload: OPERATION_PAYLOADS.dismiss }),
   OperationBase.extend({ type: z.literal("addExtra"), payload: OPERATION_PAYLOADS.addExtra }),
   OperationBase.extend({ type: z.literal("updateExtra"), payload: OPERATION_PAYLOADS.updateExtra }),
   OperationBase.extend({ type: z.literal("removeExtra"), payload: OPERATION_PAYLOADS.removeExtra }),

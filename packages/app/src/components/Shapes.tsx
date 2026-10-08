@@ -1,5 +1,5 @@
 import { useMemo, useState, type ReactNode } from "react";
-import { formatBonus, shapeIssues, signed, type ContentRegistry, type DerivedSheet, type RollBreakdown, type ShapeResult, type WeaponAttack } from "@dnd/engine";
+import { formatBonus, shapeIssues, signed, type ContentRegistry, type DerivedSheet, type RollBreakdown, type ShapeKind, type ShapeResult, type WeaponAttack } from "@dnd/engine";
 import { ABILITIES, ABILITY_NAMES, SKILLS, SKILL_NAMES, type Character, type CreatureDef, type OperationType } from "@dnd/schema";
 import { RichText } from "./Conditions";
 
@@ -13,13 +13,13 @@ function speedText(d: CreatureDef): string {
 }
 
 /** On Play: the form you're in, or a way into one. */
-export function ShapeCard({ sheet, onOpen, onTransform }: { sheet: DerivedSheet; onOpen: () => void; onTransform: (kind: "wildshape" | "polymorph") => void }) {
+export function ShapeCard({ sheet, onOpen, onTransform }: { sheet: DerivedSheet; onOpen: () => void; onTransform: (kind: ShapeKind) => void }) {
   const s = sheet.shape;
   if (s) {
     const pct = Math.round((s.hp.current / s.hp.max) * 100);
     return (
       <section>
-        <h2>{s.kind === "wildshape" ? "Wild Shape" : "Polymorphed"}</h2>
+        <h2>{s.kind === "wildshape" ? "Wild Shape" : s.kind === "truepolymorph" ? "True Polymorph" : "Polymorphed"}</h2>
         <div className="group">
           <button className="row companion shape-card" onClick={onOpen}>
             <div className="row-main">
@@ -42,6 +42,8 @@ export function ShapeCard({ sheet, onOpen, onTransform }: { sheet: DerivedSheet;
   }
   const ws = sheet.wildShape;
   const uses = sheet.resources.find((r) => r.id === "wild-shape");
+  // Polymorph and True Polymorph come from casting them or from "+ Effect"; only Wild Shape has its own button here.
+  if (!ws) return null;
   return (
     <section>
       {ws && (
@@ -67,9 +69,6 @@ export function ShapeCard({ sheet, onOpen, onTransform }: { sheet: DerivedSheet;
           </div>
         </>
       )}
-      <button className="link" style={{ marginTop: ws ? 8 : 0 }} onClick={() => onTransform("polymorph")}>
-        Polymorphed? Pick the beast
-      </button>
     </section>
   );
 }
@@ -82,13 +81,13 @@ export function TransformPanel({
   character,
   onPick,
 }: {
-  kind: "wildshape" | "polymorph";
+  kind: ShapeKind;
   sheet: DerivedSheet;
   reg: ContentRegistry;
   character: Character;
-  onPick: (kind: "wildshape" | "polymorph", creature: CreatureDef, uses: number) => void;
+  onPick: (kind: ShapeKind, creature: CreatureDef, uses: number) => void;
 }) {
-  const [kind, setKind] = useState(first);
+  const kind = first;
   const [q, setQ] = useState("");
   const [casterLevel, setCasterLevel] = useState(String(sheet.level));
   const limits = sheet.wildShape;
@@ -97,11 +96,11 @@ export function TransformPanel({
     const elementals = new Set(["creature:air-elemental", "creature:earth-elemental", "creature:fire-elemental", "creature:water-elemental"]);
     return reg
       .list("creature")
-      .filter((d) => d.type === "beast" || (kind === "wildshape" && elementals.has(d.id)))
+      .filter((d) => kind === "truepolymorph" || d.type === "beast" || (kind === "wildshape" && elementals.has(d.id)))
       .map((d) => ({ d, issues: shapeIssues(d, kind, limits, polyMax), elemental: elementals.has(d.id) }))
       .sort((a, b) => a.d.cr - b.d.cr || a.d.name.localeCompare(b.d.name));
   }, [reg, kind, limits, polyMax]);
-  const shown = list.filter((x) => x.d.name.toLowerCase().includes(q.trim().toLowerCase()));
+  const shown = list.filter((x) => `${x.d.name} ${x.d.type}`.toLowerCase().includes(q.trim().toLowerCase()));
   const ok = shown.filter((x) => !x.issues.length);
   const beyond = shown.filter((x) => x.issues.length);
   const row = (x: (typeof list)[number]) => (
@@ -109,7 +108,7 @@ export function TransformPanel({
       <div className="row-main">
         <div className="row-title">{x.d.name}</div>
         <div className="row-sub">
-          CR {crText(x.d.cr)} · {x.d.size} · AC {x.d.ac} · {x.d.hp} HP · {speedText(x.d)}
+          CR {crText(x.d.cr)} · {x.d.size} {kind === "truepolymorph" ? x.d.type : ""} · AC {x.d.ac} · {x.d.hp} HP · {speedText(x.d)}
         </div>
         {x.issues.length > 0 && <div className="row-sub danger-text">{x.issues.join(" ")}</div>}
       </div>
@@ -118,14 +117,6 @@ export function TransformPanel({
   );
   return (
     <>
-      <div className="segmented" role="radiogroup" aria-label="How">
-        <button role="radio" aria-checked={kind === "wildshape"} disabled={!limits} onClick={() => setKind("wildshape")}>
-          Wild Shape
-        </button>
-        <button role="radio" aria-checked={kind === "polymorph"} onClick={() => setKind("polymorph")}>
-          Polymorph
-        </button>
-      </div>
       {kind === "wildshape" && limits && (
         <p className="note">
           A beast you have seen{limits.moon ? ", Circle of the Moon" : ""}: up to CR {crText(limits.maxCr)}
@@ -134,9 +125,11 @@ export function TransformPanel({
           {limits.elemental ? " Elementals take two uses." : ""}
         </p>
       )}
-      {kind === "polymorph" && (
+      {kind !== "wildshape" && (
         <>
-          <p className="note">The beast's statistics, mind included, replace yours. Your table's rule: its CR can be up to the caster's level.</p>
+          <p className="note">
+            {kind === "truepolymorph" ? "What type of creature? Its statistics, mind included, replace yours." : "Which beast? Its statistics, mind included, replace yours."} Your table's rule: its CR can be up to the caster's level.
+          </p>
           <label className="roll-entry">
             <span>Caster's level</span>
             <input type="number" min={0} inputMode="numeric" value={casterLevel} onChange={(e) => setCasterLevel(e.target.value)} />
@@ -144,7 +137,7 @@ export function TransformPanel({
         </>
       )}
       {character.shape && <p className="note">You're in a form now: picking another replaces it{kind === "wildshape" ? " and uses Wild Shape again" : ""}.</p>}
-      <input className="search" type="search" placeholder="Search beasts" value={q} onChange={(e) => setQ(e.target.value)} />
+      <input className="search" type="search" placeholder={kind === "truepolymorph" ? "Search creatures (name or type)" : "Search beasts"} value={q} onChange={(e) => setQ(e.target.value)} />
       <div className="group">{ok.map(row)}</div>
       {ok.length === 0 && <p className="note">Nothing within the rules matches. Load a bestiary book file for more beasts.</p>}
       {beyond.length > 0 && (

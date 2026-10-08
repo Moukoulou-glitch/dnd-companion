@@ -1106,6 +1106,12 @@ h2 {
   grid-template-columns: repeat(4, 1fr);
   gap: 6px;
 }
+/* Haste's extra action takes a full row under the others. */
+.pill.haste {
+  grid-column: 1 / -1;
+  border-color: var(--gold);
+  background: var(--gold-soft);
+}
 
 .pill {
   border: 1px solid var(--teal);

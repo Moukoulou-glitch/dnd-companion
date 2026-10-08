@@ -276,14 +276,35 @@ export const Character = z
      */
     shape: z
       .object({
-        kind: z.enum(["wildshape", "polymorph"]),
+        kind: z.enum(["wildshape", "polymorph", "truepolymorph"]),
         creature: DefId,
         hp: z.number().int().min(0),
+        /** The effect (Polymorph, True Polymorph) that holds the form: removing it ends the form, and the form ending removes it. */
+        effect: z.string().optional(),
         /** Polymorph cast by this character on themselves: it ends with their concentration. */
         ownSpell: z.boolean().optional(),
       })
       .strict()
       .optional(),
+    /** Creatures a spell summoned, created or animated, each with its hit points. */
+    summons: z
+      .array(
+        z
+          .object({
+            id: z.string(),
+            creature: DefId,
+            name: z.string().optional(),
+            hp: z.number().int().min(0),
+            /** The spell that brought it. */
+            spell: DefId,
+            /** Summoned together: one group, one initiative when it's shared. */
+            group: z.string(),
+            initiative: z.number().int().optional(),
+            concentration: z.boolean().optional(),
+          })
+          .strict(),
+      )
+      .default([]),
     /** Wizard: gold set aside for copying spells into the spellbook (materials and fine inks). */
     spellbookFunds: z.number().min(0).default(0),
     /**

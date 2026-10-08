@@ -602,7 +602,8 @@
           }
         }
       ],
-      "endNote": "you can't move or take actions until after your next turn, as a wave of lethargy sweeps over you."
+      "endNote": "you can't move or take actions until after your next turn, as a wave of lethargy sweeps over you.",
+      "afterEffect": "effect:haste-lethargy"
     },
     {
       "kind": "effect",
@@ -1349,6 +1350,62 @@
         "amount": "5*slotLevel",
         "whileTempHp": true
       }
+    },
+    {
+      "kind": "effect",
+      "id": "effect:haste-lethargy",
+      "name": "Lethargy (after Haste)",
+      "category": "spell",
+      "summary": "Haste has ended: you can't move or take actions until after your next turn.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 250
+      },
+      "modifiers": [],
+      "rounds": 1,
+      "selfOnly": true,
+      "reminders": [
+        "You can't move or take actions until after your next turn."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "effect:polymorph",
+      "name": "Polymorph",
+      "category": "spell",
+      "summary": "You're a beast: its statistics, mind included, replace yours until the spell ends or the beast drops to 0 HP.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 266
+      },
+      "modifiers": [],
+      "minutes": 60,
+      "concentration": true,
+      "transform": "beast",
+      "reminders": [
+        "You can't speak or cast spells. At 0 HP you change back and extra damage carries over."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "effect:true-polymorph",
+      "name": "True Polymorph",
+      "category": "spell",
+      "summary": "You're another creature: its statistics, mind included, replace yours. After an hour of concentration it lasts until dispelled.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 283
+      },
+      "modifiers": [],
+      "minutes": 60,
+      "concentration": true,
+      "transform": "creature",
+      "reminders": [
+        "At 0 HP you change back and extra damage carries over. Held for the full hour, it lasts until dispelled."
+      ]
     }
   ]
 }

@@ -311,6 +311,10 @@ export const EffectDef = z
     actions: z.array(ActionDef).optional(),
     /** Said when it ends (Haste: the wave of lethargy). */
     endNote: z.string().optional(),
+    /** Turns you into a creature (Polymorph: a beast; True Polymorph: any creature): the app asks which. */
+    transform: z.enum(["beast", "creature"]).optional(),
+    /** An effect that follows when it ends, lasting until after your next turn (Haste's lethargy). */
+    afterEffect: DefId.optional(),
   })
   .strict();
 export type EffectDef = z.infer<typeof EffectDef>;
@@ -405,7 +409,36 @@ export const CreatureDef = z
   .strict();
 export type CreatureDef = z.infer<typeof CreatureDef>;
 
+/**
+ * What a spell that summons, creates or animates creatures lets you pick, and
+ * how many: listed creatures (Find Familiar), or any of a type up to a CR in
+ * tiers (Conjure Animals: one CR 2, two CR 1, four CR 1/2 or eight CR 1/4).
+ */
+export const SummonDef = z
+  .object({
+    ...base,
+    kind: z.literal("summon"),
+    spell: DefId,
+    /** Creatures to choose from; or `type` (with `tiers` or a CR equal to the slot level). */
+    creatures: z.array(DefId).optional(),
+    type: z.array(z.string()).optional(),
+    tiers: z.array(z.object({ maxCr: z.number(), count: z.number().int().min(1) }).strict()).optional(),
+    /** Conjure Elemental: CR up to the slot level. */
+    crBySlot: z.boolean().optional(),
+    /** How many by slot level ("3": 1, "4": 3...); `multiplier` scales tier counts (Conjure Animals at 5th: ×2). */
+    count: z.record(z.string(), z.number().int().min(1)).optional(),
+    multiplier: z.record(z.string(), z.number().int().min(1)).optional(),
+    /** Its own initiative (a familiar), one shared roll for the group (conjured animals), or yours. */
+    initiative: z.enum(["own", "shared", "yours"]).default("shared"),
+    /** Gone when your concentration ends. */
+    concentration: z.boolean().optional(),
+    note: z.string().optional(),
+  })
+  .strict();
+export type SummonDef = z.infer<typeof SummonDef>;
+
 export const Definition = z.discriminatedUnion("kind", [
+  SummonDef,
   CreatureDef,
   SpellDef,
   EffectDef,

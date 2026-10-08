@@ -341,12 +341,14 @@ function CustomBuilder({ act, close }: { act: Act; close: () => void }) {
 }
 
 /** Pick a condition or spell from the pack, or build a custom effect. */
-export function AddEffectPanel({ registry, act, close }: { registry: ContentRegistry; act: Act; close: () => void }) {
+export function AddEffectPanel({ registry, act, close, onTransform }: { registry: ContentRegistry; act: Act; close: () => void; onTransform?: (d: EffectDef) => void }) {
   const [tab, setTab] = useState<"condition" | "spell" | "other" | "custom">("condition");
   const [q, setQ] = useState("");
   /** An effect with a choice (Bardic Inspiration's die, Hexed's ability) asks for it before it's added. */
   const [picking, setPicking] = useState<string | null>(null);
   const add = (d: EffectDef, choice?: string) => {
+    // Polymorph, True Polymorph: which creature? The effect goes on with the form.
+    if (d.transform && onTransform) return onTransform(d);
     act("addEffect", { instanceId: crypto.randomUUID(), effect: d.id, ...(choice ? { choice } : {}) }, `${d.name}${choice ? ` (${optionName(choice)})` : ""} added.`);
     close();
   };

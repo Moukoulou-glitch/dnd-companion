@@ -3,6 +3,8 @@ import { buildItems, castingEconomy, formatBonus, materialNeed, maxSpellLevel, n
 import { SKILL_NAMES, type Character, type Skill } from "@dnd/schema";
 import { roll as rollDice, type ComposerBase } from "@dnd/dice";
 import { ShapePanel, TransformPanel } from "./components/Shapes";
+import { SummonGroupPanel, SummonPicker } from "./components/Summons";
+import type { ShapeKind } from "@dnd/engine";
 import type { ActionResult, EffectResult, SpellResult, WeaponAttack } from "@dnd/engine";
 import { ActionsTab } from "./components/ActionsTab";
 import { CompanionPanel, MovePanel } from "./components/Combat";
@@ -227,8 +229,8 @@ export function App() {
     ));
 
   /** Wild Shape or Polymorph: choose the creature. */
-  const openTransform = (kind: "wildshape" | "polymorph") =>
-    open(kind === "wildshape" ? "Wild Shape" : "Polymorph", () =>
+  const openTransform = (kind: ShapeKind, via: { effectId?: string; addEffect?: string } = {}) =>
+    open(kind === "wildshape" ? "Wild Shape" : kind === "truepolymorph" ? "True Polymorph" : "Polymorph", () =>
       live.current.sheet && live.current.character ? (
         <TransformPanel
           kind={kind}
@@ -239,13 +241,71 @@ export function App() {
             guard(
               { name: k === "wildshape" ? "Wild Shape" : "Polymorph", economy: k === "wildshape" ? (live.current.sheet?.wildShape?.bonusAction ? "bonus" : "action") : "free" },
               () => {
-                live.current.act("transform", { kind: k, creature: d.id, uses }, `${k === "wildshape" ? "Wild Shape" : "Polymorphed"}: ${d.name}.`);
+                // From "+ Effect": the effect goes on first, and the form is tied to it.
+                let effectId = via.effectId;
+                if (via.addEffect) {
+                  effectId = crypto.randomUUID();
+                  live.current.act("addEffect", { instanceId: effectId, effect: via.addEffect }, `${registry.find(via.addEffect, "effect")?.name ?? "Effect"} added.`);
+                }
+                live.current.act("transform", { kind: k, creature: d.id, uses, ...(effectId ? { effect: effectId } : {}) }, "Transformed.");
                 openShape();
               },
-              { cancelled: () => openTransform(k) },
+              { cancelled: () => openTransform(k, via) },
             )
           }
         />
+      ) : null,
+    );
+
+  /** After casting a summoning spell: pick the creatures. */
+  const openSummon = (summonId: string, slot: number) =>
+    open(registry.find(summonId, "summon")?.name ?? "Summon", () => (
+      <SummonPicker
+        reg={registry}
+        summon={summonId}
+        slot={slot}
+        onSummon={(creatures) => {
+          const def = registry.find(summonId, "summon")!;
+          const group = crypto.randomUUID().slice(0, 8);
+          live.current.act("summon", { spell: def.spell, group, creatures, ...(def.concentration ? { concentration: true } : {}) }, `${def.name}.`);
+          openSummonGroup(group);
+        }}
+      />
+    ));
+
+  const rollSummonInit = (group: string, id?: string) => {
+    const m = live.current.character?.summons.find((s) => s.group === group && (!id || s.id === id));
+    const d = m ? registry.find(m.creature, "creature") : undefined;
+    const dex = d ? Math.floor(((d.abilities.dex ?? 10) - 10) / 2) : 0;
+    const r = rollDice("1d20").total;
+    live.current.act("summonInitiative", { group, ...(id ? { id } : {}), value: r + dex }, `Initiative ${r} ${dex >= 0 ? "+" : "−"} ${Math.abs(dex)} = ${r + dex}.`);
+  };
+
+  const openSummonHp = (id: string) =>
+    open("Summoned creature's hit points", () => {
+      const m = live.current.character?.summons.find((s) => s.id === id);
+      const max = m ? registry.find(m.creature, "creature")?.hp ?? m.hp : 0;
+      const back = () => (m ? openSummonGroup(m.group) : close());
+      return (
+        <HpPad
+          onDamage={(amount) => {
+            if (m) live.current.act("summonHp", { id, hp: Math.max(0, m.hp - amount) }, `${amount} damage.`);
+            back();
+          }}
+          onHeal={(amount) => {
+            if (m) live.current.act("summonHp", { id, hp: Math.min(max, m.hp + amount) }, `Healed ${amount}.`);
+            back();
+          }}
+          onTemp={() => back()}
+          temp={0}
+        />
+      );
+    });
+
+  const openSummonGroup = (group: string) =>
+    open("Summoned", () =>
+      live.current.character ? (
+        <SummonGroupPanel character={live.current.character} reg={registry} group={group} act={live.current.act} openRoll={openRoll} openHp={openSummonHp} rollInitiative={rollSummonInit} />
       ) : null,
     );
 
@@ -914,6 +974,7 @@ export function App() {
             live.current.act("levelUp", { class: cls, ...(hpRoll !== undefined ? { hpRoll } : {}) }, hpRoll !== undefined ? `Level up: rolled ${hpRoll} for hit points.` : "Level up.");
             openBuild();
           }}
+          onLevelDown={(cls) => live.current.act("levelDown", { class: cls }, `${registry.find(cls, "class")?.name ?? "Class"} level removed.`)}
         />
       ) : null,
     );
@@ -991,7 +1052,11 @@ export function App() {
       return <EffectPanel e={current} act={live.current.act} close={close} {...(release ? { onRelease: release } : {})} />;
     });
 
-  const openAddEffect = () => open("Add an effect", <AddEffectPanel registry={registry} act={s.act} close={close} />);
+  const openAddEffect = () =>
+    open(
+      "Add an effect",
+      <AddEffectPanel registry={registry} act={s.act} close={close} onTransform={(d) => openTransform(d.transform === "creature" ? "truepolymorph" : "polymorph", { addEffect: d.id })} />,
+    );
 
   /** Constitution save against a DC; a failure ends concentration (undo is one tap away). */
   const openConcentrationCheck = (dc: number) => {
@@ -1144,6 +1209,7 @@ export function App() {
           close();
         },
       );
+    let transformed = false;
     const castIt = () =>
       askEndsOn(
         "cast",
@@ -1153,10 +1219,23 @@ export function App() {
             () => {
               live.current.act("castSpell", { spell: sp.id, list: sp.list.id, level, using, selfEffect, ...comp }, `${sp.name} cast.`);
               flashForSpell(sp.id, level);
+              // Polymorph or True Polymorph on yourself: which creature?
+              const eff = selfEffect ? registry.find(sp.id.replace(/^spell:/, "effect:"), "effect") : undefined;
+              const inst = eff?.transform ? [...(live.current.character?.effects ?? [])].reverse().find((e) => e.effect === eff.id) : undefined;
+              if (eff?.transform && inst) {
+                transformed = true;
+                openTransform(eff.transform === "creature" ? "truepolymorph" : "polymorph", { effectId: inst.id });
+              }
+              // Spells that summon, create or animate creatures: which ones?
+              const sum = registry.list("summon").find((x) => x.spell === sp.id);
+              if (sum) {
+                transformed = true;
+                openSummon(sum.id, level);
+              }
             },
-            { cancelled: () => openSpell(sp), done: () => openSpell(sp, level) },
+            { cancelled: () => openSpell(sp), done: () => (transformed ? undefined : openSpell(sp, level)) },
           ),
-        () => openSpell(sp, level),
+        () => (transformed ? undefined : openSpell(sp, level)),
       );
     if (using === "free" && sp.cast.free && sp.cast.free.remaining <= 0)
       open(sp.name, () => (
@@ -1283,17 +1362,17 @@ export function App() {
           <button className="hp" onClick={openHp} aria-label={`Hit points ${hpNow} of ${sheet.hpMax.total}${c.hp.temp ? `, ${c.hp.temp} temporary` : ""}. Change`}>
             <div style={{ width: "100%" }}>
               <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
-                <span className="hp-now">{hpNow}</span>
-                <span className="hp-max">/ {sheet.hpMax.total}</span>
-                {c.hp.temp > 0 && <span className="hp-temp">+{c.hp.temp} temp</span>}
+                <span className="hp-now">{sheet.shape ? sheet.shape.hp.current : hpNow}</span>
+                <span className="hp-max">/ {sheet.shape ? sheet.shape.hp.max : sheet.hpMax.total}</span>
+                {sheet.shape ? <span className="hp-temp">{sheet.shape.name}</span> : c.hp.temp > 0 && <span className="hp-temp">+{c.hp.temp} temp</span>}
               </div>
               <div className="hp-bar" aria-hidden="true">
-                <span style={{ width: `${hpPct}%` }} />
+                <span style={{ width: `${sheet.shape ? Math.round((sheet.shape.hp.current / sheet.shape.hp.max) * 100) : hpPct}%` }} />
               </div>
             </div>
           </button>
-          <button className="stat" onClick={() => open("Armor Class", <BreakdownLines b={sheet.ac} totalLabel="AC" />)}>
-            <b>{sheet.ac.total}</b>
+          <button className="stat" onClick={() => (sheet.shape ? openShape() : open("Armor Class", <BreakdownLines b={sheet.ac} totalLabel="AC" />))}>
+            <b>{sheet.shape ? sheet.shape.ac : sheet.ac.total}</b>
             <small>AC</small>
           </button>
           <button className="stat" onClick={rollInitiative}>
@@ -1301,7 +1380,7 @@ export function App() {
             <small>{sheet.initiative.advantage.length ? "Init, adv" : "Init"}</small>
           </button>
           <button className="stat" onClick={() => open("Speed", <BreakdownLines b={sheet.speed} totalLabel="Feet" />)}>
-            <b>{sheet.speed.total}</b>
+            <b>{sheet.shape ? Number(/^(\d+)/.exec(sheet.shape.speed)?.[1] ?? 0) : sheet.speed.total}</b>
             <small>Speed</small>
           </button>
         </div>
@@ -1363,6 +1442,12 @@ export function App() {
           openCompanion={openCompanion}
           openShape={openShape}
           openTransform={openTransform}
+          openSummonGroup={openSummonGroup}
+          reg={registry}
+          openLimited={(id) => {
+            const a = live.current.sheet?.actions.find((x) => x.id === id);
+            if (a) openFeature(a);
+          }}
         />
       )}
       {tab === "actions" && <ActionsTab sheet={sheet} open={open} openRoll={openRoll} openAttack={openAttack} openFeature={openFeature} />}

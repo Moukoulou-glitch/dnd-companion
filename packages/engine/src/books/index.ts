@@ -243,6 +243,8 @@ export function bookPack(files: BookFile[], base: ContentRegistry): { pack: Cont
   }
   for (const group of named) {
     for (const e of group.entries) {
+      // The table doesn't play the Artificer: none of its feats, features or infusions come in.
+      if (/artificer/i.test(e.name) || e.text.some((t) => /^Type: Artificer Infusion/i.test(t))) continue;
       const keys = [norm(e.name), norm(e.name.replace(/\s*\([^)]*\)\s*$/, ""))];
       const isCommon = (d: Definition) => d.kind === "feature" && (d as { common?: boolean }).common === true;
       const matches = keys.flatMap((k) => byName.get(k) ?? []).filter((d) => {

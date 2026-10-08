@@ -1,0 +1,299 @@
+{
+  "definitions": [
+    {
+      "kind": "summon",
+      "id": "summon:find-familiar",
+      "name": "Find Familiar",
+      "spell": "spell:find-familiar",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 240
+      },
+      "creatures": [
+        "creature:bat",
+        "creature:cat",
+        "creature:crab",
+        "creature:frog",
+        "creature:hawk",
+        "creature:lizard",
+        "creature:octopus",
+        "creature:owl",
+        "creature:poisonous-snake",
+        "creature:quipper",
+        "creature:rat",
+        "creature:raven",
+        "creature:sea-horse",
+        "creature:spider",
+        "creature:weasel",
+        "creature:imp",
+        "creature:pseudodragon",
+        "creature:quasit",
+        "creature:sprite"
+      ],
+      "count": {
+        "1": 1
+      },
+      "initiative": "own",
+      "note": "A celestial, fey or fiend spirit in the beast's form. It acts on its own initiative and can't attack, but can take other actions. Imp, pseudodragon, quasit and sprite only with Pact of the Chain. You can see through its senses (action) and cast touch spells through it (your reaction)."
+    },
+    {
+      "kind": "summon",
+      "id": "summon:find-steed",
+      "name": "Find Steed",
+      "spell": "spell:find-steed",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 240
+      },
+      "creatures": [
+        "creature:warhorse",
+        "creature:pony",
+        "creature:camel",
+        "creature:elk",
+        "creature:mastiff"
+      ],
+      "count": {
+        "2": 1
+      },
+      "initiative": "yours",
+      "note": "Intelligence 6 and a celestial, fey or fiend type of your choice; it understands one language you speak. Mounted, it moves on your turn; your self-targeting spells can affect it too."
+    },
+    {
+      "kind": "summon",
+      "id": "summon:animate-dead",
+      "name": "Animate Dead",
+      "spell": "spell:animate-dead",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 212
+      },
+      "creatures": [
+        "creature:skeleton",
+        "creature:zombie"
+      ],
+      "count": {
+        "3": 1,
+        "4": 3,
+        "5": 5,
+        "6": 7,
+        "7": 9,
+        "8": 11,
+        "9": 13
+      },
+      "initiative": "shared",
+      "note": "Bonus action: command any you control within 60 ft. Control lasts 24 hours; cast it again to keep up to four (more with higher slots)."
+    },
+    {
+      "kind": "summon",
+      "id": "summon:conjure-animals",
+      "name": "Conjure Animals",
+      "spell": "spell:conjure-animals",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 225
+      },
+      "type": [
+        "beast"
+      ],
+      "tiers": [
+        {
+          "maxCr": 2,
+          "count": 1
+        },
+        {
+          "maxCr": 1,
+          "count": 2
+        },
+        {
+          "maxCr": 0.5,
+          "count": 4
+        },
+        {
+          "maxCr": 0.25,
+          "count": 8
+        }
+      ],
+      "multiplier": {
+        "5": 2,
+        "7": 3,
+        "9": 4
+      },
+      "initiative": "shared",
+      "concentration": true,
+      "note": "Fey spirits as beasts: one CR 2, two CR 1, four CR 1/2 or eight CR 1/4 (twice as many at 5th, three times at 7th, four times at 9th). They act on their own initiative as a group and follow your verbal commands."
+    },
+    {
+      "kind": "summon",
+      "id": "summon:conjure-woodland-beings",
+      "name": "Conjure Woodland Beings",
+      "spell": "spell:conjure-woodland-beings",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 226
+      },
+      "type": [
+        "fey"
+      ],
+      "tiers": [
+        {
+          "maxCr": 2,
+          "count": 1
+        },
+        {
+          "maxCr": 1,
+          "count": 2
+        },
+        {
+          "maxCr": 0.5,
+          "count": 4
+        },
+        {
+          "maxCr": 0.25,
+          "count": 8
+        }
+      ],
+      "multiplier": {
+        "6": 2,
+        "8": 3
+      },
+      "initiative": "shared",
+      "concentration": true,
+      "note": "Fey: one CR 2, two CR 1, four CR 1/2 or eight CR 1/4 (twice as many at 6th, three times at 8th). Friendly; they follow your verbal commands."
+    },
+    {
+      "kind": "summon",
+      "id": "summon:conjure-minor-elementals",
+      "name": "Conjure Minor Elementals",
+      "spell": "spell:conjure-minor-elementals",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 226
+      },
+      "type": [
+        "elemental"
+      ],
+      "tiers": [
+        {
+          "maxCr": 2,
+          "count": 1
+        },
+        {
+          "maxCr": 1,
+          "count": 2
+        },
+        {
+          "maxCr": 0.5,
+          "count": 4
+        },
+        {
+          "maxCr": 0.25,
+          "count": 8
+        }
+      ],
+      "multiplier": {
+        "6": 2,
+        "8": 3
+      },
+      "initiative": "shared",
+      "concentration": true,
+      "note": "Elementals: one CR 2, two CR 1, four CR 1/2 or eight CR 1/4 (twice as many at 6th, three times at 8th)."
+    },
+    {
+      "kind": "summon",
+      "id": "summon:conjure-elemental",
+      "name": "Conjure Elemental",
+      "spell": "spell:conjure-elemental",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 225
+      },
+      "type": [
+        "elemental"
+      ],
+      "crBySlot": true,
+      "count": {
+        "5": 1
+      },
+      "initiative": "own",
+      "concentration": true,
+      "note": "One elemental of CR up to the slot level, from a matching source (fire, water, earth, air). If your concentration breaks it turns hostile and doesn't vanish (remove it by hand when it's dealt with)."
+    },
+    {
+      "kind": "summon",
+      "id": "summon:conjure-fey",
+      "name": "Conjure Fey",
+      "spell": "spell:conjure-fey",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 226
+      },
+      "type": [
+        "fey",
+        "beast"
+      ],
+      "crBySlot": true,
+      "count": {
+        "6": 1
+      },
+      "initiative": "own",
+      "concentration": true,
+      "note": "One fey creature, or a fey spirit as a beast, of CR up to the slot level. If your concentration breaks it turns hostile."
+    },
+    {
+      "kind": "summon",
+      "id": "summon:create-undead",
+      "name": "Create Undead",
+      "spell": "spell:create-undead",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 229
+      },
+      "creatures": [
+        "creature:ghoul",
+        "creature:ghast",
+        "creature:wight",
+        "creature:mummy"
+      ],
+      "count": {
+        "6": 3,
+        "7": 4,
+        "8": 5,
+        "9": 6
+      },
+      "initiative": "shared",
+      "note": "Ghouls by default: three at 6th, four at 7th, five at 8th, six at 9th. At 8th, two ghasts or wights instead of ghouls; at 9th, three ghasts or wights, or two mummies. Command them with a bonus action; control lasts 24 hours."
+    },
+    {
+      "kind": "summon",
+      "id": "summon:giant-insect",
+      "name": "Giant Insect",
+      "spell": "spell:giant-insect",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 245
+      },
+      "creatures": [
+        "creature:giant-centipede",
+        "creature:giant-spider",
+        "creature:giant-wasp",
+        "creature:giant-scorpion"
+      ],
+      "count": {
+        "4": 1
+      },
+      "initiative": "shared",
+      "concentration": true,
+      "note": "Up to ten centipedes, three spiders, five wasps or one scorpion, grown from ordinary insects. They obey your verbal commands and act on your turn."
+    }
+  ]
+}

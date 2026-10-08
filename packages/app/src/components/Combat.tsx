@@ -16,6 +16,7 @@ export function CombatCard({
   onStartCombat,
   openMove,
   onInitiative,
+  onLimited,
 }: {
   character: Character;
   sheet: DerivedSheet;
@@ -23,6 +24,8 @@ export function CombatCard({
   onStartCombat: () => void;
   openMove: () => void;
   onInitiative: () => void;
+  /** Opens an extra action of its own (Haste). */
+  onLimited: (actionId: string) => void;
 }) {
   const cb = character.combat;
   if (!cb) {
@@ -41,6 +44,11 @@ export function CombatCard({
   const toggle = (kind: "action" | "bonus" | "reaction", used: number, label: string) =>
     act("useEconomy", { kind, amount: used > 0 ? -1 : 1 }, used > 0 ? `${label} given back.` : `${label} used.`);
   const reminders = turnReminders(character, sheet);
+  // Action Surge adds an action: the pill counts them.
+  const actionsTotal = 1 + cb.extraActions;
+  const actionsLeft = actionsTotal - cb.action;
+  const limited = sheet.actions.filter((a) => a.limited);
+  const lethargy = sheet.effects.find((e) => e.id === "effect:haste-lethargy");
 
   return (
     <section className="turn" aria-label="Combat">
@@ -55,13 +63,30 @@ export function CombatCard({
       <div className="pills">
         <button
           className="pill"
-          data-used={cb.action > 0}
-          onClick={() => (cb.attacks > 0 ? act("useEconomy", { kind: "attack", amount: -1 }, "One attack taken back.") : toggle("action", cb.action, "Action"))}
-          aria-label={cb.action > 0 ? "Action used. Tap to give it back" : "Action free. Tap to mark it used"}
+          data-used={actionsLeft <= 0 && cb.attacks === 0}
+          onClick={() =>
+            cb.attacks > 0
+              ? act("useEconomy", { kind: "attack", amount: -1 }, "One attack taken back.")
+              : actionsLeft > 0
+                ? act("useEconomy", { kind: "action", amount: 1 }, "Action used.")
+                : act("useEconomy", { kind: "action", amount: -1 }, "Action given back.")
+          }
+          aria-label={actionsLeft > 0 ? `${actionsLeft} action${actionsLeft === 1 ? "" : "s"} free. Tap to mark one used` : "Action used. Tap to give it back"}
         >
-          <b>Action</b>
-          <small>{cb.attacks > 0 ? `${cb.attacks} of ${max} attacks` : cb.action > 0 ? "used" : "free"}</small>
+          <b>{actionsTotal > 1 ? `Actions ×${actionsTotal}` : "Action"}</b>
+          <small>
+            {cb.attacks > 0 ? `${cb.attacks} of ${max} attacks` : actionsLeft <= 0 ? "used" : actionsTotal > 1 ? `${actionsLeft} free` : "free"}
+          </small>
         </button>
+        {limited.map((a) => {
+          const used = cb.usedThisTurn.includes(a.id);
+          return (
+            <button key={a.id} className="pill haste" data-used={used && !cb.hasteAttack} onClick={() => onLimited(a.id)}>
+              <b>{a.source}</b>
+              <small>{cb.hasteAttack ? "1 attack ready" : used ? "used" : "extra action"}</small>
+            </button>
+          );
+        })}
         <button className="pill" data-used={cb.bonus > 0} onClick={() => toggle("bonus", cb.bonus, "Bonus action")}>
           <b>Bonus</b>
           <small>{cb.bonus > 0 ? "used" : "free"}</small>
@@ -77,6 +102,11 @@ export function CombatCard({
           </small>
         </button>
       </div>
+      {lethargy && (
+        <p className="over-banner" role="alert">
+          When the spell ends, the target can't move or take actions until after its next turn, as a wave of lethargy sweeps over it.
+        </p>
+      )}
       {cb.myTurn ? (
         <SwipeButton key="end" label="Swipe to end my turn" onConfirm={() => act("endTurn", {}, "Turn ended.")} />
       ) : (

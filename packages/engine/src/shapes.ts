@@ -44,11 +44,13 @@ export function wildShapeLimits(c: Character, featureNames: string[]): WildShape
 }
 
 /** Why a creature is outside the limits (empty when it's fine). Warned about, never blocked. */
-export function shapeIssues(d: CreatureDef, kind: "wildshape" | "polymorph", limits: WildShapeLimits | undefined, polymorphMax: number): string[] {
+export type ShapeKind = "wildshape" | "polymorph" | "truepolymorph";
+
+export function shapeIssues(d: CreatureDef, kind: ShapeKind, limits: WildShapeLimits | undefined, polymorphMax: number): string[] {
   const out: string[] = [];
   const crText = (n: number) => (n === 0.125 ? "1/8" : n === 0.25 ? "1/4" : n === 0.5 ? "1/2" : String(n));
-  if (kind === "polymorph") {
-    if (d.type !== "beast") out.push("Polymorph turns you into a beast.");
+  if (kind === "polymorph" || kind === "truepolymorph") {
+    if (kind === "polymorph" && d.type !== "beast") out.push("Polymorph turns you into a beast.");
     if (d.cr > polymorphMax) out.push(`CR ${crText(d.cr)} is above ${crText(polymorphMax)} (the caster's level, by your table's rule).`);
     return out;
   }
@@ -65,7 +67,7 @@ export function shapeIssues(d: CreatureDef, kind: "wildshape" | "polymorph", lim
 }
 
 export interface ShapeResult {
-  kind: "wildshape" | "polymorph";
+  kind: ShapeKind;
   id: string;
   name: string;
   size: string;
@@ -172,7 +174,10 @@ export function deriveShape(
         "You keep your features if the beast's body can use them; special senses only if the beast has them too.",
         "At 0 HP you change back, and extra damage carries over to your normal form.",
       ]
-    : ["Your game statistics, mind included, are the beast's. You can't speak or cast spells.", "At 0 HP you change back, and extra damage carries over to your normal form."];
+    : [
+        s.kind === "truepolymorph" ? "Your game statistics, mind included, are the creature's; you keep your alignment and personality." : "Your game statistics, mind included, are the beast's. You can't speak or cast spells.",
+        "At 0 HP you change back, and extra damage carries over to your normal form.",
+      ];
   const r: ShapeResult = {
     kind: s.kind,
     id: d.id,
@@ -197,4 +202,37 @@ export function deriveShape(
   if (d.languages) r.languages = d.languages;
   if (wild && limits) r.hours = limits.hours;
   return r;
+}
+
+/** A creature's stat block on its own (a summoned creature), shaped like a form. */
+export function creatureBlock(reg: ContentRegistry, creature: string, hp?: number): ShapeResult | undefined {
+  const d = reg.find(creature, "creature");
+  if (!d) return undefined;
+  const fake = { shape: { kind: "polymorph", creature, hp: hp ?? d.hp } } as unknown as Character;
+  const none = Object.fromEntries(ABILITIES.map((a) => [a, 0])) as Record<Ability, number>;
+  const r = deriveShape(fake, reg, { abilities: none, pb: 0, saves: none, skills: Object.fromEntries(SKILLS.map((k) => [k, 0])) as Record<Skill, number> }, undefined);
+  if (r) r.notes = [];
+  return r;
+}
+
+/** What a summoning spell offers at a slot level: the creatures, and how many of which CR. */
+export function summonOptions(reg: ContentRegistry, summon: string, slot: number): { creatures: CreatureDef[]; tiers: { maxCr: number; count: number }[]; count?: number } | undefined {
+  const s = reg.find(summon, "summon");
+  if (!s) return undefined;
+  const pickCount = (table?: Record<string, number>) => {
+    if (!table) return undefined;
+    const keys = Object.keys(table).map(Number).filter((k) => k <= slot).sort((a, b) => b - a);
+    return keys.length ? table[String(keys[0])] : undefined;
+  };
+  const mult = pickCount(s.multiplier) ?? 1;
+  const tiers = (s.tiers ?? []).map((t) => ({ maxCr: t.maxCr, count: t.count * mult }));
+  const maxCr = s.crBySlot ? slot : tiers.length ? Math.max(...tiers.map((t) => t.maxCr)) : Infinity;
+  const creatures = s.creatures
+    ? s.creatures.map((id) => reg.find(id, "creature")).filter((d): d is CreatureDef => !!d)
+    : reg
+        .list("creature")
+        .filter((d) => (s.type ?? []).includes(d.type) && d.cr <= maxCr)
+        .sort((a, b) => b.cr - a.cr || a.name.localeCompare(b.name));
+  const count = pickCount(s.count);
+  return { creatures, tiers, ...(count ? { count } : {}) };
 }

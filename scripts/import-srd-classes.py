@@ -886,7 +886,7 @@ def creature_def(m):
 
 monsters = load("Monsters")
 ELEMENTALS = {"air-elemental", "earth-elemental", "fire-elemental", "water-elemental"}
-creature_defs = [creature_def(m) for m in monsters if m["type"] == "beast" or m["index"] in ELEMENTALS]
+creature_defs = [creature_def(m) for m in monsters]
 
 
 def write(name, items):

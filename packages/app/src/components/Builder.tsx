@@ -905,7 +905,20 @@ function CopyAsk({ c, reg, spell, label, onDone, onCancel }: { c: Character; reg
 }
 
 /** Level up: pick the class (multiclassing warns about minimums), see what the level brings, take HP. */
-export function LevelUpPanel({ character, sheet, reg, onLevel }: { character: Character; sheet: DerivedSheet; reg: ContentRegistry; onLevel: (cls: string, hpRoll?: number) => void }) {
+export function LevelUpPanel({
+  character,
+  sheet,
+  reg,
+  onLevel,
+  onLevelDown,
+}: {
+  character: Character;
+  sheet: DerivedSheet;
+  reg: ContentRegistry;
+  onLevel: (cls: string, hpRoll?: number) => void;
+  onLevelDown: (cls: string) => void;
+}) {
+  const [removing, setRemoving] = useState<string | null>(null);
   const [cls, setCls] = useState(character.classes[0]?.class ?? "");
   const [hp, setHp] = useState<"average" | "app" | "mine">("average");
   const [mine, setMine] = useState("");
@@ -1007,6 +1020,41 @@ export function LevelUpPanel({ character, sheet, reg, onLevel }: { character: Ch
       <button className="big primary wide" style={{ marginTop: 14 }} disabled={hp === "mine" && !mine} onClick={go}>
         Level up to {gains.className} {gains.newLevel}
       </button>
+
+      <details className="beyond" style={{ marginTop: 18 }}>
+        <summary>Remove a level</summary>
+        <p className="note">Takes the class's last level back: its hit points, features, and an Ability Score Improvement or feat from that level. A class at level 1 is removed entirely (not your only class).</p>
+        <div className="group">
+          {character.classes.map((x) => {
+            const d = reg.find(x.class, "class");
+            const only = character.classes.length === 1 && x.level === 1;
+            return (
+              <div className="row" key={x.class}>
+                <div className="row-main">
+                  <div className="row-title">
+                    {d?.name} {x.level} → {x.level - 1 || "gone"}
+                  </div>
+                </div>
+                {removing === x.class ? (
+                  <button
+                    className="chip danger-text"
+                    onClick={() => {
+                      onLevelDown(x.class);
+                      setRemoving(null);
+                    }}
+                  >
+                    Sure? Remove it
+                  </button>
+                ) : (
+                  <button className="chip" disabled={only} onClick={() => setRemoving(x.class)}>
+                    Remove a level
+                  </button>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </details>
     </>
   );
 }

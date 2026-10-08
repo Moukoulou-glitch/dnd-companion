@@ -1,6 +1,7 @@
 import { HitDiceRow } from "./HitDice";
 import { ShapeCard } from "./Shapes";
-import type { DerivedSheet, ResourceResult } from "@dnd/engine";
+import { SummonsCard } from "./Summons";
+import type { ContentRegistry, DerivedSheet, ResourceResult, ShapeKind } from "@dnd/engine";
 import type { Character, OperationType } from "@dnd/schema";
 import type { RollRecord } from "../rolls";
 import { CombatCard, CompanionCard } from "./Combat";
@@ -111,9 +112,15 @@ export function PlayTab({
   onInitiative,
   openShape,
   openTransform,
+  openLimited,
+  openSummonGroup,
+  reg,
 }: {
   openShape: () => void;
-  openTransform: (kind: "wildshape" | "polymorph") => void;
+  openLimited: (actionId: string) => void;
+  openSummonGroup: (group: string) => void;
+  reg: ContentRegistry;
+  openTransform: (kind: ShapeKind) => void;
   character: Character;
   sheet: DerivedSheet;
   act: Act;
@@ -142,9 +149,10 @@ export function PlayTab({
         </button>
       </section>
 
-      <CombatCard character={character} sheet={sheet} act={act} onStartCombat={onStartCombat} openMove={openMove} onInitiative={onInitiative} />
+      <CombatCard character={character} sheet={sheet} act={act} onStartCombat={onStartCombat} openMove={openMove} onInitiative={onInitiative} onLimited={openLimited} />
 
       <ShapeCard sheet={sheet} onOpen={openShape} onTransform={openTransform} />
+      <SummonsCard character={character} reg={reg} onOpen={openSummonGroup} />
 
       {sheet.companions.length > 0 && (
         <section>

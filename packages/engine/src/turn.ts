@@ -44,13 +44,16 @@ export function turnWarnings(c: Character, sheet: DerivedSheet, intent: TurnInte
   // Hold Person brings Paralyzed, which brings Incapacitated: look through what effects include too.
   const states = sheet.effects.flatMap((e) => [{ id: e.id, name: e.name }, ...e.includes]);
   const incapacitated = states.find((e) => INCAPACITATING.includes(e.id.replace(/^(condition|effect):/, "")));
+  if (states.some((s) => s.id === "effect:haste-lethargy") && intent.economy !== "free") {
+    out.push("Haste's lethargy: you can't move or take actions until after your next turn.");
+  }
   if (incapacitated && intent.economy !== "free") {
     out.push(`You're ${incapacitated.name.toLowerCase()}: you can't take actions or reactions.`);
   }
 
   if (intent.spell) {
     if (c.toggles.includes("raging")) out.push("You can't cast spells while raging.");
-    if (c.shape && !(c.shape.kind === "wildshape" && sheet.wildShape?.beastSpells)) out.push(`You can't cast spells in ${c.shape.kind === "wildshape" ? "Wild Shape" : "a polymorphed form"}.`);
+    if (c.shape && c.shape.kind !== "truepolymorph" && !(c.shape.kind === "wildshape" && sheet.wildShape?.beastSpells)) out.push(`You can't cast spells in ${c.shape.kind === "wildshape" ? "Wild Shape" : "a polymorphed form"}.`);
     if (intent.spell.concentration && c.concentration) {
       out.push(`You're concentrating on ${c.concentration.name}: casting ${intent.name} ends it.`);
     }
