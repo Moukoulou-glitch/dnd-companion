@@ -309,7 +309,9 @@ export function App() {
               healing: true,
               onHealSelf: (n: number) => {
                 live.current.act("heal", { amount: n }, `Healed ${n}.`);
-                close();
+                // In a Flurry: on to the strike that comes next.
+                if (opts.back) opts.back.to();
+                else close();
               },
             }
           : {})}
@@ -352,12 +354,17 @@ export function App() {
     const sh = live.current.sheet;
     const ch = live.current.character;
     if (!sh || !ch) return [];
-    const out: { label: string; sub?: string; run: () => { value: number; detail: string } | undefined }[] = [];
+    const out: { label: string; sub?: string; warn?: boolean; group?: string; run: () => { value: number; detail: string } | undefined }[] = [];
     if (sh.actions.some((a) => a.id === "focused-aim"))
       for (const n of [1, 2, 3])
         out.push({
           label: `Focused Aim +${2 * n}`,
-          sub: `${n} ki`,
+          group: "Focused Aim",
+          sub: (() => {
+            const ki = sh.resources.find((r) => r.id === "ki")?.remaining ?? 0;
+            return ki < n ? `${n} ki · only ${ki} left` : `${n} ki`;
+          })(),
+          warn: (sh.resources.find((r) => r.id === "ki")?.remaining ?? 0) < n,
           run: () => {
             live.current.act("useAction", { action: "focused-aim", amount: n }, `Focused Aim: ${n} ki for +${2 * n}.`);
             return { value: 2 * n, detail: `${n} ki` };
@@ -369,7 +376,9 @@ export function App() {
       const sides = Number(/d(\d+)/.exec(sup.die ?? "d8")?.[1] ?? 8);
       out.push({
         label: `Precision Attack +d${sides}`,
+        group: "Precision Attack",
         sub: `${sup.remaining} dice left`,
+        warn: sup.remaining <= 0,
         run: () => {
           const v = rollDie(sides);
           live.current.act("useAction", { action: "maneuver", choice: "Precision Attack" }, `Precision Attack: d${sides} rolled ${v}.`);

@@ -64,7 +64,7 @@ interface Props {
    * Things added to an attack roll after seeing it (Focused Aim, Precision
    * Attack): `run` spends what they cost and gives the number added.
    */
-  afterRoll?: { label: string; sub?: string; run: () => { value: number; detail: string } | undefined }[];
+  afterRoll?: { label: string; sub?: string; warn?: boolean; group?: string; run: () => { value: number; detail: string } | undefined }[];
   /** Closes the roll (after a miss with no more attacks). */
   onDone?: () => void;
 }
@@ -88,7 +88,7 @@ export interface OptionInfo {
 
 type Stage =
   | { step: "setup" }
-  | { step: "d20-result"; record: RollRecord }
+  | { step: "d20-result"; record: RollRecord; used?: string[] }
   | { step: "missed"; record: RollRecord }
   | { step: "damage-setup"; crit: boolean; attackRecord?: RollRecord; attackMode?: string }
   | { step: "damage-result"; record: RollRecord; crit: boolean; attackRecord?: RollRecord };
@@ -504,25 +504,36 @@ export function Composer({ title, base, attack, physical, onPhysicalChange, onRo
             <div className="after-roll">
               <span className="sub-head small">Change this roll</span>
               <div className="choice-grid">
-                {(afterRoll ?? []).map((o) => (
-                  <button
-                    key={o.label}
-                    className="tag use"
-                    onClick={() => {
-                      const res = o.run();
-                      if (!res) return;
-                      setStage({ step: "d20-result", record: { ...r, total: r.total + res.value, lines: [...r.lines, { source: o.label, detail: res.detail, total: res.value }] } });
-                    }}
-                  >
-                    {o.label}
-                    {o.sub ? <small> · {o.sub}</small> : null}
-                  </button>
-                ))}
+                {(afterRoll ?? []).map((o) => {
+                  // Once per roll: one Focused Aim (1, 2 or 3 ki), one Precision Attack.
+                  const used = stage.used ?? [];
+                  const done = used.includes(o.group ?? o.label);
+                  return (
+                    <button
+                      key={o.label}
+                      className={`tag use${o.warn ? " danger-text" : ""}`}
+                      disabled={done}
+                      onClick={() => {
+                        if (done) return;
+                        const res = o.run();
+                        if (!res) return;
+                        setStage({
+                          step: "d20-result",
+                          record: { ...r, total: r.total + res.value, lines: [...r.lines, { source: o.label, detail: res.detail, total: res.value }] },
+                          used: [...used, o.group ?? o.label],
+                        });
+                      }}
+                    >
+                      {o.label}
+                      {o.sub ? <small> · {o.sub}</small> : null}
+                    </button>
+                  );
+                })}
                 {[-1, 1].map((d) => (
                   <button
                     key={d}
                     className="tag"
-                    onClick={() => setStage({ step: "d20-result", record: { ...r, total: r.total + d, lines: [...r.lines, { source: "By hand", detail: "", total: d }] } })}
+                    onClick={() => setStage({ ...stage, record: { ...r, total: r.total + d, lines: [...r.lines, { source: "By hand", detail: "", total: d }] } })}
                   >
                     {d > 0 ? "+1" : "−1"}
                   </button>
