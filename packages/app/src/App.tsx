@@ -276,7 +276,8 @@ export function App() {
     opts: {
       notes?: string[];
       onTotal?: (n: number) => void;
-      optionInfo?: Record<string, OptionInfo>;
+      /** Read each time the roll redraws, so a second attack sees what the first used (Hand of Harm once per turn). */
+      optionInfo?: Record<string, OptionInfo> | (() => Record<string, OptionInfo>);
       onCommit?: (n: number) => void;
       repeat?: { count: number; what: string };
       onDamageOptions?: (labels: string[]) => void;
@@ -304,7 +305,7 @@ export function App() {
         {...(opts.damageOnly ? { damageOnly: true } : {})}
         {...(attack ? { attack } : {})}
         {...(opts.notes ? { notes: opts.notes } : {})}
-        {...(opts.optionInfo ? { optionInfo: opts.optionInfo } : {})}
+        {...(opts.optionInfo ? { optionInfo: typeof opts.optionInfo === "function" ? opts.optionInfo() : opts.optionInfo } : {})}
         {...(opts.onCommit ? { onCommit: opts.onCommit } : {})}
         {...(opts.repeat ? { repeat: opts.repeat } : {})}
         {...(opts.onDamageOptions ? { onDamageOptions: opts.onDamageOptions } : {})}
@@ -671,7 +672,17 @@ export function App() {
                 const base = unarmed(false);
                 if (!base) return close();
                 // As a monk weapon: proficient, Dexterity, the Martial Arts die.
-                const thrown = { ...base, attackId: "deflect-missiles-throw", name: "Deflected missile", mode: "ranged" as const, range: [20, 60] as [number, number] };
+                // A ranged attack: nothing that needs a melee hit or an unarmed strike (Stunning Strike, Hand of Harm).
+                const meleeOnly = (sg: { label: string; reason?: string }) => /^(Stunning Strike|Hand of Harm)$/.test(sg.label) || /\bmelee\b|unarmed strike/i.test(sg.reason ?? "");
+                const thrown = {
+                  ...base,
+                  attackId: "deflect-missiles-throw",
+                  name: "Deflected missile",
+                  mode: "ranged" as const,
+                  range: [20, 60] as [number, number],
+                  attack: { ...base.attack, suggestions: base.attack.suggestions.filter((sg) => !meleeOnly(sg)) },
+                  damage: { ...base.damage, bonus: { ...base.damage.bonus, suggestions: base.damage.bonus.suggestions.filter((sg) => !meleeOnly(sg)) } },
+                };
                 openRoll(thrown.name, thrown.attack, thrown);
               },
             }
@@ -689,7 +700,7 @@ export function App() {
     const strikes = (n: number) => {
       if (!strike) return close();
       openRoll(strike.name, strike.attack, strike, {
-        optionInfo: optionInfoFor(strike),
+        optionInfo: () => optionInfoFor(strike),
         onDamageOptions: (labels) => {
           const once = labels.filter((l) => strike.damage.bonus.suggestions.some((sg) => sg.label === l && sg.oncePerTurn));
           if (once.length && live.current.character?.combat) live.current.act("markOnce", { labels: once }, `${once.join(", ")} used this turn.`);
@@ -980,7 +991,7 @@ export function App() {
     askEndsOn("attack", () =>
       guard({ name: a.name, economy, attack: economy === "action", weapon }, () =>
         openRoll(a.name, a.attack, a, {
-          optionInfo: optionInfoFor(a),
+          optionInfo: () => optionInfoFor(a),
           onCommit,
           onDamageOptions,
           ...(economy === "action" && left > 1 ? { repeat: { count: left, what: "attacks" } } : {}),

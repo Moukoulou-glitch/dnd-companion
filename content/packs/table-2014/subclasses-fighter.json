@@ -1,0 +1,2248 @@
+{
+  "definitions": [
+    {
+      "kind": "class",
+      "id": "class:fighter",
+      "name": "Fighter",
+      "summary": "Master of weapons and armor, with more attacks than anyone.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 70
+      },
+      "hitDie": 10,
+      "saves": [
+        "str",
+        "con"
+      ],
+      "startingGrant": {
+        "proficiencies": [
+          {
+            "kind": "armor",
+            "target": "light"
+          },
+          {
+            "kind": "armor",
+            "target": "medium"
+          },
+          {
+            "kind": "armor",
+            "target": "heavy"
+          },
+          {
+            "kind": "armor",
+            "target": "shields"
+          },
+          {
+            "kind": "weapon",
+            "target": "simple"
+          },
+          {
+            "kind": "weapon",
+            "target": "martial"
+          },
+          {
+            "kind": "skill",
+            "target": {
+              "choice": "skills"
+            }
+          }
+        ]
+      },
+      "multiclassGrant": {
+        "proficiencies": [
+          {
+            "kind": "armor",
+            "target": "light"
+          },
+          {
+            "kind": "armor",
+            "target": "medium"
+          },
+          {
+            "kind": "armor",
+            "target": "shields"
+          },
+          {
+            "kind": "weapon",
+            "target": "simple"
+          },
+          {
+            "kind": "weapon",
+            "target": "martial"
+          }
+        ]
+      },
+      "subclassLevel": 3,
+      "features": [],
+      "adds": [
+        {
+          "level": 4,
+          "feature": "feature:fighter-martial-versatility"
+        }
+      ],
+      "progression": {
+        "maneuvers": [
+          0,
+          0,
+          3,
+          3,
+          3,
+          3,
+          5,
+          5,
+          5,
+          7,
+          7,
+          7,
+          7,
+          7,
+          9,
+          9,
+          9,
+          9,
+          9,
+          9
+        ],
+        "ekCantrips": [
+          0,
+          0,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3
+        ],
+        "ekSpellsKnown": [
+          0,
+          0,
+          3,
+          4,
+          4,
+          4,
+          5,
+          6,
+          6,
+          7,
+          8,
+          8,
+          9,
+          10,
+          10,
+          11,
+          11,
+          11,
+          12,
+          13
+        ],
+        "arcaneShots": [
+          0,
+          0,
+          2,
+          2,
+          2,
+          2,
+          3,
+          3,
+          3,
+          4,
+          4,
+          4,
+          4,
+          4,
+          5,
+          5,
+          5,
+          6,
+          6,
+          6
+        ],
+        "runes": [
+          0,
+          0,
+          2,
+          2,
+          2,
+          2,
+          3,
+          3,
+          3,
+          4,
+          4,
+          4,
+          4,
+          4,
+          5,
+          5,
+          5,
+          5,
+          5,
+          5
+        ]
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:battle-master",
+      "name": "Battle Master",
+      "summary": "Tactician who fuels combat maneuvers with a pool of superiority dice.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 73
+      },
+      "class": "class:fighter",
+      "features": [
+        {
+          "level": 3,
+          "feature": "feature:battle-master-combat-superiority"
+        },
+        {
+          "level": 3,
+          "feature": "feature:battle-master-student-of-war"
+        },
+        {
+          "level": 7,
+          "feature": "feature:battle-master-know-your-enemy"
+        },
+        {
+          "level": 10,
+          "feature": "feature:battle-master-improved-combat-superiority-10"
+        },
+        {
+          "level": 15,
+          "feature": "feature:battle-master-relentless"
+        },
+        {
+          "level": 18,
+          "feature": "feature:battle-master-improved-combat-superiority-18"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:battle-master-combat-superiority",
+      "name": "Combat Superiority",
+      "summary": "You know maneuvers (3, rising to 5/7/9 at 7th/10th/15th) fueled by superiority dice: four d8s, a fifth at 7th and sixth at 15th, all back on a short or long rest. Maneuver save DC is 8 + proficiency bonus + Strength or Dexterity modifier.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 73
+      },
+      "scaling": {
+        "die": {
+          "class": "class:fighter",
+          "table": [
+            [
+              3,
+              "1d8"
+            ],
+            [
+              10,
+              "1d10"
+            ],
+            [
+              18,
+              "1d12"
+            ]
+          ]
+        },
+        "dice": {
+          "class": "class:fighter",
+          "table": [
+            [
+              3,
+              4
+            ],
+            [
+              7,
+              5
+            ],
+            [
+              15,
+              6
+            ]
+          ]
+        }
+      },
+      "choices": [
+        {
+          "id": "maneuvers",
+          "label": "Maneuvers",
+          "kind": "option",
+          "count": 3,
+          "countBy": "maneuvers",
+          "from": [
+            "Commander's Strike",
+            "Disarming Attack",
+            "Distracting Strike",
+            "Evasive Footwork",
+            "Feinting Attack",
+            "Goading Attack",
+            "Lunging Attack",
+            "Maneuvering Attack",
+            "Menacing Attack",
+            "Parry",
+            "Precision Attack",
+            "Pushing Attack",
+            "Rally",
+            "Riposte",
+            "Sweeping Attack",
+            "Trip Attack",
+            "Ambush",
+            "Bait and Switch",
+            "Brace",
+            "Commanding Presence",
+            "Grappling Strike",
+            "Quick Toss",
+            "Tactical Assessment"
+          ]
+        }
+      ],
+      "grant": {
+        "resources": [
+          {
+            "id": "superiority-dice",
+            "name": "Superiority Dice",
+            "max": "scale.dice",
+            "reset": "short",
+            "die": "scale.die"
+          }
+        ],
+        "actions": [
+          {
+            "id": "maneuver",
+            "name": "Maneuver",
+            "economy": "free",
+            "toggles": [],
+            "note": "Spend a superiority die on one of your maneuvers (a few use your reaction or bonus action instead). Save DC 8 + PB + STR or DEX.",
+            "cost": {
+              "resource": "superiority-dice",
+              "amount": 1
+            },
+            "roll": {
+              "dice": "scale.die",
+              "label": "superiority die"
+            },
+            "choose": {
+              "label": "Maneuver",
+              "options": [
+                "Commander's Strike",
+                "Disarming Attack",
+                "Distracting Strike",
+                "Evasive Footwork",
+                "Feinting Attack",
+                "Goading Attack",
+                "Lunging Attack",
+                "Maneuvering Attack",
+                "Menacing Attack",
+                "Parry",
+                "Precision Attack",
+                "Pushing Attack",
+                "Rally",
+                "Riposte",
+                "Sweeping Attack",
+                "Trip Attack",
+                "Ambush",
+                "Bait and Switch",
+                "Brace",
+                "Commanding Presence",
+                "Grappling Strike",
+                "Quick Toss",
+                "Tactical Assessment"
+              ]
+            }
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.attack.weapon.*",
+            "op": "add",
+            "value": "scale.die",
+            "mode": "suggested",
+            "when": {
+              "text": "spend a superiority die (Precision Attack)"
+            },
+            "label": "Precision Attack"
+          },
+          {
+            "selector": "roll.damage.weapon.*",
+            "op": "add",
+            "value": "scale.die",
+            "mode": "suggested",
+            "when": {
+              "text": "spend a superiority die on a damage maneuver (Trip, Pushing, Menacing...)"
+            },
+            "label": "Maneuver damage"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:battle-master-student-of-war",
+      "name": "Student of War",
+      "summary": "Proficiency with one type of artisan's tools of your choice.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 73
+      },
+      "choices": [
+        {
+          "id": "tool",
+          "label": "Artisan's tools",
+          "kind": "tool",
+          "count": 1,
+          "from": [
+            "Alchemist's supplies",
+            "Brewer's supplies",
+            "Calligrapher's supplies",
+            "Carpenter's tools",
+            "Cartographer's tools",
+            "Cobbler's tools",
+            "Cook's utensils",
+            "Glassblower's tools",
+            "Jeweler's tools",
+            "Leatherworker's tools",
+            "Mason's tools",
+            "Painter's supplies",
+            "Potter's tools",
+            "Smith's tools",
+            "Tinker's tools",
+            "Weaver's tools",
+            "Woodcarver's tools"
+          ]
+        }
+      ],
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "tool",
+            "target": {
+              "choice": "tool"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:battle-master-know-your-enemy",
+      "name": "Know Your Enemy",
+      "summary": "Study a creature outside combat for 1 minute to learn whether it is your equal, superior or inferior in two characteristics of your choice (such as a score, AC, current HP, class levels).",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 74
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:battle-master-improved-combat-superiority-10",
+      "name": "Improved Combat Superiority",
+      "summary": "Your superiority dice become d10s.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 74
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:battle-master-relentless",
+      "name": "Relentless",
+      "summary": "When you roll initiative with no superiority dice left, you regain one.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 74
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:battle-master-improved-combat-superiority-18",
+      "name": "Improved Combat Superiority",
+      "summary": "Your superiority dice become d12s.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 74
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:eldritch-knight",
+      "name": "Eldritch Knight",
+      "summary": "Fighter who weaves wizard magic, mostly abjuration and evocation, into weapon play.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 74
+      },
+      "class": "class:fighter",
+      "features": [
+        {
+          "level": 3,
+          "feature": "feature:eldritch-knight-spellcasting"
+        },
+        {
+          "level": 3,
+          "feature": "feature:eldritch-knight-weapon-bond"
+        },
+        {
+          "level": 7,
+          "feature": "feature:eldritch-knight-war-magic"
+        },
+        {
+          "level": 10,
+          "feature": "feature:eldritch-knight-eldritch-strike"
+        },
+        {
+          "level": 15,
+          "feature": "feature:eldritch-knight-arcane-charge"
+        },
+        {
+          "level": 18,
+          "feature": "feature:eldritch-knight-improved-war-magic"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:eldritch-knight-spellcasting",
+      "name": "Spellcasting",
+      "summary": "Third-caster using Intelligence and the wizard list. Cantrips: 2 (3 at 10th). Spells known: 3 at 3rd up to 13 at 20th; all but those learned at 3rd, 8th, 14th and 20th must be abjuration or evocation. Slots follow the Eldritch Knight table (one-third caster).",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 74
+      },
+      "choices": [
+        {
+          "id": "cantrips",
+          "label": "Cantrips",
+          "kind": "spell",
+          "count": 2,
+          "countBy": "ekCantrips",
+          "spells": {
+            "classes": [
+              "wizard"
+            ],
+            "level": 0
+          }
+        },
+        {
+          "id": "spells",
+          "label": "Spells known (abjuration or evocation, except the free picks)",
+          "kind": "spell",
+          "count": 3,
+          "countBy": "ekSpellsKnown",
+          "spells": {
+            "classes": [
+              "wizard"
+            ],
+            "maxLevel": 4
+          }
+        }
+      ],
+      "grant": {
+        "spellcasting": {
+          "id": "eldritch-knight",
+          "label": "Eldritch Knight",
+          "ability": "int",
+          "progression": "third"
+        }
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:eldritch-knight-weapon-bond",
+      "name": "Weapon Bond",
+      "summary": "A 1-hour ritual bonds you to up to two weapons: you can't be disarmed of a bonded weapon, and you can summon one to your hand as a bonus action.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 75
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "weapon-bond",
+            "name": "Summon bonded weapon",
+            "economy": "bonus",
+            "toggles": [],
+            "note": "A bonded weapon on the same plane teleports to your hand."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:eldritch-knight-war-magic",
+      "name": "War Magic",
+      "summary": "When you use your action to cast a cantrip, you can make one weapon attack as a bonus action.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 75
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "war-magic",
+            "name": "War Magic attack",
+            "economy": "bonus",
+            "toggles": [],
+            "note": "After casting a cantrip with your action: one weapon attack.",
+            "infoOnly": true
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:eldritch-knight-eldritch-strike",
+      "name": "Eldritch Strike",
+      "summary": "A creature you hit with a weapon attack has disadvantage on the next saving throw it makes against a spell you cast before the end of your next turn.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 75
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.damage.weapon.*",
+            "op": "note",
+            "label": "Eldritch Strike: the target has disadvantage on its next save against your spell before the end of your next turn."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:eldritch-knight-arcane-charge",
+      "name": "Arcane Charge",
+      "summary": "When you use Action Surge, you can also teleport up to 30 feet to a space you can see.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 75
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:eldritch-knight-improved-war-magic",
+      "name": "Improved War Magic",
+      "summary": "When you use your action to cast a spell, you can make one weapon attack as a bonus action.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 75
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "improved-war-magic",
+            "name": "Improved War Magic attack",
+            "economy": "bonus",
+            "toggles": [],
+            "note": "After casting any spell with your action: one weapon attack.",
+            "infoOnly": true
+          }
+        ]
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:arcane-archer",
+      "name": "Arcane Archer",
+      "summary": "Archer who weaves magic into arrows for a few powerful shots per rest.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 28
+      },
+      "class": "class:fighter",
+      "features": [
+        {
+          "level": 3,
+          "feature": "feature:arcane-archer-arcane-archer-lore"
+        },
+        {
+          "level": 3,
+          "feature": "feature:arcane-archer-arcane-shot"
+        },
+        {
+          "level": 7,
+          "feature": "feature:arcane-archer-magic-arrow"
+        },
+        {
+          "level": 7,
+          "feature": "feature:arcane-archer-curving-shot"
+        },
+        {
+          "level": 15,
+          "feature": "feature:arcane-archer-ever-ready-shot"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:arcane-archer-arcane-archer-lore",
+      "name": "Arcane Archer Lore",
+      "summary": "Proficiency in Arcana or Nature, and you learn the Prestidigitation or Druidcraft cantrip.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 28
+      },
+      "choices": [
+        {
+          "id": "skill",
+          "label": "Skill",
+          "kind": "skill",
+          "count": 1,
+          "from": [
+            "arcana",
+            "nature"
+          ]
+        },
+        {
+          "id": "cantrip",
+          "label": "Cantrip",
+          "kind": "option",
+          "count": 1,
+          "from": [
+            "Prestidigitation",
+            "Druidcraft"
+          ]
+        }
+      ],
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "skill",
+            "target": {
+              "choice": "skill"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:arcane-archer-arcane-shot",
+      "name": "Arcane Shot",
+      "summary": "Twice per short or long rest, when a ranged weapon attack with an arrow hits, apply one Arcane Shot option you know (2 at 3rd; one more at 7th, 10th, 15th and 18th; extra damage grows at 18th). Save DC 8 + proficiency bonus + Intelligence modifier.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 28
+      },
+      "choices": [
+        {
+          "id": "shots",
+          "label": "Arcane Shot options",
+          "kind": "option",
+          "count": 2,
+          "countBy": "arcaneShots",
+          "from": [
+            "Banishing Arrow",
+            "Beguiling Arrow",
+            "Bursting Arrow",
+            "Enfeebling Arrow",
+            "Grasping Arrow",
+            "Piercing Arrow",
+            "Seeking Arrow",
+            "Shadow Arrow"
+          ]
+        }
+      ],
+      "grant": {
+        "resources": [
+          {
+            "id": "arcane-shot",
+            "name": "Arcane Shot",
+            "max": 2,
+            "reset": "short"
+          }
+        ],
+        "actions": [
+          {
+            "id": "arcane-shot",
+            "name": "Arcane Shot",
+            "economy": "free",
+            "toggles": [],
+            "note": "Once per turn, after a ranged arrow attack hits (Seeking Arrow is rolled in its place). DC 8 + PB + INT.",
+            "cost": {
+              "resource": "arcane-shot",
+              "amount": 1
+            },
+            "choose": {
+              "label": "Arcane Shot option",
+              "options": [
+                "Banishing Arrow",
+                "Beguiling Arrow",
+                "Bursting Arrow",
+                "Enfeebling Arrow",
+                "Grasping Arrow",
+                "Piercing Arrow",
+                "Seeking Arrow",
+                "Shadow Arrow"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:arcane-archer-magic-arrow",
+      "name": "Magic Arrow",
+      "summary": "Nonmagical arrows you fire become magical for overcoming resistance and immunity.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 29
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:arcane-archer-curving-shot",
+      "name": "Curving Shot",
+      "summary": "When a magic arrow you fire misses, you can use a bonus action to reroll the attack against another target within 60 feet of the first.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 29
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "curving-shot",
+            "name": "Curving Shot",
+            "economy": "bonus",
+            "toggles": [],
+            "note": "After missing with a magic arrow: reroll the attack against a different target within 60 ft of the original."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:arcane-archer-ever-ready-shot",
+      "name": "Ever-Ready Shot",
+      "summary": "When you roll initiative with no Arcane Shot uses left, you regain one.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 29
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:cavalier",
+      "name": "Cavalier",
+      "summary": "Mounted warrior and defender who marks foes and shields allies.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 30
+      },
+      "class": "class:fighter",
+      "features": [
+        {
+          "level": 3,
+          "feature": "feature:cavalier-bonus-proficiency"
+        },
+        {
+          "level": 3,
+          "feature": "feature:cavalier-born-to-the-saddle"
+        },
+        {
+          "level": 3,
+          "feature": "feature:cavalier-unwavering-mark"
+        },
+        {
+          "level": 7,
+          "feature": "feature:cavalier-warding-maneuver"
+        },
+        {
+          "level": 10,
+          "feature": "feature:cavalier-hold-the-line"
+        },
+        {
+          "level": 15,
+          "feature": "feature:cavalier-ferocious-charger"
+        },
+        {
+          "level": 18,
+          "feature": "feature:cavalier-vigilant-defender"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:cavalier-bonus-proficiency",
+      "name": "Bonus Proficiency",
+      "summary": "One skill of your choice from Animal Handling, History, Insight, Performance or Persuasion (or a language instead).",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 30
+      },
+      "choices": [
+        {
+          "id": "skill",
+          "label": "Skill",
+          "kind": "skill",
+          "count": 1,
+          "from": [
+            "animalHandling",
+            "history",
+            "insight",
+            "performance",
+            "persuasion"
+          ]
+        }
+      ],
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "skill",
+            "target": {
+              "choice": "skill"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:cavalier-born-to-the-saddle",
+      "name": "Born to the Saddle",
+      "summary": "Advantage on saves to avoid falling off your mount; you land on your feet after falling less than 10 feet from it; mounting or dismounting costs only 5 feet of movement.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 30
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:cavalier-unwavering-mark",
+      "name": "Unwavering Mark",
+      "summary": "A creature you hit in melee is marked until the end of your next turn: it has disadvantage on attacks that don't target you while you're within 5 feet. If it damages someone else, you can make a bonus-action melee attack against it with advantage, adding half your fighter level to the damage (Strength modifier uses per long rest, at least one).",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 30
+      },
+      "scaling": {
+        "half": {
+          "class": "class:fighter",
+          "table": [
+            [
+              3,
+              1
+            ],
+            [
+              4,
+              2
+            ],
+            [
+              6,
+              3
+            ],
+            [
+              8,
+              4
+            ],
+            [
+              10,
+              5
+            ],
+            [
+              12,
+              6
+            ],
+            [
+              14,
+              7
+            ],
+            [
+              16,
+              8
+            ],
+            [
+              18,
+              9
+            ],
+            [
+              20,
+              10
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "unwavering-mark",
+            "name": "Unwavering Mark attack",
+            "max": "mod.str",
+            "min": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "unwavering-mark",
+            "name": "Unwavering Mark attack",
+            "economy": "bonus",
+            "toggles": [],
+            "note": "Your marked target damaged someone else: one melee weapon attack with advantage, + half fighter level damage.",
+            "cost": {
+              "resource": "unwavering-mark",
+              "amount": 1
+            }
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.attack.weapon.melee",
+            "op": "advantage",
+            "mode": "suggested",
+            "when": {
+              "text": "bonus-action attack against your marked target"
+            },
+            "label": "Unwavering Mark"
+          },
+          {
+            "selector": "roll.damage.weapon.melee",
+            "op": "add",
+            "value": "scale.half",
+            "mode": "suggested",
+            "when": {
+              "text": "bonus-action attack against your marked target"
+            },
+            "label": "Unwavering Mark"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:cavalier-warding-maneuver",
+      "name": "Warding Maneuver",
+      "summary": "Reaction when you or a creature within 5 feet is hit: add 1d8 to the target's AC against it; if it still hits, the target has resistance to its damage. Constitution modifier uses per long rest (at least one).",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 30
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "warding-maneuver",
+            "name": "Warding Maneuver",
+            "max": "mod.con",
+            "min": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "warding-maneuver",
+            "name": "Warding Maneuver",
+            "economy": "reaction",
+            "toggles": [],
+            "note": "Must be holding a melee weapon or shield. If the attack still hits, the target resists its damage.",
+            "cost": {
+              "resource": "warding-maneuver",
+              "amount": 1
+            },
+            "roll": {
+              "dice": "1d8",
+              "label": "added to AC"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:cavalier-hold-the-line",
+      "name": "Hold the Line",
+      "summary": "Creatures provoke an opportunity attack from you when they move 5 feet or more within your reach; a hit with that attack reduces their speed to 0 for the rest of the turn.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 31
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:cavalier-ferocious-charger",
+      "name": "Ferocious Charger",
+      "summary": "Once per turn, after moving at least 10 feet in a straight line, a creature you hit must succeed on a Strength save (DC 8 + proficiency + Strength modifier) or be knocked prone.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 31
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.damage.weapon.*",
+            "op": "note",
+            "label": "Ferocious Charger: after a 10-ft straight move, the target makes a STR save (DC 8 + PB + STR) or falls prone. Once per turn."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:cavalier-vigilant-defender",
+      "name": "Vigilant Defender",
+      "summary": "Once on every creature's turn other than your own, you can make an opportunity attack with a special reaction that doesn't use your normal reaction.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 31
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:samurai",
+      "name": "Samurai",
+      "summary": "Resolute warrior whose fighting spirit drives relentless, accurate attacks.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 31
+      },
+      "class": "class:fighter",
+      "features": [
+        {
+          "level": 3,
+          "feature": "feature:samurai-bonus-proficiency"
+        },
+        {
+          "level": 3,
+          "feature": "feature:samurai-fighting-spirit"
+        },
+        {
+          "level": 7,
+          "feature": "feature:samurai-elegant-courtier"
+        },
+        {
+          "level": 10,
+          "feature": "feature:samurai-tireless-spirit"
+        },
+        {
+          "level": 15,
+          "feature": "feature:samurai-rapid-strike"
+        },
+        {
+          "level": 18,
+          "feature": "feature:samurai-strength-before-death"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:samurai-bonus-proficiency",
+      "name": "Bonus Proficiency",
+      "summary": "One skill of your choice from History, Insight, Performance or Persuasion (or a language instead).",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 31
+      },
+      "choices": [
+        {
+          "id": "skill",
+          "label": "Skill",
+          "kind": "skill",
+          "count": 1,
+          "from": [
+            "history",
+            "insight",
+            "performance",
+            "persuasion"
+          ]
+        }
+      ],
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "skill",
+            "target": {
+              "choice": "skill"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:samurai-fighting-spirit",
+      "name": "Fighting Spirit",
+      "summary": "Three times per long rest, as a bonus action: advantage on weapon attack rolls until the end of the turn and 5 temporary hit points (10 at 10th, 15 at 15th).",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 31
+      },
+      "scaling": {
+        "thp": {
+          "class": "class:fighter",
+          "table": [
+            [
+              3,
+              5
+            ],
+            [
+              10,
+              10
+            ],
+            [
+              15,
+              15
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "fighting-spirit",
+            "name": "Fighting Spirit",
+            "max": 3,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "fighting-spirit",
+            "name": "Fighting Spirit",
+            "economy": "bonus",
+            "toggles": [
+              "fighting-spirit"
+            ],
+            "note": "Advantage on weapon attacks this turn, plus temporary hit points.",
+            "cost": {
+              "resource": "fighting-spirit",
+              "amount": 1
+            },
+            "tempHp": "scale.thp",
+            "duration": {
+              "rounds": 1
+            }
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.attack.weapon.*",
+            "op": "advantage",
+            "when": {
+              "toggle": "fighting-spirit"
+            },
+            "label": "Fighting Spirit"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:samurai-elegant-courtier",
+      "name": "Elegant Courtier",
+      "summary": "Add your Wisdom modifier to Charisma (Persuasion) checks, and gain proficiency in Wisdom saves (or Intelligence or Charisma saves if you already have it).",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 31
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.check.skill.persuasion",
+            "op": "add",
+            "value": "mod.wis",
+            "label": "Elegant Courtier"
+          }
+        ],
+        "proficiencies": [
+          {
+            "kind": "save",
+            "target": "wis"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:samurai-tireless-spirit",
+      "name": "Tireless Spirit",
+      "summary": "When you roll initiative with no Fighting Spirit uses left, you regain one.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 31
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:samurai-rapid-strike",
+      "name": "Rapid Strike",
+      "summary": "Once per turn, when you take the Attack action and have advantage on an attack against a creature, you can give up the advantage to make an extra weapon attack against it.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 31
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:samurai-strength-before-death",
+      "name": "Strength before Death",
+      "summary": "Once per long rest, when damage drops you to 0 hit points without killing you, use your reaction to take an extra turn right away, delaying falling unconscious until it ends.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 31
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "strength-before-death",
+            "name": "Strength before Death",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "strength-before-death",
+            "name": "Strength before Death",
+            "economy": "reaction",
+            "toggles": [],
+            "note": "Dropped to 0 HP: take an extra turn now; damage on it still causes death save failures.",
+            "cost": {
+              "resource": "strength-before-death",
+              "amount": 1
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:psi-warrior",
+      "name": "Psi Warrior",
+      "summary": "Fighter who channels psionic energy into force strikes, telekinesis and protective fields.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 42
+      },
+      "class": "class:fighter",
+      "features": [
+        {
+          "level": 3,
+          "feature": "feature:psi-warrior-psionic-power"
+        },
+        {
+          "level": 7,
+          "feature": "feature:psi-warrior-telekinetic-adept"
+        },
+        {
+          "level": 10,
+          "feature": "feature:psi-warrior-guarded-mind"
+        },
+        {
+          "level": 15,
+          "feature": "feature:psi-warrior-bulwark-of-force"
+        },
+        {
+          "level": 18,
+          "feature": "feature:psi-warrior-telekinetic-master"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:psi-warrior-psionic-power",
+      "name": "Psionic Power",
+      "summary": "Psionic Energy dice equal to twice your proficiency bonus (d6, growing to d12), back on a long rest; a bonus action regains one, once per short rest. Spend them on Protective Field (reaction: reduce damage by a die + Intelligence modifier) and Psionic Strike (once per turn on a hit: extra force damage of a die + Intelligence modifier). Telekinetic Movement is free once per short rest, or costs a die.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 43
+      },
+      "scaling": {
+        "die": {
+          "class": "class:fighter",
+          "table": [
+            [
+              3,
+              "1d6"
+            ],
+            [
+              5,
+              "1d8"
+            ],
+            [
+              11,
+              "1d10"
+            ],
+            [
+              17,
+              "1d12"
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "psionic-energy-psi-warrior",
+            "name": "Psionic Energy dice",
+            "max": "pb + pb",
+            "reset": "long",
+            "die": "scale.die"
+          },
+          {
+            "id": "psi-warrior-recover",
+            "name": "Regain a Psionic Energy die",
+            "max": 1,
+            "reset": "short"
+          },
+          {
+            "id": "telekinetic-movement",
+            "name": "Telekinetic Movement",
+            "max": 1,
+            "reset": "short"
+          }
+        ],
+        "actions": [
+          {
+            "id": "psi-warrior-recover",
+            "name": "Regain a Psionic Energy die",
+            "economy": "bonus",
+            "toggles": [],
+            "note": "Once per short or long rest.",
+            "cost": {
+              "resource": "psi-warrior-recover",
+              "amount": 1
+            },
+            "restores": {
+              "resource": "psionic-energy-psi-warrior",
+              "amount": 1
+            }
+          },
+          {
+            "id": "protective-field",
+            "name": "Protective Field",
+            "economy": "reaction",
+            "toggles": [],
+            "note": "You or a creature within 30 ft takes damage: reduce it by the roll.",
+            "cost": {
+              "resource": "psionic-energy-psi-warrior",
+              "amount": 1
+            },
+            "roll": {
+              "dice": "scale.die + mod.int",
+              "label": "damage reduced"
+            }
+          },
+          {
+            "id": "psionic-strike",
+            "name": "Psionic Strike",
+            "economy": "free",
+            "toggles": [],
+            "note": "Tick it on a weapon hit against a target within 30 ft: once per turn.",
+            "cost": {
+              "resource": "psionic-energy-psi-warrior",
+              "amount": 1
+            }
+          },
+          {
+            "id": "telekinetic-movement",
+            "name": "Telekinetic Movement",
+            "economy": "action",
+            "toggles": [],
+            "note": "Move a Large or smaller loose object or willing creature within 30 ft up to 30 ft. Free once per short rest; afterwards spend a Psionic Energy die (use the die action).",
+            "cost": {
+              "resource": "telekinetic-movement",
+              "amount": 1
+            }
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.damage.weapon.*",
+            "op": "add",
+            "value": "scale.die + mod.int",
+            "mode": "suggested",
+            "when": {
+              "text": "spend a Psionic Energy die, target within 30 ft"
+            },
+            "label": "Psionic Strike",
+            "damageType": "force",
+            "oncePerTurn": true
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:psi-warrior-telekinetic-adept",
+      "name": "Telekinetic Adept",
+      "summary": "Psi-Powered Leap: bonus action, a flying speed of twice your walking speed this turn (free once per short rest, else a die). Telekinetic Thrust: when Psionic Strike deals damage, the target makes a Strength save or is knocked prone or pushed up to 10 feet.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 43
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "psi-powered-leap",
+            "name": "Psi-Powered Leap",
+            "max": 1,
+            "reset": "short"
+          }
+        ],
+        "actions": [
+          {
+            "id": "psi-powered-leap",
+            "name": "Psi-Powered Leap",
+            "economy": "bonus",
+            "toggles": [],
+            "note": "Fly speed of twice your walking speed until the end of the turn. Free once per short rest; afterwards spend a Psionic Energy die.",
+            "cost": {
+              "resource": "psi-powered-leap",
+              "amount": 1
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:psi-warrior-guarded-mind",
+      "name": "Guarded Mind",
+      "summary": "Resistance to psychic damage; at the start of your turn, spend a Psionic Energy die to end every effect charming or frightening you.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 43
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.psychic",
+            "op": "resist",
+            "label": "Guarded Mind",
+            "damageType": "psychic"
+          }
+        ],
+        "actions": [
+          {
+            "id": "guarded-mind",
+            "name": "Guarded Mind",
+            "economy": "free",
+            "toggles": [],
+            "note": "Start of your turn: end all charmed and frightened effects on you.",
+            "cost": {
+              "resource": "psionic-energy-psi-warrior",
+              "amount": 1
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:psi-warrior-bulwark-of-force",
+      "name": "Bulwark of Force",
+      "summary": "Bonus action: up to your Intelligence modifier (min 1) creatures within 30 feet, you included, gain half cover for 1 minute or until you're incapacitated. Free once per long rest, else a die.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 43
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "bulwark-of-force",
+            "name": "Bulwark of Force",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "bulwark-of-force",
+            "name": "Bulwark of Force",
+            "economy": "bonus",
+            "toggles": [
+              "bulwark-of-force"
+            ],
+            "note": "Half cover (+2 AC and Dex saves) for chosen creatures for 1 minute. Free once per long rest; afterwards spend a Psionic Energy die.",
+            "cost": {
+              "resource": "bulwark-of-force",
+              "amount": 1
+            },
+            "duration": {
+              "rounds": 10
+            }
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "stat.ac",
+            "op": "add",
+            "value": 2,
+            "when": {
+              "toggle": "bulwark-of-force"
+            },
+            "label": "Bulwark of Force (half cover)"
+          },
+          {
+            "selector": "roll.save.dex",
+            "op": "add",
+            "value": 2,
+            "when": {
+              "toggle": "bulwark-of-force"
+            },
+            "label": "Bulwark of Force (half cover)"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:psi-warrior-telekinetic-master",
+      "name": "Telekinetic Master",
+      "summary": "You can cast Telekinesis (Intelligence) without components, free once per long rest or by spending a die; while concentrating on it, you can make one weapon attack as a bonus action each turn.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 43
+      },
+      "grant": {
+        "spellcasting": {
+          "id": "psi-warrior",
+          "label": "Psi Warrior",
+          "ability": "int",
+          "progression": "none"
+        },
+        "resources": [
+          {
+            "id": "telekinetic-master",
+            "name": "Telekinetic Master",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "spells": [
+          {
+            "spell": "spell:telekinesis",
+            "name": "Telekinesis",
+            "casting": "no slot or components; free once per long rest, else a Psionic Energy die",
+            "resource": "telekinetic-master"
+          }
+        ],
+        "actions": [
+          {
+            "id": "telekinetic-master-attack",
+            "name": "Telekinetic Master attack",
+            "economy": "bonus",
+            "toggles": [],
+            "note": "While concentrating on Telekinesis: one weapon attack.",
+            "infoOnly": true
+          }
+        ]
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:rune-knight",
+      "name": "Rune Knight",
+      "summary": "Fighter empowered by giant runes who can grow to giant size in battle.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 44
+      },
+      "class": "class:fighter",
+      "features": [
+        {
+          "level": 3,
+          "feature": "feature:rune-knight-bonus-proficiencies"
+        },
+        {
+          "level": 3,
+          "feature": "feature:rune-knight-rune-carver"
+        },
+        {
+          "level": 3,
+          "feature": "feature:rune-knight-giants-might"
+        },
+        {
+          "level": 7,
+          "feature": "feature:rune-knight-runic-shield"
+        },
+        {
+          "level": 10,
+          "feature": "feature:rune-knight-great-stature"
+        },
+        {
+          "level": 15,
+          "feature": "feature:rune-knight-master-of-runes"
+        },
+        {
+          "level": 18,
+          "feature": "feature:rune-knight-runic-juggernaut"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:rune-knight-bonus-proficiencies",
+      "name": "Bonus Proficiencies",
+      "summary": "Proficiency with smith's tools, and you learn Giant.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 44
+      },
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "tool",
+            "target": "Smith's tools"
+          },
+          {
+            "kind": "language",
+            "target": "Giant"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:rune-knight-rune-carver",
+      "name": "Rune Carver",
+      "summary": "Inscribe runes you know (2, then 3 at 7th, 4 at 10th, 5 at 15th) on gear after a long rest. Each rune gives a passive benefit and can be invoked once per short or long rest (twice from 15th). Save DC 8 + proficiency bonus + Constitution modifier.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 44
+      },
+      "scaling": {
+        "uses": {
+          "class": "class:fighter",
+          "table": [
+            [
+              3,
+              2
+            ],
+            [
+              7,
+              3
+            ],
+            [
+              10,
+              4
+            ],
+            [
+              15,
+              10
+            ]
+          ]
+        }
+      },
+      "choices": [
+        {
+          "id": "runes",
+          "label": "Runes",
+          "kind": "option",
+          "count": 2,
+          "countBy": "runes",
+          "from": [
+            "Cloud Rune",
+            "Fire Rune",
+            "Frost Rune",
+            "Stone Rune",
+            "Hill Rune (7th)",
+            "Storm Rune (7th)"
+          ]
+        }
+      ],
+      "grant": {
+        "resources": [
+          {
+            "id": "rune-invocations",
+            "name": "Rune invocations (each rune once; twice from 15th)",
+            "max": "scale.uses",
+            "reset": "short"
+          }
+        ],
+        "actions": [
+          {
+            "id": "invoke-rune",
+            "name": "Invoke a rune",
+            "economy": "free",
+            "toggles": [],
+            "note": "Each rune has its own trigger and action cost. DC 8 + PB + CON.",
+            "cost": {
+              "resource": "rune-invocations",
+              "amount": 1
+            },
+            "choose": {
+              "label": "Rune",
+              "options": [
+                "Cloud Rune",
+                "Fire Rune",
+                "Frost Rune",
+                "Stone Rune",
+                "Hill Rune (7th)",
+                "Storm Rune (7th)"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:rune-knight-giants-might",
+      "name": "Giant's Might",
+      "summary": "Bonus action, proficiency bonus times per long rest: for 1 minute you become Large (if smaller), have advantage on Strength checks and saves, and once per turn add 1d6 to a weapon or unarmed hit (1d8 at 10th, 1d10 at 18th).",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 45
+      },
+      "scaling": {
+        "die": {
+          "class": "class:fighter",
+          "table": [
+            [
+              3,
+              "1d6"
+            ],
+            [
+              10,
+              "1d8"
+            ],
+            [
+              18,
+              "1d10"
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "giants-might",
+            "name": "Giant's Might",
+            "max": "pb",
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "giants-might",
+            "name": "Giant's Might",
+            "economy": "bonus",
+            "toggles": [
+              "giants-might"
+            ],
+            "note": "Large for 1 minute, advantage on Strength checks and saves, extra damage once per turn.",
+            "cost": {
+              "resource": "giants-might",
+              "amount": 1
+            },
+            "duration": {
+              "rounds": 10
+            }
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.check.str",
+            "op": "advantage",
+            "when": {
+              "toggle": "giants-might"
+            },
+            "label": "Giant's Might"
+          },
+          {
+            "selector": "roll.save.str",
+            "op": "advantage",
+            "when": {
+              "toggle": "giants-might"
+            },
+            "label": "Giant's Might"
+          },
+          {
+            "selector": "roll.damage.weapon.*",
+            "op": "add",
+            "value": "scale.die",
+            "mode": "suggested",
+            "when": {
+              "toggle": "giants-might",
+              "text": "once per turn"
+            },
+            "label": "Giant's Might",
+            "oncePerTurn": true
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:rune-knight-runic-shield",
+      "name": "Runic Shield",
+      "summary": "Reaction when a creature you can see within 60 feet hits someone else: force the attacker to reroll and use the new roll. Proficiency bonus times per long rest.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 45
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "runic-shield",
+            "name": "Runic Shield",
+            "max": "pb",
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "runic-shield",
+            "name": "Runic Shield",
+            "economy": "reaction",
+            "toggles": [],
+            "note": "An attack hits another creature within 60 ft: the attacker rerolls the d20.",
+            "cost": {
+              "resource": "runic-shield",
+              "amount": 1
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:rune-knight-great-stature",
+      "name": "Great Stature",
+      "summary": "You grow 3d4 inches permanently, and Giant's Might's extra damage becomes 1d8.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 45
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:rune-knight-master-of-runes",
+      "name": "Master of Runes",
+      "summary": "You can invoke each rune you know twice per short or long rest.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 45
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:rune-knight-runic-juggernaut",
+      "name": "Runic Juggernaut",
+      "summary": "Giant's Might's extra damage becomes 1d10, you can grow to Huge instead of Large, and your reach increases by 5 feet while enlarged.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 45
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:style-blind-fighting",
+      "name": "Blind Fighting",
+      "summary": "Blindsight out to 10 feet.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 41
+      },
+      "grant": {
+        "senses": {
+          "blindsight": 10
+        }
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:style-interception",
+      "name": "Interception",
+      "summary": "Reaction when a creature you can see hits someone else within 5 feet of you: reduce the damage by 1d10 + your proficiency bonus. Needs a shield or a simple or martial weapon in hand.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 41
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "interception",
+            "name": "Interception",
+            "economy": "reaction",
+            "toggles": [],
+            "note": "Another creature within 5 ft is hit: reduce the damage. Shield or weapon in hand.",
+            "roll": {
+              "dice": "1d10 + pb",
+              "label": "damage reduced"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:style-superior-technique",
+      "name": "Superior Technique",
+      "summary": "Learn one Battle Master maneuver and gain one d6 superiority die (back on a short or long rest), added to any you already have.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 41
+      },
+      "choices": [
+        {
+          "id": "maneuver",
+          "label": "Maneuver",
+          "kind": "option",
+          "count": 1,
+          "from": [
+            "Commander's Strike",
+            "Disarming Attack",
+            "Distracting Strike",
+            "Evasive Footwork",
+            "Feinting Attack",
+            "Goading Attack",
+            "Lunging Attack",
+            "Maneuvering Attack",
+            "Menacing Attack",
+            "Parry",
+            "Precision Attack",
+            "Pushing Attack",
+            "Rally",
+            "Riposte",
+            "Sweeping Attack",
+            "Trip Attack",
+            "Ambush",
+            "Bait and Switch",
+            "Brace",
+            "Commanding Presence",
+            "Grappling Strike",
+            "Quick Toss",
+            "Tactical Assessment"
+          ]
+        }
+      ],
+      "grant": {
+        "resources": [
+          {
+            "id": "superiority-dice-technique",
+            "name": "Superiority Die (Superior Technique)",
+            "max": 1,
+            "reset": "short",
+            "die": "d6"
+          }
+        ],
+        "actions": [
+          {
+            "id": "superior-technique",
+            "name": "Maneuver (Superior Technique)",
+            "economy": "free",
+            "toggles": [],
+            "note": "Spend the d6 on your chosen maneuver. Save DC 8 + PB + STR or DEX.",
+            "cost": {
+              "resource": "superiority-dice-technique",
+              "amount": 1
+            },
+            "roll": {
+              "dice": "1d6",
+              "label": "superiority die"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:style-thrown-weapon-fighting",
+      "name": "Thrown Weapon Fighting",
+      "summary": "Draw a thrown weapon as part of the attack, and +2 damage on ranged attacks made with a thrown weapon.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 42
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.damage.weapon.thrown",
+            "op": "add",
+            "value": 2,
+            "label": "Thrown Weapon Fighting"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:style-unarmed-fighting",
+      "name": "Unarmed Fighting",
+      "summary": "Unarmed strikes deal 1d6 + Strength bludgeoning (1d8 with no weapon or shield in hand). At the start of your turn, deal 1d4 bludgeoning to a creature you're grappling.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 42
+      },
+      "grant": {
+        "attacks": [
+          {
+            "id": "unarmed-fighting",
+            "name": "Unarmed Strike (Unarmed Fighting)",
+            "category": "simple",
+            "kind": "melee",
+            "damage": "1d6",
+            "damageType": "bludgeoning",
+            "properties": []
+          },
+          {
+            "id": "unarmed-fighting-free-hands",
+            "name": "Unarmed Strike (Unarmed Fighting, hands free)",
+            "category": "simple",
+            "kind": "melee",
+            "damage": "1d8",
+            "damageType": "bludgeoning",
+            "properties": []
+          }
+        ],
+        "actions": [
+          {
+            "id": "unarmed-fighting-grapple",
+            "name": "Grapple damage (Unarmed Fighting)",
+            "economy": "free",
+            "toggles": [],
+            "note": "Start of your turn: a creature you're grappling takes the roll as bludgeoning damage.",
+            "roll": {
+              "dice": "1d4",
+              "label": "bludgeoning damage"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:fighter-fighting-style",
+      "name": "Fighting Style",
+      "summary": "Pick one fighting style; Tasha's Fighting Style Options add Blind Fighting, Interception, Superior Technique, Thrown Weapon Fighting and Unarmed Fighting.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 72
+      },
+      "choices": [
+        {
+          "id": "option",
+          "label": "Fighting Style",
+          "kind": "feature",
+          "count": 1,
+          "from": [
+            "feature:style-archery",
+            "feature:style-defense",
+            "feature:style-dueling",
+            "feature:style-great-weapon-fighting",
+            "feature:style-protection",
+            "feature:style-two-weapon-fighting",
+            "feature:style-blind-fighting",
+            "feature:style-interception",
+            "feature:style-superior-technique",
+            "feature:style-thrown-weapon-fighting",
+            "feature:style-unarmed-fighting"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:additional-fighting-style",
+      "name": "Additional Fighting Style",
+      "summary": "Pick a second fighting style (Tasha's options included).",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 73
+      },
+      "choices": [
+        {
+          "id": "option",
+          "label": "Additional Fighting Style",
+          "kind": "feature",
+          "count": 1,
+          "from": [
+            "feature:style-archery",
+            "feature:style-defense",
+            "feature:style-dueling",
+            "feature:style-great-weapon-fighting",
+            "feature:style-protection",
+            "feature:style-two-weapon-fighting",
+            "feature:style-blind-fighting",
+            "feature:style-interception",
+            "feature:style-superior-technique",
+            "feature:style-thrown-weapon-fighting",
+            "feature:style-unarmed-fighting"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:fighter-martial-versatility",
+      "name": "Martial Versatility",
+      "summary": "When you gain an Ability Score Improvement, you can swap your fighting style for another fighter style, or one maneuver for another if you're a Battle Master.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 42
+      }
+    }
+  ]
+}

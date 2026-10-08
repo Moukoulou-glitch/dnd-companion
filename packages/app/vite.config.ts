@@ -24,7 +24,8 @@ export default defineConfig({
         scope: base,
         icons: [{ src: "icon.svg", sizes: "any", type: "image/svg+xml", purpose: "any maskable" }],
       },
-      workbox: { globPatterns: ["**/*.{js,css,html,svg,woff,woff2}"] },
+      // The content packs make the app bundle large; it still has to work offline.
+      workbox: { globPatterns: ["**/*.{js,css,html,svg,woff,woff2}"], maximumFileSizeToCacheInBytes: 6 * 1024 * 1024 },
     }),
   ],
   server: { fs: { allow: ["../.."] } },

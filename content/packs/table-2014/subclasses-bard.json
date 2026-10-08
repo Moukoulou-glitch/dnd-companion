@@ -1,0 +1,1165 @@
+{
+  "definitions": [
+    {
+      "kind": "class",
+      "id": "class:bard",
+      "name": "Bard",
+      "summary": "Musician and spellcaster who inspires allies and knows a little of everything.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "hitDie": 8,
+      "saves": [
+        "dex",
+        "cha"
+      ],
+      "startingGrant": {
+        "proficiencies": [
+          {
+            "kind": "armor",
+            "target": "light"
+          },
+          {
+            "kind": "weapon",
+            "target": "simple"
+          },
+          {
+            "kind": "weapon",
+            "target": "longsword"
+          },
+          {
+            "kind": "weapon",
+            "target": "rapier"
+          },
+          {
+            "kind": "weapon",
+            "target": "shortsword"
+          },
+          {
+            "kind": "weapon",
+            "target": "hand crossbow"
+          },
+          {
+            "kind": "skill",
+            "target": {
+              "choice": "skills"
+            }
+          },
+          {
+            "kind": "tool",
+            "target": {
+              "choice": "tools"
+            }
+          }
+        ]
+      },
+      "multiclassGrant": {
+        "proficiencies": [
+          {
+            "kind": "armor",
+            "target": "light"
+          },
+          {
+            "kind": "skill",
+            "target": {
+              "choice": "skills"
+            }
+          },
+          {
+            "kind": "tool",
+            "target": {
+              "choice": "tools"
+            }
+          }
+        ]
+      },
+      "subclassLevel": 3,
+      "spellcasting": {
+        "id": "bard",
+        "label": "Bard",
+        "ability": "cha",
+        "progression": "full"
+      },
+      "spellPreparation": "known",
+      "features": [],
+      "adds": [
+        {
+          "level": 1,
+          "feature": "feature:bard-additional-bard-spells"
+        },
+        {
+          "level": 2,
+          "feature": "feature:bard-magical-inspiration"
+        },
+        {
+          "level": 4,
+          "feature": "feature:bard-bardic-versatility"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:bard-additional-bard-spells",
+      "name": "Additional Bard Spells",
+      "summary": "Optional (Tasha's): extra spells are added to the bard spell list (see the book's list).",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 27
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:bard-magical-inspiration",
+      "name": "Magical Inspiration",
+      "summary": "Optional (Tasha's): a creature holding your Bardic Inspiration die can add it to one healing roll or one damage roll of a spell it casts, then the die is spent.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 27
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:bard-bardic-versatility",
+      "name": "Bardic Versatility",
+      "summary": "Optional (Tasha's): whenever you get an Ability Score Improvement, you may swap one Expertise skill for another proficient skill, or one bard cantrip for another.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 27
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:college-of-valor",
+      "name": "College of Valor",
+      "summary": "Battle-ready bard whose inspiration also boosts damage and defense.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 55
+      },
+      "class": "class:bard",
+      "features": [
+        {
+          "level": 3,
+          "feature": "feature:college-of-valor-bonus-proficiencies"
+        },
+        {
+          "level": 3,
+          "feature": "feature:college-of-valor-combat-inspiration"
+        },
+        {
+          "level": 6,
+          "feature": "feature:college-of-valor-extra-attack"
+        },
+        {
+          "level": 14,
+          "feature": "feature:college-of-valor-battle-magic"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:college-of-valor-bonus-proficiencies",
+      "name": "Bonus Proficiencies",
+      "summary": "Proficiency with medium armor, shields and martial weapons.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 55
+      },
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "armor",
+            "target": "medium"
+          },
+          {
+            "kind": "armor",
+            "target": "shields"
+          },
+          {
+            "kind": "weapon",
+            "target": "martial"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:college-of-valor-combat-inspiration",
+      "name": "Combat Inspiration",
+      "summary": "A creature with your Bardic Inspiration die can also add it to a weapon damage roll, or to its AC as a reaction against one attack.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 55
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:college-of-valor-extra-attack",
+      "name": "Extra Attack",
+      "summary": "Attack twice when you take the Attack action.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 55
+      },
+      "grant": {
+        "extraAttacks": 2
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:college-of-valor-battle-magic",
+      "name": "Battle Magic",
+      "summary": "After using your action to cast a bard spell, you can make one weapon attack as a bonus action.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 55
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "battle-magic",
+            "name": "Battle Magic",
+            "economy": "bonus",
+            "infoOnly": true,
+            "note": "After casting a bard spell with your action: one weapon attack as a bonus action."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:college-of-glamour",
+      "name": "College of Glamour",
+      "summary": "Fey-touched bard who beguiles crowds and commands with majesty.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 14
+      },
+      "class": "class:bard",
+      "features": [
+        {
+          "level": 3,
+          "feature": "feature:college-of-glamour-mantle-of-inspiration"
+        },
+        {
+          "level": 3,
+          "feature": "feature:college-of-glamour-enthralling-performance"
+        },
+        {
+          "level": 6,
+          "feature": "feature:college-of-glamour-mantle-of-majesty"
+        },
+        {
+          "level": 14,
+          "feature": "feature:college-of-glamour-unbreakable-majesty"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:college-of-glamour-mantle-of-inspiration",
+      "name": "Mantle of Inspiration",
+      "summary": "Bonus action, spend a Bardic Inspiration: up to Charisma modifier (min 1) creatures within 60 ft gain temp HP (5, rising to 14 at 15th) and can use their reaction to move without provoking opportunity attacks.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 14
+      },
+      "scaling": {
+        "thp": {
+          "class": "class:bard",
+          "table": [
+            [
+              3,
+              5
+            ],
+            [
+              5,
+              8
+            ],
+            [
+              10,
+              11
+            ],
+            [
+              15,
+              14
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "mantle-of-inspiration",
+            "name": "Mantle of Inspiration",
+            "economy": "bonus",
+            "cost": {
+              "resource": "bardic-inspiration"
+            },
+            "roll": {
+              "dice": "scale.thp",
+              "label": "temp HP for each chosen creature"
+            },
+            "note": "Up to Cha mod creatures within 60 ft: temp HP, and each may move its speed with its reaction without provoking."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:college-of-glamour-enthralling-performance",
+      "name": "Enthralling Performance",
+      "summary": "After performing for at least 1 minute, up to Charisma modifier humanoids that watched make a Wisdom save or are charmed by you for an hour. Once per short or long rest.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 14
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "enthralling-performance",
+            "name": "Enthralling Performance",
+            "max": 1,
+            "reset": "short"
+          }
+        ],
+        "actions": [
+          {
+            "id": "enthralling-performance",
+            "name": "Enthralling Performance",
+            "economy": "action",
+            "cost": {
+              "resource": "enthralling-performance"
+            },
+            "note": "After a 1-minute performance: Wisdom save or charmed for 1 hour."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:college-of-glamour-mantle-of-majesty",
+      "name": "Mantle of Majesty",
+      "summary": "Bonus action: for 1 minute (concentration) you can cast Command as a bonus action each turn without a slot; charmed targets fail automatically. Once per long rest, or spend a 3rd-level or higher slot.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 14
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "mantle-of-majesty",
+            "name": "Mantle of Majesty",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "mantle-of-majesty",
+            "name": "Mantle of Majesty",
+            "economy": "bonus",
+            "cost": {
+              "resource": "mantle-of-majesty"
+            },
+            "toggles": [
+              "mantle-of-majesty"
+            ],
+            "duration": {
+              "rounds": 10
+            },
+            "note": "Concentration, 1 minute. Cast Command as a bonus action each turn, no slot."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:college-of-glamour-unbreakable-majesty",
+      "name": "Unbreakable Majesty",
+      "summary": "Bonus action, 1 minute: a creature attacking you for the first time on a turn must make a Charisma save or pick a new target; on a success it has disadvantage on saves against your spells on your next turn. Once per short or long rest.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 15
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "unbreakable-majesty",
+            "name": "Unbreakable Majesty",
+            "max": 1,
+            "reset": "short"
+          }
+        ],
+        "actions": [
+          {
+            "id": "unbreakable-majesty",
+            "name": "Unbreakable Majesty",
+            "economy": "bonus",
+            "cost": {
+              "resource": "unbreakable-majesty"
+            },
+            "toggles": [
+              "unbreakable-majesty"
+            ],
+            "duration": {
+              "rounds": 10
+            },
+            "note": "First attack against you each turn: Charisma save or retarget."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:college-of-swords",
+      "name": "College of Swords",
+      "summary": "Blade-juggling bard who spends inspiration on weapon flourishes.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 15
+      },
+      "class": "class:bard",
+      "features": [
+        {
+          "level": 3,
+          "feature": "feature:college-of-swords-bonus-proficiencies"
+        },
+        {
+          "level": 3,
+          "feature": "feature:college-of-swords-fighting-style"
+        },
+        {
+          "level": 3,
+          "feature": "feature:college-of-swords-blade-flourish"
+        },
+        {
+          "level": 6,
+          "feature": "feature:college-of-swords-extra-attack"
+        },
+        {
+          "level": 14,
+          "feature": "feature:college-of-swords-masters-flourish"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:college-of-swords-bonus-proficiencies",
+      "name": "Bonus Proficiencies",
+      "summary": "Proficiency with medium armor and the scimitar; a proficient simple or martial melee weapon can be your spellcasting focus.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 15
+      },
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "armor",
+            "target": "medium"
+          },
+          {
+            "kind": "weapon",
+            "target": "scimitar"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:college-of-swords-fighting-style",
+      "name": "Fighting Style",
+      "summary": "Pick Dueling or Two-Weapon Fighting.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 15
+      },
+      "choices": [
+        {
+          "id": "style",
+          "label": "Fighting style",
+          "kind": "feature",
+          "count": 1,
+          "from": [
+            "feature:style-dueling",
+            "feature:style-two-weapon-fighting"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:college-of-swords-blade-flourish",
+      "name": "Blade Flourish",
+      "summary": "When you take the Attack action, your walking speed rises by 10 ft that turn. Once per turn on a weapon hit, spend a Bardic Inspiration for a flourish: Defensive (die to damage and to AC until your next turn), Slashing (die to the target and another creature within 5 ft), or Mobile (die to damage and push the target 5 + die ft).",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 15
+      },
+      "scaling": {
+        "die": {
+          "class": "class:bard",
+          "table": [
+            [
+              1,
+              "d6"
+            ],
+            [
+              5,
+              "d8"
+            ],
+            [
+              10,
+              "d10"
+            ],
+            [
+              15,
+              "d12"
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "blade-flourish",
+            "name": "Blade Flourish",
+            "economy": "free",
+            "cost": {
+              "resource": "bardic-inspiration"
+            },
+            "roll": {
+              "dice": "scale.die",
+              "label": "flourish die"
+            },
+            "choose": {
+              "label": "Flourish",
+              "options": [
+                "Defensive Flourish",
+                "Slashing Flourish",
+                "Mobile Flourish"
+              ]
+            },
+            "note": "Once per turn, on a weapon hit during the Attack action."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:college-of-swords-extra-attack",
+      "name": "Extra Attack",
+      "summary": "Attack twice when you take the Attack action.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 15
+      },
+      "grant": {
+        "extraAttacks": 2
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:college-of-swords-masters-flourish",
+      "name": "Master's Flourish",
+      "summary": "When you flourish, you can roll a d6 instead of spending a Bardic Inspiration.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 15
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "masters-flourish",
+            "name": "Master's Flourish",
+            "economy": "free",
+            "roll": {
+              "dice": "1d6",
+              "label": "flourish die"
+            },
+            "choose": {
+              "label": "Flourish",
+              "options": [
+                "Defensive Flourish",
+                "Slashing Flourish",
+                "Mobile Flourish"
+              ]
+            },
+            "note": "A flourish using a d6 instead of a Bardic Inspiration (still once per turn)."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:college-of-whispers",
+      "name": "College of Whispers",
+      "summary": "Bard of secrets, fear and stolen identities.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 16
+      },
+      "class": "class:bard",
+      "features": [
+        {
+          "level": 3,
+          "feature": "feature:college-of-whispers-psychic-blades"
+        },
+        {
+          "level": 3,
+          "feature": "feature:college-of-whispers-words-of-terror"
+        },
+        {
+          "level": 6,
+          "feature": "feature:college-of-whispers-mantle-of-whispers"
+        },
+        {
+          "level": 14,
+          "feature": "feature:college-of-whispers-shadow-lore"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:college-of-whispers-psychic-blades",
+      "name": "Psychic Blades",
+      "summary": "Once per turn on a weapon hit, spend a Bardic Inspiration for extra psychic damage (2d6; 3d6 at 5th, 5d6 at 10th, 8d6 at 15th).",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 16
+      },
+      "scaling": {
+        "dice": {
+          "class": "class:bard",
+          "table": [
+            [
+              3,
+              "2d6"
+            ],
+            [
+              5,
+              "3d6"
+            ],
+            [
+              10,
+              "5d6"
+            ],
+            [
+              15,
+              "8d6"
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "psychic-blades",
+            "name": "Psychic Blades",
+            "economy": "free",
+            "cost": {
+              "resource": "bardic-inspiration"
+            },
+            "roll": {
+              "dice": "scale.dice",
+              "label": "psychic damage"
+            },
+            "note": "Once per turn, after hitting with a weapon."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:college-of-whispers-words-of-terror",
+      "name": "Words of Terror",
+      "summary": "After a 1-minute private talk, the creature makes a Wisdom save or is frightened of you or a creature you choose for 1 hour. Once per short or long rest.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 16
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "words-of-terror",
+            "name": "Words of Terror",
+            "max": 1,
+            "reset": "short"
+          }
+        ],
+        "actions": [
+          {
+            "id": "words-of-terror",
+            "name": "Words of Terror",
+            "economy": "action",
+            "cost": {
+              "resource": "words-of-terror"
+            },
+            "note": "After 1 minute speaking alone with it: Wisdom save or frightened for 1 hour."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:college-of-whispers-mantle-of-whispers",
+      "name": "Mantle of Whispers",
+      "summary": "Reaction when a humanoid dies within 30 ft: capture its shadow, then use an action to take on its appearance for 1 hour and gain a sense of its memories. Once per short or long rest.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 17
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "mantle-of-whispers",
+            "name": "Mantle of Whispers",
+            "max": 1,
+            "reset": "short"
+          }
+        ],
+        "actions": [
+          {
+            "id": "mantle-of-whispers",
+            "name": "Mantle of Whispers",
+            "economy": "reaction",
+            "cost": {
+              "resource": "mantle-of-whispers"
+            },
+            "toggles": [
+              "mantle-of-whispers"
+            ],
+            "duration": {
+              "minutes": 60
+            },
+            "note": "Capture a dying humanoid's shadow; disguise as it for 1 hour (+5 Deception to pass as it)."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:college-of-whispers-shadow-lore",
+      "name": "Shadow Lore",
+      "summary": "Action: whisper to a creature within 30 ft; on a failed Wisdom save it's charmed and obeys you for 8 hours, believing you know its deepest secret. Once per long rest.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 17
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "shadow-lore",
+            "name": "Shadow Lore",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "shadow-lore",
+            "name": "Shadow Lore",
+            "economy": "action",
+            "cost": {
+              "resource": "shadow-lore"
+            },
+            "note": "Wisdom save or charmed for 8 hours."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:college-of-creation",
+      "name": "College of Creation",
+      "summary": "Bard who sings objects into being and animates them.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 27
+      },
+      "class": "class:bard",
+      "features": [
+        {
+          "level": 3,
+          "feature": "feature:college-of-creation-mote-of-potential"
+        },
+        {
+          "level": 3,
+          "feature": "feature:college-of-creation-performance-of-creation"
+        },
+        {
+          "level": 6,
+          "feature": "feature:college-of-creation-animating-performance"
+        },
+        {
+          "level": 14,
+          "feature": "feature:college-of-creation-creative-crescendo"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:college-of-creation-mote-of-potential",
+      "name": "Mote of Potential",
+      "summary": "Your Bardic Inspiration dice gain a bonus: on a check, roll the die twice and take either; on an attack, a hit sends a thunder burst (Con save) around the target; on a save, the creature also gains temp HP equal to the roll + your Charisma modifier.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 27
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:college-of-creation-performance-of-creation",
+      "name": "Performance of Creation",
+      "summary": "Action: create a nonmagical item worth up to 20 gp x bard level (Medium; Large at 6th, Huge at 14th) that lasts proficiency bonus hours. Once per long rest, or spend a 2nd-level or higher slot.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 28
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "performance-of-creation",
+            "name": "Performance of Creation",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "performance-of-creation",
+            "name": "Performance of Creation",
+            "economy": "action",
+            "cost": {
+              "resource": "performance-of-creation"
+            },
+            "note": "Create an item worth up to 20 gp x bard level; lasts proficiency bonus hours. Or spend a 2nd+ slot instead."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:college-of-creation-animating-performance",
+      "name": "Animating Performance",
+      "summary": "Action: animate a Large or smaller nonmagical item within 30 ft as a Dancing Item for 1 hour. It acts on your turn; command it with a bonus action. Once per long rest, or spend a 3rd-level or higher slot.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 28
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "animating-performance",
+            "name": "Animating Performance",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "animating-performance",
+            "name": "Animating Performance",
+            "economy": "action",
+            "cost": {
+              "resource": "animating-performance"
+            },
+            "duration": {
+              "minutes": 60
+            },
+            "note": "Animate an item for 1 hour. Or spend a 3rd+ slot instead."
+          }
+        ],
+        "companions": [
+          {
+            "id": "dancing-item",
+            "name": "Dancing Item",
+            "spellcasting": "bard",
+            "combatNote": "Shares your initiative and acts right after you. It Dodges unless you use a bonus action to command it. You can also have it use its reaction when you use Bardic Inspiration.",
+            "forms": [
+              {
+                "id": "dancing-item",
+                "name": "Dancing Item",
+                "size": "Large or smaller",
+                "type": "construct",
+                "ac": 16,
+                "hp": {
+                  "base": 10,
+                  "perLevel": 5,
+                  "class": "class:bard"
+                },
+                "speed": "30 ft., fly 30 ft. (hover)",
+                "abilities": {
+                  "str": 18,
+                  "dex": 14,
+                  "con": 16,
+                  "int": 4,
+                  "wis": 10,
+                  "cha": 6
+                },
+                "senses": "Darkvision 60 ft.",
+                "languages": "Understands the languages you speak",
+                "traits": [
+                  {
+                    "name": "Immutable Form",
+                    "summary": "Immune to anything that would change its shape."
+                  },
+                  {
+                    "name": "Irrepressible Dance",
+                    "summary": "A creature starting its turn within 10 ft of it can have its speed raised or lowered by 10 ft that turn (the item chooses)."
+                  },
+                  {
+                    "name": "Immunities",
+                    "summary": "Immune to poison and psychic damage, and to being charmed, exhausted, frightened or poisoned."
+                  }
+                ],
+                "attacks": [
+                  {
+                    "name": "Force-Empowered Slam",
+                    "kind": "melee",
+                    "toHit": "spell",
+                    "reach": "5 ft.",
+                    "damage": "1d10",
+                    "damageBonus": "pb",
+                    "damageType": "force"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:college-of-creation-creative-crescendo",
+      "name": "Creative Crescendo",
+      "summary": "Performance of Creation can make several items at once (up to your Charisma modifier, min 2); one may be any size within the limits, the rest Small or smaller, and there's no gold limit.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 28
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:college-of-eloquence",
+      "name": "College of Eloquence",
+      "summary": "Master orator whose words persuade, unsettle and inspire.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 29
+      },
+      "class": "class:bard",
+      "features": [
+        {
+          "level": 3,
+          "feature": "feature:college-of-eloquence-silver-tongue"
+        },
+        {
+          "level": 3,
+          "feature": "feature:college-of-eloquence-unsettling-words"
+        },
+        {
+          "level": 6,
+          "feature": "feature:college-of-eloquence-unfailing-inspiration"
+        },
+        {
+          "level": 6,
+          "feature": "feature:college-of-eloquence-universal-speech"
+        },
+        {
+          "level": 14,
+          "feature": "feature:college-of-eloquence-infectious-inspiration"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:college-of-eloquence-silver-tongue",
+      "name": "Silver Tongue",
+      "summary": "Treat any d20 roll of 9 or lower as a 10 on Persuasion and Deception checks.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 29
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.check.skill.persuasion",
+            "op": "minD20",
+            "value": 10,
+            "label": "Silver Tongue"
+          },
+          {
+            "selector": "roll.check.skill.deception",
+            "op": "minD20",
+            "value": 10,
+            "label": "Silver Tongue"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:college-of-eloquence-unsettling-words",
+      "name": "Unsettling Words",
+      "summary": "Bonus action, spend a Bardic Inspiration: roll the die; a creature within 60 ft subtracts it from its next saving throw before your next turn.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 29
+      },
+      "scaling": {
+        "die": {
+          "class": "class:bard",
+          "table": [
+            [
+              1,
+              "d6"
+            ],
+            [
+              5,
+              "d8"
+            ],
+            [
+              10,
+              "d10"
+            ],
+            [
+              15,
+              "d12"
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "unsettling-words",
+            "name": "Unsettling Words",
+            "economy": "bonus",
+            "cost": {
+              "resource": "bardic-inspiration"
+            },
+            "roll": {
+              "dice": "scale.die",
+              "label": "subtracted from its next save"
+            },
+            "note": "A creature within 60 ft you can see; lasts until the start of your next turn."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:college-of-eloquence-unfailing-inspiration",
+      "name": "Unfailing Inspiration",
+      "summary": "If a creature adds your Bardic Inspiration die to a roll and still fails, it keeps the die.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 29
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:college-of-eloquence-universal-speech",
+      "name": "Universal Speech",
+      "summary": "Action: up to Charisma modifier (min 1) creatures within 60 ft understand you for 1 hour regardless of language. Once per long rest, or spend any spell slot.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 29
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "universal-speech",
+            "name": "Universal Speech",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "universal-speech",
+            "name": "Universal Speech",
+            "economy": "action",
+            "cost": {
+              "resource": "universal-speech"
+            },
+            "duration": {
+              "minutes": 60
+            },
+            "note": "Chosen creatures understand you for 1 hour. Or spend a spell slot instead."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:college-of-eloquence-infectious-inspiration",
+      "name": "Infectious Inspiration",
+      "summary": "Reaction when a creature succeeds on a roll using your Bardic Inspiration: give a free Bardic Inspiration to another creature within 60 ft. Charisma modifier (min 1) uses per long rest.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 29
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "infectious-inspiration",
+            "name": "Infectious Inspiration",
+            "max": "mod.cha",
+            "min": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "infectious-inspiration",
+            "name": "Infectious Inspiration",
+            "economy": "reaction",
+            "cost": {
+              "resource": "infectious-inspiration"
+            },
+            "note": "After a creature succeeds with your Bardic Inspiration: another creature within 60 ft gets one without spending your uses."
+          }
+        ]
+      }
+    }
+  ]
+}

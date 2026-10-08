@@ -184,7 +184,7 @@ export type ExtraNote = z.infer<typeof ExtraNote>;
 export const Extra = z
   .object({
     id: z.string(),
-    kind: z.enum(["skill", "expertise", "language", "tool", "feat", "spell"]),
+    kind: z.enum(["skill", "expertise", "language", "tool", "weapon", "armor", "feat", "spell"]),
     /** Skill key, language or tool name, feat id or spell id. */
     value: z.string(),
     /** Spells: the spellcasting it's cast with (a class list id), or the ability when the character has none. */

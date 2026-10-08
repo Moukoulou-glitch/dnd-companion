@@ -1,0 +1,1585 @@
+{
+  "definitions": [
+    {
+      "kind": "subclass",
+      "id": "subclass:gloom-stalker",
+      "name": "Gloom Stalker",
+      "summary": "Ranger at home in darkness who ambushes foes before they can react.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 41
+      },
+      "class": "class:ranger",
+      "features": [
+        {
+          "level": 3,
+          "feature": "feature:gloom-stalker-magic-3"
+        },
+        {
+          "level": 3,
+          "feature": "feature:gloom-stalker-dread-ambusher"
+        },
+        {
+          "level": 3,
+          "feature": "feature:gloom-stalker-umbral-sight"
+        },
+        {
+          "level": 5,
+          "feature": "feature:gloom-stalker-magic-5"
+        },
+        {
+          "level": 7,
+          "feature": "feature:gloom-stalker-iron-mind"
+        },
+        {
+          "level": 9,
+          "feature": "feature:gloom-stalker-magic-9"
+        },
+        {
+          "level": 11,
+          "feature": "feature:gloom-stalker-stalkers-flurry"
+        },
+        {
+          "level": 13,
+          "feature": "feature:gloom-stalker-magic-13"
+        },
+        {
+          "level": 15,
+          "feature": "feature:gloom-stalker-shadowy-dodge"
+        },
+        {
+          "level": 17,
+          "feature": "feature:gloom-stalker-magic-17"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:gloom-stalker-magic-3",
+      "name": "Gloom Stalker Magic (3)",
+      "summary": "Always known, and they don't count against your ranger spells known: Disguise Self.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 41
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:disguise-self",
+            "name": "Disguise Self",
+            "casting": "always known",
+            "list": "ranger"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:gloom-stalker-magic-5",
+      "name": "Gloom Stalker Magic (5)",
+      "summary": "Always known, and they don't count against your ranger spells known: Rope Trick.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 41
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:rope-trick",
+            "name": "Rope Trick",
+            "casting": "always known",
+            "list": "ranger"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:gloom-stalker-magic-9",
+      "name": "Gloom Stalker Magic (9)",
+      "summary": "Always known, and they don't count against your ranger spells known: Fear.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 41
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:fear",
+            "name": "Fear",
+            "casting": "always known",
+            "list": "ranger"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:gloom-stalker-magic-13",
+      "name": "Gloom Stalker Magic (13)",
+      "summary": "Always known, and they don't count against your ranger spells known: Greater Invisibility.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 41
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:greater-invisibility",
+            "name": "Greater Invisibility",
+            "casting": "always known",
+            "list": "ranger"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:gloom-stalker-magic-17",
+      "name": "Gloom Stalker Magic (17)",
+      "summary": "Always known, and they don't count against your ranger spells known: Seeming.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 41
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:seeming",
+            "name": "Seeming",
+            "casting": "always known",
+            "list": "ranger"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:gloom-stalker-dread-ambusher",
+      "name": "Dread Ambusher",
+      "summary": "Add your Wisdom modifier to initiative. On your first turn of each combat your speed rises by 10 ft, and if you take the Attack action you make one extra weapon attack that deals an extra 1d8 damage of the weapon's type on a hit.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 41
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.initiative",
+            "op": "add",
+            "value": "mod.wis",
+            "label": "Dread Ambusher"
+          },
+          {
+            "selector": "roll.damage.weapon.*",
+            "op": "add",
+            "value": "1d8",
+            "mode": "suggested",
+            "when": {
+              "text": "the extra attack on your first turn of combat"
+            },
+            "label": "Dread Ambusher"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:gloom-stalker-umbral-sight",
+      "name": "Umbral Sight",
+      "summary": "Darkvision 60 ft (or 30 ft more if you already have it). While in darkness you are invisible to creatures that rely on darkvision to see you.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 41
+      },
+      "grant": {
+        "senses": {
+          "darkvision": 60
+        }
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:gloom-stalker-iron-mind",
+      "name": "Iron Mind",
+      "summary": "Proficiency in Wisdom saving throws; if you already have it, pick Intelligence or Charisma saves instead.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 41
+      },
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "save",
+            "target": {
+              "choice": "save"
+            }
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "save",
+          "label": "Saving throw",
+          "kind": "ability",
+          "count": 1,
+          "from": [
+            "wis",
+            "int",
+            "cha"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:gloom-stalker-stalkers-flurry",
+      "name": "Stalker's Flurry",
+      "summary": "Once on each of your turns when you miss with a weapon attack, you can make another weapon attack as part of the same action.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 41
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.attack.weapon.*",
+            "op": "note",
+            "label": "Stalker's Flurry: on a miss, make another weapon attack (once per turn).",
+            "oncePerTurn": true
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:gloom-stalker-shadowy-dodge",
+      "name": "Shadowy Dodge",
+      "summary": "Reaction: when a creature attacks you without advantage, impose disadvantage on that attack.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 41
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "shadowy-dodge",
+            "name": "Shadowy Dodge",
+            "economy": "reaction",
+            "note": "An attack against you without advantage: it has disadvantage."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:horizon-walker",
+      "name": "Horizon Walker",
+      "summary": "Ranger who guards the world against planar threats and steps between planes.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 42
+      },
+      "class": "class:ranger",
+      "features": [
+        {
+          "level": 3,
+          "feature": "feature:horizon-walker-magic-3"
+        },
+        {
+          "level": 3,
+          "feature": "feature:horizon-walker-detect-portal"
+        },
+        {
+          "level": 3,
+          "feature": "feature:horizon-walker-planar-warrior"
+        },
+        {
+          "level": 5,
+          "feature": "feature:horizon-walker-magic-5"
+        },
+        {
+          "level": 7,
+          "feature": "feature:horizon-walker-ethereal-step"
+        },
+        {
+          "level": 9,
+          "feature": "feature:horizon-walker-magic-9"
+        },
+        {
+          "level": 11,
+          "feature": "feature:horizon-walker-distant-strike"
+        },
+        {
+          "level": 13,
+          "feature": "feature:horizon-walker-magic-13"
+        },
+        {
+          "level": 15,
+          "feature": "feature:horizon-walker-spectral-defense"
+        },
+        {
+          "level": 17,
+          "feature": "feature:horizon-walker-magic-17"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:horizon-walker-magic-3",
+      "name": "Horizon Walker Magic (3)",
+      "summary": "Always known, and they don't count against your ranger spells known: Protection from Evil and Good.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 42
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:protection-from-evil-and-good",
+            "name": "Protection from Evil and Good",
+            "casting": "always known",
+            "list": "ranger"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:horizon-walker-magic-5",
+      "name": "Horizon Walker Magic (5)",
+      "summary": "Always known, and they don't count against your ranger spells known: Misty Step.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 42
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:misty-step",
+            "name": "Misty Step",
+            "casting": "always known",
+            "list": "ranger"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:horizon-walker-magic-9",
+      "name": "Horizon Walker Magic (9)",
+      "summary": "Always known, and they don't count against your ranger spells known: Haste.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 42
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:haste",
+            "name": "Haste",
+            "casting": "always known",
+            "list": "ranger"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:horizon-walker-magic-13",
+      "name": "Horizon Walker Magic (13)",
+      "summary": "Always known, and they don't count against your ranger spells known: Banishment.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 42
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:banishment",
+            "name": "Banishment",
+            "casting": "always known",
+            "list": "ranger"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:horizon-walker-magic-17",
+      "name": "Horizon Walker Magic (17)",
+      "summary": "Always known, and they don't count against your ranger spells known: Teleportation Circle.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 42
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:teleportation-circle",
+            "name": "Teleportation Circle",
+            "casting": "always known",
+            "list": "ranger"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:horizon-walker-detect-portal",
+      "name": "Detect Portal",
+      "summary": "Action, once per short or long rest: learn the distance and direction to the nearest planar portal within 1 mile.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 42
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "detect-portal",
+            "name": "Detect Portal",
+            "max": 1,
+            "reset": "short"
+          }
+        ],
+        "actions": [
+          {
+            "id": "detect-portal",
+            "name": "Detect Portal",
+            "economy": "action",
+            "cost": {
+              "resource": "detect-portal"
+            },
+            "note": "Sense the distance and direction to the closest planar portal within 1 mile."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:horizon-walker-planar-warrior",
+      "name": "Planar Warrior",
+      "summary": "Bonus action: pick a creature within 30 ft. Your next hit on it this turn deals all force damage plus an extra 1d8 force (2d8 from 11th level).",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 42
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "planar-warrior",
+            "name": "Planar Warrior",
+            "economy": "bonus",
+            "note": "Choose a creature within 30 ft: your next hit on it this turn deals force damage plus extra dice."
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.damage.weapon.*",
+            "op": "add",
+            "value": "scale.dice",
+            "mode": "suggested",
+            "when": {
+              "text": "first hit this turn on the creature marked with Planar Warrior (all the damage becomes force)"
+            },
+            "label": "Planar Warrior",
+            "damageType": "force",
+            "oncePerTurn": true
+          }
+        ]
+      },
+      "scaling": {
+        "dice": {
+          "class": "class:ranger",
+          "table": [
+            [
+              3,
+              "1d8"
+            ],
+            [
+              11,
+              "2d8"
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:horizon-walker-ethereal-step",
+      "name": "Ethereal Step",
+      "summary": "Bonus action, once per short or long rest: step into the Ethereal Plane until the end of the turn, as the etherealness spell.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 42
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "ethereal-step",
+            "name": "Ethereal Step",
+            "max": 1,
+            "reset": "short"
+          }
+        ],
+        "actions": [
+          {
+            "id": "ethereal-step",
+            "name": "Ethereal Step",
+            "economy": "bonus",
+            "cost": {
+              "resource": "ethereal-step"
+            },
+            "note": "Become ethereal until the end of this turn."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:horizon-walker-distant-strike",
+      "name": "Distant Strike",
+      "summary": "With the Attack action you can teleport up to 10 ft before each attack, and if you attack at least two different creatures you get one more attack against a third.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 42
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.attack.weapon.*",
+            "op": "note",
+            "label": "Distant Strike: teleport 10 ft before each attack; hit two different creatures to earn an attack on a third."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:horizon-walker-spectral-defense",
+      "name": "Spectral Defense",
+      "summary": "Reaction: when an attack damages you, you gain resistance to all of that attack's damage.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 42
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "spectral-defense",
+            "name": "Spectral Defense",
+            "economy": "reaction",
+            "note": "An attack damages you: resistance to all its damage this turn."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:monster-slayer",
+      "name": "Monster Slayer",
+      "summary": "Ranger who hunts vampires, dragons and other supernatural threats.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 43
+      },
+      "class": "class:ranger",
+      "features": [
+        {
+          "level": 3,
+          "feature": "feature:monster-slayer-magic-3"
+        },
+        {
+          "level": 3,
+          "feature": "feature:monster-slayer-hunters-sense"
+        },
+        {
+          "level": 3,
+          "feature": "feature:monster-slayer-slayers-prey"
+        },
+        {
+          "level": 5,
+          "feature": "feature:monster-slayer-magic-5"
+        },
+        {
+          "level": 7,
+          "feature": "feature:monster-slayer-supernatural-defense"
+        },
+        {
+          "level": 9,
+          "feature": "feature:monster-slayer-magic-9"
+        },
+        {
+          "level": 11,
+          "feature": "feature:monster-slayer-magic-users-nemesis"
+        },
+        {
+          "level": 13,
+          "feature": "feature:monster-slayer-magic-13"
+        },
+        {
+          "level": 15,
+          "feature": "feature:monster-slayer-slayers-counter"
+        },
+        {
+          "level": 17,
+          "feature": "feature:monster-slayer-magic-17"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:monster-slayer-magic-3",
+      "name": "Monster Slayer Magic (3)",
+      "summary": "Always known, and they don't count against your ranger spells known: Protection from Evil and Good.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 43
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:protection-from-evil-and-good",
+            "name": "Protection from Evil and Good",
+            "casting": "always known",
+            "list": "ranger"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:monster-slayer-magic-5",
+      "name": "Monster Slayer Magic (5)",
+      "summary": "Always known, and they don't count against your ranger spells known: Zone of Truth.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 43
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:zone-of-truth",
+            "name": "Zone of Truth",
+            "casting": "always known",
+            "list": "ranger"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:monster-slayer-magic-9",
+      "name": "Monster Slayer Magic (9)",
+      "summary": "Always known, and they don't count against your ranger spells known: Magic Circle.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 43
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:magic-circle",
+            "name": "Magic Circle",
+            "casting": "always known",
+            "list": "ranger"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:monster-slayer-magic-13",
+      "name": "Monster Slayer Magic (13)",
+      "summary": "Always known, and they don't count against your ranger spells known: Banishment.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 43
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:banishment",
+            "name": "Banishment",
+            "casting": "always known",
+            "list": "ranger"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:monster-slayer-magic-17",
+      "name": "Monster Slayer Magic (17)",
+      "summary": "Always known, and they don't count against your ranger spells known: Hold Monster.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 43
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:hold-monster",
+            "name": "Hold Monster",
+            "casting": "always known",
+            "list": "ranger"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:monster-slayer-hunters-sense",
+      "name": "Hunter's Sense",
+      "summary": "Action, Wisdom modifier times per long rest (at least once): learn a creature's damage immunities, resistances and vulnerabilities, if it isn't shielded from divination.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 43
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "hunters-sense",
+            "name": "Hunter's Sense",
+            "max": "mod.wis",
+            "reset": "long",
+            "min": 1
+          }
+        ],
+        "actions": [
+          {
+            "id": "hunters-sense",
+            "name": "Hunter's Sense",
+            "economy": "action",
+            "cost": {
+              "resource": "hunters-sense"
+            },
+            "note": "One creature within 60 ft: learn its damage immunities, resistances and vulnerabilities."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:monster-slayer-slayers-prey",
+      "name": "Slayer's Prey",
+      "summary": "Bonus action: mark a creature within 60 ft. The first time each turn you hit it with a weapon attack it takes an extra 1d6. Lasts until a short or long rest or until you mark another creature.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 43
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "slayers-prey",
+            "name": "Slayer's Prey",
+            "economy": "bonus",
+            "toggles": [
+              "slayers-prey"
+            ],
+            "note": "Mark a creature within 60 ft: +1d6 on your first weapon hit on it each turn."
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.damage.weapon.*",
+            "op": "add",
+            "value": "1d6",
+            "mode": "suggested",
+            "when": {
+              "toggle": "slayers-prey",
+              "text": "first hit this turn on your marked target"
+            },
+            "label": "Slayer's Prey",
+            "oncePerTurn": true
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:monster-slayer-supernatural-defense",
+      "name": "Supernatural Defense",
+      "summary": "When your Slayer's Prey target forces you to make a save, or you check to escape its grapple, add 1d6 to the roll.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 43
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.save.*",
+            "op": "add",
+            "value": "1d6",
+            "mode": "suggested",
+            "when": {
+              "toggle": "slayers-prey",
+              "text": "your Slayer's Prey target forced the save"
+            },
+            "label": "Supernatural Defense"
+          },
+          {
+            "selector": "roll.check.skill.athletics",
+            "op": "add",
+            "value": "1d6",
+            "mode": "suggested",
+            "when": {
+              "toggle": "slayers-prey",
+              "text": "escaping your Slayer's Prey target's grapple"
+            },
+            "label": "Supernatural Defense"
+          },
+          {
+            "selector": "roll.check.skill.acrobatics",
+            "op": "add",
+            "value": "1d6",
+            "mode": "suggested",
+            "when": {
+              "toggle": "slayers-prey",
+              "text": "escaping your Slayer's Prey target's grapple"
+            },
+            "label": "Supernatural Defense"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:monster-slayer-magic-users-nemesis",
+      "name": "Magic-User's Nemesis",
+      "summary": "Reaction, once per short or long rest: when you see a creature within 60 ft cast a spell or teleport, it makes a Wisdom save against your spell DC or the spell or teleport fails and is wasted.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 43
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "magic-users-nemesis",
+            "name": "Magic-User's Nemesis",
+            "max": 1,
+            "reset": "short"
+          }
+        ],
+        "actions": [
+          {
+            "id": "magic-users-nemesis",
+            "name": "Magic-User's Nemesis",
+            "economy": "reaction",
+            "cost": {
+              "resource": "magic-users-nemesis"
+            },
+            "note": "A creature within 60 ft casts or teleports: Wisdom save or it fails and is wasted."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:monster-slayer-slayers-counter",
+      "name": "Slayer's Counter",
+      "summary": "Reaction: when your Slayer's Prey target forces you to save, make one weapon attack against it; if it hits, you also succeed on the save.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 43
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "slayers-counter",
+            "name": "Slayer's Counter",
+            "economy": "reaction",
+            "note": "Your marked target forces a save: attack it once; a hit also makes your save succeed."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:fey-wanderer",
+      "name": "Fey Wanderer",
+      "summary": "Ranger touched by the Feywild who mixes fey charm with mind-scarring strikes.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 58
+      },
+      "class": "class:ranger",
+      "features": [
+        {
+          "level": 3,
+          "feature": "feature:fey-wanderer-magic-3"
+        },
+        {
+          "level": 3,
+          "feature": "feature:fey-wanderer-dreadful-strikes"
+        },
+        {
+          "level": 3,
+          "feature": "feature:fey-wanderer-otherworldly-glamour"
+        },
+        {
+          "level": 5,
+          "feature": "feature:fey-wanderer-magic-5"
+        },
+        {
+          "level": 7,
+          "feature": "feature:fey-wanderer-beguiling-twist"
+        },
+        {
+          "level": 9,
+          "feature": "feature:fey-wanderer-magic-9"
+        },
+        {
+          "level": 11,
+          "feature": "feature:fey-wanderer-fey-reinforcements"
+        },
+        {
+          "level": 13,
+          "feature": "feature:fey-wanderer-magic-13"
+        },
+        {
+          "level": 15,
+          "feature": "feature:fey-wanderer-misty-wanderer"
+        },
+        {
+          "level": 17,
+          "feature": "feature:fey-wanderer-magic-17"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:fey-wanderer-magic-3",
+      "name": "Fey Wanderer Magic (3)",
+      "summary": "Always known, and they don't count against your ranger spells known: Charm Person.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 58
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:charm-person",
+            "name": "Charm Person",
+            "casting": "always known",
+            "list": "ranger"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:fey-wanderer-magic-5",
+      "name": "Fey Wanderer Magic (5)",
+      "summary": "Always known, and they don't count against your ranger spells known: Misty Step.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 58
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:misty-step",
+            "name": "Misty Step",
+            "casting": "always known",
+            "list": "ranger"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:fey-wanderer-magic-9",
+      "name": "Fey Wanderer Magic (9)",
+      "summary": "Always known, and they don't count against your ranger spells known: Dispel Magic.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 58
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:dispel-magic",
+            "name": "Dispel Magic",
+            "casting": "always known",
+            "list": "ranger"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:fey-wanderer-magic-13",
+      "name": "Fey Wanderer Magic (13)",
+      "summary": "Always known, and they don't count against your ranger spells known: Dimension Door.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 58
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:dimension-door",
+            "name": "Dimension Door",
+            "casting": "always known",
+            "list": "ranger"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:fey-wanderer-magic-17",
+      "name": "Fey Wanderer Magic (17)",
+      "summary": "Always known, and they don't count against your ranger spells known: Mislead.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 58
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:mislead",
+            "name": "Mislead",
+            "casting": "always known",
+            "list": "ranger"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:fey-wanderer-dreadful-strikes",
+      "name": "Dreadful Strikes",
+      "summary": "When you hit a creature with a weapon you can add 1d4 psychic damage (1d6 from 11th level); each creature can take this only once per turn.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 58
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.damage.weapon.*",
+            "op": "add",
+            "value": "scale.dice",
+            "mode": "suggested",
+            "when": {
+              "text": "this creature hasn't taken Dreadful Strikes damage this turn"
+            },
+            "label": "Dreadful Strikes",
+            "damageType": "psychic"
+          }
+        ]
+      },
+      "scaling": {
+        "dice": {
+          "class": "class:ranger",
+          "table": [
+            [
+              3,
+              "1d4"
+            ],
+            [
+              11,
+              "1d6"
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:fey-wanderer-otherworldly-glamour",
+      "name": "Otherworldly Glamour",
+      "summary": "Add your Wisdom modifier (at least +1) to Charisma checks, and gain proficiency in Deception, Performance or Persuasion.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 58
+      },
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "skill",
+            "target": {
+              "choice": "skill"
+            }
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.check.cha",
+            "op": "add",
+            "value": "mod.wis",
+            "label": "Otherworldly Glamour"
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "skill",
+          "label": "Skill",
+          "kind": "skill",
+          "count": 1,
+          "from": [
+            "deception",
+            "performance",
+            "persuasion"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:fey-wanderer-beguiling-twist",
+      "name": "Beguiling Twist",
+      "summary": "Advantage on saves against being charmed or frightened. Reaction when you or a creature within 120 ft succeeds on such a save: another creature within 120 ft makes a Wisdom save or is charmed or frightened (your pick) for 1 minute.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 58
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.save.*",
+            "op": "advantage",
+            "mode": "suggested",
+            "when": {
+              "text": "against being charmed or frightened"
+            },
+            "label": "Beguiling Twist"
+          }
+        ],
+        "actions": [
+          {
+            "id": "beguiling-twist",
+            "name": "Beguiling Twist",
+            "economy": "reaction",
+            "choose": {
+              "label": "Charmed or frightened?",
+              "options": [
+                "Charmed",
+                "Frightened"
+              ]
+            },
+            "note": "A save against charm or fear succeeds nearby: another creature within 120 ft makes a Wisdom save or is charmed or frightened for 1 minute."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:fey-wanderer-fey-reinforcements",
+      "name": "Fey Reinforcements",
+      "summary": "You know Summon Fey (not counted against spells known), can cast it once per long rest without a slot, and can choose to cast it without concentration (then it lasts 1 minute).",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 58
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "fey-reinforcements",
+            "name": "Fey Reinforcements: Summon Fey",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "spells": [
+          {
+            "spell": "spell:summon-fey",
+            "name": "Summon Fey",
+            "casting": "always known; free once per long rest",
+            "resource": "fey-reinforcements",
+            "list": "ranger"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:fey-wanderer-misty-wanderer",
+      "name": "Misty Wanderer",
+      "summary": "Cast Misty Step without a slot a number of times per long rest equal to your Wisdom modifier (at least once), and bring one willing creature within 5 ft along.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 58
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "misty-wanderer",
+            "name": "Misty Wanderer",
+            "max": "mod.wis",
+            "reset": "long",
+            "min": 1
+          }
+        ],
+        "spells": [
+          {
+            "spell": "spell:misty-step",
+            "name": "Misty Step",
+            "casting": "always known; free uses per long rest",
+            "resource": "misty-wanderer",
+            "list": "ranger"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:swarmkeeper",
+      "name": "Swarmkeeper",
+      "summary": "Ranger bonded to a swarm of nature spirits that harries foes and carries the ranger.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 59
+      },
+      "class": "class:ranger",
+      "features": [
+        {
+          "level": 3,
+          "feature": "feature:swarmkeeper-magic-3"
+        },
+        {
+          "level": 3,
+          "feature": "feature:swarmkeeper-gathered-swarm"
+        },
+        {
+          "level": 5,
+          "feature": "feature:swarmkeeper-magic-5"
+        },
+        {
+          "level": 7,
+          "feature": "feature:swarmkeeper-writhing-tide"
+        },
+        {
+          "level": 9,
+          "feature": "feature:swarmkeeper-magic-9"
+        },
+        {
+          "level": 11,
+          "feature": "feature:swarmkeeper-mighty-swarm"
+        },
+        {
+          "level": 13,
+          "feature": "feature:swarmkeeper-magic-13"
+        },
+        {
+          "level": 15,
+          "feature": "feature:swarmkeeper-swarming-dispersal"
+        },
+        {
+          "level": 17,
+          "feature": "feature:swarmkeeper-magic-17"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:swarmkeeper-magic-3",
+      "name": "Swarmkeeper Magic (3)",
+      "summary": "Always known, and they don't count against your ranger spells known: Mage Hand, Faerie Fire.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 59
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:mage-hand",
+            "name": "Mage Hand",
+            "casting": "always known",
+            "list": "ranger"
+          },
+          {
+            "spell": "spell:faerie-fire",
+            "name": "Faerie Fire",
+            "casting": "always known",
+            "list": "ranger"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:swarmkeeper-magic-5",
+      "name": "Swarmkeeper Magic (5)",
+      "summary": "Always known, and they don't count against your ranger spells known: Web.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 59
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:web",
+            "name": "Web",
+            "casting": "always known",
+            "list": "ranger"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:swarmkeeper-magic-9",
+      "name": "Swarmkeeper Magic (9)",
+      "summary": "Always known, and they don't count against your ranger spells known: Gaseous Form.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 59
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:gaseous-form",
+            "name": "Gaseous Form",
+            "casting": "always known",
+            "list": "ranger"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:swarmkeeper-magic-13",
+      "name": "Swarmkeeper Magic (13)",
+      "summary": "Always known, and they don't count against your ranger spells known: Arcane Eye.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 59
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:arcane-eye",
+            "name": "Arcane Eye",
+            "casting": "always known",
+            "list": "ranger"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:swarmkeeper-magic-17",
+      "name": "Swarmkeeper Magic (17)",
+      "summary": "Always known, and they don't count against your ranger spells known: Insect Plague.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 59
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:insect-plague",
+            "name": "Insect Plague",
+            "casting": "always known",
+            "list": "ranger"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:swarmkeeper-gathered-swarm",
+      "name": "Gathered Swarm",
+      "summary": "Once on each of your turns after you hit a creature with an attack, your swarm either deals an extra 1d6 piercing, pushes the target 15 ft (Strength save), or moves you 5 ft. Mighty Swarm improves all three at 11th level.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 59
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.damage.weapon.*",
+            "op": "add",
+            "value": "scale.dice",
+            "mode": "suggested",
+            "when": {
+              "text": "you choose the swarm's damage option"
+            },
+            "label": "Gathered Swarm",
+            "damageType": "piercing",
+            "oncePerTurn": true
+          },
+          {
+            "selector": "roll.damage.spell",
+            "op": "add",
+            "value": "scale.dice",
+            "mode": "suggested",
+            "when": {
+              "text": "you choose the swarm's damage option"
+            },
+            "label": "Gathered Swarm",
+            "damageType": "piercing",
+            "oncePerTurn": true
+          }
+        ],
+        "actions": [
+          {
+            "id": "gathered-swarm",
+            "name": "Gathered Swarm",
+            "economy": "free",
+            "choose": {
+              "label": "Swarm effect",
+              "options": [
+                "Extra piercing damage",
+                "Push the target 15 ft (Strength save)",
+                "Move yourself 5 ft"
+              ]
+            },
+            "note": "Once per turn after a hit."
+          }
+        ]
+      },
+      "scaling": {
+        "dice": {
+          "class": "class:ranger",
+          "table": [
+            [
+              3,
+              "1d6"
+            ],
+            [
+              11,
+              "1d8"
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:swarmkeeper-writhing-tide",
+      "name": "Writhing Tide",
+      "summary": "Bonus action, proficiency bonus times per long rest: for 1 minute you gain a 10-ft flying speed and can hover.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 59
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "writhing-tide",
+            "name": "Writhing Tide",
+            "max": "pb",
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "writhing-tide",
+            "name": "Writhing Tide",
+            "economy": "bonus",
+            "cost": {
+              "resource": "writhing-tide"
+            },
+            "toggles": [
+              "writhing-tide"
+            ],
+            "duration": {
+              "rounds": 10
+            },
+            "note": "1 minute: fly 10 ft and hover."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:swarmkeeper-mighty-swarm",
+      "name": "Mighty Swarm",
+      "summary": "Gathered Swarm gets stronger: its damage becomes 1d8, a pushed creature can also be knocked prone, and moving yourself also gives you half cover until your next turn.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 59
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:swarmkeeper-swarming-dispersal",
+      "name": "Swarming Dispersal",
+      "summary": "Reaction, proficiency bonus times per long rest: when you take damage, gain resistance to it and teleport up to 30 ft to a space you can see.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 59
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "swarming-dispersal",
+            "name": "Swarming Dispersal",
+            "max": "pb",
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "swarming-dispersal",
+            "name": "Swarming Dispersal",
+            "economy": "reaction",
+            "cost": {
+              "resource": "swarming-dispersal"
+            },
+            "note": "You take damage: resistance to it, then teleport up to 30 ft."
+          }
+        ]
+      }
+    }
+  ]
+}

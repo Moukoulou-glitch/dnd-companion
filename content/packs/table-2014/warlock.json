@@ -53,6 +53,16 @@
       },
       "subclassLevel": 1,
       "features": [],
+      "adds": [
+        {
+          "level": 1,
+          "feature": "feature:warlock-additional-warlock-spells"
+        },
+        {
+          "level": 4,
+          "feature": "feature:warlock-eldritch-versatility"
+        }
+      ],
       "spellPreparation": "known"
     },
     {

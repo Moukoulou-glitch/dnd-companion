@@ -1,0 +1,1798 @@
+{
+  "definitions": [
+    {
+      "kind": "class",
+      "id": "class:sorcerer",
+      "name": "Sorcerer",
+      "summary": "Charisma caster with innate magic, sorcery points and Metamagic.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 99
+      },
+      "hitDie": 6,
+      "saves": [
+        "con",
+        "cha"
+      ],
+      "startingGrant": {
+        "proficiencies": [
+          {
+            "kind": "weapon",
+            "target": "dagger"
+          },
+          {
+            "kind": "weapon",
+            "target": "dart"
+          },
+          {
+            "kind": "weapon",
+            "target": "sling"
+          },
+          {
+            "kind": "weapon",
+            "target": "quarterstaff"
+          },
+          {
+            "kind": "weapon",
+            "target": "crossbows, light"
+          },
+          {
+            "kind": "skill",
+            "target": {
+              "choice": "skills"
+            }
+          }
+        ]
+      },
+      "multiclassGrant": {
+        "proficiencies": []
+      },
+      "spellcasting": {
+        "id": "sorcerer",
+        "label": "Sorcerer",
+        "ability": "cha",
+        "progression": "full"
+      },
+      "subclassLevel": 1,
+      "features": [],
+      "spellPreparation": "known",
+      "adds": [
+        {
+          "level": 1,
+          "feature": "feature:sorcerer-additional-sorcerer-spells"
+        },
+        {
+          "level": 4,
+          "feature": "feature:sorcerer-sorcerous-versatility"
+        },
+        {
+          "level": 5,
+          "feature": "feature:sorcerer-magical-guidance"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:sorcerer-additional-sorcerer-spells",
+      "name": "Additional Sorcerer Spells",
+      "summary": "Optional: Tasha's adds more spells to the sorcerer spell list (for example Booming Blade, Grease, Flame Blade and others from several books); they count as sorcerer spells for you.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 65
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:sorcerer-sorcerous-versatility",
+      "name": "Sorcerous Versatility",
+      "summary": "Optional: whenever you gain an Ability Score Improvement, you can swap one Metamagic option for another, or one sorcerer cantrip for another.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 66
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:sorcerer-magical-guidance",
+      "name": "Magical Guidance",
+      "summary": "Optional: when you fail an ability check, spend 1 sorcery point to reroll the d20 and use the new roll.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 66
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "magical-guidance",
+            "name": "Magical Guidance",
+            "economy": "free",
+            "cost": {
+              "resource": "sorcery-points",
+              "amount": 1
+            },
+            "note": "You failed an ability check: reroll the d20 and keep the new roll."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:wild-magic",
+      "name": "Wild Magic",
+      "summary": "Sorcerer whose chaotic magic can surge unpredictably.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 103
+      },
+      "class": "class:sorcerer",
+      "features": [
+        {
+          "level": 1,
+          "feature": "feature:wild-magic-wild-magic-surge"
+        },
+        {
+          "level": 1,
+          "feature": "feature:wild-magic-tides-of-chaos"
+        },
+        {
+          "level": 6,
+          "feature": "feature:wild-magic-bend-luck"
+        },
+        {
+          "level": 14,
+          "feature": "feature:wild-magic-controlled-chaos"
+        },
+        {
+          "level": 18,
+          "feature": "feature:wild-magic-spell-bombardment"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:wild-magic-wild-magic-surge",
+      "name": "Wild Magic Surge",
+      "summary": "After you cast a sorcerer spell of 1st level or higher, the DM can have you roll a d20; on a 1, roll on the Wild Magic Surge table.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 103
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "wild-magic-surge",
+            "name": "Wild Magic Surge check",
+            "economy": "free",
+            "roll": {
+              "dice": "1d20",
+              "label": "1 = surge"
+            },
+            "note": "After a leveled sorcerer spell, if the DM asks: on a 1, roll d100 on the Wild Magic Surge table."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:wild-magic-tides-of-chaos",
+      "name": "Tides of Chaos",
+      "summary": "Gain advantage on one attack roll, ability check or saving throw. Once per long rest; the DM can have you roll for a surge after a leveled sorcerer spell to give it back.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 103
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "tides-of-chaos",
+            "name": "Tides of Chaos",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "tides-of-chaos",
+            "name": "Tides of Chaos",
+            "economy": "free",
+            "cost": {
+              "resource": "tides-of-chaos",
+              "amount": 1
+            },
+            "note": "Advantage on one attack roll, ability check or saving throw. Regained after a Wild Magic Surge."
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.attack.*",
+            "op": "advantage",
+            "mode": "suggested",
+            "label": "Tides of Chaos",
+            "when": {
+              "text": "spend Tides of Chaos"
+            }
+          },
+          {
+            "selector": "roll.check.*",
+            "op": "advantage",
+            "mode": "suggested",
+            "label": "Tides of Chaos",
+            "when": {
+              "text": "spend Tides of Chaos"
+            }
+          },
+          {
+            "selector": "roll.save.*",
+            "op": "advantage",
+            "mode": "suggested",
+            "label": "Tides of Chaos",
+            "when": {
+              "text": "spend Tides of Chaos"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:wild-magic-bend-luck",
+      "name": "Bend Luck",
+      "summary": "Reaction when a creature you see makes an attack roll, check or save: spend 2 sorcery points to roll 1d4 and add it to or subtract it from that roll.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 103
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "bend-luck",
+            "name": "Bend Luck",
+            "economy": "reaction",
+            "cost": {
+              "resource": "sorcery-points",
+              "amount": 2
+            },
+            "roll": {
+              "dice": "1d4",
+              "label": "added to or subtracted from the roll"
+            },
+            "note": "Add or subtract the d4 from another creature's attack, check or save."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:wild-magic-controlled-chaos",
+      "name": "Controlled Chaos",
+      "summary": "When you roll on the Wild Magic Surge table, roll twice and use either result.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 103
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:wild-magic-spell-bombardment",
+      "name": "Spell Bombardment",
+      "summary": "Once per turn, when a damage die of your spell rolls its maximum, roll that die again and add it to the damage.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 103
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.damage.spell",
+            "op": "note",
+            "mode": "suggested",
+            "label": "Spell Bombardment: pick one die that rolled its maximum, roll it again and add it.",
+            "oncePerTurn": true,
+            "when": {
+              "text": "a damage die rolled its maximum"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:divine-soul",
+      "name": "Divine Soul",
+      "summary": "Sorcerer touched by divine power, with access to cleric spells.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 50
+      },
+      "class": "class:sorcerer",
+      "features": [
+        {
+          "level": 1,
+          "feature": "feature:divine-soul-divine-magic"
+        },
+        {
+          "level": 1,
+          "feature": "feature:divine-soul-favored-by-the-gods"
+        },
+        {
+          "level": 6,
+          "feature": "feature:divine-soul-empowered-healing"
+        },
+        {
+          "level": 14,
+          "feature": "feature:divine-soul-otherworldly-wings"
+        },
+        {
+          "level": 18,
+          "feature": "feature:divine-soul-unearthly-recovery"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:divine-soul-divine-magic",
+      "name": "Divine Magic",
+      "summary": "You can learn cleric spells as sorcerer spells. You also learn one bonus spell by divine affinity (good: Cure Wounds, evil: Inflict Wounds, law: Bless, chaos: Bane, neutrality: Protection from Evil and Good) that doesn't count against spells known.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 50
+      },
+      "choices": [
+        {
+          "id": "affinity",
+          "label": "Divine affinity spell",
+          "kind": "spell",
+          "count": 1,
+          "from": [
+            "spell:cure-wounds",
+            "spell:inflict-wounds",
+            "spell:bless",
+            "spell:bane",
+            "spell:protection-from-evil-and-good"
+          ]
+        }
+      ],
+      "grant": {
+        "spellcasting": {
+          "id": "sorcerer",
+          "label": "Sorcerer",
+          "ability": "cha",
+          "progression": "full"
+        }
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:divine-soul-favored-by-the-gods",
+      "name": "Favored by the Gods",
+      "summary": "When you fail a saving throw or miss with an attack, roll 2d4 and add it to the total, possibly changing the result. Once per short or long rest.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 50
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "favored-by-the-gods",
+            "name": "Favored by the Gods",
+            "max": 1,
+            "reset": "short"
+          }
+        ],
+        "actions": [
+          {
+            "id": "favored-by-the-gods",
+            "name": "Favored by the Gods",
+            "economy": "free",
+            "cost": {
+              "resource": "favored-by-the-gods",
+              "amount": 1
+            },
+            "roll": {
+              "dice": "2d4",
+              "label": "added to the failed save or missed attack"
+            },
+            "note": "You failed a save or missed an attack: add 2d4 to the total."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:divine-soul-empowered-healing",
+      "name": "Empowered Healing",
+      "summary": "Once per turn, when you or an ally within 5 ft rolls dice to restore hit points with a spell, spend 1 sorcery point to reroll any number of them.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 51
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "empowered-healing",
+            "name": "Empowered Healing",
+            "economy": "free",
+            "cost": {
+              "resource": "sorcery-points",
+              "amount": 1
+            },
+            "note": "Reroll any healing dice from a spell (yours or an ally's within 5 ft). Once per turn, not while incapacitated."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:divine-soul-otherworldly-wings",
+      "name": "Otherworldly Wings",
+      "summary": "Bonus action: manifest or dismiss spectral wings (feathered or bat-like) giving a 30-ft fly speed. Not while wearing armor not made for them.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 51
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "otherworldly-wings",
+            "name": "Otherworldly Wings",
+            "economy": "bonus",
+            "toggles": [
+              "otherworldly-wings"
+            ],
+            "note": "Wings out or away: fly speed 30 ft while they're out."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:divine-soul-unearthly-recovery",
+      "name": "Unearthly Recovery",
+      "summary": "Bonus action while below half your hit point maximum: regain hit points equal to half your maximum. Once per long rest.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 51
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "unearthly-recovery",
+            "name": "Unearthly Recovery",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "unearthly-recovery",
+            "name": "Unearthly Recovery",
+            "economy": "bonus",
+            "cost": {
+              "resource": "unearthly-recovery",
+              "amount": 1
+            },
+            "note": "Below half HP: regain HP equal to half your maximum."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:shadow-magic",
+      "name": "Shadow Magic",
+      "summary": "Sorcerer steeped in the magic of the Shadowfell.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 50
+      },
+      "class": "class:sorcerer",
+      "features": [
+        {
+          "level": 1,
+          "feature": "feature:shadow-magic-eyes-of-the-dark"
+        },
+        {
+          "level": 1,
+          "feature": "feature:shadow-magic-strength-of-the-grave"
+        },
+        {
+          "level": 6,
+          "feature": "feature:shadow-magic-hound-of-ill-omen"
+        },
+        {
+          "level": 14,
+          "feature": "feature:shadow-magic-shadow-walk"
+        },
+        {
+          "level": 18,
+          "feature": "feature:shadow-magic-umbral-form"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:shadow-magic-eyes-of-the-dark",
+      "name": "Eyes of the Dark",
+      "summary": "Darkvision 120 ft. From 3rd level you know Darkness (not counted against spells known), can cast it with 2 sorcery points instead of a slot, and can see through it when cast that way.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 51
+      },
+      "grant": {
+        "senses": {
+          "darkvision": 120
+        },
+        "spells": [
+          {
+            "spell": "spell:darkness",
+            "name": "Darkness",
+            "casting": "always known from 3rd level; or 2 sorcery points",
+            "list": "sorcerer"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:shadow-magic-strength-of-the-grave",
+      "name": "Strength of the Grave",
+      "summary": "When damage would drop you to 0 HP (not radiant damage or a critical hit), make a Charisma save (DC 5 + damage taken); on a success you drop to 1 HP instead. Once per long rest after a success.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 51
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "strength-of-the-grave",
+            "name": "Strength of the Grave",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "strength-of-the-grave",
+            "name": "Strength of the Grave",
+            "economy": "free",
+            "cost": {
+              "resource": "strength-of-the-grave",
+              "amount": 1
+            },
+            "note": "Dropped to 0 (not radiant, not a crit): CHA save DC 5 + damage; success = 1 HP instead. Spend only on a success."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:shadow-magic-hound-of-ill-omen",
+      "name": "Hound of Ill Omen",
+      "summary": "Bonus action, 3 sorcery points: a shadowy dire wolf appears within 30 ft of a creature you can see and hunts it for 5 minutes. It has temp HP equal to half your sorcerer level, can move through creatures and objects, and its target has disadvantage on saves against your spells while the hound is within 5 ft of it.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 51
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "hound-of-ill-omen",
+            "name": "Hound of Ill Omen",
+            "economy": "bonus",
+            "cost": {
+              "resource": "sorcery-points",
+              "amount": 3
+            },
+            "duration": {
+              "minutes": 5
+            },
+            "note": "Summon the hound on a target you can see; it only attacks that target. 5 minutes, or until it or the target drops to 0 HP."
+          }
+        ],
+        "companions": [
+          {
+            "id": "hound-of-ill-omen",
+            "name": "Hound of Ill Omen",
+            "combatNote": "Acts on your turn and can only move toward and attack its target. Starts with temp HP equal to half your sorcerer level. While it's within 5 ft of the target, the target has disadvantage on saves against your spells.",
+            "forms": [
+              {
+                "id": "hound",
+                "name": "Hound of Ill Omen",
+                "size": "Medium",
+                "type": "monstrosity",
+                "ac": 14,
+                "hp": {
+                  "base": 37,
+                  "perLevel": 0,
+                  "class": "class:sorcerer"
+                },
+                "speed": "50 ft.",
+                "abilities": {
+                  "str": 17,
+                  "dex": 15,
+                  "con": 15,
+                  "int": 3,
+                  "wis": 12,
+                  "cha": 7
+                },
+                "traits": [
+                  {
+                    "name": "Shadowy",
+                    "summary": "Moves through creatures and objects as difficult terrain; takes 5 force damage if it ends its turn inside an object."
+                  },
+                  {
+                    "name": "Keen Hearing and Smell",
+                    "summary": "Advantage on Perception checks that use hearing or smell."
+                  },
+                  {
+                    "name": "Pack Tactics",
+                    "summary": "Advantage on attacks when an ally is within 5 ft of its target."
+                  }
+                ],
+                "attacks": [
+                  {
+                    "name": "Bite",
+                    "kind": "melee",
+                    "toHit": 5,
+                    "reach": "5 ft.",
+                    "damage": "2d6",
+                    "damageBonus": 3,
+                    "damageType": "piercing",
+                    "note": "Strength save DC 13 or knocked prone."
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:shadow-magic-shadow-walk",
+      "name": "Shadow Walk",
+      "summary": "Bonus action while in dim light or darkness: teleport up to 120 ft to an unoccupied space you can see that's also in dim light or darkness.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 51
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "shadow-walk",
+            "name": "Shadow Walk",
+            "economy": "bonus",
+            "note": "From dim light or darkness, teleport up to 120 ft to a visible spot in dim light or darkness."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:shadow-magic-umbral-form",
+      "name": "Umbral Form",
+      "summary": "Bonus action, 6 sorcery points, 1 minute: become shadowy, resisting all damage except force and radiant, and moving through creatures and objects as difficult terrain.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 51
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "umbral-form",
+            "name": "Umbral Form",
+            "economy": "bonus",
+            "cost": {
+              "resource": "sorcery-points",
+              "amount": 6
+            },
+            "toggles": [
+              "umbral-form"
+            ],
+            "duration": {
+              "rounds": 10
+            },
+            "note": "1 minute: resistance to all damage but force and radiant; pass through creatures and objects (5 force damage if you end inside one)."
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "defense.resist.acid",
+            "op": "resist",
+            "label": "Umbral Form",
+            "when": {
+              "toggle": "umbral-form"
+            }
+          },
+          {
+            "selector": "defense.resist.bludgeoning",
+            "op": "resist",
+            "label": "Umbral Form",
+            "when": {
+              "toggle": "umbral-form"
+            }
+          },
+          {
+            "selector": "defense.resist.cold",
+            "op": "resist",
+            "label": "Umbral Form",
+            "when": {
+              "toggle": "umbral-form"
+            }
+          },
+          {
+            "selector": "defense.resist.fire",
+            "op": "resist",
+            "label": "Umbral Form",
+            "when": {
+              "toggle": "umbral-form"
+            }
+          },
+          {
+            "selector": "defense.resist.lightning",
+            "op": "resist",
+            "label": "Umbral Form",
+            "when": {
+              "toggle": "umbral-form"
+            }
+          },
+          {
+            "selector": "defense.resist.necrotic",
+            "op": "resist",
+            "label": "Umbral Form",
+            "when": {
+              "toggle": "umbral-form"
+            }
+          },
+          {
+            "selector": "defense.resist.piercing",
+            "op": "resist",
+            "label": "Umbral Form",
+            "when": {
+              "toggle": "umbral-form"
+            }
+          },
+          {
+            "selector": "defense.resist.poison",
+            "op": "resist",
+            "label": "Umbral Form",
+            "when": {
+              "toggle": "umbral-form"
+            }
+          },
+          {
+            "selector": "defense.resist.psychic",
+            "op": "resist",
+            "label": "Umbral Form",
+            "when": {
+              "toggle": "umbral-form"
+            }
+          },
+          {
+            "selector": "defense.resist.slashing",
+            "op": "resist",
+            "label": "Umbral Form",
+            "when": {
+              "toggle": "umbral-form"
+            }
+          },
+          {
+            "selector": "defense.resist.thunder",
+            "op": "resist",
+            "label": "Umbral Form",
+            "when": {
+              "toggle": "umbral-form"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:storm-sorcery",
+      "name": "Storm Sorcery",
+      "summary": "Sorcerer whose magic comes from elemental air and storms.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 51
+      },
+      "class": "class:sorcerer",
+      "features": [
+        {
+          "level": 1,
+          "feature": "feature:storm-sorcery-wind-speaker"
+        },
+        {
+          "level": 1,
+          "feature": "feature:storm-sorcery-tempestuous-magic"
+        },
+        {
+          "level": 6,
+          "feature": "feature:storm-sorcery-heart-of-the-storm"
+        },
+        {
+          "level": 6,
+          "feature": "feature:storm-sorcery-storm-guide"
+        },
+        {
+          "level": 14,
+          "feature": "feature:storm-sorcery-storms-fury"
+        },
+        {
+          "level": 18,
+          "feature": "feature:storm-sorcery-wind-soul"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:storm-sorcery-wind-speaker",
+      "name": "Wind Speaker",
+      "summary": "You speak, read and write Primordial (and so understand its dialects: Aquan, Auran, Ignan, Terran).",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 52
+      },
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "language",
+            "target": "Primordial"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:storm-sorcery-tempestuous-magic",
+      "name": "Tempestuous Magic",
+      "summary": "Immediately before or after casting a spell of 1st level or higher, use a bonus action to fly up to 10 ft without provoking opportunity attacks.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 52
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "tempestuous-magic",
+            "name": "Tempestuous Magic",
+            "economy": "bonus",
+            "note": "Right before or after a leveled spell: fly up to 10 ft, no opportunity attacks."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:storm-sorcery-heart-of-the-storm",
+      "name": "Heart of the Storm",
+      "summary": "Resistance to lightning and thunder. When you start casting a leveled lightning or thunder spell, creatures of your choice within 10 ft take lightning or thunder damage equal to half your sorcerer level.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 52
+      },
+      "scaling": {
+        "half": {
+          "class": "class:sorcerer",
+          "table": [
+            [
+              6,
+              3
+            ],
+            [
+              8,
+              4
+            ],
+            [
+              10,
+              5
+            ],
+            [
+              12,
+              6
+            ],
+            [
+              14,
+              7
+            ],
+            [
+              16,
+              8
+            ],
+            [
+              18,
+              9
+            ],
+            [
+              20,
+              10
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.lightning",
+            "op": "resist",
+            "label": "Heart of the Storm"
+          },
+          {
+            "selector": "defense.resist.thunder",
+            "op": "resist",
+            "label": "Heart of the Storm"
+          }
+        ],
+        "actions": [
+          {
+            "id": "heart-of-the-storm",
+            "name": "Heart of the Storm burst",
+            "economy": "free",
+            "roll": {
+              "dice": "scale.half",
+              "label": "lightning or thunder damage"
+            },
+            "note": "Casting a leveled lightning or thunder spell: chosen creatures within 10 ft take this much lightning or thunder damage."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:storm-sorcery-storm-guide",
+      "name": "Storm Guide",
+      "summary": "Action: stop rain within a 20-ft radius around you. Bonus action: choose the direction wind blows within 100 ft of you. Both last until your next turn's end (wind) or until you stop (rain).",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 52
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "storm-guide-rain",
+            "name": "Storm Guide: calm rain",
+            "economy": "action",
+            "note": "Rain stops falling in a 20-ft radius around you."
+          },
+          {
+            "id": "storm-guide-wind",
+            "name": "Storm Guide: steer wind",
+            "economy": "bonus",
+            "note": "Choose the wind's direction within 100 ft of you until the end of your next turn."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:storm-sorcery-storms-fury",
+      "name": "Storm's Fury",
+      "summary": "Reaction when a melee attack hits you: the attacker takes lightning damage equal to your sorcerer level and makes a Strength save against your spell DC or is pushed up to 20 ft away.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 52
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "storms-fury",
+            "name": "Storm's Fury",
+            "economy": "reaction",
+            "roll": {
+              "dice": "classLevel.class:sorcerer",
+              "label": "lightning damage"
+            },
+            "note": "Hit by a melee attack: attacker takes lightning damage equal to your sorcerer level; STR save or pushed up to 20 ft."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:storm-sorcery-wind-soul",
+      "name": "Wind Soul",
+      "summary": "Immunity to lightning and thunder, and a 60-ft fly speed. Action: drop your fly speed to 30 ft for an hour to give up to 3 + Charisma modifier creatures within 30 ft a 30-ft fly speed. Once per short or long rest.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 52
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.immune.lightning",
+            "op": "immune",
+            "label": "Wind Soul"
+          },
+          {
+            "selector": "defense.immune.thunder",
+            "op": "immune",
+            "label": "Wind Soul"
+          }
+        ],
+        "resources": [
+          {
+            "id": "wind-soul",
+            "name": "Wind Soul (share flight)",
+            "max": 1,
+            "reset": "short"
+          }
+        ],
+        "actions": [
+          {
+            "id": "wind-soul",
+            "name": "Wind Soul: share flight",
+            "economy": "action",
+            "cost": {
+              "resource": "wind-soul",
+              "amount": 1
+            },
+            "duration": {
+              "minutes": 60
+            },
+            "note": "Your fly speed drops to 30 ft for 1 hour; up to 3 + CHA mod creatures within 30 ft gain fly 30 ft."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:aberrant-mind",
+      "name": "Aberrant Mind",
+      "summary": "Sorcerer warped by an alien psionic influence.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 66
+      },
+      "class": "class:sorcerer",
+      "features": [
+        {
+          "level": 1,
+          "feature": "feature:aberrant-mind-psionic-spells-1"
+        },
+        {
+          "level": 1,
+          "feature": "feature:aberrant-mind-telepathic-speech"
+        },
+        {
+          "level": 3,
+          "feature": "feature:aberrant-mind-psionic-spells-3"
+        },
+        {
+          "level": 5,
+          "feature": "feature:aberrant-mind-psionic-spells-5"
+        },
+        {
+          "level": 6,
+          "feature": "feature:aberrant-mind-psionic-sorcery"
+        },
+        {
+          "level": 6,
+          "feature": "feature:aberrant-mind-psychic-defenses"
+        },
+        {
+          "level": 7,
+          "feature": "feature:aberrant-mind-psionic-spells-7"
+        },
+        {
+          "level": 9,
+          "feature": "feature:aberrant-mind-psionic-spells-9"
+        },
+        {
+          "level": 14,
+          "feature": "feature:aberrant-mind-revelation-in-flesh"
+        },
+        {
+          "level": 18,
+          "feature": "feature:aberrant-mind-warping-implosion"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:aberrant-mind-psionic-spells-1",
+      "name": "Psionic Spells",
+      "summary": "Always known, not counted against sorcerer spells known: Arms of Hadar, Dissonant Whispers, Mind Sliver. Each can be swapped on level-up for a divination or enchantment spell of the same level from the sorcerer, warlock or wizard list.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 66
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:arms-of-hadar",
+            "name": "Arms of Hadar",
+            "casting": "always known",
+            "list": "sorcerer"
+          },
+          {
+            "spell": "spell:dissonant-whispers",
+            "name": "Dissonant Whispers",
+            "casting": "always known",
+            "list": "sorcerer"
+          },
+          {
+            "spell": "spell:mind-sliver",
+            "name": "Mind Sliver",
+            "casting": "always known",
+            "list": "sorcerer"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:aberrant-mind-psionic-spells-3",
+      "name": "Psionic Spells (3rd level)",
+      "summary": "Always known, not counted against sorcerer spells known: Calm Emotions, Detect Thoughts. Each can be swapped on level-up for a divination or enchantment spell of the same level from the sorcerer, warlock or wizard list.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 66
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:calm-emotions",
+            "name": "Calm Emotions",
+            "casting": "always known",
+            "list": "sorcerer"
+          },
+          {
+            "spell": "spell:detect-thoughts",
+            "name": "Detect Thoughts",
+            "casting": "always known",
+            "list": "sorcerer"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:aberrant-mind-psionic-spells-5",
+      "name": "Psionic Spells (5th level)",
+      "summary": "Always known, not counted against sorcerer spells known: Hunger of Hadar, Sending. Each can be swapped on level-up for a divination or enchantment spell of the same level from the sorcerer, warlock or wizard list.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 66
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:hunger-of-hadar",
+            "name": "Hunger of Hadar",
+            "casting": "always known",
+            "list": "sorcerer"
+          },
+          {
+            "spell": "spell:sending",
+            "name": "Sending",
+            "casting": "always known",
+            "list": "sorcerer"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:aberrant-mind-psionic-spells-7",
+      "name": "Psionic Spells (7th level)",
+      "summary": "Always known, not counted against sorcerer spells known: Evard's Black Tentacles, Summon Aberration. Each can be swapped on level-up for a divination or enchantment spell of the same level from the sorcerer, warlock or wizard list.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 66
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:evards-black-tentacles",
+            "name": "Evard's Black Tentacles",
+            "casting": "always known",
+            "list": "sorcerer"
+          },
+          {
+            "spell": "spell:summon-aberration",
+            "name": "Summon Aberration",
+            "casting": "always known",
+            "list": "sorcerer"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:aberrant-mind-psionic-spells-9",
+      "name": "Psionic Spells (9th level)",
+      "summary": "Always known, not counted against sorcerer spells known: Rary's Telepathic Bond, Telekinesis. Each can be swapped on level-up for a divination or enchantment spell of the same level from the sorcerer, warlock or wizard list.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 66
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:raryss-telepathic-bond",
+            "name": "Rary's Telepathic Bond",
+            "casting": "always known",
+            "list": "sorcerer"
+          },
+          {
+            "spell": "spell:telekinesis",
+            "name": "Telekinesis",
+            "casting": "always known",
+            "list": "sorcerer"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:aberrant-mind-telepathic-speech",
+      "name": "Telepathic Speech",
+      "summary": "Bonus action: link telepathically with a creature you can see within 30 ft that knows a language, for minutes equal to your sorcerer level, at a range in miles equal to your Charisma modifier.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 66
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "telepathic-speech",
+            "name": "Telepathic Speech",
+            "economy": "bonus",
+            "note": "Telepathic link with one creature within 30 ft: lasts sorcerer-level minutes, range CHA-mod miles."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:aberrant-mind-psionic-sorcery",
+      "name": "Psionic Sorcery",
+      "summary": "You can cast a Psionic Spells spell of 1st level or higher by spending sorcery points equal to its level instead of a slot; cast that way it needs no verbal or somatic components, nor non-consumed materials.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 67
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "psionic-sorcery",
+            "name": "Psionic Sorcery",
+            "economy": "free",
+            "cost": {
+              "resource": "sorcery-points",
+              "amount": 1
+            },
+            "spendAmount": {
+              "label": "Sorcery points (the spell's level)"
+            },
+            "note": "Cast a Psionic Spells spell without a slot and without V, S or (non-consumed) M."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:aberrant-mind-psychic-defenses",
+      "name": "Psychic Defenses",
+      "summary": "Resistance to psychic damage, and advantage on saves against being charmed or frightened.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 67
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.psychic",
+            "op": "resist",
+            "label": "Psychic Defenses"
+          },
+          {
+            "selector": "roll.save.*",
+            "op": "advantage",
+            "mode": "suggested",
+            "label": "Psychic Defenses",
+            "when": {
+              "text": "against being charmed or frightened"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:aberrant-mind-revelation-in-flesh",
+      "name": "Revelation in Flesh",
+      "summary": "Bonus action, 1+ sorcery points: for 10 minutes gain one benefit per point: see invisible creatures within 60 ft; fly speed equal to walking speed and hover; swim speed of twice walking speed and water breathing; or squeeze through 1-inch gaps and escape grapples cheaply.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 67
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "revelation-in-flesh",
+            "name": "Revelation in Flesh",
+            "economy": "bonus",
+            "cost": {
+              "resource": "sorcery-points",
+              "amount": 1
+            },
+            "spendAmount": {
+              "label": "Sorcery points (one per benefit)"
+            },
+            "toggles": [
+              "revelation-in-flesh"
+            ],
+            "duration": {
+              "minutes": 10
+            },
+            "note": "10 minutes, one benefit per point: see invisibility 60 ft / fly = walk + hover / swim 2x walk + water breathing / slither through 1-inch gaps, escape grapples for 5 ft of movement."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:aberrant-mind-warping-implosion",
+      "name": "Warping Implosion",
+      "summary": "Action: teleport up to 120 ft; creatures within 30 ft of where you left make a Strength save against your DC, taking 3d10 force damage and being pulled toward that spot on a failure (half and no pull on a success). Once per long rest, or 5 sorcery points.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 67
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "warping-implosion",
+            "name": "Warping Implosion",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "warping-implosion",
+            "name": "Warping Implosion",
+            "economy": "action",
+            "cost": {
+              "resource": "warping-implosion",
+              "amount": 1
+            },
+            "roll": {
+              "dice": "3d10",
+              "label": "force damage"
+            },
+            "note": "Teleport 120 ft; creatures within 30 ft of your old spot: STR save, 3d10 force and pulled (half on success)."
+          },
+          {
+            "id": "warping-implosion-points",
+            "name": "Warping Implosion (5 sorcery points)",
+            "economy": "action",
+            "cost": {
+              "resource": "sorcery-points",
+              "amount": 5
+            },
+            "roll": {
+              "dice": "3d10",
+              "label": "force damage"
+            },
+            "note": "Use it again for 5 sorcery points."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:clockwork-soul",
+      "name": "Clockwork Soul",
+      "summary": "Sorcerer channeling the cosmic order of Mechanus.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 68
+      },
+      "class": "class:sorcerer",
+      "features": [
+        {
+          "level": 1,
+          "feature": "feature:clockwork-soul-clockwork-magic-1"
+        },
+        {
+          "level": 1,
+          "feature": "feature:clockwork-soul-restore-balance"
+        },
+        {
+          "level": 3,
+          "feature": "feature:clockwork-soul-clockwork-magic-3"
+        },
+        {
+          "level": 5,
+          "feature": "feature:clockwork-soul-clockwork-magic-5"
+        },
+        {
+          "level": 6,
+          "feature": "feature:clockwork-soul-bastion-of-law"
+        },
+        {
+          "level": 7,
+          "feature": "feature:clockwork-soul-clockwork-magic-7"
+        },
+        {
+          "level": 9,
+          "feature": "feature:clockwork-soul-clockwork-magic-9"
+        },
+        {
+          "level": 14,
+          "feature": "feature:clockwork-soul-trance-of-order"
+        },
+        {
+          "level": 18,
+          "feature": "feature:clockwork-soul-clockwork-cavalcade"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:clockwork-soul-clockwork-magic-1",
+      "name": "Clockwork Magic",
+      "summary": "Always known, not counted against sorcerer spells known: Alarm, Protection from Evil and Good. Each can be swapped on level-up for an abjuration or transmutation spell of the same level from the sorcerer, warlock or wizard list.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 68
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:alarm",
+            "name": "Alarm",
+            "casting": "always known",
+            "list": "sorcerer"
+          },
+          {
+            "spell": "spell:protection-from-evil-and-good",
+            "name": "Protection from Evil and Good",
+            "casting": "always known",
+            "list": "sorcerer"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:clockwork-soul-clockwork-magic-3",
+      "name": "Clockwork Magic (3rd level)",
+      "summary": "Always known, not counted against sorcerer spells known: Aid, Lesser Restoration. Each can be swapped on level-up for an abjuration or transmutation spell of the same level from the sorcerer, warlock or wizard list.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 68
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:aid",
+            "name": "Aid",
+            "casting": "always known",
+            "list": "sorcerer"
+          },
+          {
+            "spell": "spell:lesser-restoration",
+            "name": "Lesser Restoration",
+            "casting": "always known",
+            "list": "sorcerer"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:clockwork-soul-clockwork-magic-5",
+      "name": "Clockwork Magic (5th level)",
+      "summary": "Always known, not counted against sorcerer spells known: Dispel Magic, Protection from Energy. Each can be swapped on level-up for an abjuration or transmutation spell of the same level from the sorcerer, warlock or wizard list.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 68
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:dispel-magic",
+            "name": "Dispel Magic",
+            "casting": "always known",
+            "list": "sorcerer"
+          },
+          {
+            "spell": "spell:protection-from-energy",
+            "name": "Protection from Energy",
+            "casting": "always known",
+            "list": "sorcerer"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:clockwork-soul-clockwork-magic-7",
+      "name": "Clockwork Magic (7th level)",
+      "summary": "Always known, not counted against sorcerer spells known: Freedom of Movement, Summon Construct. Each can be swapped on level-up for an abjuration or transmutation spell of the same level from the sorcerer, warlock or wizard list.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 68
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:freedom-of-movement",
+            "name": "Freedom of Movement",
+            "casting": "always known",
+            "list": "sorcerer"
+          },
+          {
+            "spell": "spell:summon-construct",
+            "name": "Summon Construct",
+            "casting": "always known",
+            "list": "sorcerer"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:clockwork-soul-clockwork-magic-9",
+      "name": "Clockwork Magic (9th level)",
+      "summary": "Always known, not counted against sorcerer spells known: Greater Restoration, Wall of Force. Each can be swapped on level-up for an abjuration or transmutation spell of the same level from the sorcerer, warlock or wizard list.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 68
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:greater-restoration",
+            "name": "Greater Restoration",
+            "casting": "always known",
+            "list": "sorcerer"
+          },
+          {
+            "spell": "spell:wall-of-force",
+            "name": "Wall of Force",
+            "casting": "always known",
+            "list": "sorcerer"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:clockwork-soul-restore-balance",
+      "name": "Restore Balance",
+      "summary": "Reaction when a creature you can see within 60 ft is about to roll with advantage or disadvantage: cancel it. Uses equal to your proficiency bonus per long rest.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 68
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "restore-balance",
+            "name": "Restore Balance",
+            "max": "pb",
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "restore-balance",
+            "name": "Restore Balance",
+            "economy": "reaction",
+            "cost": {
+              "resource": "restore-balance",
+              "amount": 1
+            },
+            "note": "A creature within 60 ft is about to roll a d20 with advantage or disadvantage: it rolls normally."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:clockwork-soul-bastion-of-law",
+      "name": "Bastion of Law",
+      "summary": "Action: spend 1–5 sorcery points to ward a creature within 30 ft with that many d8s. When it takes damage it can spend dice to reduce the damage by the total rolled. Lasts until your long rest or until you use this again.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 69
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "bastion-of-law",
+            "name": "Bastion of Law",
+            "economy": "action",
+            "cost": {
+              "resource": "sorcery-points",
+              "amount": 1
+            },
+            "spendAmount": {
+              "label": "Sorcery points (1–5, one d8 each)"
+            },
+            "note": "Ward a creature within 30 ft with one d8 per point; it spends and rolls them to reduce damage it takes."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:clockwork-soul-trance-of-order",
+      "name": "Trance of Order",
+      "summary": "Bonus action, 1 minute: attacks against you can't have advantage, and on your attack rolls, checks and saves a d20 roll of 9 or lower counts as 10. Once per long rest, or 5 sorcery points.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 69
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "trance-of-order",
+            "name": "Trance of Order",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "trance-of-order",
+            "name": "Trance of Order",
+            "economy": "bonus",
+            "cost": {
+              "resource": "trance-of-order",
+              "amount": 1
+            },
+            "toggles": [
+              "trance-of-order"
+            ],
+            "duration": {
+              "rounds": 10
+            },
+            "note": "1 minute: no advantage on attacks against you; your d20s below 10 count as 10."
+          },
+          {
+            "id": "trance-of-order-points",
+            "name": "Trance of Order (5 sorcery points)",
+            "economy": "bonus",
+            "cost": {
+              "resource": "sorcery-points",
+              "amount": 5
+            },
+            "toggles": [
+              "trance-of-order"
+            ],
+            "duration": {
+              "rounds": 10
+            },
+            "note": "Use it again for 5 sorcery points."
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.attack.*",
+            "op": "minD20",
+            "value": 10,
+            "label": "Trance of Order",
+            "when": {
+              "toggle": "trance-of-order"
+            }
+          },
+          {
+            "selector": "roll.check.*",
+            "op": "minD20",
+            "value": 10,
+            "label": "Trance of Order",
+            "when": {
+              "toggle": "trance-of-order"
+            }
+          },
+          {
+            "selector": "roll.save.*",
+            "op": "minD20",
+            "value": 10,
+            "label": "Trance of Order",
+            "when": {
+              "toggle": "trance-of-order"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:clockwork-soul-clockwork-cavalcade",
+      "name": "Clockwork Cavalcade",
+      "summary": "Action: spirits of order fill a 30-ft cube from you, restoring up to 100 HP split among creatures of your choice in it, repairing damaged objects in it, and ending spells of 6th level or lower on creatures and objects of your choice in it. Once per long rest, or 7 sorcery points.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 69
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "clockwork-cavalcade",
+            "name": "Clockwork Cavalcade",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "clockwork-cavalcade",
+            "name": "Clockwork Cavalcade",
+            "economy": "action",
+            "cost": {
+              "resource": "clockwork-cavalcade",
+              "amount": 1
+            },
+            "note": "30-ft cube: split up to 100 HP of healing, repair objects, end spells of 6th level or lower on chosen targets."
+          },
+          {
+            "id": "clockwork-cavalcade-points",
+            "name": "Clockwork Cavalcade (7 sorcery points)",
+            "economy": "action",
+            "cost": {
+              "resource": "sorcery-points",
+              "amount": 7
+            },
+            "note": "Use it again for 7 sorcery points."
+          }
+        ]
+      }
+    }
+  ]
+}

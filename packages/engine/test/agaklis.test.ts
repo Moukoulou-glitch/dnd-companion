@@ -19,8 +19,8 @@ const attack = (s: typeof sheet, name: string) => {
 };
 
 describe("Αγακλής (Barbarian 9)", () => {
-  it("has no data warnings", () => {
-    expect(sheet.warnings).toEqual([]);
+  it("has no data warnings (Tasha's optional Primal Knowledge asks for its skill)", () => {
+    expect(sheet.warnings.filter((w) => !/^Primal Knowledge: choice/.test(w))).toEqual([]);
   });
 
   it("Strength 18 includes Athlete's +1", () => {

@@ -1,0 +1,1591 @@
+{
+  "definitions": [
+    {
+      "kind": "class",
+      "id": "class:druid",
+      "name": "Druid",
+      "summary": "Nature's spellcaster who can take the shape of beasts.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 64
+      },
+      "hitDie": 8,
+      "saves": [
+        "int",
+        "wis"
+      ],
+      "startingGrant": {
+        "proficiencies": [
+          {
+            "kind": "armor",
+            "target": "light"
+          },
+          {
+            "kind": "armor",
+            "target": "medium"
+          },
+          {
+            "kind": "armor",
+            "target": "shields"
+          },
+          {
+            "kind": "weapon",
+            "target": "club"
+          },
+          {
+            "kind": "weapon",
+            "target": "dagger"
+          },
+          {
+            "kind": "weapon",
+            "target": "javelin"
+          },
+          {
+            "kind": "weapon",
+            "target": "mace"
+          },
+          {
+            "kind": "weapon",
+            "target": "quarterstaff"
+          },
+          {
+            "kind": "weapon",
+            "target": "sickle"
+          },
+          {
+            "kind": "weapon",
+            "target": "spear"
+          },
+          {
+            "kind": "weapon",
+            "target": "dart"
+          },
+          {
+            "kind": "weapon",
+            "target": "sling"
+          },
+          {
+            "kind": "weapon",
+            "target": "scimitar"
+          },
+          {
+            "kind": "tool",
+            "target": "Herbalism kit"
+          },
+          {
+            "kind": "skill",
+            "target": {
+              "choice": "skills"
+            }
+          }
+        ]
+      },
+      "multiclassGrant": {
+        "proficiencies": [
+          {
+            "kind": "armor",
+            "target": "light"
+          },
+          {
+            "kind": "armor",
+            "target": "medium"
+          },
+          {
+            "kind": "armor",
+            "target": "shields"
+          }
+        ]
+      },
+      "spellcasting": {
+        "id": "druid",
+        "label": "Druid",
+        "ability": "wis",
+        "progression": "full"
+      },
+      "subclassLevel": 2,
+      "features": [],
+      "spellPreparation": "prepared",
+      "adds": [
+        {
+          "level": 1,
+          "feature": "feature:druid-additional-druid-spells"
+        },
+        {
+          "level": 2,
+          "feature": "feature:druid-wild-companion"
+        },
+        {
+          "level": 4,
+          "feature": "feature:druid-cantrip-versatility"
+        }
+      ]
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:circle-of-the-moon",
+      "name": "Circle of the Moon",
+      "summary": "Shapechanging druid who fights in powerful beast and elemental forms.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 68
+      },
+      "class": "class:druid",
+      "features": [
+        {
+          "level": 2,
+          "feature": "feature:circle-of-the-moon-combat-wild-shape"
+        },
+        {
+          "level": 2,
+          "feature": "feature:circle-of-the-moon-circle-forms"
+        },
+        {
+          "level": 6,
+          "feature": "feature:circle-of-the-moon-primal-strike"
+        },
+        {
+          "level": 10,
+          "feature": "feature:circle-of-the-moon-elemental-wild-shape"
+        },
+        {
+          "level": 14,
+          "feature": "feature:circle-of-the-moon-thousand-forms"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:circle-of-the-moon-combat-wild-shape",
+      "name": "Combat Wild Shape",
+      "summary": "Wild Shape takes a bonus action. While transformed, a bonus action and a spell slot heal you 1d8 per slot level.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 69
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:circle-of-the-moon-circle-forms",
+      "name": "Circle Forms",
+      "summary": "Wild Shape into beasts of CR 1 from 2nd level; from 6th level, up to your druid level divided by 3 (rounded down). Flying and swimming limits still apply.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 69
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:circle-of-the-moon-primal-strike",
+      "name": "Primal Strike",
+      "summary": "Your attacks in beast form count as magical for overcoming resistance and immunity.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 69
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:circle-of-the-moon-elemental-wild-shape",
+      "name": "Elemental Wild Shape",
+      "summary": "Spend two Wild Shape uses at once to become an air, earth, fire or water elemental.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 69
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:circle-of-the-moon-thousand-forms",
+      "name": "Thousand Forms",
+      "summary": "Cast Alter Self at will.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 69
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:alter-self",
+            "name": "Alter Self",
+            "casting": "at will",
+            "list": "druid",
+            "atWill": true
+          }
+        ]
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:circle-of-dreams",
+      "name": "Circle of Dreams",
+      "summary": "Fey-touched druid who heals with summer light, guards camps and steps through hidden paths.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 22
+      },
+      "class": "class:druid",
+      "features": [
+        {
+          "level": 2,
+          "feature": "feature:circle-of-dreams-balm-of-the-summer-court"
+        },
+        {
+          "level": 6,
+          "feature": "feature:circle-of-dreams-hearth-of-moonlight-and-shadow"
+        },
+        {
+          "level": 10,
+          "feature": "feature:circle-of-dreams-hidden-paths"
+        },
+        {
+          "level": 14,
+          "feature": "feature:circle-of-dreams-walker-in-dreams"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:circle-of-dreams-balm-of-the-summer-court",
+      "name": "Balm of the Summer Court",
+      "summary": "A pool of d6s equal to your druid level, refilled on a long rest. Bonus action: spend up to half your druid level in dice on a creature within 120 ft; it regains the total rolled plus 1 temporary hit point per die.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 22
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "balm-of-the-summer-court",
+            "name": "Balm of the Summer Court",
+            "max": "classLevel.class:druid",
+            "reset": "long",
+            "die": "d6"
+          }
+        ],
+        "actions": [
+          {
+            "id": "balm-of-the-summer-court",
+            "name": "Balm of the Summer Court",
+            "economy": "bonus",
+            "cost": {
+              "resource": "balm-of-the-summer-court"
+            },
+            "spendAmount": {
+              "label": "Dice to spend"
+            },
+            "note": "Creature within 120 ft: roll the spent d6s and heal that much, plus 1 temp HP per die. Max dice: half your druid level."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:circle-of-dreams-hearth-of-moonlight-and-shadow",
+      "name": "Hearth of Moonlight and Shadow",
+      "summary": "During a short or long rest, ward a 30-ft sphere: you and allies in it get +5 to Stealth and Perception checks, and its light is hidden from outside.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 22
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.check.skill.stealth",
+            "op": "add",
+            "value": 5,
+            "mode": "suggested",
+            "label": "Hearth of Moonlight and Shadow",
+            "when": {
+              "text": "resting inside your warded sphere"
+            }
+          },
+          {
+            "selector": "roll.check.skill.perception",
+            "op": "add",
+            "value": 5,
+            "mode": "suggested",
+            "label": "Hearth of Moonlight and Shadow",
+            "when": {
+              "text": "resting inside your warded sphere"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:circle-of-dreams-hidden-paths",
+      "name": "Hidden Paths",
+      "summary": "Bonus action: teleport up to 60 ft to a space you can see; or action: teleport a willing creature you touch up to 30 ft. Uses equal your Wisdom modifier (min 1) per long rest.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 23
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "hidden-paths",
+            "name": "Hidden Paths",
+            "max": "mod.wis",
+            "reset": "long",
+            "min": 1
+          }
+        ],
+        "actions": [
+          {
+            "id": "hidden-paths",
+            "name": "Hidden Paths",
+            "economy": "bonus",
+            "cost": {
+              "resource": "hidden-paths"
+            },
+            "note": "Teleport yourself up to 60 ft (bonus action), or a touched willing creature 30 ft (action)."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:circle-of-dreams-walker-in-dreams",
+      "name": "Walker in Dreams",
+      "summary": "After a short rest, cast Dream, Scrying or Teleportation Circle (to the last place you took a long rest) without a slot or material components. Once per long rest.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 23
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "walker-in-dreams",
+            "name": "Walker in Dreams",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "spells": [
+          {
+            "spell": "spell:dream",
+            "name": "Dream",
+            "casting": "once per long rest, after a short rest, without a slot",
+            "resource": "walker-in-dreams",
+            "list": "druid"
+          },
+          {
+            "spell": "spell:scrying",
+            "name": "Scrying",
+            "casting": "once per long rest, after a short rest, without a slot",
+            "resource": "walker-in-dreams",
+            "list": "druid"
+          },
+          {
+            "spell": "spell:teleportation-circle",
+            "name": "Teleportation Circle",
+            "casting": "once per long rest, after a short rest, without a slot",
+            "resource": "walker-in-dreams",
+            "list": "druid"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:circle-of-the-shepherd",
+      "name": "Circle of the Shepherd",
+      "summary": "Druid of beasts and fey spirits who empowers allies with a spirit totem and bolsters summons.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 23
+      },
+      "class": "class:druid",
+      "features": [
+        {
+          "level": 2,
+          "feature": "feature:circle-of-the-shepherd-speech-of-the-woods"
+        },
+        {
+          "level": 2,
+          "feature": "feature:circle-of-the-shepherd-spirit-totem"
+        },
+        {
+          "level": 6,
+          "feature": "feature:circle-of-the-shepherd-mighty-summoner"
+        },
+        {
+          "level": 10,
+          "feature": "feature:circle-of-the-shepherd-guardian-spirit"
+        },
+        {
+          "level": 14,
+          "feature": "feature:circle-of-the-shepherd-faithful-summons"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:circle-of-the-shepherd-speech-of-the-woods",
+      "name": "Speech of the Woods",
+      "summary": "You learn Sylvan, and beasts can understand your speech while you can decipher theirs.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 23
+      },
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "language",
+            "target": "Sylvan"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:circle-of-the-shepherd-spirit-totem",
+      "name": "Spirit Totem",
+      "summary": "Bonus action: summon a bear, hawk or unicorn spirit within 60 ft for 1 minute, with a 30-ft aura. Bear: temp HP 5 + druid level to chosen creatures and advantage on Strength checks and saves. Hawk: reaction to give advantage on an attack against a target in the aura, plus advantage on Perception. Unicorn: advantage on checks to detect creatures; your slot healing spells also heal everyone in the aura by your druid level. Once per short or long rest.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 24
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "spirit-totem",
+            "name": "Spirit Totem",
+            "max": 1,
+            "reset": "short"
+          }
+        ],
+        "actions": [
+          {
+            "id": "spirit-totem",
+            "name": "Spirit Totem",
+            "economy": "bonus",
+            "cost": {
+              "resource": "spirit-totem"
+            },
+            "choose": {
+              "label": "Spirit",
+              "options": [
+                "Bear",
+                "Hawk",
+                "Unicorn"
+              ]
+            },
+            "toggles": [
+              "spirit-totem"
+            ],
+            "duration": {
+              "minutes": 1
+            },
+            "note": "Summon a spirit within 60 ft for 1 minute (30-ft aura). Bonus action: move it 60 ft."
+          },
+          {
+            "id": "spirit-totem-hawk",
+            "name": "Hawk Spirit",
+            "economy": "reaction",
+            "note": "A creature attacks a target inside the hawk aura: give it advantage."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:circle-of-the-shepherd-mighty-summoner",
+      "name": "Mighty Summoner",
+      "summary": "Beasts and fey you summon or create with a spell get 2 extra hit points per Hit Die, and their natural weapons count as magical.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 24
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:circle-of-the-shepherd-guardian-spirit",
+      "name": "Guardian Spirit",
+      "summary": "Beasts and fey you summoned that end their turn in your Spirit Totem aura regain hit points equal to half your druid level.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 24
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:circle-of-the-shepherd-faithful-summons",
+      "name": "Faithful Summons",
+      "summary": "When you drop to 0 hit points or are incapacitated against your will, you can immediately get the effect of Conjure Animals at 9th level: four protective beasts of CR 2 or lower for 1 hour. Once per long rest.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 24
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "faithful-summons",
+            "name": "Faithful Summons",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "faithful-summons",
+            "name": "Faithful Summons",
+            "economy": "free",
+            "cost": {
+              "resource": "faithful-summons"
+            },
+            "note": "On dropping to 0 HP or being incapacitated: four CR 2 beasts appear to protect you for 1 hour (no concentration)."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:circle-of-spores",
+      "name": "Circle of Spores",
+      "summary": "Fungal druid who wraps itself in necrotic spores and raises the fallen as zombie servants.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 35
+      },
+      "class": "class:druid",
+      "features": [
+        {
+          "level": 2,
+          "feature": "feature:circle-of-spores-circle-spells-2"
+        },
+        {
+          "level": 3,
+          "feature": "feature:circle-of-spores-spells-3"
+        },
+        {
+          "level": 5,
+          "feature": "feature:circle-of-spores-spells-5"
+        },
+        {
+          "level": 7,
+          "feature": "feature:circle-of-spores-spells-7"
+        },
+        {
+          "level": 9,
+          "feature": "feature:circle-of-spores-spells-9"
+        },
+        {
+          "level": 2,
+          "feature": "feature:circle-of-spores-halo-of-spores"
+        },
+        {
+          "level": 2,
+          "feature": "feature:circle-of-spores-symbiotic-entity"
+        },
+        {
+          "level": 6,
+          "feature": "feature:circle-of-spores-fungal-infestation"
+        },
+        {
+          "level": 10,
+          "feature": "feature:circle-of-spores-spreading-spores"
+        },
+        {
+          "level": 14,
+          "feature": "feature:circle-of-spores-fungal-body"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:circle-of-spores-circle-spells-2",
+      "name": "Circle Spells",
+      "summary": "You know the Chill Touch cantrip, and gain always-prepared circle spells at 3rd, 5th, 7th and 9th level.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 36
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:chill-touch",
+            "name": "Chill Touch",
+            "casting": "at will",
+            "list": "druid",
+            "atWill": true
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:circle-of-spores-spells-3",
+      "name": "Circle Spells (3rd)",
+      "summary": "Always prepared, not counted against your prepared spells: Blindness/Deafness, Gentle Repose.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 36
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:blindness-deafness",
+            "name": "Blindness/Deafness",
+            "casting": "always prepared",
+            "list": "druid"
+          },
+          {
+            "spell": "spell:gentle-repose",
+            "name": "Gentle Repose",
+            "casting": "always prepared",
+            "list": "druid"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:circle-of-spores-spells-5",
+      "name": "Circle Spells (5th)",
+      "summary": "Always prepared, not counted against your prepared spells: Animate Dead, Gaseous Form.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 36
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:animate-dead",
+            "name": "Animate Dead",
+            "casting": "always prepared",
+            "list": "druid"
+          },
+          {
+            "spell": "spell:gaseous-form",
+            "name": "Gaseous Form",
+            "casting": "always prepared",
+            "list": "druid"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:circle-of-spores-spells-7",
+      "name": "Circle Spells (7th)",
+      "summary": "Always prepared, not counted against your prepared spells: Blight, Confusion.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 36
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:blight",
+            "name": "Blight",
+            "casting": "always prepared",
+            "list": "druid"
+          },
+          {
+            "spell": "spell:confusion",
+            "name": "Confusion",
+            "casting": "always prepared",
+            "list": "druid"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:circle-of-spores-spells-9",
+      "name": "Circle Spells (9th)",
+      "summary": "Always prepared, not counted against your prepared spells: Cloudkill, Contagion.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 36
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:cloudkill",
+            "name": "Cloudkill",
+            "casting": "always prepared",
+            "list": "druid"
+          },
+          {
+            "spell": "spell:contagion",
+            "name": "Contagion",
+            "casting": "always prepared",
+            "list": "druid"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:circle-of-spores-halo-of-spores",
+      "name": "Halo of Spores",
+      "summary": "Reaction when a creature you can see moves into a space within 10 ft of you or starts its turn there: it makes a Constitution save or takes necrotic damage (1d4, rising to 1d6 at 6th, 1d8 at 10th, 1d10 at 14th).",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 36
+      },
+      "scaling": {
+        "die": {
+          "class": "class:druid",
+          "table": [
+            [
+              2,
+              "1d4"
+            ],
+            [
+              6,
+              "1d6"
+            ],
+            [
+              10,
+              "1d8"
+            ],
+            [
+              14,
+              "1d10"
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "halo-of-spores",
+            "name": "Halo of Spores",
+            "economy": "reaction",
+            "roll": {
+              "dice": "scale.die",
+              "label": "necrotic damage"
+            },
+            "note": "Creature within 10 ft: Con save or necrotic damage. Doubled dice while Symbiotic Entity is active."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:circle-of-spores-symbiotic-entity",
+      "name": "Symbiotic Entity",
+      "summary": "Action: spend a Wild Shape use to gain 4 temporary hit points per druid level for 10 minutes (ends early when they run out). Meanwhile Halo of Spores rolls its die twice, and your melee weapon hits deal an extra 1d6 necrotic.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 36
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "symbiotic-entity",
+            "name": "Symbiotic Entity",
+            "economy": "action",
+            "cost": {
+              "resource": "wild-shape"
+            },
+            "toggles": [
+              "symbiotic-entity"
+            ],
+            "tempHp": "4*classLevel.class:druid",
+            "duration": {
+              "minutes": 10
+            },
+            "note": "4 temp HP per druid level for 10 minutes; Halo dice doubled; +1d6 necrotic on melee weapon hits."
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.damage.weapon.melee",
+            "op": "add",
+            "value": "1d6",
+            "damageType": "necrotic",
+            "label": "Symbiotic Entity",
+            "when": {
+              "toggle": "symbiotic-entity"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:circle-of-spores-fungal-infestation",
+      "name": "Fungal Infestation",
+      "summary": "Reaction when a Small or Medium beast or humanoid dies within 10 ft: animate it as a zombie with 1 hit point that obeys your mental commands for 1 hour. Uses equal your Wisdom modifier (min 1) per long rest.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 36
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "fungal-infestation",
+            "name": "Fungal Infestation",
+            "max": "mod.wis",
+            "reset": "long",
+            "min": 1
+          }
+        ],
+        "actions": [
+          {
+            "id": "fungal-infestation",
+            "name": "Fungal Infestation",
+            "economy": "reaction",
+            "cost": {
+              "resource": "fungal-infestation"
+            },
+            "note": "Raise a fresh Small/Medium beast or humanoid corpse within 10 ft as a 1-HP zombie for 1 hour."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:circle-of-spores-spreading-spores",
+      "name": "Spreading Spores",
+      "summary": "Bonus action while Symbiotic Entity is active: hurl spores to a 10-ft cube within 30 ft for 1 minute. Creatures moving into or starting their turn there take your Halo of Spores damage on a failed Con save; you can't use the Halo reaction meanwhile.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 37
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "spreading-spores",
+            "name": "Spreading Spores",
+            "economy": "bonus",
+            "note": "Needs Symbiotic Entity. 10-ft cube within 30 ft for 1 minute; Halo damage there, no Halo reaction meanwhile."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:circle-of-spores-fungal-body",
+      "name": "Fungal Body",
+      "summary": "You can't be blinded, deafened, frightened or poisoned, and critical hits against you count as normal hits unless you're incapacitated.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 37
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:circle-of-stars",
+      "name": "Circle of Stars",
+      "summary": "Druid who reads the constellations, takes on a starry form and casts omens.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 38
+      },
+      "class": "class:druid",
+      "features": [
+        {
+          "level": 2,
+          "feature": "feature:circle-of-stars-star-map"
+        },
+        {
+          "level": 2,
+          "feature": "feature:circle-of-stars-starry-form"
+        },
+        {
+          "level": 6,
+          "feature": "feature:circle-of-stars-cosmic-omen"
+        },
+        {
+          "level": 10,
+          "feature": "feature:circle-of-stars-twinkling-constellations"
+        },
+        {
+          "level": 14,
+          "feature": "feature:circle-of-stars-full-of-stars"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:circle-of-stars-star-map",
+      "name": "Star Map",
+      "summary": "You know Guidance and always have Guiding Bolt prepared, and can cast Guiding Bolt without a slot a number of times equal to your proficiency bonus per long rest.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 38
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "star-map",
+            "name": "Star Map (Guiding Bolt)",
+            "max": "pb",
+            "reset": "long"
+          }
+        ],
+        "spells": [
+          {
+            "spell": "spell:guidance",
+            "name": "Guidance",
+            "casting": "at will",
+            "list": "druid",
+            "atWill": true
+          },
+          {
+            "spell": "spell:guiding-bolt",
+            "name": "Guiding Bolt",
+            "casting": "always prepared; free a number of times per long rest",
+            "resource": "star-map",
+            "list": "druid"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:circle-of-stars-starry-form",
+      "name": "Starry Form",
+      "summary": "Bonus action: spend a Wild Shape use to become luminous for 10 minutes in one constellation. Archer: bonus action ranged spell attack (60 ft) for 1d8 + Wis radiant. Chalice: when a slot spell heals someone, you or a creature within 30 ft also heals 1d8 + Wis. Dragon: d20s of 9 or lower count as 10 on Int and Wis checks and Con saves to keep concentration.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 38
+      },
+      "scaling": {
+        "die": {
+          "class": "class:druid",
+          "table": [
+            [
+              2,
+              "1d8"
+            ],
+            [
+              10,
+              "2d8"
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "starry-form",
+            "name": "Starry Form",
+            "economy": "bonus",
+            "cost": {
+              "resource": "wild-shape"
+            },
+            "choose": {
+              "label": "Constellation",
+              "options": [
+                "Archer",
+                "Chalice",
+                "Dragon"
+              ]
+            },
+            "toggles": [
+              "starry-form"
+            ],
+            "duration": {
+              "minutes": 10
+            },
+            "note": "10 minutes. Archer: luminous arrow now and as a bonus action. Chalice: extra healing. Dragon: minimum 10 on Int/Wis checks and concentration saves."
+          },
+          {
+            "id": "starry-form-archer",
+            "name": "Luminous Arrow (Archer)",
+            "economy": "bonus",
+            "roll": {
+              "dice": "scale.die + mod.wis",
+              "label": "radiant damage"
+            },
+            "note": "Ranged spell attack, 60 ft: radiant damage on a hit."
+          },
+          {
+            "id": "starry-form-chalice",
+            "name": "Chalice healing",
+            "economy": "free",
+            "heal": "scale.die + mod.wis",
+            "note": "After a slot healing spell: you or a creature within 30 ft also heals."
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.check.int",
+            "op": "minD20",
+            "value": 10,
+            "mode": "suggested",
+            "label": "Starry Form: Dragon",
+            "when": {
+              "toggle": "starry-form",
+              "text": "Dragon constellation"
+            }
+          },
+          {
+            "selector": "roll.check.wis",
+            "op": "minD20",
+            "value": 10,
+            "mode": "suggested",
+            "label": "Starry Form: Dragon",
+            "when": {
+              "toggle": "starry-form",
+              "text": "Dragon constellation"
+            }
+          },
+          {
+            "selector": "roll.save.con",
+            "op": "minD20",
+            "value": 10,
+            "mode": "suggested",
+            "label": "Starry Form: Dragon",
+            "when": {
+              "toggle": "starry-form",
+              "text": "Dragon constellation (concentration save)"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:circle-of-stars-cosmic-omen",
+      "name": "Cosmic Omen",
+      "summary": "After a long rest, roll a die: even gives Weal, odd gives Woe until your next long rest. Reaction when a creature within 30 ft makes an attack, check or save: add (Weal) or subtract (Woe) 1d6. Uses equal your proficiency bonus per long rest.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 38
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "cosmic-omen",
+            "name": "Cosmic Omen",
+            "max": "pb",
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "cosmic-omen",
+            "name": "Cosmic Omen",
+            "economy": "reaction",
+            "cost": {
+              "resource": "cosmic-omen"
+            },
+            "choose": {
+              "label": "Today's omen",
+              "options": [
+                "Weal (+1d6)",
+                "Woe (-1d6)"
+              ]
+            },
+            "roll": {
+              "dice": "1d6",
+              "label": "added or subtracted"
+            },
+            "note": "Creature within 30 ft: add (Weal) or subtract (Woe) 1d6 from its roll."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:circle-of-stars-twinkling-constellations",
+      "name": "Twinkling Constellations",
+      "summary": "Starry Form's 1d8s become 2d8s; the Dragon grants a 20-ft flying speed with hover; and you can switch constellation at the start of each of your turns.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 39
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:circle-of-stars-full-of-stars",
+      "name": "Full of Stars",
+      "summary": "While in Starry Form you have resistance to bludgeoning, piercing and slashing damage.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 39
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.bludgeoning",
+            "op": "resist",
+            "label": "Full of Stars",
+            "when": {
+              "toggle": "starry-form"
+            }
+          },
+          {
+            "selector": "defense.resist.piercing",
+            "op": "resist",
+            "label": "Full of Stars",
+            "when": {
+              "toggle": "starry-form"
+            }
+          },
+          {
+            "selector": "defense.resist.slashing",
+            "op": "resist",
+            "label": "Full of Stars",
+            "when": {
+              "toggle": "starry-form"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:circle-of-wildfire",
+      "name": "Circle of Wildfire",
+      "summary": "Druid of renewing flame, bonded to a wildfire spirit that burns foes and helps heal.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 39
+      },
+      "class": "class:druid",
+      "features": [
+        {
+          "level": 2,
+          "feature": "feature:circle-of-wildfire-spells-2"
+        },
+        {
+          "level": 3,
+          "feature": "feature:circle-of-wildfire-spells-3"
+        },
+        {
+          "level": 5,
+          "feature": "feature:circle-of-wildfire-spells-5"
+        },
+        {
+          "level": 7,
+          "feature": "feature:circle-of-wildfire-spells-7"
+        },
+        {
+          "level": 9,
+          "feature": "feature:circle-of-wildfire-spells-9"
+        },
+        {
+          "level": 2,
+          "feature": "feature:circle-of-wildfire-summon-wildfire-spirit"
+        },
+        {
+          "level": 6,
+          "feature": "feature:circle-of-wildfire-enhanced-bond"
+        },
+        {
+          "level": 10,
+          "feature": "feature:circle-of-wildfire-cauterizing-flames"
+        },
+        {
+          "level": 14,
+          "feature": "feature:circle-of-wildfire-blazing-revival"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:circle-of-wildfire-spells-2",
+      "name": "Circle Spells",
+      "summary": "Always prepared, not counted against your prepared spells: Burning Hands, Cure Wounds.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 40
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:burning-hands",
+            "name": "Burning Hands",
+            "casting": "always prepared",
+            "list": "druid"
+          },
+          {
+            "spell": "spell:cure-wounds",
+            "name": "Cure Wounds",
+            "casting": "always prepared",
+            "list": "druid"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:circle-of-wildfire-spells-3",
+      "name": "Circle Spells (3rd)",
+      "summary": "Always prepared, not counted against your prepared spells: Flaming Sphere, Scorching Ray.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 40
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:flaming-sphere",
+            "name": "Flaming Sphere",
+            "casting": "always prepared",
+            "list": "druid"
+          },
+          {
+            "spell": "spell:scorching-ray",
+            "name": "Scorching Ray",
+            "casting": "always prepared",
+            "list": "druid"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:circle-of-wildfire-spells-5",
+      "name": "Circle Spells (5th)",
+      "summary": "Always prepared, not counted against your prepared spells: Plant Growth, Revivify.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 40
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:plant-growth",
+            "name": "Plant Growth",
+            "casting": "always prepared",
+            "list": "druid"
+          },
+          {
+            "spell": "spell:revivify",
+            "name": "Revivify",
+            "casting": "always prepared",
+            "list": "druid"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:circle-of-wildfire-spells-7",
+      "name": "Circle Spells (7th)",
+      "summary": "Always prepared, not counted against your prepared spells: Aura of Life, Fire Shield.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 40
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:aura-of-life",
+            "name": "Aura of Life",
+            "casting": "always prepared",
+            "list": "druid"
+          },
+          {
+            "spell": "spell:fire-shield",
+            "name": "Fire Shield",
+            "casting": "always prepared",
+            "list": "druid"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:circle-of-wildfire-spells-9",
+      "name": "Circle Spells (9th)",
+      "summary": "Always prepared, not counted against your prepared spells: Flame Strike, Mass Cure Wounds.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 40
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:flame-strike",
+            "name": "Flame Strike",
+            "casting": "always prepared",
+            "list": "druid"
+          },
+          {
+            "spell": "spell:mass-cure-wounds",
+            "name": "Mass Cure Wounds",
+            "casting": "always prepared",
+            "list": "druid"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:circle-of-wildfire-summon-wildfire-spirit",
+      "name": "Summon Wildfire Spirit",
+      "summary": "Action: spend a Wild Shape use to summon your wildfire spirit within 30 ft for 1 hour; creatures within 10 ft of where it appears make a Dex save or take 2d6 fire damage.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 40
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "summon-wildfire-spirit",
+            "name": "Summon Wildfire Spirit",
+            "economy": "action",
+            "cost": {
+              "resource": "wild-shape"
+            },
+            "roll": {
+              "dice": "2d6",
+              "label": "fire damage"
+            },
+            "note": "Spirit appears within 30 ft; creatures within 10 ft of it: Dex save or 2d6 fire."
+          },
+          {
+            "id": "command-wildfire-spirit",
+            "name": "Command Wildfire Spirit",
+            "economy": "bonus",
+            "note": "The spirit acts (Flame Seed or Fiery Teleportation); otherwise it Dodges."
+          }
+        ],
+        "companions": [
+          {
+            "id": "wildfire-spirit",
+            "name": "Wildfire Spirit",
+            "spellcasting": "druid",
+            "combatNote": "Shares your initiative and acts right after you. It takes the Dodge action unless you spend a bonus action to command it. Lasts 1 hour, until it drops to 0 HP, you summon it again, or you die.",
+            "forms": [
+              {
+                "id": "wildfire-spirit",
+                "name": "Wildfire Spirit",
+                "size": "Small",
+                "type": "elemental",
+                "ac": 13,
+                "hp": {
+                  "base": 5,
+                  "perLevel": 5,
+                  "class": "class:druid"
+                },
+                "speed": "30 ft., fly 30 ft. (hover)",
+                "abilities": {
+                  "str": 10,
+                  "dex": 14,
+                  "con": 14,
+                  "int": 13,
+                  "wis": 15,
+                  "cha": 11
+                },
+                "senses": "Darkvision 60 ft.",
+                "languages": "Understands the languages you speak",
+                "traits": [
+                  {
+                    "name": "Defenses",
+                    "summary": "Immune to fire damage; can't be charmed, frightened, grappled, knocked prone or restrained."
+                  },
+                  {
+                    "name": "Fiery Teleportation",
+                    "summary": "Action: it and willing creatures within 5 ft teleport up to 15 ft; creatures within 5 ft of the spot it left make a Dex save against your spell DC or take 1d6 + your proficiency bonus fire damage."
+                  }
+                ],
+                "attacks": [
+                  {
+                    "name": "Flame Seed",
+                    "kind": "ranged",
+                    "toHit": "spell",
+                    "reach": "60 ft.",
+                    "damage": "1d6",
+                    "damageBonus": "pb",
+                    "damageType": "fire"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:circle-of-wildfire-enhanced-bond",
+      "name": "Enhanced Bond",
+      "summary": "While your spirit is summoned, add 1d8 to one damage roll of a fire-damage spell or one healing roll of a spell you cast; such spells can also originate from the spirit.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 40
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.damage.spell",
+            "op": "add",
+            "value": "1d8",
+            "mode": "suggested",
+            "label": "Enhanced Bond",
+            "when": {
+              "text": "wildfire spirit summoned; a spell dealing fire damage (one roll)"
+            },
+            "damageType": "fire"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:circle-of-wildfire-cauterizing-flames",
+      "name": "Cauterizing Flames",
+      "summary": "When a Small or larger creature dies within 30 ft of you or your spirit, a spectral flame burns in its space for 1 minute. Reaction when a creature you can see enters it: extinguish it to heal or damage that creature by 2d10 + Wisdom modifier (fire). Uses equal your proficiency bonus per long rest.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 40
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "cauterizing-flames",
+            "name": "Cauterizing Flames",
+            "max": "pb",
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "cauterizing-flames",
+            "name": "Cauterizing Flames",
+            "economy": "reaction",
+            "cost": {
+              "resource": "cauterizing-flames"
+            },
+            "choose": {
+              "label": "Effect",
+              "options": [
+                "Heal",
+                "Fire damage"
+              ]
+            },
+            "roll": {
+              "dice": "2d10 + mod.wis",
+              "label": "healing or fire damage"
+            },
+            "note": "Creature in a spectral flame: it heals or takes fire damage."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:circle-of-wildfire-blazing-revival",
+      "name": "Blazing Revival",
+      "summary": "Once per long rest, when you drop to 0 hit points with your spirit within 120 ft, it drops to 0 and you regain half your hit point maximum and stand up.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 40
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "blazing-revival",
+            "name": "Blazing Revival",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "blazing-revival",
+            "name": "Blazing Revival",
+            "economy": "free",
+            "cost": {
+              "resource": "blazing-revival"
+            },
+            "note": "At 0 HP with your spirit within 120 ft: the spirit is destroyed and you regain half your HP maximum."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:druid-additional-druid-spells",
+      "name": "Additional Druid Spells",
+      "summary": "Tasha's adds spells to the druid list (including Infestation, Primal Savagery, Protection from Evil and Good, Augury, Continual Flame, Enlarge/Reduce, Aura of Vitality, Elemental Weapon, Revivify, Divination, Fire Shield and Cone of Cold) for you to prepare.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 41
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:druid-wild-companion",
+      "name": "Wild Companion",
+      "summary": "Action: spend a Wild Shape use to cast Find Familiar without material components. The familiar is a fey and lasts for half your druid level in hours.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 41
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "wild-companion",
+            "name": "Wild Companion",
+            "economy": "action",
+            "cost": {
+              "resource": "wild-shape"
+            },
+            "note": "Cast Find Familiar (fey) without components; it lasts half your druid level in hours."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:druid-cantrip-versatility",
+      "name": "Cantrip Versatility",
+      "summary": "Whenever you gain an Ability Score Improvement, you may swap one druid cantrip you know for another druid cantrip.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 41
+      }
+    }
+  ]
+}

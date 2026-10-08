@@ -1,0 +1,1599 @@
+{
+  "definitions": [
+    {
+      "kind": "subclass",
+      "id": "subclass:path-of-the-totem-warrior",
+      "name": "Path of the Totem Warrior",
+      "summary": "Barbarian bonded to an animal spirit (Bear, Eagle or Wolf) that shapes their rage.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 50
+      },
+      "class": "class:barbarian",
+      "features": [
+        {
+          "level": 3,
+          "feature": "feature:path-of-the-totem-warrior-spirit-seeker"
+        },
+        {
+          "level": 3,
+          "feature": "feature:path-of-the-totem-warrior-totem-spirit"
+        },
+        {
+          "level": 6,
+          "feature": "feature:path-of-the-totem-warrior-aspect-of-the-beast"
+        },
+        {
+          "level": 10,
+          "feature": "feature:path-of-the-totem-warrior-spirit-walker"
+        },
+        {
+          "level": 14,
+          "feature": "feature:path-of-the-totem-warrior-totemic-attunement"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:path-of-the-totem-warrior-spirit-seeker",
+      "name": "Spirit Seeker",
+      "summary": "Cast Beast Sense and Speak with Animals, as rituals only.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 50
+      },
+      "grant": {
+        "spellcasting": {
+          "id": "totem-warrior-rituals",
+          "label": "Totem Warrior (rituals)",
+          "ability": "wis",
+          "progression": "none"
+        },
+        "spells": [
+          {
+            "spell": "spell:beast-sense",
+            "name": "Beast Sense",
+            "casting": "ritual only"
+          },
+          {
+            "spell": "spell:speak-with-animals",
+            "name": "Speak with Animals",
+            "casting": "ritual only"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:path-of-the-totem-warrior-totem-spirit",
+      "name": "Totem Spirit",
+      "summary": "Pick a totem animal; its benefit applies while you rage. You need a physical totem object.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 50
+      },
+      "choices": [
+        {
+          "id": "totem",
+          "label": "Totem animal",
+          "kind": "feature",
+          "count": 1,
+          "from": [
+            "feature:path-of-the-totem-warrior-totem-spirit-bear",
+            "feature:path-of-the-totem-warrior-totem-spirit-eagle",
+            "feature:path-of-the-totem-warrior-totem-spirit-wolf"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:path-of-the-totem-warrior-totem-spirit-bear",
+      "name": "Bear",
+      "summary": "While raging, resistance to every damage type except psychic.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 50
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.acid",
+            "op": "resist",
+            "label": "Totem Spirit (Bear)",
+            "when": {
+              "toggle": "raging"
+            }
+          },
+          {
+            "selector": "defense.resist.bludgeoning",
+            "op": "resist",
+            "label": "Totem Spirit (Bear)",
+            "when": {
+              "toggle": "raging"
+            }
+          },
+          {
+            "selector": "defense.resist.cold",
+            "op": "resist",
+            "label": "Totem Spirit (Bear)",
+            "when": {
+              "toggle": "raging"
+            }
+          },
+          {
+            "selector": "defense.resist.fire",
+            "op": "resist",
+            "label": "Totem Spirit (Bear)",
+            "when": {
+              "toggle": "raging"
+            }
+          },
+          {
+            "selector": "defense.resist.force",
+            "op": "resist",
+            "label": "Totem Spirit (Bear)",
+            "when": {
+              "toggle": "raging"
+            }
+          },
+          {
+            "selector": "defense.resist.lightning",
+            "op": "resist",
+            "label": "Totem Spirit (Bear)",
+            "when": {
+              "toggle": "raging"
+            }
+          },
+          {
+            "selector": "defense.resist.necrotic",
+            "op": "resist",
+            "label": "Totem Spirit (Bear)",
+            "when": {
+              "toggle": "raging"
+            }
+          },
+          {
+            "selector": "defense.resist.piercing",
+            "op": "resist",
+            "label": "Totem Spirit (Bear)",
+            "when": {
+              "toggle": "raging"
+            }
+          },
+          {
+            "selector": "defense.resist.poison",
+            "op": "resist",
+            "label": "Totem Spirit (Bear)",
+            "when": {
+              "toggle": "raging"
+            }
+          },
+          {
+            "selector": "defense.resist.radiant",
+            "op": "resist",
+            "label": "Totem Spirit (Bear)",
+            "when": {
+              "toggle": "raging"
+            }
+          },
+          {
+            "selector": "defense.resist.slashing",
+            "op": "resist",
+            "label": "Totem Spirit (Bear)",
+            "when": {
+              "toggle": "raging"
+            }
+          },
+          {
+            "selector": "defense.resist.thunder",
+            "op": "resist",
+            "label": "Totem Spirit (Bear)",
+            "when": {
+              "toggle": "raging"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:path-of-the-totem-warrior-totem-spirit-eagle",
+      "name": "Eagle",
+      "summary": "While raging without heavy armor, others have disadvantage on opportunity attacks against you, and you can Dash as a bonus action.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 50
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "totem-eagle-dash",
+            "name": "Eagle Dash",
+            "economy": "bonus",
+            "dash": true,
+            "note": "While raging, not in heavy armor. Opportunity attacks against you have disadvantage."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:path-of-the-totem-warrior-totem-spirit-wolf",
+      "name": "Wolf",
+      "summary": "While raging, your friends have advantage on melee attacks against hostile creatures within 5 ft of you.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 50
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:path-of-the-totem-warrior-aspect-of-the-beast",
+      "name": "Aspect of the Beast",
+      "summary": "Pick a totem animal (can differ from your Totem Spirit) for a lasting out-of-combat benefit.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 50
+      },
+      "choices": [
+        {
+          "id": "aspect",
+          "label": "Aspect animal",
+          "kind": "feature",
+          "count": 1,
+          "from": [
+            "feature:path-of-the-totem-warrior-aspect-bear",
+            "feature:path-of-the-totem-warrior-aspect-eagle",
+            "feature:path-of-the-totem-warrior-aspect-wolf"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:path-of-the-totem-warrior-aspect-bear",
+      "name": "Bear",
+      "summary": "Double carrying capacity; advantage on Strength checks to push, pull, lift or break things.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 50
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.check.str",
+            "op": "advantage",
+            "mode": "suggested",
+            "label": "Aspect of the Bear",
+            "when": {
+              "text": "pushing, pulling, lifting or breaking objects"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:path-of-the-totem-warrior-aspect-eagle",
+      "name": "Eagle",
+      "summary": "See clearly up to a mile away, and dim light doesn't give disadvantage on Wisdom (Perception) checks.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 50
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.check.skill.perception",
+            "op": "note",
+            "label": "Aspect of the Eagle: dim light doesn't impose disadvantage; see details up to 1 mile away."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:path-of-the-totem-warrior-aspect-wolf",
+      "name": "Wolf",
+      "summary": "Track at a fast pace and move stealthily at a normal pace while traveling.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 50
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:path-of-the-totem-warrior-spirit-walker",
+      "name": "Spirit Walker",
+      "summary": "Cast Commune with Nature, as a ritual only.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 50
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:commune-with-nature",
+            "name": "Commune with Nature",
+            "casting": "ritual only",
+            "list": "totem-warrior-rituals"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:path-of-the-totem-warrior-totemic-attunement",
+      "name": "Totemic Attunement",
+      "summary": "Pick a totem animal for a powerful benefit while raging.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 50
+      },
+      "choices": [
+        {
+          "id": "attunement",
+          "label": "Attunement animal",
+          "kind": "feature",
+          "count": 1,
+          "from": [
+            "feature:path-of-the-totem-warrior-attunement-bear",
+            "feature:path-of-the-totem-warrior-attunement-eagle",
+            "feature:path-of-the-totem-warrior-attunement-wolf"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:path-of-the-totem-warrior-attunement-bear",
+      "name": "Bear",
+      "summary": "While raging, hostile creatures within 5 ft that can see or hear you have disadvantage on attacks against anyone but you (or others with this feature).",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 50
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:path-of-the-totem-warrior-attunement-eagle",
+      "name": "Eagle",
+      "summary": "While raging, you have a flying speed equal to your walking speed, but you fall if you end your turn in the air.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 50
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:path-of-the-totem-warrior-attunement-wolf",
+      "name": "Wolf",
+      "summary": "While raging, after hitting a Large or smaller creature with a melee weapon attack, use a bonus action to knock it prone.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 50
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "totem-wolf-knockdown",
+            "name": "Wolf Knockdown",
+            "economy": "bonus",
+            "note": "While raging, after a melee weapon hit: knock a Large or smaller creature prone."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:path-of-the-storm-herald",
+      "name": "Path of the Storm Herald",
+      "summary": "Barbarian whose rage becomes a storm aura of desert heat, sea lightning or tundra cold.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 10
+      },
+      "class": "class:barbarian",
+      "features": [
+        {
+          "level": 3,
+          "feature": "feature:path-of-the-storm-herald-storm-aura"
+        },
+        {
+          "level": 6,
+          "feature": "feature:path-of-the-storm-herald-storm-soul"
+        },
+        {
+          "level": 10,
+          "feature": "feature:path-of-the-storm-herald-shielding-storm"
+        },
+        {
+          "level": 14,
+          "feature": "feature:path-of-the-storm-herald-raging-storm"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:path-of-the-storm-herald-storm-aura",
+      "name": "Storm Aura",
+      "summary": "While raging you emit a 10-ft aura; its effect triggers when you rage and again as a bonus action on later turns. Pick desert, sea or tundra (changeable on level-up). Save DC 8 + proficiency + Constitution.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 10
+      },
+      "choices": [
+        {
+          "id": "environment",
+          "label": "Environment",
+          "kind": "feature",
+          "count": 1,
+          "from": [
+            "feature:path-of-the-storm-herald-storm-aura-desert",
+            "feature:path-of-the-storm-herald-storm-aura-sea",
+            "feature:path-of-the-storm-herald-storm-aura-tundra"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:path-of-the-storm-herald-storm-aura-desert",
+      "name": "Desert",
+      "summary": "Aura: every other creature in it takes fire damage (2, rising to 6 at 20th level).",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 10
+      },
+      "scaling": {
+        "dmg": {
+          "class": "class:barbarian",
+          "table": [
+            [
+              3,
+              2
+            ],
+            [
+              5,
+              3
+            ],
+            [
+              10,
+              4
+            ],
+            [
+              15,
+              5
+            ],
+            [
+              20,
+              6
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "storm-aura-desert",
+            "name": "Storm Aura: Desert",
+            "economy": "bonus",
+            "roll": {
+              "dice": "scale.dmg",
+              "label": "fire damage to every other creature in the aura"
+            },
+            "note": "Triggers free when you rage; bonus action on later turns while raging."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:path-of-the-storm-herald-storm-aura-sea",
+      "name": "Sea",
+      "summary": "Aura: one creature in it makes a Dexterity save or takes lightning damage (1d6, rising to 4d6), half on a success.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 10
+      },
+      "scaling": {
+        "dmg": {
+          "class": "class:barbarian",
+          "table": [
+            [
+              3,
+              "1d6"
+            ],
+            [
+              10,
+              "2d6"
+            ],
+            [
+              15,
+              "3d6"
+            ],
+            [
+              20,
+              "4d6"
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "storm-aura-sea",
+            "name": "Storm Aura: Sea",
+            "economy": "bonus",
+            "roll": {
+              "dice": "scale.dmg",
+              "label": "lightning damage (Dex save for half)"
+            },
+            "note": "Triggers free when you rage; bonus action on later turns while raging."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:path-of-the-storm-herald-storm-aura-tundra",
+      "name": "Tundra",
+      "summary": "Aura: creatures of your choice in it (you included) gain temporary hit points (2, rising to 6).",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 10
+      },
+      "scaling": {
+        "thp": {
+          "class": "class:barbarian",
+          "table": [
+            [
+              3,
+              2
+            ],
+            [
+              5,
+              3
+            ],
+            [
+              10,
+              4
+            ],
+            [
+              15,
+              5
+            ],
+            [
+              20,
+              6
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "storm-aura-tundra",
+            "name": "Storm Aura: Tundra",
+            "economy": "bonus",
+            "tempHp": "scale.thp",
+            "note": "Triggers free when you rage; bonus action on later turns while raging. Chosen allies in the aura gain the same."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:path-of-the-storm-herald-storm-soul",
+      "name": "Storm Soul",
+      "summary": "A lasting benefit tied to your environment (pick the same one as your Storm Aura).",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 10
+      },
+      "choices": [
+        {
+          "id": "environment",
+          "label": "Environment",
+          "kind": "feature",
+          "count": 1,
+          "from": [
+            "feature:path-of-the-storm-herald-storm-soul-desert",
+            "feature:path-of-the-storm-herald-storm-soul-sea",
+            "feature:path-of-the-storm-herald-storm-soul-tundra"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:path-of-the-storm-herald-storm-soul-desert",
+      "name": "Desert",
+      "summary": "Fire resistance, unaffected by extreme heat, and you can set unattended flammable objects alight by touch (action).",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 11
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.fire",
+            "op": "resist",
+            "label": "Storm Soul"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:path-of-the-storm-herald-storm-soul-sea",
+      "name": "Sea",
+      "summary": "Lightning resistance, breathe underwater, and a 30-ft swimming speed.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 11
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.lightning",
+            "op": "resist",
+            "label": "Storm Soul"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:path-of-the-storm-herald-storm-soul-tundra",
+      "name": "Tundra",
+      "summary": "Cold resistance, unaffected by extreme cold, and you can freeze a 5-ft cube of water by touch (action).",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 11
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.cold",
+            "op": "resist",
+            "label": "Storm Soul"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:path-of-the-storm-herald-shielding-storm",
+      "name": "Shielding Storm",
+      "summary": "Creatures of your choice in your Storm Aura gain the resistance your Storm Soul gives you (fire, lightning or cold).",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 11
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:path-of-the-storm-herald-raging-storm",
+      "name": "Raging Storm",
+      "summary": "A reaction tied to your aura's environment (pick the same one as your Storm Aura).",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 11
+      },
+      "choices": [
+        {
+          "id": "environment",
+          "label": "Environment",
+          "kind": "feature",
+          "count": 1,
+          "from": [
+            "feature:path-of-the-storm-herald-raging-storm-desert",
+            "feature:path-of-the-storm-herald-raging-storm-sea",
+            "feature:path-of-the-storm-herald-raging-storm-tundra"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:path-of-the-storm-herald-raging-storm-desert",
+      "name": "Desert",
+      "summary": "Reaction when a creature in your aura hits you: it makes a Dexterity save or takes fire damage equal to half your barbarian level.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 11
+      },
+      "scaling": {
+        "dmg": {
+          "class": "class:barbarian",
+          "table": [
+            [
+              14,
+              7
+            ],
+            [
+              16,
+              8
+            ],
+            [
+              18,
+              9
+            ],
+            [
+              20,
+              10
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "raging-storm-desert",
+            "name": "Raging Storm: Desert",
+            "economy": "reaction",
+            "roll": {
+              "dice": "scale.dmg",
+              "label": "fire damage (Dex save negates)"
+            },
+            "note": "While the aura is active, when a creature in it hits you."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:path-of-the-storm-herald-raging-storm-sea",
+      "name": "Sea",
+      "summary": "Reaction when you hit a creature in your aura: it makes a Strength save or is knocked prone.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 11
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "raging-storm-sea",
+            "name": "Raging Storm: Sea",
+            "economy": "reaction",
+            "note": "After hitting a creature in your aura: Strength save or prone."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:path-of-the-storm-herald-raging-storm-tundra",
+      "name": "Tundra",
+      "summary": "When the aura's effect activates, one creature in it makes a Strength save or its speed drops to 0 until your next turn.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 11
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "raging-storm-tundra",
+            "name": "Raging Storm: Tundra",
+            "economy": "free",
+            "note": "When Storm Aura activates: one creature in it, Strength save or speed 0 until the start of your next turn."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:path-of-the-zealot",
+      "name": "Path of the Zealot",
+      "summary": "Barbarian fueled by divine fury, hard for death to hold on to.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 11
+      },
+      "class": "class:barbarian",
+      "features": [
+        {
+          "level": 3,
+          "feature": "feature:path-of-the-zealot-divine-fury"
+        },
+        {
+          "level": 3,
+          "feature": "feature:path-of-the-zealot-warrior-of-the-gods"
+        },
+        {
+          "level": 6,
+          "feature": "feature:path-of-the-zealot-fanatical-focus"
+        },
+        {
+          "level": 10,
+          "feature": "feature:path-of-the-zealot-zealous-presence"
+        },
+        {
+          "level": 14,
+          "feature": "feature:path-of-the-zealot-rage-beyond-death"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:path-of-the-zealot-divine-fury",
+      "name": "Divine Fury",
+      "summary": "While raging, the first creature you hit with a weapon each turn takes extra 1d6 + half your barbarian level damage, necrotic or radiant (chosen when you gain this).",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 11
+      },
+      "choices": [
+        {
+          "id": "type",
+          "label": "Damage type",
+          "kind": "feature",
+          "count": 1,
+          "from": [
+            "feature:path-of-the-zealot-divine-fury-necrotic",
+            "feature:path-of-the-zealot-divine-fury-radiant"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:path-of-the-zealot-divine-fury-necrotic",
+      "name": "Necrotic",
+      "summary": "Divine Fury deals necrotic damage.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 11
+      },
+      "scaling": {
+        "fury": {
+          "class": "class:barbarian",
+          "table": [
+            [
+              3,
+              "1d6+1"
+            ],
+            [
+              4,
+              "1d6+2"
+            ],
+            [
+              6,
+              "1d6+3"
+            ],
+            [
+              8,
+              "1d6+4"
+            ],
+            [
+              10,
+              "1d6+5"
+            ],
+            [
+              12,
+              "1d6+6"
+            ],
+            [
+              14,
+              "1d6+7"
+            ],
+            [
+              16,
+              "1d6+8"
+            ],
+            [
+              18,
+              "1d6+9"
+            ],
+            [
+              20,
+              "1d6+10"
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.damage.weapon.*",
+            "op": "add",
+            "value": "scale.fury",
+            "mode": "suggested",
+            "label": "Divine Fury",
+            "damageType": "necrotic",
+            "oncePerTurn": true,
+            "when": {
+              "toggle": "raging",
+              "text": "first creature you hit with a weapon this turn"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:path-of-the-zealot-divine-fury-radiant",
+      "name": "Radiant",
+      "summary": "Divine Fury deals radiant damage.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 11
+      },
+      "scaling": {
+        "fury": {
+          "class": "class:barbarian",
+          "table": [
+            [
+              3,
+              "1d6+1"
+            ],
+            [
+              4,
+              "1d6+2"
+            ],
+            [
+              6,
+              "1d6+3"
+            ],
+            [
+              8,
+              "1d6+4"
+            ],
+            [
+              10,
+              "1d6+5"
+            ],
+            [
+              12,
+              "1d6+6"
+            ],
+            [
+              14,
+              "1d6+7"
+            ],
+            [
+              16,
+              "1d6+8"
+            ],
+            [
+              18,
+              "1d6+9"
+            ],
+            [
+              20,
+              "1d6+10"
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.damage.weapon.*",
+            "op": "add",
+            "value": "scale.fury",
+            "mode": "suggested",
+            "label": "Divine Fury",
+            "damageType": "radiant",
+            "oncePerTurn": true,
+            "when": {
+              "toggle": "raging",
+              "text": "first creature you hit with a weapon this turn"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:path-of-the-zealot-warrior-of-the-gods",
+      "name": "Warrior of the Gods",
+      "summary": "Spells that bring you back to life don't need material components.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 11
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:path-of-the-zealot-fanatical-focus",
+      "name": "Fanatical Focus",
+      "summary": "Once per rage, reroll a failed saving throw and use the new roll.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 11
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "fanatical-focus",
+            "name": "Fanatical Focus",
+            "economy": "free",
+            "note": "Once per rage: reroll a failed save; you must use the new roll."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:path-of-the-zealot-zealous-presence",
+      "name": "Zealous Presence",
+      "summary": "Once per long rest, bonus action: up to ten creatures within 60 ft get advantage on attacks and saves until your next turn.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 11
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "zealous-presence",
+            "name": "Zealous Presence",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "zealous-presence",
+            "name": "Zealous Presence",
+            "economy": "bonus",
+            "cost": {
+              "resource": "zealous-presence"
+            },
+            "toggles": [
+              "zealous-presence"
+            ],
+            "untilTurnStart": true,
+            "note": "Up to ten creatures within 60 ft that can hear you: advantage on attacks and saves until the start of your next turn."
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.attack.*",
+            "op": "advantage",
+            "label": "Zealous Presence",
+            "when": {
+              "toggle": "zealous-presence"
+            }
+          },
+          {
+            "selector": "roll.save.*",
+            "op": "advantage",
+            "label": "Zealous Presence",
+            "when": {
+              "toggle": "zealous-presence"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:path-of-the-zealot-rage-beyond-death",
+      "name": "Rage Beyond Death",
+      "summary": "While raging, dropping to 0 hit points doesn't knock you out; death saves still happen, but you only die when the rage ends if you're still at 0.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 11
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:path-of-the-beast",
+      "name": "Path of the Beast",
+      "summary": "Barbarian whose rage brings out bestial natural weapons.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 24
+      },
+      "class": "class:barbarian",
+      "features": [
+        {
+          "level": 3,
+          "feature": "feature:path-of-the-beast-form-of-the-beast"
+        },
+        {
+          "level": 6,
+          "feature": "feature:path-of-the-beast-bestial-soul"
+        },
+        {
+          "level": 10,
+          "feature": "feature:path-of-the-beast-infectious-fury"
+        },
+        {
+          "level": 14,
+          "feature": "feature:path-of-the-beast-call-the-hunt"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:path-of-the-beast-form-of-the-beast",
+      "name": "Form of the Beast",
+      "summary": "When you rage, grow a bite, claws or tail (pick each rage); they're natural weapons using Strength. Bite heals you proficiency bonus HP once per turn when you're below half HP; claws give one extra claw attack when you attack with them; the tail has reach.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 24
+      },
+      "grant": {
+        "attacks": [
+          {
+            "id": "beast-bite",
+            "name": "Bite (Form of the Beast)",
+            "category": "simple",
+            "kind": "melee",
+            "damage": "1d8",
+            "damageType": "piercing"
+          },
+          {
+            "id": "beast-claws",
+            "name": "Claws (Form of the Beast)",
+            "category": "simple",
+            "kind": "melee",
+            "damage": "1d6",
+            "damageType": "slashing"
+          },
+          {
+            "id": "beast-tail",
+            "name": "Tail (Form of the Beast)",
+            "category": "simple",
+            "kind": "melee",
+            "damage": "1d8",
+            "damageType": "piercing",
+            "properties": [
+              "reach"
+            ]
+          }
+        ],
+        "actions": [
+          {
+            "id": "beast-form",
+            "name": "Form of the Beast",
+            "economy": "free",
+            "choose": {
+              "label": "Form this rage",
+              "options": [
+                "Bite",
+                "Claws",
+                "Tail"
+              ]
+            },
+            "note": "Pick when you rage; lasts until the rage ends. Only the chosen weapon can be used."
+          },
+          {
+            "id": "beast-bite-heal",
+            "name": "Bite: heal",
+            "economy": "free",
+            "heal": "pb",
+            "note": "Once per turn, when you hit with the bite while below half your hit points."
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "attack.beast-claws",
+            "op": "note",
+            "label": "Claws: when you attack with a claw as part of the Attack action, make one extra claw attack."
+          },
+          {
+            "selector": "attack.beast-tail",
+            "op": "note",
+            "label": "Tail reaction: when hit by a creature within 10 ft, add 1d8 to your AC against it (tail form)."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:path-of-the-beast-bestial-soul",
+      "name": "Bestial Soul",
+      "summary": "Natural weapons count as magical. After each rest, pick a trait: swim speed and water breathing, climb speed (even on ceilings), or a d10-boosted jump distance.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 25
+      },
+      "choices": [
+        {
+          "id": "trait",
+          "label": "Adaptation (re-pick after a rest)",
+          "kind": "option",
+          "count": 1,
+          "from": [
+            "Swimming",
+            "Climbing",
+            "Jumping"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:path-of-the-beast-infectious-fury",
+      "name": "Infectious Fury",
+      "summary": "While raging, after a natural weapon hit, the target makes a Wisdom save or either attacks a creature of your choice with its reaction or takes 2d12 psychic. Proficiency bonus uses per long rest.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 25
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "infectious-fury",
+            "name": "Infectious Fury",
+            "max": "pb",
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "infectious-fury",
+            "name": "Infectious Fury",
+            "economy": "free",
+            "cost": {
+              "resource": "infectious-fury"
+            },
+            "roll": {
+              "dice": "2d12",
+              "label": "psychic damage (if you choose that option)"
+            },
+            "note": "After a natural weapon hit while raging. Wisdom save (DC 8 + prof + Con) or: it attacks another creature with its reaction, or takes 2d12 psychic."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:path-of-the-beast-call-the-hunt",
+      "name": "Call the Hunt",
+      "summary": "When you rage, up to Constitution modifier (min 1) willing creatures within 30 ft gain extra 1d6 damage once per turn during the rage, and you gain 5 temp HP per creature. Proficiency bonus uses per long rest.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 25
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "call-the-hunt",
+            "name": "Call the Hunt",
+            "max": "pb",
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "call-the-hunt",
+            "name": "Call the Hunt",
+            "economy": "free",
+            "cost": {
+              "resource": "call-the-hunt"
+            },
+            "note": "When you rage: chosen allies deal +1d6 once per turn until the rage ends; you gain 5 temp HP for each ally chosen."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:path-of-wild-magic",
+      "name": "Path of Wild Magic",
+      "summary": "Barbarian whose rage unleashes random surges of wild magic.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 25
+      },
+      "class": "class:barbarian",
+      "features": [
+        {
+          "level": 3,
+          "feature": "feature:path-of-wild-magic-magic-awareness"
+        },
+        {
+          "level": 3,
+          "feature": "feature:path-of-wild-magic-wild-surge"
+        },
+        {
+          "level": 6,
+          "feature": "feature:path-of-wild-magic-bolstering-magic"
+        },
+        {
+          "level": 10,
+          "feature": "feature:path-of-wild-magic-unstable-backlash"
+        },
+        {
+          "level": 14,
+          "feature": "feature:path-of-wild-magic-controlled-surge"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:path-of-wild-magic-magic-awareness",
+      "name": "Magic Awareness",
+      "summary": "Action: until your next turn, sense spells and magic items within 60 ft that aren't behind total cover, and learn the school of any spell. Proficiency bonus uses per long rest.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 25
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "magic-awareness",
+            "name": "Magic Awareness",
+            "max": "pb",
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "magic-awareness",
+            "name": "Magic Awareness",
+            "economy": "action",
+            "cost": {
+              "resource": "magic-awareness"
+            },
+            "note": "Sense magic within 60 ft until the end of your next turn."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:path-of-wild-magic-wild-surge",
+      "name": "Wild Surge",
+      "summary": "Each time you rage, roll on the Wild Magic table (d8) for an effect that lasts the rage. Save DC 8 + proficiency + Constitution.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 25
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "wild-surge",
+            "name": "Wild Surge",
+            "economy": "free",
+            "roll": {
+              "dice": "1d8",
+              "label": "Wild Magic table"
+            },
+            "choose": {
+              "label": "Surge rolled",
+              "options": [
+                "1: Shadowy tendrils (Con save or 1d12 necrotic around you; you gain 1d12 temp HP)",
+                "2: Teleport up to 30 ft (bonus action each turn while raging)",
+                "3: Explosive spirit near a creature within 30 ft (Dex save or 1d6 force)",
+                "4: Weapon gains light/thrown and +1d6 force damage",
+                "5: Creatures that hit you take 1d6 force",
+                "6: Allies within 10 ft get +1 AC",
+                "7: Vines make the ground within 15 ft difficult terrain for enemies",
+                "8: Bolt of light at a creature within 30 ft (Con save or 1d6 radiant and blinded)"
+              ]
+            },
+            "note": "Roll when you rage; the effect lasts until the rage ends."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:path-of-wild-magic-bolstering-magic",
+      "name": "Bolstering Magic",
+      "summary": "Action, touch a creature: either it adds 1d3 to attack rolls and ability checks for 10 minutes, or it regains a spell slot of 1d3 level or lower. Proficiency bonus uses per long rest.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 26
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "bolstering-magic",
+            "name": "Bolstering Magic",
+            "max": "pb",
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "bolstering-magic",
+            "name": "Bolstering Magic",
+            "economy": "action",
+            "cost": {
+              "resource": "bolstering-magic"
+            },
+            "roll": {
+              "dice": "1d3",
+              "label": "bonus die / slot level"
+            },
+            "choose": {
+              "label": "Benefit",
+              "options": [
+                "+1d3 to attacks and checks for 10 minutes",
+                "Regain a spell slot (level up to 1d3)"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:path-of-wild-magic-unstable-backlash",
+      "name": "Unstable Backlash",
+      "summary": "While raging, when you take damage or fail a save, use your reaction to roll a new Wild Magic surge, replacing the current one.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 26
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "unstable-backlash",
+            "name": "Unstable Backlash",
+            "economy": "reaction",
+            "roll": {
+              "dice": "1d8",
+              "label": "Wild Magic table"
+            },
+            "choose": {
+              "label": "Surge rolled",
+              "options": [
+                "1: Shadowy tendrils (Con save or 1d12 necrotic around you; you gain 1d12 temp HP)",
+                "2: Teleport up to 30 ft (bonus action each turn while raging)",
+                "3: Explosive spirit near a creature within 30 ft (Dex save or 1d6 force)",
+                "4: Weapon gains light/thrown and +1d6 force damage",
+                "5: Creatures that hit you take 1d6 force",
+                "6: Allies within 10 ft get +1 AC",
+                "7: Vines make the ground within 15 ft difficult terrain for enemies",
+                "8: Bolt of light at a creature within 30 ft (Con save or 1d6 radiant and blinded)"
+              ]
+            },
+            "note": "While raging, after taking damage or failing a save: replace your current surge."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:path-of-wild-magic-controlled-surge",
+      "name": "Controlled Surge",
+      "summary": "When you roll a surge, roll twice and pick either result; if both match, choose any effect on the table.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 26
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:barbarian-primal-knowledge",
+      "name": "Primal Knowledge",
+      "summary": "Optional (Tasha's): gain proficiency in one barbarian skill of your choice. Again at 10th level.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 24
+      },
+      "choices": [
+        {
+          "id": "skill",
+          "label": "Barbarian skill",
+          "kind": "skill",
+          "count": 1,
+          "from": [
+            "animalHandling",
+            "athletics",
+            "intimidation",
+            "nature",
+            "perception",
+            "survival"
+          ]
+        }
+      ],
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "skill",
+            "target": {
+              "choice": "skill"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:barbarian-primal-knowledge-2",
+      "name": "Primal Knowledge",
+      "summary": "Optional (Tasha's): gain proficiency in another barbarian skill of your choice.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 24
+      },
+      "choices": [
+        {
+          "id": "skill",
+          "label": "Barbarian skill",
+          "kind": "skill",
+          "count": 1,
+          "from": [
+            "animalHandling",
+            "athletics",
+            "intimidation",
+            "nature",
+            "perception",
+            "survival"
+          ]
+        }
+      ],
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "skill",
+            "target": {
+              "choice": "skill"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:barbarian-instinctive-pounce",
+      "name": "Instinctive Pounce",
+      "summary": "Optional (Tasha's): as part of the bonus action to rage, move up to half your speed.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 24
+      }
+    }
+  ]
+}

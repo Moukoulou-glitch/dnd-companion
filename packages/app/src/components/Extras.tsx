@@ -4,13 +4,15 @@ import { shortText } from "../text";
 import { ABILITY_NAMES, EXTRA_TAGS, SKILLS, SKILL_NAMES, type Ability, type ExtraNote, type ExtraTag, type OperationType, type Skill } from "@dnd/schema";
 
 type Act = (type: OperationType, payload: unknown, label: string) => unknown;
-export type ExtraKind = "skill" | "expertise" | "language" | "tool" | "feat" | "spell";
+export type ExtraKind = "skill" | "expertise" | "language" | "tool" | "weapon" | "armor" | "feat" | "spell";
 
 export const KIND_NAMES: Record<ExtraKind, { one: string; question: string }> = {
   skill: { one: "Skill proficiency", question: "How did you gain this skill proficiency?" },
   expertise: { one: "Expertise", question: "How did you gain this expertise?" },
   language: { one: "Language", question: "How did you learn this language?" },
   tool: { one: "Tool proficiency", question: "How did you gain this tool proficiency?" },
+  weapon: { one: "Weapon proficiency", question: "How did you gain this weapon proficiency?" },
+  armor: { one: "Armor proficiency", question: "How did you gain this armor proficiency?" },
   feat: { one: "Feat", question: "How did you gain this feat?" },
   spell: { one: "Spell", question: "How did you gain this spell?" },
 };
@@ -158,6 +160,17 @@ export function AddExtraPanel({ sheet, reg, act, done }: { sheet: DerivedSheet; 
     if (kind === "expertise") return SKILLS.map((s) => ({ value: s, label: SKILL_NAMES[s], sub: sheet.skills[s].proficiency > 0 ? "proficient" : "not proficient yet", have: sheet.skills[s].proficiency === 2 }));
     if (kind === "language") return LANGUAGES.map((l) => ({ value: l, label: l, have: sheet.proficiencies.languages.includes(l) }));
     if (kind === "tool") return TOOLS.map((t) => ({ value: t, label: t, have: sheet.proficiencies.tools.some((x) => x.toLowerCase() === t.toLowerCase()) }));
+    if (kind === "weapon") {
+      const groups = [...new Set(reg.list("item").flatMap((i) => (i.weapon ? [i.weapon.group] : [])))].filter(Boolean).sort();
+      const has = (v: string) => sheet.proficiencies.weapons.some((x) => x.toLowerCase() === v.toLowerCase());
+      return [
+        { value: "simple", label: "Simple weapons", sub: "every simple weapon", have: has("simple") },
+        { value: "martial", label: "Martial weapons", sub: "every martial weapon", have: has("martial") },
+        ...groups.map((g) => ({ value: g, label: g.replace(/-/g, " ").replace(/^./, (c) => c.toUpperCase()), have: has(g) })),
+      ];
+    }
+    if (kind === "armor")
+      return (["light", "medium", "heavy", "shields"] as const).map((a) => ({ value: a, label: a === "shields" ? "Shields" : `${a[0]!.toUpperCase()}${a.slice(1)} armor`, have: sheet.proficiencies.armor.includes(a) }));
     if (kind === "feat") return reg.list("feat").map((f) => ({ value: f.id, label: f.name, ...(f.summary || f.text?.length ? { sub: f.summary ?? shortText(f.text) } : {}), have: sheet.features.some((x) => x.id === f.id) }));
     return reg
       .list("spell")

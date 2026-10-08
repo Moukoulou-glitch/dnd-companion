@@ -1,0 +1,1243 @@
+{
+  "definitions": [
+    {
+      "kind": "subclass",
+      "id": "subclass:assassin",
+      "name": "Assassin",
+      "summary": "Rogue trained in poison, disguise and killing unaware targets.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 97
+      },
+      "class": "class:rogue",
+      "features": [
+        {
+          "level": 3,
+          "feature": "feature:assassin-bonus-proficiencies"
+        },
+        {
+          "level": 3,
+          "feature": "feature:assassin-assassinate"
+        },
+        {
+          "level": 9,
+          "feature": "feature:assassin-infiltration-expertise"
+        },
+        {
+          "level": 13,
+          "feature": "feature:assassin-impostor"
+        },
+        {
+          "level": 17,
+          "feature": "feature:assassin-death-strike"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:assassin-bonus-proficiencies",
+      "name": "Bonus Proficiencies",
+      "summary": "Proficiency with the disguise kit and the poisoner's kit.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 97
+      },
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "tool",
+            "target": "Disguise kit"
+          },
+          {
+            "kind": "tool",
+            "target": "Poisoner's kit"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:assassin-assassinate",
+      "name": "Assassinate",
+      "summary": "Advantage on attacks against any creature that hasn't taken a turn yet in the combat, and any hit against a surprised creature is a critical hit.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 97
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.attack.*",
+            "op": "advantage",
+            "mode": "suggested",
+            "label": "Assassinate",
+            "when": {
+              "text": "target hasn't taken a turn in this combat yet"
+            }
+          },
+          {
+            "selector": "roll.attack.*",
+            "op": "note",
+            "mode": "suggested",
+            "label": "Assassinate: a hit against a surprised creature is a critical hit.",
+            "when": {
+              "text": "target is surprised"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:assassin-infiltration-expertise",
+      "name": "Infiltration Expertise",
+      "summary": "Over seven days and 25 gp you can build a reliable false identity: history, documents and acquaintances.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 97
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:assassin-impostor",
+      "name": "Impostor",
+      "summary": "After studying a person for three hours you can mimic their speech, writing and behavior; casual observers can't see through it, and wary ones make their Insight checks against you at disadvantage.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 97
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:assassin-death-strike",
+      "name": "Death Strike",
+      "summary": "When you hit a surprised creature, it makes a Constitution save (DC 8 + Dexterity modifier + proficiency bonus); on a failure the attack's damage is doubled.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 97
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.damage.weapon.*",
+            "op": "note",
+            "mode": "suggested",
+            "label": "Death Strike: the surprised target makes a CON save (DC 8 + DEX mod + PB) or this damage is doubled.",
+            "when": {
+              "text": "hit a surprised creature"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:arcane-trickster",
+      "name": "Arcane Trickster",
+      "summary": "Rogue who adds illusion and enchantment magic to stealth and trickery.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 97
+      },
+      "class": "class:rogue",
+      "features": [
+        {
+          "level": 3,
+          "feature": "feature:arcane-trickster-spellcasting"
+        },
+        {
+          "level": 3,
+          "feature": "feature:arcane-trickster-mage-hand-legerdemain"
+        },
+        {
+          "level": 9,
+          "feature": "feature:arcane-trickster-magical-ambush"
+        },
+        {
+          "level": 13,
+          "feature": "feature:arcane-trickster-versatile-trickster"
+        },
+        {
+          "level": 17,
+          "feature": "feature:arcane-trickster-spell-thief"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:arcane-trickster-spellcasting",
+      "name": "Spellcasting",
+      "summary": "Intelligence-based wizard spellcasting at one-third caster progression, mostly enchantment and illusion spells; you know Mage Hand plus two other wizard cantrips (a third at 10th). Spell slots and spells known follow the Arcane Trickster table.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 98
+      },
+      "grant": {
+        "spellcasting": {
+          "id": "arcane-trickster",
+          "label": "Arcane Trickster",
+          "ability": "int",
+          "progression": "third"
+        },
+        "spells": [
+          {
+            "spell": "spell:mage-hand",
+            "name": "Mage Hand",
+            "casting": "always known",
+            "list": "arcane-trickster"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:arcane-trickster-mage-hand-legerdemain",
+      "name": "Mage Hand Legerdemain",
+      "summary": "Your Mage Hand is invisible and can stow or retrieve objects in containers worn by others, pick locks and disarm traps at range. A bonus action from Cunning Action lets you control it, with a Sleight of Hand vs Perception contest to go unnoticed.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 98
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "mage-hand-legerdemain",
+            "name": "Mage Hand Legerdemain",
+            "economy": "bonus",
+            "check": {
+              "skills": [
+                "sleightOfHand"
+              ]
+            },
+            "note": "Control the invisible hand: plant, lift or stow items, or use thieves' tools at range."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:arcane-trickster-magical-ambush",
+      "name": "Magical Ambush",
+      "summary": "If you're hidden from a creature when you cast a spell on it, it has disadvantage on any save against that spell this turn.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 98
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:arcane-trickster-versatile-trickster",
+      "name": "Versatile Trickster",
+      "summary": "Bonus action: point your Mage Hand at a creature within 5 ft of it to gain advantage on your attacks against that creature this turn.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 98
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "versatile-trickster",
+            "name": "Versatile Trickster",
+            "economy": "bonus",
+            "note": "Mage Hand distracts a creature within 5 ft of it: advantage on your attacks against it this turn."
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.attack.*",
+            "op": "advantage",
+            "mode": "suggested",
+            "label": "Versatile Trickster",
+            "when": {
+              "text": "Mage Hand distracting the target this turn"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:arcane-trickster-spell-thief",
+      "name": "Spell Thief",
+      "summary": "Reaction after a creature casts a spell targeting you or including you in its area: it saves with its spellcasting ability against your DC; on a failure you negate the effect and can steal the spell (1st level or higher, one you could cast) for 8 hours. Once per long rest.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 98
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "spell-thief",
+            "name": "Spell Thief",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "spell-thief",
+            "name": "Spell Thief",
+            "economy": "reaction",
+            "cost": {
+              "resource": "spell-thief",
+              "amount": 1
+            },
+            "note": "A spell targets you or catches you: caster saves vs your spell DC; on a fail it doesn't affect you and you may steal it for 8 hours."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:inquisitive",
+      "name": "Inquisitive",
+      "summary": "Rogue who reads lies, spots clues and finds an opponent's weak point.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 45
+      },
+      "class": "class:rogue",
+      "features": [
+        {
+          "level": 3,
+          "feature": "feature:inquisitive-ear-for-deceit"
+        },
+        {
+          "level": 3,
+          "feature": "feature:inquisitive-eye-for-detail"
+        },
+        {
+          "level": 3,
+          "feature": "feature:inquisitive-insightful-fighting"
+        },
+        {
+          "level": 9,
+          "feature": "feature:inquisitive-steady-eye"
+        },
+        {
+          "level": 13,
+          "feature": "feature:inquisitive-unerring-eye"
+        },
+        {
+          "level": 17,
+          "feature": "feature:inquisitive-eye-for-weakness"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:inquisitive-ear-for-deceit",
+      "name": "Ear for Deceit",
+      "summary": "When you use Insight to tell whether a creature is lying, treat a d20 roll of 7 or lower as an 8.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 45
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.check.skill.insight",
+            "op": "minD20",
+            "mode": "suggested",
+            "label": "Ear for Deceit",
+            "when": {
+              "text": "determining whether a creature is lying"
+            },
+            "value": 8
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:inquisitive-eye-for-detail",
+      "name": "Eye for Detail",
+      "summary": "As a bonus action you can make a Perception check to spot a hidden creature or object, or an Investigation check to find or decipher clues.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 45
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "eye-for-detail",
+            "name": "Eye for Detail",
+            "economy": "bonus",
+            "check": {
+              "skills": [
+                "perception",
+                "investigation"
+              ]
+            },
+            "note": "Perception to spot something hidden, or Investigation to find or decode clues."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:inquisitive-insightful-fighting",
+      "name": "Insightful Fighting",
+      "summary": "Bonus action: Insight against a creature's Deception. On a success, for 1 minute (or until you use this on another target) you can Sneak Attack it without advantage, as long as you don't have disadvantage.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 46
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "insightful-fighting",
+            "name": "Insightful Fighting",
+            "economy": "bonus",
+            "check": {
+              "skills": [
+                "insight"
+              ]
+            },
+            "toggles": [
+              "insightful-fighting"
+            ],
+            "duration": {
+              "rounds": 10
+            },
+            "note": "Insight vs the target's Deception. Success: Sneak Attack it without needing advantage for 1 minute."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:inquisitive-steady-eye",
+      "name": "Steady Eye",
+      "summary": "Advantage on Perception and Investigation checks if you move no more than half your speed on the same turn.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 46
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.check.skill.perception",
+            "op": "advantage",
+            "mode": "suggested",
+            "label": "Steady Eye",
+            "when": {
+              "text": "moved no more than half your speed this turn"
+            }
+          },
+          {
+            "selector": "roll.check.skill.investigation",
+            "op": "advantage",
+            "mode": "suggested",
+            "label": "Steady Eye",
+            "when": {
+              "text": "moved no more than half your speed this turn"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:inquisitive-unerring-eye",
+      "name": "Unerring Eye",
+      "summary": "Action: sense illusions, shapechangers not in their true form and other magical deceptions within 30 ft (not what they hide). Uses equal to your Wisdom modifier (at least 1) per long rest.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 46
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "unerring-eye",
+            "name": "Unerring Eye",
+            "max": "mod.wis",
+            "min": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "unerring-eye",
+            "name": "Unerring Eye",
+            "economy": "action",
+            "cost": {
+              "resource": "unerring-eye",
+              "amount": 1
+            },
+            "note": "Sense illusions, disguised shapechangers and magical deception within 30 ft."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:inquisitive-eye-for-weakness",
+      "name": "Eye for Weakness",
+      "summary": "Your Sneak Attack deals an extra 3d6 against a creature you've read with Insightful Fighting.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 46
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.damage.weapon.*",
+            "op": "add",
+            "value": "3d6",
+            "mode": "suggested",
+            "label": "Eye for Weakness",
+            "oncePerTurn": true,
+            "when": {
+              "toggle": "insightful-fighting",
+              "text": "Sneak Attack against your Insightful Fighting target"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:mastermind",
+      "name": "Mastermind",
+      "summary": "Rogue schemer: master of intrigue, disguise and directing allies.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 46
+      },
+      "class": "class:rogue",
+      "features": [
+        {
+          "level": 3,
+          "feature": "feature:mastermind-master-of-intrigue"
+        },
+        {
+          "level": 3,
+          "feature": "feature:mastermind-master-of-tactics"
+        },
+        {
+          "level": 9,
+          "feature": "feature:mastermind-insightful-manipulator"
+        },
+        {
+          "level": 13,
+          "feature": "feature:mastermind-misdirection"
+        },
+        {
+          "level": 17,
+          "feature": "feature:mastermind-soul-of-deceit"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:mastermind-master-of-intrigue",
+      "name": "Master of Intrigue",
+      "summary": "Proficiency with the disguise kit, forgery kit and one gaming set, plus two languages. You can mimic the speech patterns and accent of a creature you've heard speak for a minute.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 46
+      },
+      "choices": [
+        {
+          "id": "gaming-set",
+          "label": "Gaming set",
+          "kind": "tool",
+          "count": 1,
+          "from": [
+            "Dice set",
+            "Dragonchess set",
+            "Playing card set",
+            "Three-Dragon Ante set"
+          ]
+        },
+        {
+          "id": "languages",
+          "label": "Languages",
+          "kind": "language",
+          "count": 2
+        }
+      ],
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "tool",
+            "target": "Disguise kit"
+          },
+          {
+            "kind": "tool",
+            "target": "Forgery kit"
+          },
+          {
+            "kind": "tool",
+            "target": {
+              "choice": "gaming-set"
+            }
+          },
+          {
+            "kind": "language",
+            "target": {
+              "choice": "languages"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:mastermind-master-of-tactics",
+      "name": "Master of Tactics",
+      "summary": "Help as a bonus action; when helping an ally attack, the target can be up to 30 ft away from you if you can see it and the ally can see or hear you.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 47
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "master-of-tactics",
+            "name": "Master of Tactics",
+            "economy": "bonus",
+            "note": "Take the Help action; the target of the helped attack can be within 30 ft of you."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:mastermind-insightful-manipulator",
+      "name": "Insightful Manipulator",
+      "summary": "Observe or talk with a creature for a minute to learn whether two of its mental abilities (Int, Wis, Cha, or class levels) are equal, higher or lower than yours.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 47
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:mastermind-misdirection",
+      "name": "Misdirection",
+      "summary": "Reaction when you're targeted by an attack while a creature within 5 ft of you is giving you cover against it: the attack targets that creature instead.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 47
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "misdirection",
+            "name": "Misdirection",
+            "economy": "reaction",
+            "note": "You're targeted by an attack while a creature within 5 ft gives you cover against it: the attack targets that creature instead."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:mastermind-soul-of-deceit",
+      "name": "Soul of Deceit",
+      "summary": "Your thoughts can't be read by telepathy unless you allow it; you can project false thoughts with a Deception check, and magic that detects lies always reads you as truthful. Magic can't compel you to tell the truth.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 47
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:scout",
+      "name": "Scout",
+      "summary": "Skirmishing rogue at home in the wilds, quick to strike and slip away.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 47
+      },
+      "class": "class:rogue",
+      "features": [
+        {
+          "level": 3,
+          "feature": "feature:scout-skirmisher"
+        },
+        {
+          "level": 3,
+          "feature": "feature:scout-survivalist"
+        },
+        {
+          "level": 9,
+          "feature": "feature:scout-superior-mobility"
+        },
+        {
+          "level": 13,
+          "feature": "feature:scout-ambush-master"
+        },
+        {
+          "level": 17,
+          "feature": "feature:scout-sudden-strike"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:scout-skirmisher",
+      "name": "Skirmisher",
+      "summary": "Reaction when an enemy ends its turn within 5 ft of you: move up to half your speed without provoking opportunity attacks.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 47
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "skirmisher",
+            "name": "Skirmisher",
+            "economy": "reaction",
+            "note": "An enemy ends its turn within 5 ft: move up to half your speed, no opportunity attacks."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:scout-survivalist",
+      "name": "Survivalist",
+      "summary": "Proficiency in Nature and Survival, with double proficiency bonus for both.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 47
+      },
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "skill",
+            "target": "nature"
+          },
+          {
+            "kind": "skill",
+            "target": "survival"
+          },
+          {
+            "kind": "expertise",
+            "target": "nature"
+          },
+          {
+            "kind": "expertise",
+            "target": "survival"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:scout-superior-mobility",
+      "name": "Superior Mobility",
+      "summary": "+10 ft to your walking speed (and to climbing or swimming speeds you have).",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 47
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.speed.walk",
+            "op": "add",
+            "value": 10,
+            "label": "Superior Mobility"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:scout-ambush-master",
+      "name": "Ambush Master",
+      "summary": "Advantage on initiative. In the first round of combat, the first creature you hit is easier for everyone else: attacks against it by others have advantage until your next turn.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 48
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.initiative",
+            "op": "advantage",
+            "label": "Ambush Master"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:scout-sudden-strike",
+      "name": "Sudden Strike",
+      "summary": "After taking the Attack action, make one more attack as a bonus action. It can carry your Sneak Attack even if you already used it this turn, but not against the same target.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 48
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "sudden-strike",
+            "name": "Sudden Strike",
+            "economy": "bonus",
+            "infoOnly": true,
+            "note": "One more attack after the Attack action; Sneak Attack can apply again, against a different target."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:swashbuckler",
+      "name": "Swashbuckler",
+      "summary": "Charming duelist who darts in and out of melee.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 47
+      },
+      "class": "class:rogue",
+      "features": [
+        {
+          "level": 3,
+          "feature": "feature:swashbuckler-fancy-footwork"
+        },
+        {
+          "level": 3,
+          "feature": "feature:swashbuckler-rakish-audacity"
+        },
+        {
+          "level": 9,
+          "feature": "feature:swashbuckler-panache"
+        },
+        {
+          "level": 13,
+          "feature": "feature:swashbuckler-elegant-maneuver"
+        },
+        {
+          "level": 17,
+          "feature": "feature:swashbuckler-master-duelist"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:swashbuckler-fancy-footwork",
+      "name": "Fancy Footwork",
+      "summary": "A creature you make a melee attack against can't make opportunity attacks against you for the rest of your turn.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 48
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:swashbuckler-rakish-audacity",
+      "name": "Rakish Audacity",
+      "summary": "Add your Charisma modifier to initiative. You can also Sneak Attack a creature without advantage if you're within 5 ft of it, no other creature is within 5 ft of you, and you don't have disadvantage.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 48
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.initiative",
+            "op": "add",
+            "value": "mod.cha",
+            "label": "Rakish Audacity"
+          },
+          {
+            "selector": "roll.damage.weapon.*",
+            "op": "note",
+            "mode": "suggested",
+            "label": "Rakish Audacity: Sneak Attack without advantage when the target is the only creature within 5 ft of you (no disadvantage).",
+            "when": {
+              "text": "one-on-one with the target"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:swashbuckler-panache",
+      "name": "Panache",
+      "summary": "Action: Persuasion against a creature's Insight. A hostile creature that fails has disadvantage against targets other than you and can't make opportunity attacks against others for 1 minute; a non-hostile one is charmed for 1 minute.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 48
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "panache",
+            "name": "Panache",
+            "economy": "action",
+            "check": {
+              "skills": [
+                "persuasion"
+              ]
+            },
+            "duration": {
+              "rounds": 10
+            },
+            "note": "Persuasion vs Insight: a foe fixates on you (disadvantage vs others, no OAs vs others) or a non-hostile creature is charmed, 1 minute."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:swashbuckler-elegant-maneuver",
+      "name": "Elegant Maneuver",
+      "summary": "Bonus action: advantage on the next Acrobatics or Athletics check you make this turn.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 48
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "elegant-maneuver",
+            "name": "Elegant Maneuver",
+            "economy": "bonus",
+            "note": "Advantage on your next Acrobatics or Athletics check this turn."
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.check.skill.acrobatics",
+            "op": "advantage",
+            "mode": "suggested",
+            "label": "Elegant Maneuver",
+            "when": {
+              "text": "used Elegant Maneuver this turn"
+            }
+          },
+          {
+            "selector": "roll.check.skill.athletics",
+            "op": "advantage",
+            "mode": "suggested",
+            "label": "Elegant Maneuver",
+            "when": {
+              "text": "used Elegant Maneuver this turn"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:swashbuckler-master-duelist",
+      "name": "Master Duelist",
+      "summary": "When you miss with an attack, reroll it with advantage. Once per short or long rest.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 48
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "master-duelist",
+            "name": "Master Duelist",
+            "max": 1,
+            "reset": "short"
+          }
+        ],
+        "actions": [
+          {
+            "id": "master-duelist",
+            "name": "Master Duelist",
+            "economy": "free",
+            "cost": {
+              "resource": "master-duelist",
+              "amount": 1
+            },
+            "note": "You missed: reroll the attack with advantage."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:phantom",
+      "name": "Phantom",
+      "summary": "Rogue bound to death, drawing on lingering spirits and soul trinkets.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 62
+      },
+      "class": "class:rogue",
+      "features": [
+        {
+          "level": 3,
+          "feature": "feature:phantom-whispers-of-the-dead"
+        },
+        {
+          "level": 3,
+          "feature": "feature:phantom-wails-from-the-grave"
+        },
+        {
+          "level": 9,
+          "feature": "feature:phantom-tokens-of-the-departed"
+        },
+        {
+          "level": 13,
+          "feature": "feature:phantom-ghost-walk"
+        },
+        {
+          "level": 17,
+          "feature": "feature:phantom-deaths-friend"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:phantom-whispers-of-the-dead",
+      "name": "Whispers of the Dead",
+      "summary": "After a short or long rest, gain proficiency in one skill or tool of your choice; it lasts until you pick a different one with this feature.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 62
+      },
+      "choices": [
+        {
+          "id": "whispers",
+          "label": "Whispers of the Dead skill",
+          "kind": "skill",
+          "count": 1
+        }
+      ],
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "skill",
+            "target": {
+              "choice": "whispers"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:phantom-wails-from-the-grave",
+      "name": "Wails from the Grave",
+      "summary": "Right after dealing Sneak Attack damage, a second creature within 30 ft of the first takes necrotic damage equal to half your Sneak Attack dice (rounded up). Uses equal to your proficiency bonus per long rest.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 62
+      },
+      "scaling": {
+        "dice": {
+          "class": "class:rogue",
+          "table": [
+            [
+              3,
+              "1d6"
+            ],
+            [
+              5,
+              "2d6"
+            ],
+            [
+              9,
+              "3d6"
+            ],
+            [
+              13,
+              "4d6"
+            ],
+            [
+              17,
+              "5d6"
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "wails-from-the-grave",
+            "name": "Wails from the Grave",
+            "max": "pb",
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "wails-from-the-grave",
+            "name": "Wails from the Grave",
+            "economy": "free",
+            "cost": {
+              "resource": "wails-from-the-grave",
+              "amount": 1
+            },
+            "roll": {
+              "dice": "scale.dice",
+              "label": "necrotic damage"
+            },
+            "note": "After Sneak Attack: a second creature within 30 ft of the target takes this necrotic damage."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:phantom-tokens-of-the-departed",
+      "name": "Tokens of the Departed",
+      "summary": "Reaction when a creature you can see dies within 30 ft: a soul trinket forms in your free hand (max = proficiency bonus). While holding one you have advantage on death saves and Constitution saves. You can destroy one to use Wails from the Grave without spending a use, or to ask its spirit one question.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 63
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "soul-trinkets",
+            "name": "Soul trinkets",
+            "max": "pb",
+            "reset": "manual"
+          }
+        ],
+        "actions": [
+          {
+            "id": "tokens-of-the-departed",
+            "name": "Tokens of the Departed",
+            "economy": "reaction",
+            "infoOnly": true,
+            "note": "A creature you can see dies within 30 ft: gain a soul trinket. Mark one used when you destroy it."
+          },
+          {
+            "id": "destroy-soul-trinket",
+            "name": "Destroy a soul trinket",
+            "economy": "free",
+            "cost": {
+              "resource": "soul-trinkets",
+              "amount": 1
+            },
+            "note": "Use Wails from the Grave without spending a use, or (action) ask the spirit one question."
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.save.con",
+            "op": "advantage",
+            "mode": "suggested",
+            "label": "Tokens of the Departed",
+            "when": {
+              "text": "holding a soul trinket"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:phantom-ghost-walk",
+      "name": "Ghost Walk",
+      "summary": "Bonus action, 10 minutes: become spectral, gaining a 10-ft fly speed (hover), imposing disadvantage on attacks against you, and moving through creatures and objects. Once per long rest, or destroy a soul trinket to use it again.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 63
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "ghost-walk",
+            "name": "Ghost Walk",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "ghost-walk",
+            "name": "Ghost Walk",
+            "economy": "bonus",
+            "cost": {
+              "resource": "ghost-walk",
+              "amount": 1
+            },
+            "toggles": [
+              "ghost-walk"
+            ],
+            "duration": {
+              "minutes": 10
+            },
+            "note": "10 minutes: fly 10 ft (hover), attacks against you have disadvantage, pass through creatures and objects (difficult terrain; 1d10 force if you end inside one)."
+          },
+          {
+            "id": "ghost-walk-trinket",
+            "name": "Ghost Walk (soul trinket)",
+            "economy": "bonus",
+            "cost": {
+              "resource": "soul-trinkets",
+              "amount": 1
+            },
+            "toggles": [
+              "ghost-walk"
+            ],
+            "duration": {
+              "minutes": 10
+            },
+            "note": "Destroy a soul trinket to use Ghost Walk again."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:phantom-deaths-friend",
+      "name": "Death's Friend",
+      "summary": "Wails from the Grave now also deals its necrotic damage to the first creature. After a long rest, a soul trinket appears in your hand if you have none.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 63
+      }
+    }
+  ]
+}

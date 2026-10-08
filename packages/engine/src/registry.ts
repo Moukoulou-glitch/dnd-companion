@@ -17,8 +17,9 @@ export function mergeClass(base: ClassDef, over: ClassDef): ClassDef {
   const merged: ClassDef = {
     ...base,
     ...over,
-    features: [...over.features, ...kept].sort((a, b) => a.level - b.level),
+    features: [...over.features, ...kept, ...(over.adds ?? [])].sort((a, b) => a.level - b.level),
   };
+  delete merged.adds;
   for (const k of ["choices", "multiclassChoices", "asiLevels", "progression", "multiclassPrereq", "subclassTitle", "startingGrant", "multiclassGrant", "spellcasting", "spellPreparation", "spellcastingFromLevel", "text"] as const) {
     if (over[k] === undefined && base[k] !== undefined) (merged as Record<string, unknown>)[k] = base[k];
   }

@@ -128,6 +128,11 @@ export const ClassDef = z
     multiclassPrereq: z.object({ abilities: z.record(Ability, z.number().int()), any: z.boolean().optional() }).strict().optional(),
     /** Features of an earlier pack's version of this class that this one drops (Tasha's ranger replaces Favored Enemy). */
     replaces: z.array(DefId).optional(),
+    /**
+     * Features added on top of an earlier pack's version, without replacing that
+     * level's others (Tasha's optional class features: Ki-Fueled Attack at 3rd).
+     */
+    adds: z.array(z.object({ level: z.number().int().min(1).max(20), feature: DefId }).strict()).optional(),
     startingEquipment: StartingEquipment.optional(),
   })
   .strict();

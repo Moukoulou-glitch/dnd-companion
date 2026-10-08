@@ -1,0 +1,1181 @@
+{
+  "definitions": [
+    {
+      "kind": "subclass",
+      "id": "subclass:the-archfey",
+      "name": "The Archfey",
+      "summary": "Patron who is a lord or lady of the fey: charm, fear and misty escapes.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 108
+      },
+      "class": "class:warlock",
+      "features": [
+        {
+          "level": 1,
+          "feature": "feature:archfey-expanded-spells"
+        },
+        {
+          "level": 1,
+          "feature": "feature:archfey-fey-presence"
+        },
+        {
+          "level": 6,
+          "feature": "feature:archfey-misty-escape"
+        },
+        {
+          "level": 10,
+          "feature": "feature:archfey-beguiling-defenses"
+        },
+        {
+          "level": 14,
+          "feature": "feature:archfey-dark-delirium"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:archfey-expanded-spells",
+      "name": "Expanded Spell List (Archfey)",
+      "summary": "Extra spells added to your warlock list: Faerie Fire, Sleep; Calm Emotions, Phantasmal Force; Blink, Plant Growth; Dominate Beast, Greater Invisibility; Dominate Person, Seeming.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 109
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:archfey-fey-presence",
+      "name": "Fey Presence",
+      "summary": "Once per short rest, an action: each creature in a 10-foot cube from you makes a Wisdom save against your spell DC or is charmed or frightened (your pick) until the end of your next turn.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 109
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "fey-presence",
+            "name": "Fey Presence",
+            "max": 1,
+            "reset": "short"
+          }
+        ],
+        "actions": [
+          {
+            "id": "fey-presence",
+            "name": "Fey Presence",
+            "economy": "action",
+            "cost": {
+              "resource": "fey-presence"
+            },
+            "note": "10-ft cube from you: Wisdom save or charmed/frightened (your pick) until the end of your next turn."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:archfey-misty-escape",
+      "name": "Misty Escape",
+      "summary": "Once per short rest, as a reaction to taking damage, turn invisible and teleport up to 60 feet; the invisibility lasts until the start of your next turn or until you attack or cast a spell.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 109
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "misty-escape",
+            "name": "Misty Escape",
+            "max": 1,
+            "reset": "short"
+          }
+        ],
+        "actions": [
+          {
+            "id": "misty-escape",
+            "name": "Misty Escape",
+            "economy": "reaction",
+            "cost": {
+              "resource": "misty-escape"
+            },
+            "toggles": [
+              "misty-escape"
+            ],
+            "untilTurnStart": true,
+            "note": "When you take damage: invisible and teleport up to 60 ft to a spot you can see. Ends at the start of your next turn or when you attack or cast."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:archfey-beguiling-defenses",
+      "name": "Beguiling Defenses",
+      "summary": "You can't be charmed. When something tries to charm you, you can use your reaction to try to turn the charm back on it (Wisdom save against your spell DC, charmed for up to 1 minute).",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 109
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "beguiling-defenses",
+            "name": "Beguiling Defenses",
+            "economy": "reaction",
+            "note": "When a creature tries to charm you: it makes a Wisdom save or is charmed by you for 1 minute or until it takes damage."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:archfey-dark-delirium",
+      "name": "Dark Delirium",
+      "summary": "Once per short rest, an action: a creature within 60 feet makes a Wisdom save or is charmed or frightened (your pick) for up to 1 minute (concentration), lost in an illusory realm.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 109
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "dark-delirium",
+            "name": "Dark Delirium",
+            "max": 1,
+            "reset": "short"
+          }
+        ],
+        "actions": [
+          {
+            "id": "dark-delirium",
+            "name": "Dark Delirium",
+            "economy": "action",
+            "cost": {
+              "resource": "dark-delirium"
+            },
+            "duration": {
+              "rounds": 10
+            },
+            "note": "One creature within 60 ft: Wisdom save or charmed/frightened for 1 minute (concentration). Ends early if it takes damage."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:the-great-old-one",
+      "name": "The Great Old One",
+      "summary": "Patron that is an alien, unknowable entity: telepathy and mind-warping defenses.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 109
+      },
+      "class": "class:warlock",
+      "features": [
+        {
+          "level": 1,
+          "feature": "feature:great-old-one-expanded-spells"
+        },
+        {
+          "level": 1,
+          "feature": "feature:great-old-one-awakened-mind"
+        },
+        {
+          "level": 6,
+          "feature": "feature:great-old-one-entropic-ward"
+        },
+        {
+          "level": 10,
+          "feature": "feature:great-old-one-thought-shield"
+        },
+        {
+          "level": 14,
+          "feature": "feature:great-old-one-create-thrall"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:great-old-one-expanded-spells",
+      "name": "Expanded Spell List (Great Old One)",
+      "summary": "Extra spells added to your warlock list: Dissonant Whispers, Tasha's Hideous Laughter; Detect Thoughts, Phantasmal Force; Clairvoyance, Sending; Dominate Beast, Evard's Black Tentacles; Dominate Person, Telekinesis.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 110
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:great-old-one-awakened-mind",
+      "name": "Awakened Mind",
+      "summary": "Telepathically speak to any creature you can see within 30 feet; it needs to understand a language but not share yours.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 110
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:great-old-one-entropic-ward",
+      "name": "Entropic Ward",
+      "summary": "Once per short rest, as a reaction when attacked, impose disadvantage on that attack. If it misses, your next attack against that creature before the end of your next turn has advantage.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 110
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "entropic-ward",
+            "name": "Entropic Ward",
+            "max": 1,
+            "reset": "short"
+          }
+        ],
+        "actions": [
+          {
+            "id": "entropic-ward",
+            "name": "Entropic Ward",
+            "economy": "reaction",
+            "cost": {
+              "resource": "entropic-ward"
+            },
+            "note": "Attack against you has disadvantage. If it misses, advantage on your next attack against the attacker before the end of your next turn."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:great-old-one-thought-shield",
+      "name": "Thought Shield",
+      "summary": "Your thoughts can't be read telepathically unless you allow it. Resistance to psychic damage, and a creature that deals psychic damage to you takes the same amount.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 110
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.psychic",
+            "op": "resist",
+            "label": "Thought Shield"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:great-old-one-create-thrall",
+      "name": "Create Thrall",
+      "summary": "An action to touch an incapacitated humanoid and charm it until a remove curse is cast on it, the charm ends, or you use this again; you can talk to it telepathically on the same plane.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 110
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "create-thrall",
+            "name": "Create Thrall",
+            "economy": "action",
+            "note": "Touch an incapacitated humanoid: charmed by you indefinitely; telepathy with it on the same plane."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:the-celestial",
+      "name": "The Celestial",
+      "summary": "Patron from the Upper Planes: healing light and radiant fire.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 54
+      },
+      "class": "class:warlock",
+      "features": [
+        {
+          "level": 1,
+          "feature": "feature:celestial-expanded-spells"
+        },
+        {
+          "level": 1,
+          "feature": "feature:celestial-bonus-cantrips"
+        },
+        {
+          "level": 1,
+          "feature": "feature:celestial-healing-light"
+        },
+        {
+          "level": 6,
+          "feature": "feature:celestial-radiant-soul"
+        },
+        {
+          "level": 10,
+          "feature": "feature:celestial-celestial-resilience"
+        },
+        {
+          "level": 14,
+          "feature": "feature:celestial-searing-vengeance"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:celestial-expanded-spells",
+      "name": "Expanded Spell List (Celestial)",
+      "summary": "Extra spells added to your warlock list: Cure Wounds, Guiding Bolt; Flaming Sphere, Lesser Restoration; Daylight, Revivify; Guardian of Faith, Wall of Fire; Flame Strike, Greater Restoration.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 54
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:celestial-bonus-cantrips",
+      "name": "Bonus Cantrips",
+      "summary": "You learn Light and Sacred Flame; they are warlock cantrips for you and don't count against cantrips known.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 54
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:light",
+            "name": "Light",
+            "casting": "at will",
+            "list": "warlock"
+          },
+          {
+            "spell": "spell:sacred-flame",
+            "name": "Sacred Flame",
+            "casting": "at will",
+            "list": "warlock"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:celestial-healing-light",
+      "name": "Healing Light",
+      "summary": "A pool of d6s equal to 1 + warlock level, refilled on a long rest. As a bonus action, spend up to your Charisma modifier (min 1) dice to heal a creature within 60 feet by the total rolled.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 55
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "healing-light",
+            "name": "Healing Light dice",
+            "max": "1 + classLevel.class:warlock",
+            "reset": "long",
+            "die": "d6"
+          }
+        ],
+        "actions": [
+          {
+            "id": "healing-light",
+            "name": "Healing Light",
+            "economy": "bonus",
+            "cost": {
+              "resource": "healing-light"
+            },
+            "spendAmount": {
+              "label": "Dice to spend (max Charisma modifier)"
+            },
+            "note": "Creature within 60 ft regains the total of the d6s spent (at most your Charisma modifier, min 1)."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:celestial-radiant-soul",
+      "name": "Radiant Soul",
+      "summary": "Resistance to radiant damage. When a spell you cast deals radiant or fire damage, add your Charisma modifier to that damage against one target.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 55
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.radiant",
+            "op": "resist",
+            "label": "Radiant Soul"
+          },
+          {
+            "selector": "roll.damage.spell",
+            "op": "add",
+            "value": "mod.cha",
+            "mode": "suggested",
+            "label": "Radiant Soul",
+            "when": {
+              "text": "spell deals radiant or fire damage; one target only"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:celestial-celestial-resilience",
+      "name": "Celestial Resilience",
+      "summary": "When you finish a short or long rest you gain temporary hit points equal to your warlock level + Charisma modifier, and up to five other creatures you choose gain half your warlock level + your Charisma modifier.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 55
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "celestial-resilience",
+            "name": "Celestial Resilience",
+            "economy": "free",
+            "tempHp": "classLevel.class:warlock + mod.cha",
+            "note": "At the end of a short or long rest. Up to five allies gain half your warlock level + Charisma modifier."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:celestial-searing-vengeance",
+      "name": "Searing Vengeance",
+      "summary": "Once per long rest, when you would make a death save, instead regain half your hit point maximum and stand up; enemies within 30 feet take 2d8 + Charisma modifier radiant damage and are blinded until the end of the turn.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 56
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "searing-vengeance",
+            "name": "Searing Vengeance",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "searing-vengeance",
+            "name": "Searing Vengeance",
+            "economy": "free",
+            "cost": {
+              "resource": "searing-vengeance"
+            },
+            "roll": {
+              "dice": "2d8 + mod.cha",
+              "label": "Radiant damage"
+            },
+            "note": "Instead of a death save: regain half your HP maximum and stand. Chosen creatures within 30 ft take the radiant damage and are blinded until end of turn."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:the-hexblade",
+      "name": "The Hexblade",
+      "summary": "Patron that is a sentient weapon from the Shadowfell: curses and Charisma-powered weapon fighting.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 55
+      },
+      "class": "class:warlock",
+      "features": [
+        {
+          "level": 1,
+          "feature": "feature:hexblade-expanded-spells"
+        },
+        {
+          "level": 1,
+          "feature": "feature:hexblade-hexblades-curse"
+        },
+        {
+          "level": 1,
+          "feature": "feature:hexblade-hex-warrior"
+        },
+        {
+          "level": 6,
+          "feature": "feature:hexblade-accursed-specter"
+        },
+        {
+          "level": 10,
+          "feature": "feature:hexblade-armor-of-hexes"
+        },
+        {
+          "level": 14,
+          "feature": "feature:hexblade-master-of-hexes"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:hexblade-expanded-spells",
+      "name": "Expanded Spell List (Hexblade)",
+      "summary": "Extra spells added to your warlock list: Shield, Wrathful Smite; Blur, Branding Smite; Blink, Elemental Weapon; Phantasmal Killer, Staggering Smite; Banishing Smite, Cone of Cold.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 55
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:hexblade-hexblades-curse",
+      "name": "Hexblade's Curse",
+      "summary": "Once per short rest, a bonus action curses a creature within 30 feet for 1 minute: add your proficiency bonus to damage against it, crit it on a 19 or 20, and regain warlock level + Charisma modifier HP (min 1) if it dies.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 56
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "hexblades-curse",
+            "name": "Hexblade's Curse",
+            "max": 1,
+            "reset": "short"
+          }
+        ],
+        "actions": [
+          {
+            "id": "hexblades-curse",
+            "name": "Hexblade's Curse",
+            "economy": "bonus",
+            "cost": {
+              "resource": "hexblades-curse"
+            },
+            "toggles": [
+              "hexblades-curse"
+            ],
+            "duration": {
+              "rounds": 10
+            },
+            "note": "Curse a creature within 30 ft for 1 minute. Ends early if it dies, you die or you're incapacitated."
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.damage.*",
+            "op": "add",
+            "value": "pb",
+            "mode": "suggested",
+            "label": "Hexblade's Curse",
+            "when": {
+              "toggle": "hexblades-curse",
+              "text": "damage roll against the cursed target"
+            }
+          },
+          {
+            "selector": "roll.attack.*",
+            "op": "note",
+            "label": "Hexblade's Curse: against the cursed target you score a critical hit on a 19 or 20. If it dies, regain warlock level + Charisma modifier HP (min 1).",
+            "when": {
+              "toggle": "hexblades-curse"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:hexblade-hex-warrior",
+      "name": "Hex Warrior",
+      "summary": "Proficiency with medium armor, shields and martial weapons. After a long rest, touch one weapon you're proficient with that lacks the two-handed property: you can use Charisma instead of Strength or Dexterity for its attack and damage rolls (also your pact weapon, if you have Pact of the Blade).",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 56
+      },
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "armor",
+            "target": "medium"
+          },
+          {
+            "kind": "armor",
+            "target": "shields"
+          },
+          {
+            "kind": "weapon",
+            "target": "martial"
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.attack.weapon.*",
+            "op": "note",
+            "label": "Hex Warrior: your hex weapon (and pact weapon) can use Charisma instead of Strength or Dexterity for attack and damage."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:hexblade-accursed-specter",
+      "name": "Accursed Specter",
+      "summary": "Once per long rest, when you slay a humanoid you can raise it as a specter that serves you until your next long rest; it gains temporary HP equal to half your warlock level and adds your Charisma modifier to its attacks.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 56
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "accursed-specter",
+            "name": "Accursed Specter",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "accursed-specter",
+            "name": "Accursed Specter",
+            "economy": "free",
+            "cost": {
+              "resource": "accursed-specter"
+            },
+            "note": "When you slay a humanoid: its spirit rises as a specter under your command until your next long rest."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:hexblade-armor-of-hexes",
+      "name": "Armor of Hexes",
+      "summary": "When the target of your Hexblade's Curse hits you with an attack, use your reaction to roll a d6; on a 4 or higher the attack misses.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 56
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "armor-of-hexes",
+            "name": "Armor of Hexes",
+            "economy": "reaction",
+            "roll": {
+              "dice": "1d6",
+              "label": "4 or higher: the attack misses"
+            },
+            "note": "When your cursed target hits you."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:hexblade-master-of-hexes",
+      "name": "Master of Hexes",
+      "summary": "When your cursed target dies, you can move the curse to another creature within 30 feet without spending a use, but you don't regain hit points from the first one.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 56
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:the-fathomless",
+      "name": "The Fathomless",
+      "summary": "Patron of the ocean deeps: a spectral tentacle, cold and water magic.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 72
+      },
+      "class": "class:warlock",
+      "features": [
+        {
+          "level": 1,
+          "feature": "feature:fathomless-expanded-spells"
+        },
+        {
+          "level": 1,
+          "feature": "feature:fathomless-tentacle-of-the-deeps"
+        },
+        {
+          "level": 1,
+          "feature": "feature:fathomless-gift-of-the-sea"
+        },
+        {
+          "level": 6,
+          "feature": "feature:fathomless-oceanic-soul"
+        },
+        {
+          "level": 6,
+          "feature": "feature:fathomless-guardian-coil"
+        },
+        {
+          "level": 10,
+          "feature": "feature:fathomless-grasping-tentacles"
+        },
+        {
+          "level": 14,
+          "feature": "feature:fathomless-fathomless-plunge"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:fathomless-expanded-spells",
+      "name": "Expanded Spell List (Fathomless)",
+      "summary": "Extra spells added to your warlock list: Create or Destroy Water, Thunderwave; Gust of Wind, Silence; Lightning Bolt, Sleet Storm; Control Water, Summon Elemental (water only); Bigby's Hand, Cone of Cold.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 72
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:fathomless-tentacle-of-the-deeps",
+      "name": "Tentacle of the Deeps",
+      "summary": "Bonus action: summon a 10-foot spectral tentacle within 60 feet for 1 minute, proficiency bonus times per long rest. On summoning and as a later bonus action (moving it up to 30 ft), it makes a melee spell attack: 1d8 cold (2d8 from 10th level) and the target's speed drops by 10 feet.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 73
+      },
+      "scaling": {
+        "dmg": {
+          "class": "class:warlock",
+          "table": [
+            [
+              1,
+              "1d8"
+            ],
+            [
+              10,
+              "2d8"
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "tentacle-of-the-deeps",
+            "name": "Tentacle of the Deeps",
+            "max": "pb",
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "tentacle-of-the-deeps",
+            "name": "Tentacle of the Deeps",
+            "economy": "bonus",
+            "cost": {
+              "resource": "tentacle-of-the-deeps"
+            },
+            "toggles": [
+              "tentacle-of-the-deeps"
+            ],
+            "duration": {
+              "rounds": 10
+            },
+            "roll": {
+              "dice": "scale.dmg",
+              "label": "Cold damage on a hit; target's speed -10 ft until your next turn"
+            },
+            "note": "Summon the tentacle for 1 minute and attack with it (melee spell attack against a creature within 10 ft of it)."
+          },
+          {
+            "id": "tentacle-attack",
+            "name": "Tentacle Attack",
+            "economy": "bonus",
+            "roll": {
+              "dice": "scale.dmg",
+              "label": "Cold damage on a hit; target's speed -10 ft until your next turn"
+            },
+            "note": "Move the tentacle up to 30 ft and repeat the melee spell attack."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:fathomless-gift-of-the-sea",
+      "name": "Gift of the Sea",
+      "summary": "You gain a swimming speed of 40 feet and can breathe underwater.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 73
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:fathomless-oceanic-soul",
+      "name": "Oceanic Soul",
+      "summary": "Resistance to cold damage. While fully submerged, any creature also fully submerged can understand your speech and you theirs.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 73
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.cold",
+            "op": "resist",
+            "label": "Oceanic Soul"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:fathomless-guardian-coil",
+      "name": "Guardian Coil",
+      "summary": "While your tentacle is present, when you or a creature you can see takes damage within 10 feet of it, use your reaction to reduce that damage by 1d8 (2d8 from 10th level).",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 73
+      },
+      "scaling": {
+        "dmg": {
+          "class": "class:warlock",
+          "table": [
+            [
+              1,
+              "1d8"
+            ],
+            [
+              10,
+              "2d8"
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "guardian-coil",
+            "name": "Guardian Coil",
+            "economy": "reaction",
+            "roll": {
+              "dice": "scale.dmg",
+              "label": "Damage prevented"
+            },
+            "note": "A creature within 10 ft of your tentacle takes damage: reduce it by the roll."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:fathomless-grasping-tentacles",
+      "name": "Grasping Tentacles",
+      "summary": "Evard's Black Tentacles is always known and doesn't count against spells known. Once per long rest you can cast it without a slot. Whenever you cast it, gain temporary HP equal to your warlock level, and damage can't break your concentration on it.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 73
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "grasping-tentacles",
+            "name": "Grasping Tentacles",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "spells": [
+          {
+            "spell": "spell:evards-black-tentacles",
+            "name": "Evard's Black Tentacles",
+            "casting": "Free once per long rest, or with a slot",
+            "resource": "grasping-tentacles",
+            "list": "warlock"
+          }
+        ],
+        "actions": [
+          {
+            "id": "grasping-tentacles-temp-hp",
+            "name": "Grasping Tentacles",
+            "economy": "free",
+            "tempHp": "classLevel.class:warlock",
+            "note": "When you cast Evard's Black Tentacles. Damage can't break your concentration on it."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:fathomless-fathomless-plunge",
+      "name": "Fathomless Plunge",
+      "summary": "Once per short rest, an action: you and up to five willing creatures within 30 feet teleport to an unoccupied space within 30 feet of a body of water you've seen, up to 1 mile away.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 73
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "fathomless-plunge",
+            "name": "Fathomless Plunge",
+            "max": 1,
+            "reset": "short"
+          }
+        ],
+        "actions": [
+          {
+            "id": "fathomless-plunge",
+            "name": "Fathomless Plunge",
+            "economy": "action",
+            "cost": {
+              "resource": "fathomless-plunge"
+            },
+            "note": "You and up to 5 willing creatures within 30 ft teleport near a body of water you've seen (pond size or larger) within 1 mile."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:the-genie",
+      "name": "The Genie",
+      "summary": "Patron that is a noble genie (dao, djinni, efreeti or marid): a vessel to retreat into and elemental wrath.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 73
+      },
+      "class": "class:warlock",
+      "features": [
+        {
+          "level": 1,
+          "feature": "feature:genie-expanded-spells"
+        },
+        {
+          "level": 1,
+          "feature": "feature:genie-genies-vessel"
+        },
+        {
+          "level": 6,
+          "feature": "feature:genie-elemental-gift"
+        },
+        {
+          "level": 10,
+          "feature": "feature:genie-sanctuary-vessel"
+        },
+        {
+          "level": 14,
+          "feature": "feature:genie-limited-wish"
+        }
+      ],
+      "choices": [
+        {
+          "id": "genie-kind",
+          "label": "Genie kind",
+          "kind": "option",
+          "count": 1,
+          "from": [
+            "Dao",
+            "Djinni",
+            "Efreeti",
+            "Marid"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:genie-expanded-spells",
+      "name": "Expanded Spell List (Genie)",
+      "summary": "Extra spells added to your warlock list, part shared and part by genie kind. Shared: Detect Evil and Good, Phantasmal Force, Create Food and Water, Phantasmal Killer, Creation, and Wish at 9th. Dao: Sanctuary, Spike Growth, Meld into Stone, Stone Shape, Wall of Stone. Djinni: Thunderwave, Gust of Wind, Wind Wall, Greater Invisibility, Seeming. Efreeti: Burning Hands, Scorching Ray, Fireball, Fire Shield, Flame Strike. Marid: Fog Cloud, Blur, Sleet Storm, Control Water, Cone of Cold.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 73
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:genie-genies-vessel",
+      "name": "Genie's Vessel",
+      "summary": "A Tiny vessel is your focus (AC = spell save DC, HP = warlock level + proficiency bonus). Bottled Respite: once per long rest, an action to vanish into it for up to twice your proficiency bonus in hours. Genie's Wrath: once per turn on a hit, add your proficiency bonus as extra damage of your genie's type.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 74
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "bottled-respite",
+            "name": "Bottled Respite",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "bottled-respite",
+            "name": "Bottled Respite",
+            "economy": "action",
+            "cost": {
+              "resource": "bottled-respite"
+            },
+            "note": "Enter your vessel for up to 2 x proficiency bonus hours; leave with a bonus action. You hear outside as if in the vessel's space."
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.damage.*",
+            "op": "add",
+            "value": "pb",
+            "mode": "suggested",
+            "label": "Genie's Wrath",
+            "oncePerTurn": true,
+            "when": {
+              "text": "once per turn on a hit; type by genie: bludgeoning (Dao), thunder (Djinni), fire (Efreeti), cold (Marid)"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:genie-elemental-gift",
+      "name": "Elemental Gift",
+      "summary": "Resistance to your genie's damage type (bludgeoning, thunder, fire or cold). Proficiency bonus times per long rest, a bonus action gives you a 30-foot flying speed (you can hover) for 10 minutes.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 74
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "elemental-gift",
+            "name": "Elemental Gift flight",
+            "max": "pb",
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "elemental-gift",
+            "name": "Elemental Gift",
+            "economy": "bonus",
+            "cost": {
+              "resource": "elemental-gift"
+            },
+            "toggles": [
+              "elemental-gift-flight"
+            ],
+            "duration": {
+              "minutes": 10
+            },
+            "note": "Fly 30 ft (can hover) for 10 minutes."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:genie-sanctuary-vessel",
+      "name": "Sanctuary Vessel",
+      "summary": "When you enter your vessel you can bring up to five willing creatures within 30 feet. Anyone inside can finish a short rest in 10 minutes, and adds your proficiency bonus to hit points regained from Hit Dice spent then.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 74
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:genie-limited-wish",
+      "name": "Limited Wish",
+      "summary": "An action to cast any spell of 6th level or lower with a casting time of 1 action, from any class list, without components or a slot. Then you can't use it again until you finish 1d4 long rests.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 74
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "limited-wish",
+            "name": "Limited Wish",
+            "max": 1,
+            "reset": "manual"
+          }
+        ],
+        "actions": [
+          {
+            "id": "limited-wish",
+            "name": "Limited Wish",
+            "economy": "action",
+            "cost": {
+              "resource": "limited-wish"
+            },
+            "note": "Cast any 1-action spell of 6th level or lower from any list, no components. Comes back after 1d4 long rests."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:warlock-additional-warlock-spells",
+      "name": "Additional Warlock Spells",
+      "summary": "Optional (TCoE): more spells join the warlock spell list, such as Booming Blade, Green-Flame Blade, Lightning Lure, Mind Sliver, Sword Burst, Intellect Fortress, Spirit Shroud, Summon Fey, Summon Shadowspawn, Summon Undead, Summon Aberration, Summon Fiend and Tasha's Otherworldly Guise.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 70
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:warlock-eldritch-versatility",
+      "name": "Eldritch Versatility",
+      "summary": "Optional (TCoE): whenever you gain an Ability Score Improvement, you can swap one warlock cantrip, change your Pact Boon option (3rd level+), or replace a Mystic Arcanum spell with another of the same level (12th level+).",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 71
+      }
+    }
+  ]
+}

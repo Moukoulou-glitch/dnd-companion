@@ -172,10 +172,10 @@ Sample inspiration text.
 Level 3: Bard College PHB'14 p51
 
 Sample college text.
-College of Whispers XGE p16
+College of Spirits VRGR p28
 
 Sample whispers text.
-Level 3: Psychic Blades XGE p16
+Level 3: Psychic Blades VRGR p28
 
 Sample whispers blades text.
 College of Testing XGE p99
@@ -193,7 +193,7 @@ Sample option text.
 Level 3: Expertise PHB'14 p51
 
 Sample expertise text.
-College of Whispers: Level 6: Mantle of Whispers XGE p16
+College of Spirits: Level 6: Mantle of Whispers VRGR p28
 
 Sample mantle text.
 College of Testing: Level 6: Extra Attack XGE p99
@@ -329,13 +329,13 @@ describe("book text loaded on the device", () => {
   });
 
   it("class pages add the subclasses the content doesn't have, with their features by level", () => {
-    const sub = def("subclass:college-of-whispers") as { class: string; features: { level: number; feature: string }[]; text: string[] };
+    const sub = def("subclass:college-of-spirits") as { class: string; features: { level: number; feature: string }[]; text: string[] };
     expect(sub).toMatchObject({ class: "class:bard", text: ["Sample whispers text."] });
     expect(sub.features).toEqual([
-      { level: 3, feature: "feature:college-of-whispers-psychic-blades" },
-      { level: 6, feature: "feature:college-of-whispers-mantle-of-whispers" },
+      { level: 3, feature: "feature:college-of-spirits-psychic-blades" },
+      { level: 6, feature: "feature:college-of-spirits-mantle-of-whispers" },
     ]);
-    expect(def("feature:college-of-whispers-psychic-blades")?.text).toEqual(["Sample whispers blades text."]);
+    expect(def("feature:college-of-spirits-psychic-blades")?.text).toEqual(["Sample whispers blades text."]);
     // The bard's Psychic Blades never overwrite the Soulknife's.
     expect(def("feature:psychic-blades")?.text).toEqual(["Sample psychic blades text."]);
     // Expertise is in the class table, so it is the class's feature, not the subclass's.
@@ -391,7 +391,7 @@ describe("book text loaded on the device", () => {
     const reg = tableRegistry();
     reg.add(pack);
     const c = newCharacter({ id: "w", name: "Whisper", race: "race:human", class: "class:bard", background: "background:test-wanderer", abilities: { str: 8, dex: 14, con: 12, int: 10, wis: 13, cha: 15 } }, reg);
-    c.classes[0] = { ...c.classes[0]!, level: 6, subclass: "subclass:college-of-whispers" };
+    c.classes[0] = { ...c.classes[0]!, level: 6, subclass: "subclass:college-of-spirits" };
     const sheet = derive(c, reg);
     const names = sheet.features.map((f) => f.name);
     expect(names).toEqual(expect.arrayContaining(["Psychic Blades", "Mantle of Whispers", "Long Road"]));

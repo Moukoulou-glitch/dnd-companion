@@ -95,6 +95,20 @@
           "level": 9,
           "feature": "feature:brutal-critical"
         }
+      ],
+      "adds": [
+        {
+          "level": 3,
+          "feature": "feature:barbarian-primal-knowledge"
+        },
+        {
+          "level": 7,
+          "feature": "feature:barbarian-instinctive-pounce"
+        },
+        {
+          "level": 10,
+          "feature": "feature:barbarian-primal-knowledge-2"
+        }
       ]
     },
     {
@@ -326,6 +340,9 @@
         "pack": "table-2014",
         "book": "PHB",
         "page": 49
+      },
+      "grant": {
+        "extraAttacks": 2
       }
     },
     {

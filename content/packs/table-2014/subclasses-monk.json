@@ -1,0 +1,1532 @@
+{
+  "definitions": [
+    {
+      "kind": "class",
+      "id": "class:monk",
+      "name": "Monk",
+      "summary": "Unarmored martial artist powered by ki.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 76
+      },
+      "hitDie": 8,
+      "saves": [
+        "str",
+        "dex"
+      ],
+      "startingGrant": {
+        "proficiencies": [
+          {
+            "kind": "weapon",
+            "target": "simple"
+          },
+          {
+            "kind": "weapon",
+            "target": "shortsword"
+          },
+          {
+            "kind": "skill",
+            "target": {
+              "choice": "skills"
+            }
+          },
+          {
+            "kind": "tool",
+            "target": {
+              "choice": "tools"
+            }
+          }
+        ]
+      },
+      "multiclassGrant": {
+        "proficiencies": [
+          {
+            "kind": "weapon",
+            "target": "simple"
+          },
+          {
+            "kind": "weapon",
+            "target": "shortsword"
+          }
+        ]
+      },
+      "subclassLevel": 3,
+      "features": [],
+      "adds": [
+        {
+          "level": 2,
+          "feature": "feature:monk-dedicated-weapon"
+        },
+        {
+          "level": 3,
+          "feature": "feature:monk-ki-fueled-attack"
+        },
+        {
+          "level": 4,
+          "feature": "feature:monk-quickened-healing"
+        },
+        {
+          "level": 5,
+          "feature": "feature:monk-focused-aim"
+        }
+      ],
+      "progression": {
+        "kenseiWeapons": [
+          0,
+          0,
+          2,
+          2,
+          2,
+          3,
+          3,
+          3,
+          3,
+          3,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          5,
+          5,
+          5,
+          5
+        ],
+        "elementalDisciplines": [
+          0,
+          0,
+          1,
+          1,
+          1,
+          2,
+          2,
+          2,
+          2,
+          2,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          4,
+          4,
+          4,
+          4
+        ]
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:way-of-shadow",
+      "name": "Way of Shadow",
+      "summary": "Stealthy monk who uses ki for shadow magic and teleports between shadows.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 80
+      },
+      "class": "class:monk",
+      "features": [
+        {
+          "level": 3,
+          "feature": "feature:way-of-shadow-shadow-arts"
+        },
+        {
+          "level": 6,
+          "feature": "feature:way-of-shadow-shadow-step"
+        },
+        {
+          "level": 11,
+          "feature": "feature:way-of-shadow-cloak-of-shadows"
+        },
+        {
+          "level": 17,
+          "feature": "feature:way-of-shadow-opportunist"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:way-of-shadow-shadow-arts",
+      "name": "Shadow Arts",
+      "summary": "Spend 2 ki to cast Darkness, Darkvision, Pass without Trace or Silence without material components, and learn the Minor Illusion cantrip (Wisdom, ki save DC).",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 80
+      },
+      "grant": {
+        "spellcasting": {
+          "id": "shadow-arts",
+          "label": "Shadow Arts",
+          "ability": "wis",
+          "progression": "none"
+        },
+        "spells": [
+          {
+            "spell": "spell:minor-illusion",
+            "name": "Minor Illusion",
+            "casting": "cantrip",
+            "atWill": true
+          },
+          {
+            "spell": "spell:darkness",
+            "name": "Darkness",
+            "casting": "2 ki, no slot"
+          },
+          {
+            "spell": "spell:darkvision",
+            "name": "Darkvision",
+            "casting": "2 ki, no slot"
+          },
+          {
+            "spell": "spell:pass-without-trace",
+            "name": "Pass without Trace",
+            "casting": "2 ki, no slot"
+          },
+          {
+            "spell": "spell:silence",
+            "name": "Silence",
+            "casting": "2 ki, no slot"
+          }
+        ],
+        "actions": [
+          {
+            "id": "shadow-arts",
+            "name": "Shadow Arts",
+            "economy": "action",
+            "toggles": [],
+            "note": "Cast one of the spells with ki instead of a slot.",
+            "cost": {
+              "resource": "ki",
+              "amount": 2
+            },
+            "choose": {
+              "label": "Spell",
+              "options": [
+                "Darkness",
+                "Darkvision",
+                "Pass without Trace",
+                "Silence"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:way-of-shadow-shadow-step",
+      "name": "Shadow Step",
+      "summary": "Bonus action: teleport up to 60 feet from dim light or darkness to another unoccupied space in dim light or darkness you can see, then gain advantage on your first melee attack before the end of the turn.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 80
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "shadow-step",
+            "name": "Shadow Step",
+            "economy": "bonus",
+            "toggles": [],
+            "note": "Dim light/darkness to dim light/darkness, up to 60 ft. Advantage on the next melee attack this turn."
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.attack.weapon.melee",
+            "op": "advantage",
+            "mode": "suggested",
+            "when": {
+              "text": "first melee attack after Shadow Step this turn"
+            },
+            "label": "Shadow Step"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:way-of-shadow-cloak-of-shadows",
+      "name": "Cloak of Shadows",
+      "summary": "As an action in dim light or darkness, become invisible until you attack, cast a spell, or end your turn in bright light.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 80
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "cloak-of-shadows",
+            "name": "Cloak of Shadows",
+            "economy": "action",
+            "toggles": [
+              "cloak-of-shadows"
+            ],
+            "note": "Invisible while in dim light or darkness; ends when you attack, cast a spell or are in bright light."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:way-of-shadow-opportunist",
+      "name": "Opportunist",
+      "summary": "Reaction when a creature within 5 feet of you is hit by someone else's attack: make a melee attack against it.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 80
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "opportunist",
+            "name": "Opportunist",
+            "economy": "reaction",
+            "toggles": [],
+            "note": "A creature within 5 ft is hit by another's attack: one melee attack against it."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:way-of-the-four-elements",
+      "name": "Way of the Four Elements",
+      "summary": "Monk who spends ki on elemental disciplines that mimic spells.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 80
+      },
+      "class": "class:monk",
+      "features": [
+        {
+          "level": 3,
+          "feature": "feature:way-of-the-four-elements-disciple-of-the-elements"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:way-of-the-four-elements-disciple-of-the-elements",
+      "name": "Disciple of the Elements",
+      "summary": "You know Elemental Attunement plus one elemental discipline, learning one more at 6th, 11th and 17th (and may swap one each time). Disciplines cost ki; the most ki on one discipline is 2 at 3rd, 3 at 5th, 4 at 9th, 5 at 13th, 6 at 17th. Spell disciplines use your ki save DC.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 80
+      },
+      "scaling": {
+        "maxKi": {
+          "class": "class:monk",
+          "table": [
+            [
+              3,
+              2
+            ],
+            [
+              5,
+              3
+            ],
+            [
+              9,
+              4
+            ],
+            [
+              13,
+              5
+            ],
+            [
+              17,
+              6
+            ]
+          ]
+        }
+      },
+      "choices": [
+        {
+          "id": "disciplines",
+          "label": "Elemental disciplines",
+          "kind": "option",
+          "count": 1,
+          "countBy": "elementalDisciplines",
+          "from": [
+            "Breath of Winter (17th)",
+            "Clench of the North Wind (6th)",
+            "Eternal Mountain Defense (17th)",
+            "Fangs of the Fire Snake",
+            "Fist of Four Thunders",
+            "Fist of Unbroken Air",
+            "Flames of the Phoenix (11th)",
+            "Gong of the Summit (6th)",
+            "Mist Stance (11th)",
+            "Ride the Wind (11th)",
+            "River of Hungry Flame (17th)",
+            "Rush of the Gale Spirits",
+            "Shape the Flowing River",
+            "Sweeping Cinder Strike",
+            "Water Whip",
+            "Wave of Rolling Earth (17th)"
+          ]
+        }
+      ],
+      "grant": {
+        "spellcasting": {
+          "id": "four-elements",
+          "label": "Elemental Disciplines",
+          "ability": "wis",
+          "progression": "none"
+        },
+        "actions": [
+          {
+            "id": "elemental-discipline",
+            "name": "Elemental Discipline",
+            "economy": "action",
+            "toggles": [],
+            "note": "Spend the discipline's ki (extra ki raises a spell's level, up to your per-discipline cap).",
+            "cost": {
+              "resource": "ki",
+              "amount": 1
+            },
+            "spendAmount": {
+              "label": "Ki to spend"
+            }
+          },
+          {
+            "id": "elemental-attunement",
+            "name": "Elemental Attunement",
+            "economy": "action",
+            "toggles": [],
+            "note": "A minor elemental trick: sensory effect, light/snuff a flame, chill/warm/flavor material, or shape a small amount of earth, fire, air or mist."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:way-of-the-drunken-master",
+      "name": "Way of the Drunken Master",
+      "summary": "Unpredictable monk who sways, stumbles and redirects attacks.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 33
+      },
+      "class": "class:monk",
+      "features": [
+        {
+          "level": 3,
+          "feature": "feature:way-of-the-drunken-master-bonus-proficiencies"
+        },
+        {
+          "level": 3,
+          "feature": "feature:way-of-the-drunken-master-drunken-technique"
+        },
+        {
+          "level": 6,
+          "feature": "feature:way-of-the-drunken-master-tipsy-sway"
+        },
+        {
+          "level": 11,
+          "feature": "feature:way-of-the-drunken-master-drunkards-luck"
+        },
+        {
+          "level": 17,
+          "feature": "feature:way-of-the-drunken-master-intoxicated-frenzy"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:way-of-the-drunken-master-bonus-proficiencies",
+      "name": "Bonus Proficiencies",
+      "summary": "Proficiency in Performance and with brewer's supplies.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 33
+      },
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "skill",
+            "target": "performance"
+          },
+          {
+            "kind": "tool",
+            "target": "Brewer's supplies"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:way-of-the-drunken-master-drunken-technique",
+      "name": "Drunken Technique",
+      "summary": "Using Flurry of Blows also grants the Disengage benefit and +10 feet of walking speed until the end of the turn.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 34
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "drunken-technique",
+            "name": "Drunken Technique",
+            "economy": "free",
+            "toggles": [
+              "drunken-technique"
+            ],
+            "note": "With Flurry of Blows: Disengage and +10 ft speed this turn.",
+            "duration": {
+              "rounds": 1
+            }
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "stat.speed.walk",
+            "op": "add",
+            "value": 10,
+            "when": {
+              "toggle": "drunken-technique"
+            },
+            "label": "Drunken Technique"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:way-of-the-drunken-master-tipsy-sway",
+      "name": "Tipsy Sway",
+      "summary": "Leap to Your Feet: standing up from prone costs only 5 feet of movement. Redirect Attack: reaction and 1 ki when a creature misses you with a melee attack, to make it hit another creature within 5 feet of you.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 34
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "redirect-attack",
+            "name": "Redirect Attack",
+            "economy": "reaction",
+            "toggles": [],
+            "note": "A melee attack misses you: it hits another creature of your choice within 5 ft of you (not the attacker).",
+            "cost": {
+              "resource": "ki",
+              "amount": 1
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:way-of-the-drunken-master-drunkards-luck",
+      "name": "Drunkard's Luck",
+      "summary": "When you have disadvantage on an ability check, attack roll or saving throw, spend 2 ki to cancel the disadvantage.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 34
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "drunkards-luck",
+            "name": "Drunkard's Luck",
+            "economy": "free",
+            "toggles": [],
+            "note": "Cancel disadvantage on one check, attack or save.",
+            "cost": {
+              "resource": "ki",
+              "amount": 2
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:way-of-the-drunken-master-intoxicated-frenzy",
+      "name": "Intoxicated Frenzy",
+      "summary": "Flurry of Blows can make up to three extra attacks (five in total) if each one targets a different creature.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 34
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:way-of-the-kensei",
+      "name": "Way of the Kensei",
+      "summary": "Monk who masters a few chosen weapons as extensions of the body.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 34
+      },
+      "class": "class:monk",
+      "features": [
+        {
+          "level": 3,
+          "feature": "feature:way-of-the-kensei-path-of-the-kensei"
+        },
+        {
+          "level": 6,
+          "feature": "feature:way-of-the-kensei-one-with-the-blade"
+        },
+        {
+          "level": 11,
+          "feature": "feature:way-of-the-kensei-sharpen-the-blade"
+        },
+        {
+          "level": 17,
+          "feature": "feature:way-of-the-kensei-unerring-accuracy"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:way-of-the-kensei-path-of-the-kensei",
+      "name": "Path of the Kensei",
+      "summary": "Kensei Weapons: pick two weapons (one melee, one ranged; no heavy or special weapons), more at 6th, 11th and 17th; you're proficient and they count as monk weapons. Agile Parry: after an unarmed strike in the Attack action while holding a kensei weapon, +2 AC until your next turn. Kensei's Shot: bonus action, +1d4 damage on ranged kensei weapon hits this turn. Way of the Brush: calligrapher's or painter's supplies.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 34
+      },
+      "choices": [
+        {
+          "id": "kensei-weapons",
+          "label": "Kensei weapons (at least one melee and one ranged)",
+          "kind": "option",
+          "count": 2,
+          "countBy": "kenseiWeapons",
+          "from": [
+            "club",
+            "dagger",
+            "greatclub",
+            "handaxe",
+            "javelin",
+            "light hammer",
+            "mace",
+            "quarterstaff",
+            "sickle",
+            "spear",
+            "light crossbow",
+            "dart",
+            "shortbow",
+            "sling",
+            "battleaxe",
+            "flail",
+            "longsword",
+            "morningstar",
+            "rapier",
+            "scimitar",
+            "shortsword",
+            "trident",
+            "war pick",
+            "warhammer",
+            "whip",
+            "blowgun",
+            "hand crossbow"
+          ]
+        },
+        {
+          "id": "brush",
+          "label": "Way of the Brush",
+          "kind": "tool",
+          "count": 1,
+          "from": [
+            "Calligrapher's supplies",
+            "Painter's supplies"
+          ]
+        }
+      ],
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "weapon",
+            "target": {
+              "choice": "kensei-weapons"
+            }
+          },
+          {
+            "kind": "tool",
+            "target": {
+              "choice": "brush"
+            }
+          }
+        ],
+        "actions": [
+          {
+            "id": "agile-parry",
+            "name": "Agile Parry",
+            "economy": "free",
+            "toggles": [
+              "agile-parry"
+            ],
+            "note": "After an unarmed strike in the Attack action, holding a kensei weapon: +2 AC until the start of your next turn.",
+            "untilTurnStart": true
+          },
+          {
+            "id": "kenseis-shot",
+            "name": "Kensei's Shot",
+            "economy": "bonus",
+            "toggles": [
+              "kenseis-shot"
+            ],
+            "note": "Ranged kensei weapon hits deal +1d4 this turn.",
+            "duration": {
+              "rounds": 1
+            }
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "stat.ac",
+            "op": "add",
+            "value": 2,
+            "when": {
+              "toggle": "agile-parry"
+            },
+            "label": "Agile Parry"
+          },
+          {
+            "selector": "roll.damage.weapon.ranged",
+            "op": "add",
+            "value": "1d4",
+            "when": {
+              "toggle": "kenseis-shot",
+              "text": "kensei weapon"
+            },
+            "label": "Kensei's Shot"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:way-of-the-kensei-one-with-the-blade",
+      "name": "One with the Blade",
+      "summary": "Magic Kensei Weapons: your kensei weapon attacks count as magical. Deft Strike: once per turn, when you hit with a monk weapon, spend 1 ki for extra damage equal to your Martial Arts die.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 35
+      },
+      "scaling": {
+        "die": {
+          "class": "class:monk",
+          "table": [
+            [
+              1,
+              "1d4"
+            ],
+            [
+              5,
+              "1d6"
+            ],
+            [
+              11,
+              "1d8"
+            ],
+            [
+              17,
+              "1d10"
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "deft-strike",
+            "name": "Deft Strike",
+            "economy": "free",
+            "toggles": [],
+            "note": "Tick it on a monk weapon hit: once per turn.",
+            "cost": {
+              "resource": "ki",
+              "amount": 1
+            }
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.damage.weapon.*",
+            "op": "add",
+            "value": "scale.die",
+            "mode": "suggested",
+            "when": {
+              "text": "1 ki, monk weapon hit"
+            },
+            "label": "Deft Strike",
+            "oncePerTurn": true
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:way-of-the-kensei-sharpen-the-blade",
+      "name": "Sharpen the Blade",
+      "summary": "Bonus action, up to 3 ki: a kensei weapon you hold gains a bonus to attack and damage rolls equal to the ki spent for 1 minute (doesn't work on a weapon that already has a bonus).",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 35
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "sharpen-the-blade-1",
+            "name": "Sharpen the Blade (+1)",
+            "economy": "bonus",
+            "toggles": [
+              "sharpen-the-blade-1"
+            ],
+            "note": "1 ki: one kensei weapon gets +1 to attack and damage for 1 minute.",
+            "cost": {
+              "resource": "ki",
+              "amount": 1
+            },
+            "duration": {
+              "rounds": 10
+            }
+          },
+          {
+            "id": "sharpen-the-blade-2",
+            "name": "Sharpen the Blade (+2)",
+            "economy": "bonus",
+            "toggles": [
+              "sharpen-the-blade-2"
+            ],
+            "note": "2 ki: one kensei weapon gets +2 to attack and damage for 1 minute.",
+            "cost": {
+              "resource": "ki",
+              "amount": 2
+            },
+            "duration": {
+              "rounds": 10
+            }
+          },
+          {
+            "id": "sharpen-the-blade-3",
+            "name": "Sharpen the Blade (+3)",
+            "economy": "bonus",
+            "toggles": [
+              "sharpen-the-blade-3"
+            ],
+            "note": "3 ki: one kensei weapon gets +3 to attack and damage for 1 minute.",
+            "cost": {
+              "resource": "ki",
+              "amount": 3
+            },
+            "duration": {
+              "rounds": 10
+            }
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.attack.weapon.*",
+            "op": "add",
+            "value": 1,
+            "mode": "suggested",
+            "when": {
+              "toggle": "sharpen-the-blade-1",
+              "text": "with the sharpened kensei weapon"
+            },
+            "label": "Sharpen the Blade +1",
+            "stackingKey": "sharpen-the-blade"
+          },
+          {
+            "selector": "roll.damage.weapon.*",
+            "op": "add",
+            "value": 1,
+            "mode": "suggested",
+            "when": {
+              "toggle": "sharpen-the-blade-1",
+              "text": "with the sharpened kensei weapon"
+            },
+            "label": "Sharpen the Blade +1",
+            "stackingKey": "sharpen-the-blade"
+          },
+          {
+            "selector": "roll.attack.weapon.*",
+            "op": "add",
+            "value": 2,
+            "mode": "suggested",
+            "when": {
+              "toggle": "sharpen-the-blade-2",
+              "text": "with the sharpened kensei weapon"
+            },
+            "label": "Sharpen the Blade +2",
+            "stackingKey": "sharpen-the-blade"
+          },
+          {
+            "selector": "roll.damage.weapon.*",
+            "op": "add",
+            "value": 2,
+            "mode": "suggested",
+            "when": {
+              "toggle": "sharpen-the-blade-2",
+              "text": "with the sharpened kensei weapon"
+            },
+            "label": "Sharpen the Blade +2",
+            "stackingKey": "sharpen-the-blade"
+          },
+          {
+            "selector": "roll.attack.weapon.*",
+            "op": "add",
+            "value": 3,
+            "mode": "suggested",
+            "when": {
+              "toggle": "sharpen-the-blade-3",
+              "text": "with the sharpened kensei weapon"
+            },
+            "label": "Sharpen the Blade +3",
+            "stackingKey": "sharpen-the-blade"
+          },
+          {
+            "selector": "roll.damage.weapon.*",
+            "op": "add",
+            "value": 3,
+            "mode": "suggested",
+            "when": {
+              "toggle": "sharpen-the-blade-3",
+              "text": "with the sharpened kensei weapon"
+            },
+            "label": "Sharpen the Blade +3",
+            "stackingKey": "sharpen-the-blade"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:way-of-the-kensei-unerring-accuracy",
+      "name": "Unerring Accuracy",
+      "summary": "Once on each of your turns, you can reroll a missed attack made with a monk weapon.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 35
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.attack.weapon.*",
+            "op": "note",
+            "label": "Unerring Accuracy: once per turn, reroll a missed monk weapon attack."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:way-of-the-sun-soul",
+      "name": "Way of the Sun Soul",
+      "summary": "Monk who hurls bolts and bursts of radiant ki.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 35
+      },
+      "class": "class:monk",
+      "features": [
+        {
+          "level": 3,
+          "feature": "feature:way-of-the-sun-soul-radiant-sun-bolt"
+        },
+        {
+          "level": 6,
+          "feature": "feature:way-of-the-sun-soul-searing-arc-strike"
+        },
+        {
+          "level": 11,
+          "feature": "feature:way-of-the-sun-soul-searing-sunburst"
+        },
+        {
+          "level": 17,
+          "feature": "feature:way-of-the-sun-soul-sun-shield"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:way-of-the-sun-soul-radiant-sun-bolt",
+      "name": "Radiant Sun Bolt",
+      "summary": "A ranged spell attack (30 ft, Dexterity, proficient) dealing radiant damage equal to your Martial Arts die + Dexterity; it can replace attacks of the Attack action, and after the Attack action you can spend 1 ki to make two as a bonus action.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 35
+      },
+      "scaling": {
+        "die": {
+          "class": "class:monk",
+          "table": [
+            [
+              1,
+              "1d4"
+            ],
+            [
+              5,
+              "1d6"
+            ],
+            [
+              11,
+              "1d8"
+            ],
+            [
+              17,
+              "1d10"
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "attacks": [
+          {
+            "id": "radiant-sun-bolt",
+            "name": "Radiant Sun Bolt",
+            "category": "simple",
+            "kind": "ranged",
+            "damage": "scale.die",
+            "damageType": "radiant",
+            "properties": [],
+            "range": [
+              30,
+              30
+            ]
+          }
+        ],
+        "actions": [
+          {
+            "id": "radiant-sun-bolt-flurry",
+            "name": "Radiant Sun Bolts (bonus)",
+            "economy": "bonus",
+            "toggles": [],
+            "note": "After the Attack action: two Radiant Sun Bolt attacks.",
+            "cost": {
+              "resource": "ki",
+              "amount": 1
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:way-of-the-sun-soul-searing-arc-strike",
+      "name": "Searing Arc Strike",
+      "summary": "Right after the Attack action, spend 2 ki to cast Burning Hands as a bonus action, plus 1 ki per level above 1st (max ki total equal to half your monk level). Uses your ki save DC.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 35
+      },
+      "grant": {
+        "spellcasting": {
+          "id": "sun-soul",
+          "label": "Sun Soul",
+          "ability": "wis",
+          "progression": "none"
+        },
+        "spells": [
+          {
+            "spell": "spell:burning-hands",
+            "name": "Burning Hands",
+            "casting": "bonus action after the Attack action, 2 ki (+1 ki per higher level)"
+          }
+        ],
+        "actions": [
+          {
+            "id": "searing-arc-strike",
+            "name": "Searing Arc Strike",
+            "economy": "bonus",
+            "toggles": [],
+            "note": "Burning Hands after the Attack action: 2 ki at 1st level, 1 more per level higher.",
+            "cost": {
+              "resource": "ki",
+              "amount": 2
+            },
+            "spendAmount": {
+              "label": "Total ki (2 + 1 per level above 1st)"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:way-of-the-sun-soul-searing-sunburst",
+      "name": "Searing Sunburst",
+      "summary": "Action: a 20-foot-radius burst at a point within 150 feet; each creature makes a Constitution save (ki DC) or takes 2d6 radiant. Spend up to 3 ki for +2d6 each.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 35
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "searing-sunburst",
+            "name": "Searing Sunburst",
+            "economy": "action",
+            "toggles": [],
+            "note": "CON save against your ki DC or 2d6 radiant; each extra ki (max 3) adds 2d6.",
+            "roll": {
+              "dice": "2d6",
+              "label": "radiant damage (base)"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:way-of-the-sun-soul-sun-shield",
+      "name": "Sun Shield",
+      "summary": "You shed bright light 30 feet (toggle with a bonus action). While lit, a creature hitting you with a melee attack can take 5 + your Wisdom modifier radiant damage as your reaction.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 35
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "sun-shield-light",
+            "name": "Sun Shield light",
+            "economy": "bonus",
+            "toggles": [
+              "sun-shield"
+            ],
+            "note": "Turn the 30-ft bright light on or off."
+          },
+          {
+            "id": "sun-shield",
+            "name": "Sun Shield",
+            "economy": "reaction",
+            "toggles": [],
+            "note": "While glowing, a melee attacker that hits you takes 5 + Wisdom modifier radiant damage.",
+            "roll": {
+              "dice": "5 + mod.wis",
+              "label": "radiant damage"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:way-of-the-astral-self",
+      "name": "Way of the Astral Self",
+      "summary": "Monk who manifests spectral astral arms, a visage, and eventually a full astral form.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 50
+      },
+      "class": "class:monk",
+      "features": [
+        {
+          "level": 3,
+          "feature": "feature:way-of-the-astral-self-arms-of-the-astral-self"
+        },
+        {
+          "level": 6,
+          "feature": "feature:way-of-the-astral-self-visage-of-the-astral-self"
+        },
+        {
+          "level": 11,
+          "feature": "feature:way-of-the-astral-self-body-of-the-astral-self"
+        },
+        {
+          "level": 17,
+          "feature": "feature:way-of-the-astral-self-awakened-astral-self"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:way-of-the-astral-self-arms-of-the-astral-self",
+      "name": "Arms of the Astral Self",
+      "summary": "Bonus action, 1 ki: summon astral arms for 10 minutes. On summoning, creatures within 10 feet make a Dex save or take force damage equal to two Martial Arts dice. While they last, use Wisdom for Strength checks and saves, and your arms' unarmed strikes can use Wisdom, deal force damage and reach 5 feet further.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 50
+      },
+      "scaling": {
+        "die": {
+          "class": "class:monk",
+          "table": [
+            [
+              1,
+              "1d4"
+            ],
+            [
+              5,
+              "1d6"
+            ],
+            [
+              11,
+              "1d8"
+            ],
+            [
+              17,
+              "1d10"
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "arms-of-the-astral-self",
+            "name": "Arms of the Astral Self",
+            "economy": "bonus",
+            "toggles": [
+              "astral-arms"
+            ],
+            "note": "10 minutes. On summoning: Dex save (ki DC) for creatures within 10 ft or take the roll as force damage.",
+            "cost": {
+              "resource": "ki",
+              "amount": 1
+            },
+            "duration": {
+              "minutes": 10
+            },
+            "roll": {
+              "dice": "scale.die + scale.die",
+              "label": "force damage (Dex save)"
+            }
+          }
+        ],
+        "attacks": [
+          {
+            "id": "astral-arms",
+            "name": "Astral Arms (Wis, +5 ft reach)",
+            "category": "simple",
+            "kind": "melee",
+            "damage": "scale.die",
+            "damageType": "force",
+            "properties": [
+              "finesse",
+              "reach"
+            ]
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "attack.astral-arms",
+            "op": "note",
+            "label": "Astral Arms: only while summoned; you may use Wisdom instead of Strength or Dexterity, reach 10 ft."
+          },
+          {
+            "selector": "roll.check.str",
+            "op": "note",
+            "when": {
+              "toggle": "astral-arms"
+            },
+            "label": "Astral Arms: while summoned you can use Wisdom instead of Strength."
+          },
+          {
+            "selector": "roll.save.str",
+            "op": "note",
+            "when": {
+              "toggle": "astral-arms"
+            },
+            "label": "Astral Arms: while summoned you can use Wisdom instead of Strength."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:way-of-the-astral-self-visage-of-the-astral-self",
+      "name": "Visage of the Astral Self",
+      "summary": "Bonus action, 1 ki: an astral visage for 10 minutes. Astral Sight: see normally in darkness out to 120 feet. Wisdom of the Spirit: advantage on Insight and Intimidation. Word of the Spirit: speak so only one creature within 60 feet hears, or amplify your voice to 600 feet.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 51
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "visage-of-the-astral-self",
+            "name": "Visage of the Astral Self",
+            "economy": "bonus",
+            "toggles": [
+              "astral-visage"
+            ],
+            "note": "10 minutes: see in magical and normal darkness to 120 ft, advantage on Insight and Intimidation, directed or booming voice.",
+            "cost": {
+              "resource": "ki",
+              "amount": 1
+            },
+            "duration": {
+              "minutes": 10
+            }
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.check.skill.insight",
+            "op": "advantage",
+            "when": {
+              "toggle": "astral-visage"
+            },
+            "label": "Wisdom of the Spirit"
+          },
+          {
+            "selector": "roll.check.skill.intimidation",
+            "op": "advantage",
+            "when": {
+              "toggle": "astral-visage"
+            },
+            "label": "Wisdom of the Spirit"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:way-of-the-astral-self-body-of-the-astral-self",
+      "name": "Body of the Astral Self",
+      "summary": "With both arms and visage summoned: Deflect Energy (reaction, reduce acid, cold, fire, force, lightning or thunder damage by 1d10 + Wisdom modifier) and Empowered Arms (once per turn, +1 Martial Arts die to an astral arms hit).",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 51
+      },
+      "scaling": {
+        "die": {
+          "class": "class:monk",
+          "table": [
+            [
+              1,
+              "1d4"
+            ],
+            [
+              5,
+              "1d6"
+            ],
+            [
+              11,
+              "1d8"
+            ],
+            [
+              17,
+              "1d10"
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "deflect-energy",
+            "name": "Deflect Energy",
+            "economy": "reaction",
+            "toggles": [],
+            "note": "Arms and visage summoned: reduce acid, cold, fire, force, lightning or thunder damage.",
+            "roll": {
+              "dice": "1d10 + mod.wis",
+              "label": "damage reduced"
+            }
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "damage.astral-arms",
+            "op": "add",
+            "value": "scale.die",
+            "mode": "suggested",
+            "when": {
+              "toggle": "astral-visage",
+              "text": "arms and visage both summoned; once per turn"
+            },
+            "label": "Empowered Arms",
+            "oncePerTurn": true
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:way-of-the-astral-self-awakened-astral-self",
+      "name": "Awakened Astral Self",
+      "summary": "Bonus action, 5 ki: summon arms, visage and body together for 10 minutes. You gain +2 AC (Armor of the Spirit) and can make three attacks with your astral arms when you use Extra Attack (Astral Barrage).",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 51
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "awakened-astral-self",
+            "name": "Awakened Astral Self",
+            "economy": "bonus",
+            "toggles": [
+              "awakened-astral-self",
+              "astral-arms",
+              "astral-visage"
+            ],
+            "note": "10 minutes: arms, visage and body; +2 AC; three astral arms attacks with Extra Attack.",
+            "cost": {
+              "resource": "ki",
+              "amount": 5
+            },
+            "duration": {
+              "minutes": 10
+            }
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "stat.ac",
+            "op": "add",
+            "value": 2,
+            "when": {
+              "toggle": "awakened-astral-self"
+            },
+            "label": "Armor of the Spirit"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:monk-dedicated-weapon",
+      "name": "Dedicated Weapon",
+      "summary": "After a short or long rest, touch a simple or martial weapon you're proficient with (no heavy or special property) to make it count as a monk weapon until you do this again.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 48
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:monk-ki-fueled-attack",
+      "name": "Ki-Fueled Attack",
+      "summary": "If you spend ki during your action, you can make one unarmed strike or monk weapon attack as a bonus action before the end of the turn.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 48
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "ki-fueled-attack",
+            "name": "Ki-Fueled Attack",
+            "economy": "bonus",
+            "toggles": [],
+            "note": "After spending 1+ ki as part of your action this turn: one unarmed strike or monk weapon attack.",
+            "infoOnly": true
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:monk-quickened-healing",
+      "name": "Quickened Healing",
+      "summary": "Action, 2 ki: regain hit points equal to a roll of your Martial Arts die plus your proficiency bonus.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 48
+      },
+      "scaling": {
+        "die": {
+          "class": "class:monk",
+          "table": [
+            [
+              1,
+              "1d4"
+            ],
+            [
+              5,
+              "1d6"
+            ],
+            [
+              11,
+              "1d8"
+            ],
+            [
+              17,
+              "1d10"
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "quickened-healing",
+            "name": "Quickened Healing",
+            "economy": "action",
+            "toggles": [],
+            "note": "Heal a Martial Arts die + proficiency bonus.",
+            "cost": {
+              "resource": "ki",
+              "amount": 2
+            },
+            "heal": "scale.die + pb"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:monk-focused-aim",
+      "name": "Focused Aim",
+      "summary": "When you miss with an attack roll, spend 1 to 3 ki to add +2 per ki spent, possibly turning the miss into a hit.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 49
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "focused-aim",
+            "name": "Focused Aim",
+            "economy": "free",
+            "toggles": [],
+            "note": "After a miss: +2 to that attack roll per ki spent (1-3 ki).",
+            "cost": {
+              "resource": "ki",
+              "amount": 1
+            },
+            "spendAmount": {
+              "label": "Ki (1-3), +2 each"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

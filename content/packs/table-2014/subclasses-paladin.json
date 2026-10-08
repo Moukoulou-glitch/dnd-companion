@@ -1,0 +1,2387 @@
+{
+  "definitions": [
+    {
+      "kind": "class",
+      "id": "class:paladin",
+      "name": "Paladin",
+      "summary": "Holy warrior sworn to an oath, with smites and healing hands.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 82
+      },
+      "hitDie": 10,
+      "saves": [
+        "wis",
+        "cha"
+      ],
+      "startingGrant": {
+        "proficiencies": [
+          {
+            "kind": "armor",
+            "target": "light"
+          },
+          {
+            "kind": "armor",
+            "target": "medium"
+          },
+          {
+            "kind": "armor",
+            "target": "heavy"
+          },
+          {
+            "kind": "armor",
+            "target": "shields"
+          },
+          {
+            "kind": "weapon",
+            "target": "simple"
+          },
+          {
+            "kind": "weapon",
+            "target": "martial"
+          },
+          {
+            "kind": "skill",
+            "target": {
+              "choice": "skills"
+            }
+          }
+        ]
+      },
+      "multiclassGrant": {
+        "proficiencies": [
+          {
+            "kind": "armor",
+            "target": "light"
+          },
+          {
+            "kind": "armor",
+            "target": "medium"
+          },
+          {
+            "kind": "armor",
+            "target": "shields"
+          },
+          {
+            "kind": "weapon",
+            "target": "simple"
+          },
+          {
+            "kind": "weapon",
+            "target": "martial"
+          }
+        ]
+      },
+      "spellcasting": {
+        "id": "paladin",
+        "label": "Paladin",
+        "ability": "cha",
+        "progression": "half"
+      },
+      "spellPreparation": "prepared",
+      "spellcastingFromLevel": 2,
+      "subclassLevel": 3,
+      "features": [],
+      "adds": [
+        {
+          "level": 2,
+          "feature": "feature:paladin-additional-paladin-spells"
+        },
+        {
+          "level": 3,
+          "feature": "feature:paladin-harness-divine-power"
+        },
+        {
+          "level": 4,
+          "feature": "feature:paladin-martial-versatility"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:paladin-fighting-style",
+      "name": "Fighting Style",
+      "summary": "Pick a fighting style at 2nd level. Tasha's adds Blessed Warrior, Blind Fighting and Interception to the paladin's options.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 84
+      },
+      "choices": [
+        {
+          "id": "option",
+          "label": "Fighting Style",
+          "kind": "feature",
+          "count": 1,
+          "from": [
+            "feature:style-defense",
+            "feature:style-dueling",
+            "feature:style-great-weapon-fighting",
+            "feature:style-protection",
+            "feature:style-blessed-warrior",
+            "feature:style-blind-fighting",
+            "feature:style-interception"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:paladin-additional-paladin-spells",
+      "name": "Additional Paladin Spells",
+      "summary": "Tasha's adds more spells to the paladin spell list (e.g. Ceremony, Warding Bond, Aura of Vitality, Spirit Shroud, Summon Celestial).",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 52
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:paladin-harness-divine-power",
+      "name": "Harness Divine Power",
+      "summary": "Bonus action: spend a Channel Divinity use to regain one expended spell slot of a level up to half your proficiency bonus (round up). Usable once per long rest, twice from 7th level and three times from 15th.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 53
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "harness-divine-power",
+            "name": "Harness Divine Power",
+            "max": "scale.uses",
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "harness-divine-power",
+            "name": "Harness Divine Power",
+            "economy": "bonus",
+            "cost": {
+              "resource": "channel-divinity-paladin"
+            },
+            "note": "Spend Channel Divinity: regain a spell slot of level up to half your proficiency bonus (round up). Also mark a Harness Divine Power use."
+          }
+        ]
+      },
+      "scaling": {
+        "uses": {
+          "class": "class:paladin",
+          "table": [
+            [
+              3,
+              1
+            ],
+            [
+              7,
+              2
+            ],
+            [
+              15,
+              3
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:paladin-martial-versatility",
+      "name": "Martial Versatility",
+      "summary": "When you gain an Ability Score Improvement, you can swap your fighting style for another one the paladin can take.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 53
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:style-blessed-warrior",
+      "name": "Blessed Warrior",
+      "summary": "Fighting style: learn two cleric cantrips; they count as paladin spells (Charisma). You can swap one when you gain a paladin level.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 52
+      },
+      "grant": {
+        "spellcasting": {
+          "id": "blessed-warrior",
+          "label": "Blessed Warrior",
+          "ability": "cha",
+          "progression": "none"
+        }
+      },
+      "choices": [
+        {
+          "id": "cantrips",
+          "label": "Cleric cantrips",
+          "kind": "spell",
+          "count": 2,
+          "spells": {
+            "classes": [
+              "cleric"
+            ],
+            "level": 0
+          }
+        }
+      ]
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:oath-of-the-ancients",
+      "name": "Oath of the Ancients",
+      "summary": "Paladin sworn to protect light, life and the beauty of the natural world.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 86
+      },
+      "class": "class:paladin",
+      "features": [
+        {
+          "level": 3,
+          "feature": "feature:oath-of-the-ancients-oath-spells-3"
+        },
+        {
+          "level": 3,
+          "feature": "feature:oath-of-the-ancients-natures-wrath"
+        },
+        {
+          "level": 3,
+          "feature": "feature:oath-of-the-ancients-turn-the-faithless"
+        },
+        {
+          "level": 5,
+          "feature": "feature:oath-of-the-ancients-oath-spells-5"
+        },
+        {
+          "level": 7,
+          "feature": "feature:oath-of-the-ancients-aura-of-warding"
+        },
+        {
+          "level": 9,
+          "feature": "feature:oath-of-the-ancients-oath-spells-9"
+        },
+        {
+          "level": 13,
+          "feature": "feature:oath-of-the-ancients-oath-spells-13"
+        },
+        {
+          "level": 15,
+          "feature": "feature:oath-of-the-ancients-undying-sentinel"
+        },
+        {
+          "level": 17,
+          "feature": "feature:oath-of-the-ancients-oath-spells-17"
+        },
+        {
+          "level": 20,
+          "feature": "feature:oath-of-the-ancients-elder-champion"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:oath-of-the-ancients-oath-spells-3",
+      "name": "Oath Spells (3)",
+      "summary": "Always prepared, and they don't count against the spells you prepare: Ensnaring Strike, Speak with Animals.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 86
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:ensnaring-strike",
+            "name": "Ensnaring Strike",
+            "casting": "always prepared",
+            "list": "paladin"
+          },
+          {
+            "spell": "spell:speak-with-animals",
+            "name": "Speak with Animals",
+            "casting": "always prepared",
+            "list": "paladin"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:oath-of-the-ancients-oath-spells-5",
+      "name": "Oath Spells (5)",
+      "summary": "Always prepared, and they don't count against the spells you prepare: Moonbeam, Misty Step.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 86
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:moonbeam",
+            "name": "Moonbeam",
+            "casting": "always prepared",
+            "list": "paladin"
+          },
+          {
+            "spell": "spell:misty-step",
+            "name": "Misty Step",
+            "casting": "always prepared",
+            "list": "paladin"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:oath-of-the-ancients-oath-spells-9",
+      "name": "Oath Spells (9)",
+      "summary": "Always prepared, and they don't count against the spells you prepare: Plant Growth, Protection from Energy.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 86
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:plant-growth",
+            "name": "Plant Growth",
+            "casting": "always prepared",
+            "list": "paladin"
+          },
+          {
+            "spell": "spell:protection-from-energy",
+            "name": "Protection from Energy",
+            "casting": "always prepared",
+            "list": "paladin"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:oath-of-the-ancients-oath-spells-13",
+      "name": "Oath Spells (13)",
+      "summary": "Always prepared, and they don't count against the spells you prepare: Ice Storm, Stoneskin.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 86
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:ice-storm",
+            "name": "Ice Storm",
+            "casting": "always prepared",
+            "list": "paladin"
+          },
+          {
+            "spell": "spell:stoneskin",
+            "name": "Stoneskin",
+            "casting": "always prepared",
+            "list": "paladin"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:oath-of-the-ancients-oath-spells-17",
+      "name": "Oath Spells (17)",
+      "summary": "Always prepared, and they don't count against the spells you prepare: Commune with Nature, Tree Stride.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 86
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:commune-with-nature",
+            "name": "Commune with Nature",
+            "casting": "always prepared",
+            "list": "paladin"
+          },
+          {
+            "spell": "spell:tree-stride",
+            "name": "Tree Stride",
+            "casting": "always prepared",
+            "list": "paladin"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:oath-of-the-ancients-natures-wrath",
+      "name": "Channel Divinity: Nature's Wrath",
+      "summary": "Action, Channel Divinity: spectral vines try to restrain a creature within 10 ft; it makes a Strength or Dexterity save (its choice) and repeats the save at the end of each of its turns.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 86
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "natures-wrath",
+            "name": "Nature's Wrath",
+            "economy": "action",
+            "cost": {
+              "resource": "channel-divinity-paladin"
+            },
+            "note": "One creature within 10 ft: Strength or Dexterity save or restrained; it repeats the save each turn."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:oath-of-the-ancients-turn-the-faithless",
+      "name": "Channel Divinity: Turn the Faithless",
+      "summary": "Action, Channel Divinity: fey and fiends within 30 ft that hear you make a Wisdom save or are turned for 1 minute or until damaged; disguised ones are revealed.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 86
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "turn-the-faithless",
+            "name": "Turn the Faithless",
+            "economy": "action",
+            "cost": {
+              "resource": "channel-divinity-paladin"
+            },
+            "note": "Fey and fiends within 30 ft: Wisdom save or turned for 1 minute (ends if damaged)."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:oath-of-the-ancients-aura-of-warding",
+      "name": "Aura of Warding",
+      "summary": "You and friendly creatures within 10 ft (30 ft at 18th level) have resistance to damage from spells.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 86
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:oath-of-the-ancients-undying-sentinel",
+      "name": "Undying Sentinel",
+      "summary": "Once per long rest, when you would drop to 0 HP without dying outright, you drop to 1 HP instead. You also stop showing the effects of age and can't be aged magically.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 86
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "undying-sentinel",
+            "name": "Undying Sentinel",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "undying-sentinel",
+            "name": "Undying Sentinel",
+            "economy": "free",
+            "cost": {
+              "resource": "undying-sentinel"
+            },
+            "note": "You would drop to 0 HP (and not die outright): drop to 1 HP instead."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:oath-of-the-ancients-elder-champion",
+      "name": "Elder Champion",
+      "summary": "Action, once per long rest, 1 minute: regain 10 HP at the start of each of your turns, cast paladin spells that take an action as a bonus action, and enemies within 10 ft have disadvantage on saves against your paladin spells and Channel Divinity.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 86
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "elder-champion",
+            "name": "Elder Champion",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "elder-champion",
+            "name": "Elder Champion",
+            "economy": "action",
+            "cost": {
+              "resource": "elder-champion"
+            },
+            "toggles": [
+              "elder-champion"
+            ],
+            "duration": {
+              "rounds": 10
+            },
+            "note": "1 minute: regain 10 HP each turn start, action paladin spells as a bonus action, nearby enemies have disadvantage on saves against your spells and Channel Divinity."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:oath-of-vengeance",
+      "name": "Oath of Vengeance",
+      "summary": "Paladin sworn to punish those who commit grievous sins, at any cost.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 87
+      },
+      "class": "class:paladin",
+      "features": [
+        {
+          "level": 3,
+          "feature": "feature:oath-of-vengeance-oath-spells-3"
+        },
+        {
+          "level": 3,
+          "feature": "feature:oath-of-vengeance-abjure-enemy"
+        },
+        {
+          "level": 3,
+          "feature": "feature:oath-of-vengeance-vow-of-enmity"
+        },
+        {
+          "level": 5,
+          "feature": "feature:oath-of-vengeance-oath-spells-5"
+        },
+        {
+          "level": 7,
+          "feature": "feature:oath-of-vengeance-relentless-avenger"
+        },
+        {
+          "level": 9,
+          "feature": "feature:oath-of-vengeance-oath-spells-9"
+        },
+        {
+          "level": 13,
+          "feature": "feature:oath-of-vengeance-oath-spells-13"
+        },
+        {
+          "level": 15,
+          "feature": "feature:oath-of-vengeance-soul-of-vengeance"
+        },
+        {
+          "level": 17,
+          "feature": "feature:oath-of-vengeance-oath-spells-17"
+        },
+        {
+          "level": 20,
+          "feature": "feature:oath-of-vengeance-avenging-angel"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:oath-of-vengeance-oath-spells-3",
+      "name": "Oath Spells (3)",
+      "summary": "Always prepared, and they don't count against the spells you prepare: Bane, Hunter's Mark.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 87
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:bane",
+            "name": "Bane",
+            "casting": "always prepared",
+            "list": "paladin"
+          },
+          {
+            "spell": "spell:hunters-mark",
+            "name": "Hunter's Mark",
+            "casting": "always prepared",
+            "list": "paladin"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:oath-of-vengeance-oath-spells-5",
+      "name": "Oath Spells (5)",
+      "summary": "Always prepared, and they don't count against the spells you prepare: Hold Person, Misty Step.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 87
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:hold-person",
+            "name": "Hold Person",
+            "casting": "always prepared",
+            "list": "paladin"
+          },
+          {
+            "spell": "spell:misty-step",
+            "name": "Misty Step",
+            "casting": "always prepared",
+            "list": "paladin"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:oath-of-vengeance-oath-spells-9",
+      "name": "Oath Spells (9)",
+      "summary": "Always prepared, and they don't count against the spells you prepare: Haste, Protection from Energy.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 87
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:haste",
+            "name": "Haste",
+            "casting": "always prepared",
+            "list": "paladin"
+          },
+          {
+            "spell": "spell:protection-from-energy",
+            "name": "Protection from Energy",
+            "casting": "always prepared",
+            "list": "paladin"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:oath-of-vengeance-oath-spells-13",
+      "name": "Oath Spells (13)",
+      "summary": "Always prepared, and they don't count against the spells you prepare: Banishment, Dimension Door.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 87
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:banishment",
+            "name": "Banishment",
+            "casting": "always prepared",
+            "list": "paladin"
+          },
+          {
+            "spell": "spell:dimension-door",
+            "name": "Dimension Door",
+            "casting": "always prepared",
+            "list": "paladin"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:oath-of-vengeance-oath-spells-17",
+      "name": "Oath Spells (17)",
+      "summary": "Always prepared, and they don't count against the spells you prepare: Hold Monster, Scrying.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 87
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:hold-monster",
+            "name": "Hold Monster",
+            "casting": "always prepared",
+            "list": "paladin"
+          },
+          {
+            "spell": "spell:scrying",
+            "name": "Scrying",
+            "casting": "always prepared",
+            "list": "paladin"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:oath-of-vengeance-abjure-enemy",
+      "name": "Channel Divinity: Abjure Enemy",
+      "summary": "Action, Channel Divinity: one creature within 60 ft makes a Wisdom save (fiends and undead at disadvantage). On a fail it is frightened and its speed is 0 for 1 minute or until damaged; on a success its speed is halved for 1 minute.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 87
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "abjure-enemy",
+            "name": "Abjure Enemy",
+            "economy": "action",
+            "cost": {
+              "resource": "channel-divinity-paladin"
+            },
+            "note": "One creature within 60 ft: Wisdom save or frightened with speed 0 for 1 minute (ends if damaged); half speed on a success."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:oath-of-vengeance-vow-of-enmity",
+      "name": "Channel Divinity: Vow of Enmity",
+      "summary": "Bonus action, Channel Divinity: choose a creature within 10 ft; you have advantage on attack rolls against it for 1 minute or until it drops to 0 HP or falls unconscious.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 87
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "vow-of-enmity",
+            "name": "Vow of Enmity",
+            "economy": "bonus",
+            "cost": {
+              "resource": "channel-divinity-paladin"
+            },
+            "toggles": [
+              "vow-of-enmity"
+            ],
+            "duration": {
+              "rounds": 10
+            },
+            "note": "Advantage on attacks against one creature within 10 ft for 1 minute."
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.attack.*",
+            "op": "advantage",
+            "mode": "suggested",
+            "when": {
+              "toggle": "vow-of-enmity",
+              "text": "attacking the creature you vowed against"
+            },
+            "label": "Vow of Enmity"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:oath-of-vengeance-relentless-avenger",
+      "name": "Relentless Avenger",
+      "summary": "When you hit with an opportunity attack, you can move up to half your speed right after it as part of the same reaction, without provoking opportunity attacks.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 87
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.attack.weapon.melee",
+            "op": "note",
+            "mode": "suggested",
+            "when": {
+              "text": "opportunity attack"
+            },
+            "label": "Relentless Avenger: if this opportunity attack hits, move up to half your speed without provoking."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:oath-of-vengeance-soul-of-vengeance",
+      "name": "Soul of Vengeance",
+      "summary": "When the creature under your Vow of Enmity makes an attack, you can use your reaction to make a melee weapon attack against it if it's in range.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 87
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "soul-of-vengeance",
+            "name": "Soul of Vengeance",
+            "economy": "reaction",
+            "note": "The creature under your Vow of Enmity attacks: make one melee weapon attack against it."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:oath-of-vengeance-avenging-angel",
+      "name": "Avenging Angel",
+      "summary": "Action, once per long rest, 1 hour: you sprout wings (flying speed 60 ft) and project a 30-ft aura; enemies entering or starting their turn in it make a Wisdom save or are frightened for 1 minute or until damaged, and attacks against them have advantage.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 87
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "avenging-angel",
+            "name": "Avenging Angel",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "avenging-angel",
+            "name": "Avenging Angel",
+            "economy": "action",
+            "cost": {
+              "resource": "avenging-angel"
+            },
+            "toggles": [
+              "avenging-angel"
+            ],
+            "duration": {
+              "minutes": 60
+            },
+            "note": "1 hour: fly 60 ft and a 30-ft menacing aura (Wisdom save or frightened; attacks against them have advantage)."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:oath-of-conquest",
+      "name": "Oath of Conquest",
+      "summary": "Paladin who seeks glory by crushing chaos and ruling through fear.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 37
+      },
+      "class": "class:paladin",
+      "features": [
+        {
+          "level": 3,
+          "feature": "feature:oath-of-conquest-oath-spells-3"
+        },
+        {
+          "level": 3,
+          "feature": "feature:oath-of-conquest-conquering-presence"
+        },
+        {
+          "level": 3,
+          "feature": "feature:oath-of-conquest-guided-strike"
+        },
+        {
+          "level": 5,
+          "feature": "feature:oath-of-conquest-oath-spells-5"
+        },
+        {
+          "level": 7,
+          "feature": "feature:oath-of-conquest-aura-of-conquest"
+        },
+        {
+          "level": 9,
+          "feature": "feature:oath-of-conquest-oath-spells-9"
+        },
+        {
+          "level": 13,
+          "feature": "feature:oath-of-conquest-oath-spells-13"
+        },
+        {
+          "level": 15,
+          "feature": "feature:oath-of-conquest-scornful-rebuke"
+        },
+        {
+          "level": 17,
+          "feature": "feature:oath-of-conquest-oath-spells-17"
+        },
+        {
+          "level": 20,
+          "feature": "feature:oath-of-conquest-invincible-conqueror"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:oath-of-conquest-oath-spells-3",
+      "name": "Oath Spells (3)",
+      "summary": "Always prepared, and they don't count against the spells you prepare: Armor of Agathys, Command.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 37
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:armor-of-agathys",
+            "name": "Armor of Agathys",
+            "casting": "always prepared",
+            "list": "paladin"
+          },
+          {
+            "spell": "spell:command",
+            "name": "Command",
+            "casting": "always prepared",
+            "list": "paladin"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:oath-of-conquest-oath-spells-5",
+      "name": "Oath Spells (5)",
+      "summary": "Always prepared, and they don't count against the spells you prepare: Hold Person, Spiritual Weapon.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 37
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:hold-person",
+            "name": "Hold Person",
+            "casting": "always prepared",
+            "list": "paladin"
+          },
+          {
+            "spell": "spell:spiritual-weapon",
+            "name": "Spiritual Weapon",
+            "casting": "always prepared",
+            "list": "paladin"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:oath-of-conquest-oath-spells-9",
+      "name": "Oath Spells (9)",
+      "summary": "Always prepared, and they don't count against the spells you prepare: Bestow Curse, Fear.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 37
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:bestow-curse",
+            "name": "Bestow Curse",
+            "casting": "always prepared",
+            "list": "paladin"
+          },
+          {
+            "spell": "spell:fear",
+            "name": "Fear",
+            "casting": "always prepared",
+            "list": "paladin"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:oath-of-conquest-oath-spells-13",
+      "name": "Oath Spells (13)",
+      "summary": "Always prepared, and they don't count against the spells you prepare: Dominate Beast, Stoneskin.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 37
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:dominate-beast",
+            "name": "Dominate Beast",
+            "casting": "always prepared",
+            "list": "paladin"
+          },
+          {
+            "spell": "spell:stoneskin",
+            "name": "Stoneskin",
+            "casting": "always prepared",
+            "list": "paladin"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:oath-of-conquest-oath-spells-17",
+      "name": "Oath Spells (17)",
+      "summary": "Always prepared, and they don't count against the spells you prepare: Cloudkill, Dominate Person.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 37
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:cloudkill",
+            "name": "Cloudkill",
+            "casting": "always prepared",
+            "list": "paladin"
+          },
+          {
+            "spell": "spell:dominate-person",
+            "name": "Dominate Person",
+            "casting": "always prepared",
+            "list": "paladin"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:oath-of-conquest-conquering-presence",
+      "name": "Channel Divinity: Conquering Presence",
+      "summary": "Action, Channel Divinity: creatures of your choice within 30 ft make a Wisdom save or are frightened of you for 1 minute, repeating the save at the end of each of their turns.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 37
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "conquering-presence",
+            "name": "Conquering Presence",
+            "economy": "action",
+            "cost": {
+              "resource": "channel-divinity-paladin"
+            },
+            "note": "Chosen creatures within 30 ft: Wisdom save or frightened for 1 minute (save again each turn)."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:oath-of-conquest-guided-strike",
+      "name": "Channel Divinity: Guided Strike",
+      "summary": "Channel Divinity: after seeing your attack roll but before knowing if it hits, add +10 to it.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 37
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "guided-strike-paladin",
+            "name": "Guided Strike",
+            "economy": "free",
+            "cost": {
+              "resource": "channel-divinity-paladin"
+            },
+            "note": "+10 to an attack roll you just made, before you know if it hits."
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.attack.*",
+            "op": "add",
+            "value": 10,
+            "mode": "suggested",
+            "when": {
+              "text": "spend Channel Divinity"
+            },
+            "label": "Guided Strike"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:oath-of-conquest-aura-of-conquest",
+      "name": "Aura of Conquest",
+      "summary": "Creatures frightened of you within 10 ft (30 ft at 18th level) have speed 0 and take psychic damage equal to half your paladin level when they start their turn there.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 37
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:oath-of-conquest-scornful-rebuke",
+      "name": "Scornful Rebuke",
+      "summary": "Whenever a creature hits you with an attack, it takes psychic damage equal to your Charisma modifier (at least 1), unless you're incapacitated.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 37
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:oath-of-conquest-invincible-conqueror",
+      "name": "Invincible Conqueror",
+      "summary": "Action, once per long rest, 1 minute: resistance to all damage, one extra attack when you take the Attack action, and your melee weapon attacks score a critical hit on 19 or 20.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 37
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "invincible-conqueror",
+            "name": "Invincible Conqueror",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "invincible-conqueror",
+            "name": "Invincible Conqueror",
+            "economy": "action",
+            "cost": {
+              "resource": "invincible-conqueror"
+            },
+            "toggles": [
+              "invincible-conqueror"
+            ],
+            "duration": {
+              "rounds": 10
+            },
+            "note": "1 minute: resistance to all damage, one more attack in your Attack action, melee crits on 19-20."
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.attack.weapon.melee",
+            "op": "critRange",
+            "value": 19,
+            "when": {
+              "toggle": "invincible-conqueror"
+            },
+            "label": "Invincible Conqueror"
+          },
+          {
+            "selector": "defense.resist.acid",
+            "op": "resist",
+            "when": {
+              "toggle": "invincible-conqueror"
+            },
+            "label": "Invincible Conqueror"
+          },
+          {
+            "selector": "defense.resist.bludgeoning",
+            "op": "resist",
+            "when": {
+              "toggle": "invincible-conqueror"
+            },
+            "label": "Invincible Conqueror"
+          },
+          {
+            "selector": "defense.resist.cold",
+            "op": "resist",
+            "when": {
+              "toggle": "invincible-conqueror"
+            },
+            "label": "Invincible Conqueror"
+          },
+          {
+            "selector": "defense.resist.fire",
+            "op": "resist",
+            "when": {
+              "toggle": "invincible-conqueror"
+            },
+            "label": "Invincible Conqueror"
+          },
+          {
+            "selector": "defense.resist.force",
+            "op": "resist",
+            "when": {
+              "toggle": "invincible-conqueror"
+            },
+            "label": "Invincible Conqueror"
+          },
+          {
+            "selector": "defense.resist.lightning",
+            "op": "resist",
+            "when": {
+              "toggle": "invincible-conqueror"
+            },
+            "label": "Invincible Conqueror"
+          },
+          {
+            "selector": "defense.resist.necrotic",
+            "op": "resist",
+            "when": {
+              "toggle": "invincible-conqueror"
+            },
+            "label": "Invincible Conqueror"
+          },
+          {
+            "selector": "defense.resist.piercing",
+            "op": "resist",
+            "when": {
+              "toggle": "invincible-conqueror"
+            },
+            "label": "Invincible Conqueror"
+          },
+          {
+            "selector": "defense.resist.poison",
+            "op": "resist",
+            "when": {
+              "toggle": "invincible-conqueror"
+            },
+            "label": "Invincible Conqueror"
+          },
+          {
+            "selector": "defense.resist.psychic",
+            "op": "resist",
+            "when": {
+              "toggle": "invincible-conqueror"
+            },
+            "label": "Invincible Conqueror"
+          },
+          {
+            "selector": "defense.resist.radiant",
+            "op": "resist",
+            "when": {
+              "toggle": "invincible-conqueror"
+            },
+            "label": "Invincible Conqueror"
+          },
+          {
+            "selector": "defense.resist.slashing",
+            "op": "resist",
+            "when": {
+              "toggle": "invincible-conqueror"
+            },
+            "label": "Invincible Conqueror"
+          },
+          {
+            "selector": "defense.resist.thunder",
+            "op": "resist",
+            "when": {
+              "toggle": "invincible-conqueror"
+            },
+            "label": "Invincible Conqueror"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:oath-of-redemption",
+      "name": "Oath of Redemption",
+      "summary": "Paladin who favors peace and persuasion, using violence only as a last resort.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 38
+      },
+      "class": "class:paladin",
+      "features": [
+        {
+          "level": 3,
+          "feature": "feature:oath-of-redemption-oath-spells-3"
+        },
+        {
+          "level": 3,
+          "feature": "feature:oath-of-redemption-emissary-of-peace"
+        },
+        {
+          "level": 3,
+          "feature": "feature:oath-of-redemption-rebuke-the-violent"
+        },
+        {
+          "level": 5,
+          "feature": "feature:oath-of-redemption-oath-spells-5"
+        },
+        {
+          "level": 7,
+          "feature": "feature:oath-of-redemption-aura-of-the-guardian"
+        },
+        {
+          "level": 9,
+          "feature": "feature:oath-of-redemption-oath-spells-9"
+        },
+        {
+          "level": 13,
+          "feature": "feature:oath-of-redemption-oath-spells-13"
+        },
+        {
+          "level": 15,
+          "feature": "feature:oath-of-redemption-protective-spirit"
+        },
+        {
+          "level": 17,
+          "feature": "feature:oath-of-redemption-oath-spells-17"
+        },
+        {
+          "level": 20,
+          "feature": "feature:oath-of-redemption-emissary-of-redemption"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:oath-of-redemption-oath-spells-3",
+      "name": "Oath Spells (3)",
+      "summary": "Always prepared, and they don't count against the spells you prepare: Sanctuary, Sleep.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 38
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:sanctuary",
+            "name": "Sanctuary",
+            "casting": "always prepared",
+            "list": "paladin"
+          },
+          {
+            "spell": "spell:sleep",
+            "name": "Sleep",
+            "casting": "always prepared",
+            "list": "paladin"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:oath-of-redemption-oath-spells-5",
+      "name": "Oath Spells (5)",
+      "summary": "Always prepared, and they don't count against the spells you prepare: Calm Emotions, Hold Person.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 38
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:calm-emotions",
+            "name": "Calm Emotions",
+            "casting": "always prepared",
+            "list": "paladin"
+          },
+          {
+            "spell": "spell:hold-person",
+            "name": "Hold Person",
+            "casting": "always prepared",
+            "list": "paladin"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:oath-of-redemption-oath-spells-9",
+      "name": "Oath Spells (9)",
+      "summary": "Always prepared, and they don't count against the spells you prepare: Counterspell, Hypnotic Pattern.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 38
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:counterspell",
+            "name": "Counterspell",
+            "casting": "always prepared",
+            "list": "paladin"
+          },
+          {
+            "spell": "spell:hypnotic-pattern",
+            "name": "Hypnotic Pattern",
+            "casting": "always prepared",
+            "list": "paladin"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:oath-of-redemption-oath-spells-13",
+      "name": "Oath Spells (13)",
+      "summary": "Always prepared, and they don't count against the spells you prepare: Otiluke's Resilient Sphere, Stoneskin.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 38
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:resilient-sphere",
+            "name": "Otiluke's Resilient Sphere",
+            "casting": "always prepared",
+            "list": "paladin"
+          },
+          {
+            "spell": "spell:stoneskin",
+            "name": "Stoneskin",
+            "casting": "always prepared",
+            "list": "paladin"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:oath-of-redemption-oath-spells-17",
+      "name": "Oath Spells (17)",
+      "summary": "Always prepared, and they don't count against the spells you prepare: Hold Monster, Wall of Force.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 38
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:hold-monster",
+            "name": "Hold Monster",
+            "casting": "always prepared",
+            "list": "paladin"
+          },
+          {
+            "spell": "spell:wall-of-force",
+            "name": "Wall of Force",
+            "casting": "always prepared",
+            "list": "paladin"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:oath-of-redemption-emissary-of-peace",
+      "name": "Channel Divinity: Emissary of Peace",
+      "summary": "Bonus action, Channel Divinity: +5 to Charisma (Persuasion) checks for 10 minutes.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 38
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "emissary-of-peace",
+            "name": "Emissary of Peace",
+            "economy": "bonus",
+            "cost": {
+              "resource": "channel-divinity-paladin"
+            },
+            "toggles": [
+              "emissary-of-peace"
+            ],
+            "duration": {
+              "minutes": 10
+            },
+            "note": "+5 to Persuasion checks for 10 minutes."
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.check.skill.persuasion",
+            "op": "add",
+            "value": 5,
+            "when": {
+              "toggle": "emissary-of-peace"
+            },
+            "label": "Emissary of Peace"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:oath-of-redemption-rebuke-the-violent",
+      "name": "Channel Divinity: Rebuke the Violent",
+      "summary": "Reaction, Channel Divinity: when a creature within 30 ft damages someone other than you, it makes a Wisdom save, taking radiant damage equal to the damage it dealt (half on a success).",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 38
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "rebuke-the-violent",
+            "name": "Rebuke the Violent",
+            "economy": "reaction",
+            "cost": {
+              "resource": "channel-divinity-paladin"
+            },
+            "note": "An attacker within 30 ft hurts someone else: Wisdom save, radiant damage equal to what it dealt (half on success)."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:oath-of-redemption-aura-of-the-guardian",
+      "name": "Aura of the Guardian",
+      "summary": "Reaction: when a creature within 10 ft (30 ft at 18th level) takes damage, you take that damage instead; it can't be reduced or prevented.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 38
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "aura-of-the-guardian",
+            "name": "Aura of the Guardian",
+            "economy": "reaction",
+            "note": "A creature within 10 ft takes damage: you take it instead (no reduction)."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:oath-of-redemption-protective-spirit",
+      "name": "Protective Spirit",
+      "summary": "At the end of each of your turns, if you are below half your hit points and not incapacitated, you regain 1d6 + half your paladin level in hit points.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 38
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "protective-spirit",
+            "name": "Protective Spirit",
+            "economy": "free",
+            "heal": "1d6 + scale.half",
+            "note": "End of your turn, below half HP and not incapacitated: regain 1d6 + half your paladin level."
+          }
+        ]
+      },
+      "scaling": {
+        "half": {
+          "class": "class:paladin",
+          "table": [
+            [
+              15,
+              7
+            ],
+            [
+              16,
+              8
+            ],
+            [
+              18,
+              9
+            ],
+            [
+              20,
+              10
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:oath-of-redemption-emissary-of-redemption",
+      "name": "Emissary of Redemption",
+      "summary": "You resist all damage dealt by other creatures, and anyone who damages you takes radiant damage equal to half of it. Both stop working against a creature you attack or target with a spell, until your next long rest.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 38
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:oath-of-glory",
+      "name": "Oath of Glory",
+      "summary": "Paladin who believes they and their allies are destined for heroic deeds.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 53
+      },
+      "class": "class:paladin",
+      "features": [
+        {
+          "level": 3,
+          "feature": "feature:oath-of-glory-oath-spells-3"
+        },
+        {
+          "level": 3,
+          "feature": "feature:oath-of-glory-peerless-athlete"
+        },
+        {
+          "level": 3,
+          "feature": "feature:oath-of-glory-inspiring-smite"
+        },
+        {
+          "level": 5,
+          "feature": "feature:oath-of-glory-oath-spells-5"
+        },
+        {
+          "level": 7,
+          "feature": "feature:oath-of-glory-aura-of-alacrity"
+        },
+        {
+          "level": 9,
+          "feature": "feature:oath-of-glory-oath-spells-9"
+        },
+        {
+          "level": 13,
+          "feature": "feature:oath-of-glory-oath-spells-13"
+        },
+        {
+          "level": 15,
+          "feature": "feature:oath-of-glory-glorious-defense"
+        },
+        {
+          "level": 17,
+          "feature": "feature:oath-of-glory-oath-spells-17"
+        },
+        {
+          "level": 20,
+          "feature": "feature:oath-of-glory-living-legend"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:oath-of-glory-oath-spells-3",
+      "name": "Oath Spells (3)",
+      "summary": "Always prepared, and they don't count against the spells you prepare: Guiding Bolt, Heroism.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 53
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:guiding-bolt",
+            "name": "Guiding Bolt",
+            "casting": "always prepared",
+            "list": "paladin"
+          },
+          {
+            "spell": "spell:heroism",
+            "name": "Heroism",
+            "casting": "always prepared",
+            "list": "paladin"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:oath-of-glory-oath-spells-5",
+      "name": "Oath Spells (5)",
+      "summary": "Always prepared, and they don't count against the spells you prepare: Enhance Ability, Magic Weapon.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 53
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:enhance-ability",
+            "name": "Enhance Ability",
+            "casting": "always prepared",
+            "list": "paladin"
+          },
+          {
+            "spell": "spell:magic-weapon",
+            "name": "Magic Weapon",
+            "casting": "always prepared",
+            "list": "paladin"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:oath-of-glory-oath-spells-9",
+      "name": "Oath Spells (9)",
+      "summary": "Always prepared, and they don't count against the spells you prepare: Haste, Protection from Energy.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 53
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:haste",
+            "name": "Haste",
+            "casting": "always prepared",
+            "list": "paladin"
+          },
+          {
+            "spell": "spell:protection-from-energy",
+            "name": "Protection from Energy",
+            "casting": "always prepared",
+            "list": "paladin"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:oath-of-glory-oath-spells-13",
+      "name": "Oath Spells (13)",
+      "summary": "Always prepared, and they don't count against the spells you prepare: Compulsion, Freedom of Movement.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 53
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:compulsion",
+            "name": "Compulsion",
+            "casting": "always prepared",
+            "list": "paladin"
+          },
+          {
+            "spell": "spell:freedom-of-movement",
+            "name": "Freedom of Movement",
+            "casting": "always prepared",
+            "list": "paladin"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:oath-of-glory-oath-spells-17",
+      "name": "Oath Spells (17)",
+      "summary": "Always prepared, and they don't count against the spells you prepare: Commune, Flame Strike.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 53
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:commune",
+            "name": "Commune",
+            "casting": "always prepared",
+            "list": "paladin"
+          },
+          {
+            "spell": "spell:flame-strike",
+            "name": "Flame Strike",
+            "casting": "always prepared",
+            "list": "paladin"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:oath-of-glory-peerless-athlete",
+      "name": "Channel Divinity: Peerless Athlete",
+      "summary": "Bonus action, Channel Divinity, 10 minutes: advantage on Athletics and Acrobatics checks, double carrying capacity, and longer jumps.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 53
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "peerless-athlete",
+            "name": "Peerless Athlete",
+            "economy": "bonus",
+            "cost": {
+              "resource": "channel-divinity-paladin"
+            },
+            "toggles": [
+              "peerless-athlete"
+            ],
+            "duration": {
+              "minutes": 10
+            },
+            "note": "10 minutes: advantage on Athletics and Acrobatics, carry more, jump farther."
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.check.skill.athletics",
+            "op": "advantage",
+            "when": {
+              "toggle": "peerless-athlete"
+            },
+            "label": "Peerless Athlete"
+          },
+          {
+            "selector": "roll.check.skill.acrobatics",
+            "op": "advantage",
+            "when": {
+              "toggle": "peerless-athlete"
+            },
+            "label": "Peerless Athlete"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:oath-of-glory-inspiring-smite",
+      "name": "Channel Divinity: Inspiring Smite",
+      "summary": "Bonus action right after a Divine Smite, Channel Divinity: roll 2d8 + your paladin level and share that many temporary HP among creatures of your choice within 30 ft (you included).",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 53
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "inspiring-smite",
+            "name": "Inspiring Smite",
+            "economy": "bonus",
+            "cost": {
+              "resource": "channel-divinity-paladin"
+            },
+            "roll": {
+              "dice": "2d8 + classLevel.class:paladin",
+              "label": "Temporary HP to share"
+            },
+            "note": "Right after a Divine Smite: split the rolled temp HP among creatures within 30 ft."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:oath-of-glory-aura-of-alacrity",
+      "name": "Aura of Alacrity",
+      "summary": "Your walking speed rises by 10 ft. Allies who start their turn within 5 ft of you (10 ft at 18th level) also gain +10 ft until the end of that turn.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 53
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.speed.walk",
+            "op": "add",
+            "value": 10,
+            "label": "Aura of Alacrity"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:oath-of-glory-glorious-defense",
+      "name": "Glorious Defense",
+      "summary": "Reaction, Charisma modifier times per long rest (at least once): when you or a creature within 10 ft is hit, add your Charisma modifier to its AC against that attack; if it then misses, you can make one weapon attack against the attacker.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 53
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "glorious-defense",
+            "name": "Glorious Defense",
+            "max": "mod.cha",
+            "reset": "long",
+            "min": 1
+          }
+        ],
+        "actions": [
+          {
+            "id": "glorious-defense",
+            "name": "Glorious Defense",
+            "economy": "reaction",
+            "cost": {
+              "resource": "glorious-defense"
+            },
+            "note": "You or a creature within 10 ft is hit: +CHA mod to its AC; on a miss, make one weapon attack against the attacker."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:oath-of-glory-living-legend",
+      "name": "Living Legend",
+      "summary": "Bonus action, 1 minute, once per long rest (or by spending a 5th-level slot): advantage on Charisma checks, once per turn turn a missed weapon attack into a hit, and use your reaction to reroll a failed save.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 53
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "living-legend",
+            "name": "Living Legend",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "living-legend",
+            "name": "Living Legend",
+            "economy": "bonus",
+            "cost": {
+              "resource": "living-legend"
+            },
+            "toggles": [
+              "living-legend"
+            ],
+            "duration": {
+              "rounds": 10
+            },
+            "note": "1 minute: advantage on Charisma checks, once per turn a missed weapon attack hits, reaction to reroll a failed save. Can also be fuelled by a 5th-level slot."
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.check.cha",
+            "op": "advantage",
+            "when": {
+              "toggle": "living-legend"
+            },
+            "label": "Living Legend"
+          },
+          {
+            "selector": "roll.attack.weapon.*",
+            "op": "note",
+            "when": {
+              "toggle": "living-legend"
+            },
+            "label": "Living Legend: once per turn, a miss can become a hit."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:oath-of-the-watchers",
+      "name": "Oath of the Watchers",
+      "summary": "Paladin who guards the world against threats from beyond the Material Plane.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 54
+      },
+      "class": "class:paladin",
+      "features": [
+        {
+          "level": 3,
+          "feature": "feature:oath-of-the-watchers-oath-spells-3"
+        },
+        {
+          "level": 3,
+          "feature": "feature:oath-of-the-watchers-watchers-will"
+        },
+        {
+          "level": 3,
+          "feature": "feature:oath-of-the-watchers-abjure-the-extraplanar"
+        },
+        {
+          "level": 5,
+          "feature": "feature:oath-of-the-watchers-oath-spells-5"
+        },
+        {
+          "level": 7,
+          "feature": "feature:oath-of-the-watchers-aura-of-the-sentinel"
+        },
+        {
+          "level": 9,
+          "feature": "feature:oath-of-the-watchers-oath-spells-9"
+        },
+        {
+          "level": 13,
+          "feature": "feature:oath-of-the-watchers-oath-spells-13"
+        },
+        {
+          "level": 15,
+          "feature": "feature:oath-of-the-watchers-vigilant-rebuke"
+        },
+        {
+          "level": 17,
+          "feature": "feature:oath-of-the-watchers-oath-spells-17"
+        },
+        {
+          "level": 20,
+          "feature": "feature:oath-of-the-watchers-mortal-bulwark"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:oath-of-the-watchers-oath-spells-3",
+      "name": "Oath Spells (3)",
+      "summary": "Always prepared, and they don't count against the spells you prepare: Alarm, Detect Magic.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 54
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:alarm",
+            "name": "Alarm",
+            "casting": "always prepared",
+            "list": "paladin"
+          },
+          {
+            "spell": "spell:detect-magic",
+            "name": "Detect Magic",
+            "casting": "always prepared",
+            "list": "paladin"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:oath-of-the-watchers-oath-spells-5",
+      "name": "Oath Spells (5)",
+      "summary": "Always prepared, and they don't count against the spells you prepare: Moonbeam, See Invisibility.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 54
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:moonbeam",
+            "name": "Moonbeam",
+            "casting": "always prepared",
+            "list": "paladin"
+          },
+          {
+            "spell": "spell:see-invisibility",
+            "name": "See Invisibility",
+            "casting": "always prepared",
+            "list": "paladin"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:oath-of-the-watchers-oath-spells-9",
+      "name": "Oath Spells (9)",
+      "summary": "Always prepared, and they don't count against the spells you prepare: Counterspell, Nondetection.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 54
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:counterspell",
+            "name": "Counterspell",
+            "casting": "always prepared",
+            "list": "paladin"
+          },
+          {
+            "spell": "spell:nondetection",
+            "name": "Nondetection",
+            "casting": "always prepared",
+            "list": "paladin"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:oath-of-the-watchers-oath-spells-13",
+      "name": "Oath Spells (13)",
+      "summary": "Always prepared, and they don't count against the spells you prepare: Aura of Purity, Banishment.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 54
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:aura-of-purity",
+            "name": "Aura of Purity",
+            "casting": "always prepared",
+            "list": "paladin"
+          },
+          {
+            "spell": "spell:banishment",
+            "name": "Banishment",
+            "casting": "always prepared",
+            "list": "paladin"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:oath-of-the-watchers-oath-spells-17",
+      "name": "Oath Spells (17)",
+      "summary": "Always prepared, and they don't count against the spells you prepare: Hold Monster, Scrying.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 54
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:hold-monster",
+            "name": "Hold Monster",
+            "casting": "always prepared",
+            "list": "paladin"
+          },
+          {
+            "spell": "spell:scrying",
+            "name": "Scrying",
+            "casting": "always prepared",
+            "list": "paladin"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:oath-of-the-watchers-watchers-will",
+      "name": "Channel Divinity: Watcher's Will",
+      "summary": "Action, Channel Divinity: up to your Charisma modifier (at least 1) creatures within 30 ft, you included, get advantage on Intelligence, Wisdom and Charisma saves for 1 minute.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 54
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "watchers-will",
+            "name": "Watcher's Will",
+            "economy": "action",
+            "cost": {
+              "resource": "channel-divinity-paladin"
+            },
+            "toggles": [
+              "watchers-will"
+            ],
+            "duration": {
+              "rounds": 10
+            },
+            "note": "1 minute: chosen creatures (you included) get advantage on INT, WIS and CHA saves."
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.save.int",
+            "op": "advantage",
+            "when": {
+              "toggle": "watchers-will"
+            },
+            "label": "Watcher's Will"
+          },
+          {
+            "selector": "roll.save.wis",
+            "op": "advantage",
+            "when": {
+              "toggle": "watchers-will"
+            },
+            "label": "Watcher's Will"
+          },
+          {
+            "selector": "roll.save.cha",
+            "op": "advantage",
+            "when": {
+              "toggle": "watchers-will"
+            },
+            "label": "Watcher's Will"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:oath-of-the-watchers-abjure-the-extraplanar",
+      "name": "Channel Divinity: Abjure the Extraplanar",
+      "summary": "Action, Channel Divinity: aberrations, celestials, elementals, fey and fiends within 30 ft that hear you make a Wisdom save or are turned for 1 minute or until damaged.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 54
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "abjure-the-extraplanar",
+            "name": "Abjure the Extraplanar",
+            "economy": "action",
+            "cost": {
+              "resource": "channel-divinity-paladin"
+            },
+            "note": "Aberrations, celestials, elementals, fey and fiends within 30 ft: Wisdom save or turned for 1 minute (ends if damaged)."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:oath-of-the-watchers-aura-of-the-sentinel",
+      "name": "Aura of the Sentinel",
+      "summary": "You and creatures of your choice within 10 ft (30 ft at 18th level) add your proficiency bonus to initiative.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 54
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.initiative",
+            "op": "add",
+            "value": "pb",
+            "label": "Aura of the Sentinel"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:oath-of-the-watchers-vigilant-rebuke",
+      "name": "Vigilant Rebuke",
+      "summary": "Reaction: when you or a creature within 30 ft succeeds on an Intelligence, Wisdom or Charisma save, the creature that forced it takes 2d8 + your Charisma modifier force damage.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 54
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "vigilant-rebuke",
+            "name": "Vigilant Rebuke",
+            "economy": "reaction",
+            "roll": {
+              "dice": "2d8 + mod.cha",
+              "label": "Force damage"
+            },
+            "note": "A mental save succeeds near you: the creature that forced it takes force damage."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:oath-of-the-watchers-mortal-bulwark",
+      "name": "Mortal Bulwark",
+      "summary": "Bonus action, 1 minute, once per long rest (or by spending a 5th-level slot): truesight 120 ft, advantage on attacks against aberrations, celestials, elementals, fey and fiends, and a hit can force such a creature to make a Charisma save or be banished to its home plane.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 54
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "mortal-bulwark",
+            "name": "Mortal Bulwark",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "mortal-bulwark",
+            "name": "Mortal Bulwark",
+            "economy": "bonus",
+            "cost": {
+              "resource": "mortal-bulwark"
+            },
+            "toggles": [
+              "mortal-bulwark"
+            ],
+            "duration": {
+              "rounds": 10
+            },
+            "note": "1 minute: truesight 120 ft, advantage against extraplanar creatures, hits can banish them (Charisma save). Can also be fuelled by a 5th-level slot."
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.attack.*",
+            "op": "advantage",
+            "mode": "suggested",
+            "when": {
+              "toggle": "mortal-bulwark",
+              "text": "target is one of aberrations, celestials, elementals, fey and fiends"
+            },
+            "label": "Mortal Bulwark"
+          }
+        ]
+      }
+    }
+  ]
+}

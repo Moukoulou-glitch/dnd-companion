@@ -123,7 +123,7 @@ describe("levelling up", () => {
 
   it("what a level brings, and multiclass minimums", () => {
     const log = bard();
-    expect(levelGains(log.character, reg, "class:bard")!.features.map((f) => f.name)).toEqual(["Jack of All Trades", "Song of Rest"]);
+    expect(levelGains(log.character, reg, "class:bard")!.features.map((f) => f.name)).toEqual(["Jack of All Trades", "Song of Rest", "Magical Inspiration"]);
     expect(multiclassIssues(log.character, reg, "class:fighter")).toEqual([]);
     expect(multiclassIssues(log.character, reg, "class:monk")).toEqual(["Monk needs Dexterity 13 and Wisdom 13."]);
     expect(log.record("levelUp", { class: "class:monk" })).toContain("Multiclassing: Monk needs Dexterity 13 and Wisdom 13.");

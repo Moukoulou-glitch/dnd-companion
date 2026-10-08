@@ -1,0 +1,4186 @@
+{
+  "definitions": [
+    {
+      "kind": "class",
+      "id": "class:cleric",
+      "name": "Cleric",
+      "summary": "Divine spellcaster whose god grants healing, protection and power.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 56
+      },
+      "hitDie": 8,
+      "saves": [
+        "wis",
+        "cha"
+      ],
+      "startingGrant": {
+        "proficiencies": [
+          {
+            "kind": "armor",
+            "target": "light"
+          },
+          {
+            "kind": "armor",
+            "target": "medium"
+          },
+          {
+            "kind": "armor",
+            "target": "shields"
+          },
+          {
+            "kind": "weapon",
+            "target": "simple"
+          },
+          {
+            "kind": "skill",
+            "target": {
+              "choice": "skills"
+            }
+          }
+        ]
+      },
+      "multiclassGrant": {
+        "proficiencies": [
+          {
+            "kind": "armor",
+            "target": "light"
+          },
+          {
+            "kind": "armor",
+            "target": "medium"
+          },
+          {
+            "kind": "armor",
+            "target": "shields"
+          }
+        ]
+      },
+      "spellcasting": {
+        "id": "cleric",
+        "label": "Cleric",
+        "ability": "wis",
+        "progression": "full"
+      },
+      "subclassLevel": 1,
+      "features": [],
+      "spellPreparation": "prepared",
+      "adds": [
+        {
+          "level": 1,
+          "feature": "feature:cleric-additional-cleric-spells"
+        },
+        {
+          "level": 2,
+          "feature": "feature:cleric-harness-divine-power"
+        },
+        {
+          "level": 4,
+          "feature": "feature:cleric-cantrip-versatility"
+        },
+        {
+          "level": 8,
+          "feature": "feature:cleric-blessed-strikes"
+        }
+      ]
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:knowledge-domain",
+      "name": "Knowledge Domain",
+      "summary": "Cleric of lore and learning: extra languages and expertise, and divine insight into minds and the past.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 59
+      },
+      "class": "class:cleric",
+      "features": [
+        {
+          "level": 1,
+          "feature": "feature:knowledge-domain-blessings-of-knowledge"
+        },
+        {
+          "level": 1,
+          "feature": "feature:knowledge-domain-spells-1"
+        },
+        {
+          "level": 3,
+          "feature": "feature:knowledge-domain-spells-3"
+        },
+        {
+          "level": 5,
+          "feature": "feature:knowledge-domain-spells-5"
+        },
+        {
+          "level": 7,
+          "feature": "feature:knowledge-domain-spells-7"
+        },
+        {
+          "level": 9,
+          "feature": "feature:knowledge-domain-spells-9"
+        },
+        {
+          "level": 2,
+          "feature": "feature:knowledge-domain-channel-divinity-knowledge-of-the-ages"
+        },
+        {
+          "level": 6,
+          "feature": "feature:knowledge-domain-channel-divinity-read-thoughts"
+        },
+        {
+          "level": 8,
+          "feature": "feature:knowledge-domain-potent-spellcasting"
+        },
+        {
+          "level": 17,
+          "feature": "feature:knowledge-domain-visions-of-the-past"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:knowledge-domain-blessings-of-knowledge",
+      "name": "Blessings of Knowledge",
+      "summary": "Learn two languages, and gain proficiency with doubled proficiency bonus in two of Arcana, History, Nature or Religion.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 59
+      },
+      "choices": [
+        {
+          "id": "knowledge-languages",
+          "label": "Languages",
+          "kind": "language",
+          "count": 2
+        },
+        {
+          "id": "knowledge-skills",
+          "label": "Skills (expertise)",
+          "kind": "skill",
+          "count": 2,
+          "from": [
+            "arcana",
+            "history",
+            "nature",
+            "religion"
+          ]
+        }
+      ],
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "language",
+            "target": {
+              "choice": "knowledge-languages"
+            }
+          },
+          {
+            "kind": "skill",
+            "target": {
+              "choice": "knowledge-skills"
+            }
+          },
+          {
+            "kind": "expertise",
+            "target": {
+              "choice": "knowledge-skills"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:knowledge-domain-spells-1",
+      "name": "Domain Spells",
+      "summary": "Always prepared, not counted against your prepared spells: Command, Identify.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 59
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:command",
+            "name": "Command",
+            "casting": "always prepared",
+            "list": "cleric"
+          },
+          {
+            "spell": "spell:identify",
+            "name": "Identify",
+            "casting": "always prepared",
+            "list": "cleric"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:knowledge-domain-spells-3",
+      "name": "Domain Spells (3rd)",
+      "summary": "Always prepared, not counted against your prepared spells: Augury, Suggestion.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 59
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:augury",
+            "name": "Augury",
+            "casting": "always prepared",
+            "list": "cleric"
+          },
+          {
+            "spell": "spell:suggestion",
+            "name": "Suggestion",
+            "casting": "always prepared",
+            "list": "cleric"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:knowledge-domain-spells-5",
+      "name": "Domain Spells (5th)",
+      "summary": "Always prepared, not counted against your prepared spells: Nondetection, Speak with Dead.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 59
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:nondetection",
+            "name": "Nondetection",
+            "casting": "always prepared",
+            "list": "cleric"
+          },
+          {
+            "spell": "spell:speak-with-dead",
+            "name": "Speak with Dead",
+            "casting": "always prepared",
+            "list": "cleric"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:knowledge-domain-spells-7",
+      "name": "Domain Spells (7th)",
+      "summary": "Always prepared, not counted against your prepared spells: Arcane Eye, Confusion.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 59
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:arcane-eye",
+            "name": "Arcane Eye",
+            "casting": "always prepared",
+            "list": "cleric"
+          },
+          {
+            "spell": "spell:confusion",
+            "name": "Confusion",
+            "casting": "always prepared",
+            "list": "cleric"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:knowledge-domain-spells-9",
+      "name": "Domain Spells (9th)",
+      "summary": "Always prepared, not counted against your prepared spells: Legend Lore, Scrying.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 59
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:legend-lore",
+            "name": "Legend Lore",
+            "casting": "always prepared",
+            "list": "cleric"
+          },
+          {
+            "spell": "spell:scrying",
+            "name": "Scrying",
+            "casting": "always prepared",
+            "list": "cleric"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:knowledge-domain-channel-divinity-knowledge-of-the-ages",
+      "name": "Channel Divinity: Knowledge of the Ages",
+      "summary": "Action: for 10 minutes you are proficient with one skill or tool of your choice.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 59
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "knowledge-of-the-ages",
+            "name": "Knowledge of the Ages",
+            "economy": "action",
+            "cost": {
+              "resource": "channel-divinity"
+            },
+            "duration": {
+              "minutes": 10
+            },
+            "note": "Pick a skill or tool: proficient with it for 10 minutes."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:knowledge-domain-channel-divinity-read-thoughts",
+      "name": "Channel Divinity: Read Thoughts",
+      "summary": "Action: a creature within 60 ft makes a Wisdom save or you read its surface thoughts for 1 minute; meanwhile you can end it to cast Suggestion on it without a slot (no save against it).",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 59
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "read-thoughts",
+            "name": "Read Thoughts",
+            "economy": "action",
+            "cost": {
+              "resource": "channel-divinity"
+            },
+            "duration": {
+              "minutes": 1
+            },
+            "note": "Creature within 60 ft, Wisdom save vs your spell DC. On a fail: read surface thoughts for 1 minute; you may end it to cast Suggestion on it, no slot, auto-fail."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:knowledge-domain-potent-spellcasting",
+      "name": "Potent Spellcasting",
+      "summary": "Add your Wisdom modifier to the damage of any cleric cantrip you cast.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 60
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.damage.spell",
+            "op": "add",
+            "value": "mod.wis",
+            "mode": "suggested",
+            "label": "Potent Spellcasting",
+            "when": {
+              "text": "cleric cantrip damage"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:knowledge-domain-visions-of-the-past",
+      "name": "Visions of the Past",
+      "summary": "Meditate for up to a minute (concentration) to see visions of an object's past owners or of events in your surroundings; once per short or long rest.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 60
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "visions-of-the-past",
+            "name": "Visions of the Past",
+            "max": 1,
+            "reset": "short"
+          }
+        ],
+        "actions": [
+          {
+            "id": "visions-of-the-past",
+            "name": "Visions of the Past",
+            "economy": "action",
+            "cost": {
+              "resource": "visions-of-the-past"
+            },
+            "note": "Object reading or area reading, up to 1 minute of meditation."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:light-domain",
+      "name": "Light Domain",
+      "summary": "Cleric of fire and radiance who dazzles attackers and burns away darkness.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 60
+      },
+      "class": "class:cleric",
+      "features": [
+        {
+          "level": 1,
+          "feature": "feature:light-domain-bonus-cantrip"
+        },
+        {
+          "level": 1,
+          "feature": "feature:light-domain-warding-flare"
+        },
+        {
+          "level": 1,
+          "feature": "feature:light-domain-spells-1"
+        },
+        {
+          "level": 3,
+          "feature": "feature:light-domain-spells-3"
+        },
+        {
+          "level": 5,
+          "feature": "feature:light-domain-spells-5"
+        },
+        {
+          "level": 7,
+          "feature": "feature:light-domain-spells-7"
+        },
+        {
+          "level": 9,
+          "feature": "feature:light-domain-spells-9"
+        },
+        {
+          "level": 2,
+          "feature": "feature:light-domain-channel-divinity-radiance-of-the-dawn"
+        },
+        {
+          "level": 6,
+          "feature": "feature:light-domain-improved-flare"
+        },
+        {
+          "level": 8,
+          "feature": "feature:light-domain-potent-spellcasting"
+        },
+        {
+          "level": 17,
+          "feature": "feature:light-domain-corona-of-light"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:light-domain-bonus-cantrip",
+      "name": "Bonus Cantrip",
+      "summary": "You know the Light cantrip; it doesn't count against your cantrips known.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 60
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:light",
+            "name": "Light",
+            "casting": "at will",
+            "list": "cleric",
+            "atWill": true
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:light-domain-warding-flare",
+      "name": "Warding Flare",
+      "summary": "Reaction when a creature within 30 ft that you can see attacks you: impose disadvantage on the roll (not on creatures immune to blindness). Uses equal your Wisdom modifier (min 1) per long rest.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 61
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "warding-flare",
+            "name": "Warding Flare",
+            "max": "mod.wis",
+            "reset": "long",
+            "min": 1
+          }
+        ],
+        "actions": [
+          {
+            "id": "warding-flare",
+            "name": "Warding Flare",
+            "economy": "reaction",
+            "cost": {
+              "resource": "warding-flare"
+            },
+            "note": "An attacker within 30 ft has disadvantage on its attack roll."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:light-domain-spells-1",
+      "name": "Domain Spells",
+      "summary": "Always prepared, not counted against your prepared spells: Burning Hands, Faerie Fire.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 61
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:burning-hands",
+            "name": "Burning Hands",
+            "casting": "always prepared",
+            "list": "cleric"
+          },
+          {
+            "spell": "spell:faerie-fire",
+            "name": "Faerie Fire",
+            "casting": "always prepared",
+            "list": "cleric"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:light-domain-spells-3",
+      "name": "Domain Spells (3rd)",
+      "summary": "Always prepared, not counted against your prepared spells: Flaming Sphere, Scorching Ray.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 61
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:flaming-sphere",
+            "name": "Flaming Sphere",
+            "casting": "always prepared",
+            "list": "cleric"
+          },
+          {
+            "spell": "spell:scorching-ray",
+            "name": "Scorching Ray",
+            "casting": "always prepared",
+            "list": "cleric"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:light-domain-spells-5",
+      "name": "Domain Spells (5th)",
+      "summary": "Always prepared, not counted against your prepared spells: Daylight, Fireball.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 61
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:daylight",
+            "name": "Daylight",
+            "casting": "always prepared",
+            "list": "cleric"
+          },
+          {
+            "spell": "spell:fireball",
+            "name": "Fireball",
+            "casting": "always prepared",
+            "list": "cleric"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:light-domain-spells-7",
+      "name": "Domain Spells (7th)",
+      "summary": "Always prepared, not counted against your prepared spells: Guardian of Faith, Wall of Fire.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 61
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:guardian-of-faith",
+            "name": "Guardian of Faith",
+            "casting": "always prepared",
+            "list": "cleric"
+          },
+          {
+            "spell": "spell:wall-of-fire",
+            "name": "Wall of Fire",
+            "casting": "always prepared",
+            "list": "cleric"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:light-domain-spells-9",
+      "name": "Domain Spells (9th)",
+      "summary": "Always prepared, not counted against your prepared spells: Flame Strike, Scrying.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 61
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:flame-strike",
+            "name": "Flame Strike",
+            "casting": "always prepared",
+            "list": "cleric"
+          },
+          {
+            "spell": "spell:scrying",
+            "name": "Scrying",
+            "casting": "always prepared",
+            "list": "cleric"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:light-domain-channel-divinity-radiance-of-the-dawn",
+      "name": "Channel Divinity: Radiance of the Dawn",
+      "summary": "Action: dispel magical darkness within 30 ft, and hostile creatures there make a Constitution save, taking 2d10 + cleric level radiant damage (half on a success).",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 61
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "radiance-of-the-dawn",
+            "name": "Radiance of the Dawn",
+            "economy": "action",
+            "cost": {
+              "resource": "channel-divinity"
+            },
+            "roll": {
+              "dice": "2d10 + classLevel.class:cleric",
+              "label": "radiant damage"
+            },
+            "note": "Hostiles within 30 ft: Con save, 2d10 + cleric level radiant (half on success). Ends magical darkness."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:light-domain-improved-flare",
+      "name": "Improved Flare",
+      "summary": "Warding Flare can also protect another creature attacked within 30 ft of you.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 61
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:light-domain-potent-spellcasting",
+      "name": "Potent Spellcasting",
+      "summary": "Add your Wisdom modifier to the damage of any cleric cantrip you cast.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 61
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.damage.spell",
+            "op": "add",
+            "value": "mod.wis",
+            "mode": "suggested",
+            "label": "Potent Spellcasting",
+            "when": {
+              "text": "cleric cantrip damage"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:light-domain-corona-of-light",
+      "name": "Corona of Light",
+      "summary": "Action: for 1 minute you shed bright light 60 ft; enemies in it have disadvantage on saves against spells dealing fire or radiant damage.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 61
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "corona-of-light",
+            "name": "Corona of Light",
+            "economy": "action",
+            "toggles": [
+              "corona-of-light"
+            ],
+            "duration": {
+              "minutes": 1
+            },
+            "note": "Bright light 60 ft; enemies in it: disadvantage on saves vs your fire/radiant spells. Dismiss as an action."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:nature-domain",
+      "name": "Nature Domain",
+      "summary": "Cleric of the wild who commands beasts and plants and shrugs off the elements.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 61
+      },
+      "class": "class:cleric",
+      "features": [
+        {
+          "level": 1,
+          "feature": "feature:nature-domain-acolyte-of-nature"
+        },
+        {
+          "level": 1,
+          "feature": "feature:nature-domain-bonus-proficiency"
+        },
+        {
+          "level": 1,
+          "feature": "feature:nature-domain-spells-1"
+        },
+        {
+          "level": 3,
+          "feature": "feature:nature-domain-spells-3"
+        },
+        {
+          "level": 5,
+          "feature": "feature:nature-domain-spells-5"
+        },
+        {
+          "level": 7,
+          "feature": "feature:nature-domain-spells-7"
+        },
+        {
+          "level": 9,
+          "feature": "feature:nature-domain-spells-9"
+        },
+        {
+          "level": 2,
+          "feature": "feature:nature-domain-channel-divinity-charm-animals-and-plants"
+        },
+        {
+          "level": 6,
+          "feature": "feature:nature-domain-dampen-elements"
+        },
+        {
+          "level": 8,
+          "feature": "feature:nature-domain-divine-strike"
+        },
+        {
+          "level": 17,
+          "feature": "feature:nature-domain-master-of-nature"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:nature-domain-acolyte-of-nature",
+      "name": "Acolyte of Nature",
+      "summary": "Learn one druid cantrip (counts as a cleric cantrip) and gain proficiency in Animal Handling, Nature or Survival.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 62
+      },
+      "choices": [
+        {
+          "id": "acolyte-cantrip",
+          "label": "Druid cantrip",
+          "kind": "spell",
+          "count": 1,
+          "spells": {
+            "classes": [
+              "druid"
+            ],
+            "level": 0
+          }
+        },
+        {
+          "id": "acolyte-skill",
+          "label": "Skill",
+          "kind": "skill",
+          "count": 1,
+          "from": [
+            "animalHandling",
+            "nature",
+            "survival"
+          ]
+        }
+      ],
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "skill",
+            "target": {
+              "choice": "acolyte-skill"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:nature-domain-bonus-proficiency",
+      "name": "Bonus Proficiency",
+      "summary": "Proficiency with heavy armor.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 62
+      },
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "armor",
+            "target": "heavy"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:nature-domain-spells-1",
+      "name": "Domain Spells",
+      "summary": "Always prepared, not counted against your prepared spells: Animal Friendship, Speak with Animals.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 62
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:animal-friendship",
+            "name": "Animal Friendship",
+            "casting": "always prepared",
+            "list": "cleric"
+          },
+          {
+            "spell": "spell:speak-with-animals",
+            "name": "Speak with Animals",
+            "casting": "always prepared",
+            "list": "cleric"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:nature-domain-spells-3",
+      "name": "Domain Spells (3rd)",
+      "summary": "Always prepared, not counted against your prepared spells: Barkskin, Spike Growth.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 62
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:barkskin",
+            "name": "Barkskin",
+            "casting": "always prepared",
+            "list": "cleric"
+          },
+          {
+            "spell": "spell:spike-growth",
+            "name": "Spike Growth",
+            "casting": "always prepared",
+            "list": "cleric"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:nature-domain-spells-5",
+      "name": "Domain Spells (5th)",
+      "summary": "Always prepared, not counted against your prepared spells: Plant Growth, Wind Wall.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 62
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:plant-growth",
+            "name": "Plant Growth",
+            "casting": "always prepared",
+            "list": "cleric"
+          },
+          {
+            "spell": "spell:wind-wall",
+            "name": "Wind Wall",
+            "casting": "always prepared",
+            "list": "cleric"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:nature-domain-spells-7",
+      "name": "Domain Spells (7th)",
+      "summary": "Always prepared, not counted against your prepared spells: Dominate Beast, Grasping Vine.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 62
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:dominate-beast",
+            "name": "Dominate Beast",
+            "casting": "always prepared",
+            "list": "cleric"
+          },
+          {
+            "spell": "spell:grasping-vine",
+            "name": "Grasping Vine",
+            "casting": "always prepared",
+            "list": "cleric"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:nature-domain-spells-9",
+      "name": "Domain Spells (9th)",
+      "summary": "Always prepared, not counted against your prepared spells: Insect Plague, Tree Stride.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 62
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:insect-plague",
+            "name": "Insect Plague",
+            "casting": "always prepared",
+            "list": "cleric"
+          },
+          {
+            "spell": "spell:tree-stride",
+            "name": "Tree Stride",
+            "casting": "always prepared",
+            "list": "cleric"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:nature-domain-channel-divinity-charm-animals-and-plants",
+      "name": "Channel Divinity: Charm Animals and Plants",
+      "summary": "Action: beasts and plant creatures within 30 ft that can see you make a Wisdom save or are charmed by you for 1 minute or until harmed.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 62
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "charm-animals-and-plants",
+            "name": "Charm Animals and Plants",
+            "economy": "action",
+            "cost": {
+              "resource": "channel-divinity"
+            },
+            "note": "Beasts and plants within 30 ft: Wisdom save or charmed for 1 minute (ends if damaged)."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:nature-domain-dampen-elements",
+      "name": "Dampen Elements",
+      "summary": "Reaction when you or a creature within 30 ft takes acid, cold, fire, lightning or thunder damage: grant resistance to that instance.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 62
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "dampen-elements",
+            "name": "Dampen Elements",
+            "economy": "reaction",
+            "note": "You or a creature within 30 ft resists one instance of acid, cold, fire, lightning or thunder damage."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:nature-domain-divine-strike",
+      "name": "Divine Strike",
+      "summary": "Once on each of your turns, a weapon hit deals an extra 1d8 cold, fire or lightning damage (your pick); 2d8 from 14th level.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 62
+      },
+      "scaling": {
+        "dice": {
+          "class": "class:cleric",
+          "table": [
+            [
+              8,
+              "1d8"
+            ],
+            [
+              14,
+              "2d8"
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.damage.weapon.*",
+            "op": "add",
+            "value": "scale.dice",
+            "mode": "suggested",
+            "label": "Divine Strike",
+            "when": {
+              "text": "once on each of your turns, on a weapon hit; cold, fire or lightning"
+            },
+            "oncePerTurn": true
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:nature-domain-master-of-nature",
+      "name": "Master of Nature",
+      "summary": "Bonus action: give verbal commands to creatures charmed by your Charm Animals and Plants.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 62
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "master-of-nature",
+            "name": "Master of Nature",
+            "economy": "bonus",
+            "note": "Command creatures you charmed with Charm Animals and Plants; they act on their next turn."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:tempest-domain",
+      "name": "Tempest Domain",
+      "summary": "Storm cleric in heavy armor who answers blows with thunder and maximizes lightning.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 62
+      },
+      "class": "class:cleric",
+      "features": [
+        {
+          "level": 1,
+          "feature": "feature:tempest-domain-bonus-proficiency-ies"
+        },
+        {
+          "level": 1,
+          "feature": "feature:tempest-domain-wrath-of-the-storm"
+        },
+        {
+          "level": 1,
+          "feature": "feature:tempest-domain-spells-1"
+        },
+        {
+          "level": 3,
+          "feature": "feature:tempest-domain-spells-3"
+        },
+        {
+          "level": 5,
+          "feature": "feature:tempest-domain-spells-5"
+        },
+        {
+          "level": 7,
+          "feature": "feature:tempest-domain-spells-7"
+        },
+        {
+          "level": 9,
+          "feature": "feature:tempest-domain-spells-9"
+        },
+        {
+          "level": 2,
+          "feature": "feature:tempest-domain-channel-divinity-destructive-wrath"
+        },
+        {
+          "level": 6,
+          "feature": "feature:tempest-domain-thunderbolt-strike"
+        },
+        {
+          "level": 8,
+          "feature": "feature:tempest-domain-divine-strike"
+        },
+        {
+          "level": 17,
+          "feature": "feature:tempest-domain-stormborn"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:tempest-domain-bonus-proficiency-ies",
+      "name": "Bonus Proficiencies",
+      "summary": "Proficiency with martial weapons and heavy armor.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 62
+      },
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "armor",
+            "target": "heavy"
+          },
+          {
+            "kind": "weapon",
+            "target": "martial"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:tempest-domain-wrath-of-the-storm",
+      "name": "Wrath of the Storm",
+      "summary": "Reaction when a creature within 5 ft hits you: it makes a Dexterity save, taking 2d8 lightning or thunder damage (half on success). Uses equal your Wisdom modifier (min 1) per long rest.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 62
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "wrath-of-the-storm",
+            "name": "Wrath of the Storm",
+            "max": "mod.wis",
+            "reset": "long",
+            "min": 1
+          }
+        ],
+        "actions": [
+          {
+            "id": "wrath-of-the-storm",
+            "name": "Wrath of the Storm",
+            "economy": "reaction",
+            "cost": {
+              "resource": "wrath-of-the-storm"
+            },
+            "roll": {
+              "dice": "2d8",
+              "label": "lightning or thunder damage"
+            },
+            "note": "Attacker within 5 ft: Dex save, 2d8 lightning or thunder (half on success)."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:tempest-domain-spells-1",
+      "name": "Domain Spells",
+      "summary": "Always prepared, not counted against your prepared spells: Fog Cloud, Thunderwave.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 62
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:fog-cloud",
+            "name": "Fog Cloud",
+            "casting": "always prepared",
+            "list": "cleric"
+          },
+          {
+            "spell": "spell:thunderwave",
+            "name": "Thunderwave",
+            "casting": "always prepared",
+            "list": "cleric"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:tempest-domain-spells-3",
+      "name": "Domain Spells (3rd)",
+      "summary": "Always prepared, not counted against your prepared spells: Gust of Wind, Shatter.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 62
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:gust-of-wind",
+            "name": "Gust of Wind",
+            "casting": "always prepared",
+            "list": "cleric"
+          },
+          {
+            "spell": "spell:shatter",
+            "name": "Shatter",
+            "casting": "always prepared",
+            "list": "cleric"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:tempest-domain-spells-5",
+      "name": "Domain Spells (5th)",
+      "summary": "Always prepared, not counted against your prepared spells: Call Lightning, Sleet Storm.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 62
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:call-lightning",
+            "name": "Call Lightning",
+            "casting": "always prepared",
+            "list": "cleric"
+          },
+          {
+            "spell": "spell:sleet-storm",
+            "name": "Sleet Storm",
+            "casting": "always prepared",
+            "list": "cleric"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:tempest-domain-spells-7",
+      "name": "Domain Spells (7th)",
+      "summary": "Always prepared, not counted against your prepared spells: Control Water, Ice Storm.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 62
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:control-water",
+            "name": "Control Water",
+            "casting": "always prepared",
+            "list": "cleric"
+          },
+          {
+            "spell": "spell:ice-storm",
+            "name": "Ice Storm",
+            "casting": "always prepared",
+            "list": "cleric"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:tempest-domain-spells-9",
+      "name": "Domain Spells (9th)",
+      "summary": "Always prepared, not counted against your prepared spells: Destructive Wave, Insect Plague.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 62
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:destructive-wave",
+            "name": "Destructive Wave",
+            "casting": "always prepared",
+            "list": "cleric"
+          },
+          {
+            "spell": "spell:insect-plague",
+            "name": "Insect Plague",
+            "casting": "always prepared",
+            "list": "cleric"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:tempest-domain-channel-divinity-destructive-wrath",
+      "name": "Channel Divinity: Destructive Wrath",
+      "summary": "When you roll lightning or thunder damage, deal the maximum instead of rolling.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 62
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "destructive-wrath",
+            "name": "Destructive Wrath",
+            "economy": "free",
+            "cost": {
+              "resource": "channel-divinity"
+            },
+            "note": "Your lightning or thunder damage roll counts as the maximum."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:tempest-domain-thunderbolt-strike",
+      "name": "Thunderbolt Strike",
+      "summary": "When you deal lightning damage to a Large or smaller creature, you can push it up to 10 ft away.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 63
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:tempest-domain-divine-strike",
+      "name": "Divine Strike",
+      "summary": "Once on each of your turns, a weapon hit deals an extra 1d8 thunder damage (2d8 from 14th level).",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 63
+      },
+      "scaling": {
+        "dice": {
+          "class": "class:cleric",
+          "table": [
+            [
+              8,
+              "1d8"
+            ],
+            [
+              14,
+              "2d8"
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.damage.weapon.*",
+            "op": "add",
+            "value": "scale.dice",
+            "mode": "suggested",
+            "label": "Divine Strike",
+            "when": {
+              "text": "once on each of your turns, on a weapon hit"
+            },
+            "oncePerTurn": true,
+            "damageType": "thunder"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:tempest-domain-stormborn",
+      "name": "Stormborn",
+      "summary": "You have a flying speed equal to your walking speed whenever you're not underground or indoors.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 63
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:trickery-domain",
+      "name": "Trickery Domain",
+      "summary": "Cleric of deception who conjures illusory duplicates and slips into shadow.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 62
+      },
+      "class": "class:cleric",
+      "features": [
+        {
+          "level": 1,
+          "feature": "feature:trickery-domain-blessing-of-the-trickster"
+        },
+        {
+          "level": 1,
+          "feature": "feature:trickery-domain-spells-1"
+        },
+        {
+          "level": 3,
+          "feature": "feature:trickery-domain-spells-3"
+        },
+        {
+          "level": 5,
+          "feature": "feature:trickery-domain-spells-5"
+        },
+        {
+          "level": 7,
+          "feature": "feature:trickery-domain-spells-7"
+        },
+        {
+          "level": 9,
+          "feature": "feature:trickery-domain-spells-9"
+        },
+        {
+          "level": 2,
+          "feature": "feature:trickery-domain-channel-divinity-invoke-duplicity"
+        },
+        {
+          "level": 6,
+          "feature": "feature:trickery-domain-channel-divinity-cloak-of-shadows"
+        },
+        {
+          "level": 8,
+          "feature": "feature:trickery-domain-divine-strike"
+        },
+        {
+          "level": 17,
+          "feature": "feature:trickery-domain-improved-duplicity"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:trickery-domain-blessing-of-the-trickster",
+      "name": "Blessing of the Trickster",
+      "summary": "Action: another willing creature you touch has advantage on Dexterity (Stealth) checks for 1 hour or until you use this again.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 63
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "blessing-of-the-trickster",
+            "name": "Blessing of the Trickster",
+            "economy": "action",
+            "note": "A willing creature you touch (not you): advantage on Stealth for 1 hour."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:trickery-domain-spells-1",
+      "name": "Domain Spells",
+      "summary": "Always prepared, not counted against your prepared spells: Charm Person, Disguise Self.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 63
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:charm-person",
+            "name": "Charm Person",
+            "casting": "always prepared",
+            "list": "cleric"
+          },
+          {
+            "spell": "spell:disguise-self",
+            "name": "Disguise Self",
+            "casting": "always prepared",
+            "list": "cleric"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:trickery-domain-spells-3",
+      "name": "Domain Spells (3rd)",
+      "summary": "Always prepared, not counted against your prepared spells: Mirror Image, Pass without Trace.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 63
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:mirror-image",
+            "name": "Mirror Image",
+            "casting": "always prepared",
+            "list": "cleric"
+          },
+          {
+            "spell": "spell:pass-without-trace",
+            "name": "Pass without Trace",
+            "casting": "always prepared",
+            "list": "cleric"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:trickery-domain-spells-5",
+      "name": "Domain Spells (5th)",
+      "summary": "Always prepared, not counted against your prepared spells: Blink, Dispel Magic.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 63
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:blink",
+            "name": "Blink",
+            "casting": "always prepared",
+            "list": "cleric"
+          },
+          {
+            "spell": "spell:dispel-magic",
+            "name": "Dispel Magic",
+            "casting": "always prepared",
+            "list": "cleric"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:trickery-domain-spells-7",
+      "name": "Domain Spells (7th)",
+      "summary": "Always prepared, not counted against your prepared spells: Dimension Door, Polymorph.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 63
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:dimension-door",
+            "name": "Dimension Door",
+            "casting": "always prepared",
+            "list": "cleric"
+          },
+          {
+            "spell": "spell:polymorph",
+            "name": "Polymorph",
+            "casting": "always prepared",
+            "list": "cleric"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:trickery-domain-spells-9",
+      "name": "Domain Spells (9th)",
+      "summary": "Always prepared, not counted against your prepared spells: Dominate Person, Modify Memory.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 63
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:dominate-person",
+            "name": "Dominate Person",
+            "casting": "always prepared",
+            "list": "cleric"
+          },
+          {
+            "spell": "spell:modify-memory",
+            "name": "Modify Memory",
+            "casting": "always prepared",
+            "list": "cleric"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:trickery-domain-channel-divinity-invoke-duplicity",
+      "name": "Channel Divinity: Invoke Duplicity",
+      "summary": "Action: create an illusory double within 30 ft for 1 minute (concentration). Move it 30 ft as a bonus action, cast spells from its space, and gain advantage on attacks against creatures within 5 ft of both of you.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 63
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "invoke-duplicity",
+            "name": "Invoke Duplicity",
+            "economy": "action",
+            "cost": {
+              "resource": "channel-divinity"
+            },
+            "toggles": [
+              "invoke-duplicity"
+            ],
+            "duration": {
+              "minutes": 1
+            },
+            "note": "Illusion within 30 ft, 1 minute (concentration). Bonus action: move it 30 ft. Cast from its space; advantage vs creatures next to you both."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:trickery-domain-channel-divinity-cloak-of-shadows",
+      "name": "Channel Divinity: Cloak of Shadows",
+      "summary": "Action: you become invisible until the end of your next turn, or until you attack or cast a spell.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 63
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "cloak-of-shadows",
+            "name": "Cloak of Shadows",
+            "economy": "action",
+            "cost": {
+              "resource": "channel-divinity"
+            },
+            "note": "Invisible until the end of your next turn; ends if you attack or cast."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:trickery-domain-divine-strike",
+      "name": "Divine Strike",
+      "summary": "Once on each of your turns, a weapon hit deals an extra 1d8 poison damage (2d8 from 14th level).",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 63
+      },
+      "scaling": {
+        "dice": {
+          "class": "class:cleric",
+          "table": [
+            [
+              8,
+              "1d8"
+            ],
+            [
+              14,
+              "2d8"
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.damage.weapon.*",
+            "op": "add",
+            "value": "scale.dice",
+            "mode": "suggested",
+            "label": "Divine Strike",
+            "when": {
+              "text": "once on each of your turns, on a weapon hit"
+            },
+            "oncePerTurn": true,
+            "damageType": "poison"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:trickery-domain-improved-duplicity",
+      "name": "Improved Duplicity",
+      "summary": "Invoke Duplicity creates up to four duplicates, and one bonus action moves any number of them.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 63
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:war-domain",
+      "name": "War Domain",
+      "summary": "Battle cleric with heavy armor, martial weapons and divinely guided strikes.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 63
+      },
+      "class": "class:cleric",
+      "features": [
+        {
+          "level": 1,
+          "feature": "feature:war-domain-bonus-proficiency-ies"
+        },
+        {
+          "level": 1,
+          "feature": "feature:war-domain-war-priest"
+        },
+        {
+          "level": 1,
+          "feature": "feature:war-domain-spells-1"
+        },
+        {
+          "level": 3,
+          "feature": "feature:war-domain-spells-3"
+        },
+        {
+          "level": 5,
+          "feature": "feature:war-domain-spells-5"
+        },
+        {
+          "level": 7,
+          "feature": "feature:war-domain-spells-7"
+        },
+        {
+          "level": 9,
+          "feature": "feature:war-domain-spells-9"
+        },
+        {
+          "level": 2,
+          "feature": "feature:war-domain-channel-divinity-guided-strike"
+        },
+        {
+          "level": 6,
+          "feature": "feature:war-domain-channel-divinity-war-gods-blessing"
+        },
+        {
+          "level": 8,
+          "feature": "feature:war-domain-divine-strike"
+        },
+        {
+          "level": 17,
+          "feature": "feature:war-domain-avatar-of-battle"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:war-domain-bonus-proficiency-ies",
+      "name": "Bonus Proficiencies",
+      "summary": "Proficiency with martial weapons and heavy armor.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 63
+      },
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "armor",
+            "target": "heavy"
+          },
+          {
+            "kind": "weapon",
+            "target": "martial"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:war-domain-war-priest",
+      "name": "War Priest",
+      "summary": "When you take the Attack action, make one weapon attack as a bonus action. Uses equal your Wisdom modifier (min 1) per long rest.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 63
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "war-priest",
+            "name": "War Priest",
+            "max": "mod.wis",
+            "reset": "long",
+            "min": 1
+          }
+        ],
+        "actions": [
+          {
+            "id": "war-priest",
+            "name": "War Priest",
+            "economy": "bonus",
+            "cost": {
+              "resource": "war-priest"
+            },
+            "note": "After taking the Attack action: one extra weapon attack."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:war-domain-spells-1",
+      "name": "Domain Spells",
+      "summary": "Always prepared, not counted against your prepared spells: Divine Favor, Shield of Faith.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 63
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:divine-favor",
+            "name": "Divine Favor",
+            "casting": "always prepared",
+            "list": "cleric"
+          },
+          {
+            "spell": "spell:shield-of-faith",
+            "name": "Shield of Faith",
+            "casting": "always prepared",
+            "list": "cleric"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:war-domain-spells-3",
+      "name": "Domain Spells (3rd)",
+      "summary": "Always prepared, not counted against your prepared spells: Magic Weapon, Spiritual Weapon.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 63
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:magic-weapon",
+            "name": "Magic Weapon",
+            "casting": "always prepared",
+            "list": "cleric"
+          },
+          {
+            "spell": "spell:spiritual-weapon",
+            "name": "Spiritual Weapon",
+            "casting": "always prepared",
+            "list": "cleric"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:war-domain-spells-5",
+      "name": "Domain Spells (5th)",
+      "summary": "Always prepared, not counted against your prepared spells: Crusader's Mantle, Spirit Guardians.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 63
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:crusaders-mantle",
+            "name": "Crusader's Mantle",
+            "casting": "always prepared",
+            "list": "cleric"
+          },
+          {
+            "spell": "spell:spirit-guardians",
+            "name": "Spirit Guardians",
+            "casting": "always prepared",
+            "list": "cleric"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:war-domain-spells-7",
+      "name": "Domain Spells (7th)",
+      "summary": "Always prepared, not counted against your prepared spells: Freedom of Movement, Stoneskin.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 63
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:freedom-of-movement",
+            "name": "Freedom of Movement",
+            "casting": "always prepared",
+            "list": "cleric"
+          },
+          {
+            "spell": "spell:stoneskin",
+            "name": "Stoneskin",
+            "casting": "always prepared",
+            "list": "cleric"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:war-domain-spells-9",
+      "name": "Domain Spells (9th)",
+      "summary": "Always prepared, not counted against your prepared spells: Flame Strike, Hold Monster.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 63
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:flame-strike",
+            "name": "Flame Strike",
+            "casting": "always prepared",
+            "list": "cleric"
+          },
+          {
+            "spell": "spell:hold-monster",
+            "name": "Hold Monster",
+            "casting": "always prepared",
+            "list": "cleric"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:war-domain-channel-divinity-guided-strike",
+      "name": "Channel Divinity: Guided Strike",
+      "summary": "After seeing your attack roll (before the result), add +10 to it.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 63
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "guided-strike",
+            "name": "Guided Strike",
+            "economy": "free",
+            "cost": {
+              "resource": "channel-divinity"
+            },
+            "note": "+10 to one of your attack rolls, decided after the roll."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:war-domain-channel-divinity-war-gods-blessing",
+      "name": "Channel Divinity: War God's Blessing",
+      "summary": "Reaction: a creature within 30 ft gets +10 on an attack roll, decided after the roll.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 63
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "war-gods-blessing",
+            "name": "War God's Blessing",
+            "economy": "reaction",
+            "cost": {
+              "resource": "channel-divinity"
+            },
+            "note": "+10 to an ally's attack roll within 30 ft, after seeing it."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:war-domain-divine-strike",
+      "name": "Divine Strike",
+      "summary": "Once on each of your turns, a weapon hit deals an extra 1d8 weapon-type damage (2d8 from 14th level).",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 63
+      },
+      "scaling": {
+        "dice": {
+          "class": "class:cleric",
+          "table": [
+            [
+              8,
+              "1d8"
+            ],
+            [
+              14,
+              "2d8"
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.damage.weapon.*",
+            "op": "add",
+            "value": "scale.dice",
+            "mode": "suggested",
+            "label": "Divine Strike",
+            "when": {
+              "text": "once on each of your turns, on a weapon hit"
+            },
+            "oncePerTurn": true
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:war-domain-avatar-of-battle",
+      "name": "Avatar of Battle",
+      "summary": "Resistance to bludgeoning, piercing and slashing damage from nonmagical attacks.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 63
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.bludgeoning",
+            "op": "resist",
+            "mode": "suggested",
+            "label": "Avatar of Battle",
+            "when": {
+              "text": "nonmagical attacks"
+            }
+          },
+          {
+            "selector": "defense.resist.piercing",
+            "op": "resist",
+            "mode": "suggested",
+            "label": "Avatar of Battle",
+            "when": {
+              "text": "nonmagical attacks"
+            }
+          },
+          {
+            "selector": "defense.resist.slashing",
+            "op": "resist",
+            "mode": "suggested",
+            "label": "Avatar of Battle",
+            "when": {
+              "text": "nonmagical attacks"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:forge-domain",
+      "name": "Forge Domain",
+      "summary": "Smith-priest who blesses arms and armor and becomes clad in fire-proof steel.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 18
+      },
+      "class": "class:cleric",
+      "features": [
+        {
+          "level": 1,
+          "feature": "feature:forge-domain-bonus-proficiency-ies"
+        },
+        {
+          "level": 1,
+          "feature": "feature:forge-domain-blessing-of-the-forge"
+        },
+        {
+          "level": 1,
+          "feature": "feature:forge-domain-spells-1"
+        },
+        {
+          "level": 3,
+          "feature": "feature:forge-domain-spells-3"
+        },
+        {
+          "level": 5,
+          "feature": "feature:forge-domain-spells-5"
+        },
+        {
+          "level": 7,
+          "feature": "feature:forge-domain-spells-7"
+        },
+        {
+          "level": 9,
+          "feature": "feature:forge-domain-spells-9"
+        },
+        {
+          "level": 2,
+          "feature": "feature:forge-domain-channel-divinity-artisans-blessing"
+        },
+        {
+          "level": 6,
+          "feature": "feature:forge-domain-soul-of-the-forge"
+        },
+        {
+          "level": 8,
+          "feature": "feature:forge-domain-divine-strike"
+        },
+        {
+          "level": 17,
+          "feature": "feature:forge-domain-saint-of-forge-and-fire"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:forge-domain-bonus-proficiency-ies",
+      "name": "Bonus Proficiencies",
+      "summary": "Proficiency with heavy armor and smith's tools.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 19
+      },
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "armor",
+            "target": "heavy"
+          },
+          {
+            "kind": "tool",
+            "target": "Smith's tools"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:forge-domain-blessing-of-the-forge",
+      "name": "Blessing of the Forge",
+      "summary": "At the end of a long rest, touch a nonmagical weapon or suit of armor (or shield): it becomes +1 until your next long rest. Once per long rest.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 19
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "blessing-of-the-forge",
+            "name": "Blessing of the Forge",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "blessing-of-the-forge",
+            "name": "Blessing of the Forge",
+            "economy": "free",
+            "cost": {
+              "resource": "blessing-of-the-forge"
+            },
+            "note": "Make one nonmagical weapon or armor +1 until your next long rest."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:forge-domain-spells-1",
+      "name": "Domain Spells",
+      "summary": "Always prepared, not counted against your prepared spells: Identify, Searing Smite.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 19
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:identify",
+            "name": "Identify",
+            "casting": "always prepared",
+            "list": "cleric"
+          },
+          {
+            "spell": "spell:searing-smite",
+            "name": "Searing Smite",
+            "casting": "always prepared",
+            "list": "cleric"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:forge-domain-spells-3",
+      "name": "Domain Spells (3rd)",
+      "summary": "Always prepared, not counted against your prepared spells: Heat Metal, Magic Weapon.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 19
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:heat-metal",
+            "name": "Heat Metal",
+            "casting": "always prepared",
+            "list": "cleric"
+          },
+          {
+            "spell": "spell:magic-weapon",
+            "name": "Magic Weapon",
+            "casting": "always prepared",
+            "list": "cleric"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:forge-domain-spells-5",
+      "name": "Domain Spells (5th)",
+      "summary": "Always prepared, not counted against your prepared spells: Elemental Weapon, Protection from Energy.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 19
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:elemental-weapon",
+            "name": "Elemental Weapon",
+            "casting": "always prepared",
+            "list": "cleric"
+          },
+          {
+            "spell": "spell:protection-from-energy",
+            "name": "Protection from Energy",
+            "casting": "always prepared",
+            "list": "cleric"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:forge-domain-spells-7",
+      "name": "Domain Spells (7th)",
+      "summary": "Always prepared, not counted against your prepared spells: Fabricate, Wall of Fire.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 19
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:fabricate",
+            "name": "Fabricate",
+            "casting": "always prepared",
+            "list": "cleric"
+          },
+          {
+            "spell": "spell:wall-of-fire",
+            "name": "Wall of Fire",
+            "casting": "always prepared",
+            "list": "cleric"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:forge-domain-spells-9",
+      "name": "Domain Spells (9th)",
+      "summary": "Always prepared, not counted against your prepared spells: Animate Objects, Creation.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 19
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:animate-objects",
+            "name": "Animate Objects",
+            "casting": "always prepared",
+            "list": "cleric"
+          },
+          {
+            "spell": "spell:creation",
+            "name": "Creation",
+            "casting": "always prepared",
+            "list": "cleric"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:forge-domain-channel-divinity-artisans-blessing",
+      "name": "Channel Divinity: Artisan's Blessing",
+      "summary": "A one-hour ritual creates a metal item worth up to 100 gp, using up metal of equal value.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 19
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "artisans-blessing",
+            "name": "Artisan's Blessing",
+            "economy": "action",
+            "cost": {
+              "resource": "channel-divinity"
+            },
+            "note": "1-hour ritual: craft a metal item worth up to 100 gp."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:forge-domain-soul-of-the-forge",
+      "name": "Soul of the Forge",
+      "summary": "Resistance to fire damage, and +1 AC while wearing heavy armor.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 19
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.fire",
+            "op": "resist",
+            "label": "Soul of the Forge"
+          },
+          {
+            "selector": "stat.ac",
+            "op": "add",
+            "value": 1,
+            "mode": "suggested",
+            "label": "Soul of the Forge",
+            "when": {
+              "text": "wearing heavy armor"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:forge-domain-divine-strike",
+      "name": "Divine Strike",
+      "summary": "Once on each of your turns, a weapon hit deals an extra 1d8 fire damage (2d8 from 14th level).",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 19
+      },
+      "scaling": {
+        "dice": {
+          "class": "class:cleric",
+          "table": [
+            [
+              8,
+              "1d8"
+            ],
+            [
+              14,
+              "2d8"
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.damage.weapon.*",
+            "op": "add",
+            "value": "scale.dice",
+            "mode": "suggested",
+            "label": "Divine Strike",
+            "when": {
+              "text": "once on each of your turns, on a weapon hit"
+            },
+            "oncePerTurn": true,
+            "damageType": "fire"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:forge-domain-saint-of-forge-and-fire",
+      "name": "Saint of Forge and Fire",
+      "summary": "Immunity to fire damage; in heavy armor, resistance to nonmagical bludgeoning, piercing and slashing damage.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 19
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.immune.fire",
+            "op": "immune",
+            "label": "Saint of Forge and Fire"
+          },
+          {
+            "selector": "defense.resist.bludgeoning",
+            "op": "resist",
+            "mode": "suggested",
+            "label": "Saint of Forge and Fire",
+            "when": {
+              "text": "wearing heavy armor; nonmagical attacks"
+            }
+          },
+          {
+            "selector": "defense.resist.piercing",
+            "op": "resist",
+            "mode": "suggested",
+            "label": "Saint of Forge and Fire",
+            "when": {
+              "text": "wearing heavy armor; nonmagical attacks"
+            }
+          },
+          {
+            "selector": "defense.resist.slashing",
+            "op": "resist",
+            "mode": "suggested",
+            "label": "Saint of Forge and Fire",
+            "when": {
+              "text": "wearing heavy armor; nonmagical attacks"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:grave-domain",
+      "name": "Grave Domain",
+      "summary": "Cleric who guards the line between life and death, reviving the dying and cursing the undead's foes.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 19
+      },
+      "class": "class:cleric",
+      "features": [
+        {
+          "level": 1,
+          "feature": "feature:grave-domain-circle-of-mortality"
+        },
+        {
+          "level": 1,
+          "feature": "feature:grave-domain-eyes-of-the-grave"
+        },
+        {
+          "level": 1,
+          "feature": "feature:grave-domain-spells-1"
+        },
+        {
+          "level": 3,
+          "feature": "feature:grave-domain-spells-3"
+        },
+        {
+          "level": 5,
+          "feature": "feature:grave-domain-spells-5"
+        },
+        {
+          "level": 7,
+          "feature": "feature:grave-domain-spells-7"
+        },
+        {
+          "level": 9,
+          "feature": "feature:grave-domain-spells-9"
+        },
+        {
+          "level": 2,
+          "feature": "feature:grave-domain-channel-divinity-path-to-the-grave"
+        },
+        {
+          "level": 6,
+          "feature": "feature:grave-domain-sentinel-at-deaths-door"
+        },
+        {
+          "level": 8,
+          "feature": "feature:grave-domain-potent-spellcasting"
+        },
+        {
+          "level": 17,
+          "feature": "feature:grave-domain-keeper-of-souls"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:grave-domain-circle-of-mortality",
+      "name": "Circle of Mortality",
+      "summary": "Healing a creature at 0 hit points uses the maximum for each die instead of rolling. You learn Spare the Dying (not counted against cantrips), with 30 ft range and as a bonus action.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 20
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:spare-the-dying",
+            "name": "Spare the Dying",
+            "casting": "at will, bonus action, 30 ft",
+            "list": "cleric",
+            "atWill": true
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:grave-domain-eyes-of-the-grave",
+      "name": "Eyes of the Grave",
+      "summary": "Action: until the end of your next turn, sense undead within 60 ft not behind total cover. Uses equal your Wisdom modifier (min 1) per long rest.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 20
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "eyes-of-the-grave",
+            "name": "Eyes of the Grave",
+            "max": "mod.wis",
+            "reset": "long",
+            "min": 1
+          }
+        ],
+        "actions": [
+          {
+            "id": "eyes-of-the-grave",
+            "name": "Eyes of the Grave",
+            "economy": "action",
+            "cost": {
+              "resource": "eyes-of-the-grave"
+            },
+            "note": "Sense the location of undead within 60 ft until the end of your next turn."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:grave-domain-spells-1",
+      "name": "Domain Spells",
+      "summary": "Always prepared, not counted against your prepared spells: Bane, False Life.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 20
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:bane",
+            "name": "Bane",
+            "casting": "always prepared",
+            "list": "cleric"
+          },
+          {
+            "spell": "spell:false-life",
+            "name": "False Life",
+            "casting": "always prepared",
+            "list": "cleric"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:grave-domain-spells-3",
+      "name": "Domain Spells (3rd)",
+      "summary": "Always prepared, not counted against your prepared spells: Gentle Repose, Ray of Enfeeblement.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 20
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:gentle-repose",
+            "name": "Gentle Repose",
+            "casting": "always prepared",
+            "list": "cleric"
+          },
+          {
+            "spell": "spell:ray-of-enfeeblement",
+            "name": "Ray of Enfeeblement",
+            "casting": "always prepared",
+            "list": "cleric"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:grave-domain-spells-5",
+      "name": "Domain Spells (5th)",
+      "summary": "Always prepared, not counted against your prepared spells: Revivify, Vampiric Touch.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 20
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:revivify",
+            "name": "Revivify",
+            "casting": "always prepared",
+            "list": "cleric"
+          },
+          {
+            "spell": "spell:vampiric-touch",
+            "name": "Vampiric Touch",
+            "casting": "always prepared",
+            "list": "cleric"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:grave-domain-spells-7",
+      "name": "Domain Spells (7th)",
+      "summary": "Always prepared, not counted against your prepared spells: Blight, Death Ward.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 20
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:blight",
+            "name": "Blight",
+            "casting": "always prepared",
+            "list": "cleric"
+          },
+          {
+            "spell": "spell:death-ward",
+            "name": "Death Ward",
+            "casting": "always prepared",
+            "list": "cleric"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:grave-domain-spells-9",
+      "name": "Domain Spells (9th)",
+      "summary": "Always prepared, not counted against your prepared spells: Antilife Shell, Raise Dead.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 20
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:antilife-shell",
+            "name": "Antilife Shell",
+            "casting": "always prepared",
+            "list": "cleric"
+          },
+          {
+            "spell": "spell:raise-dead",
+            "name": "Raise Dead",
+            "casting": "always prepared",
+            "list": "cleric"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:grave-domain-channel-divinity-path-to-the-grave",
+      "name": "Channel Divinity: Path to the Grave",
+      "summary": "Action: curse a creature within 30 ft until the end of your next turn; the next attack that hits it makes it vulnerable to all of that attack's damage.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 20
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "path-to-the-grave",
+            "name": "Path to the Grave",
+            "economy": "action",
+            "cost": {
+              "resource": "channel-divinity"
+            },
+            "note": "Curse a creature within 30 ft: the next hit on it before the end of your next turn deals double (vulnerability)."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:grave-domain-sentinel-at-deaths-door",
+      "name": "Sentinel at Death's Door",
+      "summary": "Reaction: turn a critical hit against you or a creature within 30 ft into a normal hit. Uses equal your Wisdom modifier (min 1) per long rest.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 20
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "sentinel-at-deaths-door",
+            "name": "Sentinel at Death's Door",
+            "max": "mod.wis",
+            "reset": "long",
+            "min": 1
+          }
+        ],
+        "actions": [
+          {
+            "id": "sentinel-at-deaths-door",
+            "name": "Sentinel at Death's Door",
+            "economy": "reaction",
+            "cost": {
+              "resource": "sentinel-at-deaths-door"
+            },
+            "note": "A critical hit on you or a creature within 30 ft becomes a normal hit."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:grave-domain-potent-spellcasting",
+      "name": "Potent Spellcasting",
+      "summary": "Add your Wisdom modifier to the damage of any cleric cantrip you cast.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 20
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.damage.spell",
+            "op": "add",
+            "value": "mod.wis",
+            "mode": "suggested",
+            "label": "Potent Spellcasting",
+            "when": {
+              "text": "cleric cantrip damage"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:grave-domain-keeper-of-souls",
+      "name": "Keeper of Souls",
+      "summary": "Once per round, when an enemy you can see dies within 60 ft, you or an ally within 60 ft regains hit points equal to its number of Hit Dice (not constructs or undead).",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 20
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:order-domain",
+      "name": "Order Domain",
+      "summary": "Cleric of law and command whose spells spur allies to strike and whose voice compels obedience.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 31
+      },
+      "class": "class:cleric",
+      "features": [
+        {
+          "level": 1,
+          "feature": "feature:order-domain-bonus-proficiencies"
+        },
+        {
+          "level": 1,
+          "feature": "feature:order-domain-voice-of-authority"
+        },
+        {
+          "level": 1,
+          "feature": "feature:order-domain-spells-1"
+        },
+        {
+          "level": 3,
+          "feature": "feature:order-domain-spells-3"
+        },
+        {
+          "level": 5,
+          "feature": "feature:order-domain-spells-5"
+        },
+        {
+          "level": 7,
+          "feature": "feature:order-domain-spells-7"
+        },
+        {
+          "level": 9,
+          "feature": "feature:order-domain-spells-9"
+        },
+        {
+          "level": 2,
+          "feature": "feature:order-domain-channel-divinity-orders-demand"
+        },
+        {
+          "level": 6,
+          "feature": "feature:order-domain-embodiment-of-the-law"
+        },
+        {
+          "level": 8,
+          "feature": "feature:order-domain-divine-strike"
+        },
+        {
+          "level": 17,
+          "feature": "feature:order-domain-orders-wrath"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:order-domain-bonus-proficiencies",
+      "name": "Bonus Proficiencies",
+      "summary": "Proficiency with heavy armor, and in Intimidation or Persuasion.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 31
+      },
+      "choices": [
+        {
+          "id": "order-skill",
+          "label": "Skill",
+          "kind": "skill",
+          "count": 1,
+          "from": [
+            "intimidation",
+            "persuasion"
+          ]
+        }
+      ],
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "armor",
+            "target": "heavy"
+          },
+          {
+            "kind": "skill",
+            "target": {
+              "choice": "order-skill"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:order-domain-voice-of-authority",
+      "name": "Voice of Authority",
+      "summary": "When you cast a 1st-level or higher spell on an ally, one targeted ally can use its reaction to make one weapon attack against a creature you choose.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 31
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:order-domain-spells-1",
+      "name": "Domain Spells",
+      "summary": "Always prepared, not counted against your prepared spells: Command, Heroism.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 31
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:command",
+            "name": "Command",
+            "casting": "always prepared",
+            "list": "cleric"
+          },
+          {
+            "spell": "spell:heroism",
+            "name": "Heroism",
+            "casting": "always prepared",
+            "list": "cleric"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:order-domain-spells-3",
+      "name": "Domain Spells (3rd)",
+      "summary": "Always prepared, not counted against your prepared spells: Hold Person, Zone of Truth.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 31
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:hold-person",
+            "name": "Hold Person",
+            "casting": "always prepared",
+            "list": "cleric"
+          },
+          {
+            "spell": "spell:zone-of-truth",
+            "name": "Zone of Truth",
+            "casting": "always prepared",
+            "list": "cleric"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:order-domain-spells-5",
+      "name": "Domain Spells (5th)",
+      "summary": "Always prepared, not counted against your prepared spells: Mass Healing Word, Slow.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 31
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:mass-healing-word",
+            "name": "Mass Healing Word",
+            "casting": "always prepared",
+            "list": "cleric"
+          },
+          {
+            "spell": "spell:slow",
+            "name": "Slow",
+            "casting": "always prepared",
+            "list": "cleric"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:order-domain-spells-7",
+      "name": "Domain Spells (7th)",
+      "summary": "Always prepared, not counted against your prepared spells: Compulsion, Locate Creature.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 31
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:compulsion",
+            "name": "Compulsion",
+            "casting": "always prepared",
+            "list": "cleric"
+          },
+          {
+            "spell": "spell:locate-creature",
+            "name": "Locate Creature",
+            "casting": "always prepared",
+            "list": "cleric"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:order-domain-spells-9",
+      "name": "Domain Spells (9th)",
+      "summary": "Always prepared, not counted against your prepared spells: Commune, Dominate Person.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 31
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:commune",
+            "name": "Commune",
+            "casting": "always prepared",
+            "list": "cleric"
+          },
+          {
+            "spell": "spell:dominate-person",
+            "name": "Dominate Person",
+            "casting": "always prepared",
+            "list": "cleric"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:order-domain-channel-divinity-orders-demand",
+      "name": "Channel Divinity: Order's Demand",
+      "summary": "Action: creatures of your choice within 30 ft make a Wisdom save or are charmed until the end of your next turn (or until harmed); you can also make them drop what they hold.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 31
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "orders-demand",
+            "name": "Order's Demand",
+            "economy": "action",
+            "cost": {
+              "resource": "channel-divinity"
+            },
+            "note": "Chosen creatures within 30 ft: Wisdom save or charmed until the end of your next turn; may drop held items."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:order-domain-embodiment-of-the-law",
+      "name": "Embodiment of the Law",
+      "summary": "Cast an enchantment spell of 1st level or higher that takes an action as a bonus action instead. Uses equal your Wisdom modifier (min 1) per long rest.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 32
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "embodiment-of-the-law",
+            "name": "Embodiment of the Law",
+            "max": "mod.wis",
+            "reset": "long",
+            "min": 1
+          }
+        ],
+        "actions": [
+          {
+            "id": "embodiment-of-the-law",
+            "name": "Embodiment of the Law",
+            "economy": "free",
+            "cost": {
+              "resource": "embodiment-of-the-law"
+            },
+            "note": "This turn, an action enchantment spell (1st+) is cast as a bonus action."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:order-domain-divine-strike",
+      "name": "Divine Strike",
+      "summary": "Once on each of your turns, a weapon hit deals an extra 1d8 psychic damage (2d8 from 14th level).",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 32
+      },
+      "scaling": {
+        "dice": {
+          "class": "class:cleric",
+          "table": [
+            [
+              8,
+              "1d8"
+            ],
+            [
+              14,
+              "2d8"
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.damage.weapon.*",
+            "op": "add",
+            "value": "scale.dice",
+            "mode": "suggested",
+            "label": "Divine Strike",
+            "when": {
+              "text": "once on each of your turns, on a weapon hit"
+            },
+            "oncePerTurn": true,
+            "damageType": "psychic"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:order-domain-orders-wrath",
+      "name": "Order's Wrath",
+      "summary": "Once per turn, a creature you hit with Divine Strike is cursed until your next turn: the next hit on it by someone else deals an extra 2d8 psychic damage.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 32
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:peace-domain",
+      "name": "Peace Domain",
+      "summary": "Cleric who binds allies together in mutual support and protection.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 31
+      },
+      "class": "class:cleric",
+      "features": [
+        {
+          "level": 1,
+          "feature": "feature:peace-domain-implement-of-peace"
+        },
+        {
+          "level": 1,
+          "feature": "feature:peace-domain-emboldening-bond"
+        },
+        {
+          "level": 1,
+          "feature": "feature:peace-domain-spells-1"
+        },
+        {
+          "level": 3,
+          "feature": "feature:peace-domain-spells-3"
+        },
+        {
+          "level": 5,
+          "feature": "feature:peace-domain-spells-5"
+        },
+        {
+          "level": 7,
+          "feature": "feature:peace-domain-spells-7"
+        },
+        {
+          "level": 9,
+          "feature": "feature:peace-domain-spells-9"
+        },
+        {
+          "level": 2,
+          "feature": "feature:peace-domain-channel-divinity-balm-of-peace"
+        },
+        {
+          "level": 6,
+          "feature": "feature:peace-domain-protective-bond"
+        },
+        {
+          "level": 8,
+          "feature": "feature:peace-domain-potent-spellcasting"
+        },
+        {
+          "level": 17,
+          "feature": "feature:peace-domain-expansive-bond"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:peace-domain-implement-of-peace",
+      "name": "Implement of Peace",
+      "summary": "Proficiency in Insight, Performance or Persuasion.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 32
+      },
+      "choices": [
+        {
+          "id": "peace-skill",
+          "label": "Skill",
+          "kind": "skill",
+          "count": 1,
+          "from": [
+            "insight",
+            "performance",
+            "persuasion"
+          ]
+        }
+      ],
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "skill",
+            "target": {
+              "choice": "peace-skill"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:peace-domain-emboldening-bond",
+      "name": "Emboldening Bond",
+      "summary": "Action: bond up to proficiency-bonus willing creatures within 30 ft (you can include yourself) for 10 minutes. Once per turn, a bonded creature within 30 ft of another can add 1d4 to an attack, check or save. Uses equal your proficiency bonus per long rest.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 32
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "emboldening-bond",
+            "name": "Emboldening Bond",
+            "max": "pb",
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "emboldening-bond",
+            "name": "Emboldening Bond",
+            "economy": "action",
+            "cost": {
+              "resource": "emboldening-bond"
+            },
+            "toggles": [
+              "emboldening-bond"
+            ],
+            "duration": {
+              "minutes": 10
+            },
+            "note": "Bond creatures within 30 ft for 10 minutes: +1d4 once per turn while near another bonded creature."
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.attack.*",
+            "op": "add",
+            "value": "1d4",
+            "mode": "suggested",
+            "label": "Emboldening Bond",
+            "when": {
+              "toggle": "emboldening-bond",
+              "text": "within 30 ft of another bonded creature; once per turn"
+            },
+            "oncePerTurn": true
+          },
+          {
+            "selector": "roll.check.*",
+            "op": "add",
+            "value": "1d4",
+            "mode": "suggested",
+            "label": "Emboldening Bond",
+            "when": {
+              "toggle": "emboldening-bond",
+              "text": "within 30 ft of another bonded creature; once per turn"
+            },
+            "oncePerTurn": true
+          },
+          {
+            "selector": "roll.save.*",
+            "op": "add",
+            "value": "1d4",
+            "mode": "suggested",
+            "label": "Emboldening Bond",
+            "when": {
+              "toggle": "emboldening-bond",
+              "text": "within 30 ft of another bonded creature; once per turn"
+            },
+            "oncePerTurn": true
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:peace-domain-spells-1",
+      "name": "Domain Spells",
+      "summary": "Always prepared, not counted against your prepared spells: Heroism, Sanctuary.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 32
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:heroism",
+            "name": "Heroism",
+            "casting": "always prepared",
+            "list": "cleric"
+          },
+          {
+            "spell": "spell:sanctuary",
+            "name": "Sanctuary",
+            "casting": "always prepared",
+            "list": "cleric"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:peace-domain-spells-3",
+      "name": "Domain Spells (3rd)",
+      "summary": "Always prepared, not counted against your prepared spells: Aid, Warding Bond.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 32
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:aid",
+            "name": "Aid",
+            "casting": "always prepared",
+            "list": "cleric"
+          },
+          {
+            "spell": "spell:warding-bond",
+            "name": "Warding Bond",
+            "casting": "always prepared",
+            "list": "cleric"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:peace-domain-spells-5",
+      "name": "Domain Spells (5th)",
+      "summary": "Always prepared, not counted against your prepared spells: Beacon of Hope, Sending.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 32
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:beacon-of-hope",
+            "name": "Beacon of Hope",
+            "casting": "always prepared",
+            "list": "cleric"
+          },
+          {
+            "spell": "spell:sending",
+            "name": "Sending",
+            "casting": "always prepared",
+            "list": "cleric"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:peace-domain-spells-7",
+      "name": "Domain Spells (7th)",
+      "summary": "Always prepared, not counted against your prepared spells: Aura of Purity, Otiluke's Resilient Sphere.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 32
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:aura-of-purity",
+            "name": "Aura of Purity",
+            "casting": "always prepared",
+            "list": "cleric"
+          },
+          {
+            "spell": "spell:resilient-sphere",
+            "name": "Otiluke's Resilient Sphere",
+            "casting": "always prepared",
+            "list": "cleric"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:peace-domain-spells-9",
+      "name": "Domain Spells (9th)",
+      "summary": "Always prepared, not counted against your prepared spells: Greater Restoration, Rary's Telepathic Bond.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 32
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:greater-restoration",
+            "name": "Greater Restoration",
+            "casting": "always prepared",
+            "list": "cleric"
+          },
+          {
+            "spell": "spell:telepathic-bond",
+            "name": "Rary's Telepathic Bond",
+            "casting": "always prepared",
+            "list": "cleric"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:peace-domain-channel-divinity-balm-of-peace",
+      "name": "Channel Divinity: Balm of Peace",
+      "summary": "Action: move up to your speed without provoking opportunity attacks; each creature of your choice you pass within 5 ft of regains 2d6 + Wisdom modifier hit points (once each).",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 33
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "balm-of-peace",
+            "name": "Balm of Peace",
+            "economy": "action",
+            "cost": {
+              "resource": "channel-divinity"
+            },
+            "roll": {
+              "dice": "2d6 + mod.wis",
+              "label": "healing per creature"
+            },
+            "note": "Move your speed, no opportunity attacks; creatures you pass within 5 ft heal 2d6 + Wis."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:peace-domain-protective-bond",
+      "name": "Protective Bond",
+      "summary": "Reaction: when a bonded creature is about to take damage, another bonded creature within 30 ft teleports next to it and takes all the damage instead.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 33
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "protective-bond",
+            "name": "Protective Bond",
+            "economy": "reaction",
+            "note": "A bonded creature teleports beside another within 30 ft and takes its damage instead."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:peace-domain-potent-spellcasting",
+      "name": "Potent Spellcasting",
+      "summary": "Add your Wisdom modifier to the damage of any cleric cantrip you cast.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 33
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.damage.spell",
+            "op": "add",
+            "value": "mod.wis",
+            "mode": "suggested",
+            "label": "Potent Spellcasting",
+            "when": {
+              "text": "cleric cantrip damage"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:peace-domain-expansive-bond",
+      "name": "Expansive Bond",
+      "summary": "Emboldening Bond and Protective Bond work at 60 ft, and a creature taking damage through Protective Bond has resistance to it.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 33
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:twilight-domain",
+      "name": "Twilight Domain",
+      "summary": "Guardian of the night who sees through darkness, shelters allies in twilight and walks the air in shadow.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 34
+      },
+      "class": "class:cleric",
+      "features": [
+        {
+          "level": 1,
+          "feature": "feature:twilight-domain-bonus-proficiency-ies"
+        },
+        {
+          "level": 1,
+          "feature": "feature:twilight-domain-eyes-of-night"
+        },
+        {
+          "level": 1,
+          "feature": "feature:twilight-domain-vigilant-blessing"
+        },
+        {
+          "level": 1,
+          "feature": "feature:twilight-domain-spells-1"
+        },
+        {
+          "level": 3,
+          "feature": "feature:twilight-domain-spells-3"
+        },
+        {
+          "level": 5,
+          "feature": "feature:twilight-domain-spells-5"
+        },
+        {
+          "level": 7,
+          "feature": "feature:twilight-domain-spells-7"
+        },
+        {
+          "level": 9,
+          "feature": "feature:twilight-domain-spells-9"
+        },
+        {
+          "level": 2,
+          "feature": "feature:twilight-domain-channel-divinity-twilight-sanctuary"
+        },
+        {
+          "level": 6,
+          "feature": "feature:twilight-domain-steps-of-night"
+        },
+        {
+          "level": 8,
+          "feature": "feature:twilight-domain-divine-strike"
+        },
+        {
+          "level": 17,
+          "feature": "feature:twilight-domain-twilight-shroud"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:twilight-domain-bonus-proficiency-ies",
+      "name": "Bonus Proficiencies",
+      "summary": "Proficiency with martial weapons and heavy armor.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 34
+      },
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "armor",
+            "target": "heavy"
+          },
+          {
+            "kind": "weapon",
+            "target": "martial"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:twilight-domain-eyes-of-night",
+      "name": "Eyes of Night",
+      "summary": "Darkvision out to 300 ft. Action: share it for 1 hour with willing creatures within 10 ft, up to your Wisdom modifier (min 1); once per long rest, or again by spending a spell slot.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 34
+      },
+      "grant": {
+        "senses": {
+          "darkvision": 300
+        },
+        "resources": [
+          {
+            "id": "eyes-of-night",
+            "name": "Eyes of Night (share)",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "eyes-of-night",
+            "name": "Eyes of Night",
+            "economy": "action",
+            "cost": {
+              "resource": "eyes-of-night"
+            },
+            "note": "Share 300-ft darkvision for 1 hour with up to Wis mod creatures within 10 ft. Again by spending any spell slot."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:twilight-domain-vigilant-blessing",
+      "name": "Vigilant Blessing",
+      "summary": "Action: you or a creature you touch has advantage on its next initiative roll (ends after that roll or if used again).",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 35
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "vigilant-blessing",
+            "name": "Vigilant Blessing",
+            "economy": "action",
+            "toggles": [
+              "vigilant-blessing"
+            ],
+            "note": "One creature (or you): advantage on the next initiative roll."
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.initiative",
+            "op": "advantage",
+            "mode": "suggested",
+            "label": "Vigilant Blessing",
+            "when": {
+              "toggle": "vigilant-blessing",
+              "text": "blessed on yourself; ends after this roll"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:twilight-domain-spells-1",
+      "name": "Domain Spells",
+      "summary": "Always prepared, not counted against your prepared spells: Faerie Fire, Sleep.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 34
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:faerie-fire",
+            "name": "Faerie Fire",
+            "casting": "always prepared",
+            "list": "cleric"
+          },
+          {
+            "spell": "spell:sleep",
+            "name": "Sleep",
+            "casting": "always prepared",
+            "list": "cleric"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:twilight-domain-spells-3",
+      "name": "Domain Spells (3rd)",
+      "summary": "Always prepared, not counted against your prepared spells: Moonbeam, See Invisibility.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 34
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:moonbeam",
+            "name": "Moonbeam",
+            "casting": "always prepared",
+            "list": "cleric"
+          },
+          {
+            "spell": "spell:see-invisibility",
+            "name": "See Invisibility",
+            "casting": "always prepared",
+            "list": "cleric"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:twilight-domain-spells-5",
+      "name": "Domain Spells (5th)",
+      "summary": "Always prepared, not counted against your prepared spells: Aura of Vitality, Leomund's Tiny Hut.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 34
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:aura-of-vitality",
+            "name": "Aura of Vitality",
+            "casting": "always prepared",
+            "list": "cleric"
+          },
+          {
+            "spell": "spell:tiny-hut",
+            "name": "Leomund's Tiny Hut",
+            "casting": "always prepared",
+            "list": "cleric"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:twilight-domain-spells-7",
+      "name": "Domain Spells (7th)",
+      "summary": "Always prepared, not counted against your prepared spells: Aura of Life, Greater Invisibility.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 34
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:aura-of-life",
+            "name": "Aura of Life",
+            "casting": "always prepared",
+            "list": "cleric"
+          },
+          {
+            "spell": "spell:greater-invisibility",
+            "name": "Greater Invisibility",
+            "casting": "always prepared",
+            "list": "cleric"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:twilight-domain-spells-9",
+      "name": "Domain Spells (9th)",
+      "summary": "Always prepared, not counted against your prepared spells: Circle of Power, Mislead.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 34
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:circle-of-power",
+            "name": "Circle of Power",
+            "casting": "always prepared",
+            "list": "cleric"
+          },
+          {
+            "spell": "spell:mislead",
+            "name": "Mislead",
+            "casting": "always prepared",
+            "list": "cleric"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:twilight-domain-channel-divinity-twilight-sanctuary",
+      "name": "Channel Divinity: Twilight Sanctuary",
+      "summary": "Action: a 30-ft sphere of twilight centered on you for 1 minute. A creature of your choice ending its turn in it gains 1d6 + cleric level temporary hit points, or ends being charmed or frightened.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 35
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "twilight-sanctuary",
+            "name": "Twilight Sanctuary",
+            "economy": "action",
+            "cost": {
+              "resource": "channel-divinity"
+            },
+            "toggles": [
+              "twilight-sanctuary"
+            ],
+            "duration": {
+              "minutes": 1
+            },
+            "roll": {
+              "dice": "1d6 + classLevel.class:cleric",
+              "label": "temporary hit points"
+            },
+            "note": "30-ft aura, 1 minute: allies ending their turn in it gain 1d6 + cleric level temp HP or end charmed/frightened."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:twilight-domain-steps-of-night",
+      "name": "Steps of Night",
+      "summary": "Bonus action while in dim light or darkness: gain a flying speed equal to your walking speed for 1 minute. Uses equal your proficiency bonus per long rest.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 35
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "steps-of-night",
+            "name": "Steps of Night",
+            "max": "pb",
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "steps-of-night",
+            "name": "Steps of Night",
+            "economy": "bonus",
+            "cost": {
+              "resource": "steps-of-night"
+            },
+            "toggles": [
+              "steps-of-night"
+            ],
+            "duration": {
+              "minutes": 1
+            },
+            "note": "In dim light or darkness: fly at your walking speed for 1 minute."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:twilight-domain-divine-strike",
+      "name": "Divine Strike",
+      "summary": "Once on each of your turns, a weapon hit deals an extra 1d8 radiant damage (2d8 from 14th level).",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 35
+      },
+      "scaling": {
+        "dice": {
+          "class": "class:cleric",
+          "table": [
+            [
+              8,
+              "1d8"
+            ],
+            [
+              14,
+              "2d8"
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.damage.weapon.*",
+            "op": "add",
+            "value": "scale.dice",
+            "mode": "suggested",
+            "label": "Divine Strike",
+            "when": {
+              "text": "once on each of your turns, on a weapon hit"
+            },
+            "oncePerTurn": true,
+            "damageType": "radiant"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:twilight-domain-twilight-shroud",
+      "name": "Twilight Shroud",
+      "summary": "You and your allies have half cover while in your Twilight Sanctuary.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 35
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.ac",
+            "op": "add",
+            "value": 2,
+            "label": "Twilight Shroud (half cover)",
+            "when": {
+              "toggle": "twilight-sanctuary"
+            }
+          },
+          {
+            "selector": "roll.save.dex",
+            "op": "add",
+            "value": 2,
+            "label": "Twilight Shroud (half cover)",
+            "when": {
+              "toggle": "twilight-sanctuary"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:cleric-additional-cleric-spells",
+      "name": "Additional Cleric Spells",
+      "summary": "Tasha's adds spells to the cleric list (including Aura of Life, Aura of Purity, Aura of Vitality, Spirit Shroud, Sunbeam, Sunburst, Power Word Heal and Toll the Dead) for you to prepare.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 30
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:cleric-harness-divine-power",
+      "name": "Harness Divine Power",
+      "summary": "Bonus action: spend a Channel Divinity use to regain one expended spell slot of a level up to half your proficiency bonus (rounded up). Once per long rest; twice from 6th level, three times from 18th.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 30
+      },
+      "scaling": {
+        "uses": {
+          "class": "class:cleric",
+          "table": [
+            [
+              2,
+              1
+            ],
+            [
+              6,
+              2
+            ],
+            [
+              18,
+              3
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "harness-divine-power",
+            "name": "Harness Divine Power",
+            "max": "scale.uses",
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "harness-divine-power",
+            "name": "Harness Divine Power",
+            "economy": "bonus",
+            "cost": {
+              "resource": "harness-divine-power"
+            },
+            "note": "Spend Channel Divinity: regain one spell slot of level up to half your proficiency bonus (round up). Restore the slot on the Spells panel."
+          },
+          {
+            "id": "harness-divine-power-cd",
+            "name": "Harness Divine Power (Channel Divinity)",
+            "economy": "free",
+            "cost": {
+              "resource": "channel-divinity"
+            },
+            "note": "Tick alongside Harness Divine Power: it also spends one Channel Divinity use."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:cleric-cantrip-versatility",
+      "name": "Cantrip Versatility",
+      "summary": "Whenever you gain an Ability Score Improvement, you may swap one cleric cantrip you know for another cleric cantrip.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 31
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:cleric-blessed-strikes",
+      "name": "Blessed Strikes",
+      "summary": "Optional replacement for Divine Strike or Potent Spellcasting: once per turn, when a cantrip or weapon attack damages a creature, add 1d8 radiant damage.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 31
+      }
+    }
+  ]
+}

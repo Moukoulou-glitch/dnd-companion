@@ -1,0 +1,1485 @@
+{
+  "definitions": [
+    {
+      "kind": "subclass",
+      "id": "subclass:school-of-abjuration",
+      "name": "School of Abjuration",
+      "summary": "Wizard tradition of protective magic, shielded by an arcane ward.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 115
+      },
+      "class": "class:wizard",
+      "features": [
+        {
+          "level": 2,
+          "feature": "feature:abjuration-abjuration-savant"
+        },
+        {
+          "level": 2,
+          "feature": "feature:abjuration-arcane-ward"
+        },
+        {
+          "level": 6,
+          "feature": "feature:abjuration-projected-ward"
+        },
+        {
+          "level": 10,
+          "feature": "feature:abjuration-improved-abjuration"
+        },
+        {
+          "level": 14,
+          "feature": "feature:abjuration-spell-resistance"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:abjuration-abjuration-savant",
+      "name": "Abjuration Savant",
+      "summary": "Copying abjuration spells into your spellbook costs half the usual gold and time.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 115
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:abjuration-arcane-ward",
+      "name": "Arcane Ward",
+      "summary": "When you cast an abjuration spell of 1st level or higher, you can create a ward (once per long rest) with hit points equal to twice your wizard level + Intelligence modifier. It takes damage for you first. Casting an abjuration spell of 1st level or higher later restores 2 x the spell's level to it.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 115
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "arcane-ward",
+            "name": "Arcane Ward HP",
+            "max": "2*classLevel.class:wizard + mod.int",
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "arcane-ward-absorb",
+            "name": "Arcane Ward absorbs damage",
+            "economy": "free",
+            "cost": {
+              "resource": "arcane-ward"
+            },
+            "spendAmount": {
+              "label": "Damage absorbed by the ward"
+            },
+            "note": "Damage you take hits the ward first; any left over hits you. At 0 HP the ward stays but absorbs nothing until recharged."
+          },
+          {
+            "id": "arcane-ward-recharge",
+            "name": "Recharge Arcane Ward",
+            "economy": "free",
+            "restores": {
+              "resource": "arcane-ward",
+              "amount": 2
+            },
+            "note": "Cast an abjuration spell of 1st level or higher: the ward regains 2 HP per spell level (use once per 2 HP)."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:abjuration-projected-ward",
+      "name": "Projected Ward",
+      "summary": "When a creature you can see within 30 feet takes damage, use your reaction to have your Arcane Ward absorb it instead.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 115
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "projected-ward",
+            "name": "Projected Ward",
+            "economy": "reaction",
+            "cost": {
+              "resource": "arcane-ward"
+            },
+            "spendAmount": {
+              "label": "Damage absorbed by the ward"
+            },
+            "note": "A creature you can see within 30 ft takes damage: your ward absorbs it; leftover damage goes to the creature."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:abjuration-improved-abjuration",
+      "name": "Improved Abjuration",
+      "summary": "When an abjuration spell has you make an ability check (Counterspell, Dispel Magic), add your proficiency bonus to it.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 115
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.check.int",
+            "op": "add",
+            "value": "pb",
+            "mode": "suggested",
+            "label": "Improved Abjuration",
+            "when": {
+              "text": "ability check made as part of an abjuration spell (Counterspell, Dispel Magic)"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:abjuration-spell-resistance",
+      "name": "Spell Resistance",
+      "summary": "Advantage on saving throws against spells, and resistance to the damage of spells.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 116
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.save.*",
+            "op": "advantage",
+            "mode": "suggested",
+            "label": "Spell Resistance",
+            "when": {
+              "text": "saving throw against a spell"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:school-of-conjuration",
+      "name": "School of Conjuration",
+      "summary": "Wizard tradition of summoning objects and creatures and teleporting.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 116
+      },
+      "class": "class:wizard",
+      "features": [
+        {
+          "level": 2,
+          "feature": "feature:conjuration-conjuration-savant"
+        },
+        {
+          "level": 2,
+          "feature": "feature:conjuration-minor-conjuration"
+        },
+        {
+          "level": 6,
+          "feature": "feature:conjuration-benign-transposition"
+        },
+        {
+          "level": 10,
+          "feature": "feature:conjuration-focused-conjuration"
+        },
+        {
+          "level": 14,
+          "feature": "feature:conjuration-durable-summons"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:conjuration-conjuration-savant",
+      "name": "Conjuration Savant",
+      "summary": "Copying conjuration spells into your spellbook costs half the usual gold and time.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 116
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:conjuration-minor-conjuration",
+      "name": "Minor Conjuration",
+      "summary": "An action to conjure a nonmagical object (up to 3 feet on a side, 10 pounds, of a form you've seen) within 10 feet. It lasts 1 hour, until it takes damage, or until you use this again.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 116
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "minor-conjuration",
+            "name": "Minor Conjuration",
+            "economy": "action",
+            "note": "Conjure a nonmagical object up to 3 ft and 10 lb within 10 ft for 1 hour; it vanishes if it takes damage."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:conjuration-benign-transposition",
+      "name": "Benign Transposition",
+      "summary": "An action to teleport up to 30 feet, or swap places with a willing Small or Medium creature within 30 feet. Usable again after a long rest or after you cast a conjuration spell of 1st level or higher.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 116
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "benign-transposition",
+            "name": "Benign Transposition",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "benign-transposition",
+            "name": "Benign Transposition",
+            "economy": "action",
+            "cost": {
+              "resource": "benign-transposition"
+            },
+            "note": "Teleport up to 30 ft, or swap places with a willing Small/Medium creature within 30 ft. Also recharges when you cast a conjuration spell of 1st level+."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:conjuration-focused-conjuration",
+      "name": "Focused Conjuration",
+      "summary": "Taking damage can't break your concentration on a conjuration spell.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 116
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:conjuration-durable-summons",
+      "name": "Durable Summons",
+      "summary": "Any creature you summon or create with a conjuration spell has 30 temporary hit points.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 116
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:school-of-enchantment",
+      "name": "School of Enchantment",
+      "summary": "Wizard tradition of beguiling and charming minds.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 117
+      },
+      "class": "class:wizard",
+      "features": [
+        {
+          "level": 2,
+          "feature": "feature:enchantment-enchantment-savant"
+        },
+        {
+          "level": 2,
+          "feature": "feature:enchantment-hypnotic-gaze"
+        },
+        {
+          "level": 6,
+          "feature": "feature:enchantment-instinctive-charm"
+        },
+        {
+          "level": 10,
+          "feature": "feature:enchantment-split-enchantment"
+        },
+        {
+          "level": 14,
+          "feature": "feature:enchantment-alter-memories"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:enchantment-enchantment-savant",
+      "name": "Enchantment Savant",
+      "summary": "Copying enchantment spells into your spellbook costs half the usual gold and time.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 117
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:enchantment-hypnotic-gaze",
+      "name": "Hypnotic Gaze",
+      "summary": "An action: a creature within 5 feet that can see or hear you makes a Wisdom save or is charmed (incapacitated, speed 0) until the end of your next turn. You can extend it with your action each turn while staying within 60 feet. A creature that succeeds is immune to it until your next long rest.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 117
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "hypnotic-gaze",
+            "name": "Hypnotic Gaze",
+            "economy": "action",
+            "note": "Creature within 5 ft: Wisdom save or charmed, incapacitated and speed 0 until the end of your next turn. Use your action to maintain it."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:enchantment-instinctive-charm",
+      "name": "Instinctive Charm",
+      "summary": "When a creature within 30 feet attacks you, use your reaction to make it Wisdom save; on a failure it attacks the creature closest to it instead (not you or itself). On a success it is immune for 24 hours.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 117
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "instinctive-charm",
+            "name": "Instinctive Charm",
+            "economy": "reaction",
+            "note": "An attacker within 30 ft: Wisdom save or it redirects the attack to the closest other creature in range."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:enchantment-split-enchantment",
+      "name": "Split Enchantment",
+      "summary": "An enchantment spell of 1st level or higher that targets only one creature can target a second creature.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 117
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:enchantment-alter-memories",
+      "name": "Alter Memories",
+      "summary": "When you charm creatures with an enchantment spell, you can make one of them unaware of being charmed, and before the spell ends you can make it forget up to 1 + Charisma modifier hours of time it was charmed (Intelligence save).",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 117
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:school-of-illusion",
+      "name": "School of Illusion",
+      "summary": "Wizard tradition of deceiving the senses with illusions that grow real.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 118
+      },
+      "class": "class:wizard",
+      "features": [
+        {
+          "level": 2,
+          "feature": "feature:illusion-illusion-savant"
+        },
+        {
+          "level": 2,
+          "feature": "feature:illusion-improved-minor-illusion"
+        },
+        {
+          "level": 6,
+          "feature": "feature:illusion-malleable-illusions"
+        },
+        {
+          "level": 10,
+          "feature": "feature:illusion-illusory-self"
+        },
+        {
+          "level": 14,
+          "feature": "feature:illusion-illusory-reality"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:illusion-illusion-savant",
+      "name": "Illusion Savant",
+      "summary": "Copying illusion spells into your spellbook costs half the usual gold and time.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 118
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:illusion-improved-minor-illusion",
+      "name": "Improved Minor Illusion",
+      "summary": "You learn Minor Illusion (or another wizard cantrip if you already know it), and it can create a sound and an image together with one casting.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 118
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:minor-illusion",
+            "name": "Minor Illusion",
+            "casting": "at will",
+            "list": "wizard"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:illusion-malleable-illusions",
+      "name": "Malleable Illusions",
+      "summary": "When an illusion spell of yours lasts 1 minute or longer, you can use your action to change it within the spell's normal limits while you can see it.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 118
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:illusion-illusory-self",
+      "name": "Illusory Self",
+      "summary": "Once per short rest, as a reaction when a creature attacks you, an illusory duplicate makes the attack miss automatically.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 118
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "illusory-self",
+            "name": "Illusory Self",
+            "max": 1,
+            "reset": "short"
+          }
+        ],
+        "actions": [
+          {
+            "id": "illusory-self",
+            "name": "Illusory Self",
+            "economy": "reaction",
+            "cost": {
+              "resource": "illusory-self"
+            },
+            "note": "An attack against you automatically misses."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:illusion-illusory-reality",
+      "name": "Illusory Reality",
+      "summary": "When you cast an illusion spell of 1st level or higher, use a bonus action to make one inanimate, nonmagical object from it real for 1 minute; it can't deal damage or directly harm anyone.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 118
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "illusory-reality",
+            "name": "Illusory Reality",
+            "economy": "bonus",
+            "duration": {
+              "rounds": 10
+            },
+            "note": "After casting an illusion spell of 1st level+: one harmless inanimate object in it becomes real for 1 minute."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:school-of-necromancy",
+      "name": "School of Necromancy",
+      "summary": "Wizard tradition of life, death and undeath.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 118
+      },
+      "class": "class:wizard",
+      "features": [
+        {
+          "level": 2,
+          "feature": "feature:necromancy-necromancy-savant"
+        },
+        {
+          "level": 2,
+          "feature": "feature:necromancy-grim-harvest"
+        },
+        {
+          "level": 6,
+          "feature": "feature:necromancy-undead-thralls"
+        },
+        {
+          "level": 10,
+          "feature": "feature:necromancy-inured-to-undeath"
+        },
+        {
+          "level": 14,
+          "feature": "feature:necromancy-command-undead"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:necromancy-necromancy-savant",
+      "name": "Necromancy Savant",
+      "summary": "Copying necromancy spells into your spellbook costs half the usual gold and time.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 118
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:necromancy-grim-harvest",
+      "name": "Grim Harvest",
+      "summary": "Once per turn, when a spell of 1st level or higher kills a creature (not a construct or undead), regain hit points equal to twice the spell's level, or three times if it's a necromancy spell.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 118
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.damage.spell",
+            "op": "note",
+            "label": "Grim Harvest: if this spell (1st level+) kills a non-construct, non-undead creature, regain 2 x spell level HP (3 x for necromancy). Once per turn."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:necromancy-undead-thralls",
+      "name": "Undead Thralls",
+      "summary": "Animate Dead goes into your spellbook free. When you cast it, you can target one extra corpse or pile of bones, and undead you create with necromancy spells add your wizard level to their HP maximum and your proficiency bonus to weapon damage.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 119
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:animate-dead",
+            "name": "Animate Dead",
+            "casting": "in your spellbook (prepare as usual)",
+            "list": "wizard"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:necromancy-inured-to-undeath",
+      "name": "Inured to Undeath",
+      "summary": "Resistance to necrotic damage, and your hit point maximum can't be reduced.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 119
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.necrotic",
+            "op": "resist",
+            "label": "Inured to Undeath"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:necromancy-command-undead",
+      "name": "Command Undead",
+      "summary": "An action to try to control an undead within 60 feet: it makes a Charisma save or becomes friendly and obeys you until you use this again. Smart undead (Int 8+) get advantage, and those with Int 12+ can repeat the save every hour.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 119
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "command-undead",
+            "name": "Command Undead",
+            "economy": "action",
+            "note": "Undead within 60 ft: Charisma save or it obeys you indefinitely."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:school-of-transmutation",
+      "name": "School of Transmutation",
+      "summary": "Wizard tradition of changing matter and form, with a transmuter's stone.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 119
+      },
+      "class": "class:wizard",
+      "features": [
+        {
+          "level": 2,
+          "feature": "feature:transmutation-transmutation-savant"
+        },
+        {
+          "level": 2,
+          "feature": "feature:transmutation-minor-alchemy"
+        },
+        {
+          "level": 6,
+          "feature": "feature:transmutation-transmuters-stone"
+        },
+        {
+          "level": 10,
+          "feature": "feature:transmutation-shapechanger"
+        },
+        {
+          "level": 14,
+          "feature": "feature:transmutation-master-transmuter"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:transmutation-transmutation-savant",
+      "name": "Transmutation Savant",
+      "summary": "Copying transmutation spells into your spellbook costs half the usual gold and time.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 119
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:transmutation-minor-alchemy",
+      "name": "Minor Alchemy",
+      "summary": "Spend 10 minutes per cubic foot to turn an object of wood, stone, iron, copper or silver into another of those materials. It reverts after 1 hour or if you lose concentration.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 119
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:transmutation-transmuters-stone",
+      "name": "Transmuter's Stone",
+      "summary": "Spend 8 hours to make a stone that gives its holder one benefit you pick: darkvision 60 ft, +10 ft speed while unencumbered, proficiency in Constitution saves, or resistance to acid, cold, fire, lightning or thunder. You can change the benefit when you cast a transmutation spell of 1st level or higher.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 119
+      },
+      "choices": [
+        {
+          "id": "stone-benefit",
+          "label": "Transmuter's Stone benefit",
+          "kind": "option",
+          "count": 1,
+          "from": [
+            "Darkvision 60 ft",
+            "+10 ft speed",
+            "Constitution save proficiency",
+            "Acid resistance",
+            "Cold resistance",
+            "Fire resistance",
+            "Lightning resistance",
+            "Thunder resistance"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:transmutation-shapechanger",
+      "name": "Shapechanger",
+      "summary": "Polymorph goes into your spellbook free. Once per short rest you can cast it without a slot, targeting only yourself, turning into a beast of challenge rating 1 or lower.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 119
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "shapechanger",
+            "name": "Shapechanger",
+            "max": 1,
+            "reset": "short"
+          }
+        ],
+        "spells": [
+          {
+            "spell": "spell:polymorph",
+            "name": "Polymorph",
+            "casting": "once per short rest, on yourself, without a slot (beast CR 1 or lower)",
+            "resource": "shapechanger",
+            "list": "wizard"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:transmutation-master-transmuter",
+      "name": "Master Transmuter",
+      "summary": "An action to destroy your transmuter's stone for one effect: transmute a nonmagical object, cure ailments (heal fully and remove curses, diseases and poisons), cast Raise Dead without a slot, or make a creature younger. You can make a new stone after a long rest.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 120
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "master-transmuter",
+            "name": "Master Transmuter",
+            "economy": "action",
+            "choose": {
+              "label": "Effect",
+              "options": [
+                "Major Transformation",
+                "Panacea",
+                "Restore Life",
+                "Restore Youth"
+              ]
+            },
+            "note": "Consume your transmuter's stone: Major Transformation, Panacea, Restore Life (Raise Dead) or Restore Youth."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:war-magic",
+      "name": "War Magic",
+      "summary": "Wizard tradition blending abjuration and evocation for the battlefield.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 59
+      },
+      "class": "class:wizard",
+      "features": [
+        {
+          "level": 2,
+          "feature": "feature:war-magic-arcane-deflection"
+        },
+        {
+          "level": 2,
+          "feature": "feature:war-magic-tactical-wit"
+        },
+        {
+          "level": 6,
+          "feature": "feature:war-magic-power-surge"
+        },
+        {
+          "level": 10,
+          "feature": "feature:war-magic-durable-magic"
+        },
+        {
+          "level": 14,
+          "feature": "feature:war-magic-deflecting-shroud"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:war-magic-arcane-deflection",
+      "name": "Arcane Deflection",
+      "summary": "As a reaction when you're hit by an attack or fail a saving throw, gain +2 AC against that attack or +4 to that save. Until the end of your next turn you can then only cast cantrips.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 59
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "arcane-deflection",
+            "name": "Arcane Deflection",
+            "economy": "reaction",
+            "note": "+2 AC against the triggering attack, or +4 to the failed save. Only cantrips until the end of your next turn."
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.save.*",
+            "op": "add",
+            "value": 4,
+            "mode": "suggested",
+            "label": "Arcane Deflection",
+            "when": {
+              "text": "reaction after failing this save; only cantrips until end of your next turn"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:war-magic-tactical-wit",
+      "name": "Tactical Wit",
+      "summary": "Add your Intelligence modifier to initiative rolls.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 60
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.initiative",
+            "op": "add",
+            "value": "mod.int",
+            "label": "Tactical Wit"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:war-magic-power-surge",
+      "name": "Power Surge",
+      "summary": "You hold power surges (max = Intelligence modifier, min 1), full after a long rest; a short rest with none gives back one, and ending a spell with Dispel Magic or Counterspell gives one. Once per turn, spend one to add half your wizard level as force damage to one target of a spell.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 60
+      },
+      "scaling": {
+        "half": {
+          "class": "class:wizard",
+          "table": [
+            [
+              2,
+              1
+            ],
+            [
+              4,
+              2
+            ],
+            [
+              6,
+              3
+            ],
+            [
+              8,
+              4
+            ],
+            [
+              10,
+              5
+            ],
+            [
+              12,
+              6
+            ],
+            [
+              14,
+              7
+            ],
+            [
+              16,
+              8
+            ],
+            [
+              18,
+              9
+            ],
+            [
+              20,
+              10
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "power-surge",
+            "name": "Power Surge",
+            "max": "mod.int",
+            "reset": "long",
+            "min": 1
+          }
+        ],
+        "actions": [
+          {
+            "id": "power-surge",
+            "name": "Power Surge",
+            "economy": "free",
+            "cost": {
+              "resource": "power-surge"
+            },
+            "note": "Once per turn when a spell deals damage: one target takes extra force damage equal to half your wizard level."
+          },
+          {
+            "id": "power-surge-gain",
+            "name": "Gain a power surge",
+            "economy": "free",
+            "restores": {
+              "resource": "power-surge",
+              "amount": 1
+            },
+            "note": "When you end a spell with Dispel Magic or Counterspell, or after a short rest with no surges left."
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.damage.spell",
+            "op": "add",
+            "value": "scale.half",
+            "mode": "suggested",
+            "label": "Power Surge",
+            "damageType": "force",
+            "oncePerTurn": true,
+            "when": {
+              "text": "spend a power surge; one target only"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:war-magic-durable-magic",
+      "name": "Durable Magic",
+      "summary": "While you maintain concentration on a spell, you have +2 AC and +2 to all saving throws.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 60
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.ac",
+            "op": "add",
+            "value": 2,
+            "label": "Durable Magic (concentrating)",
+            "when": {
+              "toggle": "durable-magic"
+            }
+          },
+          {
+            "selector": "roll.save.*",
+            "op": "add",
+            "value": 2,
+            "label": "Durable Magic (concentrating)",
+            "when": {
+              "toggle": "durable-magic"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:war-magic-deflecting-shroud",
+      "name": "Deflecting Shroud",
+      "summary": "When you use Arcane Deflection, up to three creatures of your choice within 60 feet take force damage equal to half your wizard level.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 60
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.save.*",
+            "op": "note",
+            "label": "Deflecting Shroud: when you use Arcane Deflection, up to 3 creatures within 60 ft take force damage equal to half your wizard level."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:bladesinging",
+      "name": "Bladesinging",
+      "summary": "Wizard tradition of elegant swordplay woven with magic.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 76
+      },
+      "class": "class:wizard",
+      "features": [
+        {
+          "level": 2,
+          "feature": "feature:bladesinging-training-in-war-and-song"
+        },
+        {
+          "level": 2,
+          "feature": "feature:bladesinging-bladesong"
+        },
+        {
+          "level": 6,
+          "feature": "feature:bladesinging-extra-attack"
+        },
+        {
+          "level": 10,
+          "feature": "feature:bladesinging-song-of-defense"
+        },
+        {
+          "level": 14,
+          "feature": "feature:bladesinging-song-of-victory"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:bladesinging-training-in-war-and-song",
+      "name": "Training in War and Song",
+      "summary": "Proficiency with light armor, one type of one-handed melee weapon of your choice, and the Performance skill.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 76
+      },
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "armor",
+            "target": "light"
+          },
+          {
+            "kind": "weapon",
+            "target": {
+              "choice": "bladesong-weapon"
+            }
+          },
+          {
+            "kind": "skill",
+            "target": "performance"
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "bladesong-weapon",
+          "label": "One-handed melee weapon",
+          "kind": "option",
+          "count": 1,
+          "from": [
+            "club",
+            "dagger",
+            "handaxe",
+            "javelin",
+            "light hammer",
+            "mace",
+            "quarterstaff",
+            "sickle",
+            "spear",
+            "battleaxe",
+            "flail",
+            "longsword",
+            "morningstar",
+            "rapier",
+            "scimitar",
+            "shortsword",
+            "trident",
+            "war pick",
+            "warhammer",
+            "whip"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:bladesinging-bladesong",
+      "name": "Bladesong",
+      "summary": "Bonus action, proficiency bonus times per long rest: for 1 minute (while not in medium or heavy armor or using a shield) add your Intelligence modifier (min 1) to AC, +10 ft walking speed, advantage on Acrobatics checks, and add your Intelligence modifier to Constitution saves to keep concentration. Ends if incapacitated, armored up, or attacking two-handed.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 77
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "bladesong",
+            "name": "Bladesong",
+            "max": "pb",
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "bladesong",
+            "name": "Bladesong",
+            "economy": "bonus",
+            "cost": {
+              "resource": "bladesong"
+            },
+            "toggles": [
+              "bladesong"
+            ],
+            "duration": {
+              "rounds": 10
+            },
+            "note": "1 minute. No medium/heavy armor or shield, no two-handed attacks."
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "stat.ac",
+            "op": "add",
+            "value": "mod.int",
+            "label": "Bladesong",
+            "when": {
+              "toggle": "bladesong"
+            }
+          },
+          {
+            "selector": "stat.speed.walk",
+            "op": "add",
+            "value": 10,
+            "label": "Bladesong",
+            "when": {
+              "toggle": "bladesong"
+            }
+          },
+          {
+            "selector": "roll.check.skill.acrobatics",
+            "op": "advantage",
+            "label": "Bladesong",
+            "when": {
+              "toggle": "bladesong"
+            }
+          },
+          {
+            "selector": "roll.save.con",
+            "op": "add",
+            "value": "mod.int",
+            "mode": "suggested",
+            "label": "Bladesong",
+            "when": {
+              "toggle": "bladesong",
+              "text": "save to maintain concentration"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:bladesinging-extra-attack",
+      "name": "Extra Attack",
+      "summary": "You attack twice when you take the Attack action, and you can cast a cantrip in place of one of those attacks.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 77
+      },
+      "grant": {
+        "extraAttacks": 2
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:bladesinging-song-of-defense",
+      "name": "Song of Defense",
+      "summary": "While Bladesong is active, when you take damage you can use your reaction and expend a spell slot to reduce the damage by five times the slot's level.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 77
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "song-of-defense",
+            "name": "Song of Defense",
+            "economy": "reaction",
+            "choose": {
+              "label": "Slot level",
+              "options": [
+                "1st (5)",
+                "2nd (10)",
+                "3rd (15)",
+                "4th (20)",
+                "5th (25)",
+                "6th (30)",
+                "7th (35)",
+                "8th (40)",
+                "9th (45)"
+              ]
+            },
+            "note": "While Bladesong is active: expend a spell slot, reduce the damage by 5 x slot level."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:bladesinging-song-of-victory",
+      "name": "Song of Victory",
+      "summary": "While Bladesong is active, add your Intelligence modifier (min 1) to the damage of your melee weapon attacks.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 77
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.damage.weapon.melee",
+            "op": "add",
+            "value": "mod.int",
+            "label": "Song of Victory",
+            "when": {
+              "toggle": "bladesong"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:order-of-scribes",
+      "name": "Order of Scribes",
+      "summary": "Wizard tradition centered on an awakened spellbook and a manifested mind.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 77
+      },
+      "class": "class:wizard",
+      "features": [
+        {
+          "level": 2,
+          "feature": "feature:order-of-scribes-wizardly-quill"
+        },
+        {
+          "level": 2,
+          "feature": "feature:order-of-scribes-awakened-spellbook"
+        },
+        {
+          "level": 6,
+          "feature": "feature:order-of-scribes-manifest-mind"
+        },
+        {
+          "level": 10,
+          "feature": "feature:order-of-scribes-master-scrivener"
+        },
+        {
+          "level": 14,
+          "feature": "feature:order-of-scribes-one-with-the-word"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:order-of-scribes-wizardly-quill",
+      "name": "Wizardly Quill",
+      "summary": "A bonus action conjures a magic quill that writes without ink in any color and can erase what it wrote. With it, copying spells into your spellbook takes 2 minutes per spell level.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 78
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "wizardly-quill",
+            "name": "Wizardly Quill",
+            "economy": "bonus",
+            "note": "Conjure your quill (it vanishes if you make another or die)."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:order-of-scribes-awakened-spellbook",
+      "name": "Awakened Spellbook",
+      "summary": "Your spellbook is a spellcasting focus. When casting a damaging wizard spell, you can swap its damage type for one dealt by another spell of the same level in your book. Once per long rest, cast a ritual from the book at its normal casting time instead of the ritual time.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 78
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "awakened-spellbook",
+            "name": "Awakened Spellbook (fast ritual)",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "awakened-spellbook",
+            "name": "Fast ritual",
+            "economy": "free",
+            "cost": {
+              "resource": "awakened-spellbook"
+            },
+            "note": "Cast a ritual spell at its normal casting time rather than as a ritual."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:order-of-scribes-manifest-mind",
+      "name": "Manifest Mind",
+      "summary": "Bonus action: manifest your spellbook's mind as a spectral object within 60 feet (dim light, darkvision 60 ft, sees and hears for you, moves 30 ft as a bonus action). Proficiency bonus times per long rest, you can cast a wizard spell as if from its space; you can also regain a use by expending a slot of 1st level or higher.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 78
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "manifest-mind",
+            "name": "Manifest Mind casts",
+            "max": "pb",
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "manifest-mind",
+            "name": "Manifest Mind",
+            "economy": "bonus",
+            "note": "Summon or move the spectral mind (within 300 ft of you, or it vanishes)."
+          },
+          {
+            "id": "manifest-mind-cast",
+            "name": "Cast through Manifest Mind",
+            "economy": "free",
+            "cost": {
+              "resource": "manifest-mind"
+            },
+            "note": "Cast a wizard spell as if you were in the mind's space."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:order-of-scribes-master-scrivener",
+      "name": "Master Scrivener",
+      "summary": "After a long rest, you can create a magic scroll of one 1st- or 2nd-level spell from your spellbook, cast at one level higher than normal, that only you can read. It lasts until used or until your next long rest.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 79
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:order-of-scribes-one-with-the-word",
+      "name": "One with the Word",
+      "summary": "Advantage on Intelligence (Arcana) checks. Once per long rest, when you take damage while your spellbook is with you, use your reaction to negate the damage; you then lose spells from the book (3d6 levels) until you finish 1d6 long rests.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 79
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "one-with-the-word",
+            "name": "One with the Word",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "one-with-the-word",
+            "name": "One with the Word",
+            "economy": "reaction",
+            "cost": {
+              "resource": "one-with-the-word"
+            },
+            "roll": {
+              "dice": "3d6",
+              "label": "Spell levels lost from your spellbook"
+            },
+            "note": "Negate the damage. Spells totaling 3d6 levels vanish from your book until 1d6 long rests pass."
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.check.skill.arcana",
+            "op": "advantage",
+            "label": "One with the Word",
+            "when": {
+              "text": "while you have your spellbook on you"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:wizard-additional-wizard-spells",
+      "name": "Additional Wizard Spells",
+      "summary": "Optional (TCoE): more spells join the wizard spell list, such as Booming Blade, Green-Flame Blade, Mind Sliver, Tasha's Caustic Brew, Tasha's Mind Whip, Intellect Fortress, Spirit Shroud, the Summon spells, Tasha's Otherworldly Guise, Dream of the Blue Veil and Blade of Disaster.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 75
+      }
+    }
+  ]
+}

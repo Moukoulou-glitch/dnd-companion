@@ -52,14 +52,15 @@
         "progression": "full"
       },
       "subclassLevel": 2,
-      "features": [
-        {
-          "level": 1,
-          "feature": "feature:arcane-recovery"
-        },
+      "features": [],
+      "adds": [
         {
           "level": 3,
           "feature": "feature:cantrip-formulas"
+        },
+        {
+          "level": 1,
+          "feature": "feature:wizard-additional-wizard-spells"
         }
       ],
       "spellPreparation": "prepared"
