@@ -63,7 +63,7 @@ export function App() {
 
   if (!s.ready) return null;
   if (s.error && !s.character) return <p style={{ padding: 16 }}>{s.error}</p>;
-  if (!s.character || !s.sheet) return <Welcome create={s.create} readImport={s.readImport} />;
+  if (!s.character || !s.sheet) return <Welcome create={s.create} readImport={s.readImport} deleted={s.deleted} restore={s.restore} purge={s.purge} />;
 
   const { character: c, sheet } = s;
 
@@ -850,8 +850,8 @@ export function App() {
   const confirmDelete = () =>
     open(`Delete ${c.name}?`, () => (
       <Confirm
-        question={`Delete ${c.name} from this device?`}
-        detail="This can't be undone. Export the character first if you want to keep a copy."
+        question={`Delete ${c.name}?`}
+        detail="They move to Deleted characters, with everything they had, and you can restore them from there."
         no="No, keep them"
         yes={`Delete ${c.name}`}
         onNo={openRoster}
@@ -1046,10 +1046,12 @@ export function App() {
       </>
     ));
 
+  const openDeleted = () => open("Deleted characters", () => <DeletedPanel list={live.current.deleted} restore={async (id) => { await live.current.restore(id); close(); }} purge={live.current.purge} />);
+
   const openRoster = () =>
     open(
       "Characters",
-      <>
+      () => <>
         <div className="group">
           {s.roster.map((r) => (
             <button
@@ -1086,8 +1088,13 @@ export function App() {
           Book text{bookReport ? " (loaded)" : ""}
         </button>
         <FlashSetting />
+        {live.current.deleted.length > 0 && (
+          <button className="big" style={{ width: "100%", marginTop: 12 }} onClick={openDeleted}>
+            Deleted characters ({live.current.deleted.length})
+          </button>
+        )}
         <button className="link danger-text" style={{ marginTop: 16 }} onClick={confirmDelete}>
-          Delete {c.name} from this device
+          Delete {c.name}
         </button>
       </>,
     );
@@ -1315,7 +1322,61 @@ function FlashSetting() {
 }
 
 /** No characters yet: make one, or bring one in from a file. */
-function Welcome({ create, readImport }: { create: (c: Character, label?: string) => Promise<void>; readImport: (text: string) => { character?: Character; error?: string } }) {
+interface DeletedEntry {
+  id: string;
+  name: string;
+  summary: string;
+  deletedAt: number;
+}
+
+/** Deleted characters, newest first: restore one as it was, or remove it for good. */
+function DeletedPanel({ list, restore, purge }: { list: DeletedEntry[]; restore: (id: string) => void | Promise<void>; purge: (id: string) => void | Promise<void> }) {
+  const [sure, setSure] = useState<string | null>(null);
+  if (!list.length) return <p className="note">No deleted characters.</p>;
+  return (
+    <>
+      <p className="note">Deleted characters keep everything they had: changes, rolls and history.</p>
+      <div className="group">
+        {list.map((d) => (
+          <div className="row" key={d.id}>
+            <div className="row-main">
+              <div className="row-title">{d.name}</div>
+              <div className="row-sub">
+                {d.summary ? `${d.summary} · ` : ""}deleted {new Date(d.deletedAt).toLocaleDateString()}
+              </div>
+            </div>
+            <button className="chip" onClick={() => void restore(d.id)}>
+              Restore
+            </button>
+            {sure === d.id ? (
+              <button className="chip danger-text" onClick={() => void purge(d.id)}>
+                Sure? Delete for good
+              </button>
+            ) : (
+              <button className="chip" aria-label={`Delete ${d.name} for good`} onClick={() => setSure(d.id)}>
+                ✕
+              </button>
+            )}
+          </div>
+        ))}
+      </div>
+    </>
+  );
+}
+
+function Welcome({
+  create,
+  readImport,
+  deleted,
+  restore,
+  purge,
+}: {
+  create: (c: Character, label?: string) => Promise<void>;
+  readImport: (text: string) => { character?: Character; error?: string };
+  deleted: DeletedEntry[];
+  restore: (id: string) => Promise<void>;
+  purge: (id: string) => Promise<void>;
+}) {
   const [making, setMaking] = useState(false);
   const [msg, setMsg] = useState("");
   return (
@@ -1325,7 +1386,7 @@ function Welcome({ create, readImport }: { create: (c: Character, label?: string
         <NewCharacterPanel reg={registry} onCreate={(input) => void create(newCharacter({ ...input, id: crypto.randomUUID() }, registry))} />
       ) : (
         <>
-          <p className="note">No characters on this device yet.</p>
+          <p className="note">{deleted.length ? "No characters here right now." : "No characters on this device yet."}</p>
           <div className="big-actions">
             <button className="big primary" onClick={() => setMaking(true)}>
               New character
@@ -1346,6 +1407,12 @@ function Welcome({ create, readImport }: { create: (c: Character, label?: string
             </label>
           </div>
           {msg && <p className="note danger-text">{msg}</p>}
+          {deleted.length > 0 && (
+            <>
+              <h3 style={{ marginTop: 24 }}>Deleted characters</h3>
+              <DeletedPanel list={deleted} restore={restore} purge={purge} />
+            </>
+          )}
         </>
       )}
     </main>

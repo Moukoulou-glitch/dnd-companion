@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { Ability, DamageType, DefId, Ruleset } from "./core.js";
-import { ChoiceDef, Grant, Modifier, SpellcastingDef } from "./modifiers.js";
+import { ActionDef, ChoiceDef, Grant, Modifier, SpellcastingDef } from "./modifiers.js";
 
 /**
  * Where a definition comes from. `book` and `page` are references only;
@@ -261,6 +261,10 @@ export const EffectDef = z
     includes: z.array(DefId).default([]),
     /** Reminders for what the app can't apply itself, e.g. "Attacks against you have advantage". */
     reminders: z.array(z.string()).default([]),
+    /** Actions you can take while it's on (Haste: the extra action). */
+    actions: z.array(ActionDef).optional(),
+    /** Said when it ends (Haste: the wave of lethargy). */
+    endNote: z.string().optional(),
   })
   .strict();
 export type EffectDef = z.infer<typeof EffectDef>;

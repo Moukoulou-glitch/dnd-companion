@@ -48,8 +48,8 @@ export function FeaturePanel({
   return (
     <>
       <p className="row-sub">
-        {economyLabel(a.economy)}
-        {a.common ? "" : `, from ${a.source}`}
+        {a.limited ? `An extra action from ${a.source}, once on each of your turns, on top of your own` : economyLabel(a.economy)}
+        {a.common || a.limited ? "" : `, from ${a.source}`}
       </p>
       {a.note && (
         <p>

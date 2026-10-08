@@ -10,6 +10,8 @@ export interface StoredCharacter {
   rolls?: RollRecord[];
   /** For the bundled reference characters: which version of the fixture the snapshot came from. */
   fixtureHash?: string;
+  /** Set when the player deleted the character: it is kept so it can be restored. */
+  deletedAt?: number;
 }
 
 /** A book file the player loaded; it stays on this device only. */

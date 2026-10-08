@@ -72,21 +72,123 @@ export function looksLikeClassPage(text: string): boolean {
  * "Path of the Beast: Level 6: Bestial Soul TCE p24" becomes "Bestial Soul".
  */
 export function parseClassPage(text: string): TextEntry[] {
-  const out: TextEntry[] = [];
-  let cur: TextEntry | undefined;
-  for (const raw of text.replace(/\r/g, "").split("\n")) {
-    const line = raw.trim();
+  return parseClassPageParts(text).entries;
+}
+
+/** A subclass as a class page shows it: its intro text and its features by level. */
+export interface PageSubclass {
+  name: string;
+  book?: string;
+  page?: number;
+  text: string[];
+  features: { level: number; name: string; text: string[] }[];
+}
+
+export interface ClassPageParts {
+  /** The page's title line, when it names one of these classes. */
+  className?: string;
+  /** Everything with a heading, as before: class features, options, subclass features. */
+  entries: TextEntry[];
+  /** Headings that belong to the class itself (features and their options). */
+  classEntries: TextEntry[];
+  subclasses: PageSubclass[];
+}
+
+const keyOf = (s: string) => s.toLowerCase().replace(/['’]/g, "").replace(/\s+/g, " ").trim();
+
+/**
+ * Reads a class page's structure. Subclasses are the names that later show up
+ * as "College of Creation: Level 6: ...". Right after a subclass heading, its
+ * first features come as plain "Level 3: Mote of Potential" headings; a
+ * "Level N" heading that the class table lists (Expertise, Ability Score
+ * Improvement) or that comes from another book belongs to the class again.
+ */
+export function parseClassPageParts(text: string, classNames: string[] = []): ClassPageParts {
+  const lines = text.replace(/\r/g, "").split("\n").map((l) => l.trim());
+  const isHeading = (l: string) => SOURCE.test(l) && l.length < 120;
+  const subNames = new Set<string>();
+  for (const l of lines) {
+    if (!isHeading(l)) continue;
+    const m = /^(.+?): Level \d+: /.exec(l.replace(SOURCE, ""));
+    if (m) subNames.add(m[1]!);
+  }
+  const firstHeading = lines.findIndex(isHeading);
+  const wanted = new Map(classNames.map((n) => [keyOf(n), n]));
+  const titleLine = lines.slice(0, firstHeading < 0 ? lines.length : firstHeading).find((l) => wanted.has(keyOf(l)));
+  const className = titleLine ? wanted.get(keyOf(titleLine)) : undefined;
+  // The class table's feature cells: "Bard College, Expertise", one per line or comma.
+  const tableNames = new Set(
+    lines
+      .slice(0, firstHeading < 0 ? 0 : firstHeading)
+      .flatMap((l) => l.split(/[\t,]/))
+      .map((x) => keyOf(x))
+      .filter(Boolean),
+  );
+
+  // A page whose subclasses have no later features (a short copy): a subclass heading is followed by a "Level N" feature the class table doesn't list.
+  const heads = lines.filter(isHeading).map((l) => l.replace(SOURCE, "").trim());
+  if (!subNames.size) heads.forEach((h, i) => {
+    const next = /^Level \d+: (.+)$/.exec(heads[i + 1] ?? "");
+    if (!/^(?:.+?: )?Level \d+: /.test(h) && next && !tableNames.has(keyOf(next[1]!))) subNames.add(h);
+  });
+
+  const entries: TextEntry[] = [];
+  const classEntries: TextEntry[] = [];
+  const subs = new Map<string, PageSubclass>();
+  const sub = (name: string) => {
+    let s = subs.get(name);
+    if (!s) subs.set(name, (s = { name, text: [], features: [] }));
+    return s;
+  };
+  let cur: string[] | undefined;
+  let inSub: PageSubclass | undefined;
+  for (const line of lines) {
     if (!line) continue;
-    if (SOURCE.test(line) && line.length < 120) {
-      let name = line.replace(SOURCE, "");
-      name = name.replace(/^(?:.+?: )?Level \d+: /, "").trim();
-      cur = { name, text: [] };
-      out.push(cur);
+    if (isHeading(line)) {
+      const tag = SOURCE.exec(line)!;
+      const book = tag[1]!;
+      const page = Number(/p(\d+)$/.exec(line)![1]);
+      const bare = line.replace(SOURCE, "").trim();
+      const name = bare.replace(/^(?:.+?: )?Level \d+: /, "").trim();
+      const entry: TextEntry = { name, text: [] };
+      entries.push(entry);
+      cur = entry.text;
+      const pre = /^(.+?): Level (\d+): (.+)$/.exec(bare);
+      const lv = /^Level (\d+): (.+)$/.exec(bare);
+      if (pre && subNames.has(pre[1]!)) {
+        inSub = sub(pre[1]!);
+        const f = { level: Number(pre[2]), name, text: entry.text };
+        inSub.features.push(f);
+      } else if (subNames.has(bare)) {
+        inSub = sub(bare);
+        inSub.book = book;
+        inSub.page = page;
+        inSub.text = entry.text;
+      } else if (lv && inSub && !tableNames.has(keyOf(name)) && (!inSub.book || inSub.book === book)) {
+        inSub.features.push({ level: Number(lv[1]), name, text: entry.text });
+      } else if (lv) {
+        inSub = undefined;
+        classEntries.push(entry);
+      } else if (inSub) {
+        // An option or a note inside a subclass feature (Arcane Shot options, "Restriction: Knighthood").
+        const last = inSub.features[inSub.features.length - 1];
+        const into = last?.text ?? inSub.text;
+        into.push(`${name}:`);
+        cur = into;
+        entries.pop();
+      } else {
+        classEntries.push(entry);
+      }
       continue;
     }
     if (!cur) continue;
     if (/^(Reprinted as|Subclass source:|Source:|\d+(st|nd|rd|th)-level .*(feature|optional feature)\b)/.test(line)) continue;
-    cur.text.push(line.replace(/\t+/g, " · "));
+    cur.push(line.replace(/\t+/g, " · "));
   }
-  return out.filter((e) => e.text.length > 0);
+  return {
+    className,
+    entries: entries.filter((e) => e.text.length > 0),
+    classEntries: classEntries.filter((e) => e.text.length > 0),
+    subclasses: [...subs.values()],
+  };
 }

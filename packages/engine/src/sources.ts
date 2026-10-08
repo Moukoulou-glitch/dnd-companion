@@ -114,7 +114,7 @@ export function collectSources(c: Character, reg: ContentRegistry): Source[] {
       if (!inst?.choice) return [];
       return [{ ...m, selector: m.selector.replace("{choice}", inst.choice), ...(inValue ? { value: (v as string).replace("{choice}", inst.choice) } : {}) } as typeof m];
     });
-    const src: Source = { id: def.id, label, grant: { modifiers }, choices: {}, effectInstanceId: instanceId };
+    const src: Source = { id: def.id, label, grant: { modifiers, ...(def.actions ? { actions: def.actions } : {}) }, choices: {}, effectInstanceId: instanceId };
     if (def.upcast) src.slotLevel = inst?.castLevel ?? def.upcast.baseLevel;
     out.push(src);
     for (const inc of def.includes) pushEffect(reg.get(inc, "effect"), instanceId, undefined, def.name);

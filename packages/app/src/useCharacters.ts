@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { derive, type DerivedSheet } from "@dnd/engine";
 import { Character as CharacterSchema, Operation as OperationSchema, type Character, type OperationType } from "@dnd/schema";
 import { CharacterLog, HybridClock, type Prompt } from "@dnd/store";
-import { addBooks, registry, starterCharacters, stubMissingItems } from "./content";
+import { addBooks, referencesOf, registry, starterCharacters, stubMissing } from "./content";
 import { db, deviceId, requestPersistentStorage, type StoredCharacter } from "./db";
 import { MAX_ROLLS, type RollRecord } from "./rolls";
 
@@ -27,6 +27,8 @@ export function useCharacters() {
   const logs = useRef(new Map<string, CharacterLog>());
   const rolls = useRef(new Map<string, RollRecord[]>());
   const fixtureHashes = useRef(new Map<string, string>());
+  /** Deleted characters, kept whole (with their changes and rolls) so they can be restored. */
+  const deleted = useRef(new Map<string, StoredCharacter & { deletedAt: number }>());
   const [ready, setReady] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(readSelected);
   const [version, setVersion] = useState(0);
@@ -54,13 +56,12 @@ export function useCharacters() {
           rec.fixtureHash = hashOf(fresh);
           await db.put(rec);
         }
-        stubMissingItems(
-          stored.flatMap((s) => [
-            ...(s.snapshot.inventory ?? []).map((i) => i.item),
-            ...s.ops.flatMap((o) => (o.type === "addItem" ? [(o.payload as { item: string }).item] : [])),
-          ]),
-        );
+        stubMissing(stored.flatMap((s) => referencesOf(s.snapshot, s.ops)));
         for (const s of stored) {
+          if (s.deletedAt) {
+            deleted.current.set(s.id, s as StoredCharacter & { deletedAt: number });
+            continue;
+          }
           if (s.fixtureHash) fixtureHashes.current.set(s.id, s.fixtureHash);
           // Re-parsing upgrades characters saved by an older version (new fields get their defaults).
           const snapshot = CharacterSchema.parse(s.snapshot);
@@ -68,7 +69,7 @@ export function useCharacters() {
           logs.current.set(s.id, new CharacterLog(snapshot, registry, clock, "player", ops));
           rolls.current.set(s.id, s.rolls ?? []);
         }
-        setSelectedId((cur) => (cur && logs.current.has(cur) ? cur : stored[0]?.id ?? null));
+        setSelectedId((cur) => (cur && logs.current.has(cur) ? cur : [...logs.current.keys()][0] ?? null));
         void requestPersistentStorage();
       } catch (e) {
         setError(`Couldn't open saved characters: ${(e as Error).message}`);
@@ -165,6 +166,7 @@ export function useCharacters() {
       logs.current.set(c.id, l);
       rolls.current.set(c.id, []);
       fixtureHashes.current.delete(c.id);
+      deleted.current.delete(c.id);
       await persist(l, c.id);
       select(c.id);
       setVersion((v) => v + 1);
@@ -184,30 +186,93 @@ export function useCharacters() {
       const character = CharacterSchema.parse(data.character);
       for (const cl of character.classes) if (!registry.has(cl.class)) return { error: `It uses a class this app doesn't have: ${cl.class}.` };
       if (!registry.has(character.race)) return { error: `It uses a race this app doesn't have: ${character.race}.` };
-      stubMissingItems(character.inventory.map((i) => i.item));
+      stubMissing(referencesOf(character, ((data as { operations?: { type: string; payload: unknown }[] }).operations ?? [])));
       return { character, exists: logs.current.has(character.id) };
     } catch (e) {
       return { error: `Couldn't read it: ${(e as Error).message}` };
     }
   }, []);
 
-  /** Deletes a character from this device (export first to keep a copy). */
+  /** Deletes a character: it moves to the deleted list, with everything it had, and can be restored. */
   const remove = useCallback(
     async (id: string) => {
-      const name = logs.current.get(id)?.character.name ?? "Character";
+      const l = logs.current.get(id);
+      if (!l) return;
+      const name = l.character.name;
+      const rec: StoredCharacter & { deletedAt: number } = { id, snapshot: l.base, ops: [...l.operations], rolls: rolls.current.get(id) ?? [], deletedAt: Date.now() };
+      const hash = fixtureHashes.current.get(id);
+      if (hash) rec.fixtureHash = hash;
+      try {
+        await db.put(rec);
+      } catch (e) {
+        setError(`Couldn't delete: ${(e as Error).message}`);
+        return;
+      }
+      deleted.current.set(id, rec);
       logs.current.delete(id);
       rolls.current.delete(id);
-      await db.remove(id);
       const next = [...logs.current.keys()][0];
       if (next) select(next);
       else setSelectedId(null);
       setVersion((v) => v + 1);
-      setToast({ id: Date.now(), text: `${name} deleted from this device.`, canUndo: false });
+      setToast({ id: Date.now(), text: `${name} deleted. You can restore them from Deleted characters.`, canUndo: false });
     },
     [select],
   );
 
-  return { ready, error, character, sheet, roster, selectedId, select, act, undo, canUndo: !!log?.canUndo, toast, setToast, history: log?.history ?? [], exportSelected, addRoll, rolls: (selectedId && rolls.current.get(selectedId)) || [], create, readImport, remove };
+  /** Brings a deleted character back exactly as they were. */
+  const restore = useCallback(
+    async (id: string) => {
+      const rec = deleted.current.get(id);
+      if (!rec) return;
+      stubMissing(referencesOf(rec.snapshot, rec.ops));
+      const snapshot = CharacterSchema.parse(rec.snapshot);
+      const ops = rec.ops.map((o) => OperationSchema.parse(o));
+      const l = new CharacterLog(snapshot, registry, clock, "player", ops);
+      const back: StoredCharacter = { id, snapshot: rec.snapshot, ops: rec.ops, rolls: rec.rolls ?? [] };
+      if (rec.fixtureHash) back.fixtureHash = rec.fixtureHash;
+      await db.put(back);
+      deleted.current.delete(id);
+      logs.current.set(id, l);
+      rolls.current.set(id, rec.rolls ?? []);
+      if (rec.fixtureHash) fixtureHashes.current.set(id, rec.fixtureHash);
+      select(id);
+      setVersion((v) => v + 1);
+      setToast({ id: Date.now(), text: `${l.character.name} restored.`, canUndo: false });
+    },
+    [select],
+  );
+
+  /** Removes a deleted character for good. */
+  const purge = useCallback(async (id: string) => {
+    const name = deleted.current.get(id)?.snapshot.name ?? "Character";
+    await db.remove(id);
+    deleted.current.delete(id);
+    setVersion((v) => v + 1);
+    setToast({ id: Date.now(), text: `${name} is gone for good.`, canUndo: false });
+  }, []);
+
+  const deletedList = useMemo(
+    () =>
+      [...deleted.current.values()]
+        .sort((a, b) => b.deletedAt - a.deletedAt)
+        .map((r) => {
+          let summary = "";
+          let name = r.snapshot.name;
+          try {
+            const c = new CharacterLog(CharacterSchema.parse(r.snapshot), registry, clock, "player", r.ops.map((o) => OperationSchema.parse(o))).character;
+            name = c.name;
+            summary = summarize(c);
+          } catch {
+            /* a class this device no longer has */
+          }
+          return { id: r.id, name, summary, deletedAt: r.deletedAt };
+        }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [ready, version],
+  );
+
+  return { ready, error, character, sheet, roster, selectedId, select, act, undo, canUndo: !!log?.canUndo, toast, setToast, history: log?.history ?? [], exportSelected, addRoll, rolls: (selectedId && rolls.current.get(selectedId)) || [], create, readImport, remove, restore, purge, deleted: deletedList };
 }
 
 function summarize(c: Character): string {

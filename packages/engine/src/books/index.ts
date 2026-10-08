@@ -1,6 +1,7 @@
-import type { ContentPack, Definition, ItemDef } from "@dnd/schema";
+import type { BackgroundDef, ContentPack, Definition, FeatureDef, ItemDef, SubclassDef } from "@dnd/schema";
 import type { ContentRegistry } from "../registry.js";
-import { entryFileKind, looksLikeClassPage, parseClassPage, parseEntries, parseRaceTraits, type TextEntry } from "./entries.js";
+import { entryFileKind, looksLikeClassPage, parseClassPageParts, parseEntries, parseRaceTraits, type ClassPageParts, type TextEntry } from "./entries.js";
+import { parseBackgrounds, type BookBackground } from "./backgrounds.js";
 import { looksLikeItems, parseItems } from "./items.js";
 import { looksLikeSpells, parseSpells } from "./spells.js";
 import { slug } from "./text.js";
@@ -65,6 +66,43 @@ function namesOf(def: Definition): string[] {
   return [...new Set(out)];
 }
 
+/** Official books whose subclasses a class page may add (third-party ones are never loaded). */
+const OFFICIAL_BOOKS = new Set(["PHB'14", "PHB", "XGE", "TCE", "SCAG", "DMG'14", "DMG", "EGW", "VRGR", "FTD", "MOT", "GGR", "ERLW", "SCC", "AAG", "BMT", "MTF", "VGM", "AI", "LLK", "SatO", "TDCSR"].filter((b) => b !== "TDCSR"));
+
+const BOOK_NAMES: Record<string, string> = { "PHB'14": "PHB", XGE: "XGE", TCE: "TCE", SCAG: "SCAG", EGW: "EGW", VRGR: "VRGR" };
+const bookName = (tag?: string) => (tag ? BOOK_NAMES[tag] ?? tag : "Book");
+
+/** "College of Lore", "Lore", "The Fiend", "Life Domain", "Draconic Bloodline" all compare by their core name. */
+function subclassKey(name: string): string {
+  return norm(name)
+    .replace(/\s*\([^)]*\)\s*$/, "")
+    .replace(/^(the|college of( the)?|circle of( the)?|way of( the)?|oath of( the)?|path of( the)?|school of|order of( the)?)\s+/, "")
+    .replace(/\s+(domain|bloodline)$/, "")
+    .trim();
+}
+
+const titleCase = (s: string) => s.replace(/\b([a-z])/g, (m) => m.toUpperCase()).replace(/\b(Of|The|And|From|To)\b/g, (m) => m.toLowerCase()).replace(/^./, (m) => m.toUpperCase());
+
+/** Spell tables in a subclass's text, by class level; a feature with several tables (Circle of the Land's terrains) is left as text. */
+function subclassSpellTables(text: string[]): { level: number; spells: string[] }[][] {
+  const tables: { level: number; spells: string[] }[][] = [];
+  let cur: { level: number; spells: string[] }[] | undefined;
+  for (const line of text) {
+    if (/(Bard|Cleric|Druid|Paladin|Ranger|Sorcerer|Warlock|Wizard|Fighter|Rogue|Monk|Barbarian) Level · (Spells|.*Spells)$/.test(line)) {
+      cur = [];
+      tables.push(cur);
+      continue;
+    }
+    const m = /^(\d+)(?:st|nd|rd|th) · (.+)$/.exec(line);
+    if (cur && m) {
+      cur.push({ level: Number(m[1]), spells: m[2]!.split(/,\s*/).map((x) => x.trim()).filter(Boolean) });
+      continue;
+    }
+    cur = undefined;
+  }
+  return tables.length === 1 ? tables.filter((t) => t.length > 0) : [];
+}
+
 /**
  * Reads the player's book files and returns a pack that adds their text to
  * the existing content (and new spells, feats, backgrounds and items),
@@ -78,7 +116,16 @@ export function bookPack(files: BookFile[], base: ContentRegistry): { pack: Cont
 
   const spells = [];
   const itemTexts: string[] = [];
-  const named: { kind: "feat" | "background" | "trait" | "feature" | "action"; entries: TextEntry[] }[] = [];
+  const named: { kind: "feat" | "background" | "trait" | "feature" | "action"; entries: TextEntry[]; classId?: string }[] = [];
+  const pages: { parts: ClassPageParts; classId: string }[] = [];
+  const bookBackgrounds = new Map<string, BookBackground>();
+  // Which class or subclass lists each feature, so a class page's text stays with its own class.
+  const owner = new Map<string, string>();
+  for (const d of [...base.list("class"), ...base.list("subclass")]) {
+    for (const r of (d as { features: { feature: string }[] }).features) if (!owner.has(r.feature)) owner.set(r.feature, d.id);
+  }
+  const classByName = new Map<string, string>();
+  for (const c of base.list("class")) for (const n of namesOf(c)) classByName.set(n, c.id);
 
   for (const f of files) {
     const kind = bookFileKind(f.text);
@@ -90,7 +137,12 @@ export function bookPack(files: BookFile[], base: ContentRegistry): { pack: Cont
     } else if (kind === "items") {
       itemTexts.push(f.text);
       count = (f.text.match(/^#### /gm) ?? []).length;
-    } else if (kind === "feats" || kind === "backgrounds") {
+    } else if (kind === "backgrounds") {
+      const b = parseBackgrounds(f.text, excluded);
+      for (const x of b) if (!bookBackgrounds.has(x.name)) bookBackgrounds.set(x.name, x);
+      named.push({ kind: "background", entries: b.map((x) => ({ name: x.name, text: x.text })) });
+      count = b.length;
+    } else if (kind === "feats") {
       const e = parseEntries(f.text, excluded);
       named.push({ kind: kind === "feats" ? "feat" : "background", entries: e });
       count = e.length;
@@ -107,9 +159,13 @@ export function bookPack(files: BookFile[], base: ContentRegistry): { pack: Cont
       named.push({ kind: "action", entries: e });
       count = e.length;
     } else if (kind === "class page") {
-      const e = parseClassPage(f.text);
-      named.push({ kind: "feature", entries: e });
-      count = e.length;
+      const parts = parseClassPageParts(f.text, [...classByName.keys()]);
+      const classId = parts.className ? classByName.get(norm(parts.className)) : undefined;
+      if (classId) {
+        named.push({ kind: "feature", entries: parts.classEntries, classId });
+        pages.push({ parts, classId });
+      } else named.push({ kind: "feature", entries: parts.entries });
+      count = parts.entries.length;
     }
     report.files.push({ name: f.name, kind, entries: count });
   }
@@ -166,14 +222,93 @@ export function bookPack(files: BookFile[], base: ContentRegistry): { pack: Cont
         if (isCommon(d)) return false;
         if (group.kind === "feat") return d.kind === "feat";
         if (group.kind === "background") return d.kind === "background";
-        return d.kind === "feature" || d.kind === "subclass";
+        if (d.kind !== "feature" && d.kind !== "subclass") return false;
+        // A class page's own features: never another class's or subclass's feature of the same name.
+        if (group.classId && d.kind === "feature") {
+          const o = owner.get(d.id);
+          return !o || o === group.classId;
+        }
+        return group.classId ? false : true;
       });
       for (const d of new Set(matches)) attach(d, e.text);
       if (matches.length || (group.kind !== "feat" && group.kind !== "background")) continue;
       const id = `${group.kind}:${slug(e.name)}`;
       if (base.has(id) || out.has(id)) continue;
-      out.set(id, { kind: group.kind, id, name: e.name, source: { pack: BOOK_PACK_ID }, features: [], text: e.text } as Definition);
+      const def = { kind: group.kind, id, name: e.name, source: { pack: BOOK_PACK_ID }, features: [] as string[], text: e.text } as Definition & { features: string[] };
+      const bg = group.kind === "background" ? bookBackgrounds.get(e.name) : undefined;
+      if (bg) {
+        // A new background works in the builder: its skills, tools and languages, and its feature.
+        const d = def as BackgroundDef;
+        if (bg.proficiencies.length) d.grant = { proficiencies: bg.proficiencies };
+        if (bg.choices.length) d.choices = bg.choices;
+        if (bg.feature) {
+          const fid = `feature:${slug(bg.feature.name)}`;
+          if (!base.has(fid) && !out.has(fid)) {
+            out.set(fid, { kind: "feature", id: fid, name: bg.feature.name, source: { pack: BOOK_PACK_ID }, text: bg.feature.text.length ? bg.feature.text : [bg.feature.name] } as Definition);
+            added("feature");
+          }
+          d.features = [fid];
+        }
+      }
+      out.set(id, def);
       added(group.kind);
+    }
+  }
+
+  // Class pages: subclasses the content already has get their text; the others are added, feature by feature.
+  for (const { parts, classId } of pages) {
+    const existing = base.list("subclass").filter((d) => (d as { class: string }).class === classId) as SubclassDef[];
+    for (const sc of parts.subclasses) {
+      if (!sc.features.length) continue;
+      if (sc.book && !OFFICIAL_BOOKS.has(sc.book)) {
+        excluded.push(sc.name);
+        continue;
+      }
+      const key = subclassKey(sc.name);
+      const known = existing.find((d) => namesOf(d).some((n) => subclassKey(n) === key));
+      if (known) {
+        if (sc.text.length) attach(known, sc.text);
+        const feats = known.features.map((r) => base.find(r.feature, "feature")).filter((d) => !!d) as Definition[];
+        for (const f of sc.features) {
+          const d = feats.find((x) => namesOf(x).includes(norm(f.name)) || namesOf(x).includes(norm(f.name.replace(/\s*\([^)]*\)\s*$/, ""))));
+          if (d && f.text.length) attach(d, f.text);
+        }
+        continue;
+      }
+      const sid = `subclass:${slug(sc.name)}`;
+      if (base.has(sid) || out.has(sid)) continue;
+      const refs: { level: number; feature: string }[] = [];
+      const source = { pack: BOOK_PACK_ID, book: bookName(sc.book), ...(sc.page ? { page: sc.page } : {}) };
+      const listOf = classId.replace(/^class:/, "");
+      const prepared = /cleric|druid|paladin|wizard|artificer/.test(listOf);
+      const addFeature = (level: number, name: string, text: string[], extra: Partial<FeatureDef> = {}) => {
+        let fid = `feature:${slug(sc.name)}-${slug(name)}`;
+        if (base.has(fid) || out.has(fid)) fid = `${fid}-${level}`;
+        if (base.has(fid) || out.has(fid)) return;
+        out.set(fid, { kind: "feature", id: fid, name, source, text, ...extra } as Definition);
+        refs.push({ level, feature: fid });
+        added("feature");
+      };
+      // Domain, oath and circle spells: "1st · bless, cure wounds" rows under a "Cleric Level · Spells" header.
+      for (const block of [sc.text, ...sc.features.map((f) => f.text)]) {
+        for (const t of subclassSpellTables(block)) {
+          for (const row of t) {
+            const spells = row.spells.map((n) => {
+              const id = `spell:${slug(n)}`;
+              const d = base.find(id, "spell") ?? out.get(id);
+              return { spell: id, name: d?.name ?? titleCase(n), casting: prepared ? "always prepared" : "always known", list: listOf };
+            });
+            addFeature(row.level, `${sc.name} spells (${row.level})`, [`${prepared ? "Always prepared" : "Always known"}, and they don't count against your spells: ${spells.map((x) => x.name).join(", ")}.`], { grant: { spells } });
+          }
+        }
+      }
+      for (const f of sc.features) {
+        const extra: Partial<FeatureDef> = /^Extra Attack$/i.test(f.name) ? { grant: { extraAttacks: 2 } } : {};
+        addFeature(f.level, f.name, f.text.length ? f.text : [f.name], extra);
+      }
+      refs.sort((a, b) => a.level - b.level);
+      out.set(sid, { kind: "subclass", id: sid, name: sc.name, source, class: classId, features: refs, text: sc.text } as Definition);
+      added("subclass");
     }
   }
 

@@ -1733,3 +1733,17 @@ ol.levels li[data-on="true"] {
   background: var(--gold);
   color: var(--bg);
 }
+
+/* More picked than the rules give: allowed, but loud. */
+.over-banner {
+  background: var(--danger, #c62828);
+  background: color-mix(in srgb, #d32f2f 88%, black);
+  color: #fff;
+  font-weight: 600;
+  border-radius: var(--radius-m);
+  padding: 10px 12px;
+  margin: 0 0 10px;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}

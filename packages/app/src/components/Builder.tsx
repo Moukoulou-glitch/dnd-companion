@@ -383,7 +383,7 @@ export function BuildPanel({
           {i.sourceName} · {pickedText(i, reg)}
         </div>
       </div>
-      <span className={`tag${i.done ? " adv" : " fail"}`}>{i.done ? "done" : "choose"}</span>
+      {i.over ? <span className="tag fail">over the limit</span> : <span className={`tag${i.done ? " adv" : " fail"}`}>{i.done ? "done" : "choose"}</span>}
     </button>
   );
   return (
@@ -427,13 +427,15 @@ function ChoiceEditor({ item, reg, act, back }: { item: BuildItem; reg: ContentR
   const [picked, setPicked] = useState<string[]>(item.picked);
   const [q, setQ] = useState("");
   const shown = options.filter((o) => o.label.toLowerCase().includes(q.trim().toLowerCase()));
+  // Feats (and single picks like a fighting style) keep their numbers; skills, languages, tools and spells can go over.
   const toggle = (v: string) =>
-    setPicked((p) => (p.includes(v) ? p.filter((x) => x !== v) : item.need === 1 ? [v] : p.length >= item.need ? p : [...p, v]));
+    setPicked((p) => (p.includes(v) ? p.filter((x) => x !== v) : item.strict && item.need === 1 ? [v] : item.strict && p.length >= item.need ? p : [...p, v]));
   return (
     <>
       <p className="note">
-        Pick {item.need}. {picked.length} picked.
+        Pick {item.need}. {picked.length} picked.{item.strict && item.source?.startsWith("feat") ? " A feat gives exactly this many." : ""}
       </p>
+      {picked.length > item.need && <OverBanner item={item} count={picked.length} />}
       {options.length > 12 && <input className="search" type="search" placeholder="Search" value={q} onChange={(e) => setQ(e.target.value)} />}
       <div className="group">
         {shown.map((o) => (
@@ -459,8 +461,32 @@ function ChoiceEditor({ item, reg, act, back }: { item: BuildItem; reg: ContentR
         }}
       >
         Save {picked.length} of {item.need}
+        {picked.length > item.need ? " (more than the rules give)" : ""}
       </button>
     </>
+  );
+}
+
+/** Red banner: more picked than the rules give. Allowed, since every table bends the rules, but never silent. */
+function OverBanner({ item, count }: { item: BuildItem; count: number }) {
+  const what =
+    item.kind === "spells"
+      ? item.spellKind === "cantrips"
+        ? "cantrips"
+        : "spells known"
+      : item.choice?.kind === "skill"
+        ? /expertise/i.test(item.label) ? "expertise picks" : "skill proficiencies"
+        : item.choice?.kind === "language"
+          ? "languages"
+          : item.choice?.kind === "tool"
+            ? "tool proficiencies"
+            : item.choice?.kind === "spell"
+              ? "spells"
+              : "picks";
+  return (
+    <p className="over-banner" role="alert">
+      {count} {what}: the rules give {item.need} here. That's {count - item.need} more than RAW. Fine if your DM agrees.
+    </p>
   );
 }
 
@@ -560,10 +586,10 @@ function SpellsEditor({ item, reg, act }: { item: BuildItem; reg: ContentRegistr
   const [q, setQ] = useState("");
   const options = useMemo(() => classSpellOptions(reg, item.class!, item.spellKind!, item.maxLevel ?? 1), [reg, item.class, item.spellKind, item.maxLevel]);
   const shown = options.filter((o) => o.label.toLowerCase().includes(q.trim().toLowerCase()));
-  const full = item.picked.length >= item.need;
   return (
     <>
-      <p className={`note${item.picked.length > item.need ? " danger-text" : ""}`}>
+      {item.spellKind !== "spellbook" && item.picked.length > item.need && <OverBanner item={item} count={item.picked.length} />}
+      <p className="note">
         {item.picked.length} of {item.need} {item.spellKind === "cantrips" ? "cantrips" : item.spellKind === "spellbook" ? "spells in your spellbook" : "spells known"}
         {item.spellKind !== "cantrips" ? `, up to level ${item.maxLevel}` : ""}. Tap to add or take away.
       </p>
@@ -576,7 +602,6 @@ function SpellsEditor({ item, reg, act }: { item: BuildItem; reg: ContentRegistr
               <input
                 type="checkbox"
                 checked={on}
-                disabled={!on && full && item.spellKind !== "spellbook"}
                 onChange={() => act(on ? "forgetSpell" : "learnSpell", { spell: o.value, list: item.list }, `${o.label} ${on ? "taken away" : "added"}.`)}
               />
               <div className="row-main">

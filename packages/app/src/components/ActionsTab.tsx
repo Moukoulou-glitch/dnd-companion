@@ -77,13 +77,14 @@ export function ActionsTab({
   openAttack: (a: WeaponAttack) => void;
   openFeature: (a: ActionResult) => void;
 }) {
-  const features = (e: ActionResult["economy"]) => sheet.actions.filter((a) => a.economy === e && !a.common);
+  const features = (e: ActionResult["economy"]) => sheet.actions.filter((a) => a.economy === e && !a.common && !a.limited);
   const common = sheet.actions.filter((a) => a.common);
   const commonGroups = (["action", "bonus", "reaction", "free"] as const)
     .map((e) => ({ economy: e, list: common.filter((a) => a.economy === e) }))
     .filter((g) => g.list.length > 0);
   const groups: { title: string; attacks: WeaponAttack[]; features: ActionResult[] }[] = [
     { title: "Action", attacks: sheet.attacks.filter((a) => a.action === "attack"), features: features("action") },
+    { title: "Extra action", attacks: [], features: sheet.actions.filter((a) => a.limited) },
     { title: "Bonus action", attacks: sheet.attacks.filter((a) => a.action === "bonus"), features: features("bonus") },
     { title: "Reaction", attacks: [], features: features("reaction") },
     { title: "No action needed", attacks: [], features: features("free") },

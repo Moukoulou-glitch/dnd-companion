@@ -581,9 +581,28 @@
       "rounds": 10,
       "concentration": true,
       "reminders": [
-        "Extra action: one weapon attack, Dash, Disengage, Hide or Use an Object.",
-        "When it ends you can't move or act until after your next turn."
-      ]
+        "Your extra action each turn: one weapon attack, Dash, Disengage, Hide or Use an Object. Use it from Actions."
+      ],
+      "actions": [
+        {
+          "id": "haste-action",
+          "name": "Hasted action",
+          "economy": "free",
+          "limited": true,
+          "note": "One weapon attack (not a full Attack action), Dash, Disengage, Hide or Use an Object.",
+          "choose": {
+            "label": "Use Haste's action for",
+            "options": [
+              "Attack (one weapon attack)",
+              "Dash",
+              "Disengage",
+              "Hide",
+              "Use an Object"
+            ]
+          }
+        }
+      ],
+      "endNote": "you can't move or take actions until after your next turn, as a wave of lethargy sweeps over you."
     },
     {
       "kind": "effect",

@@ -408,6 +408,24 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
         });
         break;
       }
+      // Haste: its own extra action, once per turn: one weapon attack, Dash, Disengage, Hide or Use an Object.
+      if (a.limited) {
+        const cb = c.combat;
+        const pick = op.payload.choice ?? "";
+        if (cb?.usedThisTurn.includes(a.id)) notes.push(`You've already used ${a.name} this turn. Done anyway.`);
+        if (/^Attack/.test(pick)) {
+          if (cb) cb.hasteAttack = true;
+          notes.push("Make one weapon attack: it doesn't use your Attack action.");
+        } else if (pick === "Dash") {
+          if (cb) cb.dashes += 1;
+          notes.push(`Dash: ${sheet.speed.total * (1 + (cb?.dashes ?? 1))} ft of movement this turn.`);
+        } else if (pick === "Disengage") notes.push("Disengage: your movement doesn't provoke opportunity attacks for the rest of this turn.");
+        else if (pick === "Hide") notes.push("Hide: make a Dexterity (Stealth) check.");
+        else if (pick) notes.push(`${pick}.`);
+        if (cb) cb.usedThisTurn = [...cb.usedThisTurn, a.id];
+        else notes.push("Not in combat: nothing to track.");
+        break;
+      }
       const free = op.payload.free === true;
       // Lay on Hands: as many points as the player chose.
       const amount = a.spendAmount && op.payload.amount ? op.payload.amount : a.cost?.amount ?? 1;
@@ -873,7 +891,11 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
         break;
       }
       const add = (n: number) => Math.max(0, n + amount);
-      if (kind === "attack") {
+      if (kind === "attack" && amount > 0 && cb.hasteAttack && op.payload.attackWith) {
+        // Haste's one weapon attack: not part of the Attack action.
+        cb.hasteAttack = false;
+        notes.push("That was Haste's extra action.");
+      } else if (kind === "attack") {
         // The first attack of the turn uses the action; taking the last one back returns it.
         const before = cb.attacks;
         cb.attacks = add(cb.attacks);
@@ -1161,6 +1183,15 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
       notes.push(`HP lowered to the new maximum of ${newMax}.`);
     }
   }
+
+  // Effects that say something when they end (Haste's lethargy), however they ended.
+  const still = new Set(c.effects.map((e) => e.id));
+  for (const e of input.effects) {
+    if (still.has(e.id) || e.effect === "custom") continue;
+    const def = reg.find(reg.effectId(e.effect), "effect");
+    if (def?.endNote) notes.push(`${def.name} ends: ${def.endNote}`);
+  }
+  if (c.combat?.hasteAttack && !c.effects.some((e) => reg.find(reg.effectId(e.effect), "effect")?.actions?.some((a) => a.limited))) c.combat.hasteAttack = false;
 
   return { character: c, notes, prompts };
 }

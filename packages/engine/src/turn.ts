@@ -76,7 +76,9 @@ export function turnWarnings(c: Character, sheet: DerivedSheet, intent: TurnInte
     out.push("It isn't your turn: actions and bonus actions happen on your turn. Tap Start my turn first.");
   }
 
-  if (intent.attack) {
+  if (intent.attack && intent.weapon && cb.hasteAttack) {
+    // Haste's extra action: this one weapon attack doesn't count against the Attack action.
+  } else if (intent.attack) {
     const max = sheet.attacksPerAction;
     if (cb.attacks >= max) out.push(`You've made ${cb.attacks} of ${max} attacks for your Attack action this turn.`);
     else if (cb.attacks === 0 && cb.action > cb.extraActions) out.push("You've already used your action this turn.");

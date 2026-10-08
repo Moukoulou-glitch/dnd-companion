@@ -99,6 +99,14 @@ export interface BuildItem {
   /** How many to pick and how many are picked. */
   need: number;
   picked: string[];
+  /**
+   * Tables bend the rules, so skills, expertise, languages, tools and spells
+   * can be picked past the limit (with a warning). What feats give stays
+   * strict: `strict` items can't go over.
+   */
+  strict?: boolean;
+  /** More picked than the rules give. */
+  over?: boolean;
   // For "choice":
   source?: string;
   choice?: ChoiceDef;
@@ -143,6 +151,15 @@ function countOf(c: Character, reg: ContentRegistry, ch: ChoiceDef): number {
 export function buildItems(c: Character, reg: ContentRegistry): BuildItem[] {
   const out: BuildItem[] = [];
   const seen = new Set<string>();
+  // Feats and the features they bring (Magic Initiate's class pick) keep their numbers.
+  const fromFeats = new Set<string>();
+  for (const f of c.feats) {
+    fromFeats.add(f.feat);
+    const def = reg.find(f.feat, "feat");
+    for (const id of def?.features ?? []) fromFeats.add(id);
+    for (const ch of def?.choices ?? []) if (ch.kind === "feature") for (const v of c.choices[f.feat]?.[ch.id] ?? []) fromFeats.add(v);
+  }
+  const OVER_OK = new Set(["skill", "language", "tool", "spell"]);
   for (const s of collectSources(c, reg)) {
     if (s.common || seen.has(s.id) || !/^(race|class|background|feature|feat):/.test(s.id)) continue;
     seen.add(s.id);
@@ -150,7 +167,8 @@ export function buildItems(c: Character, reg: ContentRegistry): BuildItem[] {
       if (ch.newOnly && !c.builtInApp) continue;
       const need = countOf(c, reg, ch);
       const picked = c.choices[s.id]?.[ch.id] ?? [];
-      out.push({ key: `${s.id}|${ch.id}`, kind: "choice", sourceName: s.label, label: ch.label, done: picked.length >= need, need, picked, source: s.id, choice: ch });
+      const strict = fromFeats.has(s.id) || !OVER_OK.has(ch.kind);
+      out.push({ key: `${s.id}|${ch.id}`, kind: "choice", sourceName: s.label, label: ch.label, done: picked.length >= need, need, picked, source: s.id, choice: ch, ...(strict ? { strict } : {}), ...(picked.length > need ? { over: true } : {}) });
     }
   }
 
@@ -197,11 +215,11 @@ export function buildItems(c: Character, reg: ContentRegistry): BuildItem[] {
     const maxLevel = maxSpellLevel(def, cl.level);
     const cantripCount = def.progression?.cantrips?.[cl.level - 1] ?? 0;
     if (cantripCount > 0) {
-      out.push({ key: `${def.id}|cantrips`, kind: "spells", sourceName: def.name, label: "Cantrips known", done: cantrips.length >= cantripCount, need: cantripCount, picked: cantrips, class: def.id, list: sc.id, spellKind: "cantrips", maxLevel: 0 });
+      out.push({ key: `${def.id}|cantrips`, kind: "spells", sourceName: def.name, label: "Cantrips known", done: cantrips.length >= cantripCount, need: cantripCount, picked: cantrips, class: def.id, list: sc.id, spellKind: "cantrips", maxLevel: 0, ...(cantrips.length > cantripCount ? { over: true } : {}) });
     }
     const known = def.progression?.spellsKnown?.[cl.level - 1] ?? 0;
     if (known > 0) {
-      out.push({ key: `${def.id}|known`, kind: "spells", sourceName: def.name, label: "Spells known", done: leveled.length >= known, need: known, picked: leveled, class: def.id, list: sc.id, spellKind: "known", maxLevel });
+      out.push({ key: `${def.id}|known`, kind: "spells", sourceName: def.name, label: "Spells known", done: leveled.length >= known, need: known, picked: leveled, class: def.id, list: sc.id, spellKind: "known", maxLevel, ...(leveled.length > known ? { over: true } : {}) });
     } else if (def.id === "class:wizard") {
       const book = 6 + 2 * (cl.level - 1);
       out.push({ key: `${def.id}|spellbook`, kind: "spells", sourceName: def.name, label: "Spellbook", done: leveled.length >= book, need: book, picked: leveled, class: def.id, list: sc.id, spellKind: "spellbook", maxLevel });

@@ -144,6 +144,8 @@ export const CombatState = z
     onceUsed: z.array(z.string()).default([]),
     /** Features used this turn, by action id (so Steady Aim isn't spent twice). */
     usedThisTurn: z.array(z.string()).default([]),
+    /** Haste's extra action was used to make one weapon attack: the next one doesn't count against the Attack action. */
+    hasteAttack: z.boolean().default(false),
     /** 2014: after a bonus-action spell, the only other spell this turn is an action cantrip. */
     bonusSpell: z.boolean().default(false),
     /** A spell of 1st level or higher cast with an action this turn. */

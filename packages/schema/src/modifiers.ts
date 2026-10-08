@@ -261,6 +261,11 @@ export const ActionDef = z
     /** Font of Magic's Flexible Casting: a spell slot into sorcery points, or points into a slot. */
     flexibleCasting: z.enum(["toSlot", "toPoints"]).optional(),
     /** Gives you one more action this turn (Action Surge). */
+    /**
+     * An extra action of its own, once per turn, that doesn't use your action
+     * (Haste). "Attack" in its choices is one weapon attack.
+     */
+    limited: z.boolean().optional(),
     extraAction: z.boolean().optional(),
     /**
      * Spends as many points of its cost's resource as the player says (Lay on

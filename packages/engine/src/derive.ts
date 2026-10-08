@@ -153,6 +153,8 @@ export interface ActionResult {
   check?: { skills: string[]; dc?: number };
   choose?: { label: string; options: string[] };
   extraAction?: boolean;
+  /** Its own extra action once per turn (Haste), not your action. */
+  limited?: boolean;
   spendAmount?: { label: string; heals?: boolean };
   flexibleCasting?: "toSlot" | "toPoints";
   asAttack?: boolean;
@@ -968,6 +970,7 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
       if (a.check) entry.check = a.check;
       if (a.choose) entry.choose = a.choose;
       if (a.extraAction) entry.extraAction = true;
+      if (a.limited) entry.limited = true;
       if (a.flexibleCasting) {
         // Font of Magic: the slots you could make (2/3/5/6/7 points for 1st-5th) or turn into points.
         const points = resources.find((r) => r.id === a.cost?.resource)?.remaining ?? 0;
