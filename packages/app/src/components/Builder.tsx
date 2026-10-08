@@ -717,7 +717,11 @@ function CopyAsk({ c, reg, spell, label, onDone, onCancel }: { c: Character; reg
   const cost = copyCost(c, reg, spell)!;
   const fund = c.spellbookFunds;
   const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => ref.current?.scrollIntoView({ block: "start" }), []);
+  // Bring the question into view by scrolling the sheet only (scrollIntoView also scrolled the page, leaving it blank).
+  useEffect(() => {
+    const sheet = ref.current?.closest(".sheet");
+    if (sheet) sheet.scrollTop = 0;
+  }, []);
   return (
     <div className="copy-ask" role="dialog" aria-label={`Copy ${label}`} ref={ref}>
       <p className="question">Pay for copying {label}?</p>
