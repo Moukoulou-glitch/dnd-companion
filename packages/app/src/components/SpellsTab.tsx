@@ -46,6 +46,9 @@ export interface ClassList {
   className: string;
   kind: "wizard" | "prepared" | "known";
   maxLevel: number;
+  /** Class lists it draws on (Divine Soul: sorcerer and cleric) and its name. */
+  classes: string[];
+  listName: string;
 }
 
 type ListRow = { sp: SpellResult; info?: undefined } | { sp?: undefined; info: { id: string; name: string; level: number; school: string; castingTime: string; ritual: boolean; concentration: boolean } };
@@ -71,7 +74,7 @@ export function SpellsTab({
   const views: { id: string; label: string }[] = [
     { id: "ready", label: anyPrepared ? "Prepared today" : "Known spells" },
     ...(wizard ? [{ id: "book", label: "Whole spellbook" }] : []),
-    ...classLists.map((l) => ({ id: `list:${l.id}`, label: `${l.className} spell list` })),
+    ...classLists.map((l) => ({ id: `list:${l.id}`, label: l.listName })),
   ];
   const current = views.some((v) => v.id === view) ? view : "ready";
   const listOf = current.startsWith("list:") ? classLists.find((l) => `list:${l.id}` === current) : undefined;
@@ -85,7 +88,7 @@ export function SpellsTab({
     if (listOf.kind === "prepared") return [...mine.values()].map((sp) => ({ sp }));
     return reg
       .list("spell")
-      .filter((d) => d.classes.includes(listOf.id) && d.level <= listOf.maxLevel)
+      .filter((d) => d.classes.some((x) => listOf.classes.includes(x)) && d.level <= listOf.maxLevel)
       .map((d) => {
         const sp = mine.get(d.id);
         return sp ? { sp } : { info: { id: d.id, name: d.name, level: d.level, school: d.school, castingTime: d.castingTime, ritual: d.ritual, concentration: d.concentration } };
@@ -108,6 +111,16 @@ export function SpellsTab({
     const s = sheet.spellSlots.find((x) => x.level === lvl);
     return s ? s.total - s.used : 0;
   };
+  // Lists drawing on several classes (Divine Soul) tag each spell with its class.
+  const multi = !!listOf && listOf.classes.length > 1;
+  const classTags = (id: string) =>
+    (reg.find(id, "spell")?.classes ?? [])
+      .filter((x) => listOf?.classes.includes(x))
+      .map((x) => (
+        <span className={`tag class-tag ${x}`} key={x}>
+          {x.replace(/^./, (ch) => ch.toUpperCase())}
+        </span>
+      ));
   const missingTag = listOf?.kind === "wizard" ? "not in your spellbook" : "not known";
 
   return (
@@ -146,7 +159,11 @@ export function SpellsTab({
         <input className="search" type="search" placeholder={`Search ${views.find((v) => v.id === current)?.label.toLowerCase() ?? "spells"}`} value={q} onChange={(e) => setQ(e.target.value)} aria-label="Search spells" />
       )}
       {needle && !shownRows.length && <p className="note">No spell matches “{q.trim()}”.</p>}
-      {listOf && listOf.kind !== "prepared" && <p className="note">Every {listOf.className.toLowerCase()} spell up to level {listOf.maxLevel}, for reference. Yours are bright.</p>}
+      {listOf && listOf.kind !== "prepared" && (
+        <p className="note">
+          Every {multi ? listOf.classes.join(" and ") : listOf.className.toLowerCase()} spell up to level {listOf.maxLevel}, for reference. Yours are bright.
+        </p>
+      )}
 
       {levels.map((lvl) => (
         <section key={lvl}>
@@ -165,6 +182,7 @@ export function SpellsTab({
                       <div className="row-sub">{tags(r.sp)}</div>
                     </div>
                     <span className="row-tags">
+                      {multi && classTags(r.sp.id)}
                       {sheet.concentration?.spell === r.sp.id && <span className="tag conc">concentrating</span>}
                       {r.sp.ready === "prepared" && <span className="tag adv">prepared</span>}
                       {r.sp.fromFeature && <span className="tag">{r.sp.fromFeature}</span>}
@@ -180,6 +198,7 @@ export function SpellsTab({
                       </div>
                     </div>
                     <span className="row-tags">
+                      {multi && classTags(r.info!.id)}
                       <span className="tag">{missingTag}</span>
                     </span>
                   </button>

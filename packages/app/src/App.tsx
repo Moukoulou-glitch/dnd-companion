@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
-import { buildItems, castingEconomy, creatureSpellRoll, formatBonus, summonBlock, materialNeed, maxSpellLevel, newCharacter, signed, turnWarnings, type TurnIntent } from "@dnd/engine";
+import { buildItems, castingEconomy, creatureSpellRoll, formatBonus, summonBlock, materialNeed, maxSpellLevel, newCharacter, spellListOf, signed, turnWarnings, type TurnIntent } from "@dnd/engine";
 import { ABILITY_NAMES, SKILL_NAMES, type Character, type Skill } from "@dnd/schema";
 import { roll as rollDice, type ComposerBase } from "@dnd/dice";
 import { ShapePanel, TransformPanel } from "./components/Shapes";
@@ -13,7 +13,8 @@ import { ConditionLinks, RichText } from "./components/Conditions";
 import { Composer, ResultView, type OptionInfo } from "./components/Composer";
 import { AddEffectPanel, EffectChips, EffectPanel } from "./components/Effects";
 import { FeaturePanel } from "./components/FeaturePanel";
-import { DcBig } from "./components/DcBig";
+import { DcBig, Reminders } from "./components/DcBig";
+import { DistributePanel } from "./components/Distribute";
 import { HpPad } from "./components/HpPad";
 import { AbilityAdjustPanel, MaxHpPanel, SummonMaxHp } from "./components/Adjust";
 import { DamageReducePanel } from "./components/Monk";
@@ -819,6 +820,7 @@ export function App() {
           onUse={(rolled, free, check, choice, spend) => {
             // Readying a spell: pick it, then cast it now and hold it.
             if (choice === "Cast a Spell" && current.choose) return openReadySpell();
+            if (a.id === "preserve-life") return openPreserveLife(!!free);
             const payload = {
               action: a.id,
               ...(rolled === undefined ? {} : { rolled }),
@@ -1251,6 +1253,58 @@ export function App() {
       );
     });
 
+  /** Preserve Life: 5 × cleric level hit points shared among up to 30 creatures, none above half its maximum. */
+  const openPreserveLife = (free: boolean) => {
+    const pool = 5 * (c.classes.find((x) => x.class === "class:cleric")?.level ?? 0);
+    open("Preserve Life", () => {
+      const ch = live.current.character;
+      const sh = live.current.sheet;
+      const myMax = ch && sh ? Math.max(0, Math.floor(sh.hpMax.total / 2) - ch.hp.current) : 0;
+      return (
+        <DistributePanel
+          pool={pool}
+          what="hit points"
+          note="No creature above half its hit point maximum; not undead or constructs"
+          myMax={myMax}
+          onDone={(shares) => {
+            const list = shares.map((x) => `${x.name} ${x.amount}`).join(", ");
+            live.current.act("useAction", { action: "preserve-life", ...(free ? { free: true } : {}) }, `Preserve Life: ${list}.`);
+            const me = shares.find((x) => x.me);
+            if (me && Math.min(me.amount, myMax) > 0) live.current.act("heal", { amount: Math.min(me.amount, myMax) }, `You regain ${Math.min(me.amount, myMax)} hit points.`);
+            open("Preserve Life: who got what", () => (
+              <>
+                <div className="group">
+                  {shares.map((x, i) => (
+                    <div className="row" key={i}>
+                      <div className="row-main row-title">{x.name}</div>
+                      <span className="num">+{x.me ? Math.min(x.amount, myMax) : x.amount}</span>
+                    </div>
+                  ))}
+                </div>
+                <p className="note">Total {shares.reduce((t, x) => t + x.amount, 0)} of {pool}. Each creature regains these hit points, up to half its maximum.</p>
+              </>
+            ));
+          }}
+        />
+      );
+    });
+  };
+
+  /** An always-on feature (Aura of Protection): what it does now, and why it's off if it is. */
+  const openFeatureTag = (id: string) =>
+    open(sheet.featureTags.find((t) => t.id === id)?.name ?? "Feature", () => {
+      const t = live.current.sheet?.featureTags.find((x) => x.id === id);
+      const f = live.current.sheet?.features.find((x) => x.id === id);
+      if (!t) return null;
+      return (
+        <>
+          <p className={t.active ? "pass" : "warn"}>{t.active ? "Working now." : `Off: ${t.why} It works again when that ends.`}</p>
+          <Reminders items={t.reminders} />
+          {f && <BookText text={f.text} summary={f.summary} source={f.source} />}
+        </>
+      );
+    });
+
   /** A state chip (Rage, Flame Tongue lit): what it is, then use it properly, switch it on for free, or switch it off. */
   const openToggle = (name: string) => {
     const t = sheet.toggles.find((x) => x.name === name);
@@ -1285,6 +1339,7 @@ export function App() {
               </div>
             </div>
           )}
+          {t.reminders && <Reminders items={live.current.sheet?.toggles.find((x) => x.name === name)?.reminders ?? t.reminders} />}
           {feature ? <BookText text={feature.text} summary={feature.summary} /> : action?.note && <p>{action.note}</p>}
           {on ? (
             <button
@@ -1399,7 +1454,8 @@ export function App() {
     const sc = def?.spellcasting;
     if (!def || !sc || sc.progression === "none" || cl.level < (def.spellcastingFromLevel ?? 1)) return [];
     const kind: ClassList["kind"] = def.id === "class:wizard" ? "wizard" : def.spellPreparation === "prepared" ? "prepared" : "known";
-    return [{ id: sc.id, className: def.name, kind, maxLevel: maxSpellLevel(def, cl.level) }];
+    const list = spellListOf(c, registry, def.id);
+    return [{ id: sc.id, className: def.name, kind, maxLevel: maxSpellLevel(def, cl.level), classes: list.classes, listName: list.name }];
   });
 
   /** A spell the character doesn't have: just its details. */
@@ -1895,6 +1951,16 @@ export function App() {
           return !inst?.toggles?.length || inst.untilTurnStart;
         })} onOpen={openEffect} onAdd={openAddEffect} concentration={sheet.concentration} onConcentration={openConcentration} />
 
+        {sheet.featureTags.length > 0 && (
+          <div className="switches" role="group" aria-label="Always-on features">
+            {sheet.featureTags.map((t) => (
+              <button key={t.id} className={`switch aura${t.active ? "" : " off"}`} aria-pressed={t.active} onClick={() => openFeatureTag(t.id)}>
+                {t.name}
+                {t.active ? "" : " (off)"}
+              </button>
+            ))}
+          </div>
+        )}
         {sheet.toggles.length > 0 && (
           <div className="switches" role="group" aria-label="Active states">
             {sheet.toggles.map((t) => (
@@ -1974,7 +2040,7 @@ export function App() {
 
       <nav className="tabs" aria-label="Sections">
         <div className="tabs-inner">
-          {TABS.filter((t) => t.id !== "spells" || sheet.spells.length > 0).map((t) => (
+          {TABS.filter((t) => t.id !== "spells" || sheet.spells.length > 0 || sheet.spellcasting.length > 0).map((t) => (
             <button key={t.id} className="tab" aria-current={tab === t.id ? "page" : undefined} onClick={() => setTab(t.id)}>
               {t.label}
             </button>

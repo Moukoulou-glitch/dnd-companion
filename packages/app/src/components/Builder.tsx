@@ -847,7 +847,7 @@ function SpellsEditor({ item, reg, act, c, note }: { item: BuildItem; reg: Conte
   // Wizard: copying a spell into the spellbook costs gold from the fund; ask first.
   const [copying, setCopying] = useState<{ spell: string; label: string } | null>(null);
   const over = item.spellKind !== "spellbook" && item.picked.length > item.need;
-  const options = useMemo(() => classSpellOptions(reg, item.class!, item.spellKind!, item.maxLevel ?? 1), [reg, item.class, item.spellKind, item.maxLevel]);
+  const options = useMemo(() => classSpellOptions(reg, item.class!, item.spellKind!, item.maxLevel ?? 1, c), [reg, item.class, item.spellKind, item.maxLevel, c]);
   const shown = options.filter((o) => o.label.toLowerCase().includes(q.trim().toLowerCase()));
   if (copying)
     return (

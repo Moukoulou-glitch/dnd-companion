@@ -174,7 +174,7 @@ export function buildItems(c: Character, reg: ContentRegistry): BuildItem[] {
       const picked = c.choices[s.id]?.[ch.id] ?? [];
       const strict = fromFeats.has(s.id) || !OVER_OK.has(ch.kind);
       const item: BuildItem = { key: `${s.id}|${ch.id}`, kind: "choice", sourceName: s.label, label: ch.label, done: picked.length >= need, need, picked, source: s.id, choice: ch, ...(strict ? { strict } : {}), ...(picked.length > need ? { over: true } : {}) };
-      if (ch.spells?.upToSlots) {
+      if (ch.spells?.upToSlots || ch.orSpells?.upToSlots) {
         const slots = (sheet ??= derive(c, reg)).spellSlots.filter((x) => x.total > 0).map((x) => x.level);
         item.slotMax = slots.length ? Math.max(...slots) : 1;
       }
@@ -261,6 +261,20 @@ export function choiceOptions(ch: ChoiceDef, reg: ContentRegistry, slotMax?: num
         return { value: id, label: f?.name ?? id, ...(f?.summary ? { detail: f.summary } : {}) };
       });
     case "spell": {
+      if (from) {
+        // A fixed list (Divine affinity), and what it may be swapped for later.
+        const fixed = from.map((id) => {
+          const d = reg.find(id, "spell");
+          return { value: id, label: d?.name ?? id, ...(d ? { detail: `${d.level === 0 ? "Cantrip" : `Level ${d.level}`}, ${d.school.toLowerCase()}` } : {}) };
+        });
+        const or = ch.orSpells;
+        if (!or) return fixed;
+        const max = or.upToSlots && slotMax !== undefined ? slotMax : 9;
+        const more = spellOptions(reg, or.classes, or.minLevel ?? 1, max)
+          .filter((o) => !from.includes(o.value))
+          .map((o) => ({ ...o, detail: `${o.detail} · ${or.note}` }));
+        return [...fixed, ...more];
+      }
       const lvl = ch.spells?.level;
       const max = Math.min(ch.spells?.maxLevel ?? 9, ch.spells?.upToSlots && slotMax !== undefined ? slotMax : 9);
       return spellOptions(reg, ch.spells?.classes, lvl ?? ch.spells?.minLevel ?? 0, lvl ?? max, ch.spells?.schools, ch.spells?.ritual);
@@ -284,10 +298,31 @@ export function spellOptions(reg: ContentRegistry, classes: string[] | undefined
     .map((s) => ({ value: s.id, label: s.name, detail: `${s.level === 0 ? "Cantrip" : `Level ${s.level}`}, ${s.school.toLowerCase()}` }));
 }
 
-/** The spells a class can learn now: its list, up to the highest level it can cast. */
-export function classSpellOptions(reg: ContentRegistry, classId: string, kind: "cantrips" | "known" | "spellbook", maxLevel: number): ChoiceOption[] {
-  const listName = classId.replace(/^class:/, "");
-  return kind === "cantrips" ? spellOptions(reg, [listName], 0, 0) : spellOptions(reg, [listName], 1, Math.max(1, maxLevel));
+/**
+ * The classes whose spells make up a class's list for this character, and the
+ * list's name: a Divine Soul sorcerer's list is sorcerer and cleric spells.
+ */
+export function spellListOf(c: Character | undefined, reg: ContentRegistry, classId: string): { classes: string[]; name: string } {
+  const own = classId.replace(/^class:/, "");
+  const name = `${reg.find(classId, "class")?.name ?? own} spell list`;
+  if (!c) return { classes: [own], name };
+  for (const s of collectSources(c, reg)) {
+    const add = s.grant.spellListAdds;
+    if (add && add.list === own) return { classes: [own, ...add.classes.filter((x) => x !== own)], name: add.name };
+  }
+  return { classes: [own], name };
+}
+
+/** The spells a class can learn now: its list, up to the highest level it can cast. With several classes' spells, each says whose it is. */
+export function classSpellOptions(reg: ContentRegistry, classId: string, kind: "cantrips" | "known" | "spellbook", maxLevel: number, c?: Character): ChoiceOption[] {
+  const { classes } = spellListOf(c, reg, classId);
+  const opts = kind === "cantrips" ? spellOptions(reg, classes, 0, 0) : spellOptions(reg, classes, 1, Math.max(1, maxLevel));
+  if (classes.length < 2) return opts;
+  const cap = (x: string) => x.replace(/^./, (ch) => ch.toUpperCase());
+  return opts.map((o) => {
+    const on = reg.find(o.value, "spell")?.classes.filter((x) => classes.includes(x)) ?? [];
+    return { ...o, detail: `${o.detail} · ${on.map(cap).join(", ")}` };
+  });
 }
 
 /** What gaining a level in this class brings: features, subclass and ASI due, the hit die. */

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { derive, multiclassIssues, newCharacter } from "@dnd/engine";
+import { buildItems, choiceOptions, classSpellOptions, derive, multiclassIssues, newCharacter, spellListOf } from "@dnd/engine";
 import { tableRegistry } from "../../engine/test/helpers.js";
 
 const reg = tableRegistry();
@@ -42,5 +42,47 @@ describe("Ability maximums, permanent changes and multiclassing", () => {
     // Human +1 Wisdom: 17, +3; 8 + 3 proficiency + 3.
     expect(f?.dc?.value).toBe(14);
     expect(f?.dc?.save).toBe("Constitution");
+  });
+});
+
+describe("Auras and feature tags", () => {
+  const paladin = () => {
+    const c = newCharacter({ id: "p", name: "P", race: "race:human", class: "class:paladin", abilities: { str: 16, dex: 10, con: 14, int: 8, wis: 10, cha: 16 } }, reg);
+    c.classes[0] = { ...c.classes[0]!, level: 10 };
+    return c;
+  };
+  it("a paladin's auras are tags that go off while unconscious", () => {
+    const c = paladin();
+    let sheet = derive(c, reg);
+    expect(sheet.featureTags.map((t) => t.name)).toEqual(expect.arrayContaining(["Aura of Protection", "Aura of Courage"]));
+    expect(sheet.featureTags.every((t) => t.active)).toBe(true);
+    expect(sheet.featureTags.find((t) => t.name === "Aura of Protection")!.reminders[0]).toMatch(/\+3 to saving throws/);
+    expect(sheet.saves.wis.parts.some((p) => p.label.startsWith("Aura of Protection"))).toBe(true);
+    c.effects.push({ id: "u", effect: "condition:unconscious" } as never);
+    sheet = derive(c, reg);
+    expect(sheet.featureTags.find((t) => t.name === "Aura of Protection")).toMatchObject({ active: false, why: "You're unconscious." });
+    expect(sheet.saves.wis.parts.some((p) => p.label.startsWith("Aura of Protection"))).toBe(false);
+  });
+  it("an ally's Aura of Protection adds the chosen bonus to saves", () => {
+    const c = newCharacter({ id: "a", name: "A", race: "race:human", class: "class:fighter", abilities: { str: 16, dex: 10, con: 14, int: 8, wis: 10, cha: 10 } }, reg);
+    c.effects.push({ id: "x", effect: "other:aura-of-protection", choice: "+4" } as never);
+    const save = derive(c, reg).saves.wis;
+    expect(JSON.stringify(save)).toMatch(/Aura of Protection/);
+  });
+});
+
+describe("Divine Soul", () => {
+  it("the sorcerer list becomes the Divine Soul list with cleric spells, tagged", () => {
+    const c = newCharacter({ id: "d", name: "D", race: "race:human", class: "class:sorcerer", abilities: { str: 8, dex: 14, con: 14, int: 10, wis: 12, cha: 16 } }, reg);
+    c.classes[0] = { ...c.classes[0]!, level: 3, subclass: "subclass:divine-soul" };
+    expect(spellListOf(c, reg, "class:sorcerer")).toEqual({ classes: ["sorcerer", "cleric"], name: "Divine Soul spell list" });
+    const opts = classSpellOptions(reg, "class:sorcerer", "known", 2, c);
+    expect(opts.find((o) => o.value === "spell:spiritual-weapon")?.detail).toMatch(/Cleric/);
+    expect(opts.find((o) => o.value === "spell:magic-missile")?.detail).toMatch(/Sorcerer/);
+    const item = buildItems(c, reg).find((i) => i.key === "feature:divine-soul-divine-magic|affinity")!;
+    const aff = choiceOptions(item.choice!, reg, item.slotMax);
+    expect(aff.slice(0, 5).map((o) => o.value)).toContain("spell:bless");
+    expect(aff.some((o) => o.value === "spell:spiritual-weapon" && /cleric spell, when replacing/.test(o.detail ?? ""))).toBe(true);
+    expect(aff.some((o) => o.value === "spell:magic-missile")).toBe(false);
   });
 });

@@ -3766,7 +3766,13 @@
             "cost": {
               "resource": "eyes-of-night"
             },
-            "note": "Share 300-ft darkvision for 1 hour with up to Wis mod creatures within 10 ft. Again by spending any spell slot."
+            "note": "Share 300-ft darkvision for 1 hour with up to Wis mod creatures within 10 ft. Again by spending any spell slot.",
+            "toggles": [
+              "eyes-of-night-shared"
+            ],
+            "duration": {
+              "minutes": 60
+            }
           }
         ]
       }

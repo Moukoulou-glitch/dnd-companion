@@ -2241,3 +2241,82 @@ button.mpip {
   color: #fff;
   text-decoration: underline;
 }
+
+.switch.aura {
+  border-color: var(--gold);
+}
+.switch.aura[aria-pressed="true"] {
+  background: var(--gold-soft);
+  color: var(--gold);
+}
+.switch.aura.off {
+  opacity: 0.55;
+  text-decoration: line-through;
+}
+.reminders-box {
+  margin: 8px 0 12px;
+  padding: 10px 12px 10px 28px;
+  border-left: 3px solid var(--gold);
+  background: var(--gold-soft);
+  border-radius: var(--radius-s);
+}
+.reminders-box li + li {
+  margin-top: 6px;
+}
+
+.dist-left {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--panel);
+  padding: 8px 0;
+  font-size: 1.05rem;
+}
+.dist-left b {
+  font-size: 1.5rem;
+}
+.dist-left.bad {
+  color: var(--hp);
+}
+.dist-list {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.dist-box {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-m);
+  padding: 6px 8px;
+}
+.dist-box.me {
+  border-color: var(--good);
+}
+.dist-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.dist-head .search {
+  flex: 1;
+  margin: 0;
+}
+.dist-n {
+  font-weight: 800;
+  min-width: 1.5em;
+  text-align: center;
+}
+.dist-me {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.tag.class-tag.cleric {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+.tag.class-tag.sorcerer {
+  border-color: var(--conc, #a98bf0);
+  color: var(--conc, #a98bf0);
+}

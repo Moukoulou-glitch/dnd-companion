@@ -1924,7 +1924,10 @@
             "selector": "stat.speed.walk",
             "op": "add",
             "value": 10,
-            "label": "Aura of Alacrity"
+            "label": "Aura of Alacrity",
+            "when": {
+              "notIncapacitated": true
+            }
           }
         ]
       }
@@ -2303,7 +2306,10 @@
             "selector": "roll.initiative",
             "op": "add",
             "value": "pb",
-            "label": "Aura of the Sentinel"
+            "label": "Aura of the Sentinel",
+            "when": {
+              "notIncapacitated": true
+            }
           }
         ]
       }

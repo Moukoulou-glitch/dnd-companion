@@ -547,7 +547,7 @@
       "kind": "feature",
       "id": "feature:eldritch-knight-spellcasting",
       "name": "Spellcasting",
-      "summary": "Third-caster using Intelligence and the wizard list. Cantrips: 2 (3 at 10th). Spells known: 3 at 3rd up to 13 at 20th; all but those learned at 3rd, 8th, 14th and 20th must be abjuration or evocation. Slots follow the Eldritch Knight table (one-third caster).",
+      "summary": "Third-caster using Intelligence and the wizard list. Cantrips: 2 (3 at 10th). Spells known: 3 at 3rd up to 13 at 20th; all but those learned at 3rd, 8th, 14th and 20th must be abjuration or evocation. Slots follow the Eldritch Knight table (one-third caster). Each time you gain a level in this class you may replace one spell you know with another wizard spell of a level you have slots for; it must be abjuration or evocation unless the spell you replace was one of your any-school picks.",
       "source": {
         "pack": "table-2014",
         "book": "PHB",

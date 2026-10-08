@@ -19,6 +19,7 @@ import {
 import { sum, signed, signedDice, type Breakdown, type DicePart, type Part, type RollBreakdown, type Suggestion } from "./breakdown.js";
 import { evalExpr, evalFlat, type ExprContext } from "./expr.js";
 import { ACTION_DCS, FEATURE_DCS, type DcSpec } from "./dcs.js";
+import { FEATURE_TAGS, TOGGLE_LABELS, TOGGLE_REMINDERS } from "./tags.js";
 import type { ContentRegistry } from "./registry.js";
 import { collectSources, type Source } from "./sources.js";
 import { deriveCompanion, type CompanionResult } from "./companions.js";
@@ -182,6 +183,16 @@ export interface ActionResult {
   dc?: FeatureDc;
 }
 
+/** A feature that's on by itself, shown as a tag. */
+export interface FeatureTag {
+  id: string;
+  name: string;
+  active: boolean;
+  /** Why it's off right now. */
+  why?: string;
+  reminders: string[];
+}
+
 /** A feature's save DC, worked out, with what the save is. */
 export interface FeatureDc {
   value: number;
@@ -278,7 +289,9 @@ export interface DerivedSheet {
   defenses: { resist: string[]; immune: string[]; vulnerable: string[] };
   senses: Record<string, number>;
   /** On/off states some active feature reads (Rage, Mage Armor, a lit Flame Tongue), for the UI to offer as switches. */
-  toggles: { name: string; label: string; on: boolean }[];
+  toggles: { name: string; label: string; on: boolean; reminders?: string[] }[];
+  /** Features that are on by themselves (Aura of Protection), with what they do; off while unconscious and so on. */
+  featureTags: FeatureTag[];
   /** Race traits, background, class and subclass features, feats and table rules, in sheet order, with their text when loaded. */
   features: FeatureEntry[];
   /** Companions from features (Primal Companion), with their stat blocks. */
@@ -458,8 +471,29 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
   // Modifiers.
   const active: ActiveMod[] = sources.flatMap((source) => (source.grant.modifiers ?? []).map((mod) => ({ mod, source })));
 
+  // Conditions on you, with what they include (Paralyzed includes Incapacitated); 0 HP counts as unconscious.
+  const onYou = new Set<string>();
+  const addCond = (id: string) => {
+    if (onYou.has(id)) return;
+    onYou.add(id);
+    for (const inc of reg.find(id, "effect")?.includes ?? []) addCond(inc);
+  };
+  for (const e of c.effects) addCond(e.effect);
+  const unconscious = onYou.has("condition:unconscious") || (c.hp.current <= 0 && !c.shape);
+  const incapacitated = unconscious || onYou.has("condition:incapacitated");
+  const paladinLevel = classLevels["class:paladin"] ?? 0;
+  const fillTag = (t: string) =>
+    t
+      .replace(/\{cha\}/g, String(Math.max(1, mods.cha)))
+      .replace(/\{wis\}/g, String(Math.max(1, mods.wis)))
+      .replace(/\{pb\}/g, String(pb))
+      .replace(/\{cleric\}/g, String(classLevels["class:cleric"] ?? 0))
+      .replace(/\{range\}/g, paladinLevel >= 18 ? "30 ft" : "10 ft");
+
   const conditionState = (when: Condition | undefined): "pass" | "fail" | "unknown" => {
     if (!when) return "pass";
+    if (when.conscious && unconscious) return "fail";
+    if (when.notIncapacitated && incapacitated) return "fail";
     if (when.noArmor && armorWorn) return "fail";
     if (when.withArmor && !armorWorn) return "fail";
     if (when.noHeavyArmor && armorWorn?.def.armor?.category === "heavy") return "fail";
@@ -1221,6 +1255,10 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
   });
 
   const toggles: DerivedSheet["toggles"] = [];
+  // Switched-on features with reminders show as switches even without a modifier (Twilight Sanctuary).
+  for (const a of actions)
+    for (const name of a.toggles)
+      if (TOGGLE_REMINDERS[name] && !toggles.some((t) => t.name === name)) toggles.push({ name, label: TOGGLE_LABELS[name] ?? a.name, on: c.toggles.includes(name), reminders: TOGGLE_REMINDERS[name]!.map(fillTag) });
   for (const a of active) {
     const name = a.mod.when?.toggle;
     if (!name || toggles.some((t) => t.name === name)) continue;
@@ -1230,11 +1268,22 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
     if (switcher?.common) continue;
     const byAction = switcher?.name;
     const label = byAction ?? (a.mod.op === "note" ? a.source.label : labelOf(a));
-    toggles.push({ name, label, on: c.toggles.includes(name) });
+    toggles.push({ name, label, on: c.toggles.includes(name), ...(TOGGLE_REMINDERS[name] ? { reminders: TOGGLE_REMINDERS[name]!.map(fillTag) } : {}) });
+  }
+
+  // Features that are on by themselves (a paladin's auras), off while you're unconscious or incapacitated.
+  const featureTags: FeatureTag[] = [];
+  for (const s of sources) {
+    const t = FEATURE_TAGS[s.id];
+    if (!t || featureTags.some((x) => x.id === s.id)) continue;
+    if (t.whileToggle && !c.toggles.includes(t.whileToggle)) continue;
+    const why = t.needs === "conscious" && unconscious ? "You're unconscious." : t.needs === "notIncapacitated" && incapacitated ? "You're incapacitated." : undefined;
+    featureTags.push({ id: s.id, name: t.name, active: !why, ...(why ? { why } : {}), reminders: t.reminders.map(fillTag) });
   }
 
   const sheet: DerivedSheet = {
     toggles,
+    featureTags,
     level,
     proficiencyBonus: pb,
     abilities,

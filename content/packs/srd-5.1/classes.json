@@ -3282,8 +3282,11 @@
           {
             "selector": "roll.save.*",
             "op": "add",
-            "value": "mod.cha",
-            "label": "Aura of Protection"
+            "value": "mod1.cha",
+            "label": "Aura of Protection",
+            "when": {
+              "conscious": true
+            }
           }
         ]
       }

@@ -50,6 +50,10 @@ export const Condition = z
     minScore: z.record(Ability, z.number().int()).optional(),
     /** A named on/off state on the character, e.g. "raging", "sharpshooter". */
     toggle: z.string().optional(),
+    /** Only while you're conscious (Aura of Protection). */
+    conscious: z.boolean().optional(),
+    /** Only while you aren't incapacitated (Aura of Alacrity). */
+    notIncapacitated: z.boolean().optional(),
     /** Human-readable condition the engine cannot verify. */
     text: z.string().optional(),
   })
@@ -351,6 +355,8 @@ export const Grant = z
     proficiencies: z.array(Proficiency).optional(),
     resources: z.array(ResourceDef).optional(),
     spellcasting: SpellcastingDef.optional(),
+    /** Another class's spells join a class's list (Divine Soul: cleric spells as sorcerer spells), and the list's new name. */
+    spellListAdds: z.object({ list: z.string(), classes: z.array(z.string()).min(1), name: z.string() }).strict().optional(),
     spells: z.array(GrantedSpell).optional(),
     senses: z.record(z.string(), z.number()).optional(),
     companions: z.array(CompanionDef).optional(),
@@ -398,6 +404,8 @@ export const ChoiceDef = z
       })
       .strict()
       .optional(),
+    /** Spell choices with a `from` list: other spells it may be swapped for later (Divine affinity: any cleric spell), listed after with a note. */
+    orSpells: z.object({ classes: z.array(z.string()), minLevel: z.number().int().min(0).max(9).optional(), upToSlots: z.boolean().optional(), note: z.string() }).strict().optional(),
   })
   .strict();
 export type ChoiceDef = z.infer<typeof ChoiceDef>;

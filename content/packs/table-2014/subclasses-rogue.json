@@ -174,7 +174,7 @@
       "kind": "feature",
       "id": "feature:arcane-trickster-spellcasting",
       "name": "Spellcasting",
-      "summary": "Intelligence-based wizard spellcasting at one-third caster progression, mostly enchantment and illusion spells; you know Mage Hand plus two other wizard cantrips (a third at 10th). Spell slots and spells known follow the Arcane Trickster table.",
+      "summary": "Intelligence-based wizard spellcasting at one-third caster progression, mostly enchantment and illusion spells; you know Mage Hand plus two other wizard cantrips (a third at 10th). Spell slots and spells known follow the Arcane Trickster table. Each time you gain a level in this class you may replace one spell you know with another wizard spell of a level you have slots for; it must be enchantment or illusion unless the spell you replace was one of your any-school picks.",
       "source": {
         "pack": "table-2014",
         "book": "PHB",

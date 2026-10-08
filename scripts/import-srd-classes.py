@@ -299,7 +299,7 @@ MECHANICS = {
     "channel-divinity-sacred-weapon": {"grant": {"actions": [{"id": "sacred-weapon", "name": "Sacred Weapon", "economy": "action", "cost": {"resource": "channel-divinity-paladin"}, "duration": {"rounds": 10}, "toggles": ["sacred-weapon"], "note": "For 1 minute your weapon is magical, sheds bright light, and you add your Charisma modifier to attacks with it."}], "modifiers": [{"selector": "roll.attack.weapon.*", "op": "add", "value": "mod.cha", "label": "Sacred Weapon", "when": {"toggle": "sacred-weapon"}}]}},
     "channel-divinity-turn-the-unholy": {"grant": {"actions": [{"id": "turn-the-unholy", "name": "Turn the Unholy", "economy": "action", "cost": {"resource": "channel-divinity-paladin"}, "note": "Fiends and undead within 30 ft that can hear you make a Wisdom save or are turned for 1 minute (or until damaged)."}]}},
     "paladin-extra-attack": {"grant": {"extraAttacks": 2}},
-    "aura-of-protection": {"grant": {"modifiers": [{"selector": "roll.save.*", "op": "add", "value": "mod.cha", "label": "Aura of Protection"}]}},
+    "aura-of-protection": {"grant": {"modifiers": [{"selector": "roll.save.*", "op": "add", "value": "mod1.cha", "label": "Aura of Protection", "when": {"conscious": True}}]}},
     "improved-divine-smite": {"grant": {"modifiers": [{"selector": "roll.damage.weapon.melee", "op": "add", "value": "1d8", "damageType": "radiant", "label": "Improved Divine Smite"}]}},
     # Ranger, barbarian
     "ranger-extra-attack": {"grant": {"extraAttacks": 2}},

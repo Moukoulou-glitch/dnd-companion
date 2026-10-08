@@ -343,7 +343,7 @@
       "kind": "feature",
       "id": "feature:divine-soul-divine-magic",
       "name": "Divine Magic",
-      "summary": "You can learn cleric spells as sorcerer spells. You also learn one bonus spell by divine affinity (good: Cure Wounds, evil: Inflict Wounds, law: Bless, chaos: Bane, neutrality: Protection from Evil and Good) that doesn't count against spells known.",
+      "summary": "Your sorcerer list becomes the Divine Soul spell list: sorcerer and cleric spells. You also learn one bonus spell by divine affinity (good: Cure Wounds, evil: Inflict Wounds, law: Bless, chaos: Bane, neutrality: Protection from Evil and Good); it doesn't count against spells known, and if you replace it later it must be a cleric spell.",
       "source": {
         "pack": "table-2014",
         "book": "XGtE",
@@ -352,7 +352,7 @@
       "choices": [
         {
           "id": "affinity",
-          "label": "Divine affinity spell",
+          "label": "Divine affinity spell (extra)",
           "kind": "spell",
           "count": 1,
           "from": [
@@ -361,7 +361,15 @@
             "spell:bless",
             "spell:bane",
             "spell:protection-from-evil-and-good"
-          ]
+          ],
+          "orSpells": {
+            "classes": [
+              "cleric"
+            ],
+            "minLevel": 1,
+            "upToSlots": true,
+            "note": "cleric spell, when replacing it"
+          }
         }
       ],
       "grant": {
@@ -370,6 +378,13 @@
           "label": "Sorcerer",
           "ability": "cha",
           "progression": "full"
+        },
+        "spellListAdds": {
+          "list": "sorcerer",
+          "classes": [
+            "cleric"
+          ],
+          "name": "Divine Soul spell list"
         }
       }
     },

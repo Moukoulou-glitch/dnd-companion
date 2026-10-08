@@ -69,6 +69,13 @@ export function evalExpr(expr: ValueExpr, ctx: ExprContext): Term[] {
       return { kind: "flat", value: sign * ctx.mods[ab], label: `${ABILITY_NAMES[ab]} modifier` };
     }
 
+    // "mod1.cha": the modifier, but at least +1 (Aura of Protection).
+    const mod1 = /^mod1\.(str|dex|con|int|wis|cha)$/.exec(t);
+    if (mod1) {
+      const ab = mod1[1] as Ability;
+      return { kind: "flat", value: sign * Math.max(1, ctx.mods[ab]), label: `${ABILITY_NAMES[ab]} modifier (at least +1)` };
+    }
+
     const cl = /^classLevel\.(.+)$/.exec(t);
     if (cl) {
       const id = cl[1] as string;

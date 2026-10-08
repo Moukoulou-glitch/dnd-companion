@@ -14,3 +14,15 @@ export function DcBig({ dc }: { dc: FeatureDc }) {
     </details>
   );
 }
+
+/** What a feature or effect does for you, and what you can do with it. */
+export function Reminders({ items }: { items: string[] }) {
+  if (!items.length) return null;
+  return (
+    <ul className="reminders-box">
+      {items.map((r) => (
+        <li key={r}>{r}</li>
+      ))}
+    </ul>
+  );
+}

@@ -1503,6 +1503,411 @@
       ],
       "minutes": 60,
       "concentration": true
+    },
+    {
+      "kind": "effect",
+      "id": "other:aura-of-protection",
+      "name": "Aura of Protection",
+      "category": "other",
+      "summary": "A paladin's aura (within 10 ft, 30 ft from their 18th level): add their Charisma modifier to your saving throws while they're conscious.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 85
+      },
+      "choice": {
+        "label": "Their Charisma modifier",
+        "options": [
+          "+1",
+          "+2",
+          "+3",
+          "+4",
+          "+5"
+        ]
+      },
+      "modifiers": [
+        {
+          "selector": "roll.save.*",
+          "op": "add",
+          "value": "{choice}",
+          "label": "Aura of Protection",
+          "when": {
+            "text": "within the paladin's aura, and the paladin is conscious"
+          }
+        }
+      ],
+      "reminders": [
+        "Only while you're within the aura and the paladin is conscious."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "other:aura-of-courage",
+      "name": "Aura of Courage",
+      "category": "other",
+      "summary": "A paladin's aura: you can't be frightened while you're within it and the paladin is conscious.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 85
+      },
+      "modifiers": [],
+      "reminders": [
+        "You can't be frightened.",
+        "Only while you're within the aura and the paladin is conscious."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "other:aura-of-devotion",
+      "name": "Aura of Devotion",
+      "category": "other",
+      "summary": "An Oath of Devotion paladin's aura: you can't be charmed while you're within it and the paladin is conscious.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 86
+      },
+      "modifiers": [],
+      "reminders": [
+        "You can't be charmed.",
+        "Only while you're within the aura and the paladin is conscious."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "other:aura-of-warding",
+      "name": "Aura of Warding",
+      "category": "other",
+      "summary": "An Oath of the Ancients paladin's aura: resistance to damage from spells.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 87
+      },
+      "modifiers": [],
+      "reminders": [
+        "Resistance to damage from spells: halve it when you take damage."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "other:aura-of-alacrity",
+      "name": "Aura of Alacrity",
+      "category": "other",
+      "summary": "An Oath of Glory paladin's aura: starting your turn within it gives +10 ft walking speed until the end of that turn.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 56
+      },
+      "rounds": 1,
+      "modifiers": [
+        {
+          "selector": "stat.speed.walk",
+          "op": "add",
+          "value": 10,
+          "label": "Aura of Alacrity"
+        }
+      ],
+      "reminders": [
+        "Until the end of this turn. Started your turn in the aura again? Add it again."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "other:aura-of-the-sentinel",
+      "name": "Aura of the Sentinel",
+      "category": "other",
+      "summary": "An Oath of the Watchers paladin's aura: add their proficiency bonus to initiative.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 54
+      },
+      "choice": {
+        "label": "Their proficiency bonus",
+        "options": [
+          "+2",
+          "+3",
+          "+4",
+          "+5",
+          "+6"
+        ]
+      },
+      "modifiers": [
+        {
+          "selector": "roll.initiative",
+          "op": "add",
+          "value": "{choice}",
+          "label": "Aura of the Sentinel"
+        }
+      ],
+      "reminders": [
+        "Only while you're within the aura and the paladin isn't incapacitated."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "other:aura-of-the-guardian",
+      "name": "Aura of the Guardian",
+      "category": "other",
+      "summary": "An Oath of Redemption paladin can take damage meant for you, with their reaction, while you're within 10 ft.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 39
+      },
+      "modifiers": [],
+      "reminders": [
+        "When you take damage, the paladin may take it instead (their reaction)."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "other:aura-of-conquest",
+      "name": "Aura of Conquest",
+      "category": "other",
+      "summary": "An Oath of Conquest paladin's aura: if you're frightened of them, your speed is 0 in it and you take psychic damage at the start of your turns.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 38
+      },
+      "modifiers": [
+        {
+          "selector": "stat.speed.*",
+          "op": "set",
+          "value": 0,
+          "label": "Aura of Conquest"
+        }
+      ],
+      "reminders": [
+        "Psychic damage equal to half the paladin's level when you start your turn in the aura."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "other:aura-of-hate",
+      "name": "Aura of Hate",
+      "category": "other",
+      "summary": "An Oathbreaker paladin's aura: fiends and undead (and the paladin) add the paladin's Charisma modifier to melee weapon damage.",
+      "source": {
+        "pack": "table-2014",
+        "book": "DMG",
+        "page": 98
+      },
+      "choice": {
+        "label": "Their Charisma modifier",
+        "options": [
+          "+1",
+          "+2",
+          "+3",
+          "+4",
+          "+5"
+        ]
+      },
+      "modifiers": [
+        {
+          "selector": "roll.damage.weapon.melee",
+          "op": "add",
+          "value": "{choice}",
+          "label": "Aura of Hate",
+          "when": {
+            "text": "you're a fiend or undead within the aura"
+          }
+        }
+      ],
+      "reminders": [
+        "Several of these auras don't stack: only the best one counts."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "other:twilight-sanctuary",
+      "name": "Twilight Sanctuary",
+      "category": "other",
+      "summary": "A Twilight cleric's sphere of twilight (30 ft, 1 minute). When you end your turn in it, the cleric may grant you temporary hit points or end a charm or fright on you.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 35
+      },
+      "rounds": 10,
+      "modifiers": [],
+      "reminders": [
+        "At the end of your turn in the sphere: 1d6 + the cleric's level temporary hit points, or one charmed or frightened effect on you ends (the cleric chooses)."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "other:vigilant-blessing",
+      "name": "Vigilant Blessing",
+      "category": "other",
+      "summary": "A Twilight cleric's blessing: advantage on your next initiative roll.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 35
+      },
+      "usedUp": true,
+      "modifiers": [
+        {
+          "selector": "roll.initiative",
+          "op": "advantage",
+          "label": "Vigilant Blessing"
+        }
+      ],
+      "reminders": [
+        "Gone after your next initiative roll."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "other:eyes-of-night",
+      "name": "Eyes of Night (shared)",
+      "category": "other",
+      "summary": "A Twilight cleric shared their darkvision: you see in dim light and darkness out to 300 ft for 1 hour.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 34
+      },
+      "minutes": 60,
+      "modifiers": [],
+      "reminders": [
+        "Darkvision 300 ft."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "other:storm-aura-tundra",
+      "name": "Storm Aura (tundra)",
+      "category": "other",
+      "summary": "A Storm Herald barbarian's tundra aura: temporary hit points when it triggers (2 at 3rd level, up to 6 at 20th).",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 11
+      },
+      "modifiers": [],
+      "reminders": [
+        "Each time the aura triggers, you gain its temporary hit points (they don't add up)."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "other:shielding-storm",
+      "name": "Shielding Storm",
+      "category": "other",
+      "summary": "A Storm Herald barbarian's aura: resistance to the damage of their storm (fire, lightning or cold).",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 11
+      },
+      "choice": {
+        "label": "Damage type",
+        "options": [
+          "fire",
+          "lightning",
+          "cold"
+        ]
+      },
+      "modifiers": [
+        {
+          "selector": "defense.resist.{choice}",
+          "op": "resist",
+          "label": "Shielding Storm"
+        }
+      ],
+      "reminders": [
+        "Only while you're within the raging barbarian's aura."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "other:spirit-totem-bear",
+      "name": "Spirit Totem: Bear",
+      "category": "other",
+      "summary": "A Shepherd druid's bear spirit (30-ft aura, 1 minute): advantage on Strength checks and Strength saves.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 24
+      },
+      "rounds": 10,
+      "modifiers": [
+        {
+          "selector": "roll.check.str",
+          "op": "advantage",
+          "label": "Bear Spirit"
+        },
+        {
+          "selector": "roll.save.str",
+          "op": "advantage",
+          "label": "Bear Spirit"
+        }
+      ],
+      "reminders": [
+        "When the spirit appears you gain 5 + the druid's level temporary hit points (add them on Play)."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "other:spirit-totem-hawk",
+      "name": "Spirit Totem: Hawk",
+      "category": "other",
+      "summary": "A Shepherd druid's hawk spirit (30-ft aura, 1 minute): advantage on Wisdom (Perception) checks; the druid can use their reaction to give you advantage on an attack against a creature in the aura.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 24
+      },
+      "rounds": 10,
+      "modifiers": [
+        {
+          "selector": "roll.check.skill.perception",
+          "op": "advantage",
+          "label": "Hawk Spirit"
+        }
+      ],
+      "reminders": [
+        "Ask the druid for advantage on an attack (their reaction)."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "other:spirit-totem-unicorn",
+      "name": "Spirit Totem: Unicorn",
+      "category": "other",
+      "summary": "A Shepherd druid's unicorn spirit (30-ft aura, 1 minute): advantage on checks to detect creatures in it; the druid's healing spells also heal you.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 24
+      },
+      "rounds": 10,
+      "modifiers": [],
+      "reminders": [
+        "When the druid heals anyone with a spell, you regain hit points equal to their druid level if you're in the aura."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "other:halo-of-spores",
+      "name": "Halo of Spores",
+      "category": "other",
+      "summary": "A Spores druid's halo (10 ft): you're within it. The druid can use their reaction to deal necrotic damage to a creature that moves into or starts its turn there (Constitution save).",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 36
+      },
+      "modifiers": [],
+      "reminders": [
+        "Only matters if you're the druid's enemy."
+      ]
     }
   ]
 }

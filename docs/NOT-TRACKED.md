@@ -22,9 +22,14 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 - **Paladin**: Aura of Warding (spell damage), Aura of Conquest and Scornful Rebuke (damage to others), Emissary of Redemption, Invincible Conqueror's extra attack (its resistances and crit range are tracked), Mortal Bulwark's truesight, Living Legend/Mortal Bulwark slot refuel, Aura of Alacrity and Aura of the Sentinel (only your own bonus), Otherworldly Glamour's minimum +1; Harness Divine Power use is marked by hand.
 - **Ranger**: Mighty Swarm (built into Gathered Swarm's die).
 - **Rogue**: Infiltration Expertise, Impostor, Magical Ambush, Insightful Manipulator, Soul of Deceit, Fancy Footwork, Death's Friend; Whispers of the Dead offers skills only (no tools).
-- **Sorcerer**: Controlled Chaos, Divine Soul's access to the cleric list, Unearthly Recovery's half-HP heal; Additional Sorcerer Spells, Sorcerous Versatility.
+- **Sorcerer**: Controlled Chaos, Unearthly Recovery's half-HP heal; Additional Sorcerer Spells, Sorcerous Versatility.
 - **Warlock**: Gift of the Sea swim speed, Elemental Gift flight and its genie-kind resistance, Awakened Mind telepathy, Beguiling Defenses' charm immunity, Hex Warrior's Charisma for weapon attacks, Genie's Wrath damage type.
 - **Wizard**: Arcane Ward is tracked as full after each long rest even before it's created; Savant features, Minor Alchemy, Focused Conjuration, Durable Summons, Split Enchantment, Alter Memories, Malleable Illusions, Master of Hexes, Sanctuary Vessel, Master Scrivener; Transmuter's Stone benefit; Grim Harvest healing (note); Durable Magic uses a switch you turn on while concentrating.
+
+## Auras and tags
+- Aura effects from allies (Add an effect → Other) don't know whether you're inside the aura or whether its owner is conscious: remove them yourself.
+- Twilight Sanctuary's per-turn temporary hit points aren't rolled for other creatures; the reminder says what to do.
+- Feature DCs are listed for the features that need one (Stunning Strike, Turn Undead, maneuvers, Breath Weapon, ...); a feature missing from that list shows no DC.
 
 ## Summoned creatures and forms
 - Grappled/restrained speeds etc. come from effects only; "lethargy"-style effects on summons aren't automatic.
