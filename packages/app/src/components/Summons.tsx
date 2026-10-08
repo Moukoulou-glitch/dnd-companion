@@ -99,7 +99,7 @@ export function SummonsCard({ character, reg, onOpen }: { character: Character; 
           const spell = reg.find(members[0]!.spell, "spell")?.name ?? "Spell";
           const names = [...new Set(members.map((m) => reg.find(m.creature, "creature")?.name ?? m.creature))];
           const hp = members.reduce((t, m) => t + m.hp, 0);
-          const max = members.reduce((t, m) => t + (reg.find(m.creature, "creature")?.hp ?? m.hp), 0);
+          const max = members.reduce((t, m) => t + (summonBlock(reg, m)?.hp.max ?? reg.find(m.creature, "creature")?.hp ?? m.hp), 0);
           return (
             <button key={g} className="row companion" onClick={() => onOpen(g)}>
               <div className="row-main">
@@ -167,7 +167,7 @@ export function SummonGroupPanel({
                   {m.name ?? d?.name ?? m.creature} {members.length > 1 ? i + 1 : ""} ›
                 </div>
                 <div className="row-sub">
-                  AC {d?.ac ?? "?"}
+                  AC {summonBlock(reg, m)?.ac ?? d?.ac ?? "?"}
                   {!shared && m.initiative !== undefined ? ` · initiative ${m.initiative}` : ""}
                   {m.used && (m.used.action || m.used.bonus || m.used.reaction) ? ` · ${[m.used.action && "action", m.used.bonus && "bonus", m.used.reaction && "reaction"].filter(Boolean).join(", ")} used` : ""}
                   {m.effects?.length ? ` · ${m.effects.map((e) => reg.find(e.effect, "effect")?.name ?? e.effect).join(", ")}` : ""}
@@ -175,7 +175,7 @@ export function SummonGroupPanel({
                 </div>
               </button>
               <button className={`chip${m.hp === 0 ? " danger-text" : ""}`} onClick={() => openHp(m.id)}>
-                {m.hp}/{d?.hp ?? "?"} HP
+                {m.hp}/{summonBlock(reg, m)?.hp.max ?? d?.hp ?? "?"} HP
               </button>
               {!shared && (
                 <button className="chip" onClick={() => rollInitiative(group, m.id)}>
@@ -318,7 +318,8 @@ function SpellSearch({
   const all = useMemo(() => reg.list("spell"), [reg]);
   const needle = q.trim().toLowerCase();
   const ownIds = new Set(own.map((o) => o.id ?? o.name.toLowerCase()));
-  const mine = own.filter((o) => {
+  // Its own spells are listed below with their uses; here they show only for a search.
+  const mine = !needle ? [] : own.filter((o) => {
     const d = o.id ? reg.find(o.id, "spell") : undefined;
     return (!filter || (d && filter(d))) && o.name.toLowerCase().includes(needle);
   });

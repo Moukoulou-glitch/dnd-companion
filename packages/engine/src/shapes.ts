@@ -534,6 +534,22 @@ export function summonBlock(reg: ContentRegistry, m: SummonMember): ShapeResult 
     attack: applyTo(a.attack, [`roll.attack.weapon.${a.mode === "melee" ? "melee" : "ranged"}`]),
     damage: { ...a.damage, bonus: applyTo(a.damage.bonus, [`roll.damage.weapon.${a.mode === "melee" ? "melee" : "ranged"}`]) },
   }));
+  // Variants named after a spell (Club (shillelagh)): the variant while that spell is on it, the plain attack otherwise.
+  const effectNames = new Set(reg.list("effect").map((e) => e.name.toLowerCase()));
+  const active = new Set((m.effects ?? []).map((e) => reg.find(e.effect, "effect")?.name.toLowerCase()).filter(Boolean) as string[]);
+  const variantOf = (n: string) => /\(([^)]+)\)$/.exec(n)?.[1]?.toLowerCase();
+  const baseOf = (n: string) => n.replace(/\s*\([^)]+\)$/, "");
+  const on = r.attacks.filter((a) => {
+    const v = variantOf(a.name);
+    return v !== undefined && effectNames.has(v) && active.has(v);
+  });
+  r.attacks = r.attacks
+    .filter((a) => {
+      const v = variantOf(a.name);
+      if (v !== undefined && effectNames.has(v)) return active.has(v);
+      return !on.some((x) => baseOf(x.name) === a.name);
+    })
+    .map((a) => (on.includes(a) ? { ...a, note: `${variantOf(a.name)} on${a.note ? ` · ${a.note}` : ""}` } : a));
   r.spellAttack = applyTo(flatRoll([]), ["roll.attack.spell.ranged", "roll.attack.spell.melee"]);
   // Stats: AC, speed, hit points, defenses.
   let ac = b.ac;

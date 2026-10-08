@@ -28,24 +28,38 @@ import { SheetTab } from "./components/SheetTab";
 import { SpellPanel, SpellsTab, spellAsAttack, type ClassList } from "./components/SpellsTab";
 import { useCharacters } from "./useCharacters";
 import { formatMinutes } from "./time";
+import { vibrateFor, type HpState } from "./vibrate";
 
 type Tab = "play" | "actions" | "spells" | "sheet" | "inventory";
 
 interface GrowingArea {
   question: string;
   what: string;
-  base: number;
+  /** Creatures counted at least (you; or you and whoever started it). */
+  min: number;
+  /** Feet of radius per creature that used it. */
   per: number;
-  detail: (joined: number) => string;
+  /** The tag it leaves on you, with the radius as its choice. */
+  effect?: string;
+  detail: (total: number) => string;
 }
-/** Areas that grow when allies join with their reaction. */
+/** Areas that grow with every creature that joins (Charm of Sunlight): how many in total, and the radius. */
 const GROWING_AREAS: Record<string, GrowingArea> = {
   "charm-of-sunlight": {
-    question: "How many allies within 60 ft used their reaction to join, each spending their own Charm?",
+    question: "How many creatures used their Charm in total, you included? Allies within 60 ft who earned it with you can join with their reaction.",
     what: "Sphere of sunlight",
-    base: 10,
+    min: 1,
     per: 10,
-    detail: (n) => (n ? `Each of the ${n} gets a crown of light of their own that moves with them.` : "Just your crown of light. Allies who earned the Charm with you can still join with their reaction."),
+    effect: "other:charm-of-sunlight",
+    detail: (n) => (n > 1 ? `Each of the ${n - 1} who joined gets a crown of light of their own that moves with them.` : "Just your crown of light."),
+  },
+  "charm-of-sunlight-join": {
+    question: "How many creatures used their Charm in total, the one who started it and you included?",
+    what: "Sphere of sunlight",
+    min: 2,
+    per: 10,
+    effect: "other:charm-of-sunlight",
+    detail: () => "You get a crown of light of your own that moves with you.",
   },
 };
 const TABS: { id: Tab; label: string }[] = [
@@ -77,6 +91,15 @@ export function App() {
   const push = useCallback((title: string, body: ReactNode | (() => ReactNode)) => setPanels((p) => [...p, { title, body }]), []);
   const close = useCallback(() => setPanels([]), []);
   const back = useCallback(() => setPanels((p) => p.slice(0, -1)), []);
+
+  // The phone buzzes when the character drops below half, to 0, or dies.
+  const hpState = useRef<HpState | undefined>(undefined);
+  useEffect(() => {
+    if (!s.character || !s.sheet) return;
+    const now: HpState = { id: s.character.id, hp: s.character.hp.current, max: s.sheet.hpMax.total, failures: s.character.deathSaves.failures };
+    vibrateFor(hpState.current, now);
+    hpState.current = now;
+  }, [s.character, s.sheet]);
 
   // Toasts disappear after a few seconds; undo stays reachable in the meantime.
   useEffect(() => {
@@ -158,6 +181,33 @@ export function App() {
         }
       />
     ));
+
+  /** A death saving throw: what the d20 shows decides it. */
+  const openDeathSave = () => {
+    const decide = (n: number) => {
+      if (n === 20) s.act("deathSave", { result: "critSuccess" }, "Death save: natural 20.");
+      else if (n === 1) s.act("deathSave", { result: "critFailure" }, "Death save: natural 1, two failures.");
+      else if (n >= 10) s.act("deathSave", { result: "success" }, `Death save: ${n}, a success.`);
+      else s.act("deathSave", { result: "failure" }, `Death save: ${n}, a failure.`);
+      close();
+    };
+    open(
+      "Death saving throw",
+      <>
+        <p className="note">Tap what your d20 shows, or let the app roll. 10 or higher succeeds; 1 counts as two failures; 20 brings you back with 1 HP.</p>
+        <div className="keys d20" style={{ marginTop: 10 }}>
+          {Array.from({ length: 20 }, (_, i) => (
+            <button key={i} className="key" onClick={() => decide(i + 1)}>
+              {i + 1}
+            </button>
+          ))}
+        </div>
+        <button className="big" style={{ width: "100%", marginTop: 10 }} onClick={() => decide(rollDie(20))}>
+          Roll for me
+        </button>
+      </>,
+    );
+  };
 
   const openHitDie = (die: string) => {
     const sides = Number(die.slice(1));
@@ -320,31 +370,37 @@ export function App() {
   /** An area that grows with each ally who joins (Charm of Sunlight): how many joined, and the radius. */
   const openGrowingArea = (title: string, g: GrowingArea) =>
     open(title, () => {
-      const [n, setN] = [growJoin.current, (v: number) => {
-        growJoin.current = v;
+      const n = Math.max(g.min, growJoin.current);
+      const setN = (v: number) => {
+        growJoin.current = Math.max(g.min, v);
         openGrowingArea(title, g);
-      }];
+      };
+      const radius = g.per * n;
       return (
         <>
           <p className="note">{g.question}</p>
           <div className="stepper" style={{ justifyContent: "center", margin: "8px auto", width: "fit-content" }}>
-            <button aria-label="One fewer" disabled={n === 0} onClick={() => setN(Math.max(0, n - 1))}>
+            <button aria-label="One fewer" disabled={n <= g.min} onClick={() => setN(n - 1)}>
               −
             </button>
             <span>{n}</span>
-            <button aria-label="One more" onClick={() => setN(n + 1)}>
+            <button aria-label="One more" disabled={n >= 10} onClick={() => setN(n + 1)}>
               +
             </button>
           </div>
           <p className="formula">
-            {g.what}: {g.base + g.per * n}-foot radius
+            {g.what}: {radius}-foot radius
           </p>
           <p className="note">{g.detail(n)}</p>
           <button
             className="big primary wide"
             onClick={() => {
-              live.current.setToast({ id: Date.now(), text: `${g.what}: ${g.base + g.per * n}-foot radius (${n} joined).`, canUndo: false });
               growJoin.current = 0;
+              if (g.effect) {
+                // One tag, the latest radius: an older one from this charm is replaced.
+                for (const e of live.current.sheet?.effects ?? []) if (e.id === g.effect) live.current.act("removeEffect", { instanceId: e.instanceId }, "");
+                live.current.act("addEffect", { instanceId: crypto.randomUUID(), effect: g.effect, choice: `${radius} ft` }, `${g.what}: ${radius}-foot radius, 1 hour.`);
+              } else live.current.setToast({ id: Date.now(), text: `${g.what}: ${radius}-foot radius.`, canUndo: false });
               close();
             }}
           >
@@ -478,12 +534,10 @@ export function App() {
           below={m ? <SummonMaxHp member={m} reg={registry} act={live.current.act} /> : null}
           onDamage={(amount, type, src) => {
             if (!m) return back();
-            const before = m.hp;
-            live.current.act("summonHp", { id, damage: amount, ...(type ? { type } : {}), ...src }, `${amount}${type ? ` ${src?.magical ? "magical " : ""}${type}` : ""} damage.`);
-            const now = live.current.character?.summons.find((x) => x.id === id);
-            const lost = before - (now?.hp ?? before);
-            // Concentrating and still up: the Constitution save (DC 10 or half the damage).
-            if (now?.concentrating && lost > 0 && now.hp > 0) openSummonConcCheck(id, Math.max(10, Math.floor(lost / 2)), fromMember);
+            const prompts = live.current.act("summonHp", { id, damage: amount, ...(type ? { type } : {}), ...src }, `${amount}${type ? ` ${src?.magical ? "magical " : ""}${type}` : ""} damage.`);
+            // Concentrating and still up: its Constitution save (DC 10 or half the damage) opens right away.
+            const check = prompts.find((p) => p.kind === "concentration" && p.summon === id);
+            if (check) openSummonConcCheck(id, check.dc, fromMember);
             else back();
           }}
           onHeal={(amount) => {
@@ -1672,6 +1726,7 @@ export function App() {
           onStartCombat={startCombat}
           prompts={prompts}
           onInitiative={rollInitiative}
+          openDeathSave={openDeathSave}
           openMove={openMove}
           openCompanion={openCompanion}
           openShape={openShape}

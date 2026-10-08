@@ -2129,3 +2129,28 @@ button.mpip {
   background: var(--gold);
   opacity: 1;
 }
+
+/* Death saves: three marks each, green successes and red failures. */
+.ds-marks {
+  display: flex;
+  gap: 10px;
+}
+.ds-mark {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px dashed var(--muted);
+  background: transparent;
+  padding: 0;
+}
+.ds-mark.successes.on {
+  border: 2px solid var(--teal);
+  background: var(--teal);
+}
+.ds-mark.failures.on {
+  border: 2px solid var(--hp);
+  background: var(--hp);
+}
+.death-saves.down {
+  border-color: var(--hp);
+}

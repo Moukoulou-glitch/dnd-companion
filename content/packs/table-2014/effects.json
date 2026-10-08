@@ -1428,6 +1428,48 @@
       ],
       "minutes": 60,
       "concentration": true
+    },
+    {
+      "kind": "effect",
+      "id": "other:charm-of-sunlight",
+      "name": "Charm of Sunlight",
+      "category": "other",
+      "summary": "Sunlight in a sphere around your crown of light (Daylight variant, 5th level), for 1 hour. Each ally who joined with their reaction adds 10 ft and gets a crown of their own.",
+      "source": {
+        "pack": "table-2014",
+        "book": "Campaign"
+      },
+      "modifiers": [],
+      "minutes": 60,
+      "choice": {
+        "label": "Sphere radius",
+        "options": [
+          "10 ft",
+          "20 ft",
+          "30 ft",
+          "40 ft",
+          "50 ft",
+          "60 ft",
+          "70 ft",
+          "80 ft",
+          "90 ft",
+          "100 ft"
+        ]
+      }
+    },
+    {
+      "kind": "effect",
+      "id": "effect:shillelagh",
+      "name": "Shillelagh",
+      "category": "spell",
+      "summary": "A club or quarterstaff becomes magical: attacks and damage use the caster's spellcasting ability, and its damage die becomes a d8. 1 minute.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 275
+      },
+      "modifiers": [],
+      "rounds": 10
     }
   ]
 }

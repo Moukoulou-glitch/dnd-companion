@@ -110,6 +110,7 @@ export function PlayTab({
   openCompanion,
   prompts,
   onInitiative,
+  openDeathSave,
   openShape,
   openTransform,
   openLimited,
@@ -133,6 +134,8 @@ export function PlayTab({
   openCompanion: (id: string) => void;
   prompts: PlayPrompts;
   onInitiative: () => void;
+  /** A death saving throw: tap the d20 or let the app roll. */
+  openDeathSave: () => void;
 }) {
   const down = character.hp.current === 0;
   const slotsUsed = (level: number) => character.slotsUsed[String(level)] ?? 0;
@@ -170,35 +173,52 @@ export function PlayTab({
         </button>
       )}
 
-      {down && (
-        <section>
-          <h2>Death saves</h2>
-          <div className="group">
-            <div className="row">
-              <div className="row-main">
-                <div className="row-title">
-                  {character.deathSaves.successes} successes, {character.deathSaves.failures} failures
+      <section>
+        <h2>Death saving throws</h2>
+        <div className={`group death-saves${down ? " down" : ""}`}>
+          {(["successes", "failures"] as const).map((k) => {
+            const n = character.deathSaves[k];
+            const set = (v: number) =>
+              act("setDeathSaves", { ...character.deathSaves, [k]: v }, `${k === "successes" ? "Successes" : "Failures"}: ${v}.`);
+            return (
+              <div className="row" key={k}>
+                <div className="row-main">
+                  <div className="row-title">{k === "successes" ? "Successes" : "Failures"}</div>
                 </div>
-                <div className="row-sub">10 or higher succeeds. A 1 counts twice; a 20 brings you back with 1 HP.</div>
+                <div className="ds-marks" role="group" aria-label={k}>
+                  {[0, 1, 2].map((i) => (
+                    <button
+                      key={i}
+                      className={`ds-mark ${k}${i < n ? " on" : ""}`}
+                      aria-label={i < n ? `Clear ${k === "successes" ? "success" : "failure"} ${i + 1}` : `Mark ${k === "successes" ? "success" : "failure"} ${i + 1}`}
+                      onClick={() => set(i < n ? i : i + 1)}
+                    />
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+          <div className="row">
+            <div className="row-main">
+              <div className="row-sub">
+                {down
+                  ? "At 0 HP: roll at the start of each turn. 10 or higher succeeds; a 1 counts twice; a 20 brings you back with 1 HP. Damage at 0 HP is a failure (a critical, two)."
+                  : "At 0 HP you roll these at the start of each turn."}
               </div>
             </div>
-            <div className="row" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 6 }}>
-              <button className="big heal" onClick={() => act("deathSave", { result: "success" }, "Death save: success.")}>
-                10+
-              </button>
-              <button className="big damage" onClick={() => act("deathSave", { result: "failure" }, "Death save: failure.")}>
-                1–9
-              </button>
-              <button className="big" onClick={() => act("deathSave", { result: "critSuccess" }, "Natural 20.")}>
-                20
-              </button>
-              <button className="big" onClick={() => act("deathSave", { result: "critFailure" }, "Natural 1: two failures.")}>
-                1
-              </button>
-            </div>
           </div>
-        </section>
-      )}
+          <div className="big-actions" style={{ padding: "0 10px 10px" }}>
+            <button className={`big${down ? " primary" : ""}`} onClick={openDeathSave}>
+              Roll a death save
+            </button>
+            {(character.deathSaves.successes > 0 || character.deathSaves.failures > 0) && (
+              <button className="big" onClick={() => act("setDeathSaves", { successes: 0, failures: 0 }, "Death saves cleared.")}>
+                Clear
+              </button>
+            )}
+          </div>
+        </div>
+      </section>
 
       {rolls.length > 0 && (
         <section>

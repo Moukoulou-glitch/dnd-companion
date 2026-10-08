@@ -290,6 +290,8 @@ export const OPERATION_PAYLOADS = {
   endCompanionState: z.object({ companion: z.string(), id: z.string() }).strict(),
   reviveCompanion: z.object({ companion: z.string(), level: z.number().int().min(1).max(9), pact: z.boolean().default(false) }).strict(),
   deathSave: z.object({ result: z.enum(["success", "failure", "critSuccess", "critFailure"]) }).strict(),
+  /** Set the death save marks by hand (tap a mark, or clear them). */
+  setDeathSaves: z.object({ successes: z.number().int().min(0).max(3), failures: z.number().int().min(0).max(3) }).strict(),
   toggle: z.object({ name: z.string(), on: z.boolean() }).strict(),
   /** Generic edit of a stored value, e.g. path ["abilities","str"]. Validated after applying. */
   setField: z.object({ path: z.array(z.union([z.string(), z.number()])).min(1), value: z.unknown() }).strict(),
@@ -368,6 +370,7 @@ export const Operation = z.discriminatedUnion("type", [
   OperationBase.extend({ type: z.literal("releaseReadied"), payload: OPERATION_PAYLOADS.releaseReadied }),
   OperationBase.extend({ type: z.literal("setConcentration"), payload: OPERATION_PAYLOADS.setConcentration }),
   OperationBase.extend({ type: z.literal("deathSave"), payload: OPERATION_PAYLOADS.deathSave }),
+  OperationBase.extend({ type: z.literal("setDeathSaves"), payload: OPERATION_PAYLOADS.setDeathSaves }),
   OperationBase.extend({ type: z.literal("toggle"), payload: OPERATION_PAYLOADS.toggle }),
   OperationBase.extend({ type: z.literal("setField"), payload: OPERATION_PAYLOADS.setField }),
 ]);

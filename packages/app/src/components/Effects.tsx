@@ -9,7 +9,7 @@ type Act = (type: OperationType, payload: unknown, label: string) => void;
 export function effectChipLabel(e: EffectResult, hideTime = false): string {
   let s = e.name;
   if (e.level !== undefined) s += ` ${e.level}`;
-  if (e.choice?.value) s += `: ${optionName(e.choice.value).slice(0, 3)}`;
+  if (e.choice?.value) s += `: ${ABILITY_NAMES[e.choice.value as Ability] ? optionName(e.choice.value).slice(0, 3) : e.choice.value}`;
   if (e.upcast && e.upcast.castLevel > e.upcast.baseLevel) s += ` (lvl ${e.upcast.castLevel})`;
   if (hideTime) return s;
   if (e.rounds !== undefined) s += ` (${e.rounds})`;

@@ -11,7 +11,8 @@ const evalFlatSafe = (v: ValueExpr, ctx: Parameters<typeof evalFlat>[1]): number
 };
 
 /** Something the player should do next, e.g. roll a concentration check. */
-export type Prompt = { kind: "concentration"; dc: number; spell: string };
+/** A follow-up the app should open: a concentration save (yours, or a summoned creature's when `summon` is set). */
+export type Prompt = { kind: "concentration"; dc: number; spell: string; summon?: string };
 
 /** What changed, in words the UI can show as a toast or reminder. */
 export interface ApplyResult {
@@ -492,7 +493,11 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
       // Its own concentration: damage asks for a Constitution save (DC 10 or half the damage); at 0 HP it ends.
       if (x.concentrating && lost > 0) {
         if (x.hp === 0) delete x.concentrating;
-        else notes.push(`It's concentrating on ${x.concentrating}: Constitution save, DC ${Math.max(10, Math.floor(lost / 2))}.`);
+        else {
+          const dc = Math.max(10, Math.floor(lost / 2));
+          notes.push(`It's concentrating on ${x.concentrating}: Constitution save, DC ${dc}.`);
+          prompts.push({ kind: "concentration", dc, spell: x.concentrating, summon: x.id });
+        }
       }
       if (x.hp === 0 && lost > 0) notes.push(`${who} drops to 0 HP.`);
       break;
@@ -1429,6 +1434,13 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
       spendTurn("action");
       t.state.hp = { current: t.max, temp: 0 };
       notes.push(`${t.comp.name} returns after 1 minute with all ${t.max} hit points.`);
+      break;
+    }
+
+    case "setDeathSaves": {
+      c.deathSaves = { successes: op.payload.successes, failures: op.payload.failures };
+      if (op.payload.failures === 3) notes.push("Three failures: the character dies.");
+      else if (op.payload.successes === 3) notes.push("Three successes: stable at 0 HP.");
       break;
     }
 
