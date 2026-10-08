@@ -21,7 +21,7 @@ const ALIGNMENTS: Record<string, string> = {
 };
 
 /** Race, background, alignment, and size and creature type, in one line. */
-function Identity({ c }: { c: Character }) {
+function Identity({ c, onBackground }: { c: Character; onBackground: () => void }) {
   const race = registry.find(c.race, "race");
   const bg = c.background ? registry.find(c.background, "background") : undefined;
   const cap = (s: string) => s.replace(/^./, (x) => x.toUpperCase());
@@ -33,12 +33,19 @@ function Identity({ c }: { c: Character }) {
   ];
   return (
     <section className="identity" aria-label="Who you are">
-      {parts.map(([k, v]) => (
-        <div key={k}>
-          <span className="identity-label">{k}</span>
-          <span className="identity-value">{v}</span>
-        </div>
-      ))}
+      {parts.map(([k, v]) =>
+        k === "Background" ? (
+          <button key={k} className="identity-edit" onClick={onBackground} aria-label={`Background: ${v}. Change it`}>
+            <span className="identity-label">{k} ✎</span>
+            <span className="identity-value">{v}</span>
+          </button>
+        ) : (
+          <div key={k}>
+            <span className="identity-label">{k}</span>
+            <span className="identity-value">{v}</span>
+          </div>
+        ),
+      )}
     </section>
   );
 }
@@ -111,6 +118,7 @@ export function PlayTab({
   prompts,
   onInitiative,
   openDeathSave,
+  openBackground,
   openShape,
   openTransform,
   openLimited,
@@ -136,13 +144,15 @@ export function PlayTab({
   onInitiative: () => void;
   /** A death saving throw: tap the d20 or let the app roll. */
   openDeathSave: () => void;
+  /** Choose another background. */
+  openBackground: () => void;
 }) {
   const down = character.hp.current === 0;
   const slotsUsed = (level: number) => character.slotsUsed[String(level)] ?? 0;
 
   return (
     <main>
-      <Identity c={character} />
+      <Identity c={character} onBackground={openBackground} />
 
       <CombatCard character={character} sheet={sheet} act={act} onStartCombat={onStartCombat} openMove={openMove} onInitiative={onInitiative} onLimited={openLimited} />
 

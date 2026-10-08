@@ -2514,7 +2514,14 @@
               "resource": "ki"
             },
             "dash": true,
-            "note": "Dash (or Disengage) as a bonus action, and your jump distance doubles this turn."
+            "note": "Dash or Disengage as a bonus action, and your jump distance doubles this turn.",
+            "choose": {
+              "label": "Dash or Disengage?",
+              "options": [
+                "Dash",
+                "Disengage"
+              ]
+            }
           }
         ]
       }
@@ -2614,7 +2621,17 @@
       },
       "text": [
         "Beginning at 4th level, you can use your reaction when you fall to reduce any falling damage you take by an amount equal to five times your monk level."
-      ]
+      ],
+      "grant": {
+        "actions": [
+          {
+            "id": "slow-fall",
+            "name": "Slow Fall",
+            "economy": "reaction",
+            "note": "When you fall: the falling damage is reduced by five times your monk level."
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -2654,6 +2671,18 @@
               "resource": "ki"
             },
             "note": "After hitting with a melee weapon attack: the target makes a Constitution save against your ki save DC (8 + proficiency + Wisdom) or is stunned until the end of your next turn."
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.damage.weapon.melee",
+            "op": "add",
+            "value": 0,
+            "mode": "suggested",
+            "label": "Stunning Strike",
+            "when": {
+              "text": "1 ki on a hit: the target makes a Constitution save against your ki DC or is stunned until the end of your next turn"
+            }
           }
         ]
       }

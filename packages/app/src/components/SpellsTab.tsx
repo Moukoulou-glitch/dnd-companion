@@ -185,6 +185,7 @@ export function SpellPanel({
   sheet,
   hasSelfEffect,
   selfDefault,
+  casterSide,
   onCast,
   initialCast,
   onPrepare,
@@ -197,8 +198,10 @@ export function SpellPanel({
   sp: SpellResult;
   sheet: DerivedSheet;
   hasSelfEffect: boolean;
-  /** Its effect goes on you unless you say otherwise (Hex, Shillelagh, self spells). */
+  /** Its effect goes on you unless you say otherwise (Shillelagh, self spells). */
   selfDefault?: boolean;
+  /** The caster's side of the spell (Hex, Hunter's Mark: your extra damage and its tag): always tracked, no question. */
+  casterSide?: boolean;
   onCast: (level: number, using: "slot" | "pact" | "free" | "ritual" | "none", selfEffect: boolean, castingTime?: string) => void;
   /** Opens already cast at this level (after a turn warning was confirmed). */
   initialCast?: number | undefined;
@@ -237,7 +240,7 @@ export function SpellPanel({
   ];
 
   const doCast = (level: number, using: "slot" | "pact" | "free" | "ritual" | "none") => {
-    onCast(level, using, onMe, times.length > 1 ? time : undefined);
+    onCast(level, using, casterSide ? true : onMe, times.length > 1 ? time : undefined);
     setCast(level);
   };
 
@@ -280,7 +283,8 @@ export function SpellPanel({
               ))}
             </div>
           )}
-          {hasSelfEffect && !readying && (
+          {casterSide && !readying && <p className="note">Its tag goes on you to track it: the extra damage is offered on your attacks.</p>}
+          {hasSelfEffect && !casterSide && !readying && (
             <label className="row check" style={{ padding: "8px 0" }}>
               <input type="checkbox" checked={onMe} onChange={() => setOnMe(!onMe)} />
               <div className="row-main">

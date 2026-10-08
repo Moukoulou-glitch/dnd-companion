@@ -27,17 +27,16 @@ describe("Pass Without Trace, Shillelagh, Hex, timers, concentration on summons"
     expect(s.effects.find((e) => e.id === "effect:pass-without-trace")).toMatchObject({ minutes: 60 });
   });
 
-  it("Shillelagh: melee weapons use Wisdom and a d8; a scimitar is flagged", () => {
+  it("Shillelagh is an option on melee weapon rolls: Wisdom and a d8, a scimitar flagged", () => {
     const log = druid();
     log.record("castSpell", { spell: "spell:shillelagh", list: "druid", level: 0, using: "none", selfEffect: true });
     const atk = derive(log.character, reg).attacks;
     const club = atk.find((a) => a.name === "Club" && !a.offHand)!;
-    expect(club).toMatchObject({ ability: "wis", damage: { dice: "1d8" } });
-    expect(club.note).toMatch(/^Shillelagh/);
-    expect(club.note).not.toMatch(/Not a club/);
+    expect(club.ability).toBe("str");
+    expect(club.attack.suggestions.find((x) => x.label === "Shillelagh")!.apply.flat).toBe(2);
+    expect(club.damage.bonus.suggestions.find((x) => x.label === "Shillelagh")!.apply).toMatchObject({ flat: 2, weaponDice: "1d8" });
     const scim = atk.find((a) => a.name === "Scimitar" && !a.offHand)!;
-    expect(scim.ability).toBe("wis");
-    expect(scim.note).toMatch(/Not a club or quarterstaff/);
+    expect(scim.attack.suggestions.find((x) => x.label === "Shillelagh")!.reason).toMatch(/Not a club or quarterstaff/);
   });
 
   it("Hex keeps its ability; Alarm leaves a timer tag each time; Plant Growth over 8 hours takes no action", () => {

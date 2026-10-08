@@ -2154,3 +2154,16 @@ button.mpip {
 .death-saves.down {
   border-color: var(--hp);
 }
+
+.identity-edit {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  background: none;
+  border: 0;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}

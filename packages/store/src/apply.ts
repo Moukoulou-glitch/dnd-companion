@@ -927,10 +927,11 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
           cb.attacks = 0;
           notes.push("One more action this turn.");
         }
-        if (a.dash) {
+        // Step of the Wind: Dash only when that's the pick; Disengage otherwise.
+        if (a.dash && (!a.choose || /^dash/i.test(op.payload.choice ?? ""))) {
           cb.dashes += 1;
           notes.push(`Dash: ${sheet.speed.total * (1 + cb.dashes)} ft of movement this turn.`);
-        }
+        } else if (/^disengage/i.test(op.payload.choice ?? "")) notes.push("Disengage: your movement doesn't provoke opportunity attacks for the rest of this turn.");
         if (a.notAfterMoving && cb.moved > 0) notes.push(`You had moved ${cb.moved} ft this turn: ${a.name} needs you not to have moved.`);
         if (a.stopsMovement) cb.speedZero = a.name;
         cb.usedThisTurn = [...cb.usedThisTurn, a.id];
@@ -1619,8 +1620,16 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
       if (player !== undefined) c.player = player;
       if (alignment !== undefined) c.alignment = alignment;
       if (race !== undefined) c.race = race;
-      if (background === null) delete c.background;
-      else if (background !== undefined) c.background = background;
+      if (background !== undefined && background !== (c.background ?? null)) {
+        // A new background: the old one's picks (skills, languages, tools) go with it; its gear stays in the inventory.
+        if (c.background) delete c.choices[c.background];
+        if (background === null) delete c.background;
+        else {
+          c.background = background;
+          const def = reg.find(background, "background");
+          if (def && (def as { choices?: unknown[] }).choices?.length) notes.push("Make the new background's choices in Build.");
+        }
+      }
       break;
     }
 

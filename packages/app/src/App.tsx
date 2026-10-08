@@ -15,6 +15,8 @@ import { AddEffectPanel, EffectChips, EffectPanel } from "./components/Effects";
 import { FeaturePanel } from "./components/FeaturePanel";
 import { HpPad } from "./components/HpPad";
 import { AbilityAdjustPanel, MaxHpPanel, SummonMaxHp } from "./components/Adjust";
+import { DamageReducePanel } from "./components/Monk";
+import { BackgroundPicker } from "./components/BackgroundPicker";
 import { AddExtraPanel, ExtraEditor, ExtraInline, skillExtra } from "./components/Extras";
 import { AddItemPanel, CoinPanel, InventoryTab, ItemPanel } from "./components/InventoryTab";
 import { bookReport, registry } from "./content";
@@ -181,6 +183,12 @@ export function App() {
         }
       />
     ));
+
+  /** Another background: its proficiencies and choices follow; gear from the old one stays. */
+  const openBackground = () => open("Background", () => <BackgroundPicker current={live.current.character?.background} onPick={(id) => {
+    live.current.act("setDetails", { background: id }, `Background: ${registry.find(id, "background")?.name ?? id}.`);
+    close();
+  }} />);
 
   /** A death saving throw: what the d20 shows decides it. */
   const openDeathSave = () => {
@@ -627,8 +635,96 @@ export function App() {
       );
     });
 
+  const monkLevel = () => live.current.character?.classes.find((x) => x.class === "class:monk")?.level ?? 0;
+  /** An unarmed strike as the monk makes it (the bonus-action one for Flurry of Blows). */
+  const unarmed = (bonus: boolean) => live.current.sheet?.attacks.find((x) => x.attackId === (bonus ? "martial-arts-bonus" : "martial-arts")) ?? live.current.sheet?.attacks.find((x) => x.attackId === "martial-arts");
+
+  /** Deflect Missiles and Slow Fall: the damage taken, the reduction, and what's left. */
+  const openReduce = (a: ActionResult) => {
+    const sh = live.current.sheet!;
+    const deflect = a.id === "deflect-missiles";
+    const lvl = monkLevel();
+    const dex = sh.abilities.dex.modifier;
+    const use = () => live.current.act("useAction", { action: a.id }, `${a.name}: reaction used.`);
+    open(a.name, () => (
+      <DamageReducePanel
+        what={deflect ? "Damage reduced" : "Slow Fall"}
+        {...(deflect ? { die: 10 } : {})}
+        flat={deflect ? dex + lvl : 5 * lvl}
+        flatLabel={deflect ? `Dexterity ${signed(dex)} + monk level ${lvl}` : `5 × monk level ${lvl}`}
+        physical={live.current.character?.settings.physicalDice ?? true}
+        onApply={(left, reduced) => {
+          use();
+          if (left > 0) {
+            const prompts = live.current.act("damage", { amount: left }, `${a.name} stopped ${reduced}: ${left} damage taken.`);
+            const check = prompts.find((p) => p.kind === "concentration" && !p.summon);
+            if (check) return openConcentrationCheck(check.dc);
+          }
+          close();
+        }}
+        {...(deflect
+          ? {
+              onCatch: (throwBack: boolean) => {
+                use();
+                if (!throwBack) return close();
+                live.current.act("spendResource", { resource: "ki" }, "1 ki spent: thrown back.");
+                const base = unarmed(false);
+                if (!base) return close();
+                // As a monk weapon: proficient, Dexterity, the Martial Arts die.
+                const thrown = { ...base, attackId: "deflect-missiles-throw", name: "Deflected missile", mode: "ranged" as const, range: [20, 60] as [number, number] };
+                openRoll(thrown.name, thrown.attack, thrown);
+              },
+            }
+          : {})}
+      />
+    ));
+  };
+
+  /** Flurry of Blows: two unarmed strikes; a Way of Mercy monk can swap strikes for Hand of Healing. */
+  const openFlurry = () => {
+    const sh = live.current.sheet;
+    const strike = unarmed(true);
+    const healing = sh?.actions.find((x) => x.id === "hand-of-healing");
+    const both = monkLevel() >= 11 && healing;
+    const strikes = (n: number) => {
+      if (!strike) return close();
+      openRoll(strike.name, strike.attack, strike, {
+        optionInfo: optionInfoFor(strike),
+        onDamageOptions: (labels) => {
+          const once = labels.filter((l) => strike.damage.bonus.suggestions.some((sg) => sg.label === l && sg.oncePerTurn));
+          if (once.length && live.current.character?.combat) live.current.act("markOnce", { labels: once }, `${once.join(", ")} used this turn.`);
+          for (const l of labels) {
+            const f = live.current.sheet?.actions.find((x) => x.name === l && x.cost && x.economy === "free");
+            // Flurry of Healing and Harm (11th): Hand of Harm costs no ki in a Flurry.
+            if (f && !(both && f.id === "hand-of-harm")) live.current.act("useAction", { action: f.id }, `${f.name}: ${f.cost!.amount} ki spent.`);
+          }
+        },
+        ...(n > 1 ? { repeat: { count: n, what: "unarmed strikes" } } : {}),
+      });
+    };
+    const heal = (then?: () => void) => {
+      if (!healing) return;
+      live.current.act("useAction", { action: healing.id, free: true }, "Hand of Healing in the Flurry: no ki spent.");
+      const h = healing.heal;
+      const dice = h ? `${h.dice.join("+")}${h.flat ? (h.flat > 0 ? `+${h.flat}` : String(h.flat)) : ""}` : "1d4";
+      openTraitRoll("Hand of Healing", dice, "healing", then ? { back: { label: "On to the strike", to: then } } : {});
+    };
+    if (!healing) return strikes(2);
+    open("Flurry of Blows", () => (
+      <Choose
+        question="Two unarmed strikes, or swap one for Hand of Healing (no ki)?"
+        options={[
+          { label: "Hand of Healing, then one strike", onPick: () => heal(() => strikes(1)) },
+          ...(both ? [{ label: "Two Hands of Healing (no ki)", onPick: () => heal(() => heal()) }] : []),
+          { label: "Two unarmed strikes", onPick: () => strikes(2) },
+        ]}
+      />
+    ));
+  };
+
   const openFeature = (a: ActionResult) => {
     if (a.id === "wild-shape") return openTransform("wildshape");
+    if (a.id === "deflect-missiles" || a.id === "slow-fall") return openReduce(a);
     // A free cast (Haunted: Invisibility) opens the spell itself, where the free use casts it.
     const free = a.spells?.[0] && live.current.sheet?.spells.find((x) => x.id === a.spells![0]!.id && x.list.id === a.spells![0]!.list);
     if (free) return openSpell(free);
@@ -684,6 +780,7 @@ export function App() {
                   const base = sk && live.current.sheet?.skills[sk];
                   const grows = GROWING_AREAS[current.id];
                   if (grows) openGrowingArea(current.name, grows);
+                  else if (current.id === "flurry-of-blows") openFlurry();
                   else if (sk && base) openRoll(`${current.name}: ${SKILL_NAMES[sk]}`, base, undefined, current.check?.dc !== undefined ? { dc: current.check.dc } : {});
                   else close();
                 },
@@ -806,6 +903,12 @@ export function App() {
     };
   };
 
+  /** Ki save DC: 8 + proficiency + Wisdom. */
+  const kiDc = () => {
+    const sh = live.current.sheet;
+    return sh ? 8 + sh.proficiencyBonus + sh.abilities.wis.modifier : undefined;
+  };
+
   const optionInfoFor = (a: WeaponAttack) => {
     const cur = live.current;
     const cb = cur.character?.combat;
@@ -827,6 +930,9 @@ export function App() {
         }
       }
       if (sg.oncePerTurn && cb?.onceUsed.includes(sg.label)) warnings.push(`You've already used ${sg.label} this turn: it works once per turn.`);
+      // Options that cost a resource (Stunning Strike, Hand of Harm: 1 ki).
+      const costed = cur.sheet?.actions.find((x) => x.name === sg.label && x.cost);
+      if (costed?.cost && costed.cost.remaining < costed.cost.amount) warnings.push(`No ${costed.cost.name} left.`);
       if (warnings.length || preselect) info[sg.label] = { ...(warnings.length ? { warning: `${warnings.join(" ")} Keep it only if your DM allows.` } : {}), ...(preselect ? { preselect } : {}) };
       const slots = smiteSlots(sg.label);
       if (slots) info[sg.label] = { ...info[sg.label], slots };
@@ -863,6 +969,13 @@ export function App() {
     const onDamageOptions = (labels: string[]) => {
       const once = labels.filter((l) => a.damage.bonus.suggestions.some((sg) => sg.label === l && sg.oncePerTurn));
       if (once.length && live.current.character?.combat) live.current.act("markOnce", { labels: once }, `${once.join(", ")} used this turn.`);
+      // Options that cost something are spent when the damage is rolled (Stunning Strike, Hand of Harm: 1 ki).
+      for (const l of labels) {
+        const f = live.current.sheet?.actions.find((x) => x.name === l && x.cost && x.economy === "free");
+        if (!f) continue;
+        const dc = l === "Stunning Strike" ? kiDc() : undefined;
+        live.current.act("useAction", { action: f.id }, `${f.name}: ${f.cost!.amount} ${f.cost!.name.toLowerCase()} spent.${dc ? ` The target makes a DC ${dc} Constitution save or is stunned until the end of your next turn.` : ""}`);
+      }
     };
     askEndsOn("attack", () =>
       guard({ name: a.name, economy, attack: economy === "action", weapon }, () =>
@@ -1566,7 +1679,7 @@ export function App() {
   /** Spells cast on yourself put their effect on you unless you say otherwise. */
   const selfByDefault = (sp: SpellResult) => {
     const eff = registry.find(sp.id.replace(/^spell:/, "effect:"), "effect");
-    // Yours by nature (Hex, Hunter's Mark), or cast on yourself or what you touch (Shillelagh).
+    // Cast on yourself or what you touch (Shillelagh); the caster's side of Hex and Hunter's Mark is always tracked.
     return !!eff && (!!eff.selfOnly || /^(self|touch)/i.test(sp.range));
   };
 
@@ -1583,6 +1696,7 @@ export function App() {
           sheet={live.current.sheet!}
           hasSelfEffect={registry.has(sp.id.replace(/^spell:/, "effect:"))}
           selfDefault={selfByDefault(sp)}
+          casterSide={!!registry.find(sp.id.replace(/^spell:/, "effect:"), "effect")?.selfOnly}
           initialCast={castAt}
           readying={readying}
           onCast={(level, using, selfEffect, castingTime) => castFlow(sp, level, using, selfEffect, readying, castingTime)}
@@ -1756,6 +1870,7 @@ export function App() {
           prompts={prompts}
           onInitiative={rollInitiative}
           openDeathSave={openDeathSave}
+          openBackground={openBackground}
           openMove={openMove}
           openCompanion={openCompanion}
           openShape={openShape}

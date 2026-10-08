@@ -15,7 +15,7 @@ export interface ComposerBase {
     label: string;
     effect: string;
     reason?: string;
-    apply: { flat: number; dice: string[]; damageType?: string; mode?: "advantage" | "disadvantage" };
+    apply: { flat: number; dice: string[]; damageType?: string; mode?: "advantage" | "disadvantage"; weaponDice?: string };
   }[];
   critAt?: number;
   minD20?: number;
@@ -110,7 +110,9 @@ export function composeDamage(
   label = "Weapon",
 ): Composed {
   const out: Composed = { terms: [], sources: [], advantageFrom: [], disadvantageFrom: [] };
-  pushDice(out, weaponDice, label, damageType || undefined);
+  // An option can change the weapon's own die (Shillelagh: a d8).
+  const swap = base.suggestions.find((x) => choices.enabled.includes(x.label) && x.apply.weaponDice);
+  pushDice(out, swap?.apply.weaponDice ?? weaponDice, swap ? `${label} (${swap.label})` : label, damageType || undefined);
   for (const p of base.parts) pushFlat(out, p.value, p.label);
   for (const d of base.dice) pushDice(out, d.dice, d.label, d.damageType ?? damageType);
   for (const s of base.suggestions.filter((x) => choices.enabled.includes(x.label))) {

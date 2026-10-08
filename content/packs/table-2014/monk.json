@@ -1,0 +1,240 @@
+{
+  "definitions": [
+    {
+      "kind": "subclass",
+      "id": "subclass:way-of-mercy",
+      "name": "Way of Mercy",
+      "summary": "Monk who heals and harms with the same touch.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 49
+      },
+      "class": "class:monk",
+      "features": [
+        {
+          "level": 3,
+          "feature": "feature:implements-of-mercy"
+        },
+        {
+          "level": 3,
+          "feature": "feature:hand-of-healing"
+        },
+        {
+          "level": 3,
+          "feature": "feature:hand-of-harm"
+        },
+        {
+          "level": 6,
+          "feature": "feature:physicians-touch"
+        },
+        {
+          "level": 11,
+          "feature": "feature:flurry-of-healing-and-harm"
+        },
+        {
+          "level": 17,
+          "feature": "feature:hand-of-ultimate-mercy"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:implements-of-mercy",
+      "name": "Implements of Mercy",
+      "summary": "Proficiency in Insight and Medicine, and with the herbalism kit.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 49
+      },
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "skill",
+            "target": "insight"
+          },
+          {
+            "kind": "skill",
+            "target": "medicine"
+          },
+          {
+            "kind": "tool",
+            "target": "Herbalism kit"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:hand-of-healing",
+      "name": "Hand of Healing",
+      "summary": "An action and 1 ki: a creature you touch regains a Martial Arts die + your Wisdom modifier in hit points. In a Flurry of Blows, one of the strikes can be this instead, with no ki spent.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 49
+      },
+      "scaling": {
+        "die": {
+          "class": "class:monk",
+          "table": [
+            [
+              1,
+              "1d4"
+            ],
+            [
+              5,
+              "1d6"
+            ],
+            [
+              11,
+              "1d8"
+            ],
+            [
+              17,
+              "1d10"
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "hand-of-healing",
+            "name": "Hand of Healing",
+            "economy": "action",
+            "cost": {
+              "resource": "ki"
+            },
+            "heal": "scale.die + mod.wis",
+            "toggles": [],
+            "note": "Touch a creature: it regains a Martial Arts die + your Wisdom modifier. In a Flurry of Blows it can replace one strike, free."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:hand-of-harm",
+      "name": "Hand of Harm",
+      "summary": "Once per turn, when you hit with an unarmed strike, spend 1 ki for extra necrotic damage: a Martial Arts die + your Wisdom modifier.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 49
+      },
+      "scaling": {
+        "die": {
+          "class": "class:monk",
+          "table": [
+            [
+              1,
+              "1d4"
+            ],
+            [
+              5,
+              "1d6"
+            ],
+            [
+              11,
+              "1d8"
+            ],
+            [
+              17,
+              "1d10"
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "damage.martial-arts",
+            "op": "add",
+            "value": "scale.die + mod.wis",
+            "mode": "suggested",
+            "label": "Hand of Harm",
+            "damageType": "necrotic",
+            "oncePerTurn": true,
+            "when": {
+              "text": "1 ki, once per turn, when an unarmed strike hits"
+            }
+          },
+          {
+            "selector": "damage.martial-arts-bonus",
+            "op": "add",
+            "value": "scale.die + mod.wis",
+            "mode": "suggested",
+            "label": "Hand of Harm",
+            "damageType": "necrotic",
+            "oncePerTurn": true,
+            "when": {
+              "text": "1 ki, once per turn, when an unarmed strike hits"
+            }
+          }
+        ],
+        "actions": [
+          {
+            "id": "hand-of-harm",
+            "name": "Hand of Harm",
+            "economy": "free",
+            "cost": {
+              "resource": "ki"
+            },
+            "toggles": [],
+            "note": "Tick it on an unarmed strike's damage: 1 ki, once per turn."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:physicians-touch",
+      "name": "Physician's Touch",
+      "summary": "Hand of Healing can also end one disease or one condition: blinded, deafened, paralyzed, poisoned or stunned. Hand of Harm can also leave the target poisoned until the end of your next turn.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 49
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:flurry-of-healing-and-harm",
+      "name": "Flurry of Healing and Harm",
+      "summary": "In a Flurry of Blows, each strike can be a Hand of Healing with no ki spent, and one strike can use Hand of Harm with no ki spent (still once per turn).",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 50
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:hand-of-ultimate-mercy",
+      "name": "Hand of Ultimate Mercy",
+      "summary": "Once per long rest, an action and 5 ki: touch a creature dead no longer than 24 hours; it returns with 4d10 + your Wisdom modifier hit points, free of several conditions.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 50
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "hand-of-ultimate-mercy",
+            "name": "Hand of Ultimate Mercy",
+            "economy": "action",
+            "cost": {
+              "resource": "ki",
+              "amount": 5
+            },
+            "toggles": [],
+            "note": "Once per long rest. Back with 4d10 + Wisdom modifier hit points."
+          }
+        ]
+      }
+    }
+  ]
+}
