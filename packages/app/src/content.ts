@@ -79,6 +79,7 @@ export function referencesOf(snapshot: Character, ops: { type: string; payload: 
   for (const cl of snapshot.classes ?? []) if (cl.subclass) out.push({ id: cl.subclass, class: cl.class });
   if (snapshot.background) out.push({ id: snapshot.background });
   for (const f of snapshot.feats ?? []) out.push({ id: f.feat });
+  for (const x of snapshot.extras ?? []) if (x.kind === "feat") out.push({ id: x.value });
   const walk = (v: unknown, cls?: string): void => {
     if (typeof v === "string") {
       if (/^(item|subclass|background|feat):/.test(v)) out.push({ id: v, class: cls });

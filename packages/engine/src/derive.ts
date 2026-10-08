@@ -21,6 +21,7 @@ import type { ContentRegistry } from "./registry.js";
 import { collectSources, type Source } from "./sources.js";
 import { deriveCompanion, type CompanionResult } from "./companions.js";
 import { spellSlots } from "./spellSlots.js";
+import { materialNeed } from "./materials.js";
 
 export interface AbilityResult {
   score: Breakdown;
@@ -256,6 +257,13 @@ export interface DerivedSheet {
   features: FeatureEntry[];
   /** Companions from features (Primal Companion), with their stat blocks. */
   companions: CompanionResult[];
+  /** What the table gave beyond the rules, with a readable name and why. */
+  extras: { id: string; kind: Character["extras"][number]["kind"]; value: string; name: string; tag: string; reason: string }[];
+  /**
+   * Material components a focus can't replace, for the spells the character
+   * has (known, prepared, in the spellbook or granted), and whether they have them.
+   */
+  components: { spell: string; spellName: string; material: string; costly: boolean; consumed: boolean; have: boolean }[];
   /** Attacks per Attack action: 2 with Extra Attack. */
   attacksPerAction: number;
   /** Rule permissions: two-weapon fighting with non-light weapons (Dual Wielder), ability modifier on off-hand damage (the style). */
@@ -1089,6 +1097,32 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
     defenses,
     senses,
     features: featureEntries(sources, reg),
+    extras: c.extras.map((x) => ({
+      id: x.id,
+      kind: x.kind,
+      value: x.value,
+      name:
+        x.kind === "feat" || x.kind === "spell"
+          ? reg.find(x.value, x.kind)?.name ?? x.value
+          : x.kind === "skill" || x.kind === "expertise"
+            ? SKILL_NAMES[x.value as Skill] ?? x.value
+            : x.value,
+      tag: x.tag,
+      reason: x.reason,
+    })),
+    components: (() => {
+      const mine = new Set(c.spells.map((x) => x.spell));
+      const seen = new Set<string>();
+      const out: DerivedSheet["components"] = [];
+      for (const sp of spells) {
+        if (seen.has(sp.id) || !(mine.has(sp.id) || sp.ready !== "not prepared")) continue;
+        const need = materialNeed(sp.material);
+        if (!need) continue;
+        seen.add(sp.id);
+        out.push({ spell: sp.id, spellName: sp.name, material: sp.material!, ...need, have: !!c.components[sp.id] });
+      }
+      return out.sort((a, b) => a.spellName.localeCompare(b.spellName));
+    })(),
     companions: sources.flatMap((s) => (s.grant.companions ?? []).map((d) => deriveCompanion(d, s.label, c.companions[d.id], ctxFor(s), spellcasting))),
     rules,
     attacksPerAction: Math.max(

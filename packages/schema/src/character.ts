@@ -168,6 +168,34 @@ export const CompanionState = z
   .strict();
 export type CompanionState = z.infer<typeof CompanionState>;
 
+/** How a character came by something beyond the rules. */
+export const EXTRA_TAGS = ["DM allows", "Backstory", "Roleplay", "House rule", "Reward", "Pay to Win"] as const;
+export const ExtraTag = z.enum(EXTRA_TAGS);
+export type ExtraTag = z.infer<typeof ExtraTag>;
+
+/** Why: a tag and the player's own words (up to 250 characters). */
+export const ExtraNote = z.object({ tag: ExtraTag, reason: z.string().max(250).default("") }).strict();
+export type ExtraNote = z.infer<typeof ExtraNote>;
+
+/**
+ * Something the table gave beyond the rules (a feat without the level, a
+ * skill for good roleplay), with why. Applied like any other source.
+ */
+export const Extra = z
+  .object({
+    id: z.string(),
+    kind: z.enum(["skill", "expertise", "language", "tool", "feat", "spell"]),
+    /** Skill key, language or tool name, feat id or spell id. */
+    value: z.string(),
+    /** Spells: the spellcasting it's cast with (a class list id), or the ability when the character has none. */
+    list: z.string().optional(),
+    ability: Ability.optional(),
+    tag: ExtraTag,
+    reason: z.string().max(250).default(""),
+  })
+  .strict();
+export type Extra = z.infer<typeof Extra>;
+
 export const Character = z
   .object({
     id: z.string(),
@@ -236,6 +264,14 @@ export const Character = z
     pools: z.record(z.string(), z.array(z.number().int())).default({}),
     /** Features given by the campaign rather than a class or race (Charm of Sunlight). */
     extraFeatures: z.array(DefId).default([]),
+    /** Feats, skills, expertise, languages, tools and spells the table gave beyond the rules, each with why. */
+    extras: z.array(Extra).default([]),
+    /** Why a choice holds more picks than the rules give, keyed "source|choice" (or "spells|<class>|<kind>"). */
+    extraNotes: z.record(z.string(), ExtraNote).default({}),
+    /** Spells with a costly or consumed material component: whether the character has it now, by spell id. */
+    components: z.record(DefId, z.boolean()).default({}),
+    /** Wizard: gold set aside for copying spells into the spellbook (materials and fine inks). */
+    spellbookFunds: z.number().min(0).default(0),
     /**
      * Ability Score Improvements taken, one per class level that gives one:
      * +2 to one ability or +1 to two, or a feat instead (kept in `feats` too).

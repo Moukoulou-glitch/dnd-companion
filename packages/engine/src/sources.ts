@@ -82,6 +82,26 @@ export function collectSources(c: Character, reg: ContentRegistry): Source[] {
     pushChosenFeatures(def.id, def.choices);
   }
 
+  // What the table gave beyond the rules, each applied like any other source.
+  for (const x of c.extras) {
+    const label = `Extra (${x.tag})`;
+    if (x.kind === "feat") {
+      const def = reg.find(x.value, "feat");
+      if (!def || out.some((s) => s.id === def.id)) continue;
+      out.push({ id: def.id, label: def.name, grant: def.grant ?? {}, choices: choicesFor(def.id) });
+      def.features.forEach(pushFeature);
+      pushChosenFeatures(def.id, def.choices);
+    } else if (x.kind === "spell") {
+      const sp = reg.find(x.value, "spell");
+      const list = x.list ?? `extra-${x.id}`;
+      const grant: Grant = { spells: [{ spell: x.value, name: sp?.name ?? x.value, casting: `extra (${x.tag})`, list }] };
+      if (!x.list) grant.spellcasting = { id: list, label: `${sp?.name ?? "Spell"} (${x.tag})`, ability: x.ability ?? "cha", progression: "none" };
+      out.push({ id: `extra:${x.id}`, label, grant, choices: {} });
+    } else {
+      out.push({ id: `extra:${x.id}`, label, grant: { proficiencies: [{ kind: x.kind, target: x.value }] }, choices: {} });
+    }
+  }
+
   for (const inst of c.inventory) {
     const def = reg.get(inst.item, "item");
     if (!def.grant || !inst.equipped) continue;

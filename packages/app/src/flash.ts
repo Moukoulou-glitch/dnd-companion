@@ -16,8 +16,10 @@ export const LIGHT_SPELLS = new Set([
   "spell:daylight",
   "spell:sunbeam",
   "spell:sunburst",
+  "spell:create-bonfire",
 ]);
-export const LIGHT_FEATURES: Record<string, number> = { "charm-of-sunlight": 5 };
+/** Features that make light: blinks like a spell of that level, or one steady light for `hold` ms (a Flame Tongue igniting). */
+export const LIGHT_FEATURES: Record<string, number | { hold: number }> = { "charm-of-sunlight": 5, "ignite-flame-tongue": { hold: 2000 } };
 
 const KEY = "flash-light-spells";
 
@@ -44,7 +46,7 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
  * Blinks the torch: `level` 0 is one brief flash, otherwise that many blinks.
  * Resolves false when this phone or browser can't control the flashlight.
  */
-export async function flashTorch(level: number): Promise<boolean> {
+export async function flashTorch(level: number, holdMs?: number): Promise<boolean> {
   if (!navigator.mediaDevices?.getUserMedia) return false;
   let stream: MediaStream | undefined;
   try {
@@ -53,6 +55,12 @@ export async function flashTorch(level: number): Promise<boolean> {
     const caps = track?.getCapabilities?.() as { torch?: boolean } | undefined;
     if (!track || !caps?.torch) return false;
     const set = (on: boolean) => track.applyConstraints({ advanced: [{ torch: on } as MediaTrackConstraintSet] });
+    if (holdMs) {
+      await set(true);
+      await sleep(holdMs);
+      await set(false);
+      return true;
+    }
     const blinks = Math.max(1, level);
     for (let i = 0; i < blinks; i++) {
       await set(true);
@@ -75,6 +83,8 @@ export function flashForSpell(spellId: string, level: number) {
 
 /** After using a feature that makes light (Charm of Sunlight). */
 export function flashForFeature(actionId: string) {
-  const level = LIGHT_FEATURES[actionId];
-  if (level !== undefined && flashEnabled()) void flashTorch(level);
+  const light = LIGHT_FEATURES[actionId];
+  if (light === undefined || !flashEnabled()) return;
+  if (typeof light === "number") void flashTorch(light);
+  else void flashTorch(0, light.hold);
 }

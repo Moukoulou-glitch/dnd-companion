@@ -4705,7 +4705,8 @@
           "kind": "spell",
           "count": 2,
           "spells": {
-            "level": 1
+            "level": 1,
+            "ritual": true
           }
         }
       ],

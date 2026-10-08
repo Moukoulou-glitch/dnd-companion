@@ -382,6 +382,8 @@ export const ChoiceDef = z
         maxLevel: z.number().int().min(0).max(9).optional(),
         /** Lower-case school names (Fey Touched: divination or enchantment). */
         schools: z.array(z.string()).optional(),
+        /** Only spells with the ritual tag (Book of Ancient Secrets). */
+        ritual: z.boolean().optional(),
       })
       .strict()
       .optional(),

@@ -1,6 +1,6 @@
 import { RichText } from "./Conditions";
-import { useMemo, useState } from "react";
-import type { ContentRegistry } from "@dnd/engine";
+import { useEffect, useMemo, useState } from "react";
+import type { ContentRegistry, DerivedSheet } from "@dnd/engine";
 import type { Character, ItemDef, OperationType } from "@dnd/schema";
 
 type Act = (type: OperationType, payload: unknown, label: string) => void;
@@ -143,18 +143,57 @@ export function CoinPanel({ coin, label, have, act }: { coin: (typeof COINS)[num
   );
 }
 
+/** "A pearl worth at least 100gp and an owl feather." -> "Pearl worth at least 100 gp". */
+function componentName(material: string): string {
+  const first = material.split(/,| and | which | that /)[0]!.replace(/^(a|an|the)\s+/i, "").replace(/(\d)gp/i, "$1 gp").replace(/\.$/, "");
+  const costly = /\d[\d,]*\s*gp/i.exec(material)?.[0];
+  const name = first.length > 48 ? `${first.slice(0, 46)}…` : first;
+  return (costly && !name.includes(costly.replace(/gp/i, "").trim()) ? `${name} (${costly.replace(/(\d)gp/i, "$1 gp")})` : name).replace(/^./, (c) => c.toUpperCase());
+}
+
+/**
+ * Wizard: gold set aside for copying spells into the spellbook (PHB p. 114:
+ * 50 gp per spell level in materials and fine inks).
+ */
+function SpellbookFund({ gp, act }: { gp: number; act: (type: OperationType, payload: unknown, label: string) => void }) {
+  const [draft, setDraft] = useState(String(gp));
+  useEffect(() => setDraft(String(gp)), [gp]);
+  const n = Number(draft.replace(",", "."));
+  const valid = draft.trim() !== "" && Number.isFinite(n) && n >= 0;
+  return (
+    <section>
+      <h2>Spellbook materials</h2>
+      <p className="note">The gold you keep for copying spells into your spellbook: the material components you use up as you experiment with a spell to master it, and the fine inks you record it with. 50 gp per spell level; half for your own school if you have its Savant feature.</p>
+      <div className="fund">
+        <label>
+          <span>Total value</span>
+          <input type="number" min={0} step="any" inputMode="decimal" value={draft} onChange={(e) => setDraft(e.target.value)} />
+          <span>gp</span>
+        </label>
+        <button className="big primary" disabled={!valid || n === gp} onClick={() => act("setSpellbookFunds", { gp: n }, `Spellbook materials: ${n} gp.`)}>
+          Save
+        </button>
+      </div>
+    </section>
+  );
+}
+
 export function InventoryTab({
   character,
   registry,
   openItem,
   openAdd,
   openCoin,
+  sheet,
+  act,
 }: {
   character: Character;
   registry: ContentRegistry;
   openItem: (id: string) => void;
   openAdd: () => void;
   openCoin: (coin: (typeof COINS)[number][0], label: string) => void;
+  sheet: DerivedSheet;
+  act: (type: OperationType, payload: unknown, label: string) => void;
 }) {
   const items = character.inventory.map((inst) => ({ inst, def: registry.get(inst.item, "item") }));
   const equipped = items.filter((i) => i.inst.equipped);
@@ -218,6 +257,31 @@ export function InventoryTab({
       </section>
       {list("Equipped", equipped)}
       {list("Carried", carried)}
+      {sheet.components.length > 0 && (
+        <section>
+          <h2>Spell components</h2>
+          <p className="note">Components with a cost, or that the spell uses up: a component pouch or focus can't replace them. Tick the ones you have.</p>
+          <div className="group">
+            {sheet.components.map((m) => (
+              <label className="row check" key={m.spell}>
+                <input
+                  type="checkbox"
+                  checked={m.have}
+                  onChange={(e) => act("setComponent", { spell: m.spell, have: e.target.checked }, `${m.spellName}: component ${e.target.checked ? "ticked" : "unticked"}.`)}
+                />
+                <div className="row-main">
+                  <div className="row-title">
+                    {componentName(m.material)} ({m.spellName})
+                  </div>
+                  <div className="row-sub">{m.material}</div>
+                </div>
+                {m.consumed && <span className="tag">used up</span>}
+              </label>
+            ))}
+          </div>
+        </section>
+      )}
+      {character.classes.some((x) => x.class === "class:wizard") && <SpellbookFund gp={character.spellbookFunds} act={act} />}
       <p className={`note${attuned > 3 ? " danger-text" : ""}`}>
         Carrying {Math.round(weight * 10) / 10} lb.
       </p>

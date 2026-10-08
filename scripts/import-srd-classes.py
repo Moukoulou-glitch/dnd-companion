@@ -185,7 +185,7 @@ MECHANICS = {
     "eldritch-invocation-armor-of-shadows": {"grant": {"spells": [{"spell": "spell:mage-armor", "name": "Mage Armor", "casting": "at will, on yourself", "list": "warlock", "atWill": True}]}},
     "eldritch-invocation-beast-speech": {"grant": {"spells": [{"spell": "spell:speak-with-animals", "name": "Speak with Animals", "casting": "at will", "list": "warlock", "atWill": True}]}},
     "eldritch-invocation-beguiling-influence": {"grant": {"proficiencies": [{"kind": "skill", "target": "deception"}, {"kind": "skill", "target": "persuasion"}]}},
-    "eldritch-invocation-book-of-ancient-secrets": {"choices": [{"id": "rituals", "label": "Ritual spells", "kind": "spell", "count": 2, "spells": {"level": 1}}], "grant": {"spellcasting": {"id": "ancient-secrets", "label": "Book of Ancient Secrets", "ability": "cha", "progression": "none"}}},
+    "eldritch-invocation-book-of-ancient-secrets": {"choices": [{"id": "rituals", "label": "Ritual spells", "kind": "spell", "count": 2, "spells": {"level": 1, "ritual": True}}], "grant": {"spellcasting": {"id": "ancient-secrets", "label": "Book of Ancient Secrets", "ability": "cha", "progression": "none"}}},
     "eldritch-invocation-devils-sight": {"grant": {"senses": {"devil's sight": 120}}},
     "eldritch-invocation-eldritch-sight": {"grant": {"spells": [{"spell": "spell:detect-magic", "name": "Detect Magic", "casting": "at will", "list": "warlock", "atWill": True}]}},
     "eldritch-invocation-eldritch-spear": {"grant": {"modifiers": [{"selector": "roll.attack.spell.eldritch-blast", "op": "note", "label": "Eldritch Spear: Eldritch Blast reaches 300 ft."}]}},

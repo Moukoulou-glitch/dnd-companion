@@ -1,5 +1,5 @@
 import { Character, CombatState, type Operation } from "@dnd/schema";
-import { FLEX_COST, castingEconomy, derive, evalFlat, levelGains, multiclassIssues, type ContentRegistry } from "@dnd/engine";
+import { FLEX_COST, castingEconomy, derive, evalFlat, levelGains, materialNeed, multiclassIssues, type ContentRegistry } from "@dnd/engine";
 
 /** Something the player should do next, e.g. roll a concentration check. */
 export type Prompt = { kind: "concentration"; dc: number; spell: string };
@@ -325,6 +325,54 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
       break;
     }
 
+    case "addExtra": {
+      const x = op.payload;
+      if (c.extras.some((e) => e.id === x.id)) notes.push("Already added.");
+      else c.extras.push(x);
+      break;
+    }
+
+    case "updateExtra": {
+      const x = c.extras.find((e) => e.id === op.payload.id);
+      if (!x) {
+        notes.push("Nothing to update.");
+        break;
+      }
+      if (op.payload.tag) x.tag = op.payload.tag;
+      if (op.payload.reason !== undefined) x.reason = op.payload.reason;
+      break;
+    }
+
+    case "removeExtra": {
+      c.extras = c.extras.filter((e) => e.id !== op.payload.id);
+      break;
+    }
+
+    case "setExtraNote": {
+      const { key, tag, reason } = op.payload;
+      if (tag) c.extraNotes[key] = { tag, reason };
+      else delete c.extraNotes[key];
+      break;
+    }
+
+    case "setComponent": {
+      if (op.payload.have) c.components[op.payload.spell] = true;
+      else delete c.components[op.payload.spell];
+      break;
+    }
+
+    case "setSpellbookFunds": {
+      c.spellbookFunds = Math.round(op.payload.gp * 100) / 100;
+      break;
+    }
+
+    case "restoreHitDie": {
+      const used = c.hitDiceUsed[op.payload.die] ?? 0;
+      if (used === 0) notes.push(`No spent ${op.payload.die} Hit Dice.`);
+      else c.hitDiceUsed[op.payload.die] = used - 1;
+      break;
+    }
+
     case "spendHitDie": {
       const { die, roll } = op.payload;
       const pool = sheet.hitDice.find((h) => h.die === die);
@@ -598,6 +646,15 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
         notes.push(`${sp.name} isn't a ritual.`);
       }
       if (sp.ready === "not prepared") notes.push(`${sp.name} isn't prepared today.`);
+      // A costly or consumed material component (PHB p. 203): the focus or pouch can't stand in for it.
+      const need = materialNeed(sp.material);
+      if (need) {
+        if (!c.components[sp.id]) notes.push(`You don't have the material component (${sp.material}). Cast anyway: your DM decides.`);
+        else if (op.payload.consumeComponent) {
+          c.components[sp.id] = false;
+          notes.push("The material component is used up.");
+        }
+      }
       if (op.payload.readied) {
         // Cast now, held with concentration until released with your reaction (PHB p. 193).
         if (castingEconomy(sp.castingTime) !== "action") notes.push(`${sp.name} isn't cast with 1 action: only those can be readied.`);
@@ -1135,6 +1192,12 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
         break;
       }
       c.spells.push({ spell, list, prepared: false });
+      const cost = op.payload.cost;
+      if (cost) {
+        if (cost > c.spellbookFunds) notes.push(`Copying costs ${cost} gp and the spellbook fund has ${c.spellbookFunds} gp. Added anyway.`);
+        c.spellbookFunds = Math.max(0, c.spellbookFunds - cost);
+        notes.push(`${cost} gp from the spellbook fund: ${c.spellbookFunds} gp left.`);
+      }
       break;
     }
 

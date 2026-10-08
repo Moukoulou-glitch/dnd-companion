@@ -1,3 +1,4 @@
+import { HitDiceRow } from "./HitDice";
 import type { DerivedSheet, ResourceResult } from "@dnd/engine";
 import type { Character, OperationType } from "@dnd/schema";
 import type { RollRecord } from "../rolls";
@@ -299,19 +300,19 @@ export function PlayTab({
         <h2>Rest</h2>
         <div className="group">
           {sheet.hitDice.map((h) => (
-            <div className="row" key={h.die}>
+            <div className="row hit-dice-row" key={h.die}>
               <div className="row-main">
                 <div className="row-title">Hit Dice {h.die}</div>
                 <div className="row-sub">
-                  {h.total - (character.hitDiceUsed[h.die] ?? 0)} of {h.total} left, tap one to spend it
+                  {h.total - (character.hitDiceUsed[h.die] ?? 0)} of {h.total} left · swipe one down to spend it
                 </div>
               </div>
-              <Pips
-                name={`${h.die} Hit Die`}
+              <HitDiceRow
+                die={h.die}
                 total={h.total}
                 used={character.hitDiceUsed[h.die] ?? 0}
                 onSpend={() => openHitDie(h.die)}
-                onRestore={() => undefined}
+                onRestore={() => prompts.restore(`a ${h.die} Hit Die`, () => act("restoreHitDie", { die: h.die }, `A ${h.die} Hit Die is back.`))}
               />
             </div>
           ))}

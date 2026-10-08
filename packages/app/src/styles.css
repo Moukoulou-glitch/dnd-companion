@@ -1747,3 +1747,192 @@ ol.levels li[data-on="true"] {
   top: 0;
   z-index: 2;
 }
+
+/* Level up: the number you rolled for hit points. */
+.roll-entry {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 10px;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-m);
+  background: var(--panel);
+}
+.roll-entry input {
+  width: 5.5em;
+  font: inherit;
+  font-size: 1.15rem;
+  text-align: center;
+  padding: 8px;
+  border-radius: var(--radius-s, 8px);
+  border: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* Hit Dice: red dice seen from above; swipe down to spend, up to get back. */
+.hit-dice-row {
+  flex-wrap: wrap;
+}
+.hit-dice-wrap {
+  flex-basis: 100%;
+}
+.hit-dice {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 6px 0 2px;
+}
+.hit-die {
+  width: 46px;
+  height: 46px;
+  padding: 0;
+  border: 0;
+  background: none;
+  touch-action: none;
+  cursor: grab;
+  transition: transform 0.12s ease-out;
+  border-radius: var(--radius-s);
+}
+.hit-die:focus-visible {
+  outline: 2px solid var(--focus);
+}
+.die-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.die-body {
+  fill: var(--hp);
+  stroke: color-mix(in srgb, var(--hp) 60%, black);
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+}
+.die-facet {
+  fill: none;
+  stroke: color-mix(in srgb, white 45%, var(--hp));
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+  opacity: 0.8;
+}
+.die-num {
+  fill: #fff;
+  font: 700 17px var(--font);
+  text-anchor: middle;
+  paint-order: stroke;
+  stroke: color-mix(in srgb, var(--hp) 55%, black);
+  stroke-width: 2.5px;
+}
+.die-svg[data-spent="true"] .die-body {
+  fill: #59606e;
+  stroke: #3d434f;
+}
+.die-svg[data-spent="true"] .die-facet {
+  stroke: #8a909c;
+}
+.die-svg[data-spent="true"] .die-num {
+  fill: #c4c8d0;
+  stroke: #3d434f;
+}
+.hit-die[data-spent="true"] {
+  opacity: 0.75;
+}
+.die-hint {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.choose-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.fund {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.fund label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.fund .big {
+  flex: none;
+  width: auto;
+  padding: 10px 24px;
+}
+.fund input {
+  width: 7em;
+  font: inherit;
+  font-size: 1.15rem;
+  padding: 8px;
+  text-align: right;
+  border-radius: var(--radius-s);
+  border: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* Extras: beyond the rules, with why. */
+.chip.on {
+  border-color: var(--gold);
+  background: var(--gold-soft);
+  color: var(--gold);
+}
+.extra-form {
+  margin: 4px 0 12px;
+}
+.extra-form textarea {
+  width: 100%;
+  font: inherit;
+  padding: 10px 12px;
+  border-radius: var(--radius-m);
+  border: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--text);
+  resize: vertical;
+}
+.extra-count {
+  text-align: right;
+  font-size: 13px;
+  color: var(--muted);
+  margin: 2px 0 8px;
+}
+.extra-form .choice-grid .chip {
+  padding: 8px 14px;
+}
+.extra-box {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px 12px;
+  margin: 0 0 10px;
+  border-radius: var(--radius-m);
+  border: 1px solid color-mix(in srgb, #d32f2f 55%, transparent);
+  background: color-mix(in srgb, #d32f2f 12%, transparent);
+}
+.extra-reason {
+  flex: 1;
+  min-width: 10em;
+}
+.tag.extra-tag {
+  border-color: color-mix(in srgb, #e05252 70%, transparent);
+  color: #f07070;
+  white-space: nowrap;
+}
+
+.copy-ask {
+  padding: 4px 0 8px;
+}
+.over-save {
+  margin-top: 14px;
+}

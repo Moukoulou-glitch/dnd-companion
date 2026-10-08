@@ -1,4 +1,4 @@
-import { useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { roll } from "@dnd/dice";
 import {
   POINT_BUY_BUDGET,
@@ -10,12 +10,14 @@ import {
   levelGains,
   multiclassIssues,
   signed,
+  copyCost,
   type BuildItem,
   type ContentRegistry,
   type DerivedSheet,
 } from "@dnd/engine";
-import { ABILITIES, ABILITY_NAMES, SKILL_NAMES, type Ability, type Character, type OperationType, type Skill } from "@dnd/schema";
+import { ABILITIES, ABILITY_NAMES, SKILL_NAMES, type Ability, type Character, type ExtraNote, type OperationType, type Skill } from "@dnd/schema";
 import { RichText } from "./Conditions";
+import { ExtraBox, ExtraNoteForm, KIND_NAMES } from "./Extras";
 
 type Act = (type: OperationType, payload: unknown, label: string) => void;
 type Panel = (title: string, body: ReactNode | (() => ReactNode)) => void;
@@ -357,6 +359,9 @@ export function BuildPanel({
   act,
   back,
   onLevelUp,
+  onAddExtra,
+  onOpenExtra,
+  extras,
 }: {
   /** The character as it is now (editors re-read it after every change). */
   get: () => Character | undefined;
@@ -365,6 +370,9 @@ export function BuildPanel({
   act: Act;
   back: () => void;
   onLevelUp: () => void;
+  onAddExtra: () => void;
+  onOpenExtra: (id: string) => void;
+  extras: DerivedSheet["extras"];
 }) {
   const character = get();
   if (!character) return null;
@@ -383,7 +391,11 @@ export function BuildPanel({
           {i.sourceName} · {pickedText(i, reg)}
         </div>
       </div>
-      {i.over ? <span className="tag fail">over the limit</span> : <span className={`tag${i.done ? " adv" : " fail"}`}>{i.done ? "done" : "choose"}</span>}
+      {i.over ? (
+        <span className="tag extra-tag">{character.extraNotes[noteKey(i)]?.tag ?? "over the limit"}</span>
+      ) : (
+        <span className={`tag${i.done ? " adv" : " fail"}`}>{i.done ? "done" : "choose"}</span>
+      )}
     </button>
   );
   return (
@@ -401,12 +413,32 @@ export function BuildPanel({
           <div className="group">{done.map(row)}</div>
         </>
       )}
+      <p className="sub-head">Beyond the rules</p>
+      {extras.length > 0 && (
+        <div className="group">
+          {extras.map((x) => (
+            <button className="row" key={x.id} onClick={() => onOpenExtra(x.id)}>
+              <div className="row-main">
+                <div className="row-title">{x.name}</div>
+                <div className="row-sub">{KIND_NAMES[x.kind].one}</div>
+              </div>
+              <span className="tag extra-tag">{x.tag}</span>
+            </button>
+          ))}
+        </div>
+      )}
+      <button className="big wide" style={{ marginTop: 10 }} onClick={onAddExtra}>
+        Add a feat, skill, expertise, language, tool or spell
+      </button>
       <button className="big wide" style={{ marginTop: 14 }} onClick={onLevelUp}>
         Level up
       </button>
     </>
   );
 }
+
+/** Where the reason for picking past the limit is kept. */
+const noteKey = (item: BuildItem) => (item.kind === "spells" ? `spells|${item.class}|${item.spellKind}` : `${item.source}|${item.choice?.id}`);
 
 /**
  * The editor for one checklist item. It finds the item again by key on every
@@ -416,13 +448,13 @@ function ItemEditor({ itemKey, get, reg, act, back }: { itemKey: string; get: ()
   const c = get();
   const item = c ? buildItems(c, reg).find((i) => i.key === itemKey) : undefined;
   if (!c || !item) return <p className="note">Nothing to choose here any more.</p>;
-  if (item.kind === "choice") return <ChoiceEditor item={item} reg={reg} act={act} back={back} />;
+  if (item.kind === "choice") return <ChoiceEditor item={item} reg={reg} act={act} back={back} {...(c.extraNotes[noteKey(item)] ? { note: c.extraNotes[noteKey(item)]! } : {})} />;
   if (item.kind === "subclass") return <SubclassEditor item={item} reg={reg} act={act} back={back} />;
   if (item.kind === "asi") return <AsiEditor item={item} c={c} reg={reg} act={act} back={back} />;
-  return <SpellsEditor item={item} reg={reg} act={act} />;
+  return <SpellsEditor item={item} reg={reg} act={act} c={c} {...(c.extraNotes[noteKey(item)] ? { note: c.extraNotes[noteKey(item)]! } : {})} />;
 }
 
-function ChoiceEditor({ item, reg, act, back }: { item: BuildItem; reg: ContentRegistry; act: Act; back: () => void }) {
+function ChoiceEditor({ item, reg, act, back, note }: { item: BuildItem; reg: ContentRegistry; act: Act; back: () => void; note?: ExtraNote }) {
   const options = useMemo(() => choiceOptions(item.choice!, reg), [item.choice, reg]);
   const [picked, setPicked] = useState<string[]>(item.picked);
   const [q, setQ] = useState("");
@@ -436,6 +468,7 @@ function ChoiceEditor({ item, reg, act, back }: { item: BuildItem; reg: ContentR
         Pick {item.need}. {picked.length} picked.{item.strict && item.source?.startsWith("feat") ? " A feat gives exactly this many." : ""}
       </p>
       {picked.length > item.need && <OverBanner item={item} count={picked.length} />}
+      {picked.length > item.need && note && <ExtraBox note={note} />}
       {options.length > 12 && <input className="search" type="search" placeholder="Search" value={q} onChange={(e) => setQ(e.target.value)} />}
       <div className="group">
         {shown.map((o) => (
@@ -453,18 +486,41 @@ function ChoiceEditor({ item, reg, act, back }: { item: BuildItem; reg: ContentR
         ))}
         {options.length === 0 && <div className="row row-sub">Nothing to pick from here: load your book files for more options.</div>}
       </div>
-      <button
-        className="big primary wide sticky-save"
-        onClick={() => {
-          act("setChoice", { source: item.source, choice: item.choice!.id, values: picked }, `${item.sourceName}: ${item.label} saved.`);
-          back();
-        }}
-      >
-        Save {picked.length} of {item.need}
-        {picked.length > item.need ? " (more than the rules give)" : ""}
-      </button>
+      {picked.length > item.need ? (
+        <div className="over-save">
+          <ExtraNoteForm
+            question={overQuestion(item)}
+            {...(note ? { initial: note } : {})}
+            saveLabel={`Save ${picked.length} of ${item.need}`}
+            onSave={(n) => {
+              act("setChoice", { source: item.source, choice: item.choice!.id, values: picked }, `${item.sourceName}: ${item.label} saved.`);
+              act("setExtraNote", { key: noteKey(item), ...n }, `Why: ${n.tag}.`);
+              back();
+            }}
+          />
+        </div>
+      ) : (
+        <button
+          className="big primary wide sticky-save"
+          onClick={() => {
+            act("setChoice", { source: item.source, choice: item.choice!.id, values: picked }, `${item.sourceName}: ${item.label} saved.`);
+            if (note) act("setExtraNote", { key: noteKey(item) }, "Back within the rules.");
+            back();
+          }}
+        >
+          Save {picked.length} of {item.need}
+        </button>
+      )}
     </>
   );
+}
+
+/** "How did you gain access to the extra language?" */
+function overQuestion(item: BuildItem): string {
+  const k = item.kind === "spells" ? "spell" : item.choice?.kind;
+  const what =
+    k === "skill" ? (/expertise/i.test(item.label) ? "expertise" : "skill proficiency") : k === "language" ? "language" : k === "tool" ? "tool proficiency" : k === "spell" ? "spell" : "pick";
+  return `How did you gain access to the extra ${what}?`;
 }
 
 /** Red banner: more picked than the rules give. Allowed, since every table bends the rules, but never silent. */
@@ -582,13 +638,45 @@ function AsiEditor({ item, c, reg, act, back }: { item: BuildItem; c: Character;
   );
 }
 
-function SpellsEditor({ item, reg, act }: { item: BuildItem; reg: ContentRegistry; act: Act }) {
+function SpellsEditor({ item, reg, act, c, note }: { item: BuildItem; reg: ContentRegistry; act: Act; c: Character; note?: ExtraNote }) {
   const [q, setQ] = useState("");
+  const [editNote, setEditNote] = useState(false);
+  // Wizard: copying a spell into the spellbook costs gold from the fund; ask first.
+  const [copying, setCopying] = useState<{ spell: string; label: string } | null>(null);
+  const over = item.spellKind !== "spellbook" && item.picked.length > item.need;
   const options = useMemo(() => classSpellOptions(reg, item.class!, item.spellKind!, item.maxLevel ?? 1), [reg, item.class, item.spellKind, item.maxLevel]);
   const shown = options.filter((o) => o.label.toLowerCase().includes(q.trim().toLowerCase()));
+  if (copying)
+    return (
+      <CopyAsk
+          c={c}
+          reg={reg}
+          spell={copying.spell}
+          label={copying.label}
+          onDone={(cost) => {
+            act("learnSpell", { spell: copying.spell, list: item.list, ...(cost ? { cost } : {}) }, `${copying.label} copied into your spellbook.`);
+            setCopying(null);
+          }}
+          onCancel={() => setCopying(null)}
+        />
+    );
   return (
     <>
-      {item.spellKind !== "spellbook" && item.picked.length > item.need && <OverBanner item={item} count={item.picked.length} />}
+      {over && <OverBanner item={item} count={item.picked.length} />}
+      {over &&
+        (note && !editNote ? (
+          <ExtraBox note={note} onEdit={() => setEditNote(true)} />
+        ) : (
+          <ExtraNoteForm
+            question={overQuestion(item)}
+            {...(note ? { initial: note } : {})}
+            saveLabel="Save the reason"
+            onSave={(n) => {
+              act("setExtraNote", { key: noteKey(item), ...n }, `Why: ${n.tag}.`);
+              setEditNote(false);
+            }}
+          />
+        ))}
       <p className="note">
         {item.picked.length} of {item.need} {item.spellKind === "cantrips" ? "cantrips" : item.spellKind === "spellbook" ? "spells in your spellbook" : "spells known"}
         {item.spellKind !== "cantrips" ? `, up to level ${item.maxLevel}` : ""}. Tap to add or take away.
@@ -602,7 +690,11 @@ function SpellsEditor({ item, reg, act }: { item: BuildItem; reg: ContentRegistr
               <input
                 type="checkbox"
                 checked={on}
-                onChange={() => act(on ? "forgetSpell" : "learnSpell", { spell: o.value, list: item.list }, `${o.label} ${on ? "taken away" : "added"}.`)}
+                onChange={() => {
+                  if (!on && item.spellKind === "spellbook" && copyCost(c, reg, o.value)) return setCopying({ spell: o.value, label: o.label });
+                  act(on ? "forgetSpell" : "learnSpell", { spell: o.value, list: item.list }, `${o.label} ${on ? "taken away" : "added"}.`);
+                  if (on && note && item.picked.length - 1 <= item.need) act("setExtraNote", { key: noteKey(item) }, "Back within the rules.");
+                }}
               />
               <div className="row-main">
                 <div className="row-title">{o.label}</div>
@@ -613,6 +705,38 @@ function SpellsEditor({ item, reg, act }: { item: BuildItem; reg: ContentRegistr
         })}
       </div>
     </>
+  );
+}
+
+/**
+ * Copying a spell into the spellbook (PHB p. 114): 50 gp per level in
+ * materials and fine inks, half for your school with its Savant feature.
+ * Spells a new wizard level gives are free, so paying is the player's call.
+ */
+function CopyAsk({ c, reg, spell, label, onDone, onCancel }: { c: Character; reg: ContentRegistry; spell: string; label: string; onDone: (cost?: number) => void; onCancel: () => void }) {
+  const cost = copyCost(c, reg, spell)!;
+  const fund = c.spellbookFunds;
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => ref.current?.scrollIntoView({ block: "start" }), []);
+  return (
+    <div className="copy-ask" role="dialog" aria-label={`Copy ${label}`} ref={ref}>
+      <p className="question">Pay for copying {label}?</p>
+      <p className="note">
+        {cost.gp} gp in materials and fine inks{cost.savant ? ` (${cost.savant})` : ""}. Your spellbook materials: {fund} gp
+        {fund < cost.gp ? ", not enough: it goes to 0 gp if you pay" : ""}. Spells you gain from a new wizard level are free.
+      </p>
+      <div className="choose-list">
+        <button className="big wide" onClick={onCancel}>
+          Cancel
+        </button>
+        <button className="big wide" onClick={() => onDone()}>
+          Add it free
+        </button>
+        <button className="big primary wide" onClick={() => onDone(cost.gp)}>
+          Pay {cost.gp} gp and add it
+        </button>
+      </div>
+    </div>
   );
 }
 
@@ -708,9 +832,14 @@ export function LevelUpPanel({ character, sheet, reg, onLevel }: { character: Ch
           <div className="row-main">
             <div className="row-title">I rolled</div>
           </div>
-          <input className="score-select" inputMode="numeric" value={mine} onChange={(e) => (setMine(e.target.value.replace(/\D/g, "").slice(0, 2)), setHp("mine"))} placeholder={`1–${gains.hitDie}`} aria-label="Your roll" />
         </label>
       </div>
+      {hp === "mine" && (
+        <label className="roll-entry">
+          <span>Your d{gains.hitDie} roll</span>
+          <input type="number" min={1} max={gains.hitDie} inputMode="numeric" autoFocus value={mine} onChange={(e) => setMine(e.target.value.replace(/\D/g, "").slice(0, 2))} placeholder={`1–${gains.hitDie}`} />
+        </label>
+      )}
       <button className="big primary wide" style={{ marginTop: 14 }} disabled={hp === "mine" && !mine} onClick={go}>
         Level up to {gains.className} {gains.newLevel}
       </button>

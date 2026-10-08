@@ -1,4 +1,6 @@
 import { z } from "zod";
+import { Extra, ExtraTag } from "./character.js";
+import { DefId } from "./core.js";
 import { Modifier } from "./modifiers.js";
 
 /**
@@ -33,6 +35,17 @@ export const OPERATION_PAYLOADS = {
   restoreSlot: z.object({ level: z.number().int().min(1).max(9), pact: z.boolean().default(false) }).strict(),
   /** Spend one Hit Die during a short rest; `roll` is the die result (digital or typed from a real die). */
   spendHitDie: z.object({ die: z.string(), roll: z.number().int().min(1) }).strict(),
+  /** A spent Hit Die back by hand (the app asks first). No HP change. */
+  restoreHitDie: z.object({ die: z.string() }).strict(),
+  addExtra: Extra,
+  updateExtra: z.object({ id: z.string(), tag: ExtraTag.optional(), reason: z.string().max(250).optional() }).strict(),
+  removeExtra: z.object({ id: z.string() }).strict(),
+  /** Why a choice has more picks than the rules give; no tag clears it. */
+  setExtraNote: z.object({ key: z.string(), tag: ExtraTag.optional(), reason: z.string().max(250).default("") }).strict(),
+  /** Whether you have a spell's costly or consumed material component right now. */
+  setComponent: z.object({ spell: DefId, have: z.boolean() }).strict(),
+  /** Wizard: gold set aside for copying spells into the spellbook. */
+  setSpellbookFunds: z.object({ gp: z.number().min(0) }).strict(),
   rest: z.object({ kind: z.enum(["short", "long"]) }).strict(),
   /** Use a feature: spends its cost, switches on its states, applies recorded dice results. */
   useAction: z
@@ -117,6 +130,8 @@ export const OPERATION_PAYLOADS = {
       selfEffect: z.boolean().default(false),
       /** Readied (the Ready action): cast now, held with concentration, released with your reaction. */
       readied: z.boolean().optional(),
+      /** The costly or consumed material component is used up by this cast. */
+      consumeComponent: z.boolean().optional(),
     })
     .strict(),
   endConcentration: z.object({}).strict(),
@@ -172,7 +187,8 @@ export const OPERATION_PAYLOADS = {
     .object({ name: z.string().optional(), player: z.string().optional(), alignment: z.string().optional(), race: z.string().optional(), background: z.string().nullable().optional() })
     .strict(),
   /** Add a spell to a class list (known spells, a wizard's spellbook, cantrips), or take it away. */
-  learnSpell: z.object({ spell: z.string(), list: z.string() }).strict(),
+  /** `cost`: gold taken from the spellbook fund for copying it (wizard). */
+  learnSpell: z.object({ spell: z.string(), list: z.string(), cost: z.number().min(0).optional() }).strict(),
   forgetSpell: z.object({ spell: z.string(), list: z.string() }).strict(),
   /** A companion takes one of the actions anyone can take; Dodge and Ready show as tags until your next turn starts. */
   companionAction: z.object({ companion: z.string(), action: z.string(), choice: z.string().optional() }).strict(),
@@ -197,6 +213,13 @@ export const Operation = z.discriminatedUnion("type", [
   OperationBase.extend({ type: z.literal("spendSlot"), payload: OPERATION_PAYLOADS.spendSlot }),
   OperationBase.extend({ type: z.literal("restoreSlot"), payload: OPERATION_PAYLOADS.restoreSlot }),
   OperationBase.extend({ type: z.literal("spendHitDie"), payload: OPERATION_PAYLOADS.spendHitDie }),
+  OperationBase.extend({ type: z.literal("restoreHitDie"), payload: OPERATION_PAYLOADS.restoreHitDie }),
+  OperationBase.extend({ type: z.literal("addExtra"), payload: OPERATION_PAYLOADS.addExtra }),
+  OperationBase.extend({ type: z.literal("updateExtra"), payload: OPERATION_PAYLOADS.updateExtra }),
+  OperationBase.extend({ type: z.literal("removeExtra"), payload: OPERATION_PAYLOADS.removeExtra }),
+  OperationBase.extend({ type: z.literal("setExtraNote"), payload: OPERATION_PAYLOADS.setExtraNote }),
+  OperationBase.extend({ type: z.literal("setComponent"), payload: OPERATION_PAYLOADS.setComponent }),
+  OperationBase.extend({ type: z.literal("setSpellbookFunds"), payload: OPERATION_PAYLOADS.setSpellbookFunds }),
   OperationBase.extend({ type: z.literal("rest"), payload: OPERATION_PAYLOADS.rest }),
   OperationBase.extend({ type: z.literal("useAction"), payload: OPERATION_PAYLOADS.useAction }),
   OperationBase.extend({ type: z.literal("addItem"), payload: OPERATION_PAYLOADS.addItem }),

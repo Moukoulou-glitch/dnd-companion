@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
-import { buildItems, castingEconomy, formatBonus, newCharacter, signed, turnWarnings, type TurnIntent } from "@dnd/engine";
+import { buildItems, castingEconomy, formatBonus, materialNeed, newCharacter, signed, turnWarnings, type TurnIntent } from "@dnd/engine";
 import { SKILL_NAMES, type Character, type Skill } from "@dnd/schema";
 import type { ComposerBase } from "@dnd/dice";
 import type { ActionResult, EffectResult, SpellResult, WeaponAttack } from "@dnd/engine";
@@ -11,13 +11,14 @@ import { Composer, ResultView, type OptionInfo } from "./components/Composer";
 import { AddEffectPanel, EffectChips, EffectPanel } from "./components/Effects";
 import { FeaturePanel } from "./components/FeaturePanel";
 import { HpPad } from "./components/HpPad";
+import { AddExtraPanel, ExtraEditor, ExtraInline, skillExtra } from "./components/Extras";
 import { AddItemPanel, CoinPanel, InventoryTab, ItemPanel } from "./components/InventoryTab";
 import { bookReport, registry } from "./content";
 import { BookText, BooksPanel } from "./components/BookText";
 import { BuildPanel, LevelUpPanel, NewCharacterPanel, type NewCharacterInput } from "./components/Builder";
 import { flashEnabled, flashForFeature, flashForSpell, flashTorch, setFlashEnabled } from "./flash";
 import { PlayTab, type PlayPrompts } from "./components/PlayTab";
-import { Confirm, PoolRollPanel, SlotSpendPanel, SpendDiePanel } from "./components/Prompts";
+import { Choose, Confirm, PoolRollPanel, SlotSpendPanel, SpendDiePanel } from "./components/Prompts";
 import { BottomSheet, BreakdownLines } from "./components/Sheet";
 import { SheetTab } from "./components/SheetTab";
 import { SpellPanel, SpellsTab, spellAsAttack } from "./components/SpellsTab";
@@ -195,12 +196,15 @@ export function App() {
       repeat?: { count: number; what: string };
       onDamageOptions?: (labels: string[]) => void;
       dc?: number;
+      /** Read when the panel draws, so it shows the latest (an extra's reason). */
+      header?: () => ReactNode;
     } = {},
   ) =>
     open(title, () => (
       <Composer
         title={title}
         base={base}
+        {...(opts.header ? { header: opts.header() } : {})}
         {...(attack ? { attack } : {})}
         {...(opts.notes ? { notes: opts.notes } : {})}
         {...(opts.optionInfo ? { optionInfo: opts.optionInfo } : {})}
@@ -787,14 +791,37 @@ export function App() {
   const openTrait = (id: string) => {
     const f = sheet.features.find((x) => x.id === id);
     if (!f) return;
-    open(f.name, <BookText text={f.text} summary={f.summary} source={f.source} />);
+    open(f.name, () => {
+      const x = live.current.sheet?.extras.find((e) => e.kind === "feat" && e.value === id);
+      return (
+        <>
+          {x && <ExtraInline extra={x} act={live.current.act} />}
+          <BookText text={f.text} summary={f.summary} source={f.source} />
+        </>
+      );
+    });
   };
+
+  /** Something the table gave beyond the rules. */
+  const openAddExtra = () => open("Add something extra", () => (live.current.sheet ? <AddExtraPanel sheet={live.current.sheet} reg={registry} act={live.current.act} done={close} /> : null));
+  const openExtra = (id: string) =>
+    open("Beyond the rules", () => {
+      const x = live.current.sheet?.extras.find((e) => e.id === id);
+      return x ? <ExtraEditor extra={x} act={live.current.act} done={close} /> : <p className="note">It's gone.</p>;
+    });
+  const openSkill = (sk: Skill) =>
+    openRoll(SKILL_NAMES[sk], sheet.skills[sk], undefined, {
+      header: () => {
+        const x = live.current.sheet && skillExtra(live.current.sheet, sk);
+        return x ? <ExtraInline extra={x} act={live.current.act} /> : null;
+      },
+    });
 
   const openBooks = () => open("Book text", <BooksPanel report={bookReport} />);
 
   /** Everything left to choose for this character, and what's chosen. */
   const openBuild = () =>
-    open("Choices", () => <BuildPanel get={() => live.current.character} reg={registry} push={push} act={live.current.act} back={back} onLevelUp={openLevelUp} />);
+    open("Choices", () => <BuildPanel get={() => live.current.character} reg={registry} push={push} act={live.current.act} back={back} onLevelUp={openLevelUp} onAddExtra={openAddExtra} onOpenExtra={openExtra} extras={live.current.sheet?.extras ?? []} />);
 
   const openLevelUp = () =>
     open("Level up", () =>
@@ -968,12 +995,60 @@ export function App() {
    * casting ask first, the turn rules warn, free uses with none left ask
    * "Are you sure?", and the spell sheet comes back showing it was cast.
    */
-  const castFlow = (sp: SpellResult, level: number, using: "slot" | "pact" | "free" | "ritual" | "none", selfEffect: boolean, readying = false) => {
+  const castFlow = (sp: SpellResult, level: number, using: "slot" | "pact" | "free" | "ritual" | "none", selfEffect: boolean, readying = false) =>
+    withComponent(sp, (consume) => castFlowAfterComponent(sp, level, using, selfEffect, readying, consume));
+
+  /**
+   * A costly or consumed material component (PHB p. 203): a focus or pouch
+   * can't stand in for it. Not ticked on the Items page: ask if they have it
+   * (casting anyway is fine, the app just says so). Consumed: ask whether this
+   * cast uses it up.
+   */
+  const withComponent = (sp: SpellResult, go: (consume: boolean) => void) => {
+    const need = materialNeed(sp.material);
+    if (!need) return go(false);
+    const have = live.current.sheet?.components.find((x) => x.spell === sp.id)?.have ?? false;
+    const askConsume = () =>
+      need.consumed
+        ? open(sp.name, () => (
+            <Choose
+              question="Use up the material component?"
+              detail={`${sp.material} The spell consumes it.`}
+              options={[
+                { label: "Cancel", onPick: () => openSpell(sp) },
+                { label: "Cast without using it up", onPick: () => go(false) },
+                { label: "Use it up and cast", onPick: () => go(true) },
+              ]}
+            />
+          ))
+        : go(false);
+    if (have) return askConsume();
+    open(sp.name, () => (
+      <Choose
+        question="Do you have the material component?"
+        detail={`${sp.name} needs ${(sp.material ?? "").replace(/\.$/, "")}. A component pouch or spellcasting focus can't replace a component with a cost${need.consumed ? " or one the spell consumes" : ""}.`}
+        options={[
+          { label: "Cancel", onPick: () => openSpell(sp) },
+          { label: "No, cast it anyway", onPick: () => go(false) },
+          {
+            label: "Yes, I have it",
+            onPick: () => {
+              live.current.act("setComponent", { spell: sp.id, have: true }, `${sp.name}: material component ticked on your Items page.`);
+              askConsume();
+            },
+          },
+        ]}
+      />
+    ));
+  };
+
+  const castFlowAfterComponent = (sp: SpellResult, level: number, using: "slot" | "pact" | "free" | "ritual" | "none", selfEffect: boolean, readying: boolean, consume: boolean) => {
+    const comp = consume ? { consumeComponent: true } : {};
     if (readying)
       return guard(
         { name: `Ready ${sp.name}`, economy: "action", spell: { level: sp.level, concentration: true } },
         () => {
-          live.current.act("castSpell", { spell: sp.id, list: sp.list.id, level, using, readied: true }, `${sp.name} readied.`);
+          live.current.act("castSpell", { spell: sp.id, list: sp.list.id, level, using, readied: true, ...comp }, `${sp.name} readied.`);
           close();
         },
       );
@@ -984,7 +1059,7 @@ export function App() {
           guard(
             { name: sp.name, economy: using === "ritual" ? "free" : castingEconomy(sp.castingTime), spell: { level: sp.level, concentration: sp.concentration } },
             () => {
-              live.current.act("castSpell", { spell: sp.id, list: sp.list.id, level, using, selfEffect }, `${sp.name} cast.`);
+              live.current.act("castSpell", { spell: sp.id, list: sp.list.id, level, using, selfEffect, ...comp }, `${sp.name} cast.`);
               flashForSpell(sp.id, level);
             },
             { cancelled: () => openSpell(sp), done: () => openSpell(sp, level) },
@@ -1012,7 +1087,10 @@ export function App() {
     open(first.name, () => {
       const sp = live.current.sheet?.spells.find((x) => x.id === first.id && x.list.id === first.list.id) ?? first;
       const roller = (level: number, damageOnly: boolean) => rollSpell(sp, level, damageOnly);
+      const extra = live.current.sheet?.extras.find((x) => x.kind === "spell" && x.value === sp.id);
       return (
+        <>
+        {extra && <ExtraInline extra={extra} act={live.current.act} />}
         <SpellPanel
           sp={sp}
           sheet={live.current.sheet!}
@@ -1024,6 +1102,7 @@ export function App() {
           onRollAttack={(level) => roller(level, false)}
           onRollDamage={(level) => roller(level, true)}
         />
+        </>
       );
     });
 
@@ -1194,9 +1273,9 @@ export function App() {
       )}
       {tab === "actions" && <ActionsTab sheet={sheet} open={open} openRoll={openRoll} openAttack={openAttack} openFeature={openFeature} />}
       {tab === "spells" && <SpellsTab sheet={sheet} openSpell={openSpell} />}
-      {tab === "sheet" && <SheetTab sheet={sheet} open={open} openRoll={openRoll} openTrait={openTrait} />}
+      {tab === "sheet" && <SheetTab sheet={sheet} open={open} openRoll={openRoll} openTrait={openTrait} openSkill={openSkill} openAddExtra={openAddExtra} openExtra={openExtra} />}
       {tab === "inventory" && (
-        <InventoryTab character={c} registry={registry} openItem={openItem} openAdd={openAdd} openCoin={openCoin} />
+        <InventoryTab character={c} registry={registry} openItem={openItem} openAdd={openAdd} openCoin={openCoin} sheet={sheet} act={s.act} />
       )}
 
       <nav className="tabs" aria-label="Sections">
@@ -1313,7 +1392,7 @@ function FlashSetting() {
         />
         <div className="row-main">
           <div className="row-title">Flash my phone's light for light spells</div>
-          <div className="row-sub">Light, Daylight, Charm of Sunlight… A cantrip flashes once; other spells blink once per level.</div>
+          <div className="row-sub">Light, Create Bonfire, Daylight, Charm of Sunlight, a Flame Tongue igniting… A cantrip flashes once; other spells blink once per level.</div>
         </div>
       </label>
       {msg && <p className="note">{msg}</p>}

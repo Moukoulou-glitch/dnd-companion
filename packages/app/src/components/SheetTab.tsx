@@ -1,5 +1,6 @@
 import { formatBonus, signed, type DerivedSheet, type RollBreakdown } from "@dnd/engine";
-import { ABILITIES, ABILITY_NAMES, SKILLS, SKILL_NAMES } from "@dnd/schema";
+import { ABILITIES, ABILITY_NAMES, SKILLS, SKILL_NAMES, type Skill } from "@dnd/schema";
+import { KIND_NAMES, skillExtra } from "./Extras";
 import type { ReactNode } from "react";
 import { BreakdownLines } from "./Sheet";
 
@@ -9,7 +10,7 @@ type OpenRoll = (title: string, base: RollBreakdown) => void;
 const profMark = (p: 0 | 1 | 2 | boolean) => (p === 2 ? "◆" : p ? "●" : "○");
 const profName = (p: 0 | 1 | 2 | boolean) => (p === 2 ? "expertise" : p ? "proficient" : "not proficient");
 
-function RollRow({ title, sub, roll, mark, onOpen }: { title: string; sub?: string; roll: RollBreakdown; mark: 0 | 1 | 2 | boolean; onOpen: () => void }) {
+function RollRow({ title, sub, roll, mark, onOpen, extraTag }: { title: string; sub?: string; roll: RollBreakdown; mark: 0 | 1 | 2 | boolean; onOpen: () => void; extraTag?: string }) {
   return (
     <button className="row" onClick={onOpen} aria-label={`${title}, ${profName(mark)}, ${formatBonus(roll)}`}>
       <span className="prof" aria-hidden="true">
@@ -19,6 +20,7 @@ function RollRow({ title, sub, roll, mark, onOpen }: { title: string; sub?: stri
         <div className="row-title">{title}</div>
         {sub && <div className="row-sub">{sub}</div>}
       </div>
+      {extraTag && <span className="tag extra-tag">{extraTag}</span>}
       {roll.autoFail && roll.autoFail.length > 0 && <span className="tag fail">fails</span>}
       {roll.advantage.length > 0 && roll.disadvantage.length === 0 ? <span className="tag adv">adv</span> : null}
       {roll.disadvantage.length > 0 && roll.advantage.length === 0 ? <span className="tag dis">disadv</span> : null}
@@ -30,7 +32,24 @@ function RollRow({ title, sub, roll, mark, onOpen }: { title: string; sub?: stri
 
 const KIND_LABEL = { race: "Race", background: "Background", feature: "Feature", feat: "Feat" } as const;
 
-export function SheetTab({ sheet, open, openRoll, openTrait }: { sheet: DerivedSheet; open: Open; openRoll: OpenRoll; openTrait: (id: string) => void }) {
+export function SheetTab({
+  sheet,
+  open,
+  openRoll,
+  openTrait,
+  openSkill,
+  openAddExtra,
+  openExtra,
+}: {
+  sheet: DerivedSheet;
+  open: Open;
+  openRoll: OpenRoll;
+  openTrait: (id: string) => void;
+  openSkill: (s: Skill) => void;
+  openAddExtra: () => void;
+  openExtra: (id: string) => void;
+}) {
+  const featTag = (id: string) => sheet.extras.find((x) => x.kind === "feat" && x.value === id)?.tag;
   return (
     <main>
       <section>
@@ -71,7 +90,8 @@ export function SheetTab({ sheet, open, openRoll, openTrait }: { sheet: DerivedS
               sub={ABILITY_NAMES[sheet.skills[s].ability]}
               roll={sheet.skills[s]}
               mark={sheet.skills[s].proficiency}
-              onOpen={() => openRoll(SKILL_NAMES[s], sheet.skills[s])}
+              {...(skillExtra(sheet, s) ? { extraTag: skillExtra(sheet, s)!.tag } : {})}
+              onOpen={() => openSkill(s)}
             />
           ))}
         </div>
@@ -113,10 +133,35 @@ export function SheetTab({ sheet, open, openRoll, openTrait }: { sheet: DerivedS
                 <div className="row-title">{f.name}</div>
                 <div className="row-sub">{f.summary ?? KIND_LABEL[f.kind]}</div>
               </div>
+              {featTag(f.id) && <span className="tag extra-tag">{featTag(f.id)}</span>}
               {f.text && <span className="tag">text</span>}
             </button>
           ))}
         </div>
+      </section>
+
+      <section>
+        <h2>Beyond the rules</h2>
+        {sheet.extras.length > 0 && (
+          <div className="group">
+            {sheet.extras.map((x) => (
+              <button className="row" key={x.id} onClick={() => openExtra(x.id)}>
+                <div className="row-main">
+                  <div className="row-title">{x.name}</div>
+                  <div className="row-sub">
+                    {KIND_NAMES[x.kind].one}
+                    {x.reason ? ` · ${x.reason}` : ""}
+                  </div>
+                </div>
+                <span className="tag extra-tag">{x.tag}</span>
+              </button>
+            ))}
+          </div>
+        )}
+        <button className="big wide" style={{ marginTop: 10 }} onClick={openAddExtra}>
+          Add a feat, skill, expertise, language, tool or spell
+        </button>
+        <p className="note">For what your DM or table gives you beyond the rules. The app asks how you got it and keeps the reason with it.</p>
       </section>
 
       <section>

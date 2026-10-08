@@ -153,7 +153,7 @@ export function buildItems(c: Character, reg: ContentRegistry): BuildItem[] {
   const seen = new Set<string>();
   // Feats and the features they bring (Magic Initiate's class pick) keep their numbers.
   const fromFeats = new Set<string>();
-  for (const f of c.feats) {
+  for (const f of [...c.feats, ...c.extras.filter((x) => x.kind === "feat").map((x) => ({ feat: x.value }))]) {
     fromFeats.add(f.feat);
     const def = reg.find(f.feat, "feat");
     for (const id of def?.features ?? []) fromFeats.add(id);
@@ -249,13 +249,13 @@ export function choiceOptions(ch: ChoiceDef, reg: ContentRegistry): ChoiceOption
       });
     case "spell": {
       const lvl = ch.spells?.level;
-      return spellOptions(reg, ch.spells?.classes, lvl ?? 0, lvl ?? ch.spells?.maxLevel ?? 9, ch.spells?.schools);
+      return spellOptions(reg, ch.spells?.classes, lvl ?? 0, lvl ?? ch.spells?.maxLevel ?? 9, ch.spells?.schools, ch.spells?.ritual);
     }
   }
 }
 
 /** Spells from these class lists, between two levels, by level then name. */
-export function spellOptions(reg: ContentRegistry, classes: string[] | undefined, minLevel: number, maxLevel: number, schools?: string[]): ChoiceOption[] {
+export function spellOptions(reg: ContentRegistry, classes: string[] | undefined, minLevel: number, maxLevel: number, schools?: string[], ritual?: boolean): ChoiceOption[] {
   return reg
     .list("spell")
     .filter(
@@ -263,7 +263,8 @@ export function spellOptions(reg: ContentRegistry, classes: string[] | undefined
         s.level >= minLevel &&
         s.level <= maxLevel &&
         (!classes || s.classes.some((x) => classes.includes(x))) &&
-        (!schools || schools.includes(s.school.toLowerCase())),
+        (!schools || schools.includes(s.school.toLowerCase())) &&
+        (!ritual || s.ritual),
     )
     .sort((a, b) => a.level - b.level || a.name.localeCompare(b.name))
     .map((s) => ({ value: s.id, label: s.name, detail: `${s.level === 0 ? "Cantrip" : `Level ${s.level}`}, ${s.school.toLowerCase()}` }));

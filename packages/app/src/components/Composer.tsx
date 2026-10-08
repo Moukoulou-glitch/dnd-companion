@@ -1,5 +1,5 @@
 import { RichText } from "./Conditions";
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import {
   composeD20,
   composeDamage,
@@ -36,6 +36,8 @@ interface Props {
   onCheck?: (passed: boolean) => void;
   /** Extra reminders for this roll (Eldritch Blast beams). */
   notes?: string[];
+  /** Shown above the roll (a skill the table gave beyond the rules: its tag and reason). */
+  header?: ReactNode;
   /** Foretelling rolls that can replace the d20 (Portent). */
   portent?: { values: number[]; onUse: (index: number) => void };
   /**
@@ -255,7 +257,7 @@ export function ResultView({ r }: { r: RollRecord }) {
   );
 }
 
-export function Composer({ title, base, attack, physical, onPhysicalChange, onRolled, damageOnly, healing, onHealSelf, dc, onCheck, notes, portent, onOptionsUsed, optionInfo, onCommit, repeat, onDamageOptions }: Props) {
+export function Composer({ title, base, attack, physical, onPhysicalChange, onRolled, damageOnly, healing, onHealSelf, dc, onCheck, notes, header, portent, onOptionsUsed, optionInfo, onCommit, repeat, onDamageOptions }: Props) {
   const preselected = base.suggestions.filter((sg) => optionInfo?.[sg.label]?.preselect).map((sg) => sg.label);
   const [choices, setChoices] = useState<ComposerChoices>({ enabled: preselected, manual: "none", extra: 0 });
   // Which of several attacks this is, and whether it has been made (marked on the turn) yet.
@@ -381,6 +383,7 @@ export function Composer({ title, base, attack, physical, onPhysicalChange, onRo
   if (stage.step === "setup") {
     return (
       <>
+        {header}
         {which}
         {diceSwitch}
         {base.autoFail && base.autoFail.length > 0 && (

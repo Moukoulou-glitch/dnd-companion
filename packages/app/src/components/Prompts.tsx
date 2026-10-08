@@ -8,6 +8,23 @@ function rollDie(sides: number): number {
 }
 
 /** Two big choices: the safe one first. */
+/** A question with several answers, each a button, the last one the main one. */
+export function Choose({ question, detail, options }: { question: string; detail?: string; options: { label: string; onPick: () => void }[] }) {
+  return (
+    <>
+      <p className="question">{question}</p>
+      {detail && <p className="note">{detail}</p>}
+      <div className="choose-list">
+        {options.map((o, i) => (
+          <button key={o.label} className={`big wide${i === options.length - 1 ? " primary" : ""}`} onClick={o.onPick}>
+            {o.label}
+          </button>
+        ))}
+      </div>
+    </>
+  );
+}
+
 export function Confirm({
   question,
   detail,
