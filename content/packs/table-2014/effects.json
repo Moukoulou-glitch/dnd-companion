@@ -769,7 +769,18 @@
         "The target has disadvantage on checks with the ability you chose."
       ],
       "minutes": 60,
-      "selfOnly": true
+      "selfOnly": true,
+      "choice": {
+        "label": "Ability: the target has disadvantage on its checks",
+        "options": [
+          "str",
+          "dex",
+          "con",
+          "int",
+          "wis",
+          "cha"
+        ]
+      }
     },
     {
       "kind": "effect",
@@ -1470,6 +1481,28 @@
       },
       "modifiers": [],
       "rounds": 10
+    },
+    {
+      "kind": "effect",
+      "id": "effect:pass-without-trace",
+      "name": "Pass Without Trace",
+      "category": "spell",
+      "summary": "+10 to Dexterity (Stealth) checks for you and creatures you choose within 30 ft; you can't be tracked except by magic, and leave no tracks.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 264
+      },
+      "modifiers": [
+        {
+          "selector": "roll.check.skill.stealth",
+          "op": "add",
+          "value": 10,
+          "label": "Pass Without Trace"
+        }
+      ],
+      "minutes": 60,
+      "concentration": true
     }
   ]
 }

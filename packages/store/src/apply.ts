@@ -1,6 +1,12 @@
 import { Character, CombatState, type Operation, type ValueExpr } from "@dnd/schema";
 import { FLEX_COST, castingEconomy, derive, evalFlat, levelGains, damageAfterDefenses, materialNeed, multiclassIssues, shapeIssues, summonBlock, summonHpBonus, type ContentRegistry } from "@dnd/engine";
 
+/** Effects a summoned creature holds with its own concentration (Barkskin on itself) end with it. */
+function dropSummonConcentration(x: Character["summons"][number], spell: string) {
+  const name = spell.toLowerCase();
+  x.effects = (x.effects ?? []).filter((e) => !(e.effect.replace(/^[a-z]+:/, "").replace(/-/g, " ") === name.replace(/[^a-z ]/g, "").replace(/\s+/g, " ")));
+}
+
 /** A number from an expression, or 0 when it can't be worked out here. */
 const evalFlatSafe = (v: ValueExpr, ctx: Parameters<typeof evalFlat>[1]): number => {
   try {
@@ -492,7 +498,10 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
       x.hp = Math.min(max, target);
       // Its own concentration: damage asks for a Constitution save (DC 10 or half the damage); at 0 HP it ends.
       if (x.concentrating && lost > 0) {
-        if (x.hp === 0) delete x.concentrating;
+        if (x.hp === 0) {
+          dropSummonConcentration(x, x.concentrating);
+          delete x.concentrating;
+        }
         else {
           const dc = Math.max(10, Math.floor(lost / 2));
           notes.push(`It's concentrating on ${x.concentrating}: Constitution save, DC ${dc}.`);
@@ -718,7 +727,10 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
         u[economy] = true;
       }
       if (op.payload.concentration) {
-        if (x.concentrating && x.concentrating !== spell) notes.push(`${x.concentrating} ends: ${who} now concentrates on ${spell}.`);
+        if (x.concentrating && x.concentrating !== spell) {
+          notes.push(`${x.concentrating} ends: ${who} now concentrates on ${spell}.`);
+          dropSummonConcentration(x, x.concentrating);
+        }
         x.concentrating = spell;
       }
       break;
@@ -727,6 +739,7 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
     case "summonConcentration": {
       const x = c.summons.find((s) => s.id === op.payload.id);
       if (!x) break;
+      if (x.concentrating && x.concentrating !== op.payload.spell) dropSummonConcentration(x, x.concentrating);
       if (op.payload.spell) x.concentrating = op.payload.spell;
       else delete x.concentrating;
       break;
@@ -1087,7 +1100,7 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
         if (sp.timer?.rounds) c.concentration.rounds = sp.timer.rounds;
         if (sp.timer?.minutes) c.concentration.minutes = sp.timer.minutes;
       }
-      const economy = using === "ritual" ? "free" : castingEconomy(sp.castingTime);
+      const economy = using === "ritual" ? "free" : castingEconomy(op.payload.castingTime ?? sp.castingTime);
       spendTurn(economy, (cb) => {
         if (economy === "bonus") cb.bonusSpell = true;
         if (economy === "action" && sp.level > 0) cb.leveledActionSpell = true;
@@ -1104,6 +1117,13 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
         combineSame(entry, def.name);
         gainHp(def, entry.castLevel);
         if (sp.concentration) entry.concentration = true;
+        if (op.payload.choice) entry.choice = op.payload.choice;
+        c.effects.push(entry);
+      } else if (!selfDef && !sp.concentration && sp.timer && !op.payload.readied) {
+        // A spell that lasts (Alarm, 8 hours) with nothing else to show it: a timer tag, one per casting.
+        const entry: Character["effects"][number] = { id: `${op.id}-timer`, effect: "custom", custom: { name: sp.name, modifiers: [] }, from: "Your spell (timer)" };
+        if (sp.timer.rounds) entry.rounds = sp.timer.rounds;
+        else if (sp.timer.minutes) entry.minutes = sp.timer.minutes;
         c.effects.push(entry);
       }
       break;

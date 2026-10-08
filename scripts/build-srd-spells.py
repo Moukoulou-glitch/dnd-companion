@@ -30,6 +30,10 @@ def attack_of(s):
     return None
 
 
+# Casting times the source data shortens to its first option.
+CASTING_TIMES = {"plant-growth": "1 action or 8 hours"}
+
+
 def convert(s):
     d = {
         "kind": "spell",
@@ -38,7 +42,7 @@ def convert(s):
         "source": {"pack": "srd-5.1", "book": "SRD 5.1"},
         "level": s["level"],
         "school": s["school"]["name"],
-        "castingTime": s["casting_time"],
+        "castingTime": CASTING_TIMES.get(s["index"], s["casting_time"]),
         "range": s["range"],
         "components": s.get("components", []),
         "duration": s["duration"],

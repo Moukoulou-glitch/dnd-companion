@@ -184,6 +184,7 @@ export function SpellPanel({
   sp,
   sheet,
   hasSelfEffect,
+  selfDefault,
   onCast,
   initialCast,
   onPrepare,
@@ -196,7 +197,9 @@ export function SpellPanel({
   sp: SpellResult;
   sheet: DerivedSheet;
   hasSelfEffect: boolean;
-  onCast: (level: number, using: "slot" | "pact" | "free" | "ritual" | "none", selfEffect: boolean) => void;
+  /** Its effect goes on you unless you say otherwise (Hex, Shillelagh, self spells). */
+  selfDefault?: boolean;
+  onCast: (level: number, using: "slot" | "pact" | "free" | "ritual" | "none", selfEffect: boolean, castingTime?: string) => void;
   /** Opens already cast at this level (after a turn warning was confirmed). */
   initialCast?: number | undefined;
   onPrepare: (prepared: boolean) => void;
@@ -204,7 +207,10 @@ export function SpellPanel({
   onRollDamage: (level: number) => void;
 }) {
   const [cast, setCast] = useState<number | null>(initialCast ?? null);
-  const [onMe, setOnMe] = useState(hasSelfEffect && /self/i.test(sp.range));
+  const [onMe, setOnMe] = useState(selfDefault ?? (hasSelfEffect && /self/i.test(sp.range)));
+  // "1 action or 8 hours" (Plant Growth): which one.
+  const times = sp.castingTime.split(/\s+or\s+/i).filter(Boolean);
+  const [time, setTime] = useState(times[0]!);
   const slotsLeft = (lvl: number) => {
     const s = sheet.spellSlots.find((x) => x.level === lvl);
     return s ? s.total - s.used : 0;
@@ -231,7 +237,7 @@ export function SpellPanel({
   ];
 
   const doCast = (level: number, using: "slot" | "pact" | "free" | "ritual" | "none") => {
-    onCast(level, using, onMe);
+    onCast(level, using, onMe, times.length > 1 ? time : undefined);
     setCast(level);
   };
 
@@ -264,6 +270,15 @@ export function SpellPanel({
             <p className="note reminder">
               Readying {sp.name}: it's cast now (the slot is spent) and held with your concentration. Release it with your reaction when the trigger happens, before your next turn starts.
             </p>
+          )}
+          {times.length > 1 && (
+            <div className="segmented small" role="tablist" aria-label="Casting time">
+              {times.map((t) => (
+                <button key={t} role="tab" aria-selected={time === t} onClick={() => setTime(t)}>
+                  {t}
+                </button>
+              ))}
+            </div>
           )}
           {hasSelfEffect && !readying && (
             <label className="row check" style={{ padding: "8px 0" }}>

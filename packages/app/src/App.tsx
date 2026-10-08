@@ -1440,8 +1440,19 @@ export function App() {
    * casting ask first, the turn rules warn, free uses with none left ask
    * "Are you sure?", and the spell sheet comes back showing it was cast.
    */
-  const castFlow = (sp: SpellResult, level: number, using: "slot" | "pact" | "free" | "ritual" | "none", selfEffect: boolean, readying = false) =>
-    withComponent(sp, (consume) => castFlowAfterComponent(sp, level, using, selfEffect, readying, consume));
+  const castFlow = (sp: SpellResult, level: number, using: "slot" | "pact" | "free" | "ritual" | "none", selfEffect: boolean, readying = false, castingTime?: string) => {
+    // Its effect asks for something first (Hex: which ability).
+    const eff = selfEffect ? registry.find(sp.id.replace(/^spell:/, "effect:"), "effect") : undefined;
+    const go = (choice?: string) => withComponent(sp, (consume) => castFlowAfterComponent(sp, level, using, selfEffect, readying, consume, choice, castingTime));
+    if (eff?.choice && !readying)
+      return open(sp.name, () => (
+        <Choose
+          question={eff.choice!.label}
+          options={eff.choice!.options.map((o) => ({ label: ABILITY_NAMES[o as keyof typeof ABILITY_NAMES] ?? o, onPick: () => go(o) }))}
+        />
+      ));
+    return go();
+  };
 
   /**
    * A costly or consumed material component (PHB p. 203): a focus or pouch
@@ -1487,7 +1498,16 @@ export function App() {
     ));
   };
 
-  const castFlowAfterComponent = (sp: SpellResult, level: number, using: "slot" | "pact" | "free" | "ritual" | "none", selfEffect: boolean, readying: boolean, consume: boolean) => {
+  const castFlowAfterComponent = (
+    sp: SpellResult,
+    level: number,
+    using: "slot" | "pact" | "free" | "ritual" | "none",
+    selfEffect: boolean,
+    readying: boolean,
+    consume: boolean,
+    choice?: string,
+    castingTime?: string,
+  ) => {
     const comp = consume ? { consumeComponent: true } : {};
     if (readying)
       return guard(
@@ -1503,9 +1523,13 @@ export function App() {
         "cast",
         () =>
           guard(
-            { name: sp.name, economy: using === "ritual" ? "free" : castingEconomy(sp.castingTime), spell: { level: sp.level, concentration: sp.concentration } },
+            { name: sp.name, economy: using === "ritual" ? "free" : castingEconomy(castingTime ?? sp.castingTime), spell: { level: sp.level, concentration: sp.concentration } },
             () => {
-              live.current.act("castSpell", { spell: sp.id, list: sp.list.id, level, using, selfEffect, ...comp }, `${sp.name} cast.`);
+              live.current.act(
+                "castSpell",
+                { spell: sp.id, list: sp.list.id, level, using, selfEffect, ...comp, ...(choice ? { choice } : {}), ...(castingTime ? { castingTime } : {}) },
+                `${sp.name} cast${castingTime ? ` (${castingTime})` : ""}${choice ? `: ${ABILITY_NAMES[choice as keyof typeof ABILITY_NAMES] ?? choice}` : ""}.`,
+              );
               flashForSpell(sp.id, level);
               // Polymorph or True Polymorph on yourself: which creature?
               const eff = selfEffect ? registry.find(sp.id.replace(/^spell:/, "effect:"), "effect") : undefined;
@@ -1540,7 +1564,11 @@ export function App() {
   };
 
   /** Spells cast on yourself put their effect on you unless you say otherwise. */
-  const selfByDefault = (sp: SpellResult) => registry.has(sp.id.replace(/^spell:/, "effect:")) && /self/i.test(sp.range);
+  const selfByDefault = (sp: SpellResult) => {
+    const eff = registry.find(sp.id.replace(/^spell:/, "effect:"), "effect");
+    // Yours by nature (Hex, Hunter's Mark), or cast on yourself or what you touch (Shillelagh).
+    return !!eff && (!!eff.selfOnly || /^(self|touch)/i.test(sp.range));
+  };
 
   const openSpell = (first: SpellResult, castAt?: number, readying = false) =>
     open(first.name, () => {
@@ -1554,9 +1582,10 @@ export function App() {
           sp={sp}
           sheet={live.current.sheet!}
           hasSelfEffect={registry.has(sp.id.replace(/^spell:/, "effect:"))}
+          selfDefault={selfByDefault(sp)}
           initialCast={castAt}
           readying={readying}
-          onCast={(level, using, selfEffect) => castFlow(sp, level, using, selfEffect, readying)}
+          onCast={(level, using, selfEffect, castingTime) => castFlow(sp, level, using, selfEffect, readying, castingTime)}
           onPrepare={(prepared) => live.current.act("setPrepared", { spell: sp.id, list: sp.list.id, prepared }, `${sp.name} ${prepared ? "prepared" : "unprepared"}.`)}
           onRollAttack={(level) => roller(level, false)}
           onRollDamage={(level) => roller(level, true)}

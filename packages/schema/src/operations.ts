@@ -222,6 +222,10 @@ export const OPERATION_PAYLOADS = {
       level: z.number().int().min(0).max(9),
       using: z.enum(["slot", "pact", "free", "ritual", "none"]),
       selfEffect: z.boolean().default(false),
+      /** What its effect asks for (Hex: the ability with disadvantage on checks). */
+      choice: z.string().optional(),
+      /** Which casting time, for spells with more than one (Plant Growth: 1 action or 8 hours). */
+      castingTime: z.string().optional(),
       /** Readied (the Ready action): cast now, held with concentration, released with your reaction. */
       readied: z.boolean().optional(),
       /** The costly or consumed material component is used up by this cast. */

@@ -5419,7 +5419,7 @@
       },
       "level": 3,
       "school": "Transmutation",
-      "castingTime": "1 action",
+      "castingTime": "1 action or 8 hours",
       "range": "150 feet",
       "components": [
         "V",

@@ -67,6 +67,8 @@ export interface WeaponAttack {
   offHand?: boolean;
   /** Only after attacking with another attack this turn (the second Psychic Blade). */
   requires?: { attack: string; text: string };
+  /** Shown with the attack (Shillelagh on a weapon that isn't a club or quarterstaff). */
+  note?: string;
 }
 
 export interface SpellcastingResult {
@@ -712,13 +714,32 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
       requires?: { attack: string; text: string };
     },
   ) => {
-    const ability: Ability = w.kind === "ranged" ? "dex" : w.properties.includes("finesse") && mods.dex > mods.str ? "dex" : "str";
+    const plainW = w;
+    const plainAbility: Ability = w.kind === "ranged" ? "dex" : w.properties.includes("finesse") && mods.dex > mods.str ? "dex" : "str";
+    let ability: Ability = plainAbility;
+    // Shillelagh: melee weapon attacks can use the spellcasting ability, and the damage die becomes a d8 (the table applies it to
+    // every weapon, flagging any that isn't a club or quarterstaff).
+    let shillelagh: string | undefined;
+    if (o.itemInstanceId && w.kind === "melee" && c.effects.some((e) => e.effect === "effect:shillelagh")) {
+      const casting = c.classes
+        .map((cl) => reg.find(cl.class, "class")?.spellcasting?.ability)
+        .filter((a): a is Ability => typeof a === "string");
+      const best = (casting.length ? casting : (["wis"] as Ability[])).reduce((b, a) => (mods[a] > mods[b] ? a : b));
+      if (mods[best] > mods[ability]) ability = best;
+      w = { ...w, damage: w.damage.replace(/^1d\d+$/, "1d8") };
+      shillelagh = /club|quarterstaff/i.test(`${o.name} ${o.attackId}`) ? "Shillelagh: magical, d8" : "Shillelagh: magical, d8. Not a club or quarterstaff: your DM's call.";
+    }
     const magic = o.magicBonus ? [{ label: "Magic weapon", value: o.magicBonus }] : [];
     const modes: WeaponAttack["mode"][] = [w.kind];
     if (w.kind === "melee" && w.properties.includes("thrown")) modes.push("thrown");
 
+    const shillelaghW = w;
+    const shillelaghAbility = ability;
     for (const mode of modes) {
       const thrown = mode === "thrown";
+      // Thrown, it's a ranged attack: no Shillelagh.
+      w = thrown ? plainW : shillelaghW;
+      ability = thrown ? plainAbility : shillelaghAbility;
       const attackKeys = [`roll.attack.weapon.${mode}`, "item.attack", `attack.${o.attackId}`];
       const damageKeys = [`roll.damage.weapon.${mode}`, "item.damage", `damage.${o.attackId}`];
       if (o.offHand) {
@@ -753,6 +774,7 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
       if (w.range && mode !== "melee") entry.range = w.range;
       if (o.offHand) entry.offHand = true;
       if (o.requires) entry.requires = o.requires;
+      if (shillelagh && !thrown) entry.note = shillelagh;
       attacks.push(entry);
     }
   };

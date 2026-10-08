@@ -16,7 +16,10 @@ function AttackRow({ a, openAttack }: { a: WeaponAttack; openAttack: (a: WeaponA
     <button className="row" onClick={() => openAttack(a)}>
       <div className="row-main">
         <div className="row-title">{a.name}</div>
-        <div className="row-sub">{damageText(a)}</div>
+        <div className="row-sub">
+          {damageText(a)}
+          {a.note ? <span className={/not a club/i.test(a.note) ? " danger-text" : ""}> · {a.note}</span> : null}
+        </div>
       </div>
       {a.attack.advantage.length > 0 && <span className="tag adv">adv</span>}
       {a.attack.suggestions.length > 0 && (
