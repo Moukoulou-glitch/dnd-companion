@@ -276,6 +276,955 @@
           "count": 1
         }
       ]
+    },
+    {
+      "kind": "race",
+      "id": "race:mountain-dwarf",
+      "name": "Mountain Dwarf",
+      "summary": "Strong, hardy dwarf: darkvision, poison resistance, dwarven weapons and light and medium armor. Speed 25 ft, not reduced by heavy armor.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 20
+      },
+      "size": "medium",
+      "speed": 25,
+      "grant": {
+        "abilityBonuses": {
+          "str": 2,
+          "con": 2
+        },
+        "proficiencies": [
+          {
+            "kind": "language",
+            "target": "Common"
+          },
+          {
+            "kind": "language",
+            "target": "Dwarvish"
+          }
+        ]
+      },
+      "features": [
+        "feature:trait-darkvision",
+        "feature:trait-dwarven-resilience",
+        "feature:trait-stonecunning",
+        "feature:trait-dwarven-combat-training",
+        "feature:trait-tool-proficiency",
+        "feature:dwarven-armor-training"
+      ],
+      "group": "Dwarf"
+    },
+    {
+      "kind": "feature",
+      "id": "feature:dwarven-armor-training",
+      "name": "Dwarven Armor Training",
+      "summary": "Proficiency with light and medium armor.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 20
+      },
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "armor",
+            "target": "light"
+          },
+          {
+            "kind": "armor",
+            "target": "medium"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "race",
+      "id": "race:drow",
+      "name": "Drow",
+      "summary": "Dark elf of the Underdark: 120 ft darkvision, innate drow magic and drow weapons, but hampered by direct sunlight.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 24
+      },
+      "size": "medium",
+      "speed": 30,
+      "grant": {
+        "abilityBonuses": {
+          "dex": 2,
+          "cha": 1
+        },
+        "proficiencies": [
+          {
+            "kind": "language",
+            "target": "Common"
+          },
+          {
+            "kind": "language",
+            "target": "Elvish"
+          }
+        ]
+      },
+      "features": [
+        "feature:superior-darkvision",
+        "feature:keen-senses",
+        "feature:fey-ancestry",
+        "feature:trance",
+        "feature:sunlight-sensitivity",
+        "feature:drow-magic",
+        "feature:drow-weapon-training"
+      ],
+      "group": "Elf"
+    },
+    {
+      "kind": "feature",
+      "id": "feature:superior-darkvision",
+      "name": "Superior Darkvision",
+      "summary": "Darkvision out to 120 ft.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 24
+      },
+      "grant": {
+        "senses": {
+          "darkvision": 120
+        }
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:sunlight-sensitivity",
+      "name": "Sunlight Sensitivity",
+      "summary": "Disadvantage on attack rolls, and on sight-based Perception checks, while you, the target or what you look at is in direct sunlight.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 24
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.attack.*",
+            "op": "disadvantage",
+            "label": "Sunlight Sensitivity",
+            "when": {
+              "text": "you, the target or what you're trying to see is in direct sunlight"
+            }
+          },
+          {
+            "selector": "roll.check.skill.perception",
+            "op": "disadvantage",
+            "label": "Sunlight Sensitivity",
+            "when": {
+              "text": "relying on sight, with you or what you're trying to see in direct sunlight"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:drow-magic",
+      "name": "Drow Magic",
+      "summary": "Dancing lights cantrip; from 3rd level faerie fire once per long rest; from 5th level darkness once per long rest. Charisma is the casting ability.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 24
+      },
+      "grant": {
+        "spellcasting": {
+          "id": "drow-magic",
+          "label": "Drow Magic",
+          "ability": "cha",
+          "progression": "none"
+        },
+        "spells": [
+          {
+            "spell": "spell:dancing-lights",
+            "name": "Dancing Lights",
+            "casting": "At will"
+          },
+          {
+            "spell": "spell:faerie-fire",
+            "name": "Faerie Fire",
+            "casting": "Once per long rest (from 3rd level)",
+            "resource": "drow-magic-faerie-fire"
+          },
+          {
+            "spell": "spell:darkness",
+            "name": "Darkness",
+            "casting": "Once per long rest (from 5th level)",
+            "resource": "drow-magic-darkness"
+          }
+        ],
+        "resources": [
+          {
+            "id": "drow-magic-faerie-fire",
+            "name": "Drow Magic: Faerie Fire",
+            "max": 1,
+            "reset": "long"
+          },
+          {
+            "id": "drow-magic-darkness",
+            "name": "Drow Magic: Darkness",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "drow-magic-faerie-fire",
+            "name": "Faerie Fire (Drow Magic)",
+            "economy": "action",
+            "cost": {
+              "resource": "drow-magic-faerie-fire"
+            },
+            "note": "From 3rd level, once per long rest without a slot."
+          },
+          {
+            "id": "drow-magic-darkness",
+            "name": "Darkness (Drow Magic)",
+            "economy": "action",
+            "cost": {
+              "resource": "drow-magic-darkness"
+            },
+            "note": "From 5th level, once per long rest without a slot."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:drow-weapon-training",
+      "name": "Drow Weapon Training",
+      "summary": "Proficiency with rapiers, shortswords and hand crossbows.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 24
+      },
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "weapon",
+            "target": "rapier"
+          },
+          {
+            "kind": "weapon",
+            "target": "shortsword"
+          },
+          {
+            "kind": "weapon",
+            "target": "hand crossbow"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "race",
+      "id": "race:wood-elf",
+      "name": "Wood Elf",
+      "summary": "Swift, wary elf of the forests: 35 ft speed, elven weapons, and able to hide in light natural cover.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 24
+      },
+      "size": "medium",
+      "speed": 35,
+      "grant": {
+        "abilityBonuses": {
+          "dex": 2,
+          "wis": 1
+        },
+        "proficiencies": [
+          {
+            "kind": "language",
+            "target": "Common"
+          },
+          {
+            "kind": "language",
+            "target": "Elvish"
+          }
+        ]
+      },
+      "features": [
+        "feature:trait-darkvision",
+        "feature:keen-senses",
+        "feature:fey-ancestry",
+        "feature:trance",
+        "feature:trait-elf-weapon-training",
+        "feature:fleet-of-foot",
+        "feature:mask-of-the-wild"
+      ],
+      "group": "Elf"
+    },
+    {
+      "kind": "feature",
+      "id": "feature:fleet-of-foot",
+      "name": "Fleet of Foot",
+      "summary": "Base walking speed 35 ft (already in the race's speed).",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 24
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:mask-of-the-wild",
+      "name": "Mask of the Wild",
+      "summary": "You can try to hide when only lightly obscured by nature: foliage, heavy rain, falling snow, mist and the like.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 24
+      }
+    },
+    {
+      "kind": "race",
+      "id": "race:forest-gnome",
+      "name": "Forest Gnome",
+      "summary": "Small, shy gnome with a knack for illusion and a way with small animals.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 37
+      },
+      "size": "small",
+      "speed": 25,
+      "grant": {
+        "abilityBonuses": {
+          "int": 2,
+          "dex": 1
+        },
+        "proficiencies": [
+          {
+            "kind": "language",
+            "target": "Common"
+          },
+          {
+            "kind": "language",
+            "target": "Gnomish"
+          }
+        ]
+      },
+      "features": [
+        "feature:trait-darkvision",
+        "feature:trait-gnome-cunning",
+        "feature:natural-illusionist",
+        "feature:speak-with-small-beasts"
+      ],
+      "group": "Gnome"
+    },
+    {
+      "kind": "feature",
+      "id": "feature:natural-illusionist",
+      "name": "Natural Illusionist",
+      "summary": "You know the minor illusion cantrip, cast with Intelligence.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 37
+      },
+      "grant": {
+        "spellcasting": {
+          "id": "natural-illusionist",
+          "label": "Natural Illusionist",
+          "ability": "int",
+          "progression": "none"
+        },
+        "spells": [
+          {
+            "spell": "spell:minor-illusion",
+            "name": "Minor Illusion",
+            "casting": "At will"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:speak-with-small-beasts",
+      "name": "Speak with Small Beasts",
+      "summary": "Through sounds and gestures you can share simple ideas with Small or smaller beasts.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 37
+      }
+    },
+    {
+      "kind": "race",
+      "id": "race:stout-halfling",
+      "name": "Stout Halfling",
+      "summary": "Hardy halfling: lucky and brave, with poison resistance and advantage on saves against poison.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 28
+      },
+      "size": "small",
+      "speed": 25,
+      "grant": {
+        "abilityBonuses": {
+          "dex": 2,
+          "con": 1
+        },
+        "proficiencies": [
+          {
+            "kind": "language",
+            "target": "Common"
+          },
+          {
+            "kind": "language",
+            "target": "Halfling"
+          }
+        ]
+      },
+      "features": [
+        "feature:trait-lucky",
+        "feature:trait-brave",
+        "feature:trait-halfling-nimbleness",
+        "feature:stout-resilience"
+      ],
+      "group": "Halfling"
+    },
+    {
+      "kind": "feature",
+      "id": "feature:stout-resilience",
+      "name": "Stout Resilience",
+      "summary": "Resistance to poison damage and advantage on saves against being poisoned.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 28
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.poison",
+            "op": "resist",
+            "label": "Stout Resilience"
+          },
+          {
+            "selector": "roll.save.*",
+            "op": "advantage",
+            "label": "Stout Resilience",
+            "when": {
+              "text": "against being poisoned"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:lineage-ability-scores",
+      "name": "Lineage Ability Scores",
+      "summary": "The third ability point of a Van Richten's lineage: +1 to any ability. Picking one of the two already raised gives +2/+1; a different one gives +1/+1/+1.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VRGR",
+        "page": 189
+      },
+      "grant": {
+        "abilityChoice": {
+          "choice": "extra",
+          "amount": 1
+        }
+      },
+      "choices": [
+        {
+          "id": "extra",
+          "label": "One more +1 (repeat one for +2)",
+          "kind": "ability",
+          "count": 1,
+          "newOnly": true
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:ancestral-legacy",
+      "name": "Ancestral Legacy",
+      "summary": "Proficiency in two skills of your choice. (A character who replaced an earlier race may instead keep that race's skills and climb, fly or swim speeds; enter those by hand.)",
+      "source": {
+        "pack": "table-2014",
+        "book": "VRGR",
+        "page": 189
+      },
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "skill",
+            "target": {
+              "choice": "skills"
+            }
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "skills",
+          "label": "Skills",
+          "kind": "skill",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "kind": "race",
+      "id": "race:dhampir",
+      "name": "Dhampir",
+      "summary": "Half-vampire: 35 ft speed with spider climbing, darkvision, no need to breathe, and a life-draining bite. Ability scores: +1 to two different abilities here, plus one more +1 from Lineage Ability Scores (repeat one for +2/+1, or pick a third for +1/+1/+1). Small or Medium; the app tracks Medium.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VRGR",
+        "page": 189
+      },
+      "size": "medium",
+      "speed": 35,
+      "grant": {
+        "abilityChoice": {
+          "choice": "abilities",
+          "amount": 1
+        },
+        "proficiencies": [
+          {
+            "kind": "language",
+            "target": "Common"
+          },
+          {
+            "kind": "language",
+            "target": {
+              "choice": "language"
+            }
+          }
+        ]
+      },
+      "features": [
+        "feature:lineage-ability-scores",
+        "feature:ancestral-legacy",
+        "feature:trait-darkvision",
+        "feature:dhampir-deathless-nature",
+        "feature:spider-climb",
+        "feature:vampiric-bite"
+      ],
+      "choices": [
+        {
+          "id": "abilities",
+          "label": "Ability scores (+1 each)",
+          "kind": "ability",
+          "count": 2,
+          "newOnly": true
+        },
+        {
+          "id": "language",
+          "label": "Language",
+          "kind": "language",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:dhampir-deathless-nature",
+      "name": "Deathless Nature (Dhampir)",
+      "summary": "You don't need to breathe.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VRGR",
+        "page": 189
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:spider-climb",
+      "name": "Spider Climb",
+      "summary": "Climbing speed equal to your walking speed. From 3rd level you can move on walls and upside down on ceilings with your hands free.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VRGR",
+        "page": 189
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:vampiric-bite",
+      "name": "Vampiric Bite",
+      "summary": "A 1d4 piercing bite you're proficient with, using Constitution for attack and damage; advantage while you're missing half or more of your HP. Proficiency-bonus times per long rest, a bite that hits a living creature heals you by the damage or adds the damage to your next check or attack roll.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VRGR",
+        "page": 189
+      },
+      "grant": {
+        "attacks": [
+          {
+            "id": "vampiric-bite",
+            "name": "Vampiric Bite",
+            "category": "simple",
+            "kind": "melee",
+            "damage": "1d4",
+            "damageType": "piercing"
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "attack.vampiric-bite",
+            "op": "add",
+            "value": "mod.con - mod.str",
+            "label": "Vampiric Bite (Constitution instead of Strength)"
+          },
+          {
+            "selector": "damage.vampiric-bite",
+            "op": "add",
+            "value": "mod.con - mod.str",
+            "label": "Vampiric Bite (Constitution instead of Strength)"
+          },
+          {
+            "selector": "attack.vampiric-bite",
+            "op": "advantage",
+            "mode": "suggested",
+            "label": "Vampiric Bite",
+            "when": {
+              "text": "you're missing half or more of your hit points"
+            }
+          }
+        ],
+        "resources": [
+          {
+            "id": "vampiric-bite-empower",
+            "name": "Vampiric Bite empowerment",
+            "max": "pb",
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "vampiric-bite-empower",
+            "name": "Empower (Vampiric Bite)",
+            "economy": "free",
+            "cost": {
+              "resource": "vampiric-bite-empower"
+            },
+            "note": "After a bite hits a creature that isn't a construct or undead: regain HP equal to its piercing damage, or add that much to your next ability check or attack roll."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "race",
+      "id": "race:hexblood",
+      "name": "Hexblood",
+      "summary": "Fey touched by a hag: darkvision, a magical token to send messages and spy through, and innate hex magic. Ability scores: +1 to two different abilities here, plus one more +1 from Lineage Ability Scores (repeat one for +2/+1, or pick a third for +1/+1/+1). Small or Medium; the app tracks Medium.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VRGR",
+        "page": 190
+      },
+      "size": "medium",
+      "speed": 30,
+      "creatureType": "fey",
+      "grant": {
+        "abilityChoice": {
+          "choice": "abilities",
+          "amount": 1
+        },
+        "proficiencies": [
+          {
+            "kind": "language",
+            "target": "Common"
+          },
+          {
+            "kind": "language",
+            "target": {
+              "choice": "language"
+            }
+          }
+        ]
+      },
+      "features": [
+        "feature:lineage-ability-scores",
+        "feature:ancestral-legacy",
+        "feature:trait-darkvision",
+        "feature:eerie-token",
+        "feature:hex-magic"
+      ],
+      "choices": [
+        {
+          "id": "abilities",
+          "label": "Ability scores (+1 each)",
+          "kind": "ability",
+          "count": 2,
+          "newOnly": true
+        },
+        {
+          "id": "language",
+          "label": "Language",
+          "kind": "language",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:eerie-token",
+      "name": "Eerie Token",
+      "summary": "Bonus action, once per long rest: shed a hair, nail or tooth that stays magical until your next long rest. While it does, use an action to send it a 25-word telepathic message, or to see and hear from it for up to 1 minute (both within 10 miles); viewing destroys it.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VRGR",
+        "page": 190
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "eerie-token",
+            "name": "Eerie Token",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "eerie-token",
+            "name": "Eerie Token",
+            "economy": "bonus",
+            "cost": {
+              "resource": "eerie-token"
+            },
+            "note": "Create a token that stays magical until your next long rest."
+          },
+          {
+            "id": "eerie-token-message",
+            "name": "Token: telepathic message",
+            "economy": "action",
+            "infoOnly": true,
+            "note": "Within 10 miles: up to 25 words to whoever holds or carries the token."
+          },
+          {
+            "id": "eerie-token-viewing",
+            "name": "Token: remote viewing",
+            "economy": "action",
+            "infoOnly": true,
+            "duration": {
+              "minutes": 1
+            },
+            "note": "Within 10 miles: see and hear from the token for up to 1 minute; you're blind and deaf to your own surroundings. The token is destroyed afterwards."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:hex-magic",
+      "name": "Hex Magic",
+      "summary": "Disguise self and hex, each once per long rest without a slot (or with your slots), cast with Intelligence, Wisdom or Charisma (chosen once).",
+      "source": {
+        "pack": "table-2014",
+        "book": "VRGR",
+        "page": 190
+      },
+      "grant": {
+        "spellcasting": {
+          "id": "hex-magic",
+          "label": "Hex Magic",
+          "ability": {
+            "choice": "ability"
+          },
+          "progression": "none"
+        },
+        "spells": [
+          {
+            "spell": "spell:disguise-self",
+            "name": "Disguise Self",
+            "casting": "Free once per long rest, or with a slot",
+            "resource": "hex-magic-disguise-self"
+          },
+          {
+            "spell": "spell:hex",
+            "name": "Hex",
+            "casting": "Free once per long rest, or with a slot",
+            "resource": "hex-magic-hex"
+          }
+        ],
+        "resources": [
+          {
+            "id": "hex-magic-disguise-self",
+            "name": "Hex Magic: Disguise Self",
+            "max": 1,
+            "reset": "long"
+          },
+          {
+            "id": "hex-magic-hex",
+            "name": "Hex Magic: Hex",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "hex-magic-disguise-self",
+            "name": "Disguise Self (free)",
+            "economy": "action",
+            "cost": {
+              "resource": "hex-magic-disguise-self"
+            },
+            "note": "Once per long rest without a slot."
+          },
+          {
+            "id": "hex-magic-hex",
+            "name": "Hex (free)",
+            "economy": "bonus",
+            "cost": {
+              "resource": "hex-magic-hex"
+            },
+            "note": "Once per long rest without a slot."
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "ability",
+          "label": "Spellcasting ability",
+          "kind": "ability",
+          "count": 1,
+          "from": [
+            "int",
+            "wis",
+            "cha"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "race",
+      "id": "race:reborn",
+      "name": "Reborn",
+      "summary": "Someone who came back from death: hard to kill, needs no food, air or sleep, and has flashes of a past life. Ability scores: +1 to two different abilities here, plus one more +1 from Lineage Ability Scores (repeat one for +2/+1, or pick a third for +1/+1/+1). Small or Medium; the app tracks Medium.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VRGR",
+        "page": 192
+      },
+      "size": "medium",
+      "speed": 30,
+      "grant": {
+        "abilityChoice": {
+          "choice": "abilities",
+          "amount": 1
+        },
+        "proficiencies": [
+          {
+            "kind": "language",
+            "target": "Common"
+          },
+          {
+            "kind": "language",
+            "target": {
+              "choice": "language"
+            }
+          }
+        ]
+      },
+      "features": [
+        "feature:lineage-ability-scores",
+        "feature:ancestral-legacy",
+        "feature:reborn-deathless-nature",
+        "feature:knowledge-from-a-past-life"
+      ],
+      "choices": [
+        {
+          "id": "abilities",
+          "label": "Ability scores (+1 each)",
+          "kind": "ability",
+          "count": 2,
+          "newOnly": true
+        },
+        {
+          "id": "language",
+          "label": "Language",
+          "kind": "language",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:reborn-deathless-nature",
+      "name": "Deathless Nature (Reborn)",
+      "summary": "Poison resistance; advantage on saves against disease and being poisoned, and on death saves. No need to eat, drink, breathe or sleep, magic can't put you to sleep, and a long rest is 4 hours of motionless, conscious rest.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VRGR",
+        "page": 192
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.poison",
+            "op": "resist",
+            "label": "Deathless Nature"
+          },
+          {
+            "selector": "roll.save.*",
+            "op": "advantage",
+            "label": "Deathless Nature",
+            "when": {
+              "text": "against disease or being poisoned"
+            }
+          },
+          {
+            "selector": "roll.save.*",
+            "op": "advantage",
+            "label": "Deathless Nature (death saves)",
+            "when": {
+              "text": "death saving throw"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:knowledge-from-a-past-life",
+      "name": "Knowledge from a Past Life",
+      "summary": "Proficiency-bonus times per long rest, after seeing the d20 of a skill check, add 1d6 to it.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VRGR",
+        "page": 192
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "past-life",
+            "name": "Knowledge from a Past Life",
+            "max": "pb",
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "past-life",
+            "name": "Knowledge from a Past Life",
+            "economy": "free",
+            "cost": {
+              "resource": "past-life"
+            },
+            "roll": {
+              "dice": "1d6",
+              "label": "added to the skill check"
+            },
+            "note": "After seeing the d20 of an ability check that uses a skill: add 1d6."
+          }
+        ]
+      }
     }
   ]
 }

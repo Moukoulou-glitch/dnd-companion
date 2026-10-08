@@ -1,0 +1,2163 @@
+{
+  "definitions": [
+    {
+      "kind": "feat",
+      "id": "feat:alert",
+      "name": "Alert",
+      "summary": "+5 to initiative. You can't be surprised while conscious, and hidden attackers don't gain advantage against you for being unseen.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 165
+      },
+      "features": [],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.initiative",
+            "op": "add",
+            "value": 5,
+            "label": "Alert"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feat",
+      "id": "feat:artificer-initiate",
+      "name": "Artificer Initiate",
+      "summary": "One artificer cantrip and one 1st-level artificer spell (free once per long rest, or with a slot), cast with Intelligence; proficiency with one kind of artisan's tools, which can serve as your focus for these spells.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCE",
+        "page": 79
+      },
+      "features": [],
+      "grant": {
+        "spellcasting": {
+          "id": "artificer-initiate",
+          "label": "Artificer Initiate",
+          "ability": "int",
+          "progression": "none"
+        },
+        "proficiencies": [
+          {
+            "kind": "tool",
+            "target": {
+              "choice": "tool"
+            }
+          }
+        ],
+        "resources": [
+          {
+            "id": "artificer-initiate-spell",
+            "name": "Artificer Initiate: 1st-level spell",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "artificer-initiate-spell",
+            "name": "Artificer Initiate spell (free)",
+            "economy": "action",
+            "cost": {
+              "resource": "artificer-initiate-spell"
+            },
+            "note": "Cast your Artificer Initiate 1st-level spell without a slot, once per long rest."
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "cantrip",
+          "label": "Artificer cantrip",
+          "kind": "spell",
+          "count": 1,
+          "spells": {
+            "classes": [
+              "artificer"
+            ],
+            "level": 0
+          }
+        },
+        {
+          "id": "spell",
+          "label": "1st-level artificer spell",
+          "kind": "spell",
+          "count": 1,
+          "resource": "artificer-initiate-spell",
+          "spells": {
+            "classes": [
+              "artificer"
+            ],
+            "level": 1
+          }
+        },
+        {
+          "id": "tool",
+          "label": "Artisan's tools",
+          "kind": "tool",
+          "count": 1,
+          "from": [
+            "Alchemist's supplies",
+            "Brewer's supplies",
+            "Calligrapher's supplies",
+            "Carpenter's tools",
+            "Cartographer's tools",
+            "Cobbler's tools",
+            "Cook's utensils",
+            "Glassblower's tools",
+            "Jeweler's tools",
+            "Leatherworker's tools",
+            "Mason's tools",
+            "Painter's supplies",
+            "Potter's tools",
+            "Smith's tools",
+            "Tinker's tools",
+            "Weaver's tools",
+            "Woodcarver's tools"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "feat",
+      "id": "feat:bountiful-luck",
+      "name": "Bountiful Luck",
+      "summary": "Prerequisite: Halfling. When an ally you can see within 30 ft rolls a 1 on an attack, check or save, your reaction lets them reroll; you then can't use your own Lucky trait until the end of your next turn.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGE",
+        "page": 73
+      },
+      "features": [],
+      "grant": {
+        "actions": [
+          {
+            "id": "bountiful-luck",
+            "name": "Bountiful Luck",
+            "economy": "reaction",
+            "note": "An ally within 30 ft rolls a natural 1 on a d20 test: they reroll and use the new roll. Your Lucky trait is off until the end of your next turn.",
+            "infoOnly": true
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feat",
+      "id": "feat:chef",
+      "name": "Chef",
+      "summary": "+1 Constitution or Wisdom and cook's utensils. Food cooked on a short rest gives up to 4 + proficiency bonus creatures an extra 1d8 HP when they spend Hit Dice. After a long rest or an hour of work, make proficiency-bonus treats; eating one (bonus action) gives temp HP equal to your proficiency bonus.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCE",
+        "page": 79
+      },
+      "features": [],
+      "grant": {
+        "abilityChoice": {
+          "choice": "ability",
+          "amount": 1
+        },
+        "proficiencies": [
+          {
+            "kind": "tool",
+            "target": "Cook's utensils"
+          }
+        ],
+        "resources": [
+          {
+            "id": "chef-treats",
+            "name": "Chef treats",
+            "max": "pb",
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "chef-treat",
+            "name": "Chef treat",
+            "economy": "bonus",
+            "cost": {
+              "resource": "chef-treats"
+            },
+            "note": "Whoever eats a treat (bonus action) gains temp HP equal to your proficiency bonus. Treats last 8 hours.",
+            "tempHp": "pb"
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "ability",
+          "label": "Ability +1",
+          "kind": "ability",
+          "count": 1,
+          "from": [
+            "con",
+            "wis"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "feat",
+      "id": "feat:crossbow-expert",
+      "name": "Crossbow Expert",
+      "summary": "Ignore the loading property of crossbows you're proficient with; no disadvantage on ranged attacks for being within 5 ft of an enemy; after attacking with a one-handed weapon, a bonus-action attack with a hand crossbow.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 165
+      },
+      "features": [],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.attack.weapon.ranged",
+            "op": "note",
+            "label": "Crossbow Expert: no disadvantage for an enemy within 5 ft"
+          }
+        ],
+        "actions": [
+          {
+            "id": "crossbow-expert-bonus",
+            "name": "Hand crossbow attack (Crossbow Expert)",
+            "economy": "bonus",
+            "note": "After you take the Attack action with a one-handed weapon: one attack with a hand crossbow you're holding.",
+            "infoOnly": true
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feat",
+      "id": "feat:crusher",
+      "name": "Crusher",
+      "summary": "+1 Strength or Constitution. Once per turn, a bludgeoning hit can push the target 5 ft (up to one size larger than you). A bludgeoning critical hit gives attacks against the target advantage until your next turn.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCE",
+        "page": 79
+      },
+      "features": [],
+      "grant": {
+        "abilityChoice": {
+          "choice": "ability",
+          "amount": 1
+        },
+        "modifiers": [
+          {
+            "selector": "roll.damage.weapon.*",
+            "op": "note",
+            "label": "Crusher (bludgeoning): once per turn move the target 5 ft; on a crit, attacks against it have advantage until your next turn"
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "ability",
+          "label": "Ability +1",
+          "kind": "ability",
+          "count": 1,
+          "from": [
+            "str",
+            "con"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "feat",
+      "id": "feat:dragon-fear",
+      "name": "Dragon Fear",
+      "summary": "Prerequisite: Dragonborn. +1 Strength, Constitution or Charisma. Spend a Breath Weapon use to roar instead: chosen creatures within 30 ft make a Wisdom save (DC 8 + proficiency bonus + Charisma modifier) or are frightened of you for 1 minute, repeating the save when damaged.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGE",
+        "page": 73
+      },
+      "features": [],
+      "grant": {
+        "abilityChoice": {
+          "choice": "ability",
+          "amount": 1
+        },
+        "actions": [
+          {
+            "id": "dragon-fear",
+            "name": "Dragon Fear roar",
+            "economy": "action",
+            "note": "Uses your Breath Weapon. Creatures you choose within 30 ft: Wisdom save (DC 8 + proficiency bonus + Charisma modifier) or frightened for 1 minute; they retry when they take damage."
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "ability",
+          "label": "Ability +1",
+          "kind": "ability",
+          "count": 1,
+          "from": [
+            "str",
+            "con",
+            "cha"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "feat",
+      "id": "feat:dragon-hide",
+      "name": "Dragon Hide",
+      "summary": "Prerequisite: Dragonborn. +1 Strength, Constitution or Charisma. Without armor your AC can be 13 + Dexterity modifier (shields still work), and retractable claws make your unarmed strikes deal 1d4 + Strength slashing.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGE",
+        "page": 74
+      },
+      "features": [],
+      "grant": {
+        "abilityChoice": {
+          "choice": "ability",
+          "amount": 1
+        },
+        "modifiers": [
+          {
+            "selector": "stat.ac",
+            "op": "acBase",
+            "value": "13 + mod.dex",
+            "label": "Dragon Hide",
+            "when": {
+              "noArmor": true
+            }
+          }
+        ],
+        "attacks": [
+          {
+            "id": "dragon-hide-claws",
+            "name": "Claws (Dragon Hide)",
+            "category": "simple",
+            "kind": "melee",
+            "damage": "1d4",
+            "damageType": "slashing"
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "ability",
+          "label": "Ability +1",
+          "kind": "ability",
+          "count": 1,
+          "from": [
+            "str",
+            "con",
+            "cha"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "feat",
+      "id": "feat:drow-high-magic",
+      "name": "Drow High Magic",
+      "summary": "Prerequisite: Elf (drow). Detect magic at will, plus levitate and dispel magic once each per long rest without a slot. Charisma is the casting ability.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGE",
+        "page": 74
+      },
+      "features": [],
+      "grant": {
+        "spellcasting": {
+          "id": "drow-high-magic",
+          "label": "Drow High Magic",
+          "ability": "cha",
+          "progression": "none"
+        },
+        "spells": [
+          {
+            "spell": "spell:detect-magic",
+            "name": "Detect Magic",
+            "casting": "At will",
+            "atWill": true
+          },
+          {
+            "spell": "spell:levitate",
+            "name": "Levitate",
+            "casting": "Free once per long rest, or with a slot",
+            "resource": "drow-high-magic-levitate"
+          },
+          {
+            "spell": "spell:dispel-magic",
+            "name": "Dispel Magic",
+            "casting": "Free once per long rest, or with a slot",
+            "resource": "drow-high-magic-dispel"
+          }
+        ],
+        "resources": [
+          {
+            "id": "drow-high-magic-levitate",
+            "name": "Drow High Magic: Levitate",
+            "max": 1,
+            "reset": "long"
+          },
+          {
+            "id": "drow-high-magic-dispel",
+            "name": "Drow High Magic: Dispel Magic",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "drow-high-magic-levitate",
+            "name": "Levitate (free)",
+            "economy": "action",
+            "cost": {
+              "resource": "drow-high-magic-levitate"
+            },
+            "note": "Once per long rest without a slot."
+          },
+          {
+            "id": "drow-high-magic-dispel",
+            "name": "Dispel Magic (free)",
+            "economy": "action",
+            "cost": {
+              "resource": "drow-high-magic-dispel"
+            },
+            "note": "Once per long rest without a slot."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feat",
+      "id": "feat:dwarven-fortitude",
+      "name": "Dwarven Fortitude",
+      "summary": "Prerequisite: Dwarf. +1 Constitution. When you take the Dodge action in combat, you can spend a Hit Die to heal: roll it and add your Constitution modifier (minimum 1).",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGE",
+        "page": 74
+      },
+      "features": [],
+      "grant": {
+        "abilityBonuses": {
+          "con": 1
+        },
+        "actions": [
+          {
+            "id": "dwarven-fortitude",
+            "name": "Dwarven Fortitude",
+            "economy": "free",
+            "note": "When you Dodge in combat: spend one Hit Die, regain the roll + Constitution modifier (at least 1).",
+            "infoOnly": true
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feat",
+      "id": "feat:eldritch-adept",
+      "name": "Eldritch Adept",
+      "summary": "Prerequisite: Spellcasting or Pact Magic. Learn one eldritch invocation (only those without a prerequisite unless you're a warlock who meets it), using Intelligence, Wisdom or Charisma for it. You can swap it when you gain a level.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCE",
+        "page": 79
+      },
+      "features": [],
+      "grant": {
+        "spellcasting": {
+          "id": "warlock",
+          "label": "Eldritch Adept",
+          "ability": {
+            "choice": "ability"
+          },
+          "progression": "none"
+        }
+      },
+      "choices": [
+        {
+          "id": "ability",
+          "label": "Spellcasting ability",
+          "kind": "ability",
+          "count": 1,
+          "from": [
+            "int",
+            "wis",
+            "cha"
+          ]
+        },
+        {
+          "id": "invocation",
+          "label": "Eldritch Invocation",
+          "kind": "feature",
+          "count": 1,
+          "from": [
+            "feature:eldritch-invocation-armor-of-shadows",
+            "feature:eldritch-invocation-beast-speech",
+            "feature:eldritch-invocation-beguiling-influence",
+            "feature:eldritch-invocation-devils-sight",
+            "feature:eldritch-invocation-eldritch-sight",
+            "feature:eldritch-invocation-eyes-of-the-rune-keeper",
+            "feature:eldritch-invocation-fiendish-vigor",
+            "feature:eldritch-invocation-gaze-of-two-minds",
+            "feature:eldritch-invocation-mask-of-many-faces",
+            "feature:eldritch-invocation-misty-visions",
+            "feature:eldritch-invocation-thief-of-five-fates",
+            "feature:invocation-eldritch-mind"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "feat",
+      "id": "feat:elven-accuracy",
+      "name": "Elven Accuracy",
+      "summary": "Prerequisite: Elf or Half-Elf. +1 Dexterity, Intelligence, Wisdom or Charisma. With advantage on an attack using Dexterity, Intelligence, Wisdom or Charisma, reroll one of the dice once.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGE",
+        "page": 74
+      },
+      "features": [],
+      "grant": {
+        "abilityChoice": {
+          "choice": "ability",
+          "amount": 1
+        },
+        "modifiers": [
+          {
+            "selector": "roll.attack.*",
+            "op": "note",
+            "label": "Elven Accuracy: with advantage on a non-Strength attack, reroll one of the dice once"
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "ability",
+          "label": "Ability +1",
+          "kind": "ability",
+          "count": 1,
+          "from": [
+            "dex",
+            "int",
+            "wis",
+            "cha"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "feat",
+      "id": "feat:fade-away",
+      "name": "Fade Away",
+      "summary": "Prerequisite: Gnome. +1 Dexterity or Intelligence. Right after taking damage, use your reaction to turn invisible until the end of your next turn or until you attack, deal damage or force a save. Once per short or long rest.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGE",
+        "page": 74
+      },
+      "features": [],
+      "grant": {
+        "abilityChoice": {
+          "choice": "ability",
+          "amount": 1
+        },
+        "resources": [
+          {
+            "id": "fade-away",
+            "name": "Fade Away",
+            "max": 1,
+            "reset": "short"
+          }
+        ],
+        "actions": [
+          {
+            "id": "fade-away",
+            "name": "Fade Away",
+            "economy": "reaction",
+            "cost": {
+              "resource": "fade-away"
+            },
+            "note": "Right after you take damage: invisible until the end of your next turn, or until you attack, deal damage or force a saving throw."
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "ability",
+          "label": "Ability +1",
+          "kind": "ability",
+          "count": 1,
+          "from": [
+            "dex",
+            "int"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "feat",
+      "id": "feat:fey-teleportation",
+      "name": "Fey Teleportation",
+      "summary": "Prerequisite: Elf (high). +1 Intelligence or Charisma, you learn Sylvan, and you can cast misty step without a slot once per short or long rest, using Intelligence.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGE",
+        "page": 74
+      },
+      "features": [],
+      "grant": {
+        "abilityChoice": {
+          "choice": "ability",
+          "amount": 1
+        },
+        "proficiencies": [
+          {
+            "kind": "language",
+            "target": "Sylvan"
+          }
+        ],
+        "spellcasting": {
+          "id": "fey-teleportation",
+          "label": "Fey Teleportation",
+          "ability": "int",
+          "progression": "none"
+        },
+        "spells": [
+          {
+            "spell": "spell:misty-step",
+            "name": "Misty Step",
+            "casting": "Free once per short rest, or with a slot",
+            "resource": "fey-teleportation"
+          }
+        ],
+        "resources": [
+          {
+            "id": "fey-teleportation",
+            "name": "Fey Teleportation: Misty Step",
+            "max": 1,
+            "reset": "short"
+          }
+        ],
+        "actions": [
+          {
+            "id": "fey-teleportation",
+            "name": "Misty Step (free)",
+            "economy": "bonus",
+            "cost": {
+              "resource": "fey-teleportation"
+            },
+            "note": "Teleport up to 30 ft to a space you can see."
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "ability",
+          "label": "Ability +1",
+          "kind": "ability",
+          "count": 1,
+          "from": [
+            "int",
+            "cha"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "feat",
+      "id": "feat:fighting-initiate",
+      "name": "Fighting Initiate",
+      "summary": "Prerequisite: proficiency with a martial weapon. Learn one fighter Fighting Style you don't already have; you may swap it at levels that give an Ability Score Improvement.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCE",
+        "page": 80
+      },
+      "features": [],
+      "choices": [
+        {
+          "id": "style",
+          "label": "Fighting Style",
+          "kind": "feature",
+          "count": 1,
+          "from": [
+            "feature:style-archery",
+            "feature:style-defense",
+            "feature:style-dueling",
+            "feature:style-great-weapon-fighting",
+            "feature:style-protection",
+            "feature:style-two-weapon-fighting"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "feat",
+      "id": "feat:flames-of-phlegethos",
+      "name": "Flames of Phlegethos",
+      "summary": "Prerequisite: Tiefling. +1 Intelligence or Charisma. Reroll 1s on fire damage dice of your spells (once each). After casting a fire spell, you can wreathe yourself in harmless flames until the end of your next turn: they light the area and deal 1d4 fire to creatures within 5 ft that hit you in melee.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGE",
+        "page": 74
+      },
+      "features": [],
+      "grant": {
+        "abilityChoice": {
+          "choice": "ability",
+          "amount": 1
+        },
+        "modifiers": [
+          {
+            "selector": "roll.damage.spell",
+            "op": "note",
+            "label": "Flames of Phlegethos: reroll 1s on fire damage dice once; you may wreathe yourself in flames (1d4 fire to melee attackers within 5 ft)"
+          }
+        ],
+        "actions": [
+          {
+            "id": "flames-of-phlegethos",
+            "name": "Wreathe in flames",
+            "economy": "free",
+            "note": "After casting a spell that deals fire damage: bright light 30 ft until the end of your next turn; creatures within 5 ft that hit you in melee take 1d4 fire.",
+            "roll": {
+              "dice": "1d4",
+              "label": "fire damage to the attacker"
+            }
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "ability",
+          "label": "Ability +1",
+          "kind": "ability",
+          "count": 1,
+          "from": [
+            "int",
+            "cha"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "feat",
+      "id": "feat:great-weapon-master",
+      "name": "Great Weapon Master",
+      "summary": "Optionally take -5 to hit for +10 damage with a heavy melee weapon you're proficient with. On your turn, after a melee critical hit or dropping a creature to 0 HP, make one melee weapon attack as a bonus action.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 167
+      },
+      "features": [],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.attack.weapon.melee",
+            "op": "add",
+            "value": -5,
+            "mode": "suggested",
+            "label": "Great Weapon Master (-5 / +10)",
+            "when": {
+              "text": "heavy weapon you're proficient with"
+            }
+          },
+          {
+            "selector": "roll.damage.weapon.melee",
+            "op": "add",
+            "value": 10,
+            "mode": "suggested",
+            "label": "Great Weapon Master (-5 / +10)",
+            "when": {
+              "text": "heavy weapon you're proficient with"
+            }
+          }
+        ],
+        "actions": [
+          {
+            "id": "great-weapon-master-bonus",
+            "name": "Bonus attack (Great Weapon Master)",
+            "economy": "bonus",
+            "note": "After a melee critical hit or reducing a creature to 0 HP on your turn: one melee weapon attack.",
+            "infoOnly": true
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feat",
+      "id": "feat:gunner",
+      "name": "Gunner",
+      "summary": "+1 Dexterity, proficiency with firearms, ignore the loading property of firearms, and no disadvantage on ranged attacks for being within 5 ft of an enemy.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCE",
+        "page": 80
+      },
+      "features": [],
+      "grant": {
+        "abilityBonuses": {
+          "dex": 1
+        },
+        "proficiencies": [
+          {
+            "kind": "weapon",
+            "target": "firearms"
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.attack.weapon.ranged",
+            "op": "note",
+            "label": "Gunner: no disadvantage for an enemy within 5 ft"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feat",
+      "id": "feat:heavy-armor-master",
+      "name": "Heavy Armor Master",
+      "summary": "Prerequisite: proficiency with heavy armor. +1 Strength. While wearing heavy armor, nonmagical bludgeoning, piercing and slashing damage you take is reduced by 3.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 167
+      },
+      "features": [],
+      "grant": {
+        "abilityBonuses": {
+          "str": 1
+        }
+      }
+    },
+    {
+      "kind": "feat",
+      "id": "feat:infernal-constitution",
+      "name": "Infernal Constitution",
+      "summary": "Prerequisite: Tiefling. +1 Constitution, resistance to cold and poison damage, and advantage on saves against being poisoned.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGE",
+        "page": 75
+      },
+      "features": [],
+      "grant": {
+        "abilityBonuses": {
+          "con": 1
+        },
+        "modifiers": [
+          {
+            "selector": "defense.resist.cold",
+            "op": "resist",
+            "label": "Infernal Constitution"
+          },
+          {
+            "selector": "defense.resist.poison",
+            "op": "resist",
+            "label": "Infernal Constitution"
+          },
+          {
+            "selector": "roll.save.*",
+            "op": "advantage",
+            "label": "Infernal Constitution",
+            "when": {
+              "text": "against being poisoned"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feat",
+      "id": "feat:inspiring-leader",
+      "name": "Inspiring Leader",
+      "summary": "Prerequisite: Charisma 13. A 10-minute speech gives up to six friendly creatures (you included) temporary HP equal to your level + your Charisma modifier; each can benefit once per short or long rest.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 167
+      },
+      "features": [],
+      "grant": {
+        "actions": [
+          {
+            "id": "inspiring-leader",
+            "name": "Inspiring speech",
+            "economy": "action",
+            "note": "Takes 10 minutes. Up to six friendly creatures within 30 ft (you included) gain this many temp HP, once per short or long rest each.",
+            "tempHp": "level + mod.cha"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feat",
+      "id": "feat:lightly-armored",
+      "name": "Lightly Armored",
+      "summary": "+1 Strength or Dexterity, and proficiency with light armor.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 167
+      },
+      "features": [],
+      "grant": {
+        "abilityChoice": {
+          "choice": "ability",
+          "amount": 1
+        },
+        "proficiencies": [
+          {
+            "kind": "armor",
+            "target": "light"
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "ability",
+          "label": "Ability +1",
+          "kind": "ability",
+          "count": 1,
+          "from": [
+            "str",
+            "dex"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "feat",
+      "id": "feat:lucky",
+      "name": "Lucky",
+      "summary": "3 luck points per long rest. Spend one to roll an extra d20 on your attack roll, ability check or saving throw (before the outcome is known) and pick which die counts, or to roll a d20 against an attack made on you and pick which roll the attacker uses.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 167
+      },
+      "features": [],
+      "grant": {
+        "resources": [
+          {
+            "id": "luck-points",
+            "name": "Luck points",
+            "max": 3,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "lucky",
+            "name": "Luck point",
+            "economy": "free",
+            "cost": {
+              "resource": "luck-points"
+            },
+            "note": "Roll another d20 for your attack, check or save and choose which to use; or roll a d20 against an attack on you and choose which roll counts."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feat",
+      "id": "feat:martial-adept",
+      "name": "Martial Adept",
+      "summary": "Learn two Battle Master maneuvers and gain one d6 superiority die that returns on a short or long rest. Maneuver save DC: 8 + proficiency bonus + Strength or Dexterity modifier (your choice).",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 168
+      },
+      "features": [],
+      "grant": {
+        "resources": [
+          {
+            "id": "martial-adept-superiority",
+            "name": "Superiority die (Martial Adept)",
+            "max": 1,
+            "reset": "short",
+            "die": "1d6"
+          }
+        ],
+        "actions": [
+          {
+            "id": "martial-adept-maneuver",
+            "name": "Maneuver (Martial Adept)",
+            "economy": "free",
+            "cost": {
+              "resource": "martial-adept-superiority"
+            },
+            "note": "Spend the superiority die on one of your maneuvers. Save DC = 8 + proficiency bonus + your chosen Strength or Dexterity modifier."
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "maneuvers",
+          "label": "Maneuvers",
+          "kind": "option",
+          "count": 2,
+          "from": [
+            "Ambush",
+            "Bait and Switch",
+            "Brace",
+            "Commander's Strike",
+            "Commanding Presence",
+            "Disarming Attack",
+            "Distracting Strike",
+            "Evasive Footwork",
+            "Feinting Attack",
+            "Goading Attack",
+            "Grappling Strike",
+            "Lunging Attack",
+            "Maneuvering Attack",
+            "Menacing Attack",
+            "Parry",
+            "Precision Attack",
+            "Pushing Attack",
+            "Quick Toss",
+            "Rally",
+            "Riposte",
+            "Sweeping Attack",
+            "Tactical Assessment",
+            "Trip Attack"
+          ]
+        },
+        {
+          "id": "dc-ability",
+          "label": "Maneuver DC ability",
+          "kind": "option",
+          "count": 1,
+          "from": [
+            "Strength",
+            "Dexterity"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "feat",
+      "id": "feat:metamagic-adept",
+      "name": "Metamagic Adept",
+      "summary": "Prerequisite: Spellcasting or Pact Magic. Learn two sorcerer Metamagic options (one per spell) and gain 2 sorcery points per long rest usable only for Metamagic. Swap an option at levels that give an Ability Score Improvement.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCE",
+        "page": 80
+      },
+      "features": [],
+      "grant": {
+        "resources": [
+          {
+            "id": "metamagic-adept-points",
+            "name": "Metamagic Adept: sorcery points",
+            "max": 2,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "metamagic-adept",
+            "name": "Metamagic (Metamagic Adept)",
+            "economy": "free",
+            "cost": {
+              "resource": "metamagic-adept-points"
+            },
+            "note": "Spend points on one of your two Metamagic options when you cast a spell.",
+            "spendAmount": {
+              "label": "Sorcery points"
+            }
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "options",
+          "label": "Metamagic options",
+          "kind": "option",
+          "count": 2,
+          "from": [
+            "Careful Spell",
+            "Distant Spell",
+            "Empowered Spell",
+            "Extended Spell",
+            "Heightened Spell",
+            "Quickened Spell",
+            "Seeking Spell",
+            "Subtle Spell",
+            "Transmuted Spell",
+            "Twinned Spell"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "feat",
+      "id": "feat:mobile",
+      "name": "Mobile",
+      "summary": "+10 ft speed. Dashing ignores difficult terrain that turn, and a creature you make a melee attack against can't make opportunity attacks against you for the rest of the turn.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 168
+      },
+      "features": [],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.speed.walk",
+            "op": "add",
+            "value": 10,
+            "label": "Mobile"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feat",
+      "id": "feat:moderately-armored",
+      "name": "Moderately Armored",
+      "summary": "Prerequisite: proficiency with light armor. +1 Strength or Dexterity, and proficiency with medium armor and shields.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 168
+      },
+      "features": [],
+      "grant": {
+        "abilityChoice": {
+          "choice": "ability",
+          "amount": 1
+        },
+        "proficiencies": [
+          {
+            "kind": "armor",
+            "target": "medium"
+          },
+          {
+            "kind": "armor",
+            "target": "shields"
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "ability",
+          "label": "Ability +1",
+          "kind": "ability",
+          "count": 1,
+          "from": [
+            "str",
+            "dex"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "feat",
+      "id": "feat:mounted-combatant",
+      "name": "Mounted Combatant",
+      "summary": "While mounted: advantage on melee attacks against unmounted creatures smaller than your mount, redirect attacks aimed at your mount to yourself, and your mount takes no damage on a successful Dexterity save for half (half on a failure).",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 168
+      },
+      "features": [],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.attack.weapon.melee",
+            "op": "advantage",
+            "mode": "suggested",
+            "label": "Mounted Combatant",
+            "when": {
+              "text": "mounted, against an unmounted creature smaller than your mount"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feat",
+      "id": "feat:observant",
+      "name": "Observant",
+      "summary": "+1 Intelligence or Wisdom. Read lips in a language you know, and +5 to passive Perception and passive Investigation.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 168
+      },
+      "features": [],
+      "grant": {
+        "abilityChoice": {
+          "choice": "ability",
+          "amount": 1
+        },
+        "modifiers": [
+          {
+            "selector": "stat.passive.perception",
+            "op": "add",
+            "value": 5,
+            "label": "Observant"
+          },
+          {
+            "selector": "stat.passive.investigation",
+            "op": "add",
+            "value": 5,
+            "label": "Observant"
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "ability",
+          "label": "Ability +1",
+          "kind": "ability",
+          "count": 1,
+          "from": [
+            "int",
+            "wis"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "feat",
+      "id": "feat:orcish-fury",
+      "name": "Orcish Fury",
+      "summary": "Prerequisite: Half-Orc. +1 Strength or Constitution. Once per short or long rest, when you hit with a simple or martial weapon, roll one of its damage dice again and add it. Right after using Relentless Endurance, you can make one weapon attack as a reaction.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGE",
+        "page": 75
+      },
+      "features": [],
+      "grant": {
+        "abilityChoice": {
+          "choice": "ability",
+          "amount": 1
+        },
+        "resources": [
+          {
+            "id": "orcish-fury",
+            "name": "Orcish Fury",
+            "max": 1,
+            "reset": "short"
+          }
+        ],
+        "actions": [
+          {
+            "id": "orcish-fury",
+            "name": "Orcish Fury",
+            "economy": "free",
+            "cost": {
+              "resource": "orcish-fury"
+            },
+            "note": "On a hit with a simple or martial weapon: roll one extra weapon damage die and add it."
+          },
+          {
+            "id": "orcish-fury-reaction",
+            "name": "Orcish Fury attack",
+            "economy": "reaction",
+            "note": "Right after you use Relentless Endurance: make one weapon attack.",
+            "infoOnly": true
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "ability",
+          "label": "Ability +1",
+          "kind": "ability",
+          "count": 1,
+          "from": [
+            "str",
+            "con"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "feat",
+      "id": "feat:piercer",
+      "name": "Piercer",
+      "summary": "+1 Strength or Dexterity. Once per turn, reroll one damage die of a piercing hit (must keep the new roll). A piercing critical hit adds one more damage die.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCE",
+        "page": 80
+      },
+      "features": [],
+      "grant": {
+        "abilityChoice": {
+          "choice": "ability",
+          "amount": 1
+        },
+        "modifiers": [
+          {
+            "selector": "roll.damage.weapon.*",
+            "op": "note",
+            "label": "Piercer (piercing): once per turn reroll one damage die; on a crit roll one extra damage die"
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "ability",
+          "label": "Ability +1",
+          "kind": "ability",
+          "count": 1,
+          "from": [
+            "str",
+            "dex"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "feat",
+      "id": "feat:poisoner",
+      "name": "Poisoner",
+      "summary": "Your poison damage ignores resistance, you coat a weapon or ammunition with poison as a bonus action, and you gain the poisoner's kit; an hour and 50 gp make proficiency-bonus doses (DC 14 Con save or 2d8 poison and poisoned until the end of your next turn).",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCE",
+        "page": 80
+      },
+      "features": [],
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "tool",
+            "target": "Poisoner's kit"
+          }
+        ],
+        "actions": [
+          {
+            "id": "poisoner-apply",
+            "name": "Apply poison",
+            "economy": "bonus",
+            "note": "Coat a weapon or piece of ammunition. A creature it damages: DC 14 Constitution save or 2d8 poison and poisoned until the end of your next turn. Lasts 1 minute or until a hit.",
+            "infoOnly": true
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feat",
+      "id": "feat:prodigy",
+      "name": "Prodigy",
+      "summary": "Prerequisite: Half-Elf, Half-Orc or Human. One skill, one tool and one language of your choice, plus expertise in one skill you're proficient in.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGE",
+        "page": 75
+      },
+      "features": [],
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "skill",
+            "target": {
+              "choice": "skill"
+            }
+          },
+          {
+            "kind": "tool",
+            "target": {
+              "choice": "tool"
+            }
+          },
+          {
+            "kind": "language",
+            "target": {
+              "choice": "language"
+            }
+          },
+          {
+            "kind": "expertise",
+            "target": {
+              "choice": "expertise"
+            }
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "skill",
+          "label": "Skill",
+          "kind": "skill",
+          "count": 1
+        },
+        {
+          "id": "tool",
+          "label": "Tool",
+          "kind": "tool",
+          "count": 1
+        },
+        {
+          "id": "language",
+          "label": "Language",
+          "kind": "language",
+          "count": 1
+        },
+        {
+          "id": "expertise",
+          "label": "Expertise (a skill you're proficient in)",
+          "kind": "skill",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "kind": "feat",
+      "id": "feat:resilient",
+      "name": "Resilient",
+      "summary": "+1 to an ability of your choice, and proficiency in saving throws with that ability.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 168
+      },
+      "features": [],
+      "grant": {
+        "abilityChoice": {
+          "choice": "ability",
+          "amount": 1
+        },
+        "proficiencies": [
+          {
+            "kind": "save",
+            "target": {
+              "choice": "ability"
+            }
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "ability",
+          "label": "Ability (+1 and save proficiency)",
+          "kind": "ability",
+          "count": 1,
+          "from": [
+            "str",
+            "dex",
+            "con",
+            "int",
+            "wis",
+            "cha"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "feat",
+      "id": "feat:second-chance",
+      "name": "Second Chance",
+      "summary": "Prerequisite: Halfling. +1 Dexterity, Constitution or Charisma. When a creature you can see hits you with an attack, your reaction forces it to reroll. Recharges on a short or long rest or when you roll initiative.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGE",
+        "page": 75
+      },
+      "features": [],
+      "grant": {
+        "abilityChoice": {
+          "choice": "ability",
+          "amount": 1
+        },
+        "resources": [
+          {
+            "id": "second-chance",
+            "name": "Second Chance",
+            "max": 1,
+            "reset": "short"
+          }
+        ],
+        "actions": [
+          {
+            "id": "second-chance",
+            "name": "Second Chance",
+            "economy": "reaction",
+            "cost": {
+              "resource": "second-chance"
+            },
+            "note": "A creature you can see hits you with an attack roll: it must reroll. Also comes back when you roll initiative."
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "ability",
+          "label": "Ability +1",
+          "kind": "ability",
+          "count": 1,
+          "from": [
+            "dex",
+            "con",
+            "cha"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "feat",
+      "id": "feat:sentinel",
+      "name": "Sentinel",
+      "summary": "Your opportunity attacks that hit drop the target's speed to 0 for the turn, Disengage doesn't stop them, and when a creature within 5 ft attacks someone other than you, you can use your reaction to make a melee weapon attack against it.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 169
+      },
+      "features": [],
+      "grant": {
+        "actions": [
+          {
+            "id": "sentinel-reaction",
+            "name": "Sentinel strike",
+            "economy": "reaction",
+            "note": "A creature within 5 ft attacks someone else (who lacks this feat): make one melee weapon attack against it.",
+            "infoOnly": true
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feat",
+      "id": "feat:shadow-touched",
+      "name": "Shadow Touched",
+      "summary": "+1 to Intelligence, Wisdom or Charisma; learn Invisibility and one 1st-level illusion or necromancy spell, each free once per long rest, cast with the chosen ability.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCE",
+        "page": 80
+      },
+      "features": [],
+      "grant": {
+        "abilityChoice": {
+          "choice": "ability",
+          "amount": 1
+        },
+        "spellcasting": {
+          "id": "shadow-touched",
+          "label": "Shadow Touched",
+          "ability": {
+            "choice": "ability"
+          },
+          "progression": "none"
+        },
+        "resources": [
+          {
+            "id": "shadow-touched-invisibility",
+            "name": "Shadow Touched: Invisibility",
+            "max": 1,
+            "reset": "long"
+          },
+          {
+            "id": "shadow-touched-spell",
+            "name": "Shadow Touched: 1st-level spell",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "shadow-touched-invisibility",
+            "name": "Invisibility (free)",
+            "economy": "action",
+            "cost": {
+              "resource": "shadow-touched-invisibility"
+            },
+            "note": "A creature you touch turns invisible (concentration, up to 1 hour)."
+          },
+          {
+            "id": "shadow-touched-spell",
+            "name": "Shadow Touched spell (free)",
+            "economy": "action",
+            "cost": {
+              "resource": "shadow-touched-spell"
+            },
+            "note": "Cast your Shadow Touched 1st-level spell without a slot."
+          }
+        ],
+        "spells": [
+          {
+            "spell": "spell:invisibility",
+            "name": "Invisibility",
+            "casting": "Free once per long rest, or with a slot",
+            "resource": "shadow-touched-invisibility"
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "ability",
+          "label": "Ability +1",
+          "kind": "ability",
+          "count": 1,
+          "from": [
+            "int",
+            "wis",
+            "cha"
+          ]
+        },
+        {
+          "id": "spell",
+          "label": "1st-level spell",
+          "kind": "spell",
+          "count": 1,
+          "resource": "shadow-touched-spell",
+          "spells": {
+            "level": 1,
+            "schools": [
+              "illusion",
+              "necromancy"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "kind": "feat",
+      "id": "feat:skill-expert",
+      "name": "Skill Expert",
+      "summary": "+1 to an ability of your choice, proficiency in one skill, and expertise in one skill you're proficient in.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCE",
+        "page": 80
+      },
+      "features": [],
+      "grant": {
+        "abilityChoice": {
+          "choice": "ability",
+          "amount": 1
+        },
+        "proficiencies": [
+          {
+            "kind": "skill",
+            "target": {
+              "choice": "skill"
+            }
+          },
+          {
+            "kind": "expertise",
+            "target": {
+              "choice": "expertise"
+            }
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "ability",
+          "label": "Ability +1",
+          "kind": "ability",
+          "count": 1,
+          "from": [
+            "str",
+            "dex",
+            "con",
+            "int",
+            "wis",
+            "cha"
+          ]
+        },
+        {
+          "id": "skill",
+          "label": "Skill",
+          "kind": "skill",
+          "count": 1
+        },
+        {
+          "id": "expertise",
+          "label": "Expertise (a skill you're proficient in)",
+          "kind": "skill",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "kind": "feat",
+      "id": "feat:skulker",
+      "name": "Skulker",
+      "summary": "Prerequisite: Dexterity 13. You can hide when only lightly obscured, a missed ranged attack doesn't give away your hidden position, and dim light doesn't hinder your sight-based Perception checks.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 170
+      },
+      "features": []
+    },
+    {
+      "kind": "feat",
+      "id": "feat:slasher",
+      "name": "Slasher",
+      "summary": "+1 Strength or Dexterity. Once per turn, a slashing hit lowers the target's speed by 10 ft until your next turn. A slashing critical hit gives the target disadvantage on its attacks until your next turn.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCE",
+        "page": 81
+      },
+      "features": [],
+      "grant": {
+        "abilityChoice": {
+          "choice": "ability",
+          "amount": 1
+        },
+        "modifiers": [
+          {
+            "selector": "roll.damage.weapon.*",
+            "op": "note",
+            "label": "Slasher (slashing): once per turn -10 ft speed to the target; on a crit it has disadvantage on attacks until your next turn"
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "ability",
+          "label": "Ability +1",
+          "kind": "ability",
+          "count": 1,
+          "from": [
+            "str",
+            "dex"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "feat",
+      "id": "feat:squat-nimbleness",
+      "name": "Squat Nimbleness",
+      "summary": "Prerequisite: Dwarf or a Small race. +1 Strength or Dexterity, +5 ft walking speed, Acrobatics or Athletics proficiency, and advantage on those checks to escape a grapple.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGE",
+        "page": 75
+      },
+      "features": [],
+      "grant": {
+        "abilityChoice": {
+          "choice": "ability",
+          "amount": 1
+        },
+        "proficiencies": [
+          {
+            "kind": "skill",
+            "target": {
+              "choice": "skill"
+            }
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "stat.speed.walk",
+            "op": "add",
+            "value": 5,
+            "label": "Squat Nimbleness"
+          },
+          {
+            "selector": "roll.check.skill.athletics",
+            "op": "advantage",
+            "label": "Squat Nimbleness",
+            "when": {
+              "text": "to escape a grapple"
+            }
+          },
+          {
+            "selector": "roll.check.skill.acrobatics",
+            "op": "advantage",
+            "label": "Squat Nimbleness",
+            "when": {
+              "text": "to escape a grapple"
+            }
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "ability",
+          "label": "Ability +1",
+          "kind": "ability",
+          "count": 1,
+          "from": [
+            "str",
+            "dex"
+          ]
+        },
+        {
+          "id": "skill",
+          "label": "Skill",
+          "kind": "skill",
+          "count": 1,
+          "from": [
+            "acrobatics",
+            "athletics"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "feat",
+      "id": "feat:telekinetic",
+      "name": "Telekinetic",
+      "summary": "+1 Intelligence, Wisdom or Charisma. Mage hand without components and with an invisible hand (+30 ft range if you already know it). Bonus action: shove a creature within 30 ft 5 ft toward or away from you unless it passes a Strength save against 8 + proficiency bonus + the chosen ability's modifier.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCE",
+        "page": 81
+      },
+      "features": [],
+      "grant": {
+        "abilityChoice": {
+          "choice": "ability",
+          "amount": 1
+        },
+        "spellcasting": {
+          "id": "telekinetic",
+          "label": "Telekinetic",
+          "ability": {
+            "choice": "ability"
+          },
+          "progression": "none"
+        },
+        "spells": [
+          {
+            "spell": "spell:mage-hand",
+            "name": "Mage Hand",
+            "casting": "At will, no components, invisible hand"
+          }
+        ],
+        "actions": [
+          {
+            "id": "telekinetic-shove",
+            "name": "Telekinetic shove",
+            "economy": "bonus",
+            "note": "One creature you can see within 30 ft: Strength save against your Telekinetic spell save DC, or move it 5 ft toward or away from you."
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "ability",
+          "label": "Ability +1",
+          "kind": "ability",
+          "count": 1,
+          "from": [
+            "int",
+            "wis",
+            "cha"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "feat",
+      "id": "feat:telepathic",
+      "name": "Telepathic",
+      "summary": "+1 Intelligence, Wisdom or Charisma. Speak telepathically to a creature you can see within 60 ft (one-way, in a language you know), and cast detect thoughts once per long rest without a slot or components, using the chosen ability.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCE",
+        "page": 81
+      },
+      "features": [],
+      "grant": {
+        "abilityChoice": {
+          "choice": "ability",
+          "amount": 1
+        },
+        "spellcasting": {
+          "id": "telepathic",
+          "label": "Telepathic",
+          "ability": {
+            "choice": "ability"
+          },
+          "progression": "none"
+        },
+        "spells": [
+          {
+            "spell": "spell:detect-thoughts",
+            "name": "Detect Thoughts",
+            "casting": "Free once per long rest (no components), or with a slot",
+            "resource": "telepathic-detect-thoughts"
+          }
+        ],
+        "resources": [
+          {
+            "id": "telepathic-detect-thoughts",
+            "name": "Telepathic: Detect Thoughts",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "telepathic-detect-thoughts",
+            "name": "Detect Thoughts (free)",
+            "economy": "action",
+            "cost": {
+              "resource": "telepathic-detect-thoughts"
+            },
+            "note": "Once per long rest without a slot or components."
+          },
+          {
+            "id": "telepathic-speech",
+            "name": "Telepathic speech",
+            "economy": "free",
+            "note": "Speak telepathically to a creature you can see within 60 ft, in a language you know. It can't answer the same way.",
+            "infoOnly": true
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "ability",
+          "label": "Ability +1",
+          "kind": "ability",
+          "count": 1,
+          "from": [
+            "int",
+            "wis",
+            "cha"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "feat",
+      "id": "feat:tough",
+      "name": "Tough",
+      "summary": "Your hit point maximum increases by 2 per character level.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 170
+      },
+      "features": [],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.hp.max",
+            "op": "add",
+            "value": "2*level",
+            "label": "Tough"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feat",
+      "id": "feat:war-caster",
+      "name": "War Caster",
+      "summary": "Prerequisite: the ability to cast at least one spell. Advantage on Constitution saves to keep concentration, somatic components with your hands full, and a single-target 1-action spell instead of an opportunity attack.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 170
+      },
+      "features": [],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.save.con",
+            "op": "advantage",
+            "mode": "suggested",
+            "label": "War Caster",
+            "when": {
+              "text": "to keep concentration"
+            }
+          }
+        ],
+        "actions": [
+          {
+            "id": "war-caster-reaction",
+            "name": "Spell as opportunity attack",
+            "economy": "reaction",
+            "note": "When a creature provokes an opportunity attack: cast a 1-action spell that targets only that creature instead.",
+            "infoOnly": true
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feat",
+      "id": "feat:weapon-master",
+      "name": "Weapon Master",
+      "summary": "+1 Strength or Dexterity, and proficiency with four simple or martial weapons of your choice.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 170
+      },
+      "features": [],
+      "grant": {
+        "abilityChoice": {
+          "choice": "ability",
+          "amount": 1
+        },
+        "proficiencies": [
+          {
+            "kind": "weapon",
+            "target": {
+              "choice": "weapons"
+            }
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "ability",
+          "label": "Ability +1",
+          "kind": "ability",
+          "count": 1,
+          "from": [
+            "str",
+            "dex"
+          ]
+        },
+        {
+          "id": "weapons",
+          "label": "Weapons",
+          "kind": "option",
+          "count": 4,
+          "from": [
+            "club",
+            "dagger",
+            "greatclub",
+            "handaxe",
+            "javelin",
+            "light hammer",
+            "mace",
+            "quarterstaff",
+            "sickle",
+            "spear",
+            "light crossbow",
+            "dart",
+            "shortbow",
+            "sling",
+            "battleaxe",
+            "flail",
+            "glaive",
+            "greataxe",
+            "greatsword",
+            "halberd",
+            "lance",
+            "longsword",
+            "maul",
+            "morningstar",
+            "pike",
+            "rapier",
+            "scimitar",
+            "shortsword",
+            "trident",
+            "war pick",
+            "warhammer",
+            "whip",
+            "blowgun",
+            "hand crossbow",
+            "heavy crossbow",
+            "longbow",
+            "net"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "feat",
+      "id": "feat:wood-elf-magic",
+      "name": "Wood Elf Magic",
+      "summary": "Prerequisite: Elf (wood). One druid cantrip, plus longstrider and pass without trace once each per long rest without a slot. Wisdom is the casting ability.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGE",
+        "page": 75
+      },
+      "features": [],
+      "grant": {
+        "spellcasting": {
+          "id": "wood-elf-magic",
+          "label": "Wood Elf Magic",
+          "ability": "wis",
+          "progression": "none"
+        },
+        "spells": [
+          {
+            "spell": "spell:longstrider",
+            "name": "Longstrider",
+            "casting": "Free once per long rest, or with a slot",
+            "resource": "wood-elf-magic-longstrider"
+          },
+          {
+            "spell": "spell:pass-without-trace",
+            "name": "Pass without Trace",
+            "casting": "Free once per long rest, or with a slot",
+            "resource": "wood-elf-magic-pass"
+          }
+        ],
+        "resources": [
+          {
+            "id": "wood-elf-magic-longstrider",
+            "name": "Wood Elf Magic: Longstrider",
+            "max": 1,
+            "reset": "long"
+          },
+          {
+            "id": "wood-elf-magic-pass",
+            "name": "Wood Elf Magic: Pass without Trace",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "wood-elf-magic-longstrider",
+            "name": "Longstrider (free)",
+            "economy": "action",
+            "cost": {
+              "resource": "wood-elf-magic-longstrider"
+            },
+            "note": "Once per long rest without a slot."
+          },
+          {
+            "id": "wood-elf-magic-pass",
+            "name": "Pass without Trace (free)",
+            "economy": "action",
+            "cost": {
+              "resource": "wood-elf-magic-pass"
+            },
+            "note": "Once per long rest without a slot."
+          }
+        ]
+      },
+      "choices": [
+        {
+          "id": "cantrip",
+          "label": "Druid cantrip",
+          "kind": "spell",
+          "count": 1,
+          "spells": {
+            "classes": [
+              "druid"
+            ],
+            "level": 0
+          }
+        }
+      ]
+    }
+  ]
+}
