@@ -290,8 +290,11 @@ export function App() {
       /** Options turned on in the roll, for someone other than you (a summoned creature's Bardic Inspiration). */
       onOptionsUsed?: (labels: string[]) => void;
     } = {},
-  ) =>
-    open(title, () => (
+  ) => {
+    // Each roll is a fresh composer: the next one (a strike after Hand of Healing) never inherits the last one's dice.
+    const rollKey = crypto.randomUUID();
+    const healing = attack?.damage.type === "healing";
+    return open(title, () => (
       <>
       {opts.back && (
         <button className="link back-link" onClick={opts.back.to}>
@@ -299,7 +302,18 @@ export function App() {
         </button>
       )}
       <Composer
+        key={rollKey}
         title={title}
+        {...(healing
+          ? {
+              healing: true,
+              onHealSelf: (n: number) => {
+                live.current.act("heal", { amount: n }, `Healed ${n}.`);
+                close();
+              },
+            }
+          : {})}
+        {...(attack && !opts.damageOnly ? { afterRoll: afterRollFor(), onDone: opts.back ? opts.back.to : close } : {})}
         base={base}
         {...(opts.header ? { header: opts.header() } : {})}
         {...(opts.damageOnly ? { damageOnly: true } : {})}
@@ -328,6 +342,43 @@ export function App() {
       )}
       </>
     ));
+  };
+
+  /**
+   * What can be added to an attack roll after seeing it: Focused Aim (+2 per
+   * ki, up to 3), Precision Attack (a superiority die), when the character has them.
+   */
+  const afterRollFor = () => {
+    const sh = live.current.sheet;
+    const ch = live.current.character;
+    if (!sh || !ch) return [];
+    const out: { label: string; sub?: string; run: () => { value: number; detail: string } | undefined }[] = [];
+    if (sh.actions.some((a) => a.id === "focused-aim"))
+      for (const n of [1, 2, 3])
+        out.push({
+          label: `Focused Aim +${2 * n}`,
+          sub: `${n} ki`,
+          run: () => {
+            live.current.act("useAction", { action: "focused-aim", amount: n }, `Focused Aim: ${n} ki for +${2 * n}.`);
+            return { value: 2 * n, detail: `${n} ki` };
+          },
+        });
+    const maneuvers = Object.values(ch.choices).flatMap((c) => (c as Record<string, string[]>).maneuvers ?? []);
+    const sup = sh.resources.find((r) => r.id === "superiority-dice");
+    if (sup && maneuvers.includes("Precision Attack")) {
+      const sides = Number(/d(\d+)/.exec(sup.die ?? "d8")?.[1] ?? 8);
+      out.push({
+        label: `Precision Attack +d${sides}`,
+        sub: `${sup.remaining} dice left`,
+        run: () => {
+          const v = rollDie(sides);
+          live.current.act("useAction", { action: "maneuver", choice: "Precision Attack" }, `Precision Attack: d${sides} rolled ${v}.`);
+          return { value: v, detail: `d${sides} [${v}]` };
+        },
+      });
+    }
+    return out;
+  };
 
   /** Wild Shape or Polymorph: choose the creature. */
   const openTransform = (kind: ShapeKind, via: { effectId?: string; addEffect?: string } = {}) =>

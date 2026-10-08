@@ -60,6 +60,13 @@ interface Props {
   onDamageOptions?: (labels: string[]) => void;
   /** The optional modifiers that were on when the d20 was rolled (Steady Aim spends its bonus action). */
   onOptionsUsed?: (labels: string[]) => void;
+  /**
+   * Things added to an attack roll after seeing it (Focused Aim, Precision
+   * Attack): `run` spends what they cost and gives the number added.
+   */
+  afterRoll?: { label: string; sub?: string; run: () => { value: number; detail: string } | undefined }[];
+  /** Closes the roll (after a miss with no more attacks). */
+  onDone?: () => void;
 }
 
 /**
@@ -82,6 +89,7 @@ export interface OptionInfo {
 type Stage =
   | { step: "setup" }
   | { step: "d20-result"; record: RollRecord }
+  | { step: "missed"; record: RollRecord }
   | { step: "damage-setup"; crit: boolean; attackRecord?: RollRecord; attackMode?: string }
   | { step: "damage-result"; record: RollRecord; crit: boolean; attackRecord?: RollRecord };
 
@@ -263,7 +271,7 @@ export function ResultView({ r }: { r: RollRecord }) {
   );
 }
 
-export function Composer({ title, base, attack, physical, onPhysicalChange, onRolled, damageOnly, healing, onHealSelf, dc, onCheck, notes, header, typeChoices, portent, onOptionsUsed, optionInfo, onCommit, repeat, onDamageOptions }: Props) {
+export function Composer({ title, base, attack, physical, onPhysicalChange, onRolled, damageOnly, healing, onHealSelf, dc, onCheck, notes, header, typeChoices, portent, onOptionsUsed, optionInfo, onCommit, repeat, onDamageOptions, afterRoll, onDone }: Props) {
   const [typePick, setTypePick] = useState<{ via: number; type: string } | null>(null);
   const preselected = base.suggestions.filter((sg) => optionInfo?.[sg.label]?.preselect).map((sg) => sg.label);
   const [choices, setChoices] = useState<ComposerChoices>({ enabled: preselected, manual: "none", extra: 0 });
@@ -462,6 +470,24 @@ export function Composer({ title, base, attack, physical, onPhysicalChange, onRo
     );
   }
 
+  if (stage.step === "missed") {
+    return (
+      <>
+        <ResultView r={stage.record} />
+        <p className="warn">Missed{stage.record.total ? ` with ${stage.record.total}` : ""}.</p>
+        <button className="link" onClick={() => setStage({ step: "d20-result", record: stage.record })}>
+          Back: change the roll (Focused Aim, Precision Attack…)
+        </button>
+        {nextButton}
+        {!nextButton && onDone && (
+          <button className="big primary wide" style={{ marginTop: 12 }} onClick={onDone}>
+            Done
+          </button>
+        )}
+      </>
+    );
+  }
+
   if (stage.step === "d20-result") {
     const r = stage.record;
     return (
@@ -473,14 +499,48 @@ export function Composer({ title, base, attack, physical, onPhysicalChange, onRo
           </p>
         )}
         {attack && (
-          <div className="big-actions" style={{ marginTop: 12 }}>
-            <button className={`big${r.crit ? "" : " primary"}`} onClick={() => startDamage(false, r)}>
-              Roll damage
+          <>
+            {/* After seeing the roll: add to it (Focused Aim, Precision Attack) or nudge it by hand. */}
+            <div className="after-roll">
+              <span className="sub-head small">Change this roll</span>
+              <div className="choice-grid">
+                {(afterRoll ?? []).map((o) => (
+                  <button
+                    key={o.label}
+                    className="tag use"
+                    onClick={() => {
+                      const res = o.run();
+                      if (!res) return;
+                      setStage({ step: "d20-result", record: { ...r, total: r.total + res.value, lines: [...r.lines, { source: o.label, detail: res.detail, total: res.value }] } });
+                    }}
+                  >
+                    {o.label}
+                    {o.sub ? <small> · {o.sub}</small> : null}
+                  </button>
+                ))}
+                {[-1, 1].map((d) => (
+                  <button
+                    key={d}
+                    className="tag"
+                    onClick={() => setStage({ step: "d20-result", record: { ...r, total: r.total + d, lines: [...r.lines, { source: "By hand", detail: "", total: d }] } })}
+                  >
+                    {d > 0 ? "+1" : "−1"}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="big-actions" style={{ marginTop: 12 }}>
+              <button className={`big${r.crit ? "" : " primary"}`} onClick={() => startDamage(false, r)}>
+                Hit: roll damage
+              </button>
+              <button className={`big${r.crit ? " primary" : ""}`} onClick={() => startDamage(true, r)}>
+                Critical damage
+              </button>
+            </div>
+            <button className="big wide miss" style={{ marginTop: 8 }} onClick={() => setStage({ step: "missed", record: r })}>
+              Miss
             </button>
-            <button className={`big${r.crit ? " primary" : ""}`} onClick={() => startDamage(true, r)}>
-              Critical damage
-            </button>
-          </div>
+          </>
         )}
         {nextButton}
         {dc === undefined && (

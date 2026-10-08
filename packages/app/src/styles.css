@@ -2167,3 +2167,15 @@ button.mpip {
   font: inherit;
   cursor: pointer;
 }
+
+/* After an attack roll: what can still change it, and Miss. */
+.after-roll {
+  margin-top: 10px;
+}
+.after-roll .choice-grid {
+  margin-top: 4px;
+}
+.big.miss {
+  border-color: var(--hp);
+  color: var(--hp);
+}
