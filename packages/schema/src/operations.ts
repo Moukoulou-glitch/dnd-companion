@@ -47,7 +47,39 @@ export const OPERATION_PAYLOADS = {
     .strict(),
   /** A summoned creature's hit points (after damage or healing worked out in the app). */
   /** Set its hit points, or deal damage of a type (its resistances, immunities and vulnerabilities apply). */
-  summonHp: z.object({ id: z.string(), hp: z.number().int().min(0).optional(), damage: z.number().int().min(0).optional(), type: z.string().optional() }).strict(),
+  summonHp: z
+    .object({
+      id: z.string(),
+      hp: z.number().int().min(0).optional(),
+      damage: z.number().int().min(0).optional(),
+      type: z.string().optional(),
+      /** From a magical attack, or a silvered or adamantine weapon: some resistances don't apply. */
+      magical: z.boolean().optional(),
+      silvered: z.boolean().optional(),
+      adamantine: z.boolean().optional(),
+    })
+    .strict(),
+  /** Change an effect on a summoned creature: its time left, the level it was cast at, its choice. */
+  summonEffectEdit: z
+    .object({ id: z.string(), instance: z.string(), rounds: z.number().int().min(0).nullable().optional(), slotLevel: z.number().int().min(1).max(9).optional(), choice: z.string().optional() })
+    .strict(),
+  /** Inspiration on hand. */
+  setInspiration: z.object({ count: z.number().int().min(0).max(10) }).strict(),
+  /** Maximum hit points reduced or increased by hand. */
+  setMaxHpAdjust: z.object({ reduce: z.number().int().min(0).optional(), increase: z.number().int().min(0).optional() }).strict(),
+  /** An ability score changed by hand. */
+  setAbilityAdjust: z
+    .object({
+      ability: z.enum(["str", "dex", "con", "int", "wis", "cha"]),
+      bonus: z.number().int().min(0).optional(),
+      penalty: z.number().int().min(0).optional(),
+      penaltyEndsOnRest: z.boolean().optional(),
+      setTo: z.number().int().min(1).max(30).nullable().optional(),
+      setNote: z.string().max(60).optional(),
+    })
+    .strict(),
+  /** A hit point roll for a level (index 0 is the first level that was rolled for that class). */
+  setHpRoll: z.object({ class: z.string(), index: z.number().int().min(0), value: z.number().int().min(1) }).strict(),
   /** It casts a spell: a use of "N/day" or a slot, its action economy, its concentration. */
   summonCast: z
     .object({
@@ -72,6 +104,8 @@ export const OPERATION_PAYLOADS = {
       move: z.number().int().optional(),
       /** Dash: more movement this turn (false takes one back). */
       dash: z.boolean().optional(),
+      /** Which speed it moves with (walk, fly, swim, climb, burrow). */
+      mode: z.string().optional(),
     })
     .strict(),
   /** Put an effect on a summoned creature, or take it off. */
@@ -278,6 +312,11 @@ export const Operation = z.discriminatedUnion("type", [
   OperationBase.extend({ type: z.literal("dismiss"), payload: OPERATION_PAYLOADS.dismiss }),
   OperationBase.extend({ type: z.literal("summonEconomy"), payload: OPERATION_PAYLOADS.summonEconomy }),
   OperationBase.extend({ type: z.literal("summonCast"), payload: OPERATION_PAYLOADS.summonCast }),
+  OperationBase.extend({ type: z.literal("summonEffectEdit"), payload: OPERATION_PAYLOADS.summonEffectEdit }),
+  OperationBase.extend({ type: z.literal("setInspiration"), payload: OPERATION_PAYLOADS.setInspiration }),
+  OperationBase.extend({ type: z.literal("setMaxHpAdjust"), payload: OPERATION_PAYLOADS.setMaxHpAdjust }),
+  OperationBase.extend({ type: z.literal("setAbilityAdjust"), payload: OPERATION_PAYLOADS.setAbilityAdjust }),
+  OperationBase.extend({ type: z.literal("setHpRoll"), payload: OPERATION_PAYLOADS.setHpRoll }),
   OperationBase.extend({ type: z.literal("summonEffect"), payload: OPERATION_PAYLOADS.summonEffect }),
   OperationBase.extend({ type: z.literal("summonConcentration"), payload: OPERATION_PAYLOADS.summonConcentration }),
   OperationBase.extend({ type: z.literal("addExtra"), payload: OPERATION_PAYLOADS.addExtra }),

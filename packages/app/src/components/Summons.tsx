@@ -387,11 +387,12 @@ export function SummonMemberPanel({
   const def = reg.find(m.creature, "creature");
   const b = summonBlock(reg, m);
   const [moving, setMoving] = useState(false);
+  const [mode, setMode] = useState("walk");
+  const [pending, setPending] = useState<{ what: string; why: string; run: () => void } | null>(null);
+  const [editEffect, setEditEffect] = useState<string | null>(null);
   const spells = useMemo(() => (def ? creatureSpells(reg, def) : []), [reg, def]);
   const name = m.name ?? b?.name ?? m.creature;
   const used = { action: false, bonus: false, reaction: false, attacks: 0, moved: 0, dashes: 0, ...m.used };
-  const fastest = def ? Math.max(b?.walk ?? def.speed.walk ?? 0, def.speed.fly ?? 0, def.speed.swim ?? 0, def.speed.climb ?? 0) : 0;
-  const allowed = fastest * (1 + used.dashes);
   const perAction = b ? b.attacksPerAction : 1;
   const own = spells.flatMap((sp) => sp.groups.flatMap((g) => g.spells));
   const sourceOf = (sp: { name: string; id?: string }): SpellSource => {
@@ -418,6 +419,27 @@ export function SummonMemberPanel({
     if (init.trim() !== "" && Number.isFinite(n) && n !== m.initiative) act("summonInitiative", { group: m.group, id: m.id, value: Math.round(n) }, `${name}: initiative ${Math.round(n)}.`);
   };
   const defenses = b?.defenses;
+  /** Why using this now goes beyond its turn (empty: fine). */
+  const busy = (kind: "action" | "bonus" | "reaction" | "attack"): string | undefined => {
+    if (kind === "attack") {
+      if (used.action && used.attacks === 0) return "Its action is already used this turn.";
+      if (used.attacks >= perAction) return `It has made ${used.attacks} of ${perAction} attacks for its Attack action.`;
+      return undefined;
+    }
+    if (used[kind]) return `Its ${kind === "bonus" ? "bonus action" : kind} is already used this turn.`;
+    if (kind === "action" && used.attacks > 0) return "Its action went to the Attack action this turn.";
+    return undefined;
+  };
+  /** Warn, never block: "Use anyway" goes ahead. */
+  const tryUse = (kind: "action" | "bonus" | "reaction" | "attack", what: string, run: () => void) => {
+    const why = busy(kind);
+    if (why) setPending({ what, why, run });
+    else run();
+  };
+  const speeds = b?.speeds ?? { walk: b?.walk ?? 0 };
+  const left = (mode: string) => Math.max(0, (speeds[mode] ?? 0) * (1 + used.dashes) - used.moved);
+  const editing = (m.effects ?? []).find((e) => e.id === editEffect);
+  const editingDef = editing ? reg.find(editing.effect, "effect") : undefined;
   return (
     <>
       <button className="link" onClick={back}>
@@ -470,31 +492,50 @@ export function SummonMemberPanel({
           {economy("action", "Action")}
           {economy("bonus", "Bonus")}
           {economy("reaction", "Reaction")}
-          <button className="pill" data-used={allowed > 0 && used.moved >= allowed} onClick={() => setMoving(!moving)}>
+          <button className="pill" data-used={Object.keys(speeds).every((k) => left(k) === 0)} onClick={() => setMoving(!moving)}>
             <b>Move</b>
             <small>
-              {Math.max(0, allowed - used.moved)} of {allowed} ft
+              {Object.entries(speeds)
+                .filter(([, v]) => v > 0)
+                .map(([k]) => `${k === "walk" ? "" : `${k} `}${left(k)}`)
+                .join(" · ") || "0"}{" "}
+              ft
             </small>
           </button>
         </div>
         {moving && (
-          <div className="choice-grid">
-            {[5, 10, 15, 20, 30].map((ft) => (
-              <button key={ft} className="chip" onClick={() => act("summonEconomy", { id: m.id, move: ft }, `${name} moves ${ft} ft.`)}>
-                +{ft} ft
-              </button>
-            ))}
-            <button className="chip" disabled={used.moved === 0} onClick={() => act("summonEconomy", { id: m.id, move: -5 }, "5 ft taken back.")}>
-              −5 ft
-            </button>
-            <button className="chip" onClick={() => act("summonEconomy", { id: m.id, dash: true, kind: "action", used: true }, `${name} dashes: +${fastest} ft.`)}>
-              Dash (action)
-            </button>
-            {used.dashes > 0 && (
-              <button className="chip" onClick={() => act("summonEconomy", { id: m.id, dash: false, kind: "action", used: false }, "Dash taken back.")}>
-                Undo Dash
-              </button>
+          <div className="pick-inline">
+            <p className="note">
+              Moved {used.moved} ft{used.dashes ? `, Dash ×${used.dashes}` : ""}. Switching speeds: what it has moved comes off the new one.
+            </p>
+            {Object.keys(speeds).length > 1 && (
+              <div className="segmented small" role="tablist" aria-label="Moving by">
+                {Object.entries(speeds).map(([k, v]) => (
+                  <button key={k} role="tab" aria-selected={mode === k} onClick={() => setMode(k)}>
+                    {k} {v} · {left(k)} left
+                  </button>
+                ))}
+              </div>
             )}
+            <div className="choice-grid">
+              {[5, 10, 15, 20, 30].map((ft) => (
+                <button key={ft} className="chip" onClick={() => act("summonEconomy", { id: m.id, move: ft, mode }, `${name} ${mode === "walk" ? "moves" : mode === "fly" ? "flies" : `moves (${mode})`} ${ft} ft.`)}>
+                  +{ft} ft
+                </button>
+              ))}
+              <button className="chip" disabled={used.moved === 0} onClick={() => act("summonEconomy", { id: m.id, move: -5, mode }, "5 ft taken back.")}>
+                −5 ft
+              </button>
+              <button className="chip" onClick={() => tryUse("action", "Dash", () => act("summonEconomy", { id: m.id, dash: true, kind: "action", used: true }, `${name} dashes: its speeds double this turn.`))}>
+                Dash (action)
+              </button>
+              {used.dashes > 0 && (
+                <button className="chip" onClick={() => act("summonEconomy", { id: m.id, dash: false, kind: "action", used: false }, "Dash taken back.")}>
+                  Undo Dash
+                </button>
+              )}
+            </div>
+            {speeds.fly ? <p className="note">Flying: knocked prone, speed 0 or unable to move, it falls{b?.hover ? " (it hovers, so it doesn't)" : ""}.</p> : null}
           </div>
         )}
         <button className="link" onClick={() => act("summonEconomy", { id: m.id, newTurn: true }, `${name}'s turn: everything is back.`)}>
@@ -517,15 +558,81 @@ export function SummonMemberPanel({
           const d = reg.find(e.effect, "effect");
           const immune = d?.category === "condition" && (defenses?.conditions ?? []).some((k) => k.toLowerCase() === d.name.toLowerCase());
           return (
-            <button key={e.id} className={`chip ${d?.category ?? "other"}`} aria-label={`Remove ${d?.name ?? e.effect}`} onClick={() => act("summonEffect", { id: m.id, effect: e.effect, instance: e.id, add: false }, `${d?.name ?? "Effect"} ends on ${name}.`)}>
+            <button key={e.id} className={`chip ${d?.category ?? "other"}${editEffect === e.id ? " editing" : ""}`} aria-label={`${d?.name ?? e.effect}: details`} onClick={() => setEditEffect(editEffect === e.id ? null : e.id)}>
               {d?.name ?? e.effect}
               {e.choice ? ` ${e.choice}` : ""}
               {e.rounds !== undefined ? ` (${e.rounds})` : ""}
-              {immune ? " · immune" : ""} ✕
+              {immune ? " · immune" : ""}
             </button>
           );
         })}
       </div>
+
+      {editing && editingDef && (
+        <div className="pick-inline">
+          <p className="note">
+            <b>{editingDef.name}.</b> {editingDef.summary}
+          </p>
+          <div className="row">
+            <span className="row-main">{editing.rounds !== undefined ? `${editing.rounds} round${editing.rounds === 1 ? "" : "s"} left` : "No timer"}</span>
+            <div className="stepper">
+              <button aria-label="One round less" onClick={() => act("summonEffectEdit", { id: m.id, instance: editing.id, rounds: Math.max(0, (editing.rounds ?? 1) - 1) }, "One round less.")}>
+                −
+              </button>
+              <button aria-label="One round more" onClick={() => act("summonEffectEdit", { id: m.id, instance: editing.id, rounds: (editing.rounds ?? 0) + 1 }, "One round more.")}>
+                +
+              </button>
+            </div>
+          </div>
+          <div className="choice-grid">
+            {[1, 10, 100].map((r) => (
+              <button key={r} className={`chip${editing.rounds === r ? " on" : ""}`} onClick={() => act("summonEffectEdit", { id: m.id, instance: editing.id, rounds: r }, `${r} rounds.`)}>
+                {r === 1 ? "1 round" : r === 10 ? "1 minute" : "10 minutes"}
+              </button>
+            ))}
+            <button className={`chip${editing.rounds === undefined ? " on" : ""}`} onClick={() => act("summonEffectEdit", { id: m.id, instance: editing.id, rounds: null }, "No timer.")}>
+              No timer
+            </button>
+          </div>
+          {editingDef.upcast && (
+            <>
+              <p className="sub-head small">Cast at level</p>
+              <div className="choice-grid">
+                {Array.from({ length: 10 - editingDef.upcast.baseLevel }, (_, i) => editingDef.upcast!.baseLevel + i).map((l) => (
+                  <button
+                    key={l}
+                    className={`chip${(editing.slotLevel ?? editingDef.upcast!.baseLevel) === l ? " on" : ""}`}
+                    onClick={() => act("summonEffectEdit", { id: m.id, instance: editing.id, slotLevel: l }, `${editingDef.name} at level ${l}.`)}
+                  >
+                    {l}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+          {editingDef.choice && (
+            <>
+              <p className="sub-head small">{editingDef.choice.label}</p>
+              <div className="choice-grid">
+                {editingDef.choice.options.map((o) => (
+                  <button key={o} className={`chip${editing.choice === o ? " on" : ""}`} onClick={() => act("summonEffectEdit", { id: m.id, instance: editing.id, choice: o }, `${editingDef.name}: ${o}.`)}>
+                    {ABILITY_NAMES[o as keyof typeof ABILITY_NAMES] ?? o}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+          <button
+            className="big wide danger-text"
+            onClick={() => {
+              act("summonEffect", { id: m.id, effect: editing.effect, instance: editing.id, add: false }, `${editingDef.name} ends on ${name}.`);
+              setEditEffect(null);
+            }}
+          >
+            Remove {editingDef.name}
+          </button>
+        </div>
+      )}
 
       <h2 className="sub-head">Concentration</h2>
       {m.concentrating ? (
@@ -596,10 +703,13 @@ export function SummonMemberPanel({
 
       {b && b.attacks.length > 0 && (
         <>
-          <h2 className="sub-head">Attacks{perAction > 1 ? ` · ${perAction} per Attack action` : ""}</h2>
+          <h2 className="sub-head">
+            Attacks · {used.attacks} of {perAction} made <Pips left={Math.max(0, perAction - used.attacks)} total={perAction} />
+          </h2>
+          {perAction > 1 && <p className="note">Multiattack: {perAction} attacks for one Attack action.</p>}
           <div className="group">
             {b.attacks.map((a) => (
-              <button key={a.name} className="row" onClick={() => openAttack(a)}>
+              <button key={a.name} className="row" onClick={() => tryUse(a.action === "bonus" ? "bonus" : "attack", a.name, () => openAttack(a))}>
                 <div className="row-main">
                   <div className="row-title">{a.name}</div>
                   <div className="row-sub">
@@ -621,7 +731,7 @@ export function SummonMemberPanel({
           title="Actions"
           items={b.actions.filter((a) => !b.attacks.some((x) => x.name === a.name))}
           onRoll={(n, dice, type) => onTraitRoll(`${name}: ${n}`, dice, type)}
-          onUse={(n, kind) => act("summonEconomy", { id: m.id, kind, used: true }, `${name}: ${n}.`)}
+          onUse={(n, kind) => tryUse(kind, n, () => act("summonEconomy", { id: m.id, kind, used: true }, `${name}: ${n}.`))}
         />
       )}
 
@@ -644,10 +754,12 @@ export function SummonMemberPanel({
               <div className="choice-grid">
                 <button
                   className="big primary"
-                  onClick={() => {
-                    act("summonEconomy", { id: m.id, kind, used: true }, `${name}: ${f.name}.`);
-                    setCommon(null);
-                  }}
+                  onClick={() =>
+                    tryUse(kind, f.name, () => {
+                      act("summonEconomy", { id: m.id, kind, used: true, ...(a!.dash ? { dash: true } : {}) }, `${name}: ${f.name}.${a!.dash ? " Its speeds double this turn." : ""}`);
+                      setCommon(null);
+                    })
+                  }
                 >
                   Use · {kind === "attack" ? "one attack" : kind === "bonus" ? "bonus action" : kind}
                 </button>
@@ -695,6 +807,28 @@ export function SummonMemberPanel({
           </details>
           <TextList title="Traits" items={b.traits} onRoll={(n, dice, type) => onTraitRoll(`${name}: ${n}`, dice, type)} />
         </>
+      )}
+      {pending && (
+        <div className="over-banner pending-float" role="alert">
+          <p>
+            {pending.what}: {pending.why}
+          </p>
+          <div className="big-actions">
+            <button className="big" onClick={() => setPending(null)}>
+              Cancel
+            </button>
+            <button
+              className="big primary"
+              onClick={() => {
+                const r = pending.run;
+                setPending(null);
+                r();
+              }}
+            >
+              Use anyway
+            </button>
+          </div>
+        </div>
       )}
     </>
   );

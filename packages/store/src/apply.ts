@@ -1,5 +1,5 @@
 import { Character, CombatState, type Operation, type ValueExpr } from "@dnd/schema";
-import { FLEX_COST, castingEconomy, derive, evalFlat, levelGains, materialNeed, multiclassIssues, shapeIssues, summonHpBonus, type ContentRegistry } from "@dnd/engine";
+import { FLEX_COST, castingEconomy, derive, evalFlat, levelGains, damageAfterDefenses, materialNeed, multiclassIssues, shapeIssues, summonBlock, summonHpBonus, type ContentRegistry } from "@dnd/engine";
 
 /** A number from an expression, or 0 when it can't be worked out here. */
 const evalFlatSafe = (v: ValueExpr, ctx: Parameters<typeof evalFlat>[1]): number => {
@@ -474,26 +474,16 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
       const who = x.name ?? def?.name ?? "It";
       let target = op.payload.hp ?? x.hp;
       if (op.payload.damage !== undefined) {
-        // Its stat block's defenses, plus any from effects on it (Protection from Energy, Stoneskin).
-        const type = op.payload.type?.toLowerCase();
-        const has = (k: "resist" | "immune" | "vulnerable") =>
-          !!type &&
-          ((def?.[k] ?? []).includes(type) ||
-            (x.effects ?? []).some((e) => (reg.find(e.effect, "effect")?.modifiers ?? []).some((m) => m.selector === `defense.${k}.${type}`)));
-        let amount = op.payload.damage;
-        if (has("immune")) {
-          notes.push(`${who} is immune to ${type} damage: no damage.`);
-          amount = 0;
-        } else {
-          if (has("resist")) {
-            amount = Math.floor(amount / 2);
-            notes.push(`${who} resists ${type}: ${amount} damage.`);
-          }
-          if (has("vulnerable")) {
-            amount *= 2;
-            notes.push(`${who} is vulnerable to ${type}: ${amount} damage.`);
-          }
-        }
+        // Its stat block's defenses, plus any from effects on it (Protection from Energy, Stoneskin);
+        // "from nonmagical weapons" ones don't count against a magical (silvered, adamantine) attack.
+        const block = summonBlock(reg, x);
+        const r = damageAfterDefenses(op.payload.damage, op.payload.type, block?.defenses ?? { resist: [], immune: [], vulnerable: [] }, {
+          ...(op.payload.magical ? { magical: true } : {}),
+          ...(op.payload.silvered ? { silvered: true } : {}),
+          ...(op.payload.adamantine ? { adamantine: true } : {}),
+        });
+        for (const n of r.notes) notes.push(`${who}: ${n}`);
+        const amount = r.amount;
         target = Math.max(0, x.hp - amount);
       }
       const max = (def?.hp ?? target) + summonHpBonus(x, reg);
@@ -528,9 +518,11 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
       }
       if (op.payload.move !== undefined) {
         u.moved = Math.max(0, (u.moved ?? 0) + op.payload.move);
-        const d = reg.find(x.creature, "creature");
-        const speed = Math.max(d?.speed.walk ?? 0, d?.speed.fly ?? 0, d?.speed.swim ?? 0) * (1 + (u.dashes ?? 0));
-        if (speed && u.moved > speed) notes.push(`${u.moved} ft is beyond its ${speed} ft this turn.`);
+        // Switching speeds: what it has moved comes off the new speed (PHB p. 190).
+        const speeds = summonBlock(reg, x)?.speeds ?? {};
+        const mode = op.payload.mode ?? "walk";
+        const speed = (speeds[mode] ?? 0) * (1 + (u.dashes ?? 0));
+        if (op.payload.move > 0 && u.moved > speed) notes.push(`${u.moved} ft is beyond its ${mode} speed (${speed} ft) this turn.`);
       }
       if (op.payload.dash !== undefined) u.dashes = Math.max(0, (u.dashes ?? 0) + (op.payload.dash ? 1 : -1));
       const k = op.payload.kind;
@@ -565,6 +557,9 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
         const cd = reg.find(x.creature, "creature");
         if (ed && ed.category === "condition" && (cd?.conditionImmune ?? []).some((k) => k.toLowerCase() === ed.name.toLowerCase()))
           notes.push(`${x.name ?? cd?.name ?? "It"} is immune to being ${ed.name.toLowerCase()}. Added anyway.`);
+        // Flying creatures fall when knocked prone or unable to move, unless they hover (PHB p. 191).
+        if (ed && cd?.speed.fly && !cd.speed.hover && /^(prone|grappled|restrained|paralyzed|petrified|stunned|unconscious)$/i.test(ed.name))
+          notes.push(`If ${x.name ?? cd.name} is flying, it falls (it can't hover).`);
       }
       const def = reg.find(effect, "effect");
       const ctxFor = (slotLevel?: number) => ({ pb: 2, mods: { str: 0, dex: 0, con: 0, int: 0, wis: 0, cha: 0 }, level: 1, classLevels: {}, slotLevel: slotLevel ?? def?.upcast?.baseLevel ?? 1 });
@@ -601,6 +596,86 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
         }
         if (!gone.length) notes.push("That effect isn't on it.");
       }
+      break;
+    }
+
+    case "summonEffectEdit": {
+      const x = c.summons.find((s) => s.id === op.payload.id);
+      const e = x?.effects?.find((y) => y.id === op.payload.instance);
+      if (!x || !e) {
+        notes.push("That effect isn't on it.");
+        break;
+      }
+      if (op.payload.rounds === null) delete e.rounds;
+      else if (op.payload.rounds !== undefined) e.rounds = op.payload.rounds;
+      if (op.payload.choice !== undefined) e.choice = op.payload.choice;
+      if (op.payload.slotLevel !== undefined && op.payload.slotLevel !== e.slotLevel) {
+        // Aid cast higher: hit points follow the new level.
+        const before = summonHpBonus(x, reg);
+        e.slotLevel = op.payload.slotLevel;
+        const after = summonHpBonus(x, reg);
+        if (after !== before) {
+          x.hp = Math.max(0, x.hp + (after - before));
+          notes.push(`${after > before ? "+" : ""}${after - before} hit points (maximum and current).`);
+        }
+      }
+      if (e.rounds === 0) {
+        x.effects = x.effects!.filter((y) => y !== e);
+        notes.push("Its time is up: removed.");
+      }
+      break;
+    }
+
+    case "setInspiration": {
+      const before = c.inspirations ?? 0;
+      c.inspirations = op.payload.count;
+      c.inspiration = op.payload.count > 0;
+      if (op.payload.count < before) notes.push("Inspiration: advantage on one attack roll, saving throw or ability check.");
+      break;
+    }
+
+    case "setMaxHpAdjust": {
+      const adj = (c.maxHpAdjust ??= { reduce: 0, increase: 0 });
+      if (op.payload.reduce !== undefined) adj.reduce = op.payload.reduce;
+      if (op.payload.increase !== undefined) adj.increase = op.payload.increase;
+      const max = derive(c, reg).hpMax.total;
+      if (c.hp.current > max) c.hp.current = max;
+      if (!adj.reduce && !adj.increase) notes.push("Back to your normal maximum hit points.");
+      else notes.push(`Maximum hit points now ${max}.`);
+      break;
+    }
+
+    case "setAbilityAdjust": {
+      const { ability, ...rest } = op.payload;
+      const cur = (c.abilityAdjust[ability] ??= { bonus: 0, penalty: 0, penaltyEndsOnRest: false });
+      if (rest.bonus !== undefined) cur.bonus = rest.bonus;
+      if (rest.penalty !== undefined) cur.penalty = rest.penalty;
+      if (rest.penaltyEndsOnRest !== undefined) cur.penaltyEndsOnRest = rest.penaltyEndsOnRest;
+      if (rest.setTo === null) delete cur.setTo;
+      else if (rest.setTo !== undefined) cur.setTo = rest.setTo;
+      if (rest.setNote !== undefined) {
+        if (rest.setNote) cur.setNote = rest.setNote;
+        else delete cur.setNote;
+      }
+      if (!cur.bonus && !cur.penalty && cur.setTo === undefined) delete c.abilityAdjust[ability];
+      const score = derive(c, reg).abilities[ability].score.total;
+      if (score <= 0) notes.push(`${ability.toUpperCase()} is ${score}. A shadow's Strength drain kills at 0.`);
+      break;
+    }
+
+    case "setHpRoll": {
+      const cl = c.classes.find((x) => x.class === op.payload.class);
+      if (!cl) {
+        notes.push("No such class on this character.");
+        break;
+      }
+      const def = reg.find(op.payload.class, "class");
+      const avg = def ? def.hitDie / 2 + 1 : 1;
+      const rolls = [...(cl.hpRolls ?? [])];
+      while (rolls.length < op.payload.index) rolls.push(avg);
+      rolls[op.payload.index] = op.payload.value;
+      cl.hpRolls = rolls;
+      if (def && op.payload.value > def.hitDie) notes.push(`${op.payload.value} is more than a d${def.hitDie} can roll.`);
       break;
     }
 
@@ -684,6 +759,13 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
     case "rest": {
       const kind = op.payload.kind;
       passMinutes(kind === "short" ? 60 : 480);
+      // Penalties that last until a rest (a shadow's Strength drain) end.
+      for (const [ab, adj] of Object.entries(c.abilityAdjust)) {
+        if (!adj?.penalty || !adj.penaltyEndsOnRest) continue;
+        adj.penalty = 0;
+        notes.push(`${ab.toUpperCase()} penalty ends with the rest.`);
+        if (!adj.bonus && adj.setTo === undefined) delete c.abilityAdjust[ab as keyof typeof c.abilityAdjust];
+      }
       const resets = kind === "short" ? ["short"] : ["short", "long", "dawn"];
       const restored = sheet.resources.filter((r) => resets.includes(r.reset) && r.used > 0).map((r) => r.name);
       for (const r of sheet.resources) if (resets.includes(r.reset)) delete c.resourcesUsed[r.id];

@@ -163,7 +163,10 @@ export function ShapePanel({
   openAttack,
   onTraitRoll,
   onUseAction,
+  attacksMade,
 }: {
+  /** In combat: attacks made this turn, for the Multiattack count. */
+  attacksMade?: number;
   /** A stat block action used in combat (Fey Charm): marks the turn. */
   onUseAction?: (name: string, economy: "action" | "bonus" | "reaction") => void;
   /** Rolls an attack and marks the turn, like your own attacks. */
@@ -235,7 +238,10 @@ export function ShapePanel({
 
       {s.attacks.length > 0 && (
         <>
-          <h2 className="sub-head">Attacks</h2>
+          <h2 className="sub-head">
+            Attacks
+            {attacksMade !== undefined ? ` · ${attacksMade} of ${s.attacksPerAction} made this turn` : s.attacksPerAction > 1 ? ` · ${s.attacksPerAction} per Attack action` : ""}
+          </h2>
           <div className="group">
             {s.attacks.map((a) => (
               <button key={a.name} className="row" onClick={() => openAttack(a)}>

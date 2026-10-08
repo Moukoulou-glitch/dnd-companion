@@ -92,6 +92,9 @@ export interface ShapeResult {
   attacksPerAction: number;
   /** Walking speed in feet. */
   walk?: number;
+  /** Every speed it has, in feet (walk, fly, swim, climb, burrow), and whether it hovers. */
+  speeds?: Record<string, number>;
+  hover?: boolean;
   /** Summoned creatures with effects: plain ability checks, initiative, spell attacks. */
   checks?: Record<Ability, RollBreakdown>;
   initiative?: RollBreakdown;
@@ -384,6 +387,8 @@ export function deriveShape(
     hp: { current: Math.min(s.hp, d.hp), max: d.hp },
     speed,
     walk: d.speed.walk ?? 0,
+    speeds: Object.fromEntries((['walk', 'fly', 'swim', 'climb', 'burrow'] as const).filter((k) => (d.speed[k] ?? 0) > 0 || k === 'walk').map((k) => [k, d.speed[k] ?? 0])),
+    ...(d.speed.hover ? { hover: true } : {}),
     abilities,
     saves,
     skills,
@@ -549,7 +554,76 @@ export function summonBlock(reg: ContentRegistry, m: SummonMember): ShapeResult 
   if (cap !== undefined) walk = Math.min(walk, cap);
   r.ac = ac;
   r.walk = walk;
+  // Haste doubles every speed; Grappled-style caps stop them all.
+  r.speeds = Object.fromEntries(
+    Object.entries(b.speeds ?? { walk: d.speed.walk ?? 0 }).map(([k, v]) => {
+      let x = k === "walk" ? walk : v;
+      if (k !== "walk") {
+        for (const mlt of multipliers) x = Math.floor(x * mlt);
+        if (cap !== undefined) x = Math.min(x, cap);
+      }
+      return [k, x];
+    }),
+  );
   r.hp = { current: m.hp, max: d.hp + summonHpBonus(m, reg) };
   if (walk !== (d.speed.walk ?? 0)) r.speed = r.speed.replace(/^\d+ ft/, `${walk} ft`);
   return r;
+}
+
+const DAMAGE_WORDS = ["acid", "bludgeoning", "cold", "fire", "force", "lightning", "necrotic", "piercing", "poison", "psychic", "radiant", "slashing", "thunder"];
+
+export interface DamageSource {
+  magical?: boolean;
+  silvered?: boolean;
+  adamantine?: boolean;
+}
+
+/**
+ * Whether a resistance, immunity or vulnerability entry covers this damage.
+ * Plain entries ("fire") always do; "bludgeoning, piercing, and slashing from
+ * nonmagical weapons that aren't silvered" only for those types, and not when
+ * the attack is magical (or silvered / adamantine, as it says).
+ */
+export function defenseCovers(entry: string, type: string, src: DamageSource = {}): boolean {
+  const e = entry.toLowerCase();
+  const t = type.toLowerCase();
+  if (e === t) return true;
+  const types = DAMAGE_WORDS.filter((w) => new RegExp(`\\b${w}\\b`).test(e.split(/\bfrom\b/)[0]!));
+  if (!types.includes(t)) return false;
+  if (/nonmagical/.test(e)) {
+    if (src.magical) return false;
+    if (/silvered/.test(e) && src.silvered) return false;
+    if (/adamantine/.test(e) && src.adamantine) return false;
+    return true;
+  }
+  // Other conditions ("from magic weapons wielded by good creatures"): the app can't tell; not applied.
+  return !/\bfrom\b/.test(e);
+}
+
+/** Damage after immunities, resistances and vulnerabilities, with what happened. */
+export function damageAfterDefenses(
+  amount: number,
+  type: string | undefined,
+  defenses: { resist: string[]; immune: string[]; vulnerable: string[] },
+  src: DamageSource = {},
+): { amount: number; notes: string[] } {
+  if (!type) return { amount, notes: [] };
+  const has = (list: string[]) => list.find((x) => defenseCovers(x, type, src));
+  const notes: string[] = [];
+  const imm = has(defenses.immune);
+  if (imm) return { amount: 0, notes: [`Immune to ${type}${imm.toLowerCase() !== type.toLowerCase() ? ` (${imm})` : ""}: no damage.`] };
+  let n = amount;
+  const res = has(defenses.resist);
+  if (res) {
+    n = Math.floor(n / 2);
+    notes.push(`Resists ${type}${res.toLowerCase() !== type.toLowerCase() ? ` (${res})` : ""}: ${n} damage.`);
+  } else {
+    const skipped = defenses.resist.find((x) => x.toLowerCase().includes(type.toLowerCase()) && /nonmagical/i.test(x));
+    if (skipped) notes.push(`No resistance: its resistance is to ${skipped}.`);
+  }
+  if (has(defenses.vulnerable)) {
+    n *= 2;
+    notes.push(`Vulnerable to ${type}: ${n} damage.`);
+  }
+  return { amount: n, notes };
 }

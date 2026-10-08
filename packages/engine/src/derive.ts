@@ -356,8 +356,17 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
       const n = a.abilities?.[ab];
       if (n) parts.push({ label: `Ability Score Improvement (${reg.find(a.class, "class")?.name ?? a.class} ${a.level})`, value: n });
     }
+    // Changed by hand: a bonus, a penalty (Strength drain), then "becomes N" (Amulet of Health) if that's higher.
+    const adj = c.abilityAdjust?.[ab];
+    if (adj?.bonus) parts.push({ label: "Bonus (by hand)", value: adj.bonus });
+    if (adj?.penalty) parts.push({ label: adj.penaltyEndsOnRest ? "Penalty (until a rest)" : "Penalty (by hand)", value: -adj.penalty });
+    if (adj?.setTo !== undefined) {
+      const now = parts.reduce((t, p) => t + p.value, 0);
+      if (adj.setTo > now) parts.push({ label: `Becomes ${adj.setTo}${adj.setNote ? ` (${adj.setNote})` : ""}`, value: adj.setTo - now });
+    }
     const score = sum(parts);
-    if (score.total > 20) warnings.push(`${ABILITY_NAMES[ab]} is ${score.total}, above the usual maximum of 20.`);
+    if (score.total <= 0) warnings.push(`${ABILITY_NAMES[ab]} is ${score.total}: at 0 the character dies (Strength drain) or worse. Check with your DM.`);
+    if (score.total > 20 && adj?.setTo === undefined) warnings.push(`${ABILITY_NAMES[ab]} is ${score.total}, above the usual maximum of 20.`);
     abilities[ab] = { score, modifier: Math.floor((score.total - 10) / 2) };
   }
   const mods = Object.fromEntries(ABILITIES.map((a) => [a, abilities[a].modifier])) as Record<Ability, number>;
@@ -534,6 +543,9 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
         }
       }
     }
+    // Inspiration: advantage on an attack roll, saving throw or ability check, spent when used.
+    if ((c.inspirations ?? 0) > 0 && keys.some((k) => /^roll\.(attack|save|check|initiative)/.test(k)) && !keys.some((k) => /^roll\.damage/.test(k)))
+      suggestions.push({ label: "Inspiration", effect: "advantage", reason: `${c.inspirations} on hand; one is spent`, apply: { flat: 0, dice: [], mode: "advantage" } });
     const result: RollBreakdown = { ...sum(parts), dice, advantage, disadvantage, suggestions };
     if (critAt !== undefined && critAt < 20) result.critAt = critAt;
     if (minD20 !== undefined && minD20 > 1) result.minD20 = minD20;
@@ -675,7 +687,11 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
     else hitDice.push({ die, total: cl.level, used: c.hitDiceUsed[die] ?? 0 });
   });
   hpParts.push({ label: `Constitution modifier × ${level} levels`, value: mods.con * level });
-  const hpMax = statWith("stat.hp.max", hpParts);
+  // Changed by hand (a vampire's bite); back to normal when both are 0.
+  if (c.maxHpAdjust?.increase) hpParts.push({ label: "Increase (by hand)", value: c.maxHpAdjust.increase });
+  if (c.maxHpAdjust?.reduce) hpParts.push({ label: "Reduction (by hand)", value: -c.maxHpAdjust.reduce });
+  const hpMaxRaw = statWith("stat.hp.max", hpParts);
+  const hpMax = hpMaxRaw.total >= 1 ? hpMaxRaw : { ...hpMaxRaw, parts: [...hpMaxRaw.parts, { label: "At least 1", value: 1 - hpMaxRaw.total }], total: 1 };
 
   // Rule permissions (Dual Wielder, Two-Weapon Fighting style).
   const allowed = (key: string) => modsFor([key]).some((a) => a.mod.op === "allow" && conditionState(a.mod.when) === "pass");

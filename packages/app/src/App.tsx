@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { buildItems, castingEconomy, creatureSpellRoll, formatBonus, summonBlock, materialNeed, maxSpellLevel, newCharacter, signed, turnWarnings, type TurnIntent } from "@dnd/engine";
-import { SKILL_NAMES, type Character, type Skill } from "@dnd/schema";
+import { ABILITY_NAMES, SKILL_NAMES, type Character, type Skill } from "@dnd/schema";
 import { roll as rollDice, type ComposerBase } from "@dnd/dice";
 import { ShapePanel, TransformPanel } from "./components/Shapes";
 import { SummonGroupPanel, SummonMemberPanel, SummonPicker, SummonSpellPanel, type SpellSource } from "./components/Summons";
@@ -14,6 +14,7 @@ import { Composer, ResultView, type OptionInfo } from "./components/Composer";
 import { AddEffectPanel, EffectChips, EffectPanel } from "./components/Effects";
 import { FeaturePanel } from "./components/FeaturePanel";
 import { HpPad } from "./components/HpPad";
+import { AbilityAdjustPanel, MaxHpPanel } from "./components/Adjust";
 import { AddExtraPanel, ExtraEditor, ExtraInline, skillExtra } from "./components/Extras";
 import { AddItemPanel, CoinPanel, InventoryTab, ItemPanel } from "./components/InventoryTab";
 import { bookReport, registry } from "./content";
@@ -116,8 +117,7 @@ export function App() {
   const hpPct = Math.round((hpNow / sheet.hpMax.total) * 100);
 
   const openHp = () =>
-    open(
-      "Hit points",
+    open("Hit points", () => (
       <HpPad
         onDamage={(amount, type) => {
           const prompts = s.act("damage", { amount, damageType: type }, `Took ${amount}${type ? ` ${type}` : ""} damage.`);
@@ -133,9 +133,12 @@ export function App() {
           s.act("setTempHp", { amount }, amount ? `${amount} temporary HP.` : "Temporary HP removed.");
           close();
         }}
-        temp={c.hp.temp}
-      />,
-    );
+        temp={live.current.character?.hp.temp ?? 0}
+        below={
+          live.current.character && live.current.sheet ? <MaxHpPanel character={live.current.character} sheet={live.current.sheet} reg={registry} act={live.current.act} /> : null
+        }
+      />
+    ));
 
   const openHitDie = (die: string) => {
     const sides = Number(die.slice(1));
@@ -175,6 +178,8 @@ export function App() {
   /** Options ticked in the composer that are also features used on your turn (Steady Aim) get recorded. */
   const recordOptions = (labels: string[]) => {
     const cur = live.current;
+    // Inspiration: one is spent.
+    if (labels.includes("Inspiration") && (cur.character?.inspirations ?? 0) > 0) cur.act("setInspiration", { count: cur.character!.inspirations - 1 }, "Inspiration spent.");
     // A Bardic Inspiration die is lost once it's rolled.
     for (const e of cur.sheet?.effects ?? []) {
       if (e.usedUp && labels.includes(e.usedUp)) cur.act("removeEffect", { instanceId: e.instanceId }, `${e.name} used: it's gone.`);
@@ -413,8 +418,9 @@ export function App() {
       const back = () => (m ? (fromMember ? openSummonMember(id) : openSummonGroup(m.group)) : close());
       return (
         <HpPad
-          onDamage={(amount, type) => {
-            if (m) live.current.act("summonHp", { id, damage: amount, ...(type ? { type } : {}) }, `${amount}${type ? ` ${type}` : ""} damage.`);
+          sourceToggles
+          onDamage={(amount, type, src) => {
+            if (m) live.current.act("summonHp", { id, damage: amount, ...(type ? { type } : {}), ...src }, `${amount}${type ? ` ${src?.magical ? "magical " : ""}${type}` : ""} damage.`);
             back();
           }}
           onHeal={(amount) => {
@@ -449,6 +455,7 @@ export function App() {
           openHp={openHp}
           openAttack={openAttack}
           onTraitRoll={openTraitRoll}
+          {...(cur.character.combat ? { attacksMade: cur.character.combat.attacks } : {})}
           onUseAction={(name, economy) =>
             guard({ name, economy }, () => {
               if (live.current.character?.combat) live.current.act("useEconomy", { kind: economy, amount: 1 }, `${name}: ${economy === "bonus" ? "bonus action" : economy} used.`);
@@ -1586,7 +1593,16 @@ export function App() {
       )}
       {tab === "actions" && <ActionsTab sheet={sheet} open={open} openRoll={openRoll} openAttack={openAttack} openFeature={openFeature} />}
       {tab === "spells" && <SpellsTab sheet={sheet} openSpell={openSpell} classLists={classLists} reg={registry} openSpellInfo={openSpellInfo} />}
-      {tab === "sheet" && <SheetTab sheet={sheet} open={open} openRoll={openRoll} openTrait={openTrait} openSkill={openSkill} openAddExtra={openAddExtra} openExtra={openExtra} />}
+      {tab === "sheet" && <SheetTab
+          sheet={sheet}
+          character={c}
+          openAbility={(ab) =>
+            open(`${ABILITY_NAMES[ab]} score`, () =>
+              live.current.character && live.current.sheet ? <AbilityAdjustPanel ab={ab} character={live.current.character} sheet={live.current.sheet} act={live.current.act} /> : null,
+            )
+          }
+          open={open}
+          openRoll={openRoll} openTrait={openTrait} openSkill={openSkill} openAddExtra={openAddExtra} openExtra={openExtra} />}
       {tab === "inventory" && (
         <InventoryTab character={c} registry={registry} openItem={openItem} openAdd={openAdd} openCoin={openCoin} sheet={sheet} act={s.act} />
       )}

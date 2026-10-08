@@ -48,7 +48,7 @@ describe("effects on summoned creatures, movement, form speed", () => {
     log.record("summon", { spell: "spell:conjure-minor-elementals", group: "g", creatures: [{ creature: "creature:gargoyle", count: 1 }] });
     const id = log.character.summons[0]!.id;
     log.record("summonEconomy", { id, move: 30 });
-    expect(log.record("summonEconomy", { id, move: 40 }).join(" ")).toMatch(/beyond its 60 ft/);
+    expect(log.record("summonEconomy", { id, move: 40 }).join(" ")).toMatch(/beyond its walk speed \(30 ft\)/);
     log.record("summonEconomy", { id, dash: true, kind: "action", used: true });
     expect(log.character.summons[0]!.used).toMatchObject({ moved: 70, dashes: 1, action: true });
     log.record("summonEconomy", { id, newTurn: true });

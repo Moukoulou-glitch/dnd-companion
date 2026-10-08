@@ -1,5 +1,5 @@
 import { formatBonus, signed, type DerivedSheet, type RollBreakdown } from "@dnd/engine";
-import { ABILITIES, ABILITY_NAMES, SKILLS, SKILL_NAMES, type Skill } from "@dnd/schema";
+import { ABILITIES, ABILITY_NAMES, SKILLS, SKILL_NAMES, type Ability, type Character, type Skill } from "@dnd/schema";
 import { KIND_NAMES, skillExtra } from "./Extras";
 import type { ReactNode } from "react";
 import { BreakdownLines } from "./Sheet";
@@ -34,6 +34,8 @@ const KIND_LABEL = { race: "Race", background: "Background", feature: "Feature",
 
 export function SheetTab({
   sheet,
+  character,
+  openAbility,
   open,
   openRoll,
   openTrait,
@@ -42,6 +44,9 @@ export function SheetTab({
   openExtra,
 }: {
   sheet: DerivedSheet;
+  character: Character;
+  /** An ability's breakdown, and changing it by hand. */
+  openAbility: (ab: Ability) => void;
   open: Open;
   openRoll: OpenRoll;
   openTrait: (id: string) => void;
@@ -56,7 +61,11 @@ export function SheetTab({
         <h2>Abilities</h2>
         <div className="abilities">
           {ABILITIES.map((ab) => (
-            <button key={ab} className="ability" onClick={() => open(`${ABILITY_NAMES[ab]} score`, <BreakdownLines b={sheet.abilities[ab].score} totalLabel="Score" />)}>
+            <button
+              key={ab}
+              className={`ability${character.abilityAdjust[ab]?.penalty ? " drained" : character.abilityAdjust[ab] ? " adjusted" : ""}`}
+              onClick={() => openAbility(ab)}
+            >
               <small>{ABILITY_NAMES[ab]}</small>
               <b>{signed(sheet.abilities[ab].modifier)}</b>
               <span>{sheet.abilities[ab].score.total}</span>

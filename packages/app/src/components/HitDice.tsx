@@ -40,7 +40,26 @@ const SWIPE = 22;
  * spend it; swipe a spent one up to get it back (the app asks first).
  * Keyboard: Enter or Arrow Down spends, Arrow Up gets one back.
  */
-export function HitDiceRow({ die, total, used, onSpend, onRestore }: { die: string; total: number; used: number; onSpend: () => void; onRestore: () => void }) {
+export function HitDiceRow({
+  die,
+  total,
+  used,
+  onSpend,
+  onRestore,
+  tone,
+  what = "Hit Die",
+  hintText = "Swipe a die down to spend it, or a grey one up to get it back.",
+}: {
+  die: string;
+  total: number;
+  used: number;
+  onSpend: () => void;
+  onRestore: () => void;
+  /** Golden dice (Inspiration). */
+  tone?: "gold";
+  what?: string;
+  hintText?: string;
+}) {
   const sides = Number(die.replace(/^d/, "")) || 6;
   const start = useRef<{ y: number; i: number } | null>(null);
   const [drag, setDrag] = useState<{ i: number; dy: number } | null>(null);
@@ -66,7 +85,7 @@ export function HitDiceRow({ die, total, used, onSpend, onRestore }: { die: stri
   };
 
   return (
-    <div className="hit-dice-wrap">
+    <div className={`hit-dice-wrap${tone ? ` ${tone}` : ""}`}>
       <div className="hit-dice">
         {Array.from({ length: total }, (_, i) => {
           const spent = i >= total - used;
@@ -77,7 +96,7 @@ export function HitDiceRow({ die, total, used, onSpend, onRestore }: { die: stri
               className="hit-die"
               data-spent={spent}
               style={dy ? { transform: `translateY(${dy}px)` } : undefined}
-              aria-label={spent ? `Spent ${die}. Swipe up to get it back` : `${die} Hit Die. Swipe down to spend it`}
+              aria-label={spent ? `Spent ${what}. Swipe up to get it back` : `${what}. Swipe down to spend it`}
               onPointerDown={down(i)}
               onPointerMove={move}
               onPointerUp={up(spent)}
@@ -100,7 +119,7 @@ export function HitDiceRow({ die, total, used, onSpend, onRestore }: { die: stri
           );
         })}
       </div>
-      {hint && <p className="die-hint">Swipe a die down to spend it, or a grey one up to get it back.</p>}
+      {hint && <p className="die-hint">{hintText}</p>}
     </div>
   );
 }

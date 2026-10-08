@@ -99,6 +99,7 @@ export function CombatCard({
           <b>Move</b>
           <small>
             {left} of {allowed} ft
+            {sheet.shape?.speeds?.fly ? ` · fly ${Math.max(0, sheet.shape.speeds.fly * (1 + cb.dashes) - cb.moved)}` : ""}
           </small>
         </button>
       </div>
@@ -172,6 +173,15 @@ export function MovePanel({
         <button className="big wide" style={{ marginTop: 10 }} onClick={() => onDash("bonus")}>
           Dash with Cunning Action (bonus)
         </button>
+      )}
+      {sheet.shape?.speeds && Object.keys(sheet.shape.speeds).length > 1 && (
+        <p className="note">
+          {sheet.shape.name}:{" "}
+          {Object.entries(sheet.shape.speeds)
+            .map(([k, v]) => `${k} ${Math.max(0, (k === "walk" ? speed : v) * (1 + cb.dashes) - cb.moved)} of ${(k === "walk" ? speed : v) * (1 + cb.dashes)} ft left`)
+            .join(" · ")}
+          . Switching speeds: what you've moved comes off the new one.{sheet.shape.speeds.fly && !sheet.shape.hover ? " Flying, you fall if knocked prone or your speed drops to 0." : ""}
+        </p>
       )}
       <p className="note">Standing up from prone costs half your speed. Difficult terrain costs double.</p>
     </>

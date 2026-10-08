@@ -2081,3 +2081,39 @@ button.row-main.plain {
   display: block;
   margin: 4px auto 8px;
 }
+
+/* "Its action is already used": stays in view wherever the tap was. */
+.over-banner.pending-float {
+  position: sticky;
+  bottom: 8px;
+  z-index: 5;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.45);
+}
+.chip.editing {
+  outline: 2px solid var(--teal);
+}
+
+.step-input {
+  width: 3.2em;
+  text-align: center;
+  font: inherit;
+  font-weight: 700;
+  background: transparent;
+  border: 0;
+  color: inherit;
+}
+/* Inspiration: golden d20s. */
+.hit-dice-wrap.gold .die-svg:not([data-spent="true"]) .die-body {
+  fill: var(--gold);
+  stroke: color-mix(in srgb, var(--gold) 55%, black);
+}
+.hit-dice-wrap.gold .die-svg:not([data-spent="true"]) .die-num {
+  fill: #2a2110;
+  stroke: none;
+}
+.ability.adjusted {
+  border-color: var(--gold);
+}
+.ability.drained {
+  border-color: var(--hp);
+}

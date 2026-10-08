@@ -258,6 +258,29 @@ export const Character = z
     /** Named on/off states the engine reads, e.g. "raging". */
     toggles: z.array(z.string()).default([]),
     inspiration: z.boolean().default(false),
+    /** Inspiration on hand (the table allows up to 10). */
+    inspirations: z.number().int().min(0).max(10).default(0),
+    /** Maximum hit points changed by hand: a vampire's bite reduces it; both at 0 is your normal maximum. */
+    maxHpAdjust: z.object({ reduce: z.number().int().min(0).default(0), increase: z.number().int().min(0).default(0) }).strict().default({ reduce: 0, increase: 0 }),
+    /**
+     * Ability scores changed by hand: a bonus, a penalty (a shadow's Strength
+     * drain, gone after a rest when marked), or "becomes N" (Amulet of Health:
+     * 19, no effect if already higher).
+     */
+    abilityAdjust: z
+      .record(
+        Ability,
+        z
+          .object({
+            bonus: z.number().int().min(0).default(0),
+            penalty: z.number().int().min(0).default(0),
+            penaltyEndsOnRest: z.boolean().default(false),
+            setTo: z.number().int().min(1).max(30).optional(),
+            setNote: z.string().max(60).optional(),
+          })
+          .strict(),
+      )
+      .default({}),
     /** Present while the character is in a combat. */
     combat: CombatState.optional(),
     /** Rolls made in advance and kept (Portent), keyed by resource id. */

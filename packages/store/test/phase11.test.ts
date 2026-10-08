@@ -48,7 +48,7 @@ describe("stat blocks: attack variants, spells", () => {
     const log = druid();
     log.record("summon", { spell: "spell:conjure-animals", group: "g", creatures: [{ creature: "creature:azer", count: 1 }, { creature: "creature:dryad", count: 1 }] });
     const [azer, dryad] = log.character.summons;
-    expect(log.record("summonHp", { id: azer!.id, damage: 10, type: "fire" }).join(" ")).toMatch(/immune to fire/);
+    expect(log.record("summonHp", { id: azer!.id, damage: 10, type: "fire" }).join(" ")).toMatch(/immune to fire/i);
     expect(log.character.summons[0]!.hp).toBe(39);
     log.record("summonHp", { id: azer!.id, damage: 10, type: "slashing" });
     expect(log.character.summons[0]!.hp).toBe(29);
