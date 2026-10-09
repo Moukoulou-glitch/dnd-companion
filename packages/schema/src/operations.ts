@@ -301,6 +301,8 @@ export const OPERATION_PAYLOADS = {
   removeCustomSpell: z.object({ id: z.string() }).strict(),
   /** Proficiency bonus raised or lowered by hand. */
   setPbAdjust: z.object({ bonus: z.number().int().min(0).max(10).optional(), penalty: z.number().int().min(0).max(10).optional(), note: z.string().max(80).optional() }).strict(),
+  /** A recharge action (Recharge 5–6) used, or back after its d6: on your form, or on a summoned creature. */
+  recharge: z.object({ summon: z.string().optional(), name: z.string(), used: z.boolean() }).strict(),
   /** Personality, backstory and the session number. */
   setStory: z.object({ traits: z.string().max(4000).optional(), ideals: z.string().max(4000).optional(), bonds: z.string().max(4000).optional(), flaws: z.string().max(4000).optional(), backstory: z.string().max(100000).optional(), session: z.number().int().min(0).optional() }).strict(),
   /** The in-world calendar: which one, a custom one, the time (set or moved on). */
@@ -413,6 +415,7 @@ export const Operation = z.discriminatedUnion("type", [
   OperationBase.extend({ type: z.literal("toggle"), payload: OPERATION_PAYLOADS.toggle }),
   OperationBase.extend({ type: z.literal("setField"), payload: OPERATION_PAYLOADS.setField }),
   OperationBase.extend({ type: z.literal("setStory"), payload: OPERATION_PAYLOADS.setStory }),
+  OperationBase.extend({ type: z.literal("recharge"), payload: OPERATION_PAYLOADS.recharge }),
   OperationBase.extend({ type: z.literal("setPbAdjust"), payload: OPERATION_PAYLOADS.setPbAdjust }),
   OperationBase.extend({ type: z.literal("setCustomAction"), payload: OPERATION_PAYLOADS.setCustomAction }),
   OperationBase.extend({ type: z.literal("removeCustomAction"), payload: OPERATION_PAYLOADS.removeCustomAction }),

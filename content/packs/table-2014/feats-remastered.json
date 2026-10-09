@@ -647,8 +647,39 @@
             "warlock",
             "wizard"
           ]
+        },
+        {
+          "id": "rituals",
+          "label": "Ritual book",
+          "kind": "spell",
+          "count": 2,
+          "open": true,
+          "spells": {
+            "ritual": true,
+            "minLevel": 1,
+            "classesFrom": "class",
+            "upToHalfLevel": true
+          }
         }
-      ]
+      ],
+      "grant": {
+        "spellcasting": {
+          "id": "ritual-caster",
+          "label": "Ritual Caster",
+          "ability": {
+            "choice": "class",
+            "map": {
+              "bard": "cha",
+              "cleric": "wis",
+              "druid": "wis",
+              "sorcerer": "cha",
+              "warlock": "cha",
+              "wizard": "int"
+            }
+          },
+          "progression": "none"
+        }
+      }
     },
     {
       "kind": "feat",
@@ -804,6 +835,40 @@
           {
             "kind": "weapon",
             "target": "improvised"
+          }
+        ],
+        "attacks": [
+          {
+            "id": "tavern-unarmed",
+            "name": "Unarmed strike (Tavern Brawler)",
+            "category": "simple",
+            "kind": "melee",
+            "damage": "1d4",
+            "damageType": "bludgeoning",
+            "properties": [],
+            "action": "attack"
+          },
+          {
+            "id": "tavern-improvised",
+            "name": "Improvised weapon (Tavern Brawler)",
+            "category": "simple",
+            "kind": "melee",
+            "damage": "1d6",
+            "damageType": "bludgeoning",
+            "properties": [],
+            "action": "attack"
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "attack.tavern-unarmed",
+            "op": "note",
+            "label": "Tavern Brawler: on a hit you can try to grapple the target as part of the attack"
+          },
+          {
+            "selector": "attack.tavern-improvised",
+            "op": "note",
+            "label": "Tavern Brawler: on a hit you can try to grapple the target as part of the attack"
           }
         ]
       },

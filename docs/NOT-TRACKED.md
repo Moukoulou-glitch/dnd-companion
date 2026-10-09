@@ -26,12 +26,10 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 - **Wizard**: Arcane Ward is tracked as full after each long rest even before it's created; Savant features, Minor Alchemy, Focused Conjuration, Durable Summons, Split Enchantment, Alter Memories, Malleable Illusions, Master of Hexes, Sanctuary Vessel, Master Scrivener; Transmuter's Stone benefit; Grim Harvest healing (note); Durable Magic uses a switch you turn on while concentrating.
 
 ## Feats
-- Elemental Adept: a reminder on spell damage; the minimum per die isn't applied by the dice.
-- Healer: the once-per-rest-per-creature limit isn't tracked; Ritual Caster's ritual book isn't built; Tavern Brawler's d4 unarmed strike isn't applied.
+- Elemental Adept's minimum per die is applied when the app rolls; with your own dice, count low dice up yourself (the roll says so).
+- Healer's once-per-creature limit resets when you rest (the app doesn't know when others rest).
+- Ritual Caster's rituals can be cast any way the app allows; cast them as rituals.
 - Heavy Armor Master needs you to mark magical damage (the switch shows on the damage pad when it applies).
-
-## Transformations
-- Recharge abilities (Fire Breath, Recharge 5–6) aren't tracked: roll the d6 yourself at the start of your turn.
 
 ## Your own actions and spells
 - A custom attack uses the Attack action or a bonus action; a reaction attack is a "use" with its note, rolled from the Actions list like any attack of that kind.

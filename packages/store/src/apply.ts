@@ -543,6 +543,7 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         const gone = left.filter((e) => e.rounds === 0);
         x.effects = left.filter((e) => e.rounds !== 0);
         if (gone.length) notes.push(`Ended on it: ${gone.map((e) => reg.find(reg.effectId(e.effect), "effect")?.name ?? e.effect).join(", ")}.`);
+        if (x.recharge?.length) notes.push(`Roll to recharge: ${x.recharge.join(", ")}.`);
         break;
       }
       if (op.payload.move !== undefined) {
@@ -827,6 +828,7 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         notes.push(`${ab.toUpperCase()} penalty ends with the rest.`);
         if (!adj.bonus && adj.setTo === undefined && !adj.permanent) delete c.abilityAdjust[ab as keyof typeof c.abilityAdjust];
       }
+      c.healerUsed = [];
       const resets = kind === "short" ? ["short"] : ["short", "long", "dawn"];
       const restored = sheet.resources.filter((r) => resets.includes(r.reset) && r.used > 0).map((r) => r.name);
       for (const r of sheet.resources) if (resets.includes(r.reset)) delete c.resourcesUsed[r.id];
@@ -985,6 +987,12 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         if (a.toggles.length) entry.toggles = a.toggles;
         removeEffects(c.effects.filter((e) => e.effect === "custom" && (e.custom?.name === a.name || e.custom?.name.startsWith(`${a.name}: `))));
         c.effects.push(entry);
+      }
+      // Healer: once per creature until it finishes a short or long rest.
+      if (a.id === "healer-kit" && op.payload.choice) {
+        const who = op.payload.choice.trim();
+        if (c.healerUsed.some((x) => x.toLowerCase() === who.toLowerCase())) notes.push(`${who} was already patched up since their last rest: your DM's call.`);
+        else c.healerUsed.push(who);
       }
       if (a.id === "harness-divine-power") {
         const lvl = Number(/Level (\d)/.exec(op.payload.choice ?? "")?.[1] ?? 0);
@@ -1406,6 +1414,7 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       clearCompanionStates(() => true);
       const round = !prev ? 1 : prev.hadTurn && !prev.myTurn ? prev.round + 1 : prev.round;
       if (prev?.myTurn) notes.push("Your turn had already started: everything is back for a fresh turn.");
+      if (c.shape?.recharge?.length) notes.push(`Roll to recharge: ${c.shape.recharge.join(", ")}.`);
       c.combat = CombatState.parse({ round, myTurn: true, hadTurn: true, ...(prev?.initiative !== undefined ? { initiative: prev.initiative } : {}) });
       notes.push(`Round ${round}: action, bonus action, reaction and movement are back.`);
       break;
@@ -1761,6 +1770,19 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         if (note) c.pbAdjust.note = note;
         else delete c.pbAdjust.note;
       }
+      break;
+    }
+
+    case "recharge": {
+      const { summon, name, used } = op.payload;
+      const holder = summon ? c.summons.find((m) => m.id === summon) : c.shape;
+      if (!holder) break;
+      const list = new Set(holder.recharge ?? []);
+      if (used) list.add(name);
+      else list.delete(name);
+      if (list.size) holder.recharge = [...list];
+      else delete holder.recharge;
+      notes.push(used ? `${name}: used, recharging.` : `${name} is ready again.`);
       break;
     }
 

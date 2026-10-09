@@ -41,6 +41,8 @@ export interface RollBreakdown extends Breakdown {
   autoFail?: string[];
   /** Reminders shown with the roll (Ancestral Protectors on your first hit while raging). */
   notes?: string[];
+  /** Damage dice of these types count as at least `value` each (Elemental Adept). */
+  minDie?: { value: number; types: string[]; label: string };
   dice: DicePart[];
   advantage: string[];
   disadvantage: string[];

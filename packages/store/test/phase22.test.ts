@@ -60,3 +60,52 @@ describe("Sacred Weapon, Harness Divine Power, proficiency by hand, feats", () =
     expect(reg.find("effect:protection-from-evil-and-good", "effect")?.concentration).toBe(true);
   });
 });
+
+describe("Recharge, Elemental Adept, Healer, Ritual Caster, Tavern Brawler", () => {
+  it("a form's recharge action waits for its d6", () => {
+    const l = mk("class:druid", 2);
+    l.character.shape = { kind: "wildshape", creature: reg.list("creature")[0]!.id, hp: 10 } as never;
+    l.record("recharge", { name: "Fire Breath (Recharge 5–6)", used: true });
+    expect(l.character.shape?.recharge).toEqual(["Fire Breath (Recharge 5–6)"]);
+    l.record("recharge", { name: "Fire Breath (Recharge 5–6)", used: false });
+    expect(l.character.shape?.recharge).toBeUndefined();
+  });
+  it("Elemental Adept makes each die of its type at least the proficiency bonus", async () => {
+    const { composeDamage, rollComposed } = await import("@dnd/dice");
+    const l = mk("class:wizard", 5);
+    l.character.extras.push({ id: "e", kind: "feat", value: "feat:elemental-adept", tag: "DM allows", reason: "" });
+    l.character.choices["feat:elemental-adept"] = { type: ["fire"] };
+    l.character.spells.push({ spell: "spell:burning-hands", list: "wizard", prepared: true });
+    const sp = derive(l.character, reg).spells.find((x) => x.id === "spell:burning-hands")!;
+    expect(sp.damageBonus?.minDie).toMatchObject({ value: 3, types: ["fire"] });
+    const r = rollComposed(composeDamage("3d6", "fire", sp.damageBonus!), [1, 1, 1]);
+    expect(r.result.total).toBe(9);
+  });
+  it("Healer remembers who was patched up until a rest", () => {
+    const l = mk("class:fighter", 3);
+    l.character.extras.push({ id: "h", kind: "feat", value: "feat:healer", tag: "DM allows", reason: "" });
+    l.record("useAction", { action: "healer-kit", choice: "Bob", rolled: 12 });
+    expect(l.record("useAction", { action: "healer-kit", choice: "bob", rolled: 9 }).join(" ")).toMatch(/already patched up/);
+    l.record("rest", { kind: "short" });
+    expect(l.character.healerUsed).toEqual([]);
+  });
+  it("Ritual Caster: a growing book of the class's rituals, cast with its ability", async () => {
+    const { buildItems, choiceOptions } = await import("@dnd/engine");
+    const l = mk("class:fighter", 5);
+    l.character.extras.push({ id: "r", kind: "feat", value: "feat:ritual-caster", tag: "DM allows", reason: "" });
+    l.character.choices["feat:ritual-caster"] = { class: ["wizard"], rituals: ["spell:detect-magic", "spell:identify", "spell:alarm"] };
+    const item = buildItems(l.character, reg).find((i) => i.key === "feat:ritual-caster|rituals")!;
+    expect(item.over).toBeFalsy();
+    const opts = choiceOptions(item.choice!, reg, item.slotMax);
+    expect(opts.every((o) => /Level [1-3],/.test(o.detail ?? ""))).toBe(true);
+    expect(opts.some((o) => o.value === "spell:detect-magic")).toBe(true);
+    const s = derive(l.character, reg);
+    expect(s.spellcasting.find((x) => x.id === "ritual-caster")?.ability).toBe("int");
+    expect(s.spells.some((x) => x.id === "spell:alarm")).toBe(true);
+  });
+  it("Tavern Brawler: a d4 unarmed strike", () => {
+    const l = mk("class:fighter", 1);
+    l.character.extras.push({ id: "t", kind: "feat", value: "feat:tavern-brawler", tag: "DM allows", reason: "" });
+    expect(derive(l.character, reg).attacks.find((a) => a.attackId === "tavern-unarmed")?.damage.dice).toBe("1d4");
+  });
+});

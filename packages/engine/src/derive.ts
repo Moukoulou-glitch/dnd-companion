@@ -926,6 +926,8 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     if (typeof sc.ability === "string") return sc.ability;
     const picked = s?.choices[sc.ability.choice]?.[0];
     if (!picked) warnings.push(`${s?.label ?? sc.label}: choose the spellcasting ability ("${sc.ability.choice}").`);
+    // Ritual Caster: the class picked gives the ability.
+    if (picked && "map" in sc.ability) return sc.ability.map[picked];
     return picked as Ability | undefined;
   };
   for (const cl of c.classes) {
@@ -1167,6 +1169,9 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       if (byLevel) r.damage = def.damage.type ? { type: def.damage.type, byLevel } : { byLevel };
       // Spell-specific modifiers too (Agonizing Blast: "roll.damage.spell.eldritch-blast").
       r.damageBonus = roll(["roll.damage.spell", `roll.damage.spell.${def.id.replace(/^spell:/, "")}`], []);
+      // Elemental Adept (remastered): dice of the chosen type count as at least your proficiency bonus.
+      const adeptTypes = sources.filter((x) => x.id === "feat:elemental-adept").flatMap((x) => x.choices.type ?? []);
+      if (adeptTypes.length && def.damage?.type && adeptTypes.includes(def.damage.type)) r.damageBonus.minDie = { value: pb, types: adeptTypes, label: "Elemental Adept" };
     }
     if (def.heal) r.heal = { byLevel: levelsFor(def.heal.atSlot)! };
     const typeChoices = r.damage ? damageTypeChoices(def, r.damage.type, list) : [];

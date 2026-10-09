@@ -49,3 +49,5 @@ For whoever (a new Claude conversation) picks this up. Read this, docs/NOT-TRACK
 - Flourishes: useCharacters dispatches a "dnd-op" window event; components/Fx.tsx (golden glow on Channel Divinity via data-feature-name, Rage veins, grey veil for Exhaustion/death); HP box blinks at 10% or less.
 - Proficiency bonus by hand: Character.pbAdjust, sheet.proficiencyBreakdown, PbPanel. Harness Divine Power: choose a slot (derive) and restore it (apply). Sacred Weapon: suggested attack bonus while on.
 - Components are counts (Character.components values are numbers; true from older saves means 1).
+- Recharge: shape.recharge / summon.recharge lists, op "recharge"; TextList shows Roll d6 (rechargeAt reads "(Recharge 5–6)" from the action name). SRD creature names carry "(Recharge N–6)" / "(N/Day)" (patched from the 5e-database source).
+- Elemental Adept: RollBreakdown.minDie, applied per die in composeDamage. Healer: Character.healerUsed, HealerPanel. Ritual Caster: ChoiceDef.open, spells.classesFrom/upToHalfLevel, spellcasting ability {choice, map}.

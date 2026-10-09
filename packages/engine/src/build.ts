@@ -168,7 +168,7 @@ export function buildItems(c: Character, reg: ContentRegistry): BuildItem[] {
   for (const s of collectSources(c, reg)) {
     if (s.common || seen.has(s.id) || !/^(race|class|background|feature|feat):/.test(s.id)) continue;
     seen.add(s.id);
-    for (const ch of defChoices(c, reg, s.id)) {
+    for (let ch of defChoices(c, reg, s.id)) {
       if (ch.newOnly && !c.builtInApp) continue;
       let need = countOf(c, reg, ch);
       // A custom background: two tools or languages in any mix, and a feature written by hand counts as chosen.
@@ -180,8 +180,14 @@ export function buildItems(c: Character, reg: ContentRegistry): BuildItem[] {
         if (!need) continue;
       }
       const picked = c.choices[s.id]?.[ch.id] ?? [];
-      const strict = fromFeats.has(s.id) || !OVER_OK.has(ch.kind);
-      const item: BuildItem = { key: `${s.id}|${ch.id}`, kind: "choice", sourceName: s.label, label: ch.label, done: picked.length >= need, need, picked, source: s.id, choice: ch, ...(strict ? { strict } : {}), ...(picked.length > need ? { over: true } : {}) };
+      const strict = !ch.open && (fromFeats.has(s.id) || !OVER_OK.has(ch.kind));
+      // Spell lists named by another pick (Ritual Caster's class), and a level cap of half the character's level.
+      if (ch.spells?.classesFrom || ch.spells?.upToHalfLevel) {
+        const from = ch.spells.classesFrom ? c.choices[s.id]?.[ch.spells.classesFrom] : undefined;
+        const lvl = c.classes.reduce((t, x) => t + x.level, 0);
+        ch = { ...ch, spells: { ...ch.spells, ...(from?.length ? { classes: from } : {}), ...(ch.spells.upToHalfLevel ? { maxLevel: Math.ceil(lvl / 2) } : {}) } };
+      }
+      const item: BuildItem = { key: `${s.id}|${ch.id}`, kind: "choice", sourceName: s.label, label: ch.label, done: picked.length >= need, need, picked, source: s.id, choice: ch, ...(strict ? { strict } : {}), ...(picked.length > need && !ch.open ? { over: true } : {}) };
       if (ch.spells?.upToSlots || ch.orSpells?.upToSlots) {
         const slots = (sheet ??= derive(c, reg)).spellSlots.filter((x) => x.total > 0).map((x) => x.level);
         item.slotMax = slots.length ? Math.max(...slots) : 1;

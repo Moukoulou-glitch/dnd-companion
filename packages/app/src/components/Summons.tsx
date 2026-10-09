@@ -757,6 +757,8 @@ export function SummonMemberPanel({
           items={b.actions.filter((a) => !b.attacks.some((x) => x.name === a.name))}
           onRoll={(n, dice, type) => onTraitRoll(`${name}: ${n}`, dice, type)}
           onUse={(n, kind) => tryUse(kind, n, () => act("summonEconomy", { id: m.id, kind, used: true }, `${name}: ${n}.`))}
+          recharging={m.recharge ?? []}
+          onRecharge={(n, used) => act("recharge", { summon: m.id, name: n, used }, used ? `${name}: ${n} used.` : `${name}: ${n} is ready again.`)}
         />
       )}
 

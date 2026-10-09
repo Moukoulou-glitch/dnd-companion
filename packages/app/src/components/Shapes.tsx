@@ -164,6 +164,7 @@ export function ShapePanel({
   onTraitRoll,
   onUseAction,
   attacksMade,
+  recharging = [],
 }: {
   /** In combat: attacks made this turn, for the Multiattack count. */
   attacksMade?: number;
@@ -179,8 +180,11 @@ export function ShapePanel({
   openRoll: (title: string, base: RollBreakdown, attack?: WeaponAttack) => void;
   openHp: () => void;
   onRevert: () => void;
+  /** Recharge actions waiting for their d6 (Fire Breath). */
+  recharging?: string[];
   onHealSlot: (level: number) => void;
 }) {
+  const onRecharge = (name: string, used: boolean) => act("recharge", { name, used }, used ? `${name}: used, recharging.` : `${name} is ready again.`);
   const slots = sheet.spellSlots.filter((x) => x.total - x.used > 0);
   const notable = SKILLS.filter((k) => s.skills[k].parts.length > 1 || s.skills[k].parts[0]?.label.includes("'s"));
   return (
@@ -307,13 +311,15 @@ export function ShapePanel({
         </div>
       </details>
 
-      {s.traits.length > 0 && <TextList title="Traits" items={s.traits} onRoll={(t, d, ty) => onTraitRoll(`${s.name}: ${t}`, d, ty)} />}
+      {s.traits.length > 0 && <TextList title="Traits" items={s.traits} onRoll={(t, d, ty) => onTraitRoll(`${s.name}: ${t}`, d, ty)} recharging={recharging} onRecharge={onRecharge} />}
       {s.actions.length > 0 && (
         <TextList
           title="Actions"
           items={s.actions.filter((a) => !s.attacks.some((x) => x.name === a.name))}
           onRoll={(t, d, ty) => onTraitRoll(`${s.name}: ${t}`, d, ty)}
           {...(onUseAction ? { onUse: onUseAction } : {})}
+          recharging={recharging}
+          onRecharge={onRecharge}
         />
       )}
       <button className="link danger-text" style={{ marginTop: 12 }} onClick={() => act("revert", { why: "Dropped to 0 or the DM ended it" }, "Back to normal.")}>
@@ -327,18 +333,31 @@ export function ShapePanel({
 export const actionEconomy = (name: string): "action" | "bonus" | "reaction" => (/\(bonus action\)$/i.test(name) ? "bonus" : /\(reaction\)$/i.test(name) ? "reaction" : "action");
 
 /** Traits and actions as text; any that deal dice of their own get a button to roll them (Heated Body, Charge); actions can be used. */
+/** "Fire Breath (Recharge 5–6)" → 5; "(Recharge 6)" → 6. */
+export const rechargeAt = (name: string): number | undefined => {
+  const m = /\(recharge (\d)(?:\s*[–-]\s*\d)?\)/i.exec(name);
+  return m ? Number(m[1]) : undefined;
+};
+
 export function TextList({
   title,
   items,
   onRoll,
   onUse,
+  recharging = [],
+  onRecharge,
 }: {
   title: string;
   items: { name: string; text: string }[];
   onRoll?: (name: string, dice: string, type?: string) => void;
   /** Use it: marks the action, bonus action or reaction. */
   onUse?: (name: string, economy: "action" | "bonus" | "reaction") => void;
+  /** Recharge actions that were used and wait for their d6. */
+  recharging?: string[];
+  /** Marks a recharge action used (true) or ready again (false). */
+  onRecharge?: (name: string, used: boolean) => void;
 }): ReactNode {
+  const [lastRoll, setLastRoll] = useState<Record<string, number>>({});
   if (!items.length) return null;
   return (
     <>
@@ -348,17 +367,46 @@ export function TextList({
         const dc = /DC (\d+) (\w+) saving throw/i.exec(t.text);
         const economy = actionEconomy(t.name);
         const usable = onUse && !/^multiattack/i.test(t.name);
+        const at = onRecharge ? rechargeAt(t.name) : undefined;
+        const waiting = at !== undefined && recharging.includes(t.name);
+        const rollRecharge = () => {
+          const n = (crypto.getRandomValues(new Uint32Array(1))[0]! % 6) + 1;
+          setLastRoll({ ...lastRoll, [t.name]: n });
+          if (n >= at!) onRecharge!(t.name, false);
+        };
         return (
-          <div key={t.name} className="trait-text">
+          <div key={t.name} className={`trait-text${waiting ? " recharging" : ""}`}>
             <p className="note">
               <b>{t.name}.</b> <RichText text={t.text} />
             </p>
-            {(d || usable || dc) && (
+            {(d || usable || dc || waiting) && (
               <div className="choice-row">
-                {usable && (
-                  <button className="tag use" onClick={() => onUse!(t.name, economy)}>
+                {usable && !waiting && (
+                  <button
+                    className="tag use"
+                    onClick={() => {
+                      onUse!(t.name, economy);
+                      if (at !== undefined) onRecharge!(t.name, true);
+                    }}
+                  >
                     Use · {economy === "bonus" ? "bonus action" : economy}
                   </button>
+                )}
+                {waiting && (
+                  <>
+                    <span className="tag fail">Recharging ({at}{at! < 6 ? "–6" : ""} on a d6)</span>
+                    <button className="tag use" onClick={rollRecharge}>
+                      Roll d6
+                    </button>
+                    <button className="tag" onClick={() => onRecharge!(t.name, false)}>
+                      It recharged
+                    </button>
+                  </>
+                )}
+                {lastRoll[t.name] !== undefined && (
+                  <span className={`tag ${lastRoll[t.name]! >= (at ?? 7) ? "adv" : "fail"}`}>
+                    Rolled {lastRoll[t.name]}: {lastRoll[t.name]! >= (at ?? 7) ? "ready" : "not yet"}
+                  </span>
                 )}
                 {dc && (
                   <span className="tag dc-tag dc-tag-big">

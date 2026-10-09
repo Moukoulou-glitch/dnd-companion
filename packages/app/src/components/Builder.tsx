@@ -624,12 +624,15 @@ function ChoiceEditor({ item, reg, act, back, note }: { item: BuildItem; reg: Co
   const [q, setQ] = useState("");
   const shown = options.filter((o) => o.label.toLowerCase().includes(q.trim().toLowerCase()));
   // Feats (and single picks like a fighting style) keep their numbers; skills, languages, tools and spells can go over.
+  // An open list (a ritual book) takes as many as you have; the count is only where it starts.
+  const open = !!item.choice?.open;
   const toggle = (v: string) =>
     setPicked((p) => (p.includes(v) ? p.filter((x) => x !== v) : item.strict && item.need === 1 ? [v] : item.strict && p.length >= item.need ? p : [...p, v]));
   return (
     <>
       <p className="note">
-        Pick {item.need}. {picked.length} picked.{item.strict && item.source?.startsWith("feat") ? " A feat gives exactly this many." : ""}
+        {open ? `At least ${item.need}; add the ones you copy in later. ` : `Pick ${item.need}. `}
+        {picked.length} picked.{item.strict && item.source?.startsWith("feat") ? " A feat gives exactly this many." : ""}
       </p>
       {lim && (
         <p className={`note${outside > (item.freeSchool ?? 0) ? " danger-text" : ""}`}>
@@ -637,8 +640,8 @@ function ChoiceEditor({ item, reg, act, back, note }: { item: BuildItem; reg: Co
           {item.slotMax ? ` Spells up to level ${item.slotMax}, your highest slot.` : ""}
         </p>
       )}
-      {picked.length > item.need && <OverBanner item={item} count={picked.length} />}
-      {picked.length > item.need && note && <ExtraBox note={note} />}
+      {!open && picked.length > item.need && <OverBanner item={item} count={picked.length} />}
+      {!open && picked.length > item.need && note && <ExtraBox note={note} />}
       {options.length > 12 && <input className="search" type="search" placeholder="Search" value={q} onChange={(e) => setQ(e.target.value)} />}
       <div className="group">
         {shown.map((o) => (
@@ -656,7 +659,7 @@ function ChoiceEditor({ item, reg, act, back, note }: { item: BuildItem; reg: Co
         ))}
         {options.length === 0 && <div className="row row-sub">Nothing to pick from here: load your book files for more options.</div>}
       </div>
-      {picked.length > item.need ? (
+      {!open && picked.length > item.need ? (
         <div className="over-save">
           <ExtraNoteForm
             question={overQuestion(item)}

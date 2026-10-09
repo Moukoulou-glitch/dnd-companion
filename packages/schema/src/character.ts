@@ -447,6 +447,8 @@ export const Character = z
         effect: z.string().optional(),
         /** Polymorph cast by this character on themselves: it ends with their concentration. */
         ownSpell: z.boolean().optional(),
+        /** Recharge actions used and waiting for their d6 (Fire Breath, Recharge 5–6). */
+        recharge: z.array(z.string()).optional(),
       })
       .strict()
       .optional(),
@@ -485,6 +487,8 @@ export const Character = z
             concentrating: z.string().optional(),
             /** Its own spells used: "N/day" uses by spell, slots by "slot:<level>". */
             spellUses: z.record(z.string(), z.number().int().min(0)).optional(),
+            /** Recharge actions used and waiting for their d6 (Fire Breath). */
+            recharge: z.array(z.string()).optional(),
             /** Maximum hit points changed by hand (a vampire's bite). */
             maxHpAdjust: z.object({ reduce: z.number().int().min(0).default(0), increase: z.number().int().min(0).default(0) }).strict().optional(),
           })
@@ -531,6 +535,8 @@ export const Character = z
      * "save.all", "save.dex", "skill.all", "skill.stealth", "passive.all", "passive.perception".
      */
     /** Proficiency bonus changed by hand (a curse, a boon), with why. */
+    /** Healer feat: creatures patched up with a healer's kit since the last rest (once each per rest). */
+    healerUsed: z.array(z.string()).default([]),
     pbAdjust: z.object({ bonus: z.number().int().min(0).max(10).default(0), penalty: z.number().int().min(0).max(10).default(0), note: z.string().max(80).optional() }).strict().default({ bonus: 0, penalty: 0 }),
     rollAdjust: z.record(z.string(), z.object({ bonus: z.number().int().min(0).default(0), penalty: z.number().int().min(0).default(0), note: z.string().max(80).optional() }).strict()).default({}),
     customBackground: CustomBackground.optional(),

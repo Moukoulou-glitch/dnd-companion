@@ -180,8 +180,11 @@ export const SpellcastingDef = z
   .object({
     id: z.string(),
     label: z.string(),
-    /** Fixed, or the ability the player picked on the granting feat ({ choice: "ability" }). */
-    ability: z.union([Ability, ChoiceRef]),
+    /**
+     * Fixed, or the ability the player picked on the granting feat ({ choice: "ability" }),
+     * or read from another pick through `map` (Ritual Caster: the class → its ability).
+     */
+    ability: z.union([Ability, ChoiceRef, z.object({ choice: z.string(), map: z.record(z.string(), Ability) }).strict()]),
     progression: Progression,
     /** A subclass's spellcasting (Eldritch Knight): its slots follow this class's levels. */
     levelsOf: DefId.optional(),
@@ -404,6 +407,10 @@ export const ChoiceDef = z
         minLevel: z.number().int().min(0).max(9).optional(),
         /** No higher than the character's highest spell slot. */
         upToSlots: z.boolean().optional(),
+        /** The class lists come from another pick on the same feat (Ritual Caster's class). */
+        classesFrom: z.string().optional(),
+        /** No higher than half the character's level, rounded up (Ritual Caster). */
+        upToHalfLevel: z.boolean().optional(),
         /**
          * Most picks must come from these schools; `freeBy` names the class
          * table of how many may come from any school (Eldritch Knight: 1 at 3rd, +1 at 8th, 14th, 20th).
@@ -414,6 +421,8 @@ export const ChoiceDef = z
       .optional(),
     /** Feature choices: any feature a background gives (a custom background borrows one). */
     featuresOf: z.literal("background").optional(),
+    /** No upper limit: `count` is where it starts and more can be added (a ritual book grows as you copy spells). */
+    open: z.boolean().optional(),
     /** Spell choices with a `from` list: other spells it may be swapped for later (Divine affinity: any cleric spell), listed after with a note. */
     orSpells: z.object({ classes: z.array(z.string()), minLevel: z.number().int().min(0).max(9).optional(), upToSlots: z.boolean().optional(), note: z.string() }).strict().optional(),
   })

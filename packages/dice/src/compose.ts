@@ -23,6 +23,8 @@ export interface ComposerBase {
   autoFail?: string[];
   /** Reminders shown with the roll. */
   notes?: string[];
+  /** Damage dice of these types count as at least `value` each (Elemental Adept). */
+  minDie?: { value: number; types: string[]; label: string };
 }
 
 /** What the player changed in the composer. */
@@ -120,6 +122,15 @@ export function composeDamage(
     for (const d of s.apply.dice) pushDice(out, d, s.label, s.apply.damageType ?? damageType);
   }
   pushFlat(out, choices.extra, "Added by hand");
+  // Elemental Adept: each die of the chosen type counts as at least the minimum.
+  if (base.minDie) {
+    const md = base.minDie;
+    out.terms = out.terms.map((t, i) => {
+      if (t.kind !== "dice" || !t.label || !md.types.includes(t.label)) return t;
+      out.sources[i] = `${out.sources[i]} (${md.label}: each die at least ${md.value})`;
+      return { ...t, min: Math.max(t.min ?? 0, md.value) };
+    });
+  }
   return out;
 }
 

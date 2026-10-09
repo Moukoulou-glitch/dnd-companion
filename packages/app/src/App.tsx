@@ -19,6 +19,7 @@ import { RageVeins, greyLevel, useFlourishes } from "./components/Fx";
 import { CustomActionForm, CustomSpellForm } from "./components/CustomForms";
 import { RollAdjustPanel } from "./components/RollAdjust";
 import { DurablePanel } from "./components/Durable";
+import { HealerPanel } from "./components/Healer";
 import { BackstoryTab } from "./components/BackstoryTab";
 import { CUSTOM_BG, CustomBackgroundWizard } from "./components/CustomBackground";
 import { HpPad } from "./components/HpPad";
@@ -753,6 +754,7 @@ export function App() {
           act={cur.act}
           openRoll={(t: string, b: RollBreakdown, a?: WeaponAttack) => openRoll(t, b, a, { back: backToShape() })}
           openHp={openHp}
+          recharging={cur.character.shape?.recharge ?? []}
           openAttack={(a) => openAttack(a, { back: backToShape() })}
           onTraitRoll={(t, d, ty) => openTraitRoll(t, d, ty, { back: backToShape() })}
           {...(cur.character.combat ? { attacksMade: cur.character.combat.attacks } : {})}
@@ -905,6 +907,7 @@ export function App() {
             // Readying a spell: pick it, then cast it now and hold it.
             if (choice === "Cast a Spell" && current.choose) return openReadySpell();
             if (a.id === "preserve-life") return openPreserveLife(!!free);
+            if (a.id === "healer-kit") return openHealer();
             const payload = {
               action: a.id,
               ...(rolled === undefined ? {} : { rolled }),
@@ -1374,6 +1377,21 @@ export function App() {
       );
     });
   };
+
+  /** Healer: patch someone up with a healer's kit (once per creature per rest). */
+  const openHealer = () =>
+    open("Healer: patch up", () => (
+      <HealerPanel
+        used={live.current.character?.healerUsed ?? []}
+        physical={live.current.character?.settings.physicalDice ?? true}
+        myHitDice={live.current.sheet?.level ?? 1}
+        onDone={(who, total, me) => {
+          live.current.act("useAction", { action: "healer-kit", choice: who, rolled: total }, `Healer: ${who} regains ${total} hit points.`);
+          if (me) live.current.act("heal", { amount: total }, `You regain ${total} hit points.`);
+          close();
+        }}
+      />
+    ));
 
   /** An always-on feature (Aura of Protection): what it does now, and why it's off if it is. */
   const openFeatureTag = (id: string) =>
@@ -2154,6 +2172,8 @@ export function App() {
                       title={`${sheet.shape.name}'s actions`}
                       items={sheet.shape.actions.filter((a) => !sheet.shape!.attacks.some((x) => x.name === a.name))}
                       onRoll={(t, d, ty) => openTraitRoll(`${sheet.shape!.name}: ${t}`, d, ty)}
+                      recharging={c.shape?.recharge ?? []}
+                      onRecharge={(name, used) => s.act("recharge", { name, used }, used ? `${name}: used, recharging.` : `${name} is ready again.`)}
                       onUse={(name, economy) =>
                         guard({ name, economy }, () => {
                           if (live.current.character?.combat) live.current.act("useEconomy", { kind: economy, amount: 1 }, `${name}: ${economy === "bonus" ? "bonus action" : economy} used.`);

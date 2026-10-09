@@ -583,6 +583,12 @@ export function Composer({ title, base, attack, physical, onPhysicalChange, onRo
             <RichText text={n} />
           </p>
         ))}
+        {damageBase.minDie && (
+          <p className="note reminder">
+            {damageBase.minDie.label}: every {damageBase.minDie.types.join("/")} die counts as at least {damageBase.minDie.value}
+            {physical ? ". Rolling your own dice: count any lower die as that before you add them up." : " (the app does it)."}
+          </p>
+        )}
         {stage.attackMode === "disadvantage" && damageChoices.enabled.some((l) => /sneak attack/i.test(l)) && (
           <p className="warn">You rolled this attack with disadvantage: Sneak Attack can't apply. Leave it on only if your DM says so.</p>
         )}
