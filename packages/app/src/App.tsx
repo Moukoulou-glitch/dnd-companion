@@ -105,6 +105,9 @@ function BackupNote() {
   );
 }
 
+/** Smites with nothing lasting after the hit: their concentration ends with it. */
+const ENDS_ON_HIT = new Set(["spell:thunderous-smite"]);
+
 export function App() {
   const s = useCharacters();
   // Panels opened earlier read the latest state through this ref, never a stale copy.
@@ -471,11 +474,12 @@ export function App() {
               live.current.act("spendResource", { resource: u.spends.resource, amount: u.spends.amount }, `${u.label}: ${r?.name ?? "die"} spent${r && r.remaining - u.spends.amount < 0 ? " (none were left)" : ""}.`);
             }
             if (u.endsEffect) {
-              // A smite ends once it hits: its effect goes, and so does the concentration it was held with.
+              // The smite's "next hit" tag goes. Concentration stays for the lasting part (Searing's fire, Wrathful's fear,
+              // Blinding's blindness, Banishing's banishment); Thunderous Smite has none, so it ends there.
               const eff = live.current.character?.effects.find((e) => e.id === u.endsEffect);
               const spell = eff?.effect.replace(/^effect:/, "spell:");
               live.current.act("removeEffect", { instanceId: u.endsEffect }, `${u.label}: used on this hit.`);
-              if (spell && live.current.character?.concentration?.spell === spell) live.current.act("endConcentration", {}, `${u.label} ends: concentration over.`);
+              if (spell && ENDS_ON_HIT.has(spell) && live.current.character?.concentration?.spell === spell) live.current.act("endConcentration", {}, `${u.label} ends: concentration over.`);
             }
           }
         }}
