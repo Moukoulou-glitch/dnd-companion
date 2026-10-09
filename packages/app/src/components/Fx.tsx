@@ -24,6 +24,15 @@ const VEINS = [
   "M280,0 C270,50 240,80 250,130 S220,180 230,220",
   "M100,844 C120,790 160,770 160,720 S190,660 200,630",
   "M300,844 C280,800 250,780 255,730 S230,680 215,650",
+  // Little branches off the main veins.
+  "M90,170 C105,150 120,150 130,135",
+  "M110,395 C120,370 140,365 150,350",
+  "M330,135 C320,110 330,95 320,75",
+  "M300,405 C310,430 300,450 310,470",
+  "M160,95 C185,100 195,90 215,95",
+  "M150,790 C170,780 175,760 195,755",
+  "M60,690 C70,720 90,725 95,745",
+  "M340,730 C320,745 315,770 300,775",
 ];
 
 export function RageVeins({ show }: { show: number }) {
@@ -37,8 +46,15 @@ export function RageVeins({ show }: { show: number }) {
   if (!on) return null;
   return (
     <svg key={on} className="rage-veins" viewBox="0 0 390 844" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <radialGradient id="rage-edge" cx="50%" cy="50%" r="70%">
+          <stop offset="55%" stopColor="rgba(150,0,10,0)" />
+          <stop offset="100%" stopColor="rgba(150,0,10,0.45)" />
+        </radialGradient>
+      </defs>
+      <rect className="rage-edge" x="0" y="0" width="390" height="844" fill="url(#rage-edge)" />
       {VEINS.map((d, i) => (
-        <path key={i} d={d} pathLength={1} style={{ animationDelay: `${(i % 4) * 25}ms` }} />
+        <path key={i} d={d} pathLength={1} className={i >= 10 ? "branch" : ""} style={{ animationDelay: `${i >= 10 ? 140 : (i % 4) * 25}ms` }} />
       ))}
     </svg>
   );

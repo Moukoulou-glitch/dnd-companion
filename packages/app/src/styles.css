@@ -2656,3 +2656,7 @@ button.mpip {
 .row.pb-row.adjusted {
   border-color: var(--gold);
 }
+.rage-veins path.branch {
+  stroke-width: 1.6;
+  animation-duration: 0.3s;
+}
