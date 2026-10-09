@@ -282,7 +282,7 @@ export function SheetTab({
             <button className="row" key={name} onClick={openDefenses}>
               <div className="row-main">
                 <div className="row-title">{name}</div>
-                <div className="row-sub">{list.length ? list.join(", ") : "none"}</div>
+                <div className="row-sub">{list.length ? list.map((v) => (v === "spells" ? "damage from spells" : v)).join(", ") : "none"}</div>
               </div>
             </button>
           ))}

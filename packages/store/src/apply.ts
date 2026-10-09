@@ -278,6 +278,12 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
           }
         }
       }
+      // Resistance to damage from spells (Aura of Warding): resistances don't stack, so not on top of a typed one.
+      if (op.payload.fromSpell && sheet.defenses.resist.includes("spells") && dmg > 0 && !(damageType && sheet.defenses.resist.includes(damageType))) {
+        const was = dmg;
+        dmg = Math.floor(dmg / 2);
+        notes.push(`Resistant to damage from spells: ${was} halved to ${dmg}.`);
+      }
       if (dmg === 0) break;
 
       const wasAtZero = c.hp.current === 0;

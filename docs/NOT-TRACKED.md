@@ -4,7 +4,6 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 
 ## Engine limits (affect several features)
 - **Speeds that depend on a choice after a rest** (Path of the Beast's Bestial Soul) or on a form (Circle of Stars' Dragon) aren't tracked; other fly, swim and climb speeds from features and spells (Fly, Spider Climb, Gaseous Form) are.
-- **"Resistance to damage from spells"** (Aura of Warding, Spell Resistance): can't be expressed; only typed resistances.
 - **Spells appearing only from a higher level inside one feature** (Shadow Magic's Darkness shows from 1st with a "from 3rd" note).
 - **Feature timers** come from the duration a use states ("for 1 minute"); a feature whose wording doesn't say it gets none.
 
@@ -15,7 +14,7 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 - **Druid**: Moon druid features rely on the app's Wild Shape handling; Mighty Summoner, Guardian Spirit, Twinkling Constellations, Fungal Body, Primal Strike.
 - **Fighter**: Arcane Shot effects and their 18th-level increase; Rune Knight's individual rune passives (one shared counter); Cavalier/Samurai "or a language" alternatives; Samurai's alternate save; Know Your Enemy, Relentless, Weapon Bond's no-disarm, Arcane Charge, Hold the Line, Vigilant Defender, Rapid Strike, Great Stature, Master of Runes, Runic Juggernaut; Martial Versatility.
 - **Monk**: Four Elements discipline effects; Astral Self's Wisdom-for-attacks and three-attack rule; Kensei's one-melee-one-ranged rule; Intoxicated Frenzy; Dedicated Weapon.
-- **Paladin**: Aura of Warding (spell damage), Aura of Conquest and Scornful Rebuke (damage to others), Emissary of Redemption, Invincible Conqueror's extra attack (its resistances and crit range are tracked), Mortal Bulwark's truesight, Living Legend/Mortal Bulwark slot refuel, Aura of Alacrity and Aura of the Sentinel (only your own bonus).
+- **Paladin**: Aura of Conquest and Scornful Rebuke (damage to others), Emissary of Redemption, Invincible Conqueror's extra attack (its resistances and crit range are tracked), Mortal Bulwark's truesight, Living Legend/Mortal Bulwark slot refuel, Aura of Alacrity and Aura of the Sentinel (only your own bonus).
 - **Ranger**: Mighty Swarm (built into Gathered Swarm's die).
 - **Rogue**: Infiltration Expertise, Impostor, Magical Ambush, Insightful Manipulator, Soul of Deceit, Fancy Footwork, Death's Friend; Whispers of the Dead offers skills only (no tools).
 - **Sorcerer**: Controlled Chaos, Unearthly Recovery's half-HP heal; Additional Sorcerer Spells, Sorcerous Versatility.

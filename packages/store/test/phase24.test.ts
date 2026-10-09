@@ -129,3 +129,26 @@ describe("Crit range against one target", () => {
     expect(derive(c, reg).attacks.find((a) => a.itemInstanceId === "w")!.attack.suggestions.some((x) => x.label === "Hexblade's Curse")).toBe(false);
   });
 });
+
+describe("Resistance to damage from spells", () => {
+  it("Aura of Warding halves damage marked as from a spell, once, and only while you're conscious", () => {
+    const c = newCharacter({ id: "p", name: "P", race: "race:human", class: "class:paladin", abilities: { str: 16, dex: 10, con: 14, int: 10, wis: 10, cha: 16 } }, reg);
+    c.classes[0] = { ...c.classes[0]!, level: 7, subclass: "subclass:oath-of-the-ancients" };
+    c.hp.current = 60;
+    const l = new CharacterLog(c, reg, new HybridClock("t", () => (t += 1000)), "player");
+    expect(derive(l.character, reg).defenses.resist).toContain("spells");
+    const hp = () => l.character.hp.current;
+    const start = hp();
+    l.record("damage", { amount: 10, damageType: "fire", fromSpell: true });
+    expect(start - hp()).toBe(5);
+    l.record("damage", { amount: 10, damageType: "fire" });
+    expect(start - hp()).toBe(15);
+    // Already resistant to the type: not halved twice.
+    l.record("setDefense", { kind: "resist", value: "cold", on: true });
+    l.record("damage", { amount: 10, damageType: "cold", fromSpell: true });
+    expect(start - hp()).toBe(20);
+    // Unconscious: the aura is gone.
+    l.record("damage", { amount: 40 });
+    expect(derive(l.character, reg).defenses.resist).not.toContain("spells");
+  });
+});

@@ -1585,9 +1585,15 @@
         "book": "PHB",
         "page": 87
       },
-      "modifiers": [],
+      "modifiers": [
+        {
+          "selector": "defense.resist.spells",
+          "op": "resist",
+          "label": "Aura of Warding"
+        }
+      ],
       "reminders": [
-        "Resistance to damage from spells: halve it when you take damage."
+        "Resistance to damage from spells: mark the damage as from a spell on the HP pad."
       ]
     },
     {

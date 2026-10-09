@@ -12,9 +12,12 @@ export function HpPad({
   onTemp,
   temp = 0,
   sourceToggles = false,
+  spellToggle = false,
   below,
 }: {
-  onDamage: (amount: number, type?: string, src?: { magical?: boolean; silvered?: boolean; adamantine?: boolean }) => void;
+  onDamage: (amount: number, type?: string, src?: { magical?: boolean; silvered?: boolean; adamantine?: boolean; spell?: boolean }) => void;
+  /** Ask whether the damage came from a spell (resistance to damage from spells: Aura of Warding). */
+  spellToggle?: boolean;
   /** Ask whether bludgeoning, piercing or slashing came from a magical (silvered, adamantine) attack. */
   sourceToggles?: boolean;
   /** More below the pad (maximum hit points). */
@@ -27,6 +30,7 @@ export function HpPad({
   const [value, setValue] = useState("");
   const [type, setType] = useState<string | undefined>();
   const [src, setSrc] = useState<{ magical?: boolean; silvered?: boolean; adamantine?: boolean }>({});
+  const [spell, setSpell] = useState(false);
   const physical = type === "slashing" || type === "piercing" || type === "bludgeoning";
   const amount = Number(value || 0);
   const press = (d: string) => setValue((v) => (v.length >= 3 ? v : (v + d).replace(/^0+/, "")));
@@ -52,6 +56,13 @@ export function HpPad({
           ))}
         </div>
       )}
+      {spellToggle && (
+        <div className="types" role="group" aria-label="From a spell">
+          <button className="switch" aria-pressed={spell} onClick={() => setSpell(!spell)}>
+            from a spell
+          </button>
+        </div>
+      )}
       <div className="keys">
         {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((d) => (
           <button key={d} className="key" onClick={() => press(d)}>
@@ -69,7 +80,7 @@ export function HpPad({
         </button>
       </div>
       <div className="pad-actions">
-        <button className="big damage" disabled={!amount} onClick={() => onDamage(amount, type, physical ? src : {})}>
+        <button className="big damage" disabled={!amount} onClick={() => onDamage(amount, type, { ...(physical ? src : {}), ...(spell ? { spell: true } : {}) })}>
           Damage
         </button>
         <button className="big heal" disabled={!amount} onClick={() => onHeal(amount)}>

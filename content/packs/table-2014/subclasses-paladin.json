@@ -478,6 +478,18 @@
         "pack": "table-2014",
         "book": "PHB",
         "page": 86
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.spells",
+            "op": "resist",
+            "label": "Aura of Warding",
+            "when": {
+              "conscious": true
+            }
+          }
+        ]
       }
     },
     {

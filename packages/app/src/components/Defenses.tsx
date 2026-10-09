@@ -22,7 +22,8 @@ export function DefensesPanel({ c, sheet, reg, act }: { c: Character; sheet: Der
     <>
       <p className="note">Tap to add or take away. Gold ones come from your features and stay; the rest are yours, by hand.</p>
       {KINDS.map(([k, title, sub]) => {
-        const options = k === "immune" ? [...DAMAGE, ...conditions] : DAMAGE;
+        // "spells": damage from spells (Aura of Warding), whatever its type.
+        const options = k === "immune" ? [...DAMAGE, ...conditions] : k === "resist" ? [...DAMAGE, "spells"] : DAMAGE;
         return (
           <section key={k}>
             <h2 className="sub-head">
@@ -41,7 +42,7 @@ export function DefensesPanel({ c, sheet, reg, act }: { c: Character; sheet: Der
                     disabled={fromFeature}
                     onClick={() => act("setDefense", { kind: k, value: v, on: !byHand }, `${title}: ${v} ${byHand ? "taken away" : "added"}.`)}
                   >
-                    {v}
+                    {v === "spells" ? "damage from spells" : v}
                   </button>
                 );
               })}

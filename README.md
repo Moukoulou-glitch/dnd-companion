@@ -90,6 +90,7 @@ npm run build -w @dnd/app   # the PWA, as published
 | 13⅞ · Optional class features | Done: Tasha's optional class features (Primal Knowledge, Wild Companion, Ki-Fueled Attack, Harness Divine Power…) are listed on the Sheet with a tick-box each: on by default, off for a character whose table doesn't use one (its actions, choices and spells leave the sheet; its picks are kept) |
 | 14 · Proficiencies taken away | Done: Sheet → Proficiencies → Take away removes any save, skill, expertise, armor, weapon, tool or language proficiency, whatever gives it (a DM ruling, a curse), with an optional reason; taken-away ones are listed to give back |
 | 14¼ · Crits against one target, Thorn Whip | Done: a crit range for one target is a tick-box on the attack (Hexblade's Curse: tick it against the cursed target and a 19 counts as a critical hit; its +proficiency damage carries to the damage roll); Thorn Whip in the table pack (mechanics and summary; its text comes from your book file) |
+| 14½ · Damage from spells | Done: resistance to damage from spells (Aura of Warding, yours or an ally's, or set by hand under Defenses): the HP pad asks whether damage came from a spell and halves it, never on top of a typed resistance; the aura stops while you're unconscious |
 
 ### Shortcuts to revisit
 

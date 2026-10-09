@@ -227,15 +227,17 @@ export function App() {
     open("Hit points", () => (
       <HpPad
         sourceToggles={!!live.current.sheet?.rules.heavyArmorMaster}
+        spellToggle={!!live.current.sheet?.defenses.resist.includes("spells")}
         onDamage={(amount, type, src) => {
           const magical = !!src?.magical;
+          const fromSpell = !!src?.spell;
           // Durable: offer a Hit Die to soak the damage first (a reaction, before resistances).
           const sh = live.current.sheet;
           const ch = live.current.character;
           const diceLeft = sh?.hitDice.filter((h) => h.total - h.used > 0) ?? [];
           const reactionFree = !ch?.combat || (ch.combat.reaction ?? 0) < 1;
-          if (sh?.rules.durable && diceLeft.length && reactionFree && amount > 0) return openDurable(amount, type, magical);
-          takeDamage(amount, type, magical);
+          if (sh?.rules.durable && diceLeft.length && reactionFree && amount > 0) return openDurable(amount, type, magical, fromSpell);
+          takeDamage(amount, type, magical, fromSpell);
         }}
         onHeal={(amount) => {
           s.act("heal", { amount }, `Healed ${amount}.`);
@@ -253,8 +255,8 @@ export function App() {
     ));
 
   /** Damage to the character, then what it leads to: a concentration save, or instant death. */
-  const takeDamage = (amount: number, type?: string, magical?: boolean) => {
-    const prompts = live.current.act("damage", { amount, damageType: type, ...(magical ? { magical: true } : {}) }, `Took ${amount}${type ? ` ${type}` : ""} damage.`) as { kind: string; dc: number; reason?: string }[];
+  const takeDamage = (amount: number, type?: string, magical?: boolean, fromSpell?: boolean) => {
+    const prompts = live.current.act("damage", { amount, damageType: type, ...(magical ? { magical: true } : {}), ...(fromSpell ? { fromSpell: true } : {}) }, `Took ${amount}${type ? ` ${type}` : ""} damage${fromSpell ? " from a spell" : ""}.`) as { kind: string; dc: number; reason?: string }[];
     const dead = prompts.find((p) => p.kind === "dead");
     if (dead) return openDead(dead.reason ?? "");
     const check = prompts.find((p) => p.kind === "concentration");
@@ -274,19 +276,19 @@ export function App() {
       </>
     ));
   /** Durable (remastered): spend a Hit Die as a reaction to reduce damage by the die + Constitution (at least 3). */
-  const openDurable = (amount: number, type?: string, magical?: boolean) =>
+  const openDurable = (amount: number, type?: string, magical?: boolean, fromSpell?: boolean) =>
     open("Durable: spend a Hit Die?", () => (
       <DurablePanel
         amount={amount}
         con={live.current.sheet?.abilities.con.modifier ?? 0}
         dice={(live.current.sheet?.hitDice ?? []).filter((h) => h.total - h.used > 0).map((h) => ({ die: h.die, left: h.total - h.used }))}
         physical={live.current.character?.settings.physicalDice ?? true}
-        onSkip={() => takeDamage(amount, type, magical)}
+        onSkip={() => takeDamage(amount, type, magical, fromSpell)}
         onSpend={(die, roll, reduce) => {
           live.current.act("spendHitDie", { die, roll, reduce: true }, `Durable: ${die} spent, ${reduce} less damage.`);
           if (live.current.character?.combat) live.current.act("useEconomy", { kind: "reaction" }, "Reaction used.");
           const left = Math.max(0, amount - reduce);
-          if (left > 0) takeDamage(left, type, magical);
+          if (left > 0) takeDamage(left, type, magical, fromSpell);
           else close();
         }}
       />
