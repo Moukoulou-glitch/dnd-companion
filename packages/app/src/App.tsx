@@ -1050,6 +1050,31 @@ export function App() {
       );
     });
 
+  /** A wizard can copy a wizard spell (1st level or higher) from a scroll into the spellbook. */
+  const copyable = (inst: { scroll?: { spell: string } | undefined }) => {
+    const d = inst.scroll ? registry.find(inst.scroll.spell, "spell") : undefined;
+    return !!d && d.level > 0 && d.classes.includes("wizard") && !!live.current.character?.classes.some((k) => k.class === "class:wizard");
+  };
+  const openCopyScroll = (instanceId: string) => {
+    const inst = live.current.character?.inventory.find((i) => i.id === instanceId);
+    const d = inst?.scroll ? registry.find(inst.scroll.spell, "spell") : undefined;
+    if (!inst || !d) return;
+    open(`Copy ${d.name}`, () => (
+      <Composer
+        title={`Arcana: copy ${d.name}`}
+        base={live.current.sheet!.skills.arcana}
+        dc={10 + d.level}
+        dcLabel="Intelligence (Arcana) check"
+        notes={[`Success: ${d.name} goes into your spellbook (${2 * d.level} hours, ${50 * d.level} gp from the spellbook fund). Either way the scroll is destroyed.`]}
+        onOptionsUsed={recordOptions}
+        physical={live.current.character?.settings.physicalDice ?? true}
+        onPhysicalChange={(p) => live.current.act("setField", { path: ["settings", "physicalDice"], value: p }, p ? "Rolling your own dice." : "The app rolls for you.")}
+        onRolled={(r) => live.current.addRoll(r)}
+        onCheck={(passed) => live.current.act("copyScroll", { instanceId, success: passed }, passed ? `${d.name}: copied.` : `${d.name}: not copied.`)}
+      />
+    ));
+  };
+
   const openItem = (instanceId: string) => {
     const first = c.inventory.find((i) => i.id === instanceId);
     if (!first) return;
@@ -1069,6 +1094,7 @@ export function App() {
           close={close}
           spells={spells}
           {...(scrollSpell ? { onRead: () => openSpell(scrollSpell) } : {})}
+          {...(copyable(inst) ? { onCopy: () => openCopyScroll(inst.id) } : {})}
           onCustomSpell={() => openCustomSpell(undefined, () => openItem(inst.id))}
         />
       );

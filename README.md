@@ -92,6 +92,7 @@ npm run build -w @dnd/app   # the PWA, as published
 | 14¼ · Crits against one target, Thorn Whip | Done: a crit range for one target is a tick-box on the attack (Hexblade's Curse: tick it against the cursed target and a 19 counts as a critical hit; its +proficiency damage carries to the damage roll); Thorn Whip in the table pack (mechanics and summary; its text comes from your book file) |
 | 14½ · Damage from spells | Done: resistance to damage from spells (Aura of Warding, yours or an ally's, or set by hand under Defenses): the HP pad asks whether damage came from a spell and halves it, never on top of a typed resistance; the aura stops while you're unconscious |
 | 14¾ · Traits that start at a level | Done: spells, actions and uses inside a trait can start at a character or class level, and appear only then: Drow Magic (Faerie Fire 3rd, Darkness 5th), Infernal Legacy (Hellish Rebuke 3rd, and Darkness 5th, now added), the Aasimar transformations (3rd), Triton's Gust of Wind and Yuan-ti's Suggestion (3rd), Shadow Magic's Darkness (sorcerer 3rd) |
+| 14⅞ · Scrolls into the spellbook | Done: a wizard can copy a wizard spell from a scroll: the Intelligence (Arcana) check at DC 10 + the spell's level is rolled from the scroll, success puts it in the spellbook and takes 50 gp per level from the spellbook fund (2 hours per level), and the scroll is destroyed either way |
 
 ### Shortcuts to revisit
 

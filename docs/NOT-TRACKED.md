@@ -61,5 +61,5 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 - Spell effects: Moonbeam's position and movement and Gust of Wind's direction aren't recorded, so their effects can't follow them. Control Water's or Weather's mode changed later (a new action) isn't recorded: change the tag's choice by hand. Hand of Harm in a Flurry at 11th (no ki) shows no effect.
 
 ## Items and scrolls
-- Spell scrolls: copying a wizard spell from a scroll (Arcana DC 10 + level, scroll destroyed) and the optional Scroll Mishap table are text only. A spell you write yourself for a scroll also joins your own spells.
+- Spell scrolls: the optional Scroll Mishap table is text only. A spell you write yourself for a scroll also joins your own spells.
 - Spells given beyond the rules can be cast without a slot as often as you like: the app counts, the DM decides how many.

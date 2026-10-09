@@ -64,3 +64,4 @@ For whoever (a new Claude conversation) picks this up. Read this, docs/NOT-TRACK
 - One-target crit range: a suggested critRange modifier becomes a Suggestion with apply.critAt; composeD20 lowers critAtOrAbove while it's ticked (Hexblade's Curse uses it). Thorn Whip is in table-2014 spells-placeholder.json (no book text).
 - Damage from spells: defense value "spells" (defense.resist.spells; Aura of Warding feature and the ally aura effect), damage op fromSpell, HpPad spellToggle (shown when resist includes "spells").
 - Level-gated parts of a grant: minLevel (+ levelOf: a class id) on GrantedSpell, ActionDef and ResourceDef; collectSources filters them at the end (character level, or that class's level).
+- Copying scrolls: op copyScroll {instanceId, success} (consumes one; on success adds to list "wizard" and takes 50 gp × level from spellbookFunds); App openCopyScroll (Arcana composer), InventoryTab ScrollSpell onCopy.

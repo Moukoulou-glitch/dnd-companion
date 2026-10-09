@@ -345,6 +345,8 @@ export const OPERATION_PAYLOADS = {
   /** Add a spell to a class list (known spells, a wizard's spellbook, cantrips), or take it away. */
   /** `cost`: gold taken from the spellbook fund for copying it (wizard). */
   learnSpell: z.object({ spell: z.string(), list: z.string(), cost: z.number().min(0).optional() }).strict(),
+  /** A wizard copies a scroll's spell into the spellbook (DMG p. 200): the Arcana check passed or not, the scroll is gone either way. */
+  copyScroll: z.object({ instanceId: z.string(), success: z.boolean() }).strict(),
   forgetSpell: z.object({ spell: z.string(), list: z.string() }).strict(),
   /** A companion takes one of the actions anyone can take; Dodge and Ready show as tags until your next turn starts. */
   companionAction: z.object({ companion: z.string(), action: z.string(), choice: z.string().optional() }).strict(),
@@ -444,6 +446,7 @@ export const Operation = z.discriminatedUnion("type", [
   OperationBase.extend({ type: z.literal("setCustomSpell"), payload: OPERATION_PAYLOADS.setCustomSpell }),
   OperationBase.extend({ type: z.literal("setOptionalFeature"), payload: OPERATION_PAYLOADS.setOptionalFeature }),
   OperationBase.extend({ type: z.literal("setProfRemoved"), payload: OPERATION_PAYLOADS.setProfRemoved }),
+  OperationBase.extend({ type: z.literal("copyScroll"), payload: OPERATION_PAYLOADS.copyScroll }),
   OperationBase.extend({ type: z.literal("removeCustomSpell"), payload: OPERATION_PAYLOADS.removeCustomSpell }),
   OperationBase.extend({ type: z.literal("setRollAdjust"), payload: OPERATION_PAYLOADS.setRollAdjust }),
   OperationBase.extend({ type: z.literal("setCalendar"), payload: OPERATION_PAYLOADS.setCalendar }),

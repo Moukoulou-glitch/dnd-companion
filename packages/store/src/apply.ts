@@ -1751,6 +1751,34 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       break;
     }
 
+    case "copyScroll": {
+      const inst = c.inventory.find((i) => i.id === op.payload.instanceId);
+      const spellId = inst?.scroll?.spell;
+      if (!inst || !spellId) {
+        notes.push("That scroll is no longer in the inventory, or has no spell on it.");
+        break;
+      }
+      const def = reg.find(spellId, "spell");
+      // Copied or not, the scroll is destroyed.
+      inst.quantity -= 1;
+      if (inst.quantity <= 0) c.inventory = c.inventory.filter((i) => i !== inst);
+      if (!op.payload.success) {
+        notes.push(`The Arcana check failed: ${def?.name ?? "the spell"} isn't copied, and the scroll is destroyed.`);
+        break;
+      }
+      if (c.spells.some((x) => x.spell === spellId && x.list === "wizard")) {
+        notes.push(`${def?.name ?? "That spell"} is already in your spellbook; the scroll is destroyed anyway.`);
+        break;
+      }
+      c.spells.push({ spell: spellId, list: "wizard", prepared: false });
+      const lvl = def?.level ?? 1;
+      const cost = 50 * lvl;
+      if (cost > c.spellbookFunds) notes.push(`Copying costs ${cost} gp and the spellbook fund has ${c.spellbookFunds} gp. Copied anyway.`);
+      c.spellbookFunds = Math.max(0, c.spellbookFunds - cost);
+      notes.push(`${def?.name ?? "The spell"} copied into your spellbook (${2 * lvl} hours, ${cost} gp): the scroll is destroyed.`);
+      break;
+    }
+
     case "forgetSpell": {
       c.spells = c.spells.filter((x) => !(x.spell === op.payload.spell && x.list === op.payload.list));
       break;

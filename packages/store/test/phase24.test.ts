@@ -177,3 +177,20 @@ describe("Traits that start at a level", () => {
     expect(at("race:human", "class:sorcerer", 3, "subclass:shadow-magic").spells.some((s) => s.id === "spell:darkness")).toBe(true);
   });
 });
+
+describe("Copying a scroll into the spellbook", () => {
+  it("success adds the spell to the wizard's book and takes the cost; either way the scroll is gone", () => {
+    const c = newCharacter({ id: "z", name: "Z", race: "race:human", class: "class:wizard", abilities: { str: 8, dex: 14, con: 14, int: 16, wis: 10, cha: 10 } }, reg);
+    c.spellbookFunds = 200;
+    const l = new CharacterLog(c, reg, new HybridClock("t", () => (t += 1000)), "player");
+    l.record("addItem", { instanceId: "s", item: "item:spell-scroll-3rd-level", quantity: 2 });
+    l.record("setItem", { instanceId: "s", scroll: { spell: "spell:fireball" } });
+    l.record("copyScroll", { instanceId: "s", success: false });
+    expect(l.character.spells.some((x) => x.spell === "spell:fireball")).toBe(false);
+    expect(l.character.inventory.find((i) => i.id === "s")?.quantity).toBe(1);
+    l.record("copyScroll", { instanceId: "s", success: true });
+    expect(l.character.spells).toContainEqual({ spell: "spell:fireball", list: "wizard", prepared: false });
+    expect(l.character.spellbookFunds).toBe(50);
+    expect(l.character.inventory.some((i) => i.id === "s")).toBe(false);
+  });
+});

@@ -36,7 +36,7 @@ const scrollLevel = (def: ItemDef) => {
 };
 
 /** Which spell is written on a scroll: pick one of the app's spells or your own, then read it from here. */
-function ScrollSpell({ inst, def, act, spells, onRead, onCustom }: { inst: Inst; def: ItemDef; act: Act; spells: { id: string; name: string; level: number }[]; onRead?: () => void; onCustom: () => void }) {
+function ScrollSpell({ inst, def, act, spells, onRead, onCopy, onCustom }: { inst: Inst; def: ItemDef; act: Act; spells: { id: string; name: string; level: number }[]; onRead?: () => void; onCopy?: () => void; onCustom: () => void }) {
   const [picking, setPicking] = useState(!inst.scroll);
   const [q, setQ] = useState("");
   const lvl = scrollLevel(def);
@@ -66,6 +66,14 @@ function ScrollSpell({ inst, def, act, spells, onRead, onCustom }: { inst: Inst;
         <button className="big primary wide" style={{ marginTop: 10 }} onClick={onRead}>
           Read the scroll
         </button>
+      )}
+      {inst.scroll && !picking && onCopy && (
+        <>
+          <button className="big wide" style={{ marginTop: 8 }} onClick={onCopy}>
+            Copy into your spellbook
+          </button>
+          <p className="note">Intelligence (Arcana) check, DC 10 + the spell's level; 2 hours and 50 gp per level. The scroll is destroyed either way.</p>
+        </>
       )}
       {picking && (
         <>
@@ -105,6 +113,7 @@ export function ItemPanel({
   close,
   spells = [],
   onRead,
+  onCopy,
   onCustomSpell,
 }: {
   inst: Inst;
@@ -115,6 +124,8 @@ export function ItemPanel({
   spells?: { id: string; name: string; level: number }[];
   /** Opens the scroll's spell, to cast it from the scroll. */
   onRead?: () => void;
+  /** A wizard copying the scroll's spell into the spellbook. */
+  onCopy?: () => void;
   onCustomSpell?: () => void;
 }) {
   const name = displayName(inst, def);
@@ -129,7 +140,7 @@ export function ItemPanel({
         </details>
       )}
       {inst.name && inst.name !== def.name && <p className="row-sub">{def.name}</p>}
-      {isScroll(def) && <ScrollSpell inst={inst} def={def} act={act} spells={spells} {...(onRead ? { onRead } : {})} onCustom={onCustomSpell ?? (() => {})} />}
+      {isScroll(def) && <ScrollSpell inst={inst} def={def} act={act} spells={spells} {...(onRead ? { onRead } : {})} {...(onCopy ? { onCopy } : {})} onCustom={onCustomSpell ?? (() => {})} />}
       <div className="group">
         <div className="row">
           <div className="row-main row-title">Quantity</div>
