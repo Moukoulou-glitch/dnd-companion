@@ -20,7 +20,7 @@ export interface Suggestion {
   /** Why it is only suggested, e.g. "target is within 5 ft". */
   reason?: string;
   /** What the roll composer applies when the player turns it on. */
-  apply: { flat: number; dice: string[]; damageType?: string; mode?: "advantage" | "disadvantage"; weaponDice?: string };
+  apply: { flat: number; dice: string[]; damageType?: string; mode?: "advantage" | "disadvantage"; weaponDice?: string; critAt?: number };
   /** Once per turn (Sneak Attack). */
   oncePerTurn?: boolean;
   /** Ticking it spends this when the roll is made (a superiority die). */

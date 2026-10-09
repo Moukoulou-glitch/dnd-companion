@@ -597,8 +597,19 @@
           },
           {
             "selector": "roll.attack.*",
+            "op": "critRange",
+            "value": "19",
+            "mode": "suggested",
+            "label": "Hexblade's Curse",
+            "when": {
+              "toggle": "hexblades-curse",
+              "text": "attack against the cursed target: a critical hit on 19 or 20"
+            }
+          },
+          {
+            "selector": "roll.attack.*",
             "op": "note",
-            "label": "Hexblade's Curse: against the cursed target you score a critical hit on a 19 or 20. If it dies, regain warlock level + Charisma modifier HP (min 1).",
+            "label": "Hexblade's Curse: if the cursed target dies, regain warlock level + Charisma modifier HP (min 1).",
             "when": {
               "toggle": "hexblades-curse"
             }

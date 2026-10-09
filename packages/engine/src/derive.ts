@@ -632,6 +632,14 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
         if (conditionState(mod.when) === "pass") autoFail.push(labelOf(a));
         continue;
       }
+      // A crit range for one target only (Hexblade's Curse): a tick-box on the roll.
+      if (mod.op === "critRange" && mod.value !== undefined && conditionState(mod.when) !== "fail" && (mod.mode === "suggested" || conditionState(mod.when) === "unknown")) {
+        const v = flatOf(a);
+        const s: Suggestion = { label: labelOf(a), effect: `crit on ${v}–20`, apply: { flat: 0, dice: [], critAt: v } };
+        if (mod.when?.text) s.reason = mod.when.text;
+        suggestions.push(s);
+        continue;
+      }
       if ((mod.op === "critRange" || mod.op === "minD20") && mod.value !== undefined && conditionState(mod.when) === "pass") {
         const v = flatOf(a);
         if (mod.op === "critRange") critAt = Math.min(critAt ?? 20, v);

@@ -401,6 +401,45 @@
           "9": "3d6"
         }
       }
+    },
+    {
+      "kind": "spell",
+      "id": "spell:thorn-whip",
+      "name": "Thorn Whip",
+      "summary": "A thorny vine lashes a creature within 30 ft: melee spell attack, piercing damage, and a Large or smaller target is pulled up to 10 ft toward you. Placeholder: your book file gives the full text.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 282
+      },
+      "level": 0,
+      "school": "Transmutation",
+      "castingTime": "1 action",
+      "range": "30 feet",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ],
+      "material": "a thorny plant stem",
+      "duration": "Instantaneous",
+      "concentration": false,
+      "ritual": false,
+      "classes": [
+        "druid"
+      ],
+      "text": [],
+      "higherLevels": [],
+      "attack": "melee",
+      "damage": {
+        "type": "piercing",
+        "atCharacterLevel": {
+          "1": "1d6",
+          "5": "2d6",
+          "11": "3d6",
+          "17": "4d6"
+        }
+      }
     }
   ]
 }

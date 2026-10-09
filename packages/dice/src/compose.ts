@@ -15,7 +15,8 @@ export interface ComposerBase {
     label: string;
     effect: string;
     reason?: string;
-    apply: { flat: number; dice: string[]; damageType?: string; mode?: "advantage" | "disadvantage"; weaponDice?: string };
+    /** critAt: a critical hit on this or more while ticked (Hexblade's Curse: 19, against the cursed target). */
+    apply: { flat: number; dice: string[]; damageType?: string; mode?: "advantage" | "disadvantage"; weaponDice?: string; critAt?: number };
     /** Ticking it spends this (a superiority die). */
     spends?: { resource: string; amount: number };
     /** One of a group per roll. */
@@ -91,7 +92,8 @@ export function composeD20(base: ComposerBase, choices: ComposerChoices = noChoi
 
   const d20: Term = { kind: "dice", sign: 1, count: mode === "normal" ? 1 : 2, sides: 20 };
   if (mode !== "normal") d20.keep = { which: mode === "advantage" ? "highest" : "lowest", n: 1 };
-  if (base.critAt) d20.critAtOrAbove = base.critAt;
+  const critAt = Math.min(base.critAt ?? 20, ...on.map((s) => s.apply.critAt ?? 20));
+  if (critAt < 20) d20.critAtOrAbove = critAt;
   if (base.minD20) d20.min = base.minD20;
   out.terms.push(d20);
   out.sources.push(mode === "normal" ? "d20" : `d20, ${mode}`);

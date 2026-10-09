@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { derive, newCharacter } from "@dnd/engine";
+import { composeD20, rollComposed } from "@dnd/dice";
 import { tableRegistry } from "../../engine/test/helpers.js";
 import { CharacterLog } from "../src/log.js";
 import { HybridClock } from "../src/clock.js";
@@ -106,5 +107,25 @@ describe("Proficiencies taken away by the table", () => {
     expect(after.proficiencies.removed).toContainEqual({ kind: "save", target: "str", reason: "curse" });
     l.record("setProfRemoved", { kind: "save", target: "str", removed: false });
     expect(derive(l.character, reg).saves.str.proficient).toBeTruthy();
+  });
+});
+
+describe("Crit range against one target", () => {
+  it("Hexblade's Curse is a tick-box on attacks: crit on 19 or 20 while ticked, with its damage carried over", () => {
+    const c = newCharacter({ id: "w", name: "W", race: "race:human", class: "class:warlock", abilities: { str: 10, dex: 14, con: 14, int: 10, wis: 10, cha: 16 } }, reg);
+    c.classes[0] = { ...c.classes[0]!, level: 1, subclass: "subclass:the-hexblade" };
+    c.inventory.push({ id: "w", item: "item:shortsword", quantity: 1, equipped: true, attuned: false });
+    c.toggles.push("hexblades-curse");
+    const atk = derive(c, reg).attacks.find((a) => a.itemInstanceId === "w")!;
+    const s = atk.attack.suggestions.find((x) => x.label === "Hexblade's Curse")!;
+    expect(s.apply.critAt).toBe(19);
+    expect(atk.damage.bonus.suggestions.some((x) => x.label === "Hexblade's Curse")).toBe(true);
+    const on = composeD20(atk.attack, { enabled: ["Hexblade's Curse"], manual: "none", extra: 0 });
+    expect(rollComposed(on, [19]).result.crit).toBe(true);
+    const off = composeD20(atk.attack, { enabled: [], manual: "none", extra: 0 });
+    expect(rollComposed(off, [19]).result.crit).toBe(false);
+    // Without the curse switched on, nothing is offered.
+    c.toggles = [];
+    expect(derive(c, reg).attacks.find((a) => a.itemInstanceId === "w")!.attack.suggestions.some((x) => x.label === "Hexblade's Curse")).toBe(false);
   });
 });

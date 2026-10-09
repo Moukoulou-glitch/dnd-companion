@@ -7,7 +7,6 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 - **"Resistance to damage from spells"** (Aura of Warding, Spell Resistance): can't be expressed; only typed resistances.
 - **Spells appearing only from a higher level inside one feature** (Shadow Magic's Darkness shows from 1st with a "from 3rd" note).
 - **Feature timers** come from the duration a use states ("for 1 minute"); a feature whose wording doesn't say it gets none.
-- **Crit range for one target only** (Hexblade's Curse 19–20): shown as a note.
 
 ## Per class (summary only, or partly tracked)
 - **Barbarian**: Totem Warrior Wolf spirit/aspect, Bear and Eagle attunement; Shielding Storm; Warrior of the Gods; Rage Beyond Death; Controlled Surge; Instinctive Pounce.
