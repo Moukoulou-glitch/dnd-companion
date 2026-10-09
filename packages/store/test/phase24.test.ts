@@ -194,3 +194,19 @@ describe("Copying a scroll into the spellbook", () => {
     expect(l.character.inventory.some((i) => i.id === "s")).toBe(false);
   });
 });
+
+describe("Smite spells without the book", () => {
+  it("a paladin can prepare and cast Thunderous Smite; it waits on the next weapon hit", () => {
+    const c = newCharacter({ id: "p2", name: "P", race: "race:human", class: "class:paladin", abilities: { str: 16, dex: 10, con: 14, int: 10, wis: 10, cha: 16 } }, reg);
+    c.classes[0] = { ...c.classes[0]!, level: 5 };
+    c.inventory.push({ id: "w", item: "item:longsword", quantity: 1, equipped: true, attuned: false });
+    const l = new CharacterLog(c, reg, new HybridClock("t", () => (t += 1000)), "player");
+    for (const id of ["spell:searing-smite", "spell:thunderous-smite", "spell:wrathful-smite"])
+      expect(derive(l.character, reg).spells.some((s) => s.id === id)).toBe(true);
+    l.record("setPrepared", { spell: "spell:thunderous-smite", list: "paladin", prepared: true } as never);
+    l.record("castSpell", { spell: "spell:thunderous-smite", list: "paladin", level: 1, using: "slot", selfEffect: true });
+    expect(l.character.concentration?.spell).toBe("spell:thunderous-smite");
+    const atk = derive(l.character, reg).attacks.find((a) => a.itemInstanceId === "w")!;
+    expect(atk.damage.bonus.suggestions.find((x) => x.label === "Thunderous Smite")).toMatchObject({ preset: "always" });
+  });
+});

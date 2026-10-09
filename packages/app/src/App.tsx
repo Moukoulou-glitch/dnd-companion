@@ -470,7 +470,13 @@ export function App() {
               const r = live.current.sheet?.resources.find((x) => x.id === u.spends!.resource);
               live.current.act("spendResource", { resource: u.spends.resource, amount: u.spends.amount }, `${u.label}: ${r?.name ?? "die"} spent${r && r.remaining - u.spends.amount < 0 ? " (none were left)" : ""}.`);
             }
-            if (u.endsEffect) live.current.act("removeEffect", { instanceId: u.endsEffect }, `${u.label}: used on this hit.`);
+            if (u.endsEffect) {
+              // A smite ends once it hits: its effect goes, and so does the concentration it was held with.
+              const eff = live.current.character?.effects.find((e) => e.id === u.endsEffect);
+              const spell = eff?.effect.replace(/^effect:/, "spell:");
+              live.current.act("removeEffect", { instanceId: u.endsEffect }, `${u.label}: used on this hit.`);
+              if (spell && live.current.character?.concentration?.spell === spell) live.current.act("endConcentration", {}, `${u.label} ends: concentration over.`);
+            }
           }
         }}
         physical={live.current.character?.settings.physicalDice ?? true}

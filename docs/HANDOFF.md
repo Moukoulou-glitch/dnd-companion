@@ -65,3 +65,4 @@ For whoever (a new Claude conversation) picks this up. Read this, docs/NOT-TRACK
 - Damage from spells: defense value "spells" (defense.resist.spells; Aura of Warding feature and the ally aura effect), damage op fromSpell, HpPad spellToggle (shown when resist includes "spells").
 - Level-gated parts of a grant: minLevel (+ levelOf: a class id) on GrantedSpell, ActionDef and ResourceDef; collectSources filters them at the end (character level, or that class's level).
 - Copying scrolls: op copyScroll {instanceId, success} (consumes one; on success adds to list "wizard" and takes 50 gp × level from spellbookFunds); App openCopyScroll (Arcana composer), InventoryTab ScrollSpell onCopy.
+- Smite spells: placeholders (no text) in table-2014 spells-placeholder.json for the PHB smites; App onSpend ends concentration when a smite's endsEffect fires.
