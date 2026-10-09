@@ -158,7 +158,7 @@ export function CustomActionForm({ c, reg, act, editing, done }: { c: Character;
           <NumberStep label="Extra to hit" sub="A magic +1, a blessing" value={atk.bonus} min={-20} max={20} onChange={(n) => set({ attack: { ...atk, bonus: n } })} />
           <div className="row">
             <div className="row-main row-title">Damage dice</div>
-            <input className="search" value={atk.damage} maxLength={40} onChange={(e) => set({ attack: { ...atk, damage: e.target.value.replace(/\s/g, "") } })} aria-label="Damage dice" style={{ maxWidth: 110 }} />
+            <input className="search" value={atk.damage} maxLength={40} onChange={(e) => set({ attack: { ...atk, damage: e.target.value.replace(/\s/g, "") } })} aria-label="Damage dice" />
           </div>
           <label className="row">
             <div className="row-main row-title">Add the ability modifier to damage</div>
@@ -190,7 +190,7 @@ export function CustomActionForm({ c, reg, act, editing, done }: { c: Character;
           {typeof sv.dc === "number" && <NumberStep label="DC" value={sv.dc} min={1} max={40} onChange={(n) => set({ save: { ...sv, dc: n } })} />}
           <div className="row">
             <div className="row-main row-title">Damage (optional)</div>
-            <input className="search" value={sv.damage ?? ""} placeholder="2d6" maxLength={40} onChange={(e) => set({ save: { ...sv, ...(e.target.value ? { damage: e.target.value.replace(/\s/g, "") } : { damage: undefined as unknown as string }) } })} aria-label="Save damage" style={{ maxWidth: 110 }} />
+            <input className="search" value={sv.damage ?? ""} placeholder="2d6" maxLength={40} onChange={(e) => set({ save: { ...sv, ...(e.target.value ? { damage: e.target.value.replace(/\s/g, "") } : { damage: undefined as unknown as string }) } })} aria-label="Save damage" />
           </div>
           {sv.damage && (
             <>
@@ -221,7 +221,7 @@ export function CustomActionForm({ c, reg, act, editing, done }: { c: Character;
         <div className="group form-group">
           <div className="row">
             <div className="row-main row-title">How much</div>
-            <input className="search" value={a.heal?.amount ?? ""} placeholder="1d8 + 3" maxLength={40} onChange={(e) => set({ heal: { amount: e.target.value, temp: a.heal?.temp ?? false } })} aria-label="Healing amount" style={{ maxWidth: 130 }} />
+            <input className="search" value={a.heal?.amount ?? ""} placeholder="1d8 + 3" maxLength={40} onChange={(e) => set({ heal: { amount: e.target.value, temp: a.heal?.temp ?? false } })} aria-label="Healing amount" />
           </div>
           <label className="row">
             <div className="row-main row-title">Temporary hit points instead</div>
@@ -301,6 +301,7 @@ export function CustomSpellForm({ c, act, lists, editing, done }: { c: Character
   const [list, setList] = useState(current ?? lists[0]?.id ?? "innate");
   const [confirmDelete, setConfirmDelete] = useState(false);
   const set = (p: Partial<CustomSpell>) => setSp({ ...sp, ...p });
+  const [dmgType, setDmgType] = useState(editing?.damage?.type ?? "fire");
   const effect = sp.attack ? "attack" : sp.save ? "save" : sp.heal ? "heal" : "none";
   const setEffect = (e: string) => {
     const { attack: _a, save: _s, heal: _h, ...rest } = sp;
@@ -402,18 +403,26 @@ export function CustomSpellForm({ c, act, lists, editing, done }: { c: Character
           />
         </div>
       )}
-      {(sp.attack || sp.save) && (
+      {!sp.heal && (
         <div className="group form-group">
           <div className="row">
             <div className="row-main row-title">Damage</div>
-            <input className="search" value={sp.damage?.dice ?? ""} placeholder="3d6" maxLength={40} onChange={(e) => set(e.target.value ? { damage: { addMod: false, cantripScaling: sp.level === 0, ...sp.damage, dice: e.target.value.replace(/\s/g, "") } } : { damage: undefined as unknown as CustomSpell["damage"] })} aria-label="Spell damage" style={{ maxWidth: 110 }} />
+            <input className="search" value={sp.damage?.dice ?? ""} placeholder="3d6" maxLength={40} onChange={(e) => set(e.target.value ? { damage: { addMod: false, cantripScaling: sp.level === 0, type: dmgType, ...sp.damage, dice: e.target.value.replace(/\s/g, "") } } : { damage: undefined as unknown as CustomSpell["damage"] })} aria-label="Spell damage" />
+          </div>
+          <div className="row">
+            <div className="row-main row-title">Damage type</div>
+            <Select
+              label="Spell damage type"
+              value={sp.damage?.type ?? dmgType}
+              onChange={(v) => {
+                setDmgType(v);
+                if (sp.damage) set({ damage: { ...sp.damage, type: v } });
+              }}
+              options={DAMAGE_TYPES.map((d): [string, string] => [d, d.replace(/^./, (x) => x.toUpperCase())])}
+            />
           </div>
           {sp.damage && (
             <>
-              <div className="row">
-                <div className="row-main row-title">Type</div>
-                <Select label="Spell damage type" value={sp.damage.type ?? "fire"} onChange={(v) => set({ damage: { ...sp.damage!, type: v } })} options={DAMAGE_TYPES.map((d): [string, string] => [d, d])} />
-              </div>
               <label className="row">
                 <div className="row-main row-title">Add your spellcasting modifier</div>
                 <input type="checkbox" checked={sp.damage.addMod} onChange={(e) => set({ damage: { ...sp.damage!, addMod: e.target.checked } })} />
@@ -426,7 +435,7 @@ export function CustomSpellForm({ c, act, lists, editing, done }: { c: Character
               ) : (
                 <div className="row">
                   <div className="row-main row-title">More for each slot level above {sp.level}</div>
-                  <input className="search" value={sp.damage.perSlot ?? ""} placeholder="1d6" maxLength={20} onChange={(e) => set({ damage: { ...sp.damage!, ...(e.target.value ? { perSlot: e.target.value.replace(/\s/g, "") } : { perSlot: undefined as unknown as string }) } })} aria-label="Damage per slot" style={{ maxWidth: 90 }} />
+                  <input className="search" value={sp.damage.perSlot ?? ""} placeholder="1d6" maxLength={20} onChange={(e) => set({ damage: { ...sp.damage!, ...(e.target.value ? { perSlot: e.target.value.replace(/\s/g, "") } : { perSlot: undefined as unknown as string }) } })} aria-label="Damage per slot" />
                 </div>
               )}
             </>
@@ -437,7 +446,7 @@ export function CustomSpellForm({ c, act, lists, editing, done }: { c: Character
         <div className="group form-group">
           <div className="row">
             <div className="row-main row-title">Healing dice</div>
-            <input className="search" value={sp.heal.dice} maxLength={40} onChange={(e) => set({ heal: { ...sp.heal!, dice: e.target.value.replace(/\s/g, "") } })} aria-label="Healing dice" style={{ maxWidth: 110 }} />
+            <input className="search" value={sp.heal.dice} maxLength={40} onChange={(e) => set({ heal: { ...sp.heal!, dice: e.target.value.replace(/\s/g, "") } })} aria-label="Healing dice" />
           </div>
           <label className="row">
             <div className="row-main row-title">Add your spellcasting modifier</div>
@@ -445,7 +454,7 @@ export function CustomSpellForm({ c, act, lists, editing, done }: { c: Character
           </label>
           <div className="row">
             <div className="row-main row-title">More for each slot level above {Math.max(1, sp.level)}</div>
-            <input className="search" value={sp.heal.perSlot ?? ""} placeholder="1d8" maxLength={20} onChange={(e) => set({ heal: { ...sp.heal!, ...(e.target.value ? { perSlot: e.target.value.replace(/\s/g, "") } : { perSlot: undefined as unknown as string }) } })} aria-label="Healing per slot" style={{ maxWidth: 90 }} />
+            <input className="search" value={sp.heal.perSlot ?? ""} placeholder="1d8" maxLength={20} onChange={(e) => set({ heal: { ...sp.heal!, ...(e.target.value ? { perSlot: e.target.value.replace(/\s/g, "") } : { perSlot: undefined as unknown as string }) } })} aria-label="Healing per slot" />
           </div>
         </div>
       )}

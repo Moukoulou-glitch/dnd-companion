@@ -1994,6 +1994,861 @@
         "Resistance to nonmagical damage.",
         "You can't talk, attack, cast spells or handle objects."
       ]
+    },
+    {
+      "kind": "effect",
+      "id": "effect:resistance",
+      "name": "Resistance",
+      "category": "spell",
+      "summary": "Once before the spell ends, add a d4 to one saving throw.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 272
+      },
+      "modifiers": [
+        {
+          "selector": "roll.save.*",
+          "op": "add",
+          "value": "1d4",
+          "mode": "suggested",
+          "label": "Resistance"
+        }
+      ],
+      "rounds": 10,
+      "concentration": true,
+      "usedUp": true
+    },
+    {
+      "kind": "effect",
+      "id": "effect:protection-from-evil-and-good",
+      "name": "Protection from Evil and Good",
+      "category": "spell",
+      "summary": "Aberrations, celestials, elementals, fey, fiends and undead have disadvantage on attacks against you; they can't charm, frighten or possess you, and you have advantage on new saves against such effects of theirs.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 270
+      },
+      "modifiers": [],
+      "reminders": [
+        "Attackers of those creature types have disadvantage on attack rolls against you.",
+        "They can't charm, frighten or possess you; if they already have, you have advantage on new saves against it."
+      ],
+      "minutes": 10,
+      "concentration": true
+    },
+    {
+      "kind": "effect",
+      "id": "effect:absorb-elements",
+      "name": "Absorb Elements",
+      "category": "spell",
+      "summary": "Resistance to the triggering damage type until the start of your next turn; your first melee hit on your next turn deals 1d6 extra damage of that type (more if upcast).",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 150
+      },
+      "modifiers": [
+        {
+          "selector": "defense.resist.{choice}",
+          "op": "resist",
+          "label": "Absorb Elements"
+        },
+        {
+          "selector": "roll.damage.weapon.melee",
+          "op": "add",
+          "value": "1d6",
+          "mode": "suggested",
+          "label": "Absorb Elements (stored energy)",
+          "when": {
+            "text": "first melee hit on your next turn"
+          }
+        }
+      ],
+      "rounds": 1,
+      "selfOnly": true,
+      "choice": {
+        "label": "Damage type",
+        "options": [
+          "acid",
+          "cold",
+          "fire",
+          "lightning",
+          "thunder"
+        ]
+      }
+    },
+    {
+      "kind": "effect",
+      "id": "effect:divine-favor",
+      "name": "Divine Favor",
+      "category": "spell",
+      "summary": "Your weapon attacks deal 1d4 extra radiant damage on a hit.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 234
+      },
+      "modifiers": [
+        {
+          "selector": "roll.damage.weapon.*",
+          "op": "add",
+          "value": "1d4",
+          "label": "Divine Favor (radiant)"
+        }
+      ],
+      "rounds": 10,
+      "concentration": true,
+      "selfOnly": true
+    },
+    {
+      "kind": "effect",
+      "id": "effect:expeditious-retreat",
+      "name": "Expeditious Retreat",
+      "category": "spell",
+      "summary": "You can Dash as a bonus action on each of your turns.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 238
+      },
+      "modifiers": [],
+      "reminders": [
+        "Dash as a bonus action on each of your turns."
+      ],
+      "minutes": 10,
+      "concentration": true,
+      "selfOnly": true
+    },
+    {
+      "kind": "effect",
+      "id": "effect:false-life",
+      "name": "False Life",
+      "category": "spell",
+      "summary": "Temporary hit points: 1d4 + 4 (+5 for each slot level above 1st). Roll and add them on Play.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 239
+      },
+      "modifiers": [],
+      "reminders": [
+        "Roll 1d4 + 4 (+5 per slot level above 1st) and add the temporary hit points on Play."
+      ],
+      "minutes": 60,
+      "selfOnly": true
+    },
+    {
+      "kind": "effect",
+      "id": "effect:jump",
+      "name": "Jump",
+      "category": "spell",
+      "summary": "Your jump distance is tripled.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 254
+      },
+      "modifiers": [],
+      "reminders": [
+        "Jump distance ×3."
+      ],
+      "rounds": 10
+    },
+    {
+      "kind": "effect",
+      "id": "effect:longstrider",
+      "name": "Longstrider",
+      "category": "spell",
+      "summary": "Your speed increases by 10 feet.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 256
+      },
+      "modifiers": [
+        {
+          "selector": "stat.speed.walk",
+          "op": "add",
+          "value": 10,
+          "label": "Longstrider"
+        }
+      ],
+      "minutes": 60
+    },
+    {
+      "kind": "effect",
+      "id": "effect:disguise-self",
+      "name": "Disguise Self",
+      "category": "spell",
+      "summary": "You look different (clothes, armor, gear included); a physical inspection or an Investigation check against your spell DC can see through it.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 233
+      },
+      "modifiers": [],
+      "reminders": [
+        "Touching or an Intelligence (Investigation) check against your spell save DC reveals it."
+      ],
+      "minutes": 60,
+      "selfOnly": true
+    },
+    {
+      "kind": "effect",
+      "id": "effect:alter-self",
+      "name": "Alter Self",
+      "category": "spell",
+      "summary": "Pick one: Aquatic Adaptation (gills, swimming speed equal to walking), Change Appearance, or Natural Weapons (1d6, magical, +1 to attack and damage).",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 211
+      },
+      "modifiers": [
+        {
+          "selector": "stat.speed.swim",
+          "op": "grantSpeed",
+          "value": "walk",
+          "label": "Alter Self (aquatic)",
+          "when": {
+            "text": "Aquatic Adaptation"
+          }
+        }
+      ],
+      "reminders": [
+        "Aquatic Adaptation: breathe water, swimming speed equal to walking.",
+        "Natural Weapons: 1d6 bludgeoning/piercing/slashing, magical, +1 to attack and damage rolls."
+      ],
+      "minutes": 60,
+      "concentration": true,
+      "selfOnly": true,
+      "choice": {
+        "label": "Change",
+        "options": [
+          "Aquatic Adaptation",
+          "Change Appearance",
+          "Natural Weapons"
+        ]
+      }
+    },
+    {
+      "kind": "effect",
+      "id": "effect:branding-smite",
+      "name": "Branding Smite",
+      "category": "spell",
+      "summary": "The next time you hit with a weapon attack, it deals 2d6 extra radiant damage (more if upcast), and an invisible target becomes visible.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 219
+      },
+      "modifiers": [
+        {
+          "selector": "roll.damage.weapon.*",
+          "op": "add",
+          "value": "2d6",
+          "mode": "suggested",
+          "label": "Branding Smite (radiant)",
+          "when": {
+            "text": "your next weapon hit"
+          }
+        }
+      ],
+      "rounds": 10,
+      "concentration": true,
+      "selfOnly": true
+    },
+    {
+      "kind": "effect",
+      "id": "effect:darkvision",
+      "name": "Darkvision",
+      "category": "spell",
+      "summary": "You see in darkness out to 60 feet.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 230
+      },
+      "modifiers": [],
+      "reminders": [
+        "Darkvision 60 ft."
+      ],
+      "minutes": 480
+    },
+    {
+      "kind": "effect",
+      "id": "effect:enhance-ability",
+      "name": "Enhance Ability",
+      "category": "spell",
+      "summary": "Advantage on ability checks with the chosen ability (Bull's Strength also doubles carrying capacity; Bear's Endurance gives 2d6 temporary HP; Cat's Grace means no falling damage from 20 ft or less).",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 237
+      },
+      "modifiers": [
+        {
+          "selector": "roll.check.{choice}",
+          "op": "advantage",
+          "label": "Enhance Ability"
+        }
+      ],
+      "minutes": 60,
+      "concentration": true,
+      "choice": {
+        "label": "Ability",
+        "options": [
+          "str",
+          "dex",
+          "con",
+          "int",
+          "wis",
+          "cha"
+        ]
+      }
+    },
+    {
+      "kind": "effect",
+      "id": "effect:flame-blade",
+      "name": "Flame Blade",
+      "category": "spell",
+      "summary": "A fiery blade in your free hand: melee spell attacks for 3d6 fire (more if upcast); bright light 10 ft, dim 10 ft more.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 242
+      },
+      "modifiers": [],
+      "reminders": [
+        "Melee spell attack: 3d6 fire damage.",
+        "Bright light 10 ft, dim 10 ft beyond."
+      ],
+      "minutes": 10,
+      "concentration": true,
+      "selfOnly": true
+    },
+    {
+      "kind": "effect",
+      "id": "effect:magic-weapon",
+      "name": "Magic Weapon",
+      "category": "spell",
+      "summary": "The touched weapon is magical with +1 to attack and damage rolls (+2 at 4th level, +3 at 6th). Tick it on that weapon's rolls.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 257
+      },
+      "modifiers": [
+        {
+          "selector": "roll.attack.weapon.*",
+          "op": "add",
+          "value": 1,
+          "mode": "suggested",
+          "label": "Magic Weapon",
+          "when": {
+            "text": "the weapon you touched"
+          }
+        },
+        {
+          "selector": "roll.damage.weapon.*",
+          "op": "add",
+          "value": 1,
+          "mode": "suggested",
+          "label": "Magic Weapon",
+          "when": {
+            "text": "the weapon you touched"
+          }
+        }
+      ],
+      "minutes": 60,
+      "concentration": true
+    },
+    {
+      "kind": "effect",
+      "id": "effect:mirror-image",
+      "name": "Mirror Image",
+      "category": "spell",
+      "summary": "Three illusory duplicates: when you're attacked, roll a d20 to see if a duplicate is hit instead (6+ with three, 8+ with two, 11+ with one; a duplicate has AC 10 + Dex).",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 260
+      },
+      "modifiers": [],
+      "reminders": [
+        "Attacked: d20 — 6+ (3 left), 8+ (2 left), 11+ (1 left) hits a duplicate instead; a hit destroys it."
+      ],
+      "rounds": 10,
+      "selfOnly": true
+    },
+    {
+      "kind": "effect",
+      "id": "effect:protection-from-poison",
+      "name": "Protection from Poison",
+      "category": "spell",
+      "summary": "Advantage on saves against being poisoned and resistance to poison damage.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 270
+      },
+      "modifiers": [
+        {
+          "selector": "defense.resist.poison",
+          "op": "resist",
+          "label": "Protection from Poison"
+        },
+        {
+          "selector": "roll.save.con",
+          "op": "advantage",
+          "mode": "suggested",
+          "label": "Protection from Poison",
+          "when": {
+            "text": "against being poisoned"
+          }
+        }
+      ],
+      "minutes": 60
+    },
+    {
+      "kind": "effect",
+      "id": "effect:see-invisibility",
+      "name": "See Invisibility",
+      "category": "spell",
+      "summary": "You see invisible creatures and objects, and into the Ethereal Plane.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 274
+      },
+      "modifiers": [],
+      "reminders": [
+        "You see invisible creatures and objects."
+      ],
+      "minutes": 60,
+      "selfOnly": true
+    },
+    {
+      "kind": "effect",
+      "id": "effect:warding-bond",
+      "name": "Warding Bond",
+      "category": "spell",
+      "summary": "+1 AC and saving throws, resistance to all damage; the caster takes the same damage you take.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 287
+      },
+      "modifiers": [
+        {
+          "selector": "stat.ac",
+          "op": "add",
+          "value": 1,
+          "label": "Warding Bond"
+        },
+        {
+          "selector": "roll.save.*",
+          "op": "add",
+          "value": 1,
+          "label": "Warding Bond"
+        }
+      ],
+      "reminders": [
+        "Resistance to all damage.",
+        "Each time you take damage, the caster takes the same amount."
+      ],
+      "minutes": 60
+    },
+    {
+      "kind": "effect",
+      "id": "effect:blink",
+      "name": "Blink",
+      "category": "spell",
+      "summary": "At the end of each of your turns, roll a d20: on 11 or higher you vanish to the Ethereal Plane until the start of your next turn.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 219
+      },
+      "modifiers": [],
+      "reminders": [
+        "End of your turn: d20, 11+ you go ethereal until your next turn starts."
+      ],
+      "rounds": 10,
+      "selfOnly": true
+    },
+    {
+      "kind": "effect",
+      "id": "effect:protection-from-energy",
+      "name": "Protection from Energy",
+      "category": "spell",
+      "summary": "Resistance to the chosen damage type.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 270
+      },
+      "modifiers": [
+        {
+          "selector": "defense.resist.{choice}",
+          "op": "resist",
+          "label": "Protection from Energy"
+        }
+      ],
+      "minutes": 60,
+      "concentration": true,
+      "choice": {
+        "label": "Damage type",
+        "options": [
+          "acid",
+          "cold",
+          "fire",
+          "lightning",
+          "thunder"
+        ]
+      }
+    },
+    {
+      "kind": "effect",
+      "id": "effect:spirit-guardians",
+      "name": "Spirit Guardians",
+      "category": "spell",
+      "summary": "Spirits in a 15-ft radius around you: enemies there have half speed, and one entering or starting its turn there makes a Wisdom save (3d8 radiant or necrotic, half on a success).",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 278
+      },
+      "modifiers": [],
+      "reminders": [
+        "Enemies within 15 ft: speed halved.",
+        "Entering or starting a turn there: Wisdom save, 3d8 (half on success)."
+      ],
+      "minutes": 10,
+      "concentration": true,
+      "selfOnly": true
+    },
+    {
+      "kind": "effect",
+      "id": "effect:vampiric-touch",
+      "name": "Vampiric Touch",
+      "category": "spell",
+      "summary": "Melee spell attack each turn as an action: 3d6 necrotic, and you regain half the damage dealt.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 285
+      },
+      "modifiers": [],
+      "reminders": [
+        "Action: melee spell attack, 3d6 necrotic; you heal half the damage dealt."
+      ],
+      "rounds": 10,
+      "concentration": true,
+      "selfOnly": true
+    },
+    {
+      "kind": "effect",
+      "id": "effect:death-ward",
+      "name": "Death Ward",
+      "category": "spell",
+      "summary": "The first time you'd drop to 0 hit points, you drop to 1 instead and the spell ends (it also stops one instant-death effect).",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 230
+      },
+      "modifiers": [],
+      "reminders": [
+        "The first time you'd drop to 0 HP, you drop to 1 instead; the spell ends."
+      ],
+      "minutes": 480
+    },
+    {
+      "kind": "effect",
+      "id": "effect:fire-shield",
+      "name": "Fire Shield",
+      "category": "spell",
+      "summary": "Warm shield (resistance to cold) or chill shield (resistance to fire); a creature that hits you in melee within 5 ft takes 2d8 fire or cold.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 242
+      },
+      "modifiers": [
+        {
+          "selector": "defense.resist.{choice}",
+          "op": "resist",
+          "label": "Fire Shield"
+        }
+      ],
+      "reminders": [
+        "Melee hit from within 5 ft: the attacker takes 2d8 (fire for the warm shield, cold for the chill)."
+      ],
+      "minutes": 10,
+      "selfOnly": true,
+      "choice": {
+        "label": "Resistance to",
+        "options": [
+          "cold",
+          "fire"
+        ]
+      }
+    },
+    {
+      "kind": "effect",
+      "id": "effect:freedom-of-movement",
+      "name": "Freedom of Movement",
+      "category": "spell",
+      "summary": "Difficult terrain and spells don't slow you; you can't be paralyzed or restrained by magic; 5 ft of movement escapes nonmagical restraints or a grapple.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 244
+      },
+      "modifiers": [],
+      "reminders": [
+        "Magic can't reduce your speed, paralyze or restrain you.",
+        "5 ft of movement: escape a grapple or nonmagical restraints."
+      ],
+      "minutes": 60
+    },
+    {
+      "kind": "effect",
+      "id": "effect:stoneskin",
+      "name": "Stoneskin",
+      "category": "spell",
+      "summary": "Resistance to nonmagical bludgeoning, piercing and slashing damage.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 278
+      },
+      "modifiers": [],
+      "reminders": [
+        "Resistance to nonmagical bludgeoning, piercing and slashing."
+      ],
+      "minutes": 60,
+      "concentration": true
+    },
+    {
+      "kind": "effect",
+      "id": "effect:holy-aura",
+      "name": "Holy Aura",
+      "category": "spell",
+      "summary": "Advantage on all saving throws, and attacks against you have disadvantage; a fiend or undead hitting you in melee may be blinded.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 251
+      },
+      "modifiers": [
+        {
+          "selector": "roll.save.*",
+          "op": "advantage",
+          "label": "Holy Aura"
+        }
+      ],
+      "reminders": [
+        "Attacks against you have disadvantage."
+      ],
+      "rounds": 10,
+      "concentration": true
+    },
+    {
+      "kind": "effect",
+      "id": "effect:foresight",
+      "name": "Foresight",
+      "category": "spell",
+      "summary": "You can't be surprised; advantage on attack rolls, ability checks and saving throws, and attacks against you have disadvantage.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 244
+      },
+      "modifiers": [
+        {
+          "selector": "roll.attack.*",
+          "op": "advantage",
+          "label": "Foresight"
+        },
+        {
+          "selector": "roll.check.*",
+          "op": "advantage",
+          "label": "Foresight"
+        },
+        {
+          "selector": "roll.save.*",
+          "op": "advantage",
+          "label": "Foresight"
+        }
+      ],
+      "reminders": [
+        "Attacks against you have disadvantage; you can't be surprised."
+      ],
+      "minutes": 480
+    },
+    {
+      "kind": "effect",
+      "id": "effect:true-seeing",
+      "name": "True Seeing",
+      "category": "spell",
+      "summary": "Truesight out to 120 feet.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 284
+      },
+      "modifiers": [],
+      "reminders": [
+        "Truesight 120 ft: invisible things, illusions, shapechangers' true form, the Ethereal Plane."
+      ],
+      "minutes": 60
+    },
+    {
+      "kind": "effect",
+      "id": "effect:mind-blank",
+      "name": "Mind Blank",
+      "category": "spell",
+      "summary": "Immune to psychic damage, to reading your thoughts and divination, and to being charmed.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 260
+      },
+      "modifiers": [
+        {
+          "selector": "defense.immune.psychic",
+          "op": "immune",
+          "label": "Mind Blank"
+        }
+      ],
+      "reminders": [
+        "You can't be charmed; divination and mind reading fail on you."
+      ],
+      "minutes": 1440
+    },
+    {
+      "kind": "effect",
+      "id": "effect:regenerate",
+      "name": "Regenerate",
+      "category": "spell",
+      "summary": "You regain 1 hit point at the start of each of your turns (10 per minute), and severed parts regrow in 2 minutes.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 271
+      },
+      "modifiers": [],
+      "reminders": [
+        "Start of each of your turns: regain 1 HP."
+      ],
+      "minutes": 60
+    },
+    {
+      "kind": "effect",
+      "id": "effect:antilife-shell",
+      "name": "Antilife Shell",
+      "category": "spell",
+      "summary": "A 10-ft barrier around you that creatures other than undead and constructs can't pass or reach through.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 213
+      },
+      "modifiers": [],
+      "reminders": [
+        "Living creatures can't get within 10 ft of you or reach through the barrier."
+      ],
+      "minutes": 60,
+      "concentration": true,
+      "selfOnly": true
+    },
+    {
+      "kind": "effect",
+      "id": "effect:globe-of-invulnerability",
+      "name": "Globe of Invulnerability",
+      "category": "spell",
+      "summary": "Spells of 5th level or lower cast from outside can't affect anything inside the 10-ft barrier around you.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 245
+      },
+      "modifiers": [],
+      "reminders": [
+        "Spells of 5th level or lower from outside can't affect you."
+      ],
+      "rounds": 10,
+      "concentration": true,
+      "selfOnly": true
+    },
+    {
+      "kind": "effect",
+      "id": "effect:glibness",
+      "name": "Glibness",
+      "category": "spell",
+      "summary": "Treat a Charisma check roll of 15 or lower as 15; magic that would reveal you're lying fails.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 245
+      },
+      "modifiers": [
+        {
+          "selector": "roll.check.cha",
+          "op": "minD20",
+          "value": 15,
+          "label": "Glibness"
+        }
+      ],
+      "minutes": 60,
+      "selfOnly": true
+    },
+    {
+      "kind": "effect",
+      "id": "effect:tongues",
+      "name": "Tongues",
+      "category": "spell",
+      "summary": "You understand any spoken language, and creatures that know a language understand you.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 283
+      },
+      "modifiers": [],
+      "minutes": 60
+    },
+    {
+      "kind": "effect",
+      "id": "effect:light",
+      "name": "Light",
+      "category": "spell",
+      "summary": "An object you touch sheds bright light 20 ft and dim light 20 ft more.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 255
+      },
+      "modifiers": [],
+      "minutes": 60
+    },
+    {
+      "kind": "effect",
+      "id": "effect:produce-flame",
+      "name": "Produce Flame",
+      "category": "spell",
+      "summary": "A flame in your hand: bright light 10 ft, dim 10 ft more; you can hurl it (ranged spell attack).",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 269
+      },
+      "modifiers": [],
+      "minutes": 10,
+      "selfOnly": true
     }
   ]
 }

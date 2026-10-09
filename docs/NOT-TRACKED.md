@@ -14,16 +14,24 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 ## Per class (summary only, or partly tracked)
 - **Barbarian**: Totem Warrior Wolf spirit/aspect, Bear and Eagle attunement; Shielding Storm; Warrior of the Gods; Rage Beyond Death; Controlled Surge; Instinctive Pounce.
 - **Bard**: Combat Inspiration, Mote of Potential, Unfailing Inspiration, Creative Crescendo, Blade Flourish +10 ft speed; Magical Inspiration and Bardic Versatility (summary).
-- **Cleric**: Blessed Strikes, Improved Flare, Thunderbolt Strike, Stormborn, Improved Duplicity, Voice of Authority, Order's Wrath, Keeper of Souls, Expansive Bond, Circle of Mortality's maximized healing; Harness Divine Power doesn't restore the slot itself (restore it on the Spells panel). Several conditional bonuses are tick-boxes, not automatic (Soul of the Forge, Avatar of Battle, Saint of Forge and Fire).
+- **Cleric**: Blessed Strikes, Improved Flare, Thunderbolt Strike, Stormborn, Improved Duplicity, Voice of Authority, Order's Wrath, Keeper of Souls, Expansive Bond, Circle of Mortality's maximized healing; Several conditional bonuses are tick-boxes, not automatic (Soul of the Forge, Avatar of Battle, Saint of Forge and Fire).
 - **Druid**: Moon druid features rely on the app's Wild Shape handling; Mighty Summoner, Guardian Spirit, Twinkling Constellations, Fungal Body, Primal Strike.
 - **Fighter**: Arcane Shot effects and their 18th-level increase; Rune Knight's individual rune passives (one shared counter); Cavalier/Samurai "or a language" alternatives; Samurai's alternate save; Know Your Enemy, Relentless, Weapon Bond's no-disarm, Arcane Charge, Hold the Line, Vigilant Defender, Rapid Strike, Great Stature, Master of Runes, Runic Juggernaut; Martial Versatility.
 - **Monk**: Four Elements discipline effects; Astral Self's Wisdom-for-attacks and three-attack rule; Kensei's one-melee-one-ranged rule; Intoxicated Frenzy; Dedicated Weapon.
-- **Paladin**: Aura of Warding (spell damage), Aura of Conquest and Scornful Rebuke (damage to others), Emissary of Redemption, Invincible Conqueror's extra attack (its resistances and crit range are tracked), Mortal Bulwark's truesight, Living Legend/Mortal Bulwark slot refuel, Aura of Alacrity and Aura of the Sentinel (only your own bonus), Otherworldly Glamour's minimum +1; Harness Divine Power use is marked by hand.
+- **Paladin**: Aura of Warding (spell damage), Aura of Conquest and Scornful Rebuke (damage to others), Emissary of Redemption, Invincible Conqueror's extra attack (its resistances and crit range are tracked), Mortal Bulwark's truesight, Living Legend/Mortal Bulwark slot refuel, Aura of Alacrity and Aura of the Sentinel (only your own bonus), Otherworldly Glamour's minimum +1.
 - **Ranger**: Mighty Swarm (built into Gathered Swarm's die).
 - **Rogue**: Infiltration Expertise, Impostor, Magical Ambush, Insightful Manipulator, Soul of Deceit, Fancy Footwork, Death's Friend; Whispers of the Dead offers skills only (no tools).
 - **Sorcerer**: Controlled Chaos, Unearthly Recovery's half-HP heal; Additional Sorcerer Spells, Sorcerous Versatility.
 - **Warlock**: Gift of the Sea swim speed, Elemental Gift flight and its genie-kind resistance, Awakened Mind telepathy, Beguiling Defenses' charm immunity, Hex Warrior's Charisma for weapon attacks, Genie's Wrath damage type.
 - **Wizard**: Arcane Ward is tracked as full after each long rest even before it's created; Savant features, Minor Alchemy, Focused Conjuration, Durable Summons, Split Enchantment, Alter Memories, Malleable Illusions, Master of Hexes, Sanctuary Vessel, Master Scrivener; Transmuter's Stone benefit; Grim Harvest healing (note); Durable Magic uses a switch you turn on while concentrating.
+
+## Feats
+- Elemental Adept: a reminder on spell damage; the minimum per die isn't applied by the dice.
+- Healer: the once-per-rest-per-creature limit isn't tracked; Ritual Caster's ritual book isn't built; Tavern Brawler's d4 unarmed strike isn't applied.
+- Heavy Armor Master needs you to mark magical damage (the switch shows on the damage pad when it applies).
+
+## Transformations
+- Recharge abilities (Fire Breath, Recharge 5–6) aren't tracked: roll the d6 yourself at the start of your turn.
 
 ## Your own actions and spells
 - A custom attack uses the Attack action or a bonus action; a reaction attack is a "use" with its note, rolled from the Actions list like any attack of that kind.

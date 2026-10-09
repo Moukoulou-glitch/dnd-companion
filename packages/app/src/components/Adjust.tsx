@@ -267,3 +267,29 @@ export function SummonMaxHp({ member, reg, act }: { member: Character["summons"]
     </>
   );
 }
+
+/** The proficiency bonus: how it adds up, and a bonus or penalty by hand with why. */
+export function PbPanel({ character, sheet, act }: { character: Character; sheet: DerivedSheet; act: Act }) {
+  const adj = character.pbAdjust ?? { bonus: 0, penalty: 0 };
+  const [note, setNote] = useState(adj.note ?? "");
+  return (
+    <>
+      <BreakdownLines b={sheet.proficiencyBreakdown} totalLabel="Proficiency bonus" />
+      <p className="note">It changes everything that uses it: attacks, saves and skills you're proficient in, spell DCs, features' DCs and uses.</p>
+      <h2 className="sub-head">Change it by hand</h2>
+      <div className="group">
+        <NumberStep label="Bonus" value={adj.bonus} max={10} onChange={(n) => act("setPbAdjust", { bonus: n }, `Proficiency bonus: bonus ${n}.`)} />
+        <NumberStep label="Penalty" value={adj.penalty} max={10} onChange={(n) => act("setPbAdjust", { penalty: n }, `Proficiency bonus: penalty ${n}.`)} />
+      </div>
+      <input
+        className="search"
+        placeholder="Why (a blessing, a curse…)"
+        value={note}
+        maxLength={80}
+        onChange={(e) => setNote(e.target.value)}
+        onBlur={() => note !== (adj.note ?? "") && act("setPbAdjust", { note }, note ? `Why: ${note}.` : "Reason cleared.")}
+        aria-label="Why"
+      />
+    </>
+  );
+}

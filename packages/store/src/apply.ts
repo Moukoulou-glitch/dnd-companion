@@ -1,5 +1,5 @@
 import { Character, CombatState, type Operation, type ValueExpr } from "@dnd/schema";
-import { withCustom, customSpellId, FLEX_COST, castingEconomy, derive, evalFlat, levelGains, damageAfterDefenses, materialNeed, multiclassIssues, shapeIssues, summonBlock, summonHpBonus, type ContentRegistry } from "@dnd/engine";
+import { componentCount, withCustom, customSpellId, FLEX_COST, castingEconomy, derive, evalFlat, levelGains, damageAfterDefenses, materialNeed, multiclassIssues, shapeIssues, summonBlock, summonHpBonus, type ContentRegistry } from "@dnd/engine";
 
 /** Effects a summoned creature holds with its own concentration (Barkskin on itself) end with it. */
 function dropSummonConcentration(x: Character["summons"][number], spell: string) {
@@ -256,6 +256,13 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         damageType = undefined;
       }
       let dmg = amount;
+      // Heavy Armor Master: nonmagical bludgeoning, piercing and slashing reduced by 3 in heavy armor.
+      if (sheet.rules.heavyArmorMaster && damageType && ["bludgeoning", "piercing", "slashing"].includes(damageType) && !op.payload.magical) {
+        const cut = Math.min(3, dmg);
+        dmg -= cut;
+        amount = dmg;
+        notes.push(`Heavy Armor Master: ${cut} less (nonmagical ${damageType}).`);
+      }
       if (damageType) {
         if (sheet.defenses.immune.includes(damageType)) {
           dmg = 0;
@@ -430,7 +437,8 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
     }
 
     case "setComponent": {
-      if (op.payload.have) c.components[op.payload.spell] = true;
+      const n = op.payload.count ?? (op.payload.have ? Math.max(1, componentCount(c.components[op.payload.spell])) : 0);
+      if (n > 0) c.components[op.payload.spell] = n;
       else delete c.components[op.payload.spell];
       break;
     }
@@ -978,6 +986,19 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         removeEffects(c.effects.filter((e) => e.effect === "custom" && (e.custom?.name === a.name || e.custom?.name.startsWith(`${a.name}: `))));
         c.effects.push(entry);
       }
+      if (a.id === "harness-divine-power") {
+        const lvl = Number(/Level (\d)/.exec(op.payload.choice ?? "")?.[1] ?? 0);
+        const top = Math.ceil(sheet.proficiencyBonus / 2);
+        if (lvl && lvl <= top && (c.slotsUsed[String(lvl)] ?? 0) > 0) {
+          c.slotsUsed[String(lvl)] = (c.slotsUsed[String(lvl)] ?? 0) - 1;
+          notes.push(`Harness Divine Power: a level ${lvl} slot is back.`);
+        } else notes.push(`No expended slot of level ${top} or lower to restore.`);
+        const h = sheet.resources.find((r) => r.id === "harness-divine-power");
+        if (h) {
+          if (h.remaining <= 0) notes.push("No Harness Divine Power uses were left: used anyway.");
+          c.resourcesUsed["harness-divine-power"] = (c.resourcesUsed["harness-divine-power"] ?? 0) + 1;
+        }
+      }
       if (a.duration) {
         const rolledN = op.payload.rolled;
         const d = a.duration;
@@ -1093,10 +1114,12 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       // A costly or consumed material component (PHB p. 203): the focus or pouch can't stand in for it.
       const need = materialNeed(sp.material);
       if (need) {
-        if (!c.components[sp.id]) notes.push(`You don't have the material component (${sp.material}). Cast anyway: your DM decides.`);
+        const have = componentCount(c.components[sp.id]);
+        if (!have) notes.push(`You don't have the material component (${sp.material}). Cast anyway: your DM decides.`);
         else if (op.payload.consumeComponent) {
-          c.components[sp.id] = false;
-          notes.push("The material component is used up.");
+          if (have - 1 > 0) c.components[sp.id] = have - 1;
+          else delete c.components[sp.id];
+          notes.push(`The material component is used up: ${have - 1} left.`);
         }
       }
       if (op.payload.readied) {
@@ -1727,6 +1750,17 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       const sid = customSpellId(op.payload.id);
       c.customSpells = c.customSpells.filter((x) => x.id !== op.payload.id);
       c.spells = c.spells.filter((x) => x.spell !== sid);
+      break;
+    }
+
+    case "setPbAdjust": {
+      const { bonus, penalty, note } = op.payload;
+      if (bonus !== undefined) c.pbAdjust.bonus = bonus;
+      if (penalty !== undefined) c.pbAdjust.penalty = penalty;
+      if (note !== undefined) {
+        if (note) c.pbAdjust.note = note;
+        else delete c.pbAdjust.note;
+      }
       break;
     }
 

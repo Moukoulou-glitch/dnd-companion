@@ -26,3 +26,10 @@ export function Reminders({ items }: { items: string[] }) {
     </ul>
   );
 }
+
+const ABBR: Record<string, string> = { strength: "STR", dexterity: "DEX", constitution: "CON", intelligence: "INT", wisdom: "WIS", charisma: "CHA" };
+/** "Strength or Dexterity (prone)" → "STR/DEX"; anything without an ability stays as it is. */
+export function shortSave(save: string): string {
+  const found = [...save.toLowerCase().matchAll(/strength|dexterity|constitution|intelligence|wisdom|charisma/g)].map((m) => ABBR[m[0]]!);
+  return found.length ? [...new Set(found)].join("/") : "";
+}

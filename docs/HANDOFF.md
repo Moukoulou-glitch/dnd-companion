@@ -46,3 +46,6 @@ For whoever (a new Claude conversation) picks this up. Read this, docs/NOT-TRACK
 - Speeds: modifier op grantSpeed (selector stat.speed.fly|swim|climb, value or "walk", hover); sheet.speeds; speed-zero/halving effects use stat.speed.*.
 - Feature timers: derive infers ActionResult.duration from "for 1 minute"-style wording (statedDuration, NO_TIMER list).
 - Your own actions and spells: Character.customActions/customSpells; engine custom.ts turns them into definitions on a registry overlay (withCustom; derive, collectSources and applyOperation use it); CustomForms.tsx.
+- Flourishes: useCharacters dispatches a "dnd-op" window event; components/Fx.tsx (golden glow on Channel Divinity via data-feature-name, Rage veins, grey veil for Exhaustion/death); HP box blinks at 10% or less.
+- Proficiency bonus by hand: Character.pbAdjust, sheet.proficiencyBreakdown, PbPanel. Harness Divine Power: choose a slot (derive) and restore it (apply). Sacred Weapon: suggested attack bonus while on.
+- Components are counts (Character.components values are numbers; true from older saves means 1).

@@ -32,6 +32,8 @@ interface Props {
   onHealSelf?: (amount: number) => void;
   /** A DC the d20 roll must meet (concentration checks). */
   dc?: number;
+  /** What the roll is against the DC ("Constitution saving throw"). */
+  dcLabel?: string;
   /** Called with whether the d20 roll met the DC. */
   onCheck?: (passed: boolean) => void;
   /** Extra reminders for this roll (Eldritch Blast beams). */
@@ -271,7 +273,7 @@ export function ResultView({ r }: { r: RollRecord }) {
   );
 }
 
-export function Composer({ title, base, attack, physical, onPhysicalChange, onRolled, damageOnly, healing, onHealSelf, dc, onCheck, notes, header, typeChoices, portent, onOptionsUsed, optionInfo, onCommit, repeat, onDamageOptions, afterRoll, onDone }: Props) {
+export function Composer({ title, base, attack, physical, onPhysicalChange, onRolled, damageOnly, healing, onHealSelf, dc, dcLabel, onCheck, notes, header, typeChoices, portent, onOptionsUsed, optionInfo, onCommit, repeat, onDamageOptions, afterRoll, onDone }: Props) {
   const [typePick, setTypePick] = useState<{ via: number; type: string } | null>(null);
   const preselected = base.suggestions.filter((sg) => optionInfo?.[sg.label]?.preselect).map((sg) => sg.label);
   const [choices, setChoices] = useState<ComposerChoices>({ enabled: preselected, manual: "none", extra: 0 });
@@ -322,7 +324,7 @@ export function Composer({ title, base, attack, physical, onPhysicalChange, onRo
         return p.key ? { ...sg, apply: { ...sg.apply, dice: [slots.dice(p.key, p.extra)] } } : sg;
       }),
     };
-    const c = composeDamage(attack.damage.dice, typePick?.type ?? attack.damage.type, bonus, damageChoices, attack.attackId.startsWith("spell:") ? attack.name : "Weapon");
+    const c = composeDamage(attack.damage.dice, typePick?.type ?? attack.damage.type, bonus, damageChoices, attack.attackId.startsWith("spell:") ? attack.name : attack.attackId.startsWith("trait:") ? `${attack.name.replace(/^.*?: /, "")}${attack.damage.type ? ` (${attack.damage.type})` : ""}` : "Weapon");
     if (!stage.crit) return c;
     const extra = attack.damage.critExtraDice.reduce((n, p) => n + p.value, 0);
     const natural20 = stage.attackRecord?.natural === 20 || !stage.attackRecord;
@@ -403,7 +405,7 @@ export function Composer({ title, base, attack, physical, onPhysicalChange, onRo
         {dc !== undefined && (
           <div className="dc-big dc-target" role="note">
             <span className="dc-num">DC {dc}</span>
-            <span className="dc-save">to succeed</span>
+            <span className="dc-save">{dcLabel ?? "to succeed"}</span>
           </div>
         )}
         {which}

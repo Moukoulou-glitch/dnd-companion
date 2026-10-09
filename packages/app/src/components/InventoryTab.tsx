@@ -1,3 +1,4 @@
+import { NumberStep } from "./Adjust";
 import { RichText } from "./Conditions";
 import { useEffect, useMemo, useState } from "react";
 import type { ContentRegistry, DerivedSheet } from "@dnd/engine";
@@ -260,23 +261,17 @@ export function InventoryTab({
       {sheet.components.length > 0 && (
         <section>
           <h2>Spell components</h2>
-          <p className="note">Components with a cost, or that the spell uses up: a component pouch or focus can't replace them. Tick the ones you have.</p>
+          <p className="note">Components with a cost, or that the spell uses up: a component pouch or focus can't replace them. How many you have; one is used up each time a spell consumes it.</p>
           <div className="group">
             {sheet.components.map((m) => (
-              <label className="row check" key={m.spell}>
-                <input
-                  type="checkbox"
-                  checked={m.have}
-                  onChange={(e) => act("setComponent", { spell: m.spell, have: e.target.checked }, `${m.spellName}: component ${e.target.checked ? "ticked" : "unticked"}.`)}
-                />
-                <div className="row-main">
-                  <div className="row-title">
-                    {componentName(m.material)} ({m.spellName})
-                  </div>
-                  <div className="row-sub">{m.material}</div>
-                </div>
-                {m.consumed && <span className="tag">used up</span>}
-              </label>
+              <NumberStep
+                key={m.spell}
+                label={`${componentName(m.material)} (${m.spellName})`}
+                sub={`${m.material}${m.consumed ? " · used up when cast" : ""}`}
+                value={m.count}
+                max={999}
+                onChange={(n) => act("setComponent", { spell: m.spell, count: n }, `${m.spellName}: ${n} component${n === 1 ? "" : "s"}.`)}
+              />
             ))}
           </div>
         </section>

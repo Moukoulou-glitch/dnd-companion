@@ -18,7 +18,12 @@
           "kind": "feature",
           "count": 1,
           "from": [
-            "feature:magic-initiate-cleric"
+            "feature:magic-initiate-bard",
+            "feature:magic-initiate-cleric",
+            "feature:magic-initiate-druid",
+            "feature:magic-initiate-sorcerer",
+            "feature:magic-initiate-warlock",
+            "feature:magic-initiate-wizard"
           ]
         }
       ]
@@ -212,6 +217,331 @@
           }
         }
       ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:magic-initiate-bard",
+      "name": "Magic Initiate (Bard)",
+      "summary": "Bard spells cast with Charisma.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 168
+      },
+      "choices": [
+        {
+          "id": "cantrips",
+          "label": "Cantrips",
+          "kind": "spell",
+          "count": 2,
+          "spells": {
+            "classes": [
+              "bard"
+            ],
+            "level": 0
+          }
+        },
+        {
+          "id": "spell",
+          "label": "1st-level spell",
+          "kind": "spell",
+          "count": 1,
+          "resource": "magic-initiate-spell",
+          "spells": {
+            "classes": [
+              "bard"
+            ],
+            "level": 1
+          }
+        }
+      ],
+      "grant": {
+        "spellcasting": {
+          "id": "magic-initiate-bard",
+          "label": "Magic Initiate (Bard)",
+          "ability": "cha",
+          "progression": "none"
+        },
+        "resources": [
+          {
+            "id": "magic-initiate-spell",
+            "name": "Magic Initiate: free 1st-level spell",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "magic-initiate-spell",
+            "name": "Magic Initiate spell (free)",
+            "economy": "action",
+            "cost": {
+              "resource": "magic-initiate-spell"
+            },
+            "note": "Cast your Magic Initiate 1st-level spell without a slot, once per long rest."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:magic-initiate-druid",
+      "name": "Magic Initiate (Druid)",
+      "summary": "Druid spells cast with Wisdom.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 168
+      },
+      "choices": [
+        {
+          "id": "cantrips",
+          "label": "Cantrips",
+          "kind": "spell",
+          "count": 2,
+          "spells": {
+            "classes": [
+              "druid"
+            ],
+            "level": 0
+          }
+        },
+        {
+          "id": "spell",
+          "label": "1st-level spell",
+          "kind": "spell",
+          "count": 1,
+          "resource": "magic-initiate-spell",
+          "spells": {
+            "classes": [
+              "druid"
+            ],
+            "level": 1
+          }
+        }
+      ],
+      "grant": {
+        "spellcasting": {
+          "id": "magic-initiate-druid",
+          "label": "Magic Initiate (Druid)",
+          "ability": "wis",
+          "progression": "none"
+        },
+        "resources": [
+          {
+            "id": "magic-initiate-spell",
+            "name": "Magic Initiate: free 1st-level spell",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "magic-initiate-spell",
+            "name": "Magic Initiate spell (free)",
+            "economy": "action",
+            "cost": {
+              "resource": "magic-initiate-spell"
+            },
+            "note": "Cast your Magic Initiate 1st-level spell without a slot, once per long rest."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:magic-initiate-sorcerer",
+      "name": "Magic Initiate (Sorcerer)",
+      "summary": "Sorcerer spells cast with Charisma.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 168
+      },
+      "choices": [
+        {
+          "id": "cantrips",
+          "label": "Cantrips",
+          "kind": "spell",
+          "count": 2,
+          "spells": {
+            "classes": [
+              "sorcerer"
+            ],
+            "level": 0
+          }
+        },
+        {
+          "id": "spell",
+          "label": "1st-level spell",
+          "kind": "spell",
+          "count": 1,
+          "resource": "magic-initiate-spell",
+          "spells": {
+            "classes": [
+              "sorcerer"
+            ],
+            "level": 1
+          }
+        }
+      ],
+      "grant": {
+        "spellcasting": {
+          "id": "magic-initiate-sorcerer",
+          "label": "Magic Initiate (Sorcerer)",
+          "ability": "cha",
+          "progression": "none"
+        },
+        "resources": [
+          {
+            "id": "magic-initiate-spell",
+            "name": "Magic Initiate: free 1st-level spell",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "magic-initiate-spell",
+            "name": "Magic Initiate spell (free)",
+            "economy": "action",
+            "cost": {
+              "resource": "magic-initiate-spell"
+            },
+            "note": "Cast your Magic Initiate 1st-level spell without a slot, once per long rest."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:magic-initiate-warlock",
+      "name": "Magic Initiate (Warlock)",
+      "summary": "Warlock spells cast with Charisma.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 168
+      },
+      "choices": [
+        {
+          "id": "cantrips",
+          "label": "Cantrips",
+          "kind": "spell",
+          "count": 2,
+          "spells": {
+            "classes": [
+              "warlock"
+            ],
+            "level": 0
+          }
+        },
+        {
+          "id": "spell",
+          "label": "1st-level spell",
+          "kind": "spell",
+          "count": 1,
+          "resource": "magic-initiate-spell",
+          "spells": {
+            "classes": [
+              "warlock"
+            ],
+            "level": 1
+          }
+        }
+      ],
+      "grant": {
+        "spellcasting": {
+          "id": "magic-initiate-warlock",
+          "label": "Magic Initiate (Warlock)",
+          "ability": "cha",
+          "progression": "none"
+        },
+        "resources": [
+          {
+            "id": "magic-initiate-spell",
+            "name": "Magic Initiate: free 1st-level spell",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "magic-initiate-spell",
+            "name": "Magic Initiate spell (free)",
+            "economy": "action",
+            "cost": {
+              "resource": "magic-initiate-spell"
+            },
+            "note": "Cast your Magic Initiate 1st-level spell without a slot, once per long rest."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:magic-initiate-wizard",
+      "name": "Magic Initiate (Wizard)",
+      "summary": "Wizard spells cast with Intelligence.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 168
+      },
+      "choices": [
+        {
+          "id": "cantrips",
+          "label": "Cantrips",
+          "kind": "spell",
+          "count": 2,
+          "spells": {
+            "classes": [
+              "wizard"
+            ],
+            "level": 0
+          }
+        },
+        {
+          "id": "spell",
+          "label": "1st-level spell",
+          "kind": "spell",
+          "count": 1,
+          "resource": "magic-initiate-spell",
+          "spells": {
+            "classes": [
+              "wizard"
+            ],
+            "level": 1
+          }
+        }
+      ],
+      "grant": {
+        "spellcasting": {
+          "id": "magic-initiate-wizard",
+          "label": "Magic Initiate (Wizard)",
+          "ability": "int",
+          "progression": "none"
+        },
+        "resources": [
+          {
+            "id": "magic-initiate-spell",
+            "name": "Magic Initiate: free 1st-level spell",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "magic-initiate-spell",
+            "name": "Magic Initiate spell (free)",
+            "economy": "action",
+            "cost": {
+              "resource": "magic-initiate-spell"
+            },
+            "note": "Cast your Magic Initiate 1st-level spell without a slot, once per long rest."
+          }
+        ]
+      }
     }
   ]
 }

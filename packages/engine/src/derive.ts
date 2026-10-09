@@ -277,6 +277,8 @@ export interface DerivedSheet {
   ac: Breakdown;
   initiative: RollBreakdown;
   speed: Breakdown;
+  /** How the proficiency bonus adds up (level, and changes by hand). */
+  proficiencyBreakdown: Breakdown;
   /** Fly, swim and climb speeds the character has now. */
   speeds: SpeedResult[];
   hpMax: Breakdown;
@@ -315,11 +317,11 @@ export interface DerivedSheet {
    * Material components a focus can't replace, for the spells the character
    * has (known, prepared, in the spellbook or granted), and whether they have them.
    */
-  components: { spell: string; spellName: string; material: string; costly: boolean; consumed: boolean; have: boolean }[];
+  components: { spell: string; spellName: string; material: string; costly: boolean; consumed: boolean; have: boolean; count: number }[];
   /** Attacks per Attack action: 2 with Extra Attack. */
   attacksPerAction: number;
   /** Rule permissions: two-weapon fighting with non-light weapons (Dual Wielder), ability modifier on off-hand damage (the style). */
-  rules: { twoWeaponNonLight: boolean; twoWeaponAbility: boolean; durable: boolean };
+  rules: { twoWeaponNonLight: boolean; twoWeaponAbility: boolean; durable: boolean; heavyArmorMaster: boolean };
   /** Data problems found while deriving (missing choices, too many attuned items). */
   warnings: string[];
 }
@@ -361,7 +363,15 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
   const warnings: string[] = [];
   const sources = collectSources(c, reg);
   const level = c.classes.reduce((t, cl) => t + cl.level, 0);
-  const pb = proficiencyBonus(level);
+  // Proficiency bonus: by level, then changed by hand (at least +1... or whatever the DM says: never below 0).
+  const pbAdj = c.pbAdjust ?? { bonus: 0, penalty: 0 };
+  const pbWhy = pbAdj.note ? ` (${pbAdj.note})` : "";
+  const pbBreakdown = sum([
+    { label: `Level ${level}`, value: proficiencyBonus(level) },
+    ...(pbAdj.bonus ? [{ label: `Bonus by hand${pbWhy}`, value: pbAdj.bonus }] : []),
+    ...(pbAdj.penalty ? [{ label: `Penalty by hand${pbWhy}`, value: -pbAdj.penalty }] : []),
+  ]);
+  const pb = Math.max(0, pbBreakdown.total);
   const classLevels = Object.fromEntries(c.classes.map((cl) => [cl.class, cl.level]));
 
   // Equipment state the conditions need.
@@ -797,7 +807,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
 
   // Rule permissions (Dual Wielder, Two-Weapon Fighting style).
   const allowed = (key: string) => modsFor([key]).some((a) => a.mod.op === "allow" && conditionState(a.mod.when) === "pass");
-  const rules = { twoWeaponNonLight: allowed("rule.twoWeapon.nonLight"), twoWeaponAbility: allowed("rule.twoWeapon.ability"), durable: allowed("rule.durable") };
+  const rules = { twoWeaponNonLight: allowed("rule.twoWeapon.nonLight"), twoWeaponAbility: allowed("rule.twoWeapon.ability"), durable: allowed("rule.durable"), heavyArmorMaster: allowed("rule.heavyArmorMaster") && armorWorn?.def.armor?.category === "heavy" };
 
   // Attacks: every weapon carried (switching weapons needs no edit), plus attacks features grant.
   const attacks: WeaponAttack[] = [];
@@ -1236,6 +1246,19 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
         delete entry.cost;
       }
       if (a.spendAmount) entry.spendAmount = a.spendAmount;
+      // Defensive Duelist (remastered): proficiency bonus + half Dexterity (rounded up, at least 1).
+      if (a.id === "defensive-duelist") {
+        const half = Math.max(1, Math.ceil(mods.dex / 2));
+        entry.note = `+${pb + half} AC against that attack (proficiency ${pb} + half Dexterity ${half}); +${pb + Math.max(1, mods.dex)} if you took the Dodge action. ${a.note ?? ""}`.trim();
+      }
+      // Harness Divine Power: which expended slot comes back (up to half the proficiency bonus, rounded up).
+      if (a.id === "harness-divine-power") {
+        const top = Math.ceil(pb / 2);
+        const options = slotsTotal.flatMap((n, i) => (i + 1 <= top && (c.slotsUsed[String(i + 1)] ?? 0) > 0 ? [`Level ${i + 1} slot`] : []));
+        const harness = resources.find((r) => r.id === "harness-divine-power");
+        entry.choose = { label: options.length ? `Which slot comes back? (up to level ${top})` : `No expended slot of level ${top} or lower`, options: options.length ? options : ["Nothing to restore"] };
+        if (harness && harness.remaining <= 0) entry.note = `${entry.note ?? ""} No Harness Divine Power uses left until a long rest.`.trim();
+      }
       const dc = dcOf(ACTION_DCS[a.id] ?? (entry.featureId ? FEATURE_DCS[entry.featureId] ?? customDc(entry.featureId) : undefined));
       if (dc) entry.dc = dc;
       actions.push(entry);
@@ -1334,6 +1357,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     featureTags,
     level,
     proficiencyBonus: pb,
+    proficiencyBreakdown: pbBreakdown,
     abilities,
     saves,
     skills,
@@ -1391,7 +1415,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
         const need = materialNeed(sp.material);
         if (!need) continue;
         seen.add(sp.id);
-        out.push({ spell: sp.id, spellName: sp.name, material: sp.material!, ...need, have: !!c.components[sp.id] });
+        out.push({ spell: sp.id, spellName: sp.name, material: sp.material!, ...need, have: componentCount(c.components[sp.id]) > 0, count: componentCount(c.components[sp.id]) });
       }
       return out.sort((a, b) => a.spellName.localeCompare(b.spellName));
     })(),
@@ -1469,6 +1493,9 @@ export function statedDuration(text: string): { rounds?: number; minutes?: numbe
   const minutes = unit === "hour" ? n * 60 : n;
   return minutes <= 1 ? { rounds: minutes * 10 } : { minutes };
 }
+
+/** How many of a component you have: older saves kept yes/no (yes is one). */
+export const componentCount = (v: boolean | number | undefined): number => (v === true ? 1 : typeof v === "number" ? v : 0);
 
 /** Sorcery points to create a spell slot (PHB p. 101). */
 export const FLEX_COST: Record<number, number> = { 1: 2, 2: 3, 3: 5, 4: 6, 5: 7 };

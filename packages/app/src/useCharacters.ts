@@ -100,7 +100,10 @@ export function useCharacters() {
     (type: OperationType, payload: unknown, label: string): Prompt[] => {
       if (!log || !selectedId) return [];
       try {
+        const before = log.character;
         const notes = log.record(type, payload);
+        // For the app's flourishes (a golden glow on Channel Divinity, Rage's veins).
+        window.dispatchEvent(new CustomEvent("dnd-op", { detail: { type, payload, before, after: log.character } }));
         setVersion((v) => v + 1);
         setToast({ id: Date.now(), text: [label, ...notes.filter((n) => n !== label)].join(" "), canUndo: true });
         void persist(log, selectedId);

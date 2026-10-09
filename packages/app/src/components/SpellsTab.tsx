@@ -192,7 +192,7 @@ export function SpellsTab({
                       {r.sp.ready === "prepared" && <span className="tag adv">prepared</span>}
                       {r.sp.fromFeature && <span className="tag">{r.sp.fromFeature}</span>}
                     </span>
-                    <span className="num spell-num">{r.sp.attack ? signed(r.sp.attack.total) : r.sp.save ? `DC ${r.sp.save.dc}` : ""}</span>
+                    <span className="num spell-num">{r.sp.attack ? signed(r.sp.attack.total) : r.sp.save ? `DC ${r.sp.save.dc} ${r.sp.save.ability.toUpperCase()}` : ""}</span>
                   </button>
                 ) : (
                   <button className="row dim" key={`info-${r.info!.id}`} onClick={() => openSpellInfo(r.info!.id)}>

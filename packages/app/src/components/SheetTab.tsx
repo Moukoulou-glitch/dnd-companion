@@ -1,4 +1,5 @@
 import { formatBonus, signed, type DerivedSheet, type RollBreakdown } from "@dnd/engine";
+import { shortSave } from "./DcBig";
 import { ABILITIES, ABILITY_NAMES, SKILLS, SKILL_NAMES, type Ability, type Character, type Skill } from "@dnd/schema";
 import { KIND_NAMES, skillExtra } from "./Extras";
 import type { ReactNode } from "react";
@@ -43,6 +44,7 @@ export function SheetTab({
   openAddExtra,
   openExtra,
   openAdjust,
+  openPb,
 }: {
   sheet: DerivedSheet;
   character: Character;
@@ -56,6 +58,8 @@ export function SheetTab({
   openExtra: (id: string) => void;
   /** Bonuses and penalties by hand on saves, skills or passive senses. */
   openAdjust: (kind: "save" | "skill" | "passive") => void;
+  /** The proficiency bonus, and changing it by hand. */
+  openPb: () => void;
 }) {
   const featTag = (id: string) => sheet.extras.find((x) => x.kind === "feat" && x.value === id)?.tag;
   return (
@@ -76,6 +80,10 @@ export function SheetTab({
             </button>
           ))}
         </div>
+              <button className={`row pb-row${character.pbAdjust?.bonus || character.pbAdjust?.penalty ? " adjusted" : ""}`} onClick={openPb}>
+          <div className="row-main row-title">Proficiency bonus</div>
+          <span className="num">{signed(sheet.proficiencyBonus)}</span>
+        </button>
       </section>
 
       <section>
@@ -161,7 +169,7 @@ export function SheetTab({
                 <div className="row-title">{f.name}</div>
                 <div className="row-sub">{f.summary ?? KIND_LABEL[f.kind]}</div>
               </div>
-              {f.dc && <span className="tag dc-tag">DC {f.dc.value}</span>}
+              {f.dc && <span className="tag dc-tag">DC {f.dc.value} {shortSave(f.dc.save)}</span>}
               {featTag(f.id) && <span className="tag extra-tag">{featTag(f.id)}</span>}
               {f.text && <span className="tag">text</span>}
             </button>

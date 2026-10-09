@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
-import { buildItems, castingEconomy, creatureSpellRoll, formatBonus, summonBlock, materialNeed, maxSpellLevel, newCharacter, spellListOf, signed, turnWarnings, type TurnIntent } from "@dnd/engine";
+import { buildItems, castingEconomy, creatureSpellRoll, formatBonus, summonBlock, materialNeed, maxSpellLevel, newCharacter, spellListOf, signed, turnWarnings, type TurnIntent, type RollBreakdown } from "@dnd/engine";
 import { ABILITY_NAMES, SKILL_NAMES, type Character, type Skill } from "@dnd/schema";
 import { roll as rollDice, type ComposerBase } from "@dnd/dice";
-import { ShapePanel, TransformPanel } from "./components/Shapes";
+import { ShapePanel, TextList, TransformPanel } from "./components/Shapes";
 import { SummonGroupPanel, SummonMemberPanel, SummonPicker, SummonSpellPanel, type SpellSource } from "./components/Summons";
 import type { ShapeKind } from "@dnd/engine";
 import type { ActionResult, EffectResult, SpellResult, WeaponAttack } from "@dnd/engine";
@@ -15,13 +15,14 @@ import { AddEffectPanel, EffectChips, EffectPanel } from "./components/Effects";
 import { FeaturePanel } from "./components/FeaturePanel";
 import { DcBig, Reminders } from "./components/DcBig";
 import { DistributePanel } from "./components/Distribute";
+import { RageVeins, greyLevel, useFlourishes } from "./components/Fx";
 import { CustomActionForm, CustomSpellForm } from "./components/CustomForms";
 import { RollAdjustPanel } from "./components/RollAdjust";
 import { DurablePanel } from "./components/Durable";
 import { BackstoryTab } from "./components/BackstoryTab";
 import { CUSTOM_BG, CustomBackgroundWizard } from "./components/CustomBackground";
 import { HpPad } from "./components/HpPad";
-import { AbilityAdjustPanel, MaxHpPanel, SummonMaxHp } from "./components/Adjust";
+import { PbPanel, AbilityAdjustPanel, MaxHpPanel, SummonMaxHp } from "./components/Adjust";
 import { DamageReducePanel } from "./components/Monk";
 import { BackgroundPicker } from "./components/BackgroundPicker";
 import { AddExtraPanel, ExtraEditor, ExtraInline, skillExtra } from "./components/Extras";
@@ -102,6 +103,12 @@ export function App() {
   const close = useCallback(() => setPanels([]), []);
   const back = useCallback(() => setPanels((p) => p.slice(0, -1)), []);
 
+  // Flourishes: a golden glow when Channel Divinity is used, veins of blood when Rage starts.
+  const [rageAt, setRageAt] = useState(0);
+  const onRage = useCallback(() => setRageAt(Date.now()), []);
+  const actionName = useCallback((id: string) => live.current.sheet?.actions.find((a) => a.id === id)?.name, []);
+  useFlourishes(onRage, actionName);
+
   // The phone buzzes when the character drops below half, to 0, or dies.
   const hpState = useRef<HpState | undefined>(undefined);
   useEffect(() => {
@@ -165,20 +172,23 @@ export function App() {
     return false;
   };
   const hpNow = Math.min(c.hp.current, sheet.hpMax.total);
+  const grey = greyLevel(c);
   const openChoices = buildItems(c, registry).filter((i) => !i.done).length;
   const hpPct = Math.round((hpNow / sheet.hpMax.total) * 100);
 
   const openHp = () =>
     open("Hit points", () => (
       <HpPad
-        onDamage={(amount, type) => {
+        sourceToggles={!!live.current.sheet?.rules.heavyArmorMaster}
+        onDamage={(amount, type, src) => {
+          const magical = !!src?.magical;
           // Durable: offer a Hit Die to soak the damage first (a reaction, before resistances).
           const sh = live.current.sheet;
           const ch = live.current.character;
           const diceLeft = sh?.hitDice.filter((h) => h.total - h.used > 0) ?? [];
           const reactionFree = !ch?.combat || (ch.combat.reaction ?? 0) < 1;
-          if (sh?.rules.durable && diceLeft.length && reactionFree && amount > 0) return openDurable(amount, type);
-          takeDamage(amount, type);
+          if (sh?.rules.durable && diceLeft.length && reactionFree && amount > 0) return openDurable(amount, type, magical);
+          takeDamage(amount, type, magical);
         }}
         onHeal={(amount) => {
           s.act("heal", { amount }, `Healed ${amount}.`);
@@ -196,8 +206,8 @@ export function App() {
     ));
 
   /** Damage to the character, then what it leads to: a concentration save, or instant death. */
-  const takeDamage = (amount: number, type?: string) => {
-    const prompts = live.current.act("damage", { amount, damageType: type }, `Took ${amount}${type ? ` ${type}` : ""} damage.`) as { kind: string; dc: number; reason?: string }[];
+  const takeDamage = (amount: number, type?: string, magical?: boolean) => {
+    const prompts = live.current.act("damage", { amount, damageType: type, ...(magical ? { magical: true } : {}) }, `Took ${amount}${type ? ` ${type}` : ""} damage.`) as { kind: string; dc: number; reason?: string }[];
     const dead = prompts.find((p) => p.kind === "dead");
     if (dead) return openDead(dead.reason ?? "");
     const check = prompts.find((p) => p.kind === "concentration");
@@ -217,19 +227,19 @@ export function App() {
       </>
     ));
   /** Durable (remastered): spend a Hit Die as a reaction to reduce damage by the die + Constitution (at least 3). */
-  const openDurable = (amount: number, type?: string) =>
+  const openDurable = (amount: number, type?: string, magical?: boolean) =>
     open("Durable: spend a Hit Die?", () => (
       <DurablePanel
         amount={amount}
         con={live.current.sheet?.abilities.con.modifier ?? 0}
         dice={(live.current.sheet?.hitDice ?? []).filter((h) => h.total - h.used > 0).map((h) => ({ die: h.die, left: h.total - h.used }))}
         physical={live.current.character?.settings.physicalDice ?? true}
-        onSkip={() => takeDamage(amount, type)}
+        onSkip={() => takeDamage(amount, type, magical)}
         onSpend={(die, roll, reduce) => {
           live.current.act("spendHitDie", { die, roll, reduce: true }, `Durable: ${die} spent, ${reduce} less damage.`);
           if (live.current.character?.combat) live.current.act("useEconomy", { kind: "reaction" }, "Reaction used.");
           const left = Math.max(0, amount - reduce);
-          if (left > 0) takeDamage(left, type);
+          if (left > 0) takeDamage(left, type, magical);
           else close();
         }}
       />
@@ -708,6 +718,7 @@ export function App() {
           title={`${name}: concentration on ${m.concentrating}`}
           base={b?.saves.con ?? { total: 0, parts: [], dice: [], advantage: [], disadvantage: [], suggestions: [] }}
           dc={dc}
+          dcLabel="Constitution saving throw"
           onOptionsUsed={summonRollOpts(id).onOptionsUsed}
           physical={live.current.character?.settings.physicalDice ?? true}
           onPhysicalChange={(p) => live.current.act("setField", { path: ["settings", "physicalDice"], value: p }, p ? "Rolling your own dice." : "The app rolls for you.")}
@@ -728,6 +739,8 @@ export function App() {
     );
 
   /** The stat block while transformed. */
+  /** After a roll in a form: back to its stat block. */
+  const backToShape = () => ({ label: `Back to ${live.current.sheet?.shape?.name ?? "your form"}`, to: () => openShape() });
   const openShape = () =>
     open(live.current.sheet?.shape?.name ?? "Your form", () => {
       const cur = live.current;
@@ -738,10 +751,10 @@ export function App() {
           shape={s}
           sheet={cur.sheet}
           act={cur.act}
-          openRoll={openRoll}
+          openRoll={(t: string, b: RollBreakdown, a?: WeaponAttack) => openRoll(t, b, a, { back: backToShape() })}
           openHp={openHp}
-          openAttack={openAttack}
-          onTraitRoll={openTraitRoll}
+          openAttack={(a) => openAttack(a, { back: backToShape() })}
+          onTraitRoll={(t, d, ty) => openTraitRoll(t, d, ty, { back: backToShape() })}
           {...(cur.character.combat ? { attacksMade: cur.character.combat.attacks } : {})}
           onUseAction={(name, economy) =>
             guard({ name, economy }, () => {
@@ -1090,7 +1103,7 @@ export function App() {
    * off your turn they're a reaction (opportunity attack). Nothing is spent
    * until the attack is actually rolled.
    */
-  const openAttack = (a: WeaponAttack) => {
+  const openAttack = (a: WeaponAttack, extra: Parameters<typeof openRoll>[3] = {}) => {
     const cb = live.current.character?.combat;
     const reaction = !!cb && !cb.myTurn && a.action === "attack";
     const economy = reaction ? "reaction" : a.action === "bonus" ? "bonus" : "action";
@@ -1125,6 +1138,7 @@ export function App() {
     askEndsOn("attack", () =>
       guard({ name: a.name, economy, attack: economy === "action", weapon }, () =>
         openRoll(a.name, a.attack, a, {
+          ...extra,
           optionInfo: () => optionInfoFor(a),
           onCommit,
           onDamageOptions,
@@ -1667,6 +1681,7 @@ export function App() {
         title={`Concentration on ${name}`}
         base={live.current.sheet!.saves.con}
         dc={dc}
+        dcLabel="Constitution saving throw"
         onOptionsUsed={recordOptions}
         physical={live.current.character?.settings.physicalDice ?? true}
         onPhysicalChange={(p) => live.current.act("setField", { path: ["settings", "physicalDice"], value: p }, p ? "Rolling your own dice." : "The app rolls for you.")}
@@ -1983,6 +1998,8 @@ export function App() {
   return (
     <ConditionLinks.Provider value={showCondition}>
     <div className="app">
+      <RageVeins show={rageAt} />
+      {grey > 0 && <div className="grey-veil" aria-hidden="true" style={{ backdropFilter: `grayscale(${grey})`, WebkitBackdropFilter: `grayscale(${grey})` }} />}
       <header className="strip">
         <button className="who" onClick={openRoster} aria-label={`${c.name}. Switch character`}>
           <span className="who-name">{c.name}</span>
@@ -1990,7 +2007,7 @@ export function App() {
         </button>
 
         <div className="vitals">
-          <button className="hp" onClick={openHp} aria-label={`Hit points ${hpNow} of ${sheet.hpMax.total}${c.hp.temp ? `, ${c.hp.temp} temporary` : ""}. Change`}>
+          <button className={`hp${hpNow >= 1 && hpNow <= sheet.hpMax.total * 0.1 && !sheet.shape ? " critical" : ""}`} onClick={openHp} aria-label={`Hit points ${hpNow} of ${sheet.hpMax.total}${c.hp.temp ? `, ${c.hp.temp} temporary` : ""}. Change`}>
             <div style={{ width: "100%" }}>
               <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
                 <span className="hp-now">{sheet.shape ? sheet.shape.hp.current : hpNow}</span>
@@ -2060,6 +2077,7 @@ export function App() {
             {sheet.toggles.map((t) => (
               <button
                 key={t.name}
+                data-feature-name={t.label}
                 className="switch"
                 aria-pressed={t.on}
                 onClick={() => openToggle(t.name)}
@@ -2116,7 +2134,38 @@ export function App() {
           }}
         />
       )}
-      {tab === "actions" && <ActionsTab sheet={sheet} open={open} openRoll={openRoll} openAttack={openAttack} openFeature={openFeature} custom={c.customActions} openCustom={openCustomAction} />}
+      {tab === "actions" && (
+        <ActionsTab
+          sheet={sheet}
+          open={open}
+          openRoll={openRoll}
+          openAttack={openAttack}
+          openFeature={openFeature}
+          custom={c.customActions}
+          openCustom={openCustomAction}
+          {...(sheet.shape
+            ? {
+                shapeActions: (
+                  <section>
+                    <button className="big wide" onClick={openShape}>
+                      {sheet.shape.name}: the whole stat block
+                    </button>
+                    <TextList
+                      title={`${sheet.shape.name}'s actions`}
+                      items={sheet.shape.actions.filter((a) => !sheet.shape!.attacks.some((x) => x.name === a.name))}
+                      onRoll={(t, d, ty) => openTraitRoll(`${sheet.shape!.name}: ${t}`, d, ty)}
+                      onUse={(name, economy) =>
+                        guard({ name, economy }, () => {
+                          if (live.current.character?.combat) live.current.act("useEconomy", { kind: economy, amount: 1 }, `${name}: ${economy === "bonus" ? "bonus action" : economy} used.`);
+                        })
+                      }
+                    />
+                  </section>
+                ),
+              }
+            : {})}
+        />
+      )}
       {tab === "spells" && <SpellsTab sheet={sheet} openSpell={openSpell} classLists={classLists} reg={registry} openSpellInfo={openSpellInfo} customSpells={c.customSpells} openCustomSpell={openCustomSpell} />}
       {tab === "sheet" && <SheetTab
           sheet={sheet}
@@ -2128,6 +2177,7 @@ export function App() {
           }
           open={open}
           openRoll={openRoll} openTrait={openTrait} openSkill={openSkill} openAddExtra={openAddExtra} openExtra={openExtra}
+          openPb={() => open("Proficiency bonus", () => (live.current.character && live.current.sheet ? <PbPanel character={live.current.character} sheet={live.current.sheet} act={live.current.act} /> : null))}
           openAdjust={(k) => open(k === "save" ? "Saving throws: bonus or penalty" : k === "skill" ? "Skills: bonus or penalty" : "Passive senses: bonus or penalty", () => (live.current.character ? <RollAdjustPanel kind={k} c={live.current.character} act={live.current.act} /> : null))} />}
       {tab === "story" && <BackstoryTab c={c} act={s.act} />}
       {tab === "inventory" && (
@@ -2248,7 +2298,7 @@ function FlashSetting() {
         />
         <div className="row-main">
           <div className="row-title">Flash my phone's light for light spells</div>
-          <div className="row-sub">Light, Create Bonfire, Daylight, Charm of Sunlight, a Flame Tongue igniting… A cantrip flashes once; other spells blink once per level.</div>
+          <div className="row-sub">Light, Create Bonfire, Daylight, Charm of Sunlight, Sacred Weapon, a Flame Tongue igniting… A cantrip flashes once; other spells blink once per level.</div>
         </div>
       </label>
       {msg && <p className="note">{msg}</p>}

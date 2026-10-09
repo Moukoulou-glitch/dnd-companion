@@ -4174,18 +4174,9 @@
             "name": "Harness Divine Power",
             "economy": "bonus",
             "cost": {
-              "resource": "harness-divine-power"
-            },
-            "note": "Spend Channel Divinity: regain one spell slot of level up to half your proficiency bonus (round up). Restore the slot on the Spells panel."
-          },
-          {
-            "id": "harness-divine-power-cd",
-            "name": "Harness Divine Power (Channel Divinity)",
-            "economy": "free",
-            "cost": {
               "resource": "channel-divinity"
             },
-            "note": "Tick alongside Harness Divine Power: it also spends one Channel Divinity use."
+            "note": "Spend a Channel Divinity use to regain one expended spell slot of a level up to half your proficiency bonus (rounded up). Pick the slot; a Harness Divine Power use is marked too."
           }
         ]
       }

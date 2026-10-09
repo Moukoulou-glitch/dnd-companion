@@ -164,7 +164,7 @@
             "cost": {
               "resource": "channel-divinity-paladin"
             },
-            "note": "Spend Channel Divinity: regain a spell slot of level up to half your proficiency bonus (round up). Also mark a Harness Divine Power use."
+            "note": "Spend a Channel Divinity use to regain one expended spell slot of a level up to half your proficiency bonus (rounded up). Pick the slot; a Harness Divine Power use is marked too."
           }
         ]
       },

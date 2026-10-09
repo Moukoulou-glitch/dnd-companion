@@ -590,11 +590,16 @@
           "count": 1,
           "from": [
             "feature:style-archery",
+            "feature:style-blind-fighting",
             "feature:style-defense",
             "feature:style-dueling",
             "feature:style-great-weapon-fighting",
+            "feature:style-interception",
             "feature:style-protection",
-            "feature:style-two-weapon-fighting"
+            "feature:style-superior-technique",
+            "feature:style-thrown-weapon-fighting",
+            "feature:style-two-weapon-fighting",
+            "feature:style-unarmed-fighting"
           ]
         }
       ]
@@ -737,7 +742,17 @@
       "grant": {
         "abilityBonuses": {
           "str": 1
-        }
+        },
+        "modifiers": [
+          {
+            "selector": "rule.heavyArmorMaster",
+            "op": "allow",
+            "label": "Heavy Armor Master",
+            "when": {
+              "withArmor": true
+            }
+          }
+        ]
       }
     },
     {

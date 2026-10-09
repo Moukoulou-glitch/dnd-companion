@@ -432,7 +432,8 @@ export const Character = z
     /** Why a choice holds more picks than the rules give, keyed "source|choice" (or "spells|<class>|<kind>"). */
     extraNotes: z.record(z.string(), ExtraNote).default({}),
     /** Spells with a costly or consumed material component: whether the character has it now, by spell id. */
-    components: z.record(DefId, z.boolean()).default({}),
+    /** How many of each costly or consumed material component the character has (true from older saves: one). */
+    components: z.record(DefId, z.union([z.boolean(), z.number().int().min(0).max(999)])).default({}),
     /**
      * Wild Shape or Polymorph: the creature's stat block replaces yours, and
      * its hit points take damage first (PHB p. 66, p. 266).
@@ -529,6 +530,8 @@ export const Character = z
      * Bonuses and penalties by hand on saves, skills and passive senses:
      * "save.all", "save.dex", "skill.all", "skill.stealth", "passive.all", "passive.perception".
      */
+    /** Proficiency bonus changed by hand (a curse, a boon), with why. */
+    pbAdjust: z.object({ bonus: z.number().int().min(0).max(10).default(0), penalty: z.number().int().min(0).max(10).default(0), note: z.string().max(80).optional() }).strict().default({ bonus: 0, penalty: 0 }),
     rollAdjust: z.record(z.string(), z.object({ bonus: z.number().int().min(0).default(0), penalty: z.number().int().min(0).default(0), note: z.string().max(80).optional() }).strict()).default({}),
     customBackground: CustomBackground.optional(),
     /** Actions and spells the player wrote. */

@@ -21,7 +21,8 @@ export const OperationBase = z.object({
 export const OPERATION_PAYLOADS = {
   /** Damage of one type; resistances, temp HP and 0 HP are handled when applied. */
   /** `companion` sends it to a companion instead of the character. */
-  damage: z.object({ amount: z.number().int().min(0), damageType: z.string().optional(), companion: z.string().optional() }).strict(),
+  /** `magical`: from a magic weapon or spell (Heavy Armor Master and the like only stop nonmagical damage). */
+  damage: z.object({ amount: z.number().int().min(0), damageType: z.string().optional(), companion: z.string().optional(), magical: z.boolean().optional() }).strict(),
   /** Healing, capped at maximum HP. Healing from 0 HP clears death saves. */
   heal: z.object({ amount: z.number().int().min(0), companion: z.string().optional() }).strict(),
   /** Gain temporary HP: they don't stack, so the higher value is kept. 0 clears them. */
@@ -142,7 +143,8 @@ export const OPERATION_PAYLOADS = {
   /** Why a choice has more picks than the rules give; no tag clears it. */
   setExtraNote: z.object({ key: z.string(), tag: ExtraTag.optional(), reason: z.string().max(250).default("") }).strict(),
   /** Whether you have a spell's costly or consumed material component right now. */
-  setComponent: z.object({ spell: DefId, have: z.boolean() }).strict(),
+  /** How many of a spell's costly or consumed component you have (`have` is the older yes/no). */
+  setComponent: z.object({ spell: DefId, have: z.boolean().optional(), count: z.number().int().min(0).max(999).optional() }).strict(),
   /** Wizard: gold set aside for copying spells into the spellbook. */
   setSpellbookFunds: z.object({ gp: z.number().min(0) }).strict(),
   rest: z.object({ kind: z.enum(["short", "long"]) }).strict(),
@@ -297,6 +299,8 @@ export const OPERATION_PAYLOADS = {
   /** A spell of the player's own, added or changed, on one of the character's spell lists. */
   setCustomSpell: z.object({ spell: CustomSpell, list: z.string() }).strict(),
   removeCustomSpell: z.object({ id: z.string() }).strict(),
+  /** Proficiency bonus raised or lowered by hand. */
+  setPbAdjust: z.object({ bonus: z.number().int().min(0).max(10).optional(), penalty: z.number().int().min(0).max(10).optional(), note: z.string().max(80).optional() }).strict(),
   /** Personality, backstory and the session number. */
   setStory: z.object({ traits: z.string().max(4000).optional(), ideals: z.string().max(4000).optional(), bonds: z.string().max(4000).optional(), flaws: z.string().max(4000).optional(), backstory: z.string().max(100000).optional(), session: z.number().int().min(0).optional() }).strict(),
   /** The in-world calendar: which one, a custom one, the time (set or moved on). */
@@ -409,6 +413,7 @@ export const Operation = z.discriminatedUnion("type", [
   OperationBase.extend({ type: z.literal("toggle"), payload: OPERATION_PAYLOADS.toggle }),
   OperationBase.extend({ type: z.literal("setField"), payload: OPERATION_PAYLOADS.setField }),
   OperationBase.extend({ type: z.literal("setStory"), payload: OPERATION_PAYLOADS.setStory }),
+  OperationBase.extend({ type: z.literal("setPbAdjust"), payload: OPERATION_PAYLOADS.setPbAdjust }),
   OperationBase.extend({ type: z.literal("setCustomAction"), payload: OPERATION_PAYLOADS.setCustomAction }),
   OperationBase.extend({ type: z.literal("removeCustomAction"), payload: OPERATION_PAYLOADS.removeCustomAction }),
   OperationBase.extend({ type: z.literal("setCustomSpell"), payload: OPERATION_PAYLOADS.setCustomSpell }),

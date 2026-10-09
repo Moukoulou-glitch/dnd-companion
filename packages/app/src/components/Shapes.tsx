@@ -353,14 +353,18 @@ export function TextList({
             <p className="note">
               <b>{t.name}.</b> <RichText text={t.text} />
             </p>
-            {(d || usable) && (
+            {(d || usable || dc) && (
               <div className="choice-row">
                 {usable && (
                   <button className="tag use" onClick={() => onUse!(t.name, economy)}>
                     Use · {economy === "bonus" ? "bonus action" : economy}
                   </button>
                 )}
-                {dc && <span className="tag">DC {dc[1]} {dc[2]}</span>}
+                {dc && (
+                  <span className="tag dc-tag dc-tag-big">
+                    DC {dc[1]} {dc[2]} save
+                  </span>
+                )}
                 {d && (
                   <button className="tag" onClick={() => onRoll!(t.name, d.dice, d.type)}>
                     Roll {d.dice}

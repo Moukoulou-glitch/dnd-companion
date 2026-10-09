@@ -232,7 +232,17 @@
         "pack": "table-2014",
         "book": "Homebrew (remastered feats)"
       },
-      "features": []
+      "features": [],
+      "grant": {
+        "actions": [
+          {
+            "id": "defensive-duelist",
+            "name": "Defensive Duelist",
+            "economy": "reaction",
+            "note": "When hit in melee while wielding a finesse weapon you're proficient with: add the bonus shown to your AC against that attack (full Dexterity modifier instead of half if you took the Dodge action)."
+          }
+        ]
+      }
     },
     {
       "kind": "feat",
@@ -367,7 +377,19 @@
             "thunder"
           ]
         }
-      ]
+      ],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.damage.spell",
+            "op": "note",
+            "label": "Elemental Adept (your chosen type): ignores resistance, and each damage die counts as at least your proficiency bonus",
+            "when": {
+              "text": "the spell deals that damage type"
+            }
+          }
+        ]
+      }
     },
     {
       "kind": "feat",
@@ -401,7 +423,28 @@
         "pack": "table-2014",
         "book": "Homebrew (remastered feats)"
       },
-      "features": []
+      "features": [],
+      "grant": {
+        "actions": [
+          {
+            "id": "healer-stabilize",
+            "name": "Healer: stabilize and heal",
+            "economy": "action",
+            "heal": "1 + pb",
+            "note": "Stabilize a dying creature with a healer's kit use: it also regains 1 + your proficiency bonus hit points."
+          },
+          {
+            "id": "healer-kit",
+            "name": "Healer: patch up",
+            "economy": "action",
+            "roll": {
+              "dice": "1d12 + 4",
+              "label": "hit points (add the creature's maximum Hit Dice)"
+            },
+            "note": "Spend a healer's kit use: the creature regains 1d12 + 4 + its maximum number of Hit Dice. Once per short or long rest for each creature."
+          }
+        ]
+      }
     },
     {
       "kind": "feat",
@@ -565,7 +608,19 @@
       "grant": {
         "abilityBonuses": {
           "str": 1
-        }
+        },
+        "attacks": [
+          {
+            "id": "polearm-butt",
+            "name": "Polearm butt end (after a polearm attack)",
+            "category": "martial",
+            "kind": "melee",
+            "damage": "1d4",
+            "damageType": "bludgeoning",
+            "properties": [],
+            "action": "bonus"
+          }
+        ]
       }
     },
     {

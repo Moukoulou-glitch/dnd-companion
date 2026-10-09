@@ -1,6 +1,7 @@
 import { formatBonus, signed, signedDice, type ActionResult, type DerivedSheet, type RollBreakdown, type WeaponAttack } from "@dnd/engine";
 import type { ReactNode } from "react";
 import { BreakdownLines } from "./Sheet";
+import { shortSave } from "./DcBig";
 
 type Open = (title: string, body: ReactNode) => void;
 type OpenRoll = (title: string, base: RollBreakdown, attack?: WeaponAttack) => void;
@@ -35,7 +36,9 @@ function FeatureRow({ a, openFeature }: { a: ActionResult; openFeature: (a: Acti
   return (
     <button className="row" onClick={() => openFeature(a)}>
       <div className="row-main">
-        <div className="row-title">{a.name}</div>
+        <div className="row-title" data-feature-name={a.name}>
+          {a.name}
+        </div>
         <div className="row-sub">
           {a.cost ? `${a.cost.remaining} left` : "No cost"}
           {a.tempHp ? `, ${a.tempHp.text} temp HP` : ""}
@@ -43,7 +46,11 @@ function FeatureRow({ a, openFeature }: { a: ActionResult; openFeature: (a: Acti
         </div>
       </div>
       <span className="row-tags">
-        {a.dc && <span className="tag dc-tag">DC {a.dc.value}</span>}
+        {a.dc && (
+          <span className="tag dc-tag">
+            DC {a.dc.value} {shortSave(a.dc.save)}
+          </span>
+        )}
         <span className="tag">{a.source}</span>
       </span>
       <span className={`tag${none ? " fail" : " adv"}`}>{none ? "none left" : "use"}</span>
@@ -76,6 +83,7 @@ export function ActionsTab({
   openFeature,
   custom = [],
   openCustom,
+  shapeActions,
 }: {
   sheet: DerivedSheet;
   open: Open;
@@ -86,6 +94,8 @@ export function ActionsTab({
   custom?: { id: string; name: string; source: string }[];
   /** Write a new action, or change one (by id). */
   openCustom?: (id?: string) => void;
+  /** While transformed: the form's own actions (Fire Breath), and the way to its stat block. */
+  shapeActions?: ReactNode;
 }) {
   const features = (e: ActionResult["economy"]) => sheet.actions.filter((a) => a.economy === e && !a.common && !a.limited);
   const common = sheet.actions.filter((a) => a.common);
@@ -102,6 +112,7 @@ export function ActionsTab({
 
   return (
     <main>
+      {shapeActions}
       {groups.map((g) => (
         <section key={g.title}>
           <h2>{g.title}</h2>

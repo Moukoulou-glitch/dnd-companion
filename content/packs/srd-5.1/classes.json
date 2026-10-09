@@ -8367,17 +8367,20 @@
             "toggles": [
               "sacred-weapon"
             ],
-            "note": "For 1 minute your weapon is magical, sheds bright light, and you add your Charisma modifier to attacks with it."
+            "note": "For 1 minute the weapon you hold is magical and sheds bright light 20 ft (dim 20 ft more); tick Sacred Weapon on that weapon's attack rolls to add your Charisma modifier (at least +1). Ends if you drop the weapon or fall unconscious."
           }
         ],
         "modifiers": [
           {
             "selector": "roll.attack.weapon.*",
             "op": "add",
-            "value": "mod.cha",
+            "value": "mod1.cha",
+            "mode": "suggested",
             "label": "Sacred Weapon",
             "when": {
-              "toggle": "sacred-weapon"
+              "toggle": "sacred-weapon",
+              "conscious": true,
+              "text": "the weapon you imbued"
             }
           }
         ]
