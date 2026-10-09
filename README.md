@@ -22,6 +22,7 @@ The full product spec is the "D&D 5e Player Companion — Phase 0 Specification"
 npm install
 npm test          # engine tests, including every reference character
 npm run typecheck
+npm run build -w @dnd/app   # the PWA, as published
 ```
 
 ## How the engine works
@@ -82,12 +83,12 @@ npm run typecheck
 | 12½ · Feel and fixes | Done: the app greys a sixth more with each Exhaustion level and fully at 6 or on death; the HP box blinks red at 10% or less; a golden glow when Channel Divinity is used; veins of blood when Rage starts; saving throws named next to every DC and bigger DCs in stat blocks; breath weapons say their damage type, a form's actions are in the Actions tab, and every roll in a form leads back to its stat block; Sacred Weapon is a tick-box on the weapon's attacks and lights the flashlight; proficiency bonus up or down by hand; Harness Divine Power restores the slot you pick; counted spell components; effect tags for 38 more spells (Protection from Evil and Good, Warding Bond, Fire Shield…); feats: Magic Initiate for all six classes, Defensive Duelist, Healer, Heavy Armor Master, Polearm Master's butt end, Elemental Adept, every Fighting Style for Fighting Initiate; damage type for your own spells |
 | 12¾ · Loose ends | Done: recharge abilities (Fire Breath, Recharge 5–6) on forms and summoned creatures: used, then a d6 to bring them back, with a reminder at the start of the turn (the SRD creatures got their Recharge and per-day labels back); Elemental Adept makes each die of its type at least your proficiency bonus; Healer remembers who you patched up until a rest; Ritual Caster's ritual book (the class's rituals, up to half your level, as many as you copy, cast with that class's ability); Tavern Brawler's d4 unarmed strike and d6 improvised weapon |
 | 12⅞ · Maneuvers and smites | Done: every Battle Master maneuver (and Martial Adept's, and Superior Technique's) shows up where it's used: on attacks, damage (with its save and DC), Stealth and initiative (Ambush), a reaction attack (Riposte and Brace start ticked), its own action (Bait and Switch adds the die to AC until your next turn); ticking one spends a superiority die, one per attack (the app warns if a second is ticked on the damage); smite spells start ticked on your next weapon hit with their DC and save and end once that damage is rolled; resistances, immunities and vulnerabilities by hand; size, alignment and creature type; Recharge abilities roll themselves at the start of the turn |
-| Remaining from 1 | Editing a character in the app, importing a file |
+| 13 · Effects and backups | Done: brief effects that follow what really happened (a crit or natural 1 on an attack roll, healing and temp HP actually gained, damage blocked, reduced or soaked by temp HP, a spell cast, Sneak Attack dice in the damage, a concentration save held or lost, death saves, Inspiration gained or spent, a level-up), each with a reduced-motion version, never blocking taps and never replayed (see `docs/EFFECTS.md`); back up every character in one file and restore it by importing, with a reminder after 30 days; PNG home-screen icons for iPhones |
 
 ### Shortcuts to revisit
 
 - Variant human ability bonuses aren't recorded for Ελισσαίος and Αγακλής, so those +1s are folded into their base scores.
 - Dual Wielder's +2 AC is switched on with the `dual-wielding` toggle until the app can tell what is in each hand.
 
-- The ranger class in `table-2014.json` already uses the Tasha's optional features. A general "optional class features" switch comes with the character builder.
+- Tasha's optional class features are always on; a per-character switch is still to come (see `docs/NOT-TRACKED.md`).
 - Μπέρεν's Acrobatics, Medicine and History proficiencies and his Druidic language are kept as the player's own entries (a manual grant), by the DM's decision.

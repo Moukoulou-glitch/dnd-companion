@@ -11,7 +11,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["icon.svg"],
+      includeAssets: ["icon.svg", "apple-touch-icon.png"],
       manifest: {
         name: "Table Companion",
         short_name: "Companion",
@@ -22,10 +22,15 @@ export default defineConfig({
         orientation: "portrait",
         start_url: base,
         scope: base,
-        icons: [{ src: "icon.svg", sizes: "any", type: "image/svg+xml", purpose: "any maskable" }],
+        icons: [
+          { src: "icon.svg", sizes: "any", type: "image/svg+xml", purpose: "any maskable" },
+          // PNGs for systems that don't take SVG icons (iOS home screen, older Android launchers).
+          { src: "icon-192.png", sizes: "192x192", type: "image/png", purpose: "any maskable" },
+          { src: "icon-512.png", sizes: "512x512", type: "image/png", purpose: "any maskable" },
+        ],
       },
       // The content packs make the app bundle large; it still has to work offline.
-      workbox: { globPatterns: ["**/*.{js,css,html,svg,woff,woff2}"], maximumFileSizeToCacheInBytes: 6 * 1024 * 1024 },
+      workbox: { globPatterns: ["**/*.{js,css,html,svg,png,woff,woff2}"], maximumFileSizeToCacheInBytes: 6 * 1024 * 1024 },
     }),
   ],
   server: { fs: { allow: ["../.."] } },

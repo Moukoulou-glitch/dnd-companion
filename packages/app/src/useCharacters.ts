@@ -130,6 +130,8 @@ export function useCharacters() {
     (r: RollRecord) => {
       if (!log || !selectedId) return;
       rolls.current.set(selectedId, [r, ...(rolls.current.get(selectedId) ?? [])].slice(0, MAX_ROLLS));
+      // For the flourishes (a crit, a natural 1, Sneak Attack): once, when the roll is saved.
+      window.dispatchEvent(new CustomEvent("dnd-roll", { detail: r }));
       setVersion((v) => v + 1);
       void persist(log, selectedId);
     },
@@ -154,13 +156,16 @@ export function useCharacters() {
   const exportSelected = useCallback(() => {
     if (!log || !character) return;
     const data = { format: "table-companion/character@1", character, operations: log.operations, rolls: rolls.current.get(selectedId ?? "") ?? [] };
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = `${character.name}.json`;
-    a.click();
-    URL.revokeObjectURL(a.href);
+    download(`${character.name}.json`, data);
   }, [log, character, selectedId]);
+
+  /** Every character on this device in one file: the backup to keep somewhere else. */
+  const exportAll = useCallback(() => {
+    const characters = [...logs.current.entries()].map(([id, l]) => ({ format: "table-companion/character@1", character: l.character, operations: l.operations, rolls: rolls.current.get(id) ?? [] }));
+    if (!characters.length) return;
+    download(`D&D Companion backup ${new Date().toISOString().slice(0, 10)}.json`, { format: "table-companion/backup@1", exportedAt: new Date().toISOString(), characters });
+    markBackup();
+  }, []);
 
   /** Adds a character (a new one from the builder, or an imported file) and selects it. */
   const create = useCallback(
@@ -275,7 +280,44 @@ export function useCharacters() {
     [ready, version],
   );
 
-  return { ready, error, character, sheet, roster, selectedId, select, act, undo, canUndo: !!log?.canUndo, toast, setToast, history: log?.history ?? [], exportSelected, addRoll, rolls: (selectedId && rolls.current.get(selectedId)) || [], create, readImport, remove, restore, purge, deleted: deletedList };
+  return { ready, error, character, sheet, roster, selectedId, select, act, undo, canUndo: !!log?.canUndo, toast, setToast, history: log?.history ?? [], exportSelected, exportAll, addRoll, rolls: (selectedId && rolls.current.get(selectedId)) || [], create, readImport, remove, restore, purge, deleted: deletedList };
+}
+
+function download(name: string, data: unknown) {
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+/** When this device last made a full backup (a reminder only: it lives in this browser). */
+export function lastBackup(): number | undefined {
+  try {
+    const v = Number(localStorage.getItem("dnd-last-backup"));
+    return v > 0 ? v : undefined;
+  } catch {
+    return undefined;
+  }
+}
+function markBackup() {
+  try {
+    localStorage.setItem("dnd-last-backup", String(Date.now()));
+  } catch {
+    /* private window: no reminder, nothing lost */
+  }
+}
+
+/** The character files inside a backup (or the one character file), for importing. */
+export function filesIn(text: string): string[] {
+  try {
+    const data = JSON.parse(text) as { format?: string; characters?: unknown[] };
+    if (data.format === "table-companion/backup@1" && Array.isArray(data.characters)) return data.characters.map((x) => JSON.stringify(x));
+  } catch {
+    /* not JSON: readImport says so */
+  }
+  return [text];
 }
 
 function summarize(c: Character): string {

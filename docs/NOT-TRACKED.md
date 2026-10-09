@@ -59,3 +59,8 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 ## Other
 - Barbarian override in the table pack only covers levels up to 9 explicitly (higher levels come from the SRD).
 - Weapon-specific Shillelagh: offered on every melee weapon, flagged when it isn't a club or quarterstaff.
+
+## Effects
+- Effects are drawn where you last tapped (spells, Inspiration) or at the roll's total / HP box / concentration chip; there's no per-spell-row anchor.
+- Damage prevention shows for immunity, resistance, Heavy Armor Master, temp HP and Durable; a reduction rolled by hand before entering the damage (Parry, Deflect Missiles' panel) is already subtracted and doesn't show a shield.
+- No sound. Vibration on Android only.

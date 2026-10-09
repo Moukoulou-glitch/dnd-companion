@@ -6,6 +6,8 @@ export interface RollRecord {
   at: number;
   title: string;
   kind: "d20" | "damage";
+  /** An attack roll (not a check or save): crits and natural 1s mean something here. */
+  attack?: boolean;
   total: number;
   natural?: number;
   crit: boolean;

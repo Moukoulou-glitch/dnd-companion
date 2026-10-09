@@ -2663,3 +2663,113 @@ button.mpip {
 
 .types.wrap { flex-wrap: wrap; overflow: visible; }
 .defense-sub { display: block; font-weight: 400; text-transform: none; letter-spacing: 0; }
+
+/* ── Effects (fx/FxLayer.tsx): decorative, never blocks taps ─────────────── */
+.fx-layer { position: fixed; inset: 0; pointer-events: none; z-index: 60; overflow: hidden; }
+.fx { pointer-events: none; }
+.fx-at { position: absolute; width: 0; height: 0; }
+.fx-at > * { position: absolute; left: 0; top: 0; transform: translate(-50%, -50%); }
+.fx-core, .fx-ring { border-radius: 50%; opacity: 0; }
+.fx-core { width: 70px; height: 70px; }
+.fx-ring { width: 40px; height: 40px; border: 2px solid transparent; }
+.fx-label {
+  top: -46px; white-space: nowrap; font-weight: 700; font-size: 0.95rem; letter-spacing: 0.02em;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.9); opacity: 0;
+  background: rgba(10, 12, 20, 0.6); padding: 1px 8px; border-radius: 10px;
+  animation: fx-label var(--fx-ms, 600ms) ease-out forwards;
+}
+.fx-label-mid { position: absolute; left: 50%; top: 38%; transform: translate(-50%, -50%); }
+@keyframes fx-label { 0% { opacity: 0; translate: 0 6px; } 20% { opacity: 1; translate: 0 0; } 75% { opacity: 1; } 100% { opacity: 0; translate: 0 -6px; } }
+@keyframes fx-pop { 0% { opacity: 0.95; scale: 0.3; } 35% { opacity: 0.8; } 100% { opacity: 0; scale: 1.3; } }
+@keyframes fx-ripple { 0% { opacity: 0.9; scale: 0.4; } 100% { opacity: 0; scale: 3.2; } }
+@keyframes fx-fly { 0% { opacity: 1; transform: translate(-50%, -50%) rotate(var(--a)) translateY(-10px); } 100% { opacity: 0; transform: translate(-50%, -50%) rotate(var(--a)) translateY(-70px); } }
+.fx-dot { width: 5px; height: 5px; border-radius: 50%; animation: fx-fly var(--fx-ms) ease-out forwards; }
+
+/* A: critical hit: white-gold flash, ripple, sparks */
+.fx-crit .fx-core { background: radial-gradient(circle, #fff 0%, rgba(255, 222, 140, 0.85) 35%, rgba(255, 200, 80, 0) 70%); animation: fx-pop var(--fx-ms) ease-out forwards; }
+.fx-crit .fx-ring { border-color: rgba(255, 220, 130, 0.9); box-shadow: 0 0 12px rgba(255, 210, 110, 0.8); animation: fx-ripple var(--fx-ms) cubic-bezier(0.2, 0.7, 0.3, 1) forwards; }
+.fx-crit .fx-dot { background: #ffe39a; box-shadow: 0 0 6px #ffd56b; }
+.fx-crit .fx-label { color: #ffe08a; }
+
+/* B: natural 1: dark red distortion and cracks */
+.fx-fumble .fx-core { width: 90px; height: 90px; background: radial-gradient(circle, rgba(120, 0, 10, 0.55), rgba(60, 0, 0, 0) 70%); filter: blur(2px); animation: fx-pop var(--fx-ms) ease-out forwards; }
+.fx-cracks { width: 100px; height: 100px; fill: none; stroke: rgba(255, 120, 120, 0.7); stroke-width: 1.6; stroke-linecap: round; animation: fx-cracks var(--fx-ms) ease-out forwards; }
+@keyframes fx-cracks { 0% { opacity: 0; scale: 0.6; } 25% { opacity: 1; scale: 1; } 100% { opacity: 0; scale: 1.08; } }
+.fx-fumble .fx-label { color: #ff8f8f; }
+
+/* C: healing (emerald and gold wave) and temporary HP (pale blue shimmer), at the HP box */
+.fx-heal .fx-core { width: 120px; height: 60px; background: radial-gradient(ellipse, rgba(80, 220, 150, 0.55), rgba(240, 200, 90, 0.25) 50%, rgba(0, 0, 0, 0) 72%); animation: fx-pop var(--fx-ms) ease-out forwards; }
+.fx-heal .fx-ring { border-color: rgba(110, 230, 160, 0.85); animation: fx-ripple var(--fx-ms) ease-out forwards; }
+.fx-heal .fx-label { color: #8ff0b8; }
+.fx-heal .fx-label, .fx-temp .fx-label, .fx-shield .fx-label { top: 44px; }
+.fx-temp .fx-core { width: 130px; height: 64px; border-radius: 16px; background: linear-gradient(110deg, rgba(170, 215, 255, 0) 20%, rgba(200, 230, 255, 0.55) 50%, rgba(170, 215, 255, 0) 80%); background-size: 250% 100%; animation: fx-shimmer var(--fx-ms) ease-out forwards; }
+@keyframes fx-shimmer { 0% { opacity: 1; background-position: 100% 0; } 100% { opacity: 0; background-position: -60% 0; } }
+.fx-temp .fx-label { color: #bfe0ff; }
+.hp-bar > span { transition: width 450ms ease-out; }
+
+/* E: damage that didn't get through: a pale-blue shield ring; solid when blocked, dashed when reduced, filled when temp HP took it */
+.fx-shield .fx-ring { width: 74px; height: 74px; border: 3px solid rgba(170, 215, 255, 0.85); box-shadow: 0 0 14px rgba(150, 200, 255, 0.6), inset 0 0 10px rgba(150, 200, 255, 0.4); animation: fx-shield var(--fx-ms) ease-out forwards; }
+.fx-reduced .fx-ring { border-style: dashed; }
+.fx-absorbed .fx-ring { background: rgba(170, 215, 255, 0.18); }
+@keyframes fx-shield { 0% { opacity: 0; scale: 0.7; } 30% { opacity: 1; scale: 1; } 60% { scale: 1.08; } 100% { opacity: 0; scale: 1.2; } }
+.fx-shield .fx-label { color: #cfe6ff; }
+
+/* D: spellcasting: an arcane circle and a ripple; the school's colour when known */
+.fx-cast { --fx-c: 150, 140, 255; }
+.fx-evocation { --fx-c: 255, 150, 90; }
+.fx-abjuration { --fx-c: 170, 215, 255; }
+.fx-necromancy { --fx-c: 150, 220, 140; }
+.fx-conjuration { --fx-c: 120, 230, 220; }
+.fx-circle { width: 110px; height: 110px; fill: none; stroke: rgba(var(--fx-c), 0.85); stroke-width: 1.4; animation: fx-circle var(--fx-ms) ease-out forwards; }
+.fx-circle path { fill: rgba(var(--fx-c), 0.6); stroke: none; }
+.fx-circle circle:nth-child(2) { stroke-dasharray: 4 5; }
+@keyframes fx-circle { 0% { opacity: 0; scale: 0.5; rotate: -40deg; } 30% { opacity: 1; scale: 1; } 100% { opacity: 0; scale: 1.1; rotate: 30deg; } }
+.fx-cast .fx-ring { border-color: rgba(var(--fx-c), 0.7); animation: fx-ripple var(--fx-ms) 120ms ease-out forwards; }
+
+/* F: Sneak Attack: violet-black slash with an afterimage */
+.fx-slash { width: 130px; height: 130px; fill: none; stroke-linecap: round; }
+.fx-slash path { stroke: rgba(190, 120, 255, 0.95); stroke-width: 4; stroke-dasharray: 1; stroke-dashoffset: 1; filter: drop-shadow(0 0 4px rgba(40, 0, 60, 0.9)); animation: fx-slash var(--fx-ms) ease-out forwards; }
+.fx-slash .ghost { stroke: rgba(60, 20, 90, 0.7); stroke-width: 7; animation-delay: 60ms; }
+@keyframes fx-slash { 0% { stroke-dashoffset: 1; opacity: 1; } 45% { stroke-dashoffset: 0; opacity: 1; } 100% { stroke-dashoffset: 0; opacity: 0; translate: 6px -6px; } }
+.fx-sneak .fx-label { color: #d7b4ff; }
+
+/* G: concentration: held (steady glow) or lost (cracks and fade), at the concentration chip */
+.fx-conc-kept .fx-ring { width: 60px; height: 60px; border-color: rgba(150, 200, 255, 0.9); box-shadow: 0 0 12px rgba(150, 200, 255, 0.7); animation: fx-shield var(--fx-ms) ease-out forwards; }
+.fx-conc-lost .fx-cracks { stroke: rgba(200, 200, 230, 0.8); }
+.fx-conc-kept .fx-label { color: #cfe6ff; top: 40px; }
+.fx-conc-lost .fx-label { color: #ff9f9f; top: 40px; }
+
+/* H: death saves: a restrained crimson edge, one heartbeat; silver for a success, deeper red for a failure */
+.fx-death { position: absolute; inset: 0; box-shadow: inset 0 0 70px 12px rgba(140, 0, 15, 0.55); animation: fx-beat var(--fx-ms, 650ms) ease-in-out forwards; }
+.fx-death-success { box-shadow: inset 0 0 70px 12px rgba(140, 0, 15, 0.4), inset 0 0 20px 2px rgba(220, 225, 240, 0.5); }
+.fx-death-failure { box-shadow: inset 0 0 90px 22px rgba(120, 0, 10, 0.7); }
+.fx-death-final.fx-death-success { box-shadow: inset 0 0 40px 8px rgba(225, 230, 245, 0.7); }
+.fx-death-final.fx-death-failure { box-shadow: inset 0 0 160px 60px rgba(70, 0, 5, 0.85); }
+@keyframes fx-beat { 0% { opacity: 0; } 18% { opacity: 1; } 32% { opacity: 0.5; } 48% { opacity: 1; } 100% { opacity: 0; } }
+.fx-death .fx-label { color: #f2d6d6; animation-duration: 650ms; }
+
+/* I: Inspiration: a golden star that lights with motes going up, or flares and dissolves */
+.fx-star { width: 60px; height: 60px; fill: #ffd76a; filter: drop-shadow(0 0 6px rgba(255, 210, 90, 0.9)); }
+.fx-insp-gain .fx-star { animation: fx-star-in var(--fx-ms) ease-out forwards; }
+.fx-insp-spend .fx-star { animation: fx-star-out var(--fx-ms) ease-out forwards; }
+@keyframes fx-star-in { 0% { opacity: 0; scale: 0.3; } 40% { opacity: 1; scale: 1.1; } 100% { opacity: 0; scale: 1; translate: 0 -14px; } }
+@keyframes fx-star-out { 0% { opacity: 1; scale: 1; } 30% { opacity: 1; scale: 1.5; filter: drop-shadow(0 0 14px #ffe08a); } 100% { opacity: 0; scale: 0.6; filter: blur(3px); } }
+.fx-insp-gain .fx-dot { background: #ffe08a; animation-name: fx-rise; }
+@keyframes fx-rise { 0% { opacity: 1; transform: translate(calc(-50% + var(--dx)), -50%); } 100% { opacity: 0; transform: translate(calc(-50% + var(--dx)), -64px); } }
+
+/* J: level-up: slow golden rings and the new level growing */
+.fx-level .fx-ring { width: 80px; height: 80px; border-color: rgba(255, 215, 110, 0.85); box-shadow: 0 0 16px rgba(255, 210, 100, 0.6); animation: fx-level-ring var(--fx-ms) ease-out forwards; }
+.fx-level .fx-core { width: 80px; height: 80px; border: 2px solid rgba(255, 215, 110, 0.6); animation: fx-level-ring var(--fx-ms) 250ms ease-out forwards; }
+@keyframes fx-level-ring { 0% { opacity: 0.9; scale: 0.5; } 100% { opacity: 0; scale: 4; } }
+.fx-level .fx-label { top: 0; font-size: 2rem; background: none; color: #ffe08a; animation: fx-level-num var(--fx-ms) ease-out forwards; }
+@keyframes fx-level-num { 0% { opacity: 0; scale: 0.6; } 35% { opacity: 1; scale: 1.25; } 70% { opacity: 1; scale: 1; } 100% { opacity: 0; scale: 1; } }
+
+/* Reduced motion: no movement or scaling; a short, static tint and the label */
+@media (prefers-reduced-motion: reduce) {
+  .fx-at > *, .fx-death { animation: fx-static 450ms ease-out forwards !important; scale: 1 !important; rotate: 0deg !important; translate: 0 0 !important; }
+  .fx-dot, .fx-cracks, .fx-slash .ghost { display: none; }
+  .fx-ring { opacity: 0.6; }
+  .fx-slash path { stroke-dashoffset: 0; }
+  .hp-bar > span { transition: none; }
+}
+@keyframes fx-static { 0% { opacity: 0.85; } 100% { opacity: 0; } }

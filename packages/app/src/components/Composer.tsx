@@ -372,6 +372,7 @@ export function Composer({ title, base, attack, physical, onPhysicalChange, onRo
 
   const rollD20 = (values?: number[], composed = d20) => {
     const rec = recordOf(dc ? `${title} (DC ${dc})` : title, "d20", rollComposed(composed, values));
+    if (attack) rec.attack = true;
     setAttackMode(composed.d20Mode);
     commit();
     if (choices.enabled.length) onOptionsUsed?.(choices.enabled);

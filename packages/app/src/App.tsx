@@ -16,6 +16,7 @@ import { FeaturePanel } from "./components/FeaturePanel";
 import { DcBig, Reminders } from "./components/DcBig";
 import { DistributePanel } from "./components/Distribute";
 import { RageVeins, greyLevel, useFlourishes } from "./components/Fx";
+import { FxLayer, playFx } from "./fx/FxLayer";
 import { CustomActionForm, CustomSpellForm } from "./components/CustomForms";
 import { RollAdjustPanel } from "./components/RollAdjust";
 import { DurablePanel } from "./components/Durable";
@@ -39,7 +40,7 @@ import { Choose, Confirm, PoolRollPanel, SlotSpendPanel, SpendDiePanel } from ".
 import { BottomSheet, BreakdownLines } from "./components/Sheet";
 import { SheetTab } from "./components/SheetTab";
 import { SpellPanel, SpellsTab, spellAsAttack, type ClassList } from "./components/SpellsTab";
-import { useCharacters } from "./useCharacters";
+import { filesIn, lastBackup, useCharacters } from "./useCharacters";
 import { formatMinutes } from "./time";
 import { vibrateFor, type HpState } from "./vibrate";
 
@@ -90,6 +91,18 @@ function rollDie(sides: number): number {
   return (buf[0]! % sides) + 1;
 }
 
+/** How long since the last full backup; louder after a month (the browser can lose its storage). */
+function BackupNote() {
+  const at = lastBackup();
+  const days = at ? Math.floor((Date.now() - at) / 86_400_000) : undefined;
+  const stale = days === undefined || days >= 30;
+  return (
+    <p className={`note${stale ? " danger-text" : ""}`}>
+      Everything is saved on this device as you play, but a browser can lose it (cleared data, a new phone). {days === undefined ? "No full backup from this device yet." : days === 0 ? "Last full backup: today." : `Last full backup: ${days} day${days === 1 ? "" : "s"} ago.`} Import the backup file here to bring everyone back.
+    </p>
+  );
+}
+
 export function App() {
   const s = useCharacters();
   // Panels opened earlier read the latest state through this ref, never a stale copy.
@@ -111,6 +124,8 @@ export function App() {
   const onRage = useCallback(() => setRageAt(Date.now()), []);
   const actionName = useCallback((id: string) => live.current.sheet?.actions.find((a) => a.id === id)?.name, []);
   useFlourishes(onRage, actionName);
+  // The school a spell really has (from its definition), for the cast effect's colour.
+  const spellSchool = useCallback((id: string) => (registry.find(id, "spell") as { school?: string } | undefined)?.school, []);
 
   // Recharge abilities roll their d6 by themselves when a turn starts (yours in a form, or a summoned creature's).
   useEffect(() => {
@@ -1667,7 +1682,31 @@ export function App() {
 
   const importFile = async (file: File | undefined) => {
     if (!file) return;
-    const res = s.readImport(await file.text());
+    const text = await file.text();
+    const files = filesIn(text);
+    // A full backup: every character in it, after one question if any are already here.
+    if (files.length > 1 || (files[0] !== text)) {
+      const read = files.map((f) => s.readImport(f));
+      const ok = read.filter((r) => r.character);
+      const bad = read.length - ok.length;
+      const restore = async () => {
+        for (const r of ok) await s.create(r.character!, `${r.character!.name} restored.`);
+        open("Backup restored", <p className="note">{ok.length} character{ok.length === 1 ? "" : "s"} restored{bad ? `; ${bad} couldn't be read` : ""}.</p>);
+      };
+      const existing = ok.filter((r) => r.exists).map((r) => r.character!.name);
+      if (!existing.length) return void restore();
+      return open("Restore a backup", () => (
+        <Confirm
+          question={`Restore ${ok.length} character${ok.length === 1 ? "" : "s"}?`}
+          detail={`${existing.join(", ")} ${existing.length === 1 ? "is" : "are"} already on this device: the backup's version replaces ${existing.length === 1 ? "it" : "them"}, and the change history here is lost.`}
+          no="No, keep what's here"
+          yes="Restore"
+          onNo={close}
+          onYes={() => void restore()}
+        />
+      ));
+    }
+    const res = s.readImport(text);
     if (!res.character) return open("Import", <p className="note danger-text">{res.error}</p>);
     const ch = res.character;
     if (!res.exists) {
@@ -1746,6 +1785,8 @@ export function App() {
         onPhysicalChange={(p) => live.current.act("setField", { path: ["settings", "physicalDice"], value: p }, p ? "Rolling your own dice." : "The app rolls for you.")}
         onRolled={(r) => live.current.addRoll(r)}
         onCheck={(passed) => {
+          // The result decides; the effect only follows it (played before the chip goes away).
+          playFx({ kind: "concentration", kept: passed });
           if (!passed) live.current.act("endConcentration", {}, "Concentration check failed.");
         }}
       />
@@ -2038,7 +2079,10 @@ export function App() {
         <button className="big" style={{ width: "100%", marginTop: 12 }} onClick={s.exportSelected}>
           Export {c.name} as a file
         </button>
-        <p className="note">Everything is saved on this device as you play. Export makes a backup you can keep or move to another device.</p>
+        <button className="big" style={{ width: "100%", marginTop: 12 }} onClick={() => { s.exportAll(); close(); }}>
+          Back up every character
+        </button>
+        <BackupNote />
         <button className="big" style={{ width: "100%", marginTop: 12 }} onClick={openBooks}>
           Book text{bookReport ? " (loaded)" : ""}
         </button>
@@ -2058,6 +2102,7 @@ export function App() {
     <ConditionLinks.Provider value={showCondition}>
     <div className="app">
       <RageVeins show={rageAt} />
+      <FxLayer school={spellSchool} />
       {grey > 0 && <div className="grey-veil" aria-hidden="true" style={{ backdropFilter: `grayscale(${grey})`, WebkitBackdropFilter: `grayscale(${grey})` }} />}
       <header className="strip">
         <button className="who" onClick={openRoster} aria-label={`${c.name}. Switch character`}>
