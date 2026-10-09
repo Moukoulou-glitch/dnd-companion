@@ -31,6 +31,11 @@ export function DurablePanel({ amount, con, dice, physical, onSkip, onSpend }: {
         <button className="big" onClick={onSkip}>
           Take it all
         </button>
+        {physical && (
+          <button className="big" onClick={() => spend(rollDie(sides))}>
+            App rolls
+          </button>
+        )}
         {physical ? (
           <button className="big primary" disabled={!entry || Number(entry) < 1 || Number(entry) > sides} onClick={() => spend(Number(entry))}>
             Reduce by {entry ? Math.max(3, Number(entry) + con) : "…"}

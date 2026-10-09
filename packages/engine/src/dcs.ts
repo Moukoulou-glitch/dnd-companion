@@ -8,8 +8,8 @@ import type { Ability } from "@dnd/schema";
 export interface DcSpec {
   /** What the save is ("Constitution", "Strength or Dexterity"). */
   save: string;
-  /** "spell:<class>" for that class's spell save DC, or the abilities whose best modifier is added. */
-  by: `spell:${string}` | Ability[];
+  /** "spell:<class>" for that class's spell save DC ("spell:*": the best one), the abilities whose best modifier is added, or a fixed number. */
+  by: `spell:${string}` | Ability[] | number;
   /** The DC's own name: "Ki save DC", "Maneuver save DC". */
   name: string;
 }

@@ -96,4 +96,17 @@ export class ContentRegistry {
   listPacks(): readonly ContentPack[] {
     return this.packs;
   }
+
+  /** On a registry made by `overlay`: the content it was made from. */
+  base: ContentRegistry | undefined;
+
+  /** A copy with extra definitions on top (a character's own actions and spells); this one is unchanged. */
+  overlay(defs: Definition[]): ContentRegistry {
+    const out = new ContentRegistry();
+    for (const [k, v] of (this.base ?? this).defs) out.defs.set(k, v);
+    for (const d of defs) out.defs.set(d.id, d);
+    out.packs.push(...this.packs);
+    out.base = this.base ?? this;
+    return out;
+  }
 }

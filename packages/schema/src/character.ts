@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { Ability, DefId, Ruleset } from "./core.js";
+import { Ability, DamageType, DefId, Ruleset } from "./core.js";
 import { Grant, Modifier } from "./modifiers.js";
 
 export const SCHEMA_VERSION = 1;
@@ -157,6 +157,84 @@ export const Story = z
   })
   .strict();
 export type Story = z.infer<typeof Story>;
+
+const Uses = z.object({ max: z.number().int().min(1).max(99), reset: z.enum(["short", "long", "dawn"]) }).strict();
+const Duration = z.object({ rounds: z.number().int().min(1).optional(), minutes: z.number().int().min(1).optional() }).strict();
+
+/**
+ * An action the player writes: an attack, something that forces a save,
+ * healing, or anything else, with its economy, source, target, duration and uses.
+ */
+export const CustomAction = z
+  .object({
+    id: z.string(),
+    name: z.string().min(1).max(80),
+    economy: z.enum(["action", "bonus", "reaction", "free"]),
+    source: z.string().max(80).default(""),
+    description: z.string().max(4000).default(""),
+    kind: z.enum(["attack", "save", "heal", "other"]),
+    attack: z
+      .object({
+        mode: z.enum(["melee", "ranged"]).default("melee"),
+        /** "spell": your spellcasting ability; "none": no ability modifier. */
+        ability: z.enum(["str", "dex", "con", "int", "wis", "cha", "spell", "none"]).default("str"),
+        proficient: z.boolean().default(true),
+        bonus: z.number().int().min(-20).max(20).default(0),
+        damage: z.string().max(40).default("1d6"),
+        addAbility: z.boolean().default(true),
+        damageBonus: z.number().int().min(-50).max(50).default(0),
+        damageType: DamageType.default("bludgeoning"),
+      })
+      .strict()
+      .optional(),
+    save: z
+      .object({
+        ability: Ability,
+        /** A number, "spell" (your spell save DC), or an ability for 8 + proficiency + that modifier. */
+        dc: z.union([z.number().int().min(1).max(40), z.literal("spell"), Ability]).default("spell"),
+        onSuccess: z.enum(["half", "none", "other"]).default("none"),
+        damage: z.string().max(40).optional(),
+        damageType: DamageType.optional(),
+        /** A condition it imposes on a failed save (condition:frightened). */
+        condition: z.string().optional(),
+      })
+      .strict()
+      .optional(),
+    heal: z.object({ amount: z.string().max(40), temp: z.boolean().default(false) }).strict().optional(),
+    target: z.string().max(80).optional(),
+    range: z.string().max(40).optional(),
+    duration: Duration.optional(),
+    concentration: z.boolean().default(false),
+    uses: Uses.optional(),
+  })
+  .strict();
+export type CustomAction = z.infer<typeof CustomAction>;
+
+/** A spell the player writes, cast with one of the character's spellcasting lists. */
+export const CustomSpell = z
+  .object({
+    id: z.string(),
+    name: z.string().min(1).max(80),
+    level: z.number().int().min(0).max(9),
+    school: z.string().max(30).default("Evocation"),
+    castingTime: z.string().max(60).default("1 action"),
+    range: z.string().max(60).default("Self"),
+    components: z.array(z.enum(["V", "S", "M"])).default(["V", "S"]),
+    material: z.string().max(200).optional(),
+    duration: z.string().max(60).default("Instantaneous"),
+    concentration: z.boolean().default(false),
+    ritual: z.boolean().default(false),
+    description: z.string().max(6000).default(""),
+    higherLevels: z.string().max(2000).optional(),
+    attack: z.enum(["melee", "ranged"]).optional(),
+    save: z.object({ ability: Ability, onSuccess: z.enum(["half", "none", "other"]) }).strict().optional(),
+    damage: z.object({ dice: z.string().max(40), type: z.string().max(20).optional(), addMod: z.boolean().default(false), perSlot: z.string().max(20).optional(), cantripScaling: z.boolean().default(false) }).strict().optional(),
+    heal: z.object({ dice: z.string().max(40), addMod: z.boolean().default(false), perSlot: z.string().max(20).optional() }).strict().optional(),
+    area: z.string().max(60).optional(),
+    source: z.string().max(80).default(""),
+  })
+  .strict();
+export type CustomSpell = z.infer<typeof CustomSpell>;
 
 /** A background made by the player ("You don't know me!"). */
 export const CustomBackground = z
@@ -453,6 +531,9 @@ export const Character = z
      */
     rollAdjust: z.record(z.string(), z.object({ bonus: z.number().int().min(0).default(0), penalty: z.number().int().min(0).default(0), note: z.string().max(80).optional() }).strict()).default({}),
     customBackground: CustomBackground.optional(),
+    /** Actions and spells the player wrote. */
+    customActions: z.array(CustomAction).default([]),
+    customSpells: z.array(CustomSpell).default([]),
   })
   .strict();
 export type Character = z.infer<typeof Character>;

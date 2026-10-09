@@ -1,5 +1,5 @@
 import { Character, CombatState, type Operation, type ValueExpr } from "@dnd/schema";
-import { FLEX_COST, castingEconomy, derive, evalFlat, levelGains, damageAfterDefenses, materialNeed, multiclassIssues, shapeIssues, summonBlock, summonHpBonus, type ContentRegistry } from "@dnd/engine";
+import { withCustom, customSpellId, FLEX_COST, castingEconomy, derive, evalFlat, levelGains, damageAfterDefenses, materialNeed, multiclassIssues, shapeIssues, summonBlock, summonHpBonus, type ContentRegistry } from "@dnd/engine";
 
 /** Effects a summoned creature holds with its own concentration (Barkskin on itself) end with it. */
 function dropSummonConcentration(x: Character["summons"][number], spell: string) {
@@ -53,7 +53,9 @@ const clone = <T>(v: T): T => structuredClone(v);
  * requests (spending a use you don't have) are clamped and explained in
  * `notes`, because the player and DM always have the final say.
  */
-export function applyOperation(input: Character, op: Operation, reg: ContentRegistry): ApplyResult {
+export function applyOperation(input: Character, op: Operation, baseReg: ContentRegistry): ApplyResult {
+  // The character's own actions and spells are content too.
+  const reg = withCustom(baseReg, input);
   const c = clone(input);
   const notes: string[] = [];
   const prompts: Prompt[] = [];
@@ -1691,6 +1693,40 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
         else delete cur.note;
       }
       if (!cur.bonus && !cur.penalty) delete c.rollAdjust[key];
+      break;
+    }
+
+    case "setCustomAction": {
+      const a = op.payload.action;
+      const i = c.customActions.findIndex((x) => x.id === a.id);
+      if (i >= 0) c.customActions[i] = a;
+      else c.customActions.push(a);
+      notes.push(i >= 0 ? `${a.name} changed.` : `${a.name} added to your actions.`);
+      break;
+    }
+
+    case "removeCustomAction": {
+      c.customActions = c.customActions.filter((x) => x.id !== op.payload.id);
+      delete c.resourcesUsed[`custom-${op.payload.id}`];
+      break;
+    }
+
+    case "setCustomSpell": {
+      const { spell, list } = op.payload;
+      const i = c.customSpells.findIndex((x) => x.id === spell.id);
+      if (i >= 0) c.customSpells[i] = spell;
+      else c.customSpells.push(spell);
+      const sid = customSpellId(spell.id);
+      c.spells = c.spells.filter((x) => x.spell !== sid);
+      c.spells.push({ spell: sid, list, prepared: true });
+      notes.push(i >= 0 ? `${spell.name} changed.` : `${spell.name} added to your spells.`);
+      break;
+    }
+
+    case "removeCustomSpell": {
+      const sid = customSpellId(op.payload.id);
+      c.customSpells = c.customSpells.filter((x) => x.id !== op.payload.id);
+      c.spells = c.spells.filter((x) => x.spell !== sid);
       break;
     }
 

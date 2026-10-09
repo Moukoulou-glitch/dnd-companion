@@ -3,13 +3,12 @@
 Things the app shows as a description only, or tracks partly. Kept up to date as rounds land; strike items when they become tracked.
 
 ## Engine limits (affect several features)
-- **Swim, fly, climb speeds granted by features** (Storm Herald Sea, Totem Eagle, Gift of the Sea, Elemental Gift, Beast's climb/swim): no selector for them; only walking speed and forms' speeds are tracked.
+- **Speeds that depend on a choice after a rest** (Path of the Beast's Bestial Soul) or on a form (Circle of Stars' Dragon) aren't tracked; other fly, swim and climb speeds from features and spells (Fly, Spider Climb, Gaseous Form) are.
 - **"Resistance to damage from spells"** (Aura of Warding, Spell Resistance): can't be expressed; only typed resistances.
 - **Spells appearing only from a higher level inside one feature** (Shadow Magic's Darkness shows from 1st with a "from 3rd" note).
 - **Optional class features are always on**: Tasha's optional features are added to every character of the class (e.g. Primal Knowledge asks for its skill). There's no per-character opt-out yet.
 - **Proficiencies from class/race can't be removed**, only added (weapon/armor/skill/tool/language extras).
-- **Features with a duration** don't get automatic timer tags (spells do).
-- **Instant death from massive damage** isn't detected (no fading vibration for it).
+- **Feature timers** come from the duration a use states ("for 1 minute"); a feature whose wording doesn't say it gets none.
 - **Crit range for one target only** (Hexblade's Curse 19–20): shown as a note.
 
 ## Per class (summary only, or partly tracked)
@@ -26,8 +25,12 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 - **Warlock**: Gift of the Sea swim speed, Elemental Gift flight and its genie-kind resistance, Awakened Mind telepathy, Beguiling Defenses' charm immunity, Hex Warrior's Charisma for weapon attacks, Genie's Wrath damage type.
 - **Wizard**: Arcane Ward is tracked as full after each long rest even before it's created; Savant features, Minor Alchemy, Focused Conjuration, Durable Summons, Split Enchantment, Alter Memories, Malleable Illusions, Master of Hexes, Sanctuary Vessel, Master Scrivener; Transmuter's Stone benefit; Grim Harvest healing (note); Durable Magic uses a switch you turn on while concentrating.
 
+## Your own actions and spells
+- A custom attack uses the Attack action or a bonus action; a reaction attack is a "use" with its note, rolled from the Actions list like any attack of that kind.
+- A custom spell needs a spell list to cast with; a character with no spellcasting gets no attack bonus or DC for it.
+- Conditions a custom action imposes are named in its note; put them on the target yourself.
+
 ## Races (Volo's)
-- Swim and climb speeds (Lizardfolk, Triton, Tabaxi) aren't tracked, like every non-walking speed.
 - Traits that unlock at 3rd or 5th level (Aasimar transformations, Triton's Gust of Wind, Yuan-ti's Suggestion) are there from 1st with "from 3rd level" in the name.
 - Triton's Wall of Water isn't in the spell content (it's an XGtE spell); cast it from the book.
 - Long-Limbed reach, Powerful Build, Surprise Attack's once per combat and Feline Agility's recharge are reminders, not tracked.

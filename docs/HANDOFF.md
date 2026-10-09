@@ -41,3 +41,8 @@ For whoever (a new Claude conversation) picks this up. Read this, docs/NOT-TRACK
 - Backstory tab: components/BackstoryTab.tsx, calendar.ts (normal, Μηθειολόγιο, custom); Character.story, notes (dated by op.at), ops setStory/setCalendar/addNote/updateNote/removeNote; rests move the clock (passMinutes).
 - Custom background: background:custom in table backgrounds.json, Character.customBackground, components/CustomBackground.tsx (wizard), buildItems adjusts the language/tool split.
 - Volo's races: table-2014/races.json (book "VGtM"), own-words summaries; the races-sublist md the user imports gives them text (race-file traits only attach to race features).
+- Durable (remastered): rule.durable allow-flag; apply spendHitDie (reduce, minimum heal), long rest regains all; app DurablePanel in the damage flow. Exhaustion drops a level on a long rest. Prompt kind "dead" for instant death.
+- Bonuses by hand on saves/skills/passives: Character.rollAdjust (keys save.all, skill.x, passive.x), RollAdjust.tsx.
+- Speeds: modifier op grantSpeed (selector stat.speed.fly|swim|climb, value or "walk", hover); sheet.speeds; speed-zero/halving effects use stat.speed.*.
+- Feature timers: derive infers ActionResult.duration from "for 1 minute"-style wording (statedDuration, NO_TIMER list).
+- Your own actions and spells: Character.customActions/customSpells; engine custom.ts turns them into definitions on a registry overlay (withCustom; derive, collectSources and applyOperation use it); CustomForms.tsx.

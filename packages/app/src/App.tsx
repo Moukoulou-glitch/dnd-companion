@@ -15,6 +15,7 @@ import { AddEffectPanel, EffectChips, EffectPanel } from "./components/Effects";
 import { FeaturePanel } from "./components/FeaturePanel";
 import { DcBig, Reminders } from "./components/DcBig";
 import { DistributePanel } from "./components/Distribute";
+import { CustomActionForm, CustomSpellForm } from "./components/CustomForms";
 import { RollAdjustPanel } from "./components/RollAdjust";
 import { DurablePanel } from "./components/Durable";
 import { BackstoryTab } from "./components/BackstoryTab";
@@ -233,6 +234,22 @@ export function App() {
         }}
       />
     ));
+
+  /** An action of your own: new, or one to change. */
+  const openCustomAction = (id?: string) => {
+    const editing = id ? c.customActions.find((x) => x.id === id) : undefined;
+    open(editing ? `Change ${editing.name}` : "Your own action", () =>
+      live.current.character ? <CustomActionForm c={live.current.character} reg={registry} act={live.current.act} {...(editing ? { editing } : {})} done={close} /> : null,
+    );
+  };
+  /** A spell of your own, cast with one of your spell lists. */
+  const openCustomSpell = (id?: string) => {
+    const editing = id ? c.customSpells.find((x) => x.id === id) : undefined;
+    const lists = sheet.spellcasting.map((x) => ({ id: x.id, label: x.label }));
+    open(editing ? `Change ${editing.name}` : "Your own spell", () =>
+      live.current.character ? <CustomSpellForm c={live.current.character} act={live.current.act} lists={lists} {...(editing ? { editing } : {})} done={close} /> : null,
+    );
+  };
 
   /** Another background: its proficiencies and choices follow; gear from the old one stays. */
   const openBackground = () => open("Background", () => <BackgroundPicker current={live.current.character?.background} onPick={(id) => {
@@ -2099,8 +2116,8 @@ export function App() {
           }}
         />
       )}
-      {tab === "actions" && <ActionsTab sheet={sheet} open={open} openRoll={openRoll} openAttack={openAttack} openFeature={openFeature} />}
-      {tab === "spells" && <SpellsTab sheet={sheet} openSpell={openSpell} classLists={classLists} reg={registry} openSpellInfo={openSpellInfo} />}
+      {tab === "actions" && <ActionsTab sheet={sheet} open={open} openRoll={openRoll} openAttack={openAttack} openFeature={openFeature} custom={c.customActions} openCustom={openCustomAction} />}
+      {tab === "spells" && <SpellsTab sheet={sheet} openSpell={openSpell} classLists={classLists} reg={registry} openSpellInfo={openSpellInfo} customSpells={c.customSpells} openCustomSpell={openCustomSpell} />}
       {tab === "sheet" && <SheetTab
           sheet={sheet}
           character={c}
@@ -2119,7 +2136,7 @@ export function App() {
 
       <nav className="tabs" aria-label="Sections">
         <div className="tabs-inner">
-          {TABS.filter((t) => t.id !== "spells" || sheet.spells.length > 0 || sheet.spellcasting.length > 0).map((t) => (
+          {TABS.map((t) => (
             <button key={t.id} className="tab" aria-current={tab === t.id ? "page" : undefined} onClick={() => setTab(t.id)}>
               {t.label}
             </button>

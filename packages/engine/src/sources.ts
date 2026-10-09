@@ -1,4 +1,5 @@
 import type { Character, ChoiceDef, ChoiceValues, EffectDef, Grant, Scaling } from "@dnd/schema";
+import { customFeatureId, withCustom } from "./custom.js";
 import type { ContentRegistry } from "./registry.js";
 
 /** Something active on the character that grants things: a race, a class feature, an item, a manual entry. */
@@ -27,7 +28,8 @@ export function effectModifiers(def: EffectDef, level = 1) {
 }
 
 /** Walks the character and returns every active source, in sheet order. */
-export function collectSources(c: Character, reg: ContentRegistry): Source[] {
+export function collectSources(c: Character, baseReg: ContentRegistry): Source[] {
+  const reg = withCustom(baseReg, c);
   const out: Source[] = [];
   const choicesFor = (id: string): ChoiceValues => c.choices[id] ?? {};
 
@@ -119,6 +121,8 @@ export function collectSources(c: Character, reg: ContentRegistry): Source[] {
   c.rules.forEach(pushFeature);
   for (const f of reg.list("feature")) if ((f as { common?: boolean }).common) out.push({ id: f.id, label: f.name, grant: (f as { grant?: Grant }).grant ?? {}, choices: {}, common: true });
   c.extraFeatures.forEach(pushFeature);
+  // Actions the player wrote.
+  for (const a of c.customActions ?? []) pushFeature(customFeatureId(a.id));
 
   // Active effects and conditions; a condition can include others (Paralyzed includes Incapacitated).
   const seenConditions = new Set<string>();

@@ -78,3 +78,39 @@ describe("Speeds, bonuses by hand, timers", () => {
     expect(derive(c, reg).actions.find((a) => a.id === "turn-undead")?.duration).toEqual({ rounds: 10 });
   });
 });
+
+describe("Your own actions and spells", () => {
+  it("a custom attack, a save that deals damage, healing with uses, and a custom spell", () => {
+    const l = log();
+    // Str 14, Dex 12, Cha 16 (human: 15/13/17): Cha +3, Str +2, pb +3.
+    l.record("setCustomAction", { action: { id: "a1", name: "Horn Gore", economy: "bonus", source: "Minotaur blood", kind: "attack", attack: { mode: "melee", ability: "cha", proficient: true, bonus: 1, damage: "1d8", addAbility: true, damageBonus: 2, damageType: "piercing" } } });
+    l.record("setCustomAction", { action: { id: "a2", name: "Dread Howl", economy: "action", kind: "save", save: { ability: "wis", dc: "cha", onSuccess: "none", damage: "2d6", damageType: "psychic", condition: "condition:frightened" }, target: "creatures within 30 ft", duration: { rounds: 10 }, uses: { max: 1, reset: "short" } } });
+    l.record("setCustomAction", { action: { id: "a3", name: "Second Breath", economy: "bonus", kind: "heal", heal: { amount: "1d10 + 6", temp: false }, uses: { max: 2, reset: "long" } } });
+    const s = derive(l.character, reg);
+    const gore = s.attacks.find((x) => x.attackId === "custom-a1")!;
+    expect(gore.action).toBe("bonus");
+    expect(gore.attack.total).toBe(3 + 3 + 1);
+    expect(gore.damage.bonus.total).toBe(3 + 2);
+    const howl = s.actions.find((x) => x.id === "custom-a2")!;
+    expect(howl.dc?.value).toBe(8 + 3 + 3);
+    expect(howl.duration).toEqual({ rounds: 10 });
+    expect(howl.cost?.remaining).toBe(1);
+    expect(howl.note).toMatch(/Frightened/);
+    expect(s.actions.find((x) => x.id === "custom-a3")?.heal?.text).toBe("1d10 + 6");
+    l.record("useAction", { action: "custom-a2" });
+    expect(derive(l.character, reg).actions.find((x) => x.id === "custom-a2")?.cost?.remaining).toBe(0);
+    l.record("removeCustomAction", { id: "a1" });
+    expect(derive(l.character, reg).attacks.some((x) => x.attackId === "custom-a1")).toBe(false);
+  });
+  it("a custom spell is cast with a spell list, upcast and all", () => {
+    const c = newCharacter({ id: "w", name: "W", race: "race:human", class: "class:wizard", abilities: { str: 8, dex: 14, con: 14, int: 16, wis: 10, cha: 10 } }, reg);
+    c.classes[0] = { ...c.classes[0]!, level: 5 };
+    const l = new CharacterLog(c, reg, new HybridClock("t2", () => (t += 1000)), "player");
+    l.record("setCustomSpell", { list: "wizard", spell: { id: "s1", name: "Ember Lance", level: 2, school: "Evocation", attack: "ranged", damage: { dice: "3d6", type: "fire", perSlot: "1d6", addMod: false, cantripScaling: false }, description: "A lance of embers." } });
+    const sp = derive(l.character, reg).spells.find((x) => x.id === "spell:custom-s1")!;
+    expect(sp.attack?.total).toBe(3 + 3);
+    expect(JSON.stringify(sp)).toMatch(/4d6/);
+    l.record("removeCustomSpell", { id: "s1" });
+    expect(derive(l.character, reg).spells.some((x) => x.id === "spell:custom-s1")).toBe(false);
+  });
+});

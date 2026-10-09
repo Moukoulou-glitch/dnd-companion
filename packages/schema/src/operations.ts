@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { CalendarDef, Extra, ExtraTag } from "./character.js";
+import { CalendarDef, CustomAction, CustomSpell, Extra, ExtraTag } from "./character.js";
 import { DefId } from "./core.js";
 import { Modifier } from "./modifiers.js";
 
@@ -291,6 +291,12 @@ export const OPERATION_PAYLOADS = {
     .strict(),
   /** A bonus or penalty by hand on saves, skills or passive senses ("save.all", "skill.stealth", "passive.perception"). */
   setRollAdjust: z.object({ key: z.string().regex(/^(save|skill|passive)\.[a-zA-Z]+$/), bonus: z.number().int().min(0).optional(), penalty: z.number().int().min(0).optional(), note: z.string().max(80).optional() }).strict(),
+  /** An action of the player's own, added or changed (same id). */
+  setCustomAction: z.object({ action: CustomAction }).strict(),
+  removeCustomAction: z.object({ id: z.string() }).strict(),
+  /** A spell of the player's own, added or changed, on one of the character's spell lists. */
+  setCustomSpell: z.object({ spell: CustomSpell, list: z.string() }).strict(),
+  removeCustomSpell: z.object({ id: z.string() }).strict(),
   /** Personality, backstory and the session number. */
   setStory: z.object({ traits: z.string().max(4000).optional(), ideals: z.string().max(4000).optional(), bonds: z.string().max(4000).optional(), flaws: z.string().max(4000).optional(), backstory: z.string().max(100000).optional(), session: z.number().int().min(0).optional() }).strict(),
   /** The in-world calendar: which one, a custom one, the time (set or moved on). */
@@ -403,6 +409,10 @@ export const Operation = z.discriminatedUnion("type", [
   OperationBase.extend({ type: z.literal("toggle"), payload: OPERATION_PAYLOADS.toggle }),
   OperationBase.extend({ type: z.literal("setField"), payload: OPERATION_PAYLOADS.setField }),
   OperationBase.extend({ type: z.literal("setStory"), payload: OPERATION_PAYLOADS.setStory }),
+  OperationBase.extend({ type: z.literal("setCustomAction"), payload: OPERATION_PAYLOADS.setCustomAction }),
+  OperationBase.extend({ type: z.literal("removeCustomAction"), payload: OPERATION_PAYLOADS.removeCustomAction }),
+  OperationBase.extend({ type: z.literal("setCustomSpell"), payload: OPERATION_PAYLOADS.setCustomSpell }),
+  OperationBase.extend({ type: z.literal("removeCustomSpell"), payload: OPERATION_PAYLOADS.removeCustomSpell }),
   OperationBase.extend({ type: z.literal("setRollAdjust"), payload: OPERATION_PAYLOADS.setRollAdjust }),
   OperationBase.extend({ type: z.literal("setCalendar"), payload: OPERATION_PAYLOADS.setCalendar }),
   OperationBase.extend({ type: z.literal("addNote"), payload: OPERATION_PAYLOADS.addNote }),

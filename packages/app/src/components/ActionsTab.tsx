@@ -74,12 +74,18 @@ export function ActionsTab({
   openRoll,
   openAttack,
   openFeature,
+  custom = [],
+  openCustom,
 }: {
   sheet: DerivedSheet;
   open: Open;
   openRoll: OpenRoll;
   openAttack: (a: WeaponAttack) => void;
   openFeature: (a: ActionResult) => void;
+  /** Actions the player wrote, to change or delete. */
+  custom?: { id: string; name: string; source: string }[];
+  /** Write a new action, or change one (by id). */
+  openCustom?: (id?: string) => void;
 }) {
   const features = (e: ActionResult["economy"]) => sheet.actions.filter((a) => a.economy === e && !a.common && !a.limited);
   const common = sheet.actions.filter((a) => a.common);
@@ -176,6 +182,27 @@ export function ActionsTab({
               </button>
             ))}
           </div>
+        </section>
+      )}
+      {openCustom && (
+        <section>
+          <h2>Your own actions</h2>
+          {custom.length > 0 && (
+            <div className="group">
+              {custom.map((x) => (
+                <button className="row" key={x.id} onClick={() => openCustom(x.id)}>
+                  <div className="row-main">
+                    <div className="row-title">{x.name}</div>
+                    <div className="row-sub">{x.source || "Your own"} · tap to change</div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+          <button className="big wide" onClick={() => openCustom()}>
+            Add your own action
+          </button>
+          <p className="note">Attacks, saves with damage or conditions, healing, anything else: they show up above with the rest.</p>
         </section>
       )}
     </main>

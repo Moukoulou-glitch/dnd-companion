@@ -20,6 +20,7 @@ import { sum, signed, signedDice, type Breakdown, type DicePart, type Part, type
 import { evalExpr, evalFlat, type ExprContext } from "./expr.js";
 import { ACTION_DCS, FEATURE_DCS, type DcSpec } from "./dcs.js";
 import { FEATURE_TAGS, TOGGLE_LABELS, TOGGLE_REMINDERS } from "./tags.js";
+import { customActionDc, customFeatureId, withCustom } from "./custom.js";
 import type { ContentRegistry } from "./registry.js";
 import { collectSources, type Source } from "./sources.js";
 import { deriveCompanion, type CompanionResult } from "./companions.js";
@@ -354,7 +355,9 @@ export function selectorMatches(selector: string, key: string): boolean {
  * Computes the full derived sheet. Pure: the same character and content
  * always give the same result, and nothing is stored back on the character.
  */
-export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
+export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
+  // The character's own actions and spells join the content for this character.
+  const reg = withCustom(baseReg, c);
   const warnings: string[] = [];
   const sources = collectSources(c, reg);
   const level = c.classes.reduce((t, cl) => t + cl.level, 0);
@@ -939,13 +942,19 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
     attack: sum([pbPart(), abilityPart(sc.ability), ...statAdds("stat.spell.attack")]),
   }));
   const slots = spellSlots(casterLevels);
+  /** A custom action's DC, by its feature id. */
+  const customDc = (featureId: string): DcSpec | undefined => {
+    const a = c.customActions?.find((x) => customFeatureId(x.id) === featureId);
+    return a ? customActionDc(a) : undefined;
+  };
   /** A feature's DC: a class's spell save DC, or 8 + proficiency + the best of some abilities. */
   const dcOf = (spec: DcSpec | undefined): FeatureDc | undefined => {
     if (!spec) return undefined;
     let breakdown: Breakdown | undefined;
-    if (typeof spec.by === "string") {
+    if (typeof spec.by === "number") breakdown = sum([{ label: "Set by hand", value: spec.by }]);
+    else if (typeof spec.by === "string") {
       const cls = spec.by.slice(6);
-      breakdown = spellcasting.find((x) => x.id === cls)?.saveDc;
+      breakdown = cls === "*" ? [...spellcasting].sort((a, b) => b.saveDc.total - a.saveDc.total)[0]?.saveDc : spellcasting.find((x) => x.id === cls)?.saveDc;
       if (!breakdown) return undefined;
     } else {
       const best = [...spec.by].sort((a, b) => mods[b] - mods[a])[0]!;
@@ -1227,7 +1236,7 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
         delete entry.cost;
       }
       if (a.spendAmount) entry.spendAmount = a.spendAmount;
-      const dc = dcOf(ACTION_DCS[a.id] ?? (entry.featureId ? FEATURE_DCS[entry.featureId] : undefined));
+      const dc = dcOf(ACTION_DCS[a.id] ?? (entry.featureId ? FEATURE_DCS[entry.featureId] ?? customDc(entry.featureId) : undefined));
       if (dc) entry.dc = dc;
       actions.push(entry);
     }
@@ -1352,7 +1361,7 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
     senses,
     features: [
       ...featureEntries(sources, reg).map((f) => {
-        const dc = dcOf(FEATURE_DCS[f.id]);
+        const dc = dcOf(FEATURE_DCS[f.id] ?? customDc(f.id));
         return dc ? { ...f, dc } : f;
       }),
       // A custom background's feature written by the player.

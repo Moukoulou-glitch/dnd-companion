@@ -2526,3 +2526,17 @@ button.mpip {
   float: right;
   font-size: 0.85rem;
 }
+
+.custom-form .form-group {
+  margin: 6px 0 12px;
+  padding: 6px 8px;
+}
+.custom-form .segmented {
+  margin: 4px 0 8px;
+}
+.comp {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 10px;
+}

@@ -59,12 +59,17 @@ export function SpellsTab({
   classLists,
   reg,
   openSpellInfo,
+  customSpells = [],
+  openCustomSpell,
 }: {
   sheet: DerivedSheet;
   openSpell: (sp: SpellResult) => void;
   classLists: ClassList[];
   reg: ContentRegistry;
   openSpellInfo: (id: string) => void;
+  /** Spells the player wrote, to change or delete. */
+  customSpells?: { id: string; name: string }[];
+  openCustomSpell?: (id?: string) => void;
 }) {
   const [view, setView] = useState<string>("ready");
   const [q, setQ] = useState("");
@@ -208,6 +213,26 @@ export function SpellsTab({
         </section>
       ))}
       {sheet.spells.length === 0 && <p className="note">No spells on this character.</p>}
+      {openCustomSpell && (
+        <section>
+          <h2>Your own spells</h2>
+          {customSpells.length > 0 && (
+            <div className="group">
+              {customSpells.map((x) => (
+                <button className="row" key={x.id} onClick={() => openCustomSpell(x.id)}>
+                  <div className="row-main">
+                    <div className="row-title">{x.name}</div>
+                    <div className="row-sub">Tap to change</div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+          <button className="big wide" onClick={() => openCustomSpell()}>
+            Add your own spell
+          </button>
+        </section>
+      )}
       <p className="note attribution">Spell text from the System Reference Document 5.1 by Wizards of the Coast LLC, licensed CC-BY-4.0.</p>
     </main>
   );
