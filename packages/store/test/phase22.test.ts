@@ -64,7 +64,7 @@ describe("Sacred Weapon, Harness Divine Power, proficiency by hand, feats", () =
 describe("Recharge, Elemental Adept, Healer, Ritual Caster, Tavern Brawler", () => {
   it("a form's recharge action waits for its d6", () => {
     const l = mk("class:druid", 2);
-    l.character.shape = { kind: "wildshape", creature: reg.list("creature")[0]!.id, hp: 10 } as never;
+    l.character.shape = { kind: "wildshape", creature: reg.list("creature")[0]!.id, hp: 10 };
     l.record("recharge", { name: "Fire Breath (Recharge 5–6)", used: true });
     expect(l.character.shape?.recharge).toEqual(["Fire Breath (Recharge 5–6)"]);
     l.record("recharge", { name: "Fire Breath (Recharge 5–6)", used: false });
