@@ -1797,6 +1797,13 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       break;
     }
 
+    case "setProfRemoved": {
+      const { kind, target, removed, reason } = op.payload;
+      c.profRemoved = (c.profRemoved ?? []).filter((x) => !(x.kind === kind && x.target === target));
+      if (removed) c.profRemoved.push(reason ? { kind, target, reason } : { kind, target });
+      break;
+    }
+
     case "setOptionalFeature": {
       const { feature, on } = op.payload;
       const off = new Set(c.optionalOff ?? []);

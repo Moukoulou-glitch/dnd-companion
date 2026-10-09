@@ -309,7 +309,7 @@ export interface DerivedSheet {
   spellSlots: { level: number; total: number; used: number }[];
   pactSlots?: { count: number; level: number };
   resources: ResourceResult[];
-  proficiencies: { armor: string[]; weapons: string[]; tools: string[]; languages: string[] };
+  proficiencies: { armor: string[]; weapons: string[]; tools: string[]; languages: string[]; removed: { kind: string; target: string; reason?: string }[] };
   defenses: { resist: string[]; immune: string[]; vulnerable: string[] };
   senses: Record<string, number>;
   /** On/off states some active feature reads (Rage, Mage Armor, a lit Flame Tongue), for the UI to offer as switches. */
@@ -500,6 +500,11 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
   for (const t of upgrades) {
     if (profs.skill.has(t)) profs.expertise.add(t);
     else profs.skill.add(t);
+  }
+  // Taken away by the table (a DM ruling), whatever gives them. No skill proficiency means no expertise either.
+  for (const r of c.profRemoved ?? []) {
+    profs[r.kind].delete(r.target);
+    if (r.kind === "skill") profs.expertise.delete(r.target);
   }
 
   // Modifiers.
@@ -1465,6 +1470,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       weapons: [...profs.weapon],
       tools: [...profs.tool],
       languages: [...profs.language],
+      removed: c.profRemoved ?? [],
     },
     defenses,
     senses,

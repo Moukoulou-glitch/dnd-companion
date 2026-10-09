@@ -553,6 +553,8 @@ export const Character = z
     /** Actions and spells the player wrote. */
     customActions: z.array(CustomAction).default([]),
     customSpells: z.array(CustomSpell).default([]),
+    /** Proficiencies the table took away (a DM ruling), whatever gives them: kind, target, why. */
+    profRemoved: z.array(z.object({ kind: z.enum(["save", "skill", "expertise", "armor", "weapon", "tool", "language"]), target: z.string(), reason: z.string().max(250).optional() }).strict()).default([]),
     /** Tasha's optional class features this character doesn't use (feature ids). */
     optionalOff: z.array(z.string()).default([]),
     /** Spells the table gave beyond the rules, cast without a slot: how many times since the last short and the last long rest ("list|spell"). */

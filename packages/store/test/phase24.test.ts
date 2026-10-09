@@ -85,3 +85,26 @@ describe("Tasha's optional class features, per character", () => {
     expect(derive(l.character, reg).features.some((f) => f.id === "feature:monk-ki-fueled-attack")).toBe(true);
   });
 });
+
+describe("Proficiencies taken away by the table", () => {
+  it("removes a save, an armor and a skill (with its expertise) whatever gives them, and gives them back", () => {
+    const c = newCharacter({ id: "f", name: "F", race: "race:human", class: "class:fighter", abilities: { str: 16, dex: 14, con: 14, int: 10, wis: 10, cha: 10 } }, reg);
+    const l = new CharacterLog(c, reg, new HybridClock("t", () => (t += 1000)), "player");
+    l.record("addExtra", { id: "e1", kind: "skill", value: "athletics", tag: "DM allows", reason: "x" } as never);
+    l.record("addExtra", { id: "e2", kind: "expertise", value: "athletics", tag: "DM allows", reason: "x" } as never);
+    const before = derive(l.character, reg);
+    expect(before.saves.str.proficient).toBeTruthy();
+    expect(before.proficiencies.armor).toContain("heavy");
+    expect(before.skills.athletics.proficiency).toBe(2);
+    l.record("setProfRemoved", { kind: "save", target: "str", removed: true, reason: "curse" });
+    l.record("setProfRemoved", { kind: "armor", target: "heavy", removed: true });
+    l.record("setProfRemoved", { kind: "skill", target: "athletics", removed: true });
+    const after = derive(l.character, reg);
+    expect(after.saves.str.proficient).toBeFalsy();
+    expect(after.proficiencies.armor).not.toContain("heavy");
+    expect(after.skills.athletics.proficiency).toBe(0);
+    expect(after.proficiencies.removed).toContainEqual({ kind: "save", target: "str", reason: "curse" });
+    l.record("setProfRemoved", { kind: "save", target: "str", removed: false });
+    expect(derive(l.character, reg).saves.str.proficient).toBeTruthy();
+  });
+});

@@ -47,6 +47,7 @@ export function SheetTab({
   openPb,
   openDefenses,
   onOptional,
+  openProficiencies,
 }: {
   sheet: DerivedSheet;
   character: Character;
@@ -66,6 +67,8 @@ export function SheetTab({
   openDefenses: () => void;
   /** Turn a Tasha's optional class feature on or off. */
   onOptional: (id: string, on: boolean) => void;
+  /** Take away (or give back) a proficiency by the table's ruling. */
+  openProficiencies: () => void;
 }) {
   const featTag = (id: string) => sheet.extras.find((x) => x.kind === "feat" && x.value === id)?.tag;
   return (
@@ -229,7 +232,12 @@ export function SheetTab({
       </section>
 
       <section>
-        <h2>Proficiencies</h2>
+        <h2>
+          Proficiencies
+          <button className="link section-tool" onClick={openProficiencies}>
+            Take away
+          </button>
+        </h2>
         <div className="group">
           {(
             [
@@ -249,6 +257,11 @@ export function SheetTab({
               </div>
             ))}
         </div>
+      {sheet.proficiencies.removed.length > 0 && (
+          <p className="note">
+            Taken away by your table: {sheet.proficiencies.removed.map((r) => r.target).join(", ")}.
+          </p>
+        )}
       </section>
 
       <section>
