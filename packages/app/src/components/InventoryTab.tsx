@@ -1,5 +1,5 @@
 import { NumberStep } from "./Adjust";
-import { RichText } from "./Conditions";
+import { RichText, TextBlocks } from "./Conditions";
 import { useEffect, useMemo, useState } from "react";
 import type { ContentRegistry, DerivedSheet } from "@dnd/engine";
 import type { Character, ItemDef, OperationType } from "@dnd/schema";
@@ -26,8 +26,97 @@ function itemTags(inst: Inst, def: ItemDef): string[] {
   return tags;
 }
 
+/** A spell scroll (DMG p. 200), by its id or name. */
+export const isScroll = (def: ItemDef) => def.id.startsWith("item:spell-scroll") || /spell scroll/i.test(def.name);
+
+/** The level a scroll is written at, from its name ("Spell Scroll (3rd Level)"); undefined when it doesn't say. */
+const scrollLevel = (def: ItemDef) => {
+  const m = /(\d)(?:st|nd|rd|th)[- ]level/i.exec(def.name);
+  return m ? Number(m[1]) : /cantrip/i.test(def.name) ? 0 : undefined;
+};
+
+/** Which spell is written on a scroll: pick one of the app's spells or your own, then read it from here. */
+function ScrollSpell({ inst, def, act, spells, onRead, onCustom }: { inst: Inst; def: ItemDef; act: Act; spells: { id: string; name: string; level: number }[]; onRead?: () => void; onCustom: () => void }) {
+  const [picking, setPicking] = useState(!inst.scroll);
+  const [q, setQ] = useState("");
+  const lvl = scrollLevel(def);
+  const written = inst.scroll ? spells.find((x) => x.id === inst.scroll!.spell) : undefined;
+  // A scroll's level: its spell can't be of a higher level (a lower one is written upcast).
+  const found = spells
+    .filter((x) => (lvl === undefined || x.level <= lvl) && x.name.toLowerCase().includes(q.trim().toLowerCase()))
+    .sort((a, b) => b.level - a.level || a.name.localeCompare(b.name))
+    .slice(0, 30);
+  return (
+    <section>
+      <h2 className="sub-head">The spell on it</h2>
+      {inst.scroll && !picking && (
+        <div className="group">
+          <div className="row">
+            <div className="row-main">
+              <div className="row-title">{written?.name ?? inst.scroll.spell}</div>
+              <div className="row-sub">{written ? (written.level === 0 ? "Cantrip" : `Level ${written.level} spell`) : "Spell not found"}{lvl !== undefined && written && lvl > written.level ? `, written at level ${lvl}` : ""}</div>
+            </div>
+            <button className="link" onClick={() => setPicking(true)}>
+              Change
+            </button>
+          </div>
+        </div>
+      )}
+      {inst.scroll && !picking && onRead && (
+        <button className="big primary wide" style={{ marginTop: 10 }} onClick={onRead}>
+          Read the scroll
+        </button>
+      )}
+      {picking && (
+        <>
+          <input className="search" type="search" placeholder={`Search spells${lvl !== undefined ? ` (level ${lvl} or lower)` : ""}`} value={q} onChange={(e) => setQ(e.target.value)} />
+          <div className="group">
+            {found.map((x) => (
+              <button
+                key={x.id}
+                className="row"
+                onClick={() => {
+                  act("setItem", { instanceId: inst.id, scroll: { spell: x.id } }, `${displayName(inst, def)}: ${x.name}.`);
+                  setPicking(false);
+                }}
+              >
+                <div className="row-main">
+                  <div className="row-title">{x.name}</div>
+                  <div className="row-sub">{x.level === 0 ? "Cantrip" : `Level ${x.level}`}</div>
+                </div>
+              </button>
+            ))}
+          </div>
+          <button className="big wide" style={{ marginTop: 10 }} onClick={onCustom}>
+            Write your own spell
+          </button>
+          <p className="note">Your own spell joins your spells too; once saved, pick it here.</p>
+        </>
+      )}
+    </section>
+  );
+}
+
 /** Equip, attune, change quantity, or remove one item. Changes apply at once and can be undone. */
-export function ItemPanel({ inst, def, act, close }: { inst: Inst; def: ItemDef; act: Act; close: () => void }) {
+export function ItemPanel({
+  inst,
+  def,
+  act,
+  close,
+  spells = [],
+  onRead,
+  onCustomSpell,
+}: {
+  inst: Inst;
+  def: ItemDef;
+  act: Act;
+  close: () => void;
+  /** Spells a scroll can hold (the app's and your own). */
+  spells?: { id: string; name: string; level: number }[];
+  /** Opens the scroll's spell, to cast it from the scroll. */
+  onRead?: () => void;
+  onCustomSpell?: () => void;
+}) {
   const name = displayName(inst, def);
   const canEquip = ["weapon", "armor", "shield", "wondrous", "focus"].includes(def.category);
   return (
@@ -36,14 +125,11 @@ export function ItemPanel({ inst, def, act, close }: { inst: Inst; def: ItemDef;
       {def.text && def.text.length > 0 && (
         <details className="book-text" open={!def.summary}>
           <summary>Full text</summary>
-          {def.text.map((p, i) => (
-            <p key={i}>
-              <RichText text={p} />
-            </p>
-          ))}
+          <TextBlocks text={def.text} />
         </details>
       )}
       {inst.name && inst.name !== def.name && <p className="row-sub">{def.name}</p>}
+      {isScroll(def) && <ScrollSpell inst={inst} def={def} act={act} spells={spells} {...(onRead ? { onRead } : {})} onCustom={onCustomSpell ?? (() => {})} />}
       <div className="group">
         <div className="row">
           <div className="row-main row-title">Quantity</div>

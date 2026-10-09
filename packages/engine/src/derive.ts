@@ -80,6 +80,9 @@ export interface WeaponAttack {
   note?: string;
 }
 
+/** Spell scroll save DC and attack bonus by the scroll's level (DMG p. 200). */
+const SCROLL_DC: Record<number, [number, number]> = { 0: [13, 5], 1: [13, 5], 2: [13, 5], 3: [15, 7], 4: [15, 7], 5: [17, 9], 6: [17, 9], 7: [18, 10], 8: [18, 10], 9: [19, 11] };
+
 export interface SpellcastingResult {
   id: string;
   label: string;
@@ -137,6 +140,13 @@ export interface SpellResult {
     free?: { resource: string; name: string; remaining: number };
     /** Cast without a slot whenever you like (an invocation's at-will spell). */
     atWill?: boolean;
+    /** Given by the table beyond the rules: castable without a slot, with how often it's been cast since each rest. */
+    extra?: { tag: string; sinceShort: number; sinceLong: number };
+    /**
+     * Read from a spell scroll (used up): its level, the save DC and attack bonus the scroll sets,
+     * whether the spell is on one of your class lists, and the check to cast one above your level.
+     */
+    scroll?: { instanceId: string; level: number; dc: number; attack: number; onList: boolean; check?: { dc: number; ability: Ability; bonus: number } };
   };
 }
 
@@ -1024,7 +1034,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
 
   // Spells: class lists from the character, plus spells features grant or let the player pick.
   const spellDefs = new Map<string, { def: ReturnType<typeof reg.get<"spell">> | undefined; list: string; prepared: boolean; granted?: GrantedSpellRef }>();
-  type GrantedSpellRef = { resource?: string; from?: string; atWill?: boolean };
+  type GrantedSpellRef = { resource?: string; from?: string; atWill?: boolean; extra?: string; scroll?: { instanceId: string; level: number } };
   for (const inst of c.spells) {
     spellDefs.set(`${inst.list}|${inst.spell}`, { def: reg.has(inst.spell) ? reg.get(inst.spell, "spell") : undefined, list: inst.list, prepared: inst.prepared });
     if (!reg.has(inst.spell)) warnings.push(`Spell "${inst.spell}" isn't in any content pack.`);
@@ -1049,6 +1059,8 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       const granted: GrantedSpellRef = { from: s.label };
       if (g.resource) granted.resource = g.resource;
       if (g.atWill) granted.atWill = true;
+      if (g.extra) granted.extra = g.extra;
+      if (g.scroll) granted.scroll = g.scroll;
       spellDefs.set(`${list}|${g.spell}`, { def: reg.has(g.spell) ? reg.get(g.spell, "spell") : undefined, list, prepared: true, granted });
     }
     // Spells picked through a feature's spell choices (Magic Initiate, Fey Touched).
@@ -1211,6 +1223,31 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     if (granted?.resource) {
       const res = resources.find((x) => x.id === granted.resource);
       if (res) r.cast.free = { resource: res.id, name: res.name, remaining: res.remaining };
+    }
+    if (granted?.extra) {
+      const n = c.extraCasts?.[`${list}|${def.id}`];
+      r.cast.extra = { tag: granted.extra, sinceShort: n?.short ?? 0, sinceLong: n?.long ?? 0 };
+    }
+    if (granted?.scroll) {
+      // The scroll sets the DC and attack bonus by its level (DMG p. 200), not your spellcasting.
+      const [dc, attack] = SCROLL_DC[granted.scroll.level] ?? [13, 5];
+      const myLists = c.classes.flatMap((cl) => {
+        const d = reg.find(cl.class, "class");
+        return d?.spellcasting && def.classes.includes(d.id.replace(/^class:/, "")) ? [d] : [];
+      });
+      // Above what you can cast: a check with your spellcasting ability, DC 10 + the spell's level.
+      const highest = Math.max(0, ...slotsTotal.map((n, i) => (n > 0 ? i + 1 : 0)), slots.pact?.level ?? 0);
+      const abilities = (myLists.length ? myLists : c.classes.map((cl) => reg.find(cl.class, "class")).filter((d) => d?.spellcasting))
+        .map((d) => spellcasting.find((x) => x.id === d!.spellcasting!.id)?.ability)
+        .filter((a): a is Ability => !!a);
+      const ability = abilities.reduce<Ability | undefined>((b, a) => (b === undefined || mods[a] > mods[b] ? a : b), undefined) ?? "int";
+      r.cast = { slotLevels: [], scroll: { instanceId: granted.scroll.instanceId, level: granted.scroll.level, dc, attack, onList: myLists.length > 0 } };
+      if (def.level > highest) r.cast.scroll!.check = { dc: 10 + def.level, ability, bonus: mods[ability] };
+      r.list = { id: list, label: "Spell scroll" };
+      r.ready = "always";
+      r.fromFeature = `Spell scroll (${granted.scroll.level === 0 ? "cantrip" : `level ${granted.scroll.level}`})`;
+      if (def.attack) r.attack = roll([`roll.attack.spell.${def.attack}`], [{ label: "Spell scroll", value: attack }]);
+      if (def.save) r.save = { ability: def.save.ability, dc, onSuccess: def.save.onSuccess };
     }
     spells.push(r);
   }

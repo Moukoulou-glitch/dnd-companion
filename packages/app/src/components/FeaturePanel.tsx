@@ -1,4 +1,4 @@
-import { RichText } from "./Conditions";
+import { RichText, TextBlocks } from "./Conditions";
 import { DcBig } from "./DcBig";
 import { useState } from "react";
 import { roll } from "@dnd/dice";
@@ -61,11 +61,7 @@ export function FeaturePanel({
       {text && text.length > 0 && (
         <details className="book-text">
           <summary>Full text</summary>
-          {text.map((p, i) => (
-            <p key={i}>
-              <RichText text={p} />
-            </p>
-          ))}
+          <TextBlocks text={text} />
         </details>
       )}
       {a.common && !text?.length && <p className="note">Full text: load the actions file with your book files (Characters → Book text).</p>}

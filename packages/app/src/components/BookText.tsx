@@ -1,4 +1,4 @@
-import { RichText } from "./Conditions";
+import { RichText, TextBlocks } from "./Conditions";
 import { useState } from "react";
 import type { BookReport } from "@dnd/engine";
 import { bookReport } from "../content";
@@ -9,11 +9,7 @@ export function BookText({ text, summary, source }: { text?: string[] | undefine
   if (text?.length) {
     return (
       <div className="spell-text">
-        {text.map((p, i) => (
-          <p key={i}>
-            <RichText text={p} />
-          </p>
-        ))}
+        <TextBlocks text={text} />
       </div>
     );
   }

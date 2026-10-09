@@ -565,6 +565,176 @@
         "pack": "table-2014"
       },
       "category": "gear"
+    },
+    {
+      "kind": "item",
+      "id": "item:spell-scroll-cantrip",
+      "name": "Spell Scroll (Cantrip)",
+      "summary": "One spell written in a magical cipher. If it's on your class's spell list, read it (the spell's casting time, no material components) to cast it; then the scroll crumbles. Save DC 13, attack +5.",
+      "source": {
+        "pack": "table-2014",
+        "book": "DMG",
+        "page": 200
+      },
+      "category": "consumable",
+      "weight": 0,
+      "magic": {
+        "rarity": "common"
+      },
+      "requiresAttunement": false
+    },
+    {
+      "kind": "item",
+      "id": "item:spell-scroll-1st-level",
+      "name": "Spell Scroll (1st Level)",
+      "summary": "One spell written in a magical cipher. If it's on your class's spell list, read it (the spell's casting time, no material components) to cast it; then the scroll crumbles. Save DC 13, attack +5. Above the level you can cast: a check with your spellcasting ability, DC 10 + the spell's level.",
+      "source": {
+        "pack": "table-2014",
+        "book": "DMG",
+        "page": 200
+      },
+      "category": "consumable",
+      "weight": 0,
+      "magic": {
+        "rarity": "common"
+      },
+      "requiresAttunement": false
+    },
+    {
+      "kind": "item",
+      "id": "item:spell-scroll-2nd-level",
+      "name": "Spell Scroll (2nd Level)",
+      "summary": "One spell written in a magical cipher. If it's on your class's spell list, read it (the spell's casting time, no material components) to cast it; then the scroll crumbles. Save DC 13, attack +5. Above the level you can cast: a check with your spellcasting ability, DC 10 + the spell's level.",
+      "source": {
+        "pack": "table-2014",
+        "book": "DMG",
+        "page": 200
+      },
+      "category": "consumable",
+      "weight": 0,
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "requiresAttunement": false
+    },
+    {
+      "kind": "item",
+      "id": "item:spell-scroll-3rd-level",
+      "name": "Spell Scroll (3rd Level)",
+      "summary": "One spell written in a magical cipher. If it's on your class's spell list, read it (the spell's casting time, no material components) to cast it; then the scroll crumbles. Save DC 15, attack +7. Above the level you can cast: a check with your spellcasting ability, DC 10 + the spell's level.",
+      "source": {
+        "pack": "table-2014",
+        "book": "DMG",
+        "page": 200
+      },
+      "category": "consumable",
+      "weight": 0,
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "requiresAttunement": false
+    },
+    {
+      "kind": "item",
+      "id": "item:spell-scroll-4th-level",
+      "name": "Spell Scroll (4th Level)",
+      "summary": "One spell written in a magical cipher. If it's on your class's spell list, read it (the spell's casting time, no material components) to cast it; then the scroll crumbles. Save DC 15, attack +7. Above the level you can cast: a check with your spellcasting ability, DC 10 + the spell's level.",
+      "source": {
+        "pack": "table-2014",
+        "book": "DMG",
+        "page": 200
+      },
+      "category": "consumable",
+      "weight": 0,
+      "magic": {
+        "rarity": "rare"
+      },
+      "requiresAttunement": false
+    },
+    {
+      "kind": "item",
+      "id": "item:spell-scroll-5th-level",
+      "name": "Spell Scroll (5th Level)",
+      "summary": "One spell written in a magical cipher. If it's on your class's spell list, read it (the spell's casting time, no material components) to cast it; then the scroll crumbles. Save DC 17, attack +9. Above the level you can cast: a check with your spellcasting ability, DC 10 + the spell's level.",
+      "source": {
+        "pack": "table-2014",
+        "book": "DMG",
+        "page": 200
+      },
+      "category": "consumable",
+      "weight": 0,
+      "magic": {
+        "rarity": "rare"
+      },
+      "requiresAttunement": false
+    },
+    {
+      "kind": "item",
+      "id": "item:spell-scroll-6th-level",
+      "name": "Spell Scroll (6th Level)",
+      "summary": "One spell written in a magical cipher. If it's on your class's spell list, read it (the spell's casting time, no material components) to cast it; then the scroll crumbles. Save DC 17, attack +9. Above the level you can cast: a check with your spellcasting ability, DC 10 + the spell's level.",
+      "source": {
+        "pack": "table-2014",
+        "book": "DMG",
+        "page": 200
+      },
+      "category": "consumable",
+      "weight": 0,
+      "magic": {
+        "rarity": "very rare"
+      },
+      "requiresAttunement": false
+    },
+    {
+      "kind": "item",
+      "id": "item:spell-scroll-7th-level",
+      "name": "Spell Scroll (7th Level)",
+      "summary": "One spell written in a magical cipher. If it's on your class's spell list, read it (the spell's casting time, no material components) to cast it; then the scroll crumbles. Save DC 18, attack +10. Above the level you can cast: a check with your spellcasting ability, DC 10 + the spell's level.",
+      "source": {
+        "pack": "table-2014",
+        "book": "DMG",
+        "page": 200
+      },
+      "category": "consumable",
+      "weight": 0,
+      "magic": {
+        "rarity": "very rare"
+      },
+      "requiresAttunement": false
+    },
+    {
+      "kind": "item",
+      "id": "item:spell-scroll-8th-level",
+      "name": "Spell Scroll (8th Level)",
+      "summary": "One spell written in a magical cipher. If it's on your class's spell list, read it (the spell's casting time, no material components) to cast it; then the scroll crumbles. Save DC 18, attack +10. Above the level you can cast: a check with your spellcasting ability, DC 10 + the spell's level.",
+      "source": {
+        "pack": "table-2014",
+        "book": "DMG",
+        "page": 200
+      },
+      "category": "consumable",
+      "weight": 0,
+      "magic": {
+        "rarity": "very rare"
+      },
+      "requiresAttunement": false
+    },
+    {
+      "kind": "item",
+      "id": "item:spell-scroll-9th-level",
+      "name": "Spell Scroll (9th Level)",
+      "summary": "One spell written in a magical cipher. If it's on your class's spell list, read it (the spell's casting time, no material components) to cast it; then the scroll crumbles. Save DC 19, attack +11. Above the level you can cast: a check with your spellcasting ability, DC 10 + the spell's level.",
+      "source": {
+        "pack": "table-2014",
+        "book": "DMG",
+        "page": 200
+      },
+      "category": "consumable",
+      "weight": 0,
+      "magic": {
+        "rarity": "legendary"
+      },
+      "requiresAttunement": false
     }
   ]
 }

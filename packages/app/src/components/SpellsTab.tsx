@@ -1,4 +1,4 @@
-import { RichText } from "./Conditions";
+import { RichText, TextBlocks } from "./Conditions";
 import { useMemo, useState } from "react";
 import { ABILITY_NAMES } from "@dnd/schema";
 import { signed, type ContentRegistry, type DerivedSheet, type SpellResult, type WeaponAttack } from "@dnd/engine";
@@ -191,6 +191,11 @@ export function SpellsTab({
                       {sheet.concentration?.spell === r.sp.id && <span className="tag conc">concentrating</span>}
                       {r.sp.ready === "prepared" && <span className="tag adv">prepared</span>}
                       {r.sp.fromFeature && <span className="tag">{r.sp.fromFeature}</span>}
+                      {r.sp.cast.extra && (
+                        <span className="tag" title="Cast without a slot since your last short rest and since your last long rest">
+                          {r.sp.cast.extra.sinceShort} short · {r.sp.cast.extra.sinceLong} long
+                        </span>
+                      )}
                     </span>
                     <span className="num spell-num">{r.sp.attack ? signed(r.sp.attack.total) : r.sp.save ? `DC ${r.sp.save.dc} ${r.sp.save.ability.toUpperCase()}` : ""}</span>
                   </button>
@@ -245,6 +250,7 @@ export function SpellPanel({
   hasSelfEffect,
   selfDefault,
   casterSide,
+  casterDamage,
   onCast,
   initialCast,
   onPrepare,
@@ -261,7 +267,9 @@ export function SpellPanel({
   selfDefault?: boolean;
   /** The caster's side of the spell (Hex, Hunter's Mark: your extra damage and its tag): always tracked, no question. */
   casterSide?: boolean;
-  onCast: (level: number, using: "slot" | "pact" | "free" | "ritual" | "none", selfEffect: boolean, castingTime?: string) => void;
+  /** That tag adds damage to your attacks (Hex), so the note can say so. */
+  casterDamage?: boolean;
+  onCast: (level: number, using: "slot" | "pact" | "free" | "ritual" | "none" | "extra" | "scroll", selfEffect: boolean, castingTime?: string) => void;
   /** Opens already cast at this level (after a turn warning was confirmed). */
   initialCast?: number | undefined;
   onPrepare: (prepared: boolean) => void;
@@ -298,7 +306,7 @@ export function SpellPanel({
       : []),
   ];
 
-  const doCast = (level: number, using: "slot" | "pact" | "free" | "ritual" | "none") => {
+  const doCast = (level: number, using: "slot" | "pact" | "free" | "ritual" | "none" | "extra" | "scroll") => {
     onCast(level, using, casterSide ? true : onMe, times.length > 1 ? time : undefined);
     setCast(level);
   };
@@ -342,7 +350,7 @@ export function SpellPanel({
               ))}
             </div>
           )}
-          {casterSide && !readying && <p className="note">Its tag goes on you to track it: the extra damage is offered on your attacks.</p>}
+          {casterSide && !readying && <p className="note">Its tag goes on you to track it{casterDamage ? ": the extra damage is offered on your attacks" : ""}.</p>}
           {hasSelfEffect && !casterSide && !readying && (
             <label className="row check" style={{ padding: "8px 0" }}>
               <input type="checkbox" checked={onMe} onChange={() => setOnMe(!onMe)} />
@@ -384,6 +392,20 @@ export function SpellPanel({
                 <span className="sub">{sp.cast.free.remaining} left</span>
               </button>
             )}
+            {sp.cast.extra && (
+              <button className={`big${sp.cast.slotLevels.length ? "" : " primary"}`} onClick={() => doCast(sp.level, "extra")}>
+                Without a slot
+                <span className="sub">{sp.cast.extra.tag}</span>
+              </button>
+            )}
+            {sp.cast.scroll && (
+              <button className="big primary" onClick={() => doCast(Math.max(sp.level, sp.cast.scroll!.level), "scroll")}>
+                Read the scroll
+                <span className="sub">
+                  {sp.cast.scroll.check ? `${ABILITY_NAMES[sp.cast.scroll.check.ability]} check DC ${sp.cast.scroll.check.dc} first · ` : ""}used up
+                </span>
+              </button>
+            )}
             {sp.ritual && (
               <button className="big" onClick={() => doCast(sp.level, "ritual")}>
                 As a ritual
@@ -391,7 +413,19 @@ export function SpellPanel({
               </button>
             )}
           </div>
-          {sp.level > 0 && sp.cast.slotLevels.length === 0 && !sp.cast.pact && !sp.cast.free && !sp.ritual && (
+          {sp.cast.extra && (
+            <p className="note">
+              Cast without a slot {sp.cast.extra.sinceShort} {sp.cast.extra.sinceShort === 1 ? "time" : "times"} since your last short rest, {sp.cast.extra.sinceLong} since your last long rest.
+              {sp.cast.slotLevels.length ? " Or spend a slot: your call." : ""}
+            </p>
+          )}
+          {sp.cast.scroll && (
+            <p className={`note${sp.cast.scroll.onList ? "" : " danger-text"}`}>
+              From a spell scroll: save DC {sp.cast.scroll.dc}, attack +{sp.cast.scroll.attack}, no material components; it crumbles once read.
+              {sp.cast.scroll.onList ? "" : " It isn't on your class's spell list: the scroll is unintelligible to you unless your DM says otherwise."}
+            </p>
+          )}
+          {sp.level > 0 && sp.cast.slotLevels.length === 0 && !sp.cast.pact && !sp.cast.free && !sp.ritual && !sp.cast.extra && !sp.cast.scroll && (
             <p className="note">No slots of this level. Use your feature or ask your DM.</p>
           )}
         </>
@@ -433,11 +467,7 @@ export function SpellPanel({
             {sp.summary} Full text: {sp.source}. Load your book files (Characters → Book text) to read it here.
           </p>
         ) : (
-          sp.text.map((p, i) => (
-            <p key={i}>
-              <RichText text={p} />
-            </p>
-          ))
+          <TextBlocks text={sp.text} />
         )}
         {sp.higherLevels.map((p, i) => (
           <p key={`h${i}`}>

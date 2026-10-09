@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
-import { buildItems, castingEconomy, creatureSpellRoll, formatBonus, summonBlock, materialNeed, maxSpellLevel, newCharacter, spellListOf, signed, turnWarnings, type TurnIntent, type RollBreakdown } from "@dnd/engine";
+import { buildItems, customSpellId, castingEconomy, creatureSpellRoll, formatBonus, summonBlock, materialNeed, maxSpellLevel, newCharacter, spellListOf, signed, turnWarnings, type TurnIntent, type RollBreakdown } from "@dnd/engine";
 import { ABILITY_NAMES, SKILL_NAMES, type Character, type Skill } from "@dnd/schema";
 import { roll as rollDice, type ComposerBase } from "@dnd/dice";
 import { ShapePanel, TextList, TransformPanel } from "./components/Shapes";
@@ -169,6 +169,8 @@ export function App() {
     return () => clearTimeout(t);
   }, [s.toast, s.setToast]);
 
+  /** Set while a scroll's check has just passed, so casting goes on without asking again. */
+  const scrollChecked = useRef(false);
   if (!s.ready) return null;
   if (s.error && !s.character) return <p style={{ padding: 16 }}>{s.error}</p>;
   if (!s.character || !s.sheet) return <Welcome create={s.create} readImport={s.readImport} deleted={s.deleted} restore={s.restore} purge={s.purge} />;
@@ -297,11 +299,11 @@ export function App() {
     );
   };
   /** A spell of your own, cast with one of your spell lists. */
-  const openCustomSpell = (id?: string) => {
+  const openCustomSpell = (id?: string, after?: () => void) => {
     const editing = id ? c.customSpells.find((x) => x.id === id) : undefined;
     const lists = sheet.spellcasting.map((x) => ({ id: x.id, label: x.label }));
     open(editing ? `Change ${editing.name}` : "Your own spell", () =>
-      live.current.character ? <CustomSpellForm c={live.current.character} act={live.current.act} lists={lists} {...(editing ? { editing } : {})} done={close} /> : null,
+      live.current.character ? <CustomSpellForm c={live.current.character} act={live.current.act} lists={lists} {...(editing ? { editing } : {})} done={after ?? close} /> : null,
     );
   };
 
@@ -1051,7 +1053,22 @@ export function App() {
     open(first.name ?? registry.get(first.item, "item").name, () => {
       const inst = live.current.character?.inventory.find((i) => i.id === instanceId);
       if (!inst) return <p className="note">This item has been removed.</p>;
-      return <ItemPanel inst={inst} def={registry.get(inst.item, "item")} act={live.current.act} close={close} />;
+      const scrollSpell = live.current.sheet?.spells.find((x) => x.list.id === `scroll-${inst.id}`);
+      const spells = [
+        ...registry.list("spell").map((x) => ({ id: x.id, name: x.name, level: x.level })),
+        ...(live.current.character?.customSpells ?? []).map((x) => ({ id: customSpellId(x.id), name: x.name, level: x.level })),
+      ];
+      return (
+        <ItemPanel
+          inst={inst}
+          def={registry.get(inst.item, "item")}
+          act={live.current.act}
+          close={close}
+          spells={spells}
+          {...(scrollSpell ? { onRead: () => openSpell(scrollSpell) } : {})}
+          onCustomSpell={() => openCustomSpell(undefined, () => openItem(inst.id))}
+        />
+      );
     });
   };
 
@@ -1871,10 +1888,40 @@ export function App() {
    * casting ask first, the turn rules warn, free uses with none left ask
    * "Are you sure?", and the spell sheet comes back showing it was cast.
    */
-  const castFlow = (sp: SpellResult, level: number, using: "slot" | "pact" | "free" | "ritual" | "none", selfEffect: boolean, readying = false, castingTime?: string) => {
+  const castFlow = (sp: SpellResult, level: number, using: "slot" | "pact" | "free" | "ritual" | "none" | "extra" | "scroll", selfEffect: boolean, readying = false, castingTime?: string) => {
     // Its effect asks for something first (Hex: which ability).
     const eff = selfEffect ? registry.find(sp.id.replace(/^spell:/, "effect:"), "effect") : undefined;
-    const go = (choice?: string) => withComponent(sp, (consume) => castFlowAfterComponent(sp, level, using, selfEffect, readying, consume, choice, castingTime));
+    // A scroll needs no material components.
+    const go = (choice?: string) =>
+      using === "scroll" ? castFlowAfterComponent(sp, level, using, selfEffect, readying, false, choice, castingTime) : withComponent(sp, (consume) => castFlowAfterComponent(sp, level, using, selfEffect, readying, consume, choice, castingTime));
+    // A scroll above the level you can cast: your spellcasting ability check first (DC 10 + the spell's level).
+    const check = using === "scroll" ? sp.cast.scroll?.check : undefined;
+    if (check && !scrollChecked.current) {
+      const ab = ABILITY_NAMES[check.ability];
+      return open(`${sp.name}: read the scroll`, () => (
+        <Composer
+          title={`${ab} check to read ${sp.name}`}
+          base={{ total: check.bonus, parts: [{ label: `${ab} modifier`, value: check.bonus }], dice: [], advantage: [], disadvantage: [], suggestions: [] }}
+          dc={check.dc}
+          dcLabel={`${ab} check (your spellcasting ability)`}
+          notes={["A failure: the spell fades from the scroll with no effect, and the scroll is gone."]}
+          physical={live.current.character?.settings.physicalDice ?? true}
+          onPhysicalChange={(p) => live.current.act("setField", { path: ["settings", "physicalDice"], value: p }, p ? "Rolling your own dice." : "The app rolls for you.")}
+          onRolled={(r) => live.current.addRoll(r)}
+          onCheck={(passed) => {
+            if (!passed) {
+              live.current.act("castSpell", { spell: sp.id, list: sp.list.id, level, using: "scroll", failed: true }, `${sp.name}: the check failed.`);
+              return;
+            }
+            scrollChecked.current = true;
+            setTimeout(() => {
+              castFlow(sp, level, using, selfEffect, readying, castingTime);
+              scrollChecked.current = false;
+            }, 600);
+          }}
+        />
+      ));
+    }
     if (eff?.choice && !readying)
       return open(sp.name, () => (
         <Choose
@@ -1932,7 +1979,7 @@ export function App() {
   const castFlowAfterComponent = (
     sp: SpellResult,
     level: number,
-    using: "slot" | "pact" | "free" | "ritual" | "none",
+    using: "slot" | "pact" | "free" | "ritual" | "none" | "extra" | "scroll",
     selfEffect: boolean,
     readying: boolean,
     consume: boolean,
@@ -2015,6 +2062,7 @@ export function App() {
           hasSelfEffect={registry.has(sp.id.replace(/^spell:/, "effect:"))}
           selfDefault={selfByDefault(sp)}
           casterSide={!!registry.find(sp.id.replace(/^spell:/, "effect:"), "effect")?.selfOnly}
+          casterDamage={!!registry.find(sp.id.replace(/^spell:/, "effect:"), "effect")?.modifiers.some((m) => m.selector.startsWith("roll.damage"))}
           initialCast={castAt}
           readying={readying}
           onCast={(level, using, selfEffect, castingTime) => castFlow(sp, level, using, selfEffect, readying, castingTime)}

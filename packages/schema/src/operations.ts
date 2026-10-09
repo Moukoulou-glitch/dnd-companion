@@ -180,6 +180,8 @@ export const OPERATION_PAYLOADS = {
       equipped: z.boolean().optional(),
       attuned: z.boolean().optional(),
       name: z.string().optional(),
+      /** The spell written on a spell scroll; null clears it. */
+      scroll: z.object({ spell: z.string(), level: z.number().int().min(0).max(9).optional() }).strict().nullable().optional(),
     })
     .strict(),
   adjustCurrency: z.object({ coin: z.enum(["cp", "sp", "ep", "gp", "pp"]), delta: z.number().int() }).strict(),
@@ -227,7 +229,10 @@ export const OPERATION_PAYLOADS = {
       spell: z.string(),
       list: z.string(),
       level: z.number().int().min(0).max(9),
-      using: z.enum(["slot", "pact", "free", "ritual", "none"]),
+      /** "extra": a spell the table gave, without a slot (counted per rest); "scroll": read from a spell scroll, which is used up. */
+      using: z.enum(["slot", "pact", "free", "ritual", "none", "extra", "scroll"]),
+      /** A scroll spell above your level: the ability check failed, the spell fades from the scroll with no effect. */
+      failed: z.boolean().optional(),
       selfEffect: z.boolean().default(false),
       /** What its effect asks for (Hex: the ability with disadvantage on checks). */
       choice: z.string().optional(),

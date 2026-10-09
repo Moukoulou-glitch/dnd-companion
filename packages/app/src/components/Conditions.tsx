@@ -25,3 +25,56 @@ export function RichText({ text }: { text: string }): ReactNode {
   if (last < text.length) parts.push(text.slice(last));
   return <>{parts}</>;
 }
+
+/** A table row's cells: "| a | b |" → ["a", "b"]. */
+const cells = (row: string) => row.trim().replace(/^\|/, "").replace(/\|$/, "").split("|").map((x) => x.trim());
+const isRow = (p: string) => p.trim().startsWith("|");
+const isRule = (p: string) => /^\|?\s*:?-{2,}/.test(p.trim());
+
+/**
+ * Book text paragraphs: markdown headings ("##### Precipitation") as small
+ * headings, runs of table rows as a table, everything else as text with
+ * condition links.
+ */
+export function TextBlocks({ text }: { text: string[] }): ReactNode {
+  const out: ReactNode[] = [];
+  for (let i = 0; i < text.length; ) {
+    const p = text[i]!;
+    if (isRow(p)) {
+      const rows: string[][] = [];
+      for (; i < text.length && (isRow(text[i]!) || isRule(text[i]!)); i++) if (!isRule(text[i]!)) rows.push(cells(text[i]!));
+      const [head, ...body] = rows;
+      out.push(
+        <div className="text-table-wrap" key={`t${i}`}>
+          <table className="text-table">
+            {head && (
+              <thead>
+                <tr>{head.map((c, j) => <th key={j}>{c}</th>)}</tr>
+              </thead>
+            )}
+            <tbody>
+              {body.map((r, k) => (
+                <tr key={k}>{r.map((c, j) => <td key={j}><RichText text={c} /></td>)}</tr>
+              ))}
+            </tbody>
+          </table>
+        </div>,
+      );
+      continue;
+    }
+    const h = /^#{2,6}\s+(.+)$/.exec(p.trim());
+    out.push(
+      h ? (
+        <h4 className="text-head" key={i}>
+          {h[1]}
+        </h4>
+      ) : (
+        <p key={i}>
+          <RichText text={p} />
+        </p>
+      ),
+    );
+    i++;
+  }
+  return <>{out}</>;
+}

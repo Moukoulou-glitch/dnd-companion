@@ -828,6 +828,11 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         if (!adj.bonus && adj.setTo === undefined && !adj.permanent) delete c.abilityAdjust[ab as keyof typeof c.abilityAdjust];
       }
       c.healerUsed = [];
+      // Extra spells (beyond the rules): the "since short rest" count restarts on any rest, "since long rest" on a long one.
+      for (const [k, n] of Object.entries(c.extraCasts ?? {})) {
+        if (kind === "long") delete c.extraCasts[k];
+        else c.extraCasts[k] = { ...n, short: 0 };
+      }
       const resets = kind === "short" ? ["short"] : ["short", "long", "dawn"];
       const restored = sheet.resources.filter((r) => resets.includes(r.reset) && r.used > 0).map((r) => r.name);
       for (const r of sheet.resources) if (resets.includes(r.reset)) delete c.resourcesUsed[r.id];
@@ -1053,7 +1058,7 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
     }
 
     case "setItem": {
-      const { instanceId, quantity, equipped, attuned, name } = op.payload;
+      const { instanceId, quantity, equipped, attuned, name, scroll } = op.payload;
       const inst = c.inventory.find((i) => i.id === instanceId);
       if (!inst) {
         notes.push("That item is no longer in the inventory.");
@@ -1062,6 +1067,8 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       const def = reg.get(inst.item, "item");
       if (quantity !== undefined) inst.quantity = quantity;
       if (name !== undefined) inst.name = name || undefined;
+      if (scroll === null) delete inst.scroll;
+      else if (scroll) inst.scroll = scroll.level === undefined ? { spell: scroll.spell } : { spell: scroll.spell, level: scroll.level };
       if (equipped !== undefined) {
         inst.equipped = equipped;
         // Only one suit of armor and one shield at a time: wearing a new one takes the old one off.
@@ -1118,10 +1125,32 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         }
       } else if (using === "ritual" && !sp.ritual) {
         notes.push(`${sp.name} isn't a ritual.`);
+      } else if (using === "extra") {
+        const key = `${list}|${spell}`;
+        const n = c.extraCasts[key] ?? { short: 0, long: 0 };
+        c.extraCasts[key] = { short: n.short + 1, long: n.long + 1 };
+        notes.push(`${sp.name} without a slot (${sp.cast.extra?.tag ?? "beyond the rules"}): ${n.short + 1} since your short rest, ${n.long + 1} since your long rest.`);
+      } else if (using === "scroll") {
+        const sc = sp.cast.scroll;
+        const inst = sc && c.inventory.find((i) => i.id === sc.instanceId);
+        if (!inst) notes.push("That scroll is no longer in the inventory.");
+        else {
+          // Read: the words fade and the scroll crumbles to dust, cast or not.
+          inst.quantity -= 1;
+          if (inst.quantity <= 0) c.inventory = c.inventory.filter((i) => i !== inst);
+          notes.push(inst.quantity > 0 ? `The scroll crumbles to dust: ${inst.quantity} left.` : "The scroll crumbles to dust.");
+        }
+        if (sc && !sc.onList) notes.push(`${sp.name} isn't on your class's spell list: the scroll is unintelligible unless your DM says otherwise.`);
+        if (op.payload.failed) {
+          notes.push(`The check failed: ${sp.name} fades from the scroll with no effect. (Optional rule, DMG p. 140: a DC 10 Intelligence save, or a roll on the Scroll Mishap table.)`);
+          spendTurn(castingEconomy(sp.castingTime), () => {});
+          break;
+        }
       }
       if (sp.ready === "not prepared") notes.push(`${sp.name} isn't prepared today.`);
       // A costly or consumed material component (PHB p. 203): the focus or pouch can't stand in for it.
-      const need = materialNeed(sp.material);
+      // A scroll needs no material components.
+      const need = using === "scroll" ? undefined : materialNeed(sp.material);
       if (need) {
         const have = componentCount(c.components[sp.id]);
         if (!have) notes.push(`You don't have the material component (${sp.material}). Cast anyway: your DM decides.`);

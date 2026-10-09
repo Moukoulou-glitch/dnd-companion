@@ -2921,3 +2921,10 @@ button.mpip {
   .sfx-weather, .sfx-water .sfx-water-svg { animation: fx-static 600ms ease-out forwards !important; }
   .fx-streak path, .sfx-whirl path { stroke-dashoffset: 0 !important; }
 }
+
+/* Book text: small headings and tables inside spell and feature text */
+.text-head { margin: 12px 0 4px; font-size: 0.95rem; color: var(--gold, #e0b955); }
+.text-table-wrap { overflow-x: auto; margin: 6px 0 10px; }
+.text-table { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
+.text-table th, .text-table td { text-align: left; padding: 4px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.text-table th { font-weight: 700; }

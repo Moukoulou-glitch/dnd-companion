@@ -97,12 +97,26 @@ export function collectSources(c: Character, baseReg: ContentRegistry): Source[]
     } else if (x.kind === "spell") {
       const sp = reg.find(x.value, "spell");
       const list = x.list ?? `extra-${x.id}`;
-      const grant: Grant = { spells: [{ spell: x.value, name: sp?.name ?? x.value, casting: `extra (${x.tag})`, list }] };
+      const grant: Grant = { spells: [{ spell: x.value, name: sp?.name ?? x.value, casting: `extra (${x.tag})`, list, extra: x.tag }] };
       if (!x.list) grant.spellcasting = { id: list, label: `${sp?.name ?? "Spell"} (${x.tag})`, ability: x.ability ?? "cha", progression: "none" };
       out.push({ id: `extra:${x.id}`, label, grant, choices: {} });
     } else {
       out.push({ id: `extra:${x.id}`, label, grant: { proficiencies: [{ kind: x.kind, target: x.value }] }, choices: {} });
     }
+  }
+
+  // Spell scrolls with their spell written in: read one to cast it (DMG p. 200).
+  for (const inst of c.inventory) {
+    if (!inst.scroll || inst.quantity < 1) continue;
+    const sp = reg.find(inst.scroll.spell, "spell");
+    const named = /(\d)(?:st|nd|rd|th)[- ]level/i.exec(reg.find(inst.item, "item")?.name ?? "");
+    const level = inst.scroll.level ?? (named ? Number(named[1]) : /cantrip/i.test(reg.find(inst.item, "item")?.name ?? "") ? 0 : sp?.level ?? 1);
+    out.push({
+      id: `scroll:${inst.id}`,
+      label: "Spell scroll",
+      grant: { spells: [{ spell: inst.scroll.spell, name: sp?.name ?? inst.scroll.spell, casting: "scroll", list: `scroll-${inst.id}`, scroll: { instanceId: inst.id, level } }] },
+      choices: {},
+    });
   }
 
   for (const inst of c.inventory) {

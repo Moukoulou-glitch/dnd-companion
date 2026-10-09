@@ -41,6 +41,8 @@ export const ItemInstance = z
     /** Display name override, e.g. a named heirloom. */
     name: z.string().optional(),
     notes: z.string().optional(),
+    /** A spell scroll: the spell written on it, and the level it's written at (default: from the item's name, or the spell's own). */
+    scroll: z.object({ spell: DefId, level: z.number().int().min(0).max(9).optional() }).strict().optional(),
   })
   .strict();
 export type ItemInstance = z.infer<typeof ItemInstance>;
@@ -551,6 +553,8 @@ export const Character = z
     /** Actions and spells the player wrote. */
     customActions: z.array(CustomAction).default([]),
     customSpells: z.array(CustomSpell).default([]),
+    /** Spells the table gave beyond the rules, cast without a slot: how many times since the last short and the last long rest ("list|spell"). */
+    extraCasts: z.record(z.string(), z.object({ short: z.number().int().min(0), long: z.number().int().min(0) }).strict()).default({}),
   })
   .strict();
 export type Character = z.infer<typeof Character>;

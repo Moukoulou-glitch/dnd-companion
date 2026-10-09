@@ -211,6 +211,10 @@ export const GrantedSpell = z
     list: z.string().optional(),
     /** Cast at will, without a slot (Armor of Shadows: mage armor). */
     atWill: z.boolean().optional(),
+    /** Given by the table beyond the rules: cast without a slot too, counted per rest (its tag: "DM allows"). */
+    extra: z.string().optional(),
+    /** Written on a spell scroll in the inventory: read it to cast it (used up). */
+    scroll: z.object({ instanceId: z.string(), level: z.number().int().min(0).max(9) }).strict().optional(),
   })
   .strict();
 export type GrantedSpell = z.infer<typeof GrantedSpell>;
