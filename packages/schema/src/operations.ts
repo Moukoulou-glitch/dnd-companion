@@ -314,6 +314,8 @@ export const OPERATION_PAYLOADS = {
   removeCustomAction: z.object({ id: z.string() }).strict(),
   /** A spell of the player's own, added or changed, on one of the character's spell lists. */
   setCustomSpell: z.object({ spell: CustomSpell, list: z.string() }).strict(),
+  /** Turn a Tasha's optional class feature on or off for this character. */
+  setOptionalFeature: z.object({ feature: z.string(), on: z.boolean() }).strict(),
   removeCustomSpell: z.object({ id: z.string() }).strict(),
   /** Proficiency bonus raised or lowered by hand. */
   setPbAdjust: z.object({ bonus: z.number().int().min(0).max(10).optional(), penalty: z.number().int().min(0).max(10).optional(), note: z.string().max(80).optional() }).strict(),
@@ -437,6 +439,7 @@ export const Operation = z.discriminatedUnion("type", [
   OperationBase.extend({ type: z.literal("setCustomAction"), payload: OPERATION_PAYLOADS.setCustomAction }),
   OperationBase.extend({ type: z.literal("removeCustomAction"), payload: OPERATION_PAYLOADS.removeCustomAction }),
   OperationBase.extend({ type: z.literal("setCustomSpell"), payload: OPERATION_PAYLOADS.setCustomSpell }),
+  OperationBase.extend({ type: z.literal("setOptionalFeature"), payload: OPERATION_PAYLOADS.setOptionalFeature }),
   OperationBase.extend({ type: z.literal("removeCustomSpell"), payload: OPERATION_PAYLOADS.removeCustomSpell }),
   OperationBase.extend({ type: z.literal("setRollAdjust"), payload: OPERATION_PAYLOADS.setRollAdjust }),
   OperationBase.extend({ type: z.literal("setCalendar"), payload: OPERATION_PAYLOADS.setCalendar }),

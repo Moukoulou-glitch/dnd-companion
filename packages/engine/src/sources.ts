@@ -70,7 +70,8 @@ export function collectSources(c: Character, baseReg: ContentRegistry): Source[]
     };
     out.push({ id: def.id, label: def.name, grant, choices: choicesFor(def.id) });
 
-    def.features.filter((f) => f.level <= cl.level).forEach((f) => pushFeature(f.feature));
+    // Tasha's optional class features the player turned off stay off.
+    def.features.filter((f) => f.level <= cl.level && !(f.optional && c.optionalOff?.includes(f.feature))).forEach((f) => pushFeature(f.feature));
 
     if (cl.subclass) {
       const sub = reg.get(cl.subclass, "subclass");

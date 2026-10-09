@@ -95,7 +95,12 @@ export const StartingEquipment = z
 export type StartingEquipment = z.infer<typeof StartingEquipment>;
 
 export const ClassFeatureRef = z
-  .object({ level: z.number().int().min(1).max(20), feature: DefId })
+  .object({
+    level: z.number().int().min(1).max(20),
+    feature: DefId,
+    /** A Tasha's optional class feature: on unless the character turns it off. */
+    optional: z.boolean().optional(),
+  })
   .strict();
 
 export const ClassDef = z

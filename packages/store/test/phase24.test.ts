@@ -66,3 +66,22 @@ describe("Extra spells without a slot, spell scrolls", () => {
     expect(derive(l.character, reg).spells.find((s) => s.list.id === "scroll-s1b")?.cast.scroll?.onList).toBe(false);
   });
 });
+
+describe("Tasha's optional class features, per character", () => {
+  it("are on by default, can be turned off and back on", () => {
+    const c = newCharacter({ id: "m", name: "M", race: "race:human", class: "class:monk", abilities: { str: 10, dex: 16, con: 14, int: 10, wis: 14, cha: 10 } }, reg);
+    c.classes[0] = { ...c.classes[0]!, level: 5 };
+    const l = new CharacterLog(c, reg, new HybridClock("t", () => (t += 1000)), "player");
+    const s0 = derive(l.character, reg);
+    expect(s0.features.some((f) => f.id === "feature:monk-ki-fueled-attack")).toBe(true);
+    expect(s0.optionalFeatures.find((f) => f.id === "feature:monk-ki-fueled-attack")).toMatchObject({ on: true, className: "Monk", level: 3 });
+    // A feature that isn't optional isn't listed.
+    expect(s0.optionalFeatures.some((f) => f.id === "feature:extra-attack")).toBe(false);
+    l.record("setOptionalFeature", { feature: "feature:monk-ki-fueled-attack", on: false });
+    const s1 = derive(l.character, reg);
+    expect(s1.features.some((f) => f.id === "feature:monk-ki-fueled-attack")).toBe(false);
+    expect(s1.optionalFeatures.find((f) => f.id === "feature:monk-ki-fueled-attack")?.on).toBe(false);
+    l.record("setOptionalFeature", { feature: "feature:monk-ki-fueled-attack", on: true });
+    expect(derive(l.character, reg).features.some((f) => f.id === "feature:monk-ki-fueled-attack")).toBe(true);
+  });
+});

@@ -46,6 +46,7 @@ export function SheetTab({
   openAdjust,
   openPb,
   openDefenses,
+  onOptional,
 }: {
   sheet: DerivedSheet;
   character: Character;
@@ -63,6 +64,8 @@ export function SheetTab({
   openPb: () => void;
   /** Resistances, immunities and vulnerabilities by hand. */
   openDefenses: () => void;
+  /** Turn a Tasha's optional class feature on or off. */
+  onOptional: (id: string, on: boolean) => void;
 }) {
   const featTag = (id: string) => sheet.extras.find((x) => x.kind === "feat" && x.value === id)?.tag;
   return (
@@ -179,6 +182,27 @@ export function SheetTab({
           ))}
         </div>
       </section>
+
+      {sheet.optionalFeatures.length > 0 && (
+        <section>
+          <h2>Tasha's optional class features</h2>
+          <div className="group">
+            {sheet.optionalFeatures.map((f) => (
+              <label className="row check" key={f.id}>
+                <input type="checkbox" checked={f.on} onChange={() => onOptional(f.id, !f.on)} />
+                <div className="row-main">
+                  <div className="row-title">{f.name}</div>
+                  <div className="row-sub">
+                    {f.className} {f.level}
+                    {f.summary ? ` · ${f.summary}` : ""}
+                  </div>
+                </div>
+              </label>
+            ))}
+          </div>
+          <p className="note">On unless your table doesn't use them. Turning one off takes it (and what it gives) off the sheet; its picks are kept.</p>
+        </section>
+      )}
 
       <section>
         <h2>Beyond the rules</h2>

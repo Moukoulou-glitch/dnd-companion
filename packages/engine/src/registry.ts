@@ -17,7 +17,8 @@ export function mergeClass(base: ClassDef, over: ClassDef): ClassDef {
   const merged: ClassDef = {
     ...base,
     ...over,
-    features: [...over.features, ...kept, ...(over.adds ?? [])].sort((a, b) => a.level - b.level),
+    // Added on top (Tasha's optional class features): each can be turned off per character.
+    features: [...over.features, ...kept, ...(over.adds ?? []).map((a) => ({ ...a, optional: true }))].sort((a, b) => a.level - b.level),
   };
   delete merged.adds;
   for (const k of ["choices", "multiclassChoices", "asiLevels", "progression", "multiclassPrereq", "subclassTitle", "startingGrant", "multiclassGrant", "spellcasting", "spellPreparation", "spellcastingFromLevel", "text"] as const) {

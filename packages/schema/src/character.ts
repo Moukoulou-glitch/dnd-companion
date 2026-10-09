@@ -553,6 +553,8 @@ export const Character = z
     /** Actions and spells the player wrote. */
     customActions: z.array(CustomAction).default([]),
     customSpells: z.array(CustomSpell).default([]),
+    /** Tasha's optional class features this character doesn't use (feature ids). */
+    optionalOff: z.array(z.string()).default([]),
     /** Spells the table gave beyond the rules, cast without a slot: how many times since the last short and the last long rest ("list|spell"). */
     extraCasts: z.record(z.string(), z.object({ short: z.number().int().min(0), long: z.number().int().min(0) }).strict()).default({}),
   })

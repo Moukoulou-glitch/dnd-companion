@@ -1797,6 +1797,16 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       break;
     }
 
+    case "setOptionalFeature": {
+      const { feature, on } = op.payload;
+      const off = new Set(c.optionalOff ?? []);
+      if (on) off.delete(feature);
+      else off.add(feature);
+      c.optionalOff = [...off];
+      if (!on) notes.push("Its picks are kept in case you turn it back on.");
+      break;
+    }
+
     case "setPbAdjust": {
       const { bonus, penalty, note } = op.payload;
       if (bonus !== undefined) c.pbAdjust.bonus = bonus;

@@ -2336,6 +2336,7 @@ export function App() {
           open={open}
           openRoll={openRoll} openTrait={openTrait} openSkill={openSkill} openAddExtra={openAddExtra} openExtra={openExtra}
           openDefenses={() => open("Defenses", () => (live.current.character && live.current.sheet ? <DefensesPanel c={live.current.character} sheet={live.current.sheet} reg={registry} act={live.current.act} /> : null))}
+          onOptional={(id, on) => live.current.act("setOptionalFeature", { feature: id, on }, `${registry.find(id, "feature")?.name ?? id} ${on ? "on" : "off"}.`)}
           openPb={() => open("Proficiency bonus", () => (live.current.character && live.current.sheet ? <PbPanel character={live.current.character} sheet={live.current.sheet} act={live.current.act} /> : null))}
           openAdjust={(k) => open(k === "save" ? "Saving throws: bonus or penalty" : k === "skill" ? "Skills: bonus or penalty" : "Passive senses: bonus or penalty", () => (live.current.character ? <RollAdjustPanel kind={k} c={live.current.character} act={live.current.act} /> : null))} />}
       {tab === "story" && <BackstoryTab c={c} act={s.act} />}

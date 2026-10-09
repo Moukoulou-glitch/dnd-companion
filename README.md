@@ -87,11 +87,11 @@ npm run build -w @dnd/app   # the PWA, as published
 | 13¼ · Spell phases, unarmed strikes | Done: spell effects set per spell and per phase (cast, a later use from the concentration chip, its damage, a quiet loop while you concentrate), so a lasting spell never replays its cast: Moonbeam, Call Lightning (the storm once, then short bolts) and Gust of Wind; unarmed strikes show an impact on a hit, a bigger one on a crit and an air trail on a miss; Feinting Attack spends its die on the feint and carries on to the damage without a second die or a false warning |
 | 13½ · Elements and martial arts | Done: Ice Storm (frost, hail, an icy wave, once on the cast); Control Water and Control Weather ask for their mode when cast (Flood, Part Water, Redirect Flow, Whirlpool; clear skies, rain, snow, wind, storm), keep it on their tag, and play that mode's look, or a neutral one if none was picked; Flurry of Blows' afterimages; Hand of Healing and Hand of Harm; Reckless Attack's streak and its impact on a hit; Otherworldly Glamour's Wisdom bonus is at least +1 |
 | 13¾ · Extra spells and scrolls | Done: spells the table gives beyond the rules cast without a slot (or with one, your call), counted since your last short and since your last long rest; spell scrolls (cantrip to 9th) hold the spell you pick (any spell, or your own), are read from the item or the Spells tab with the scroll's DC and attack, no material components, its casting time, concentration and damage, a spellcasting-ability check (DC 10 + level) for spells above your level, a warning when it isn't on your class list, and one fewer scroll each time; book text shows its headings and tables properly |
+| 13⅞ · Optional class features | Done: Tasha's optional class features (Primal Knowledge, Wild Companion, Ki-Fueled Attack, Harness Divine Power…) are listed on the Sheet with a tick-box each: on by default, off for a character whose table doesn't use one (its actions, choices and spells leave the sheet; its picks are kept) |
 
 ### Shortcuts to revisit
 
 - Variant human ability bonuses aren't recorded for Ελισσαίος and Αγακλής, so those +1s are folded into their base scores.
 - Dual Wielder's +2 AC is switched on with the `dual-wielding` toggle until the app can tell what is in each hand.
 
-- Tasha's optional class features are always on; a per-character switch is still to come (see `docs/NOT-TRACKED.md`).
 - Μπέρεν's Acrobatics, Medicine and History proficiencies and his Druidic language are kept as the player's own entries (a manual grant), by the DM's decision.

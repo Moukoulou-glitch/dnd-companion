@@ -6,7 +6,6 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 - **Speeds that depend on a choice after a rest** (Path of the Beast's Bestial Soul) or on a form (Circle of Stars' Dragon) aren't tracked; other fly, swim and climb speeds from features and spells (Fly, Spider Climb, Gaseous Form) are.
 - **"Resistance to damage from spells"** (Aura of Warding, Spell Resistance): can't be expressed; only typed resistances.
 - **Spells appearing only from a higher level inside one feature** (Shadow Magic's Darkness shows from 1st with a "from 3rd" note).
-- **Optional class features are always on**: Tasha's optional features are added to every character of the class (e.g. Primal Knowledge asks for its skill). There's no per-character opt-out yet.
 - **Proficiencies from class/race can't be removed**, only added (weapon/armor/skill/tool/language extras).
 - **Feature timers** come from the duration a use states ("for 1 minute"); a feature whose wording doesn't say it gets none.
 - **Crit range for one target only** (Hexblade's Curse 19–20): shown as a note.

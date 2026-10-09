@@ -304,6 +304,8 @@ export interface DerivedSheet {
   /** Conditions and effects on the character, in the order they were added. */
   effects: EffectResult[];
   spellcasting: SpellcastingResult[];
+  /** Tasha's optional class features within the character's levels, and whether each is in use. */
+  optionalFeatures: { id: string; name: string; className: string; level: number; summary?: string; on: boolean }[];
   spellSlots: { level: number; total: number; used: number }[];
   pactSlots?: { count: number; level: number };
   resources: ResourceResult[];
@@ -1446,6 +1448,16 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     spells,
     effects,
     spellcasting,
+    optionalFeatures: c.classes.flatMap((cl) => {
+      const d = reg.find(cl.class, "class");
+      return (d?.features ?? [])
+        .filter((f) => f.optional && f.level <= cl.level)
+        .flatMap((f) => {
+          const fd = reg.find(f.feature, "feature");
+          if (!fd) return [];
+          return [{ id: fd.id, name: fd.name, className: d!.name, level: f.level, ...(fd.summary ? { summary: fd.summary } : {}), on: !c.optionalOff?.includes(fd.id) }];
+        });
+    }),
     spellSlots: slotsTotal.map((total, i) => ({ level: i + 1, total, used: Math.min(total, c.slotsUsed[String(i + 1)] ?? 0) })),
     resources,
     proficiencies: {
