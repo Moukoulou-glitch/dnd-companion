@@ -17,6 +17,7 @@ import { DcBig, Reminders } from "./components/DcBig";
 import { DistributePanel } from "./components/Distribute";
 import { RageVeins, greyLevel, useFlourishes } from "./components/Fx";
 import { FxLayer, playFx } from "./fx/FxLayer";
+import { strikeFx } from "./fx/triggers";
 import { CustomActionForm, CustomSpellForm } from "./components/CustomForms";
 import { RollAdjustPanel } from "./components/RollAdjust";
 import { DurablePanel } from "./components/Durable";
@@ -457,6 +458,7 @@ export function App() {
         {...(portentFor() ? { portent: portentFor()! } : {})}
         onOptionsUsed={opts.onOptionsUsed ?? recordOptions}
         {...(opts.reaction ? { reaction: true } : {})}
+        {...(attack ? { onResolved: (o: "hit" | "crit" | "miss") => strikeFx(attack.attackId, o).forEach(playFx) } : {})}
         onSpend={(used) => {
           for (const u of used) {
             if (u.spends) {
@@ -1812,7 +1814,7 @@ export function App() {
         <ConcentrationPanel
           {...(adjust ? { adjust } : {})}
           timer={timer}
-          {...(sp ? { onDamage: () => rollSpell(sp, level, true), damageLabel: `Roll ${sp.name} ${sp.heal && !sp.damage ? "healing" : "damage"}${level > sp.level ? ` (level ${level})` : ""}` } : {})}
+          {...(sp ? { onDamage: () => rollSpell(sp, level, true, true), damageLabel: `Roll ${sp.name} ${sp.heal && !sp.damage ? "healing" : "damage"}${level > sp.level ? ` (level ${level})` : ""}` } : {})}
           onCheck={openConcentrationCheck}
           onEnd={() => {
             live.current.act("endConcentration", {}, "Concentration ended.");
@@ -1824,7 +1826,8 @@ export function App() {
   };
 
   /** Attack or damage for a spell at a slot level; beams and portent come along. */
-  const rollSpell = (sp: SpellResult, level: number, damageOnly: boolean) => {
+  /** `again`: a later use while it lasts (from the concentration chip), for the spell's effects. */
+  const rollSpell = (sp: SpellResult, level: number, damageOnly: boolean, again = false) => {
     const beams = sp.beams?.byLevel[sp.level === 0 ? 0 : level];
     const notes = beams && beams > 1 ? [`${beams} ${sp.beams!.what}, each its own attack: they can hit the same target or different ones. The app takes you through them one by one.`] : [];
     const portent = portentFor();
@@ -1858,7 +1861,7 @@ export function App() {
         }}
         physical={live.current.character?.settings.physicalDice ?? true}
         onPhysicalChange={(p) => live.current.act("setField", { path: ["settings", "physicalDice"], value: p }, p ? "Rolling your own dice." : "The app rolls for you.")}
-        onRolled={(r) => live.current.addRoll(r)}
+        onRolled={(r) => live.current.addRoll({ ...r, spell: sp.id, ...(again ? { again: true } : {}) })}
       />
     ));
   };
@@ -2102,7 +2105,7 @@ export function App() {
     <ConditionLinks.Provider value={showCondition}>
     <div className="app">
       <RageVeins show={rageAt} />
-      <FxLayer school={spellSchool} />
+      <FxLayer school={spellSchool} character={c} />
       {grey > 0 && <div className="grey-veil" aria-hidden="true" style={{ backdropFilter: `grayscale(${grey})`, WebkitBackdropFilter: `grayscale(${grey})` }} />}
       <header className="strip">
         <button className="who" onClick={openRoster} aria-label={`${c.name}. Switch character`}>

@@ -64,3 +64,4 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 - Effects are drawn where you last tapped (spells, Inspiration) or at the roll's total / HP box / concentration chip; there's no per-spell-row anchor.
 - Damage prevention shows for immunity, resistance, Heavy Armor Master, temp HP and Durable; a reduction rolled by hand before entering the damage (Parry, Deflect Missiles' panel) is already subtracted and doesn't show a shield.
 - No sound. Vibration on Android only.
+- Spell effects: Moonbeam's position and movement, Gust of Wind's direction, Control Water/Weather modes aren't recorded, so their effects can't follow them. Ice Storm, Control Water, Control Weather, Flurry of Blows, Hand of Healing/Harm and Reckless Attack effects aren't built yet.

@@ -8,6 +8,9 @@ export interface RollRecord {
   kind: "d20" | "damage";
   /** An attack roll (not a check or save): crits and natural 1s mean something here. */
   attack?: boolean;
+  /** The spell this roll is for (its content id), and whether it's a later use while it lasts (from the concentration chip). */
+  spell?: string;
+  again?: boolean;
   total: number;
   natural?: number;
   crit: boolean;

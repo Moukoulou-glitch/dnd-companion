@@ -4,7 +4,8 @@ import type { Character } from "@dnd/schema";
 import { tableRegistry } from "../../engine/test/helpers.js";
 import { CharacterLog } from "../../store/src/log.js";
 import { HybridClock } from "../../store/src/clock.js";
-import { opFx, rollFx } from "../src/fx/triggers.js";
+import { ongoingFx, opFx, rollFx, strikeFx } from "../src/fx/triggers.js";
+import { SPELL_FX } from "../src/fx/spells.js";
 import type { RollRecord } from "../src/rolls.js";
 
 const reg = tableRegistry();
@@ -83,5 +84,45 @@ describe("Effect triggers", () => {
     const c: Character = l.character;
     expect(opFx("castSpell", { spell: "spell:fireball" }, c, c, (id) => (reg.find(id, "spell") as { school?: string } | undefined)?.school)).toEqual([{ kind: "cast", school: "evocation" }]);
     expect(opFx("castSpell", { spell: "spell:nothing-known" }, c, c, () => undefined)).toEqual([{ kind: "cast" }]);
+  });
+});
+
+describe("Spell phases and unarmed strikes", () => {
+  it("a spell with its own look plays its cast once; later uses play the short version; others keep the circle", () => {
+    const l = fighter();
+    const c = l.character;
+    expect(opFx("castSpell", { spell: "spell:call-lightning" }, c, c)).toEqual([{ kind: "spell", spell: "spell:call-lightning", phase: "cast" }]);
+    expect(opFx("castSpell", { spell: "spell:fireball" }, c, c, () => "evocation")).toEqual([{ kind: "cast", school: "evocation" }]);
+    // Call Lightning: the next bolt (from the concentration chip) is "again", never the whole storm.
+    const dmg = (x: Partial<RollRecord>) => roll({ kind: "damage", lines: [{ source: "Call Lightning", detail: "3+4+5", total: 12 }], ...x });
+    expect(rollFx(dmg({ spell: "spell:call-lightning", again: true }))).toEqual([{ kind: "spell", spell: "spell:call-lightning", phase: "again" }]);
+    // Its damage right after casting has no separate look (the cast already struck).
+    expect(rollFx(dmg({ spell: "spell:call-lightning" }))).toEqual([]);
+    // Moonbeam: a pulse both right after casting and on later turns.
+    expect(rollFx(dmg({ spell: "spell:moonbeam" }))).toEqual([{ kind: "spell", spell: "spell:moonbeam", phase: "resolve" }]);
+    expect(rollFx(dmg({ spell: "spell:moonbeam", again: true }))).toEqual([{ kind: "spell", spell: "spell:moonbeam", phase: "again" }]);
+    expect(rollFx(dmg({ spell: "spell:fireball" }))).toEqual([]);
+  });
+
+  it("the ongoing loop follows the engine's concentration and nothing else", () => {
+    const l = fighter();
+    expect(ongoingFx(l.character)).toBeUndefined();
+    const on = { ...l.character, concentration: { spell: "spell:moonbeam", name: "Moonbeam", rounds: 10 } };
+    expect(ongoingFx(on)).toEqual({ spell: "spell:moonbeam", look: "sfx-ongoing-moon" });
+    // A concentration spell with no loop of its own shows nothing.
+    expect(ongoingFx({ ...on, concentration: { spell: "spell:bless", name: "Bless" } })).toBeUndefined();
+    // Every phase in the registry names a look and a length.
+    for (const [id, d] of Object.entries(SPELL_FX)) {
+      expect(id.startsWith("spell:")).toBe(true);
+      for (const p of [d.cast, d.again, d.resolve]) if (p) expect(p.look && p.ms > 0 && p.ms <= 1200).toBeTruthy();
+    }
+  });
+
+  it("unarmed strikes: impact on a hit, bigger on a crit, only a trail on a miss; other attacks nothing", () => {
+    expect(strikeFx("martial-arts", "hit")).toEqual([{ kind: "unarmed", result: "hit" }]);
+    expect(strikeFx("martial-arts-bonus", "crit")).toEqual([{ kind: "unarmed", result: "crit" }]);
+    expect(strikeFx("tavern-unarmed", "miss")).toEqual([{ kind: "unarmed", result: "miss" }]);
+    expect(strikeFx("unarmed-fighting-free-hands", "hit")).toEqual([{ kind: "unarmed", result: "hit" }]);
+    expect(strikeFx("item:shortsword", "hit")).toEqual([]);
   });
 });

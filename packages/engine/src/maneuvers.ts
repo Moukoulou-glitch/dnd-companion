@@ -59,7 +59,8 @@ export function maneuverGrant(names: string[], die: string, resource: string, dc
     const text = (s: string) => s.replace(/\{dc\}/g, String(dc));
     const base = { mode: "suggested" as const, label: name, spends, group: "maneuver" };
     if (m.attack === "die") modifiers.push({ selector: "roll.attack.weapon.*", op: "add", value: die, ...base, when: { text: "spend a superiority die; before or after you see the roll" } });
-    if (m.attack === "advantage") modifiers.push({ selector: "roll.attack.weapon.*", op: "advantage", mode: "suggested", label: name, group: "maneuver", when: { text: "bonus action before the attack; the die is spent on the damage" } });
+    // Feinting Attack: the die is spent on the feint (advantage); on a hit the same tick carries to the damage, without a second die.
+    if (m.attack === "advantage") modifiers.push({ selector: "roll.attack.weapon.*", op: "advantage", ...base, when: { text: "bonus action before the attack: spend a superiority die; on a hit it's added to the damage" } });
     if (m.damage) modifiers.push({ selector: "roll.damage.weapon.*", op: "add", value: die, ...base, when: { text: text(m.damage) }, ...(m.reaction ? { preset: "reaction" as const } : {}) });
     for (const sk of m.checks ?? []) modifiers.push({ selector: `roll.check.skill.${sk}`, op: "add", value: die, ...base, when: { text: "spend a superiority die" } });
     if (m.initiative) modifiers.push({ selector: "roll.initiative", op: "add", value: die, ...base, when: { text: "spend a superiority die" } });

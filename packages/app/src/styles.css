@@ -2773,3 +2773,72 @@ button.mpip {
   .hp-bar > span { transition: none; }
 }
 @keyframes fx-static { 0% { opacity: 0.85; } 100% { opacity: 0; } }
+
+
+/* ── Spell effects by phase (fx/spells.ts) and unarmed strikes ───────────── */
+/* Unarmed: speed lines closing in and a small shockwave; a miss is only a trail of air */
+.fx-speed { width: 120px; height: 120px; fill: none; stroke: rgba(255, 255, 255, 0.85); stroke-width: 1.4; stroke-linecap: round; }
+.fx-speed path { stroke-dasharray: 1; stroke-dashoffset: -1; animation: fx-converge var(--fx-ms) ease-in forwards; }
+@keyframes fx-converge { 0% { stroke-dashoffset: -1; opacity: 0.9; } 55% { stroke-dashoffset: 0; opacity: 1; } 100% { stroke-dashoffset: 0.9; opacity: 0; } }
+.fx-unarmed-hit .fx-ring, .fx-unarmed-crit .fx-ring { border-color: rgba(255, 255, 255, 0.9); animation: fx-ripple var(--fx-ms) 140ms ease-out forwards; }
+.fx-unarmed-crit .fx-ring { border-width: 3px; box-shadow: 0 0 14px rgba(255, 230, 160, 0.8); }
+.fx-unarmed-crit .fx-core { background: radial-gradient(circle, rgba(255, 255, 255, 0.9), rgba(255, 225, 150, 0) 65%); animation: fx-pop var(--fx-ms) 120ms ease-out forwards; }
+.fx-unarmed .fx-dot { background: #f4f4f4; animation-delay: 140ms; opacity: 0; }
+.fx-unarmed-miss .fx-speed { width: 140px; }
+.fx-unarmed-miss .fx-speed path { stroke: rgba(220, 230, 240, 0.6); stroke-width: 2; stroke-dashoffset: 1; animation: fx-slash var(--fx-ms) ease-out forwards; }
+
+/* Placements: from the top of the screen down to the tap, or a band across the screen at that height */
+.fx-sky { position: absolute; top: 0; width: 0; }
+.fx-sky > * { position: absolute; left: 0; transform: translateX(-50%); opacity: 0; }
+.fx-across { position: absolute; left: 0; right: 0; height: 110px; transform: translateY(-50%); overflow: hidden; }
+.sfx-cloud, .sfx-bolt-path, .sfx-column, .sfx-glyph { display: none; }
+
+/* Moonbeam: a silver-blue glyph, the column of moonlight coming down; a later burn is one brighter pulse */
+.sfx-moon-cast .sfx-column { display: block; top: 0; bottom: 0; width: 46px; background: linear-gradient(to bottom, rgba(200, 220, 255, 0), rgba(205, 225, 255, 0.45) 70%, rgba(225, 235, 255, 0.7)); filter: blur(3px); transform-origin: top; animation: sfx-descend var(--fx-ms) ease-out forwards; }
+.sfx-moon-cast .sfx-glyph { display: block; bottom: -14px; width: 90px; height: 28px; border-radius: 50%; border: 2px solid rgba(200, 220, 255, 0.85); box-shadow: 0 0 12px rgba(190, 215, 255, 0.7); animation: sfx-glyph var(--fx-ms) ease-out forwards; }
+@keyframes sfx-descend { 0% { opacity: 0; transform: translateX(-50%) scaleY(0); } 45% { opacity: 1; transform: translateX(-50%) scaleY(1); } 100% { opacity: 0; transform: translateX(-50%) scaleY(1); } }
+@keyframes sfx-glyph { 0% { opacity: 0; scale: 0.4; } 25% { opacity: 1; scale: 1; } 80% { opacity: 1; } 100% { opacity: 0; scale: 1.1; } }
+.sfx-moon-pulse .fx-core { background: radial-gradient(circle, rgba(230, 240, 255, 0.85), rgba(190, 215, 255, 0) 68%); animation: fx-pop var(--fx-ms) ease-out forwards; }
+.sfx-moon-pulse .fx-ring { border-color: rgba(210, 228, 255, 0.85); animation: fx-ripple var(--fx-ms) ease-out forwards; }
+
+/* Call Lightning: the storm gathers and a big bolt falls (once); later bolts are short, from the storm already there */
+.sfx-storm-cast .sfx-cloud, .sfx-bolt .sfx-cloud { display: block; position: fixed; left: 0; right: 0; top: 0; height: 90px; transform: none; background: radial-gradient(ellipse at 30% 0%, rgba(40, 46, 66, 0.9), rgba(30, 34, 50, 0) 70%), radial-gradient(ellipse at 75% 0%, rgba(50, 54, 76, 0.85), rgba(30, 34, 50, 0) 65%); }
+.sfx-storm-cast .sfx-cloud { animation: sfx-gather var(--fx-ms) ease-out forwards; }
+.sfx-bolt .sfx-cloud { animation: fx-static var(--fx-ms) ease-out forwards; opacity: 0.6; }
+@keyframes sfx-gather { 0% { opacity: 0; translate: 0 -30px; } 45% { opacity: 1; translate: 0 0; } 85% { opacity: 1; } 100% { opacity: 0; } }
+.sfx-storm-cast .sfx-bolt-path, .sfx-bolt .sfx-bolt-path { display: block; top: 0; height: 100%; width: 44px; fill: none; stroke: #eef3ff; stroke-width: 2.4; stroke-linejoin: bevel; filter: drop-shadow(0 0 5px rgba(170, 200, 255, 0.95)); }
+.sfx-bolt-path path { stroke-dasharray: 1; stroke-dashoffset: 1; }
+.sfx-storm-cast .sfx-bolt-path { animation: sfx-strike var(--fx-ms) linear forwards; }
+.sfx-storm-cast .sfx-bolt-path path { animation: sfx-draw var(--fx-ms) linear forwards; }
+.sfx-bolt .sfx-bolt-path { width: 30px; animation: sfx-strike-short var(--fx-ms) linear forwards; }
+.sfx-bolt .sfx-bolt-path path { animation: sfx-draw-short var(--fx-ms) linear forwards; }
+@keyframes sfx-strike { 0%, 50% { opacity: 0; } 52% { opacity: 1; } 75% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes sfx-draw { 0%, 50% { stroke-dashoffset: 1; } 62% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: 0; } }
+@keyframes sfx-strike-short { 0% { opacity: 1; } 70% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes sfx-draw-short { 0% { stroke-dashoffset: 1; } 30% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: 0; } }
+
+/* Gust of Wind: a pressure wave crossing the screen */
+.sfx-gust { background: linear-gradient(90deg, rgba(200, 225, 235, 0), rgba(200, 225, 235, 0.16), rgba(200, 225, 235, 0)); background-size: 40% 100%; background-repeat: no-repeat; animation: sfx-wave var(--fx-ms) ease-in-out forwards; }
+@keyframes sfx-wave { 0% { background-position: -40% 0; } 100% { background-position: 140% 0; } }
+.sfx-streak { position: absolute; left: -40%; width: 38%; height: 2px; border-radius: 1px; background: linear-gradient(90deg, rgba(220, 235, 240, 0), rgba(220, 235, 240, 0.7)); animation: sfx-streak var(--fx-ms) ease-in-out forwards; }
+@keyframes sfx-streak { 0% { left: -40%; opacity: 0; } 20% { opacity: 1; } 100% { left: 105%; opacity: 0; } }
+
+/* While concentrating: a quiet loop at the edge of the screen, never over the numbers */
+.sfx-ongoing { position: absolute; inset: 0; transition: opacity 400ms ease-out; }
+.sfx-ongoing.ending { opacity: 0; }
+.sfx-ongoing.paused, .sfx-ongoing.paused * { animation-play-state: paused !important; }
+.sfx-ongoing > span { display: none; position: absolute; }
+.sfx-ongoing-moon > span:first-child { display: block; right: 0; top: 18%; bottom: 18%; width: 22px; background: linear-gradient(to left, rgba(205, 225, 255, 0.35), rgba(205, 225, 255, 0)); animation: sfx-shimmer 3.2s ease-in-out infinite; }
+@keyframes sfx-shimmer { 0%, 100% { opacity: 0.35; } 50% { opacity: 0.85; } }
+.sfx-ongoing-storm > span:first-child { display: block; left: 0; right: 0; top: 0; height: 26px; background: linear-gradient(to bottom, rgba(70, 78, 110, 0.45), rgba(70, 78, 110, 0)); animation: sfx-shimmer 5s ease-in-out infinite; }
+.sfx-ongoing-wind > span { display: block; left: -30%; width: 26%; height: 1px; top: calc(62% + var(--i) * 6%); background: linear-gradient(90deg, rgba(220, 235, 240, 0), rgba(220, 235, 240, 0.35)); animation: sfx-drift 2.8s linear infinite; animation-delay: calc(var(--i) * -0.55s); }
+@keyframes sfx-drift { 0% { left: -30%; } 100% { left: 105%; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .fx-sky > *, .fx-across, .sfx-streak { animation: fx-static 450ms ease-out forwards !important; translate: 0 0 !important; scale: 1 !important; transform: translateX(-50%) !important; }
+  .fx-across, .sfx-streak { transform: none !important; }
+  .sfx-bolt-path path, .fx-speed path { stroke-dashoffset: 0 !important; }
+  .fx-speed path { animation: fx-static 400ms ease-out forwards !important; }
+  .sfx-ongoing > span { animation: none !important; opacity: 0.5; }
+  .sfx-ongoing-wind > span { left: 10%; }
+}

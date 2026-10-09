@@ -28,6 +28,14 @@ describe("Maneuvers, smites, defenses, identity", () => {
     expect(s.initiative.suggestions.some((x) => x.label === "Ambush")).toBe(true);
     expect(atk.damage.bonus.suggestions.some((x) => x.label === "Maneuver damage")).toBe(false);
   });
+  it("Feinting Attack spends its die on the feint, and the same tick carries to the damage", () => {
+    const l = bm();
+    l.record("setChoice", { source: "feature:battle-master-combat-superiority", choice: "maneuvers", values: ["Feinting Attack", "Trip Attack"] });
+    const atk = derive(l.character, reg).attacks.find((a) => a.itemInstanceId === "w")!;
+    const feint = atk.attack.suggestions.find((x) => x.label === "Feinting Attack")!;
+    expect(feint).toMatchObject({ spends: { resource: "superiority-dice", amount: 1 }, group: "maneuver" });
+    expect(atk.damage.bonus.suggestions.some((x) => x.label === "Feinting Attack")).toBe(true);
+  });
   it("Bait and Switch adds the die to AC until your next turn", () => {
     const l = bm();
     const ac = derive(l.character, reg).ac.total;

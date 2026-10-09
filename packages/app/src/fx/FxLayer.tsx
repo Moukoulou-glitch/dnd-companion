@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import type { Character } from "@dnd/schema";
 import type { RollRecord } from "../rolls";
-import { opFx, rollFx, type FxEvent } from "./triggers";
+import { ongoingFx, opFx, rollFx, type FxEvent } from "./triggers";
+import { SPELL_FX } from "./spells";
 
 /**
  * The effects themselves: small, reusable CSS/SVG pieces drawn where they
@@ -13,7 +14,7 @@ import { opFx, rollFx, type FxEvent } from "./triggers";
  */
 export interface FxSpec {
   /** Where it's drawn. */
-  at: "tap" | "result" | "hp" | "conc" | "edge" | "center";
+  at: "tap" | "result" | "hp" | "conc" | "edge" | "center" | "sky" | "across";
   /** How long it stays on screen, in ms (the CSS animations match). */
   ms: number;
   /** navigator.vibrate pattern, when the phone has it. */
@@ -56,6 +57,19 @@ export function specOf(e: FxEvent): FxSpec {
       return { at: "tap", ms: 650, look: e.gained ? "fx-insp-gain" : "fx-insp-spend", ...(e.gained ? { particles: 5 } : {}) };
     case "level-up":
       return { at: "center", ms: 1000, buzz: [30, 80, 30, 80, 60], look: "fx-level", label: `Level ${e.level}` };
+    case "unarmed":
+      // Placed where the Hit / Critical damage / Miss button was pressed, next to the roll.
+      return e.result === "miss"
+        ? { at: "tap", ms: 260, look: "fx-unarmed fx-unarmed-miss" }
+        : e.result === "crit"
+          ? { at: "tap", ms: 450, buzz: [30, 40, 30], look: "fx-unarmed fx-unarmed-crit", particles: 8 }
+          : { at: "tap", ms: 380, buzz: [20], look: "fx-unarmed fx-unarmed-hit", particles: 5 };
+    case "spell": {
+      const p = SPELL_FX[e.spell]?.[e.phase];
+      // A phase with no look of its own plays nothing big: the generic circle for a cast, nothing otherwise.
+      if (!p) return { at: "tap", ms: 700, look: "fx-cast" };
+      return { at: p.at, ms: p.ms, look: `sfx ${p.look}`, ...(p.buzz ? { buzz: p.buzz } : {}) };
+    }
   }
 }
 
@@ -79,6 +93,7 @@ function placeOf(at: FxSpec["at"], tap: { x: number; y: number }): { x: number; 
   if (at === "hp") return center(".vitals .hp") ?? tap;
   if (at === "conc") return center(".chip.conc") ?? tap;
   if (at === "edge" || at === "center") return mid;
+  // From the top of the screen down to where you tapped (lightning, moonlight), or across at that height (wind).
   return tap;
 }
 
@@ -87,7 +102,7 @@ export function playFx(e: FxEvent) {
   window.dispatchEvent(new CustomEvent("dnd-fx", { detail: e }));
 }
 
-export function FxLayer({ school }: { school: (spell: string) => string | undefined }) {
+export function FxLayer({ school, character }: { school: (spell: string) => string | undefined; character?: Character | undefined }) {
   const [shown, setShown] = useState<Shown[]>([]);
   const tap = useRef({ x: window.innerWidth / 2, y: window.innerHeight / 3 });
   const next = useRef(1);
@@ -131,8 +146,24 @@ export function FxLayer({ school }: { school: (spell: string) => string | undefi
 
   return (
     <div className="fx-layer" aria-hidden="true">
+      <Ongoing c={character} />
       {shown.map(({ id, spec, x, y }) =>
-        spec.at === "edge" ? (
+        spec.at === "sky" ? (
+          <div key={id} className={`fx fx-sky ${spec.look}`} style={{ left: x, height: y, ["--fx-ms" as string]: `${spec.ms}ms` }}>
+            <span className="sfx-cloud" />
+            <svg className="sfx-bolt-path" viewBox="0 0 40 100" preserveAspectRatio="none">
+              <path pathLength={1} d="M22,0 L14,30 L24,34 L10,66 L20,70 L8,100" />
+            </svg>
+            <span className="sfx-column" />
+            <span className="sfx-glyph" />
+          </div>
+        ) : spec.at === "across" ? (
+          <div key={id} className={`fx fx-across ${spec.look}`} style={{ top: y, ["--fx-ms" as string]: `${spec.ms}ms` }}>
+            {Array.from({ length: 7 }, (_, i) => (
+              <span key={i} className="sfx-streak" style={{ top: `${10 + i * 13}%`, animationDelay: `${(i % 3) * 60}ms` }} />
+            ))}
+          </div>
+        ) : spec.at === "edge" ? (
           <div key={id} className={`fx ${spec.look}`} style={{ animationDuration: `${spec.ms}ms` }}>
             {spec.label && <span className="fx-label fx-label-mid">{spec.label}</span>}
           </div>
@@ -163,6 +194,13 @@ export function FxLayer({ school }: { school: (spell: string) => string | undefi
                 <path pathLength={1} d="M-40,46 Q4,8 50,-38" />
               </svg>
             )}
+            {spec.look.startsWith("fx-unarmed") && (
+              <svg className="fx-speed" viewBox="-60 -60 120 120">
+                {spec.look.includes("miss")
+                  ? <path pathLength={1} d="M-50,18 Q0,-10 50,-22" />
+                  : [0, 45, 90, 135, 180, 225, 270, 315].map((a) => <path key={a} pathLength={1} d="M0,-56 L0,-22" transform={`rotate(${a + 22})`} />)}
+              </svg>
+            )}
             {spec.look.startsWith("fx-insp") && (
               <svg className="fx-star" viewBox="-50 -50 100 100">
                 <path d="M0,-22 L6,-7 L22,-7 L9,3 L14,19 L0,10 L-14,19 L-9,3 L-22,-7 L-6,-7 Z" />
@@ -175,6 +213,38 @@ export function FxLayer({ school }: { school: (spell: string) => string | undefi
           </div>
         ),
       )}
+    </div>
+  );
+}
+
+/**
+ * A spell's quiet loop while you concentrate on it (Moonbeam's shimmer, Call
+ * Lightning's storm, Gust of Wind's stream). Follows the engine's concentration
+ * state only: it appears with it, fades out when it ends, pauses while the app
+ * is in the background, and stands still under reduced motion.
+ */
+function Ongoing({ c }: { c: Character | undefined }) {
+  const now = ongoingFx(c);
+  const [shown, setShown] = useState<{ look: string; ending: boolean } | undefined>(now ? { look: now.look, ending: false } : undefined);
+  const [hidden, setHidden] = useState(typeof document !== "undefined" && document.hidden);
+  useEffect(() => {
+    const v = () => setHidden(document.hidden);
+    document.addEventListener("visibilitychange", v);
+    return () => document.removeEventListener("visibilitychange", v);
+  }, []);
+  const look = now?.look;
+  useEffect(() => {
+    if (look) return setShown({ look, ending: false });
+    setShown((s) => (s ? { ...s, ending: true } : s));
+    const t = setTimeout(() => setShown(undefined), 450);
+    return () => clearTimeout(t);
+  }, [look]);
+  if (!shown) return null;
+  return (
+    <div className={`sfx-ongoing ${shown.look}${shown.ending ? " ending" : ""}${hidden ? " paused" : ""}`}>
+      {Array.from({ length: 5 }, (_, i) => (
+        <span key={i} style={{ ["--i" as string]: String(i) }} />
+      ))}
     </div>
   );
 }

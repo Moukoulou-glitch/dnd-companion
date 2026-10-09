@@ -25,6 +25,8 @@ interface Props {
   physical: boolean;
   onPhysicalChange: (physical: boolean) => void;
   onRolled: (r: RollRecord) => void;
+  /** The player's call on an attack roll: Hit, Critical damage or Miss (for effects only). */
+  onResolved?: (outcome: "hit" | "crit" | "miss") => void;
   /** Skip the d20: save spells, Magic Missile, healing. */
   damageOnly?: boolean;
   /** The roll heals rather than damages: the result offers "Heal myself". */
@@ -96,7 +98,7 @@ type Stage =
   | { step: "setup" }
   | { step: "d20-result"; record: RollRecord; used?: string[] }
   | { step: "missed"; record: RollRecord }
-  | { step: "damage-setup"; crit: boolean; attackRecord?: RollRecord; attackMode?: string; usedGroups?: string[] }
+  | { step: "damage-setup"; crit: boolean; attackRecord?: RollRecord; attackMode?: string; usedGroups?: string[]; carried?: string[] }
   | { step: "damage-result"; record: RollRecord; crit: boolean; attackRecord?: RollRecord };
 
 /** The lines of a composed roll before rolling: what goes in and from where. */
@@ -125,6 +127,7 @@ function Options({
   setChoices,
   withManual,
   usedGroups = [],
+  carried = [],
 }: {
   base: ComposerBase;
   choices: ComposerChoices;
@@ -132,6 +135,8 @@ function Options({
   withManual: boolean;
   /** Groups already used on this attack's roll (a maneuver): warn, one per attack. */
   usedGroups?: string[];
+  /** Options ticked on the attack roll that carry on to this one. */
+  carried?: string[];
 }) {
   // One option of a group per roll (one maneuver per attack): ticking one unticks the others.
   const toggle = (label: string) => {
@@ -155,7 +160,8 @@ function Options({
                 <div className="row-main">
                   <div className="row-title">{s.label}</div>
                   {s.reason && <div className="row-sub">{s.reason}</div>}
-                  {s.group && usedGroups.includes(s.group) && <div className="row-sub danger-text">Already used one on this attack's roll: one {s.group} per attack.</div>}
+                  {/* The maneuver used on the roll carrying on to its damage (Feinting Attack) is the same one, not a second. */}
+                  {s.group && usedGroups.includes(s.group) && !carried.includes(s.label) && <div className="row-sub danger-text">Already used one on this attack's roll: one {s.group} per attack.</div>}
                 </div>
                 <b>{s.effect}</b>
               </label>
@@ -285,7 +291,7 @@ export function ResultView({ r }: { r: RollRecord }) {
   );
 }
 
-export function Composer({ title, base, attack, physical, onPhysicalChange, onRolled, damageOnly, healing, onHealSelf, dc, dcLabel, reaction, onSpend, onCheck, notes, header, typeChoices, portent, onOptionsUsed, optionInfo, onCommit, repeat, onDamageOptions, afterRoll, onDone }: Props) {
+export function Composer({ title, base, attack, physical, onPhysicalChange, onRolled, onResolved, damageOnly, healing, onHealSelf, dc, dcLabel, reaction, onSpend, onCheck, notes, header, typeChoices, portent, onOptionsUsed, optionInfo, onCommit, repeat, onDamageOptions, afterRoll, onDone }: Props) {
   const [typePick, setTypePick] = useState<{ via: number; type: string } | null>(null);
   // Ticked from the start: what the app was told to (Hex on its target), options that wait for the next hit (a smite), and Riposte or Brace on a reaction attack.
   const presetOn = (sg: { label: string; preset?: string }) => optionInfo?.[sg.label]?.preselect || sg.preset === "always" || (sg.preset === "reaction" && reaction);
@@ -352,7 +358,8 @@ export function Composer({ title, base, attack, physical, onPhysicalChange, onRo
     // Options turned on for the attack (Sharpshooter) carry over to its damage.
     // Options turned on for the attack carry over to its damage, except one that spent its die on the attack (Precision Attack).
     const shared = [
-      ...choices.enabled.filter((l) => damageBase?.suggestions.some((s) => s.label === l) && !base.suggestions.find((x) => x.label === l)?.spends),
+      // (Feinting Attack spent its die on the feint and carries on to the damage: same tick, no second die.)
+      ...choices.enabled.filter((l) => damageBase?.suggestions.some((s) => s.label === l)),
       ...(damageBase?.suggestions.filter(presetOn).map((x) => x.label) ?? []),
     ].filter((l, i, all) => all.indexOf(l) === i);
     setDamageChoices({ enabled: shared, manual: "none", extra: 0 });
@@ -364,6 +371,7 @@ export function Composer({ title, base, attack, physical, onPhysicalChange, onRo
       ...(stage.step === "d20-result" ? (stage.used ?? []) : []),
     ];
     if (usedGroups.length) next.usedGroups = usedGroups;
+    if (shared.length) next.carried = choices.enabled.filter((l) => shared.includes(l));
     if (attackRecord) next.attackRecord = attackRecord;
     const mode = attackRecord ? attackMode : d20.d20Mode;
     if (mode) next.attackMode = mode;
@@ -580,14 +588,14 @@ export function Composer({ title, base, attack, physical, onPhysicalChange, onRo
               </div>
             </div>
             <div className="big-actions" style={{ marginTop: 12 }}>
-              <button className={`big${r.crit ? "" : " primary"}`} onClick={() => startDamage(false, r)}>
+              <button className={`big${r.crit ? "" : " primary"}`} onClick={() => { onResolved?.("hit"); startDamage(false, r); }}>
                 Hit: roll damage
               </button>
-              <button className={`big${r.crit ? " primary" : ""}`} onClick={() => startDamage(true, r)}>
+              <button className={`big${r.crit ? " primary" : ""}`} onClick={() => { onResolved?.("crit"); startDamage(true, r); }}>
                 Critical damage
               </button>
             </div>
-            <button className="big wide miss" style={{ marginTop: 8 }} onClick={() => setStage({ step: "missed", record: r })}>
+            <button className="big wide miss" style={{ marginTop: 8 }} onClick={() => { onResolved?.("miss"); setStage({ step: "missed", record: r }); }}>
               Miss
             </button>
           </>
@@ -640,7 +648,7 @@ export function Composer({ title, base, attack, physical, onPhysicalChange, onRo
             {tc.note && <p className="note">{tc.note}</p>}
           </div>
         ))}
-        <Options base={damageBase} choices={damageChoices} setChoices={setDamageChoices} withManual={false} {...(stage.usedGroups ? { usedGroups: stage.usedGroups } : {})} />
+        <Options base={damageBase} choices={damageChoices} setChoices={setDamageChoices} withManual={false} {...(stage.usedGroups ? { usedGroups: stage.usedGroups } : {})} {...(stage.carried ? { carried: stage.carried } : {})} />
         {smites.map(([label, info]) => {
           const p = pickFor(label);
           const s = info.slots!;

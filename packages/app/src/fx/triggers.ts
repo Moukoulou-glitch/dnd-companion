@@ -1,5 +1,6 @@
 import type { Character } from "@dnd/schema";
 import type { RollRecord } from "../rolls";
+import { spellFxOf, type SpellPhase } from "./spells";
 
 /**
  * Which flourish a confirmed change or roll earns. Pure: it only compares the
@@ -19,7 +20,11 @@ export type FxEvent =
   | { kind: "concentration"; kept: boolean }
   | { kind: "death-save"; result: "success" | "failure"; final: boolean }
   | { kind: "inspiration"; gained: boolean }
-  | { kind: "level-up"; level: number };
+  | { kind: "level-up"; level: number }
+  /** A phase of a spell with its own look (fx/spells.ts). */
+  | { kind: "spell"; spell: string; phase: SpellPhase }
+  /** An unarmed strike the player marked as a hit, a critical hit or a miss. */
+  | { kind: "unarmed"; result: "hit" | "crit" | "miss" };
 
 /** A saved roll: crit and natural 1 on attack rolls only; Sneak Attack when its dice are in the damage. */
 export function rollFx(r: RollRecord): FxEvent[] {
@@ -30,7 +35,11 @@ export function rollFx(r: RollRecord): FxEvent[] {
     if (r.natural === 1) return [{ kind: "fumble" }];
     return [];
   }
-  return r.lines.some((l) => /sneak attack/i.test(l.source) && l.detail !== "") ? [{ kind: "sneak" }] : [];
+  const out: FxEvent[] = r.lines.some((l) => /sneak attack/i.test(l.source) && l.detail !== "") ? [{ kind: "sneak" }] : [];
+  // A spell's damage: right after casting it resolves; from the concentration chip it's a later use.
+  const phase: SpellPhase = r.again ? "again" : "resolve";
+  if (r.spell && spellFxOf(r.spell)?.[phase]) out.push({ kind: "spell", spell: r.spell, phase });
+  return out;
 }
 
 const level = (c: Character) => c.classes.reduce((t, k) => t + k.level, 0);
@@ -62,8 +71,12 @@ export function opFx(type: string, payload: unknown, before: Character, after: C
   if (type === "spendHitDie" && p.reduce) out.push({ kind: "defend", how: "reduced", amount: Number(p.roll) || 0 });
 
   if (type === "castSpell" && typeof p.spell === "string") {
-    const s = school?.(p.spell)?.toLowerCase();
-    out.push(s ? { kind: "cast", school: s } : { kind: "cast" });
+    // A spell with its own cast look plays that; any other gets the arcane circle in its school's colour.
+    if (spellFxOf(p.spell)?.cast) out.push({ kind: "spell", spell: p.spell, phase: "cast" });
+    else {
+      const s = school?.(p.spell)?.toLowerCase();
+      out.push(s ? { kind: "cast", school: s } : { kind: "cast" });
+    }
   }
 
   if (type === "deathSave" && p.result !== "critSuccess") {
@@ -79,4 +92,19 @@ export function opFx(type: string, payload: unknown, before: Character, after: C
 
   if (type === "levelUp" && level(after) > level(before)) out.push({ kind: "level-up", level: level(after) });
   return out;
+}
+
+/** Unarmed strikes, by their attack ids in the content (Martial Arts, Tavern Brawler, Unarmed Fighting). */
+export const isUnarmed = (attackId: string) => attackId.startsWith("martial-arts") || attackId === "tavern-unarmed" || attackId.startsWith("unarmed-");
+
+/** The player's call on an attack (Hit, Critical damage or Miss): an unarmed strike gets its impact or its air-slice. */
+export function strikeFx(attackId: string, outcome: "hit" | "crit" | "miss"): FxEvent[] {
+  return isUnarmed(attackId) ? [{ kind: "unarmed", result: outcome }] : [];
+}
+
+/** The quiet loop to show now: only while the engine says you're concentrating on a spell that has one. */
+export function ongoingFx(c: Character | undefined): { spell: string; look: string } | undefined {
+  const spell = c?.concentration?.spell;
+  const look = spellFxOf(spell)?.ongoing;
+  return spell && look ? { spell, look } : undefined;
 }

@@ -33,6 +33,28 @@ The effects are decoration only. Each one follows a confirmed change or result a
 | I | Golden star with rising motes (gained), or flare and dissolve (spent) | Inspiration count that actually changed | Where you swiped | 650 ms | — |
 | J | Slow golden rings and "Level N" growing | A confirmed level-up | Middle of the screen | 1 s | short triple |
 
+## Spells by phase and unarmed strikes
+
+- **Registry:** `packages/app/src/fx/spells.ts` (`SPELL_FX`) is keyed by spell id. It holds looks only, no mechanics. Each spell can have a look for up to four phases:
+  - **cast:** the castSpell operation is recorded.
+  - **again:** the spell's damage is rolled from the concentration chip. This is a later use while it lasts.
+  - **resolve:** its damage is rolled right after casting.
+  - **ongoing:** a quiet loop while the engine says you're concentrating on it.
+
+  A phase with no look plays nothing, so a lasting spell never replays its whole cast. Rolls carry `spell` and `again` (`RollRecord`).
+- **Moonbeam:** the cast shows a glyph and a column of moonlight coming down. Its damage plays a silver pulse, both right after casting and on later turns. While it lasts, a soft shimmer sits at the right edge.
+- **Call Lightning:** the cast gathers the storm and drops a big bolt. Each later bolt (from the chip) is short and comes from the storm that's already there. A faint cloud band sits at the top while it lasts.
+- **Gust of Wind:** the cast sends a pressure wave across the screen. While it lasts, a faint stream of streaks drifts across the lower part.
+- **Ongoing loops:** they appear and go with concentration (a 400 ms fade when it ends). They pause while the app is in the background and stand still under reduced motion.
+- **Unarmed strikes:** they play from the player's call on the attack (Hit, Critical damage or Miss). A hit shows speed lines closing in plus a small shockwave. A crit shows a bigger one with sparks. A miss shows only a trail of air. Unarmed strikes are recognised by attack id: `martial-arts*`, `tavern-unarmed` and `unarmed-*`.
+- **Not yet built:**
+  - Ice Storm, Control Water, Control Weather;
+  - Flurry of Blows, Hand of Healing / Harm, Reckless Attack.
+- **What the app doesn't track, so no effect can follow it:**
+  - where Moonbeam's beam is, or that it moved;
+  - Gust of Wind's direction, or its bonus-action change of direction;
+  - Control Water's and Control Weather's chosen mode (when added, they'll use a neutral look until the mode is recorded).
+
 ## Device-dependent
 
 - **Vibration:** Android browsers only (iPhones don't allow it). It never repeats, because one event gives one pattern.
@@ -41,6 +63,7 @@ The effects are decoration only. Each one follows a confirmed change or result a
 
 ## Testing
 
+- `packages/app/test/fx.test.ts` also covers casting versus later uses, the ongoing loop following concentration, and unarmed hit, crit and miss.
 - `packages/app/test/fx.test.ts` runs real operations through the store and checks the triggers:
   - crit and natural 1 only on attack rolls;
   - Sneak Attack only with its dice;
