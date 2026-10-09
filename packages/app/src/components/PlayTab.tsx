@@ -20,22 +20,24 @@ const ALIGNMENTS: Record<string, string> = {
   CE: "Chaotic evil",
 };
 
-/** Race, background, alignment, and size and creature type, in one line. */
-function Identity({ c, onBackground }: { c: Character; onBackground: () => void }) {
+/** Race, background, alignment, and size and creature type, in one line; background, alignment and creature can be changed. */
+function Identity({ c, onBackground, onIdentity }: { c: Character; onBackground: () => void; onIdentity: () => void }) {
   const race = registry.find(c.race, "race");
   const bg = c.background ? registry.find(c.background, "background") : undefined;
   const cap = (s: string) => s.replace(/^./, (x) => x.toUpperCase());
-  const parts: [string, string][] = [
-    ["Race", race?.name ?? c.race],
-    ["Background", c.background === "background:custom" ? `${c.customBackground?.name || "You don't know me!"} (custom)` : bg?.name ?? "none"],
-    ["Alignment", c.alignment ? ALIGNMENTS[c.alignment.toUpperCase()] ?? c.alignment : "not set"],
-    ["Creature", race ? `${cap(race.size)} ${race.creatureType ?? "humanoid"}` : "humanoid"],
+  const size = c.size ?? race?.size ?? "medium";
+  const type = c.creatureType ?? race?.creatureType ?? "humanoid";
+  const parts: [string, string, (() => void) | undefined][] = [
+    ["Race", race?.name ?? c.race, undefined],
+    ["Background", c.background === "background:custom" ? `${c.customBackground?.name || "You don't know me!"} (custom)` : bg?.name ?? "none", onBackground],
+    ["Alignment", c.alignment ? ALIGNMENTS[c.alignment.toUpperCase()] ?? c.alignment : "not set", onIdentity],
+    ["Creature", `${cap(size)} ${type}`, onIdentity],
   ];
   return (
     <section className="identity" aria-label="Who you are">
-      {parts.map(([k, v]) =>
-        k === "Background" ? (
-          <button key={k} className="identity-edit" onClick={onBackground} aria-label={`Background: ${v}. Change it`}>
+      {parts.map(([k, v, on]) =>
+        on ? (
+          <button key={k} className="identity-edit" onClick={on} aria-label={`${k}: ${v}. Change it`}>
             <span className="identity-label">{k} ✎</span>
             <span className="identity-value">{v}</span>
           </button>
@@ -47,6 +49,47 @@ function Identity({ c, onBackground }: { c: Character; onBackground: () => void 
         ),
       )}
     </section>
+  );
+}
+
+const SIZES = ["tiny", "small", "medium", "large", "huge", "gargantuan"] as const;
+const TYPES = ["aberration", "beast", "celestial", "construct", "dragon", "elemental", "fey", "fiend", "giant", "humanoid", "monstrosity", "ooze", "plant", "undead"];
+
+/** Alignment, size and creature type: the race's unless changed here. */
+export function IdentityPanel({ c, act }: { c: Character; act: (type: OperationType, payload: unknown, label: string) => unknown }) {
+  const race = registry.find(c.race, "race");
+  const cap = (s: string) => s.replace(/^./, (x) => x.toUpperCase());
+  return (
+    <>
+      <h2 className="sub-head">Alignment</h2>
+      <div className="types wrap" role="radiogroup" aria-label="Alignment">
+        {Object.entries(ALIGNMENTS).filter(([k]) => k !== "TN").map(([k, v]) => (
+          <button key={k} className="switch" role="radio" aria-checked={c.alignment?.toUpperCase() === k} aria-pressed={c.alignment?.toUpperCase() === k} onClick={() => act("setDetails", { alignment: k }, `Alignment: ${v}.`)}>
+            {v}
+          </button>
+        ))}
+        <button className="switch" aria-pressed={c.alignment === "Unaligned"} onClick={() => act("setDetails", { alignment: "Unaligned" }, "Alignment: unaligned.")}>
+          Unaligned
+        </button>
+      </div>
+      <h2 className="sub-head">Size</h2>
+      <div className="types wrap" role="radiogroup" aria-label="Size">
+        {SIZES.map((z) => (
+          <button key={z} className="switch" aria-pressed={(c.size ?? race?.size) === z} onClick={() => act("setDetails", { size: z === race?.size ? null : z }, `Size: ${z}.`)}>
+            {cap(z)}
+          </button>
+        ))}
+      </div>
+      <h2 className="sub-head">Creature type</h2>
+      <div className="types wrap" role="radiogroup" aria-label="Creature type">
+        {TYPES.map((t) => (
+          <button key={t} className="switch" aria-pressed={(c.creatureType ?? race?.creatureType ?? "humanoid") === t} onClick={() => act("setDetails", { creatureType: t === (race?.creatureType ?? "humanoid") ? null : t }, `Creature type: ${t}.`)}>
+            {t}
+          </button>
+        ))}
+      </div>
+      <p className="note">Your race gives {race?.size ?? "medium"} {race?.creatureType ?? "humanoid"}; picking that again goes back to it.</p>
+    </>
   );
 }
 
@@ -119,6 +162,7 @@ export function PlayTab({
   onInitiative,
   openDeathSave,
   openBackground,
+  openIdentity,
   openShape,
   openTransform,
   openLimited,
@@ -146,13 +190,15 @@ export function PlayTab({
   openDeathSave: () => void;
   /** Choose another background. */
   openBackground: () => void;
+  /** Alignment, size and creature type. */
+  openIdentity: () => void;
 }) {
   const down = character.hp.current === 0;
   const slotsUsed = (level: number) => character.slotsUsed[String(level)] ?? 0;
 
   return (
     <main>
-      <Identity c={character} onBackground={openBackground} />
+      <Identity c={character} onBackground={openBackground} onIdentity={openIdentity} />
 
       <CombatCard character={character} sheet={sheet} act={act} onStartCombat={onStartCombat} openMove={openMove} onInitiative={onInitiative} onLimited={openLimited} />
 

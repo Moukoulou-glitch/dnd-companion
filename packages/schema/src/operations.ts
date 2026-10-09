@@ -289,8 +289,19 @@ export const OPERATION_PAYLOADS = {
     .strict(),
   /** Name, player, alignment, race or background. */
   setDetails: z
-    .object({ name: z.string().optional(), player: z.string().optional(), alignment: z.string().optional(), race: z.string().optional(), background: z.string().nullable().optional() })
+    .object({
+      name: z.string().optional(),
+      player: z.string().optional(),
+      alignment: z.string().optional(),
+      race: z.string().optional(),
+      background: z.string().nullable().optional(),
+      /** null: back to the race's. */
+      size: z.enum(["tiny", "small", "medium", "large", "huge", "gargantuan"]).nullable().optional(),
+      creatureType: z.string().max(40).nullable().optional(),
+    })
     .strict(),
+  /** A resistance, immunity or vulnerability added or taken away by hand. */
+  setDefense: z.object({ kind: z.enum(["resist", "immune", "vulnerable"]), value: z.string(), on: z.boolean(), note: z.string().max(80).optional() }).strict(),
   /** A bonus or penalty by hand on saves, skills or passive senses ("save.all", "skill.stealth", "passive.perception"). */
   setRollAdjust: z.object({ key: z.string().regex(/^(save|skill|passive)\.[a-zA-Z]+$/), bonus: z.number().int().min(0).optional(), penalty: z.number().int().min(0).optional(), note: z.string().max(80).optional() }).strict(),
   /** An action of the player's own, added or changed (same id). */
@@ -415,6 +426,7 @@ export const Operation = z.discriminatedUnion("type", [
   OperationBase.extend({ type: z.literal("toggle"), payload: OPERATION_PAYLOADS.toggle }),
   OperationBase.extend({ type: z.literal("setField"), payload: OPERATION_PAYLOADS.setField }),
   OperationBase.extend({ type: z.literal("setStory"), payload: OPERATION_PAYLOADS.setStory }),
+  OperationBase.extend({ type: z.literal("setDefense"), payload: OPERATION_PAYLOADS.setDefense }),
   OperationBase.extend({ type: z.literal("recharge"), payload: OPERATION_PAYLOADS.recharge }),
   OperationBase.extend({ type: z.literal("setPbAdjust"), payload: OPERATION_PAYLOADS.setPbAdjust }),
   OperationBase.extend({ type: z.literal("setCustomAction"), payload: OPERATION_PAYLOADS.setCustomAction }),

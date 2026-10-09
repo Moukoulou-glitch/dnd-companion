@@ -23,6 +23,14 @@ export interface Suggestion {
   apply: { flat: number; dice: string[]; damageType?: string; mode?: "advantage" | "disadvantage"; weaponDice?: string };
   /** Once per turn (Sneak Attack). */
   oncePerTurn?: boolean;
+  /** Ticking it spends this when the roll is made (a superiority die). */
+  spends?: { resource: string; amount: number };
+  /** Only one of a group per roll. */
+  group?: string;
+  /** Starts ticked: always, or on a reaction attack. */
+  preset?: "always" | "reaction";
+  /** Ticking it uses up this effect (a smite: gone once its damage is rolled). */
+  endsEffect?: string;
 }
 
 /** A computed number and every source that contributed to it. */

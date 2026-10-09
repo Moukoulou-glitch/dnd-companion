@@ -2235,33 +2235,6 @@
     },
     {
       "kind": "effect",
-      "id": "effect:branding-smite",
-      "name": "Branding Smite",
-      "category": "spell",
-      "summary": "The next time you hit with a weapon attack, it deals 2d6 extra radiant damage (more if upcast), and an invisible target becomes visible.",
-      "source": {
-        "pack": "table-2014",
-        "book": "PHB",
-        "page": 219
-      },
-      "modifiers": [
-        {
-          "selector": "roll.damage.weapon.*",
-          "op": "add",
-          "value": "2d6",
-          "mode": "suggested",
-          "label": "Branding Smite (radiant)",
-          "when": {
-            "text": "your next weapon hit"
-          }
-        }
-      ],
-      "rounds": 10,
-      "concentration": true,
-      "selfOnly": true
-    },
-    {
-      "kind": "effect",
       "id": "effect:darkvision",
       "name": "Darkvision",
       "category": "spell",
@@ -2849,6 +2822,236 @@
       "modifiers": [],
       "minutes": 10,
       "selfOnly": true
+    },
+    {
+      "kind": "effect",
+      "id": "effect:searing-smite",
+      "name": "Searing Smite: next hit",
+      "category": "spell",
+      "summary": "Waiting for your next melee weapon hit: the target catches fire: at the start of each of its turns until the spell ends, a Constitution save against your spell save DC or 1d6 fire (it or a creature next to it can put the flames out with an action).",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 274
+      },
+      "modifiers": [
+        {
+          "selector": "roll.damage.weapon.melee",
+          "op": "add",
+          "value": "slotLeveld6",
+          "damageType": "fire",
+          "mode": "suggested",
+          "preset": "always",
+          "label": "Searing Smite",
+          "when": {
+            "text": "the target catches fire: at the start of each of its turns until the spell ends, a Constitution save against {spelldc} or 1d6 fire (it or a creature next to it can put the flames out with an action)."
+          }
+        }
+      ],
+      "rounds": 10,
+      "concentration": true,
+      "selfOnly": true,
+      "upcast": {
+        "baseLevel": 1
+      },
+      "reminders": [
+        "Ticked already on your next melee weapon damage roll; once rolled, this tag goes (concentration stays for any lasting part)."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "effect:thunderous-smite",
+      "name": "Thunderous Smite: next hit",
+      "category": "spell",
+      "summary": "Waiting for your next melee weapon hit: Strength save against your spell save DC or pushed 10 ft away and knocked prone; the thunder is heard 300 ft away.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 282
+      },
+      "modifiers": [
+        {
+          "selector": "roll.damage.weapon.melee",
+          "op": "add",
+          "value": "2d6",
+          "damageType": "thunder",
+          "mode": "suggested",
+          "preset": "always",
+          "label": "Thunderous Smite",
+          "when": {
+            "text": "Strength save against {spelldc} or pushed 10 ft away and knocked prone; the thunder is heard 300 ft away."
+          }
+        }
+      ],
+      "rounds": 10,
+      "concentration": true,
+      "selfOnly": true,
+      "reminders": [
+        "Ticked already on your next melee weapon damage roll; once rolled, this tag goes (concentration stays for any lasting part)."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "effect:wrathful-smite",
+      "name": "Wrathful Smite: next hit",
+      "category": "spell",
+      "summary": "Waiting for your next melee weapon hit: Wisdom save against your spell save DC or frightened of you until the spell ends; as an action it can make a Wisdom check against your spell save DC to end it.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 289
+      },
+      "modifiers": [
+        {
+          "selector": "roll.damage.weapon.melee",
+          "op": "add",
+          "value": "1d6",
+          "damageType": "psychic",
+          "mode": "suggested",
+          "preset": "always",
+          "label": "Wrathful Smite",
+          "when": {
+            "text": "Wisdom save against {spelldc} or frightened of you until the spell ends; as an action it can make a Wisdom check against {spelldc} to end it."
+          }
+        }
+      ],
+      "rounds": 10,
+      "concentration": true,
+      "selfOnly": true,
+      "reminders": [
+        "Ticked already on your next melee weapon damage roll; once rolled, this tag goes (concentration stays for any lasting part)."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "effect:branding-smite",
+      "name": "Branding Smite: next hit",
+      "category": "spell",
+      "summary": "Waiting for your next melee weapon hit: an invisible target becomes visible and the target sheds dim light 5 ft; it can't become invisible until the spell ends.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 219
+      },
+      "modifiers": [
+        {
+          "selector": "roll.damage.weapon.melee",
+          "op": "add",
+          "value": "slotLeveld6",
+          "damageType": "radiant",
+          "mode": "suggested",
+          "preset": "always",
+          "label": "Branding Smite",
+          "when": {
+            "text": "an invisible target becomes visible and the target sheds dim light 5 ft; it can't become invisible until the spell ends."
+          }
+        }
+      ],
+      "rounds": 10,
+      "concentration": true,
+      "selfOnly": true,
+      "upcast": {
+        "baseLevel": 2
+      },
+      "reminders": [
+        "Ticked already on your next melee weapon damage roll; once rolled, this tag goes (concentration stays for any lasting part)."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "effect:blinding-smite",
+      "name": "Blinding Smite: next hit",
+      "category": "spell",
+      "summary": "Waiting for your next melee weapon hit: Constitution save against your spell save DC or blinded until the spell ends (it repeats the save at the end of each of its turns).",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 219
+      },
+      "modifiers": [
+        {
+          "selector": "roll.damage.weapon.melee",
+          "op": "add",
+          "value": "3d8",
+          "damageType": "radiant",
+          "mode": "suggested",
+          "preset": "always",
+          "label": "Blinding Smite",
+          "when": {
+            "text": "Constitution save against {spelldc} or blinded until the spell ends (it repeats the save at the end of each of its turns)."
+          }
+        }
+      ],
+      "rounds": 10,
+      "concentration": true,
+      "selfOnly": true,
+      "reminders": [
+        "Ticked already on your next melee weapon damage roll; once rolled, this tag goes (concentration stays for any lasting part)."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "effect:staggering-smite",
+      "name": "Staggering Smite: next hit",
+      "category": "spell",
+      "summary": "Waiting for your next melee weapon hit: Wisdom save against your spell save DC or disadvantage on attacks and checks and no reactions until the end of its next turn.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 278
+      },
+      "modifiers": [
+        {
+          "selector": "roll.damage.weapon.melee",
+          "op": "add",
+          "value": "4d6",
+          "damageType": "psychic",
+          "mode": "suggested",
+          "preset": "always",
+          "label": "Staggering Smite",
+          "when": {
+            "text": "Wisdom save against {spelldc} or disadvantage on attacks and checks and no reactions until the end of its next turn."
+          }
+        }
+      ],
+      "rounds": 10,
+      "concentration": true,
+      "selfOnly": true,
+      "reminders": [
+        "Ticked already on your next melee weapon damage roll; once rolled, this tag goes (concentration stays for any lasting part)."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "effect:banishing-smite",
+      "name": "Banishing Smite: next hit",
+      "category": "spell",
+      "summary": "Waiting for your next melee weapon hit: if the hit leaves it at 50 hit points or fewer, it's banished (to its home plane if not native, otherwise a harmless demiplane, incapacitated) until the spell ends.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 216
+      },
+      "modifiers": [
+        {
+          "selector": "roll.damage.weapon.melee",
+          "op": "add",
+          "value": "5d10",
+          "damageType": "force",
+          "mode": "suggested",
+          "preset": "always",
+          "label": "Banishing Smite",
+          "when": {
+            "text": "if the hit leaves it at 50 hit points or fewer, it's banished (to its home plane if not native, otherwise a harmless demiplane, incapacitated) until the spell ends."
+          }
+        }
+      ],
+      "rounds": 10,
+      "concentration": true,
+      "selfOnly": true,
+      "reminders": [
+        "Ticked already on your next melee weapon damage roll; once rolled, this tag goes (concentration stays for any lasting part)."
+      ]
     }
   ]
 }

@@ -543,7 +543,6 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         const gone = left.filter((e) => e.rounds === 0);
         x.effects = left.filter((e) => e.rounds !== 0);
         if (gone.length) notes.push(`Ended on it: ${gone.map((e) => reg.find(reg.effectId(e.effect), "effect")?.name ?? e.effect).join(", ")}.`);
-        if (x.recharge?.length) notes.push(`Roll to recharge: ${x.recharge.join(", ")}.`);
         break;
       }
       if (op.payload.move !== undefined) {
@@ -985,6 +984,8 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         const entry: Character["effects"][number] = { id: `${op.id}-turn`, effect: "custom", custom: { name, modifiers: [] }, from: a.source, untilTurnStart: true, rounds: 1 };
         if (!c.combat) entry.outOfCombat = true;
         if (a.toggles.length) entry.toggles = a.toggles;
+        // Bait and Switch: the die rolled goes on AC until your next turn starts.
+        if (a.id === "maneuver-bait-and-switch" && op.payload.rolled) entry.custom!.modifiers = [{ selector: "stat.ac", op: "add", value: op.payload.rolled, mode: "auto", label: `Bait and Switch (+${op.payload.rolled})` }];
         removeEffects(c.effects.filter((e) => e.effect === "custom" && (e.custom?.name === a.name || e.custom?.name.startsWith(`${a.name}: `))));
         c.effects.push(entry);
       }
@@ -1221,6 +1222,8 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       const effect = op.payload.effect === "custom" ? "custom" : reg.effectId(op.payload.effect);
       if (c.effects.some((e) => e.id === instanceId)) break;
       const def = effect !== "custom" ? reg.find(effect, "effect") : undefined;
+      // Immune to a condition (given by a feature or by hand): say so; the player decides.
+      if (def?.category === "condition" && sheet.defenses.immune.some((x) => x.toLowerCase() === def.name.toLowerCase() || x === def.id)) notes.push(`You're immune to being ${def.name.toLowerCase()}: added anyway, remove it if it doesn't apply.`);
       const existing = def ? c.effects.find((e) => e.effect === effect) : undefined;
       if (def && existing && def.levels) {
         // Exhaustion stacks as levels rather than copies.
@@ -1414,7 +1417,6 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       clearCompanionStates(() => true);
       const round = !prev ? 1 : prev.hadTurn && !prev.myTurn ? prev.round + 1 : prev.round;
       if (prev?.myTurn) notes.push("Your turn had already started: everything is back for a fresh turn.");
-      if (c.shape?.recharge?.length) notes.push(`Roll to recharge: ${c.shape.recharge.join(", ")}.`);
       c.combat = CombatState.parse({ round, myTurn: true, hadTurn: true, ...(prev?.initiative !== undefined ? { initiative: prev.initiative } : {}) });
       notes.push(`Round ${round}: action, bonus action, reaction and movement are back.`);
       break;
@@ -1676,7 +1678,11 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
     }
 
     case "setDetails": {
-      const { name, player, alignment, race, background } = op.payload;
+      const { name, player, alignment, race, background, size, creatureType } = op.payload;
+      if (size === null) delete c.size;
+      else if (size !== undefined) c.size = size;
+      if (creatureType === null) delete c.creatureType;
+      else if (creatureType !== undefined) c.creatureType = creatureType;
       if (name !== undefined) c.name = name;
       if (player !== undefined) c.player = player;
       if (alignment !== undefined) c.alignment = alignment;
@@ -1783,6 +1789,18 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       if (list.size) holder.recharge = [...list];
       else delete holder.recharge;
       notes.push(used ? `${name}: used, recharging.` : `${name} is ready again.`);
+      break;
+    }
+
+    case "setDefense": {
+      const { kind, value, on, note } = op.payload;
+      const list = c.defenseAdjust[kind];
+      if (on && !list.includes(value)) list.push(value);
+      if (!on) c.defenseAdjust[kind] = list.filter((x) => x !== value);
+      if (note !== undefined) {
+        if (note) c.defenseAdjust.note = note;
+        else delete c.defenseAdjust.note;
+      }
       break;
     }
 

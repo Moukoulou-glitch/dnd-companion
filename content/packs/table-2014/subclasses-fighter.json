@@ -388,28 +388,6 @@
               ]
             }
           }
-        ],
-        "modifiers": [
-          {
-            "selector": "roll.attack.weapon.*",
-            "op": "add",
-            "value": "scale.die",
-            "mode": "suggested",
-            "when": {
-              "text": "spend a superiority die (Precision Attack)"
-            },
-            "label": "Precision Attack"
-          },
-          {
-            "selector": "roll.damage.weapon.*",
-            "op": "add",
-            "value": "scale.die",
-            "mode": "suggested",
-            "when": {
-              "text": "spend a superiority die on a damage maneuver (Trip, Pushing, Menacing...)"
-            },
-            "label": "Maneuver damage"
-          }
         ]
       }
     },

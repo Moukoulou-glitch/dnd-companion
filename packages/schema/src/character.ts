@@ -535,6 +535,14 @@ export const Character = z
      * "save.all", "save.dex", "skill.all", "skill.stealth", "passive.all", "passive.perception".
      */
     /** Proficiency bonus changed by hand (a curse, a boon), with why. */
+    /** Resistances, immunities (damage types or conditions) and vulnerabilities given by hand. */
+    defenseAdjust: z
+      .object({ resist: z.array(z.string()).default([]), immune: z.array(z.string()).default([]), vulnerable: z.array(z.string()).default([]), note: z.string().max(80).optional() })
+      .strict()
+      .default({ resist: [], immune: [], vulnerable: [] }),
+    /** Size and creature type changed by hand (a curse, a Reincarnate, Enlarge for good). */
+    size: z.enum(["tiny", "small", "medium", "large", "huge", "gargantuan"]).optional(),
+    creatureType: z.string().max(40).optional(),
     /** Healer feat: creatures patched up with a healer's kit since the last rest (once each per rest). */
     healerUsed: z.array(z.string()).default([]),
     pbAdjust: z.object({ bonus: z.number().int().min(0).max(10).default(0), penalty: z.number().int().min(0).max(10).default(0), note: z.string().max(80).optional() }).strict().default({ bonus: 0, penalty: 0 }),

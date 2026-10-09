@@ -16,6 +16,14 @@ export interface ComposerBase {
     effect: string;
     reason?: string;
     apply: { flat: number; dice: string[]; damageType?: string; mode?: "advantage" | "disadvantage"; weaponDice?: string };
+    /** Ticking it spends this (a superiority die). */
+    spends?: { resource: string; amount: number };
+    /** One of a group per roll. */
+    group?: string;
+    /** Starts ticked. */
+    preset?: "always" | "reaction";
+    /** Ticking it uses up this effect (a smite). */
+    endsEffect?: string;
   }[];
   critAt?: number;
   minD20?: number;

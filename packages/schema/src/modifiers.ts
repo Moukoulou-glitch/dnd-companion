@@ -123,6 +123,12 @@ export const Modifier = z
     oncePerTurn: z.boolean().optional(),
     /** grantSpeed (fly): it can hover. */
     hover: z.boolean().optional(),
+    /** Ticking it on a roll spends this (a superiority die). */
+    spends: z.object({ resource: z.string(), amount: z.number().int().min(1).default(1) }).strict().optional(),
+    /** Only one option of a group per roll (one maneuver per attack). */
+    group: z.string().optional(),
+    /** Starts ticked: always (a smite waiting for the next hit), or on a reaction attack (Riposte, Brace). */
+    preset: z.enum(["always", "reaction"]).optional(),
   })
   .strict();
 export type Modifier = z.infer<typeof Modifier>;

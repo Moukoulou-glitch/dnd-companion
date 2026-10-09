@@ -45,6 +45,7 @@ export function SheetTab({
   openExtra,
   openAdjust,
   openPb,
+  openDefenses,
 }: {
   sheet: DerivedSheet;
   character: Character;
@@ -60,6 +61,8 @@ export function SheetTab({
   openAdjust: (kind: "save" | "skill" | "passive") => void;
   /** The proficiency bonus, and changing it by hand. */
   openPb: () => void;
+  /** Resistances, immunities and vulnerabilities by hand. */
+  openDefenses: () => void;
 }) {
   const featTag = (id: string) => sheet.extras.find((x) => x.kind === "feat" && x.value === id)?.tag;
   return (
@@ -210,7 +213,6 @@ export function SheetTab({
               ["Weapons", sheet.proficiencies.weapons],
               ["Tools", sheet.proficiencies.tools],
               ["Languages", sheet.proficiencies.languages],
-              ["Resistances", sheet.defenses.resist],
             ] as const
           )
             .filter(([, list]) => list.length > 0)
@@ -222,6 +224,31 @@ export function SheetTab({
                 </div>
               </div>
             ))}
+        </div>
+      </section>
+
+      <section>
+        <h2>
+          Defenses
+          <button className="link section-tool" onClick={openDefenses}>
+            Change
+          </button>
+        </h2>
+        <div className="group">
+          {(
+            [
+              ["Resistances", sheet.defenses.resist],
+              ["Immunities", sheet.defenses.immune],
+              ["Vulnerabilities", sheet.defenses.vulnerable],
+            ] as const
+          ).map(([name, list]) => (
+            <button className="row" key={name} onClick={openDefenses}>
+              <div className="row-main">
+                <div className="row-title">{name}</div>
+                <div className="row-sub">{list.length ? list.join(", ") : "none"}</div>
+              </div>
+            </button>
+          ))}
         </div>
       </section>
 

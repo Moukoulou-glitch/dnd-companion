@@ -50,6 +50,13 @@ export function evalExpr(expr: ValueExpr, ctx: ExprContext): Term[] {
       if (inner.kind === "dice") throw new Error(`Can't multiply dice in "${expr}"`);
       return { ...inner, value: inner.value * Number(times[1]) };
     }
+    // "slotLeveld6": as many d6 as the slot level (Searing Smite upcast); "slotLevel-1d8" one fewer.
+    const sd = /^slotLevel(?:([+-])(\d+))?d(\d+)$/.exec(t);
+    if (sd) {
+      if (ctx.slotLevel === undefined) throw new Error(`"slotLevel" used outside a cast effect in "${expr}"`);
+      const n = ctx.slotLevel + (sd[1] === "-" ? -Number(sd[2]) : sd[1] === "+" ? Number(sd[2]) : 0);
+      return { kind: "dice", dice: `${sign < 0 ? "-" : ""}${Math.max(1, n)}d${sd[3]}` };
+    }
     if (t === "slotLevel") {
       if (ctx.slotLevel === undefined) throw new Error(`"slotLevel" used outside a cast effect in "${expr}"`);
       return { kind: "flat", value: sign * ctx.slotLevel, label: "Slot level" };

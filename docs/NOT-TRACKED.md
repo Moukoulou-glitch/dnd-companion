@@ -26,6 +26,9 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 - **Wizard**: Arcane Ward is tracked as full after each long rest even before it's created; Savant features, Minor Alchemy, Focused Conjuration, Durable Summons, Split Enchantment, Alter Memories, Malleable Illusions, Master of Hexes, Sanctuary Vessel, Master Scrivener; Transmuter's Stone benefit; Grim Harvest healing (note); Durable Magic uses a switch you turn on while concentrating.
 
 ## Feats
+- Maneuvers: the app adds the die and spends it; what the maneuver does to the target (prone, pushed, frightened) is text with its DC. Sweeping Attack's second target, Commander's Strike's ally attack, Evasive Footwork's AC while moving and Parry's reduction are shown, not applied.
+- One maneuver per attack is a warning, not a block.
+- Smites: the effect ends when its damage is rolled; the spell's lasting part (Branding's light, Blinding's blindness, Staggering's save) is text.
 - Elemental Adept's minimum per die is applied when the app rolls; with your own dice, count low dice up yourself (the roll says so).
 - Healer's once-per-creature limit resets when you rest (the app doesn't know when others rest).
 - Ritual Caster's rituals can be cast any way the app allows; cast them as rituals.

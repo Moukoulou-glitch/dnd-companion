@@ -2660,3 +2660,6 @@ button.mpip {
   stroke-width: 1.6;
   animation-duration: 0.3s;
 }
+
+.types.wrap { flex-wrap: wrap; overflow: visible; }
+.defense-sub { display: block; font-weight: 400; text-transform: none; letter-spacing: 0; }

@@ -34,6 +34,10 @@ interface Props {
   dc?: number;
   /** What the roll is against the DC ("Constitution saving throw"). */
   dcLabel?: string;
+  /** Made as a reaction (Riposte and Brace start ticked). */
+  reaction?: boolean;
+  /** Options that spend something (a superiority die) or are used up (a smite), once the roll that used them is made. */
+  onSpend?: (used: { label: string; spends?: { resource: string; amount: number }; endsEffect?: string }[]) => void;
   /** Called with whether the d20 roll met the DC. */
   onCheck?: (passed: boolean) => void;
   /** Extra reminders for this roll (Eldritch Blast beams). */
@@ -92,7 +96,7 @@ type Stage =
   | { step: "setup" }
   | { step: "d20-result"; record: RollRecord; used?: string[] }
   | { step: "missed"; record: RollRecord }
-  | { step: "damage-setup"; crit: boolean; attackRecord?: RollRecord; attackMode?: string }
+  | { step: "damage-setup"; crit: boolean; attackRecord?: RollRecord; attackMode?: string; usedGroups?: string[] }
   | { step: "damage-result"; record: RollRecord; crit: boolean; attackRecord?: RollRecord };
 
 /** The lines of a composed roll before rolling: what goes in and from where. */
@@ -120,17 +124,24 @@ function Options({
   choices,
   setChoices,
   withManual,
+  usedGroups = [],
 }: {
   base: ComposerBase;
   choices: ComposerChoices;
   setChoices: (c: ComposerChoices) => void;
   withManual: boolean;
+  /** Groups already used on this attack's roll (a maneuver): warn, one per attack. */
+  usedGroups?: string[];
 }) {
-  const toggle = (label: string) =>
+  // One option of a group per roll (one maneuver per attack): ticking one unticks the others.
+  const toggle = (label: string) => {
+    const group = base.suggestions.find((x) => x.label === label)?.group;
+    const others = group ? base.suggestions.filter((x) => x.group === group && x.label !== label).map((x) => x.label) : [];
     setChoices({
       ...choices,
-      enabled: choices.enabled.includes(label) ? choices.enabled.filter((l) => l !== label) : [...choices.enabled, label],
+      enabled: choices.enabled.includes(label) ? choices.enabled.filter((l) => l !== label) : [...choices.enabled.filter((l) => !others.includes(l)), label],
     });
+  };
 
   return (
     <>
@@ -144,6 +155,7 @@ function Options({
                 <div className="row-main">
                   <div className="row-title">{s.label}</div>
                   {s.reason && <div className="row-sub">{s.reason}</div>}
+                  {s.group && usedGroups.includes(s.group) && <div className="row-sub danger-text">Already used one on this attack's roll: one {s.group} per attack.</div>}
                 </div>
                 <b>{s.effect}</b>
               </label>
@@ -273,9 +285,11 @@ export function ResultView({ r }: { r: RollRecord }) {
   );
 }
 
-export function Composer({ title, base, attack, physical, onPhysicalChange, onRolled, damageOnly, healing, onHealSelf, dc, dcLabel, onCheck, notes, header, typeChoices, portent, onOptionsUsed, optionInfo, onCommit, repeat, onDamageOptions, afterRoll, onDone }: Props) {
+export function Composer({ title, base, attack, physical, onPhysicalChange, onRolled, damageOnly, healing, onHealSelf, dc, dcLabel, reaction, onSpend, onCheck, notes, header, typeChoices, portent, onOptionsUsed, optionInfo, onCommit, repeat, onDamageOptions, afterRoll, onDone }: Props) {
   const [typePick, setTypePick] = useState<{ via: number; type: string } | null>(null);
-  const preselected = base.suggestions.filter((sg) => optionInfo?.[sg.label]?.preselect).map((sg) => sg.label);
+  // Ticked from the start: what the app was told to (Hex on its target), options that wait for the next hit (a smite), and Riposte or Brace on a reaction attack.
+  const presetOn = (sg: { label: string; preset?: string }) => optionInfo?.[sg.label]?.preselect || sg.preset === "always" || (sg.preset === "reaction" && reaction);
+  const preselected = base.suggestions.filter(presetOn).map((sg) => sg.label);
   const [choices, setChoices] = useState<ComposerChoices>({ enabled: preselected, manual: "none", extra: 0 });
   // Which of several attacks this is, and whether it has been made (marked on the turn) yet.
   const [nth, setNth] = useState(1);
@@ -336,10 +350,20 @@ export function Composer({ title, base, attack, physical, onPhysicalChange, onRo
 
   const startDamage = (crit: boolean, attackRecord?: RollRecord) => {
     // Options turned on for the attack (Sharpshooter) carry over to its damage.
-    const shared = choices.enabled.filter((l) => damageBase?.suggestions.some((s) => s.label === l));
+    // Options turned on for the attack carry over to its damage, except one that spent its die on the attack (Precision Attack).
+    const shared = [
+      ...choices.enabled.filter((l) => damageBase?.suggestions.some((s) => s.label === l) && !base.suggestions.find((x) => x.label === l)?.spends),
+      ...(damageBase?.suggestions.filter(presetOn).map((x) => x.label) ?? []),
+    ].filter((l, i, all) => all.indexOf(l) === i);
     setDamageChoices({ enabled: shared, manual: "none", extra: 0 });
     setEntering(false);
     const next: Stage = { step: "damage-setup", crit };
+    // A maneuver used on the attack roll (ticked before, or added after seeing it): one per attack.
+    const usedGroups = [
+      ...base.suggestions.filter((x) => x.group && choices.enabled.includes(x.label)).map((x) => x.group!),
+      ...(stage.step === "d20-result" ? (stage.used ?? []) : []),
+    ];
+    if (usedGroups.length) next.usedGroups = usedGroups;
     if (attackRecord) next.attackRecord = attackRecord;
     const mode = attackRecord ? attackMode : d20.d20Mode;
     if (mode) next.attackMode = mode;
@@ -351,6 +375,7 @@ export function Composer({ title, base, attack, physical, onPhysicalChange, onRo
     setAttackMode(composed.d20Mode);
     commit();
     if (choices.enabled.length) onOptionsUsed?.(choices.enabled);
+    onSpend?.(base.suggestions.filter((x) => choices.enabled.includes(x.label) && (x.spends || x.endsEffect)));
     onRolled(rec);
     if (dc !== undefined) onCheck?.(rec.total >= dc);
     setEntering(false);
@@ -378,6 +403,9 @@ export function Composer({ title, base, attack, physical, onPhysicalChange, onRo
     }
     if (typePick && typePick.type !== attack!.damage.type) typeChoices?.[typePick.via]?.onUse?.();
     onDamageOptions?.(damageChoices.enabled);
+    // A maneuver's die is spent once (not again if it was ticked on the attack); a smite is used up.
+    const spentOnAttack = choices.enabled;
+    onSpend?.(damage.terms.length ? (damageBase?.suggestions ?? []).filter((x) => damageChoices.enabled.includes(x.label) && (x.endsEffect || (x.spends && !spentOnAttack.includes(x.label)))) : []);
     onRolled(rec);
     setEntering(false);
     const next: Stage = { step: "damage-result", record: rec, crit: stage.crit };
@@ -515,7 +543,9 @@ export function Composer({ title, base, attack, physical, onPhysicalChange, onRo
                 {(afterRoll ?? []).map((o) => {
                   // Once per roll: one Focused Aim (1, 2 or 3 ki), one Precision Attack.
                   const used = stage.used ?? [];
-                  const done = used.includes(o.group ?? o.label);
+                  // Already ticked before the roll (Precision Attack): not again.
+                  const g = o.group ?? o.label;
+                  const done = used.includes(g) || base.suggestions.some((x) => choices.enabled.includes(x.label) && (x.label === g || x.group === g));
                   return (
                     <button
                       key={o.label}
@@ -609,7 +639,7 @@ export function Composer({ title, base, attack, physical, onPhysicalChange, onRo
             {tc.note && <p className="note">{tc.note}</p>}
           </div>
         ))}
-        <Options base={damageBase} choices={damageChoices} setChoices={setDamageChoices} withManual={false} />
+        <Options base={damageBase} choices={damageChoices} setChoices={setDamageChoices} withManual={false} {...(stage.usedGroups ? { usedGroups: stage.usedGroups } : {})} />
         {smites.map(([label, info]) => {
           const p = pickFor(label);
           const s = info.slots!;

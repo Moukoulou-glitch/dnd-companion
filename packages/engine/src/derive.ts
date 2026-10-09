@@ -21,6 +21,7 @@ import { evalExpr, evalFlat, type ExprContext } from "./expr.js";
 import { ACTION_DCS, FEATURE_DCS, type DcSpec } from "./dcs.js";
 import { FEATURE_TAGS, TOGGLE_LABELS, TOGGLE_REMINDERS } from "./tags.js";
 import { customActionDc, customFeatureId, withCustom } from "./custom.js";
+import { maneuverGrant } from "./maneuvers.js";
 import type { ContentRegistry } from "./registry.js";
 import { collectSources, type Source } from "./sources.js";
 import { deriveCompanion, type CompanionResult } from "./companions.js";
@@ -490,6 +491,25 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
   }
 
   // Modifiers.
+  // Maneuvers: each known maneuver shows up where it's used, spending a die from its pool.
+  {
+    const pools = [
+      { src: "feature:battle-master-combat-superiority", choice: "maneuvers", resource: "superiority-dice", die: "scale.die" },
+      { src: "feat:martial-adept", choice: "maneuvers", resource: "martial-adept-superiority", die: "1d6" },
+      { src: "feature:style-superior-technique", choice: "maneuver", resource: "superiority-dice-technique", die: "1d6" },
+    ];
+    const done = new Set<string>();
+    const dc = 8 + pb + Math.max(mods.str, mods.dex);
+    for (const p of pools) {
+      const s = sources.find((x) => x.id === p.src);
+      if (!s) continue;
+      const names = (s.choices[p.choice] ?? []).filter((n) => !done.has(n));
+      names.forEach((n) => done.add(n));
+      if (!names.length) continue;
+      const g = maneuverGrant(names, p.die, p.resource, dc);
+      sources.push({ id: `${s.id}#maneuvers`, label: s.label, grant: g, choices: {}, ...(s.scaling ? { scaling: s.scaling } : {}) });
+    }
+  }
   const active: ActiveMod[] = sources.flatMap((source) => (source.grant.modifiers ?? []).map((mod) => ({ mod, source })));
 
   // Conditions on you, with what they include (Paralyzed includes Incapacitated); 0 HP counts as unconscious.
@@ -572,6 +592,11 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       .join(" ");
   };
 
+  // Your spell save DC, for reminders like a smite's save (the best one if you cast with several abilities).
+  const spellDcText = (() => {
+    const abs = c.classes.map((cl) => reg.find(cl.class, "class")?.spellcasting?.ability).filter((a): a is Ability => typeof a === "string");
+    return abs.length ? `DC ${8 + pb + Math.max(...abs.map((a) => mods[a]))}` : "your spell save DC";
+  })();
   /** Builds a d20-roll (or damage) breakdown from base parts plus every matching modifier. */
   const roll = (keys: string[], base: Part[], itemInstanceId?: string): RollBreakdown => {
     const parts = [...base];
@@ -614,8 +639,12 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
         }
         if (mod.damageType) apply.damageType = mod.damageType;
         const s: Suggestion = { label: labelOf(a), effect: describeEffect(a), apply };
-        if (mod.when?.text) s.reason = mod.when.text;
+        if (mod.when?.text) s.reason = mod.when.text.replace(/\{spelldc\}/g, spellDcText);
         if (mod.oncePerTurn) s.oncePerTurn = true;
+        if (mod.spends) s.spends = mod.spends;
+        if (mod.group) s.group = mod.group;
+        if (mod.preset) s.preset = mod.preset;
+        if (a.source.effectInstanceId && mod.preset === "always") s.endsEffect = a.source.effectInstanceId;
         suggestions.push(s);
         continue;
       }
@@ -1278,6 +1307,8 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     const list = defenses[m[1] as keyof typeof defenses];
     if (!list.includes(m[2]!)) list.push(m[2]!);
   }
+  // Given by hand.
+  for (const k of ["resist", "immune", "vulnerable"] as const) for (const v of c.defenseAdjust?.[k] ?? []) if (!defenses[k].includes(v)) defenses[k].push(v);
   const senses: Record<string, number> = {};
   for (const s of sources) {
     for (const [sense, range] of Object.entries(s.grant.senses ?? {})) senses[sense] = Math.max(senses[sense] ?? 0, range);

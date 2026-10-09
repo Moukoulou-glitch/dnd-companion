@@ -19,6 +19,8 @@ import { RageVeins, greyLevel, useFlourishes } from "./components/Fx";
 import { CustomActionForm, CustomSpellForm } from "./components/CustomForms";
 import { RollAdjustPanel } from "./components/RollAdjust";
 import { DurablePanel } from "./components/Durable";
+import { DefensesPanel } from "./components/Defenses";
+import { IdentityPanel } from "./components/PlayTab";
 import { HealerPanel } from "./components/Healer";
 import { BackstoryTab } from "./components/BackstoryTab";
 import { CUSTOM_BG, CustomBackgroundWizard } from "./components/CustomBackground";
@@ -109,6 +111,31 @@ export function App() {
   const onRage = useCallback(() => setRageAt(Date.now()), []);
   const actionName = useCallback((id: string) => live.current.sheet?.actions.find((a) => a.id === id)?.name, []);
   useFlourishes(onRage, actionName);
+
+  // Recharge abilities roll their d6 by themselves when a turn starts (yours in a form, or a summoned creature's).
+  useEffect(() => {
+    const h = (e: Event) => {
+      const { type, payload, after } = (e as CustomEvent<{ type: string; payload: { id?: string; newTurn?: boolean }; after: Character }>).detail;
+      const jobs: { summon?: string; names: string[]; who: string }[] = [];
+      if (type === "startTurn" && after.shape?.recharge?.length) jobs.push({ names: after.shape.recharge, who: "" });
+      if (type === "summonEconomy" && payload.newTurn && payload.id) {
+        const m = after.summons.find((x) => x.id === payload.id);
+        if (m?.recharge?.length) jobs.push({ summon: m.id, names: m.recharge, who: `${m.name ?? registry.find(m.creature, "creature")?.name ?? "It"}: ` });
+      }
+      if (!jobs.length) return;
+      setTimeout(() => {
+        for (const j of jobs)
+          for (const name of j.names) {
+            const at = Number(/\(recharge (\d)/i.exec(name)?.[1] ?? 6);
+            const d6 = rollDie(6);
+            const ok = d6 >= at;
+            live.current.act("recharge", { ...(j.summon ? { summon: j.summon } : {}), name, used: !ok }, `${j.who}${name}: rolled ${d6} on the d6, ${ok ? "ready again" : "still recharging"}.`);
+          }
+      }, 0);
+    };
+    window.addEventListener("dnd-op", h);
+    return () => window.removeEventListener("dnd-op", h);
+  }, []);
 
   // The phone buzzes when the character drops below half, to 0, or dies.
   const hpState = useRef<HpState | undefined>(undefined);
@@ -373,6 +400,8 @@ export function App() {
       back?: { label: string; to: () => void };
       /** Options turned on in the roll, for someone other than you (a summoned creature's Bardic Inspiration). */
       onOptionsUsed?: (labels: string[]) => void;
+      /** Made as a reaction (Riposte, Brace start ticked). */
+      reaction?: boolean;
     } = {},
   ) => {
     // Each roll is a fresh composer: the next one (a strike after Hand of Healing) never inherits the last one's dice.
@@ -412,6 +441,16 @@ export function App() {
         {...(opts.dc !== undefined ? { dc: opts.dc } : {})}
         {...(portentFor() ? { portent: portentFor()! } : {})}
         onOptionsUsed={opts.onOptionsUsed ?? recordOptions}
+        {...(opts.reaction ? { reaction: true } : {})}
+        onSpend={(used) => {
+          for (const u of used) {
+            if (u.spends) {
+              const r = live.current.sheet?.resources.find((x) => x.id === u.spends!.resource);
+              live.current.act("spendResource", { resource: u.spends.resource, amount: u.spends.amount }, `${u.label}: ${r?.name ?? "die"} spent${r && r.remaining - u.spends.amount < 0 ? " (none were left)" : ""}.`);
+            }
+            if (u.endsEffect) live.current.act("removeEffect", { instanceId: u.endsEffect }, `${u.label}: used on this hit.`);
+          }
+        }}
         physical={live.current.character?.settings.physicalDice ?? true}
         onPhysicalChange={(p) =>
           live.current.act("setField", { path: ["settings", "physicalDice"], value: p }, p ? "Rolling your own dice." : "The app rolls for you.")
@@ -454,18 +493,19 @@ export function App() {
             return { value: 2 * n, detail: `${n} ki` };
           },
         });
-    const maneuvers = Object.values(ch.choices).flatMap((c) => (c as Record<string, string[]>).maneuvers ?? []);
-    const sup = sh.resources.find((r) => r.id === "superiority-dice");
-    if (sup && maneuvers.includes("Precision Attack")) {
-      const sides = Number(/d(\d+)/.exec(sup.die ?? "d8")?.[1] ?? 8);
+    // Precision Attack after seeing the roll, from whichever pool knows it (Battle Master, Martial Adept, Superior Technique).
+    const precision = sh.attacks.flatMap((a) => a.attack.suggestions).find((x) => x.label === "Precision Attack" && x.spends);
+    const pool = precision?.spends ? sh.resources.find((r) => r.id === precision.spends!.resource) : undefined;
+    if (precision && pool) {
+      const sides = Number(/d(\d+)/.exec(precision.apply.dice[0] ?? pool.die ?? "d8")?.[1] ?? 8);
       out.push({
         label: `Precision Attack +d${sides}`,
-        group: "Precision Attack",
-        sub: `${sup.remaining} dice left`,
-        warn: sup.remaining <= 0,
+        group: "maneuver",
+        sub: `${pool.remaining} ${pool.remaining === 1 ? "die" : "dice"} left`,
+        warn: pool.remaining <= 0,
         run: () => {
           const v = rollDie(sides);
-          live.current.act("useAction", { action: "maneuver", choice: "Precision Attack" }, `Precision Attack: d${sides} rolled ${v}.`);
+          live.current.act("spendResource", { resource: pool.id, amount: 1 }, `Precision Attack: d${sides} rolled ${v}.`);
           return { value: v, detail: `d${sides} [${v}]` };
         },
       });
@@ -1142,6 +1182,7 @@ export function App() {
       guard({ name: a.name, economy, attack: economy === "action", weapon }, () =>
         openRoll(a.name, a.attack, a, {
           ...extra,
+          ...(reaction ? { reaction: true } : {}),
           optionInfo: () => optionInfoFor(a),
           onCommit,
           onDamageOptions,
@@ -2140,6 +2181,7 @@ export function App() {
           onInitiative={rollInitiative}
           openDeathSave={openDeathSave}
           openBackground={openBackground}
+          openIdentity={() => open("Who you are", () => (live.current.character ? <IdentityPanel c={live.current.character} act={live.current.act} /> : null))}
           openMove={openMove}
           openCompanion={openCompanion}
           openShape={openShape}
@@ -2197,6 +2239,7 @@ export function App() {
           }
           open={open}
           openRoll={openRoll} openTrait={openTrait} openSkill={openSkill} openAddExtra={openAddExtra} openExtra={openExtra}
+          openDefenses={() => open("Defenses", () => (live.current.character && live.current.sheet ? <DefensesPanel c={live.current.character} sheet={live.current.sheet} reg={registry} act={live.current.act} /> : null))}
           openPb={() => open("Proficiency bonus", () => (live.current.character && live.current.sheet ? <PbPanel character={live.current.character} sheet={live.current.sheet} act={live.current.act} /> : null))}
           openAdjust={(k) => open(k === "save" ? "Saving throws: bonus or penalty" : k === "skill" ? "Skills: bonus or penalty" : "Passive senses: bonus or penalty", () => (live.current.character ? <RollAdjustPanel kind={k} c={live.current.character} act={live.current.act} /> : null))} />}
       {tab === "story" && <BackstoryTab c={c} act={s.act} />}
