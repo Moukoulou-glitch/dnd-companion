@@ -18,7 +18,8 @@ const evalFlatSafe = (v: ValueExpr, ctx: Parameters<typeof evalFlat>[1]): number
 
 /** Something the player should do next, e.g. roll a concentration check. */
 /** A follow-up the app should open: a concentration save (yours, or a summoned creature's when `summon` is set). */
-export type Prompt = { kind: "concentration"; dc: number; spell: string; summon?: string };
+/** A question for the player: a concentration save, or news of instant death (`reason`). */
+export type Prompt = { kind: "concentration" | "dead"; dc: number; spell: string; summon?: string; reason?: string };
 
 /** What changed, in words the UI can show as a toast or reminder. */
 export interface ApplyResult {
@@ -283,6 +284,7 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
         if (rest >= maxHp) {
           notes.push(`${rest} damage at 0 HP is at least your HP maximum (${maxHp}): instant death.`);
           c.deathSaves.failures = 3;
+          prompts.push({ kind: "dead", dc: 0, spell: "", reason: `${rest} damage while at 0 HP is at least your hit point maximum (${maxHp}).` });
         } else {
           c.deathSaves.failures = Math.min(3, c.deathSaves.failures + 1);
           notes.push("Damage at 0 HP: one death save failure (two if it was a critical hit).");
@@ -302,6 +304,7 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
         if (overflow >= maxHp) {
           notes.push(`Massive damage: ${overflow} left over is at least your HP maximum (${maxHp}): instant death.`);
           c.deathSaves.failures = 3;
+          prompts.push({ kind: "dead", dc: 0, spell: "", reason: `Massive damage: ${rest} damage took you to 0 with ${overflow} left over, at least your hit point maximum (${maxHp}).` });
         } else {
           notes.push("Dropped to 0 HP: unconscious. Death saves start on your turn.");
         }
@@ -790,10 +793,17 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
         break;
       }
       c.hitDiceUsed[die] = used + 1;
-      const healed = Math.max(0, roll + sheet.abilities.con.modifier);
+      const con = sheet.abilities.con.modifier;
+      if (op.payload.reduce) {
+        notes.push(`Durable: Hit Die ${die} spent, damage reduced by ${Math.max(3, roll + con)}.`);
+        break;
+      }
+      // Durable: a Hit Die heals at least twice your Constitution modifier (minimum 2).
+      const floor = sheet.rules.durable ? Math.max(2, 2 * con) : 0;
+      const healed = Math.max(0, roll + con, floor);
       const before = c.hp.current;
       c.hp.current = Math.min(maxHp, before + healed);
-      notes.push(`Hit Die ${die}: ${roll} + Constitution ${sheet.abilities.con.modifier} = ${healed} HP.`);
+      notes.push(`Hit Die ${die}: ${roll} + Constitution ${con} = ${roll + con}${healed > roll + con ? `, Durable makes it ${healed}` : ""} HP.`);
       break;
     }
 
@@ -826,8 +836,8 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
           notes.push("A long rest is longer than a transformation lasts: back in your normal form.");
         }
         c.deathSaves = { successes: 0, failures: 0 };
-        // Regain spent Hit Dice up to half the character's total (minimum 1), largest dice first.
-        let regain = Math.max(1, Math.floor(sheet.level / 2));
+        // Regain spent Hit Dice up to half the character's total (minimum 1), largest dice first; Durable regains them all.
+        let regain = sheet.rules.durable ? sheet.level : Math.max(1, Math.floor(sheet.level / 2));
         const pools = [...sheet.hitDice].sort((a, b) => Number(b.die.slice(1)) - Number(a.die.slice(1)));
         for (const p of pools) {
           const spent = c.hitDiceUsed[p.die] ?? 0;
@@ -836,7 +846,19 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
           regain -= back;
         }
         for (const comp of sheet.companions) if (c.companions[comp.id]) delete c.companions[comp.id]!.hp;
-        notes.push("Long rest: HP full, spell slots and long-rest features restored, half your Hit Dice regained.");
+        notes.push(`Long rest: HP full, spell slots and long-rest features restored, ${sheet.rules.durable ? "all your Hit Dice regained (Durable)" : "half your Hit Dice regained"}.`);
+        // Exhaustion drops one level after a long rest (with food and drink).
+        const ex = c.effects.find((e) => e.effect === "condition:exhaustion");
+        if (ex) {
+          const lvl = (ex.level ?? 1) - 1;
+          if (lvl <= 0) {
+            removeEffects([ex]);
+            notes.push("Exhaustion gone.");
+          } else {
+            ex.level = lvl;
+            notes.push(`Exhaustion down to level ${lvl}.`);
+          }
+        }
       }
       if (restored.length) notes.push(`Restored: ${restored.join(", ")}.`);
       break;
@@ -1656,6 +1678,19 @@ export function applyOperation(input: Character, op: Operation, reg: ContentRegi
 
     case "forgetSpell": {
       c.spells = c.spells.filter((x) => !(x.spell === op.payload.spell && x.list === op.payload.list));
+      break;
+    }
+
+    case "setRollAdjust": {
+      const { key, bonus, penalty, note } = op.payload;
+      const cur = (c.rollAdjust[key] ??= { bonus: 0, penalty: 0 });
+      if (bonus !== undefined) cur.bonus = bonus;
+      if (penalty !== undefined) cur.penalty = penalty;
+      if (note !== undefined) {
+        if (note) cur.note = note;
+        else delete cur.note;
+      }
+      if (!cur.bonus && !cur.penalty) delete c.rollAdjust[key];
       break;
     }
 

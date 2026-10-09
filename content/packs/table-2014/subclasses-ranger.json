@@ -1535,6 +1535,18 @@
             },
             "note": "1 minute: fly 10 ft and hover."
           }
+        ],
+        "modifiers": [
+          {
+            "selector": "stat.speed.fly",
+            "op": "grantSpeed",
+            "value": 10,
+            "label": "Writhing Tide",
+            "when": {
+              "toggle": "writhing-tide"
+            },
+            "hover": true
+          }
         ]
       }
     },

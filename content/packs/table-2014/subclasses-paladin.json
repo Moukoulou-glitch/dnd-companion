@@ -885,6 +885,17 @@
             },
             "note": "1 hour: fly 60 ft and a 30-ft menacing aura (Wisdom save or frightened; attacks against them have advantage)."
           }
+        ],
+        "modifiers": [
+          {
+            "selector": "stat.speed.fly",
+            "op": "grantSpeed",
+            "value": 60,
+            "label": "Avenging Angel",
+            "when": {
+              "toggle": "avenging-angel"
+            }
+          }
         ]
       }
     },

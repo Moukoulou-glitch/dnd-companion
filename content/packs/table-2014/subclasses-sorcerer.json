@@ -471,6 +471,17 @@
             ],
             "note": "Wings out or away: fly speed 30 ft while they're out."
           }
+        ],
+        "modifiers": [
+          {
+            "selector": "stat.speed.fly",
+            "op": "grantSpeed",
+            "value": 30,
+            "label": "Otherworldly Wings",
+            "when": {
+              "toggle": "otherworldly-wings"
+            }
+          }
         ]
       }
     },
@@ -1051,6 +1062,12 @@
             "selector": "defense.immune.thunder",
             "op": "immune",
             "label": "Wind Soul"
+          },
+          {
+            "selector": "stat.speed.fly",
+            "op": "grantSpeed",
+            "value": 60,
+            "label": "Wind Soul"
           }
         ],
         "resources": [
@@ -1381,6 +1398,27 @@
               "minutes": 10
             },
             "note": "10 minutes, one benefit per point: see invisibility 60 ft / fly = walk + hover / swim 2x walk + water breathing / slither through 1-inch gaps, escape grapples for 5 ft of movement."
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "stat.speed.fly",
+            "op": "grantSpeed",
+            "value": "walk",
+            "label": "Revelation in Flesh",
+            "when": {
+              "toggle": "revelation-in-flesh"
+            },
+            "hover": true
+          },
+          {
+            "selector": "stat.speed.swim",
+            "op": "grantSpeed",
+            "value": "walk",
+            "label": "Revelation in Flesh",
+            "when": {
+              "toggle": "revelation-in-flesh"
+            }
           }
         ]
       }

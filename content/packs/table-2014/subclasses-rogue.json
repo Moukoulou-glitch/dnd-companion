@@ -808,6 +808,18 @@
             "op": "add",
             "value": 10,
             "label": "Superior Mobility"
+          },
+          {
+            "selector": "stat.speed.swim",
+            "op": "add",
+            "value": 10,
+            "label": "Superior Mobility"
+          },
+          {
+            "selector": "stat.speed.climb",
+            "op": "add",
+            "value": 10,
+            "label": "Superior Mobility"
           }
         ]
       }
@@ -1261,6 +1273,18 @@
               "minutes": 10
             },
             "note": "Destroy a soul trinket to use Ghost Walk again."
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "stat.speed.fly",
+            "op": "grantSpeed",
+            "value": 10,
+            "label": "Ghost Walk",
+            "when": {
+              "toggle": "ghost-walk"
+            },
+            "hover": true
           }
         ]
       }

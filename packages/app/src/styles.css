@@ -2509,3 +2509,20 @@ button.mpip {
 .set-date {
   margin-top: 10px;
 }
+.dc-big.dc-target {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.adjust-item.set > .row .row-title {
+  color: var(--gold);
+}
+.adjust-editor {
+  padding: 4px 8px 10px;
+  border-top: 1px dashed var(--line);
+}
+.section-tool {
+  float: right;
+  font-size: 0.85rem;
+}

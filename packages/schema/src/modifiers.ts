@@ -97,6 +97,12 @@ export const ModifierOp = z.enum([
    * (Two-Weapon Fighting style: ability modifier on the off-hand damage).
    */
   "allow",
+  /**
+   * A speed of another kind: selector "stat.speed.swim", "stat.speed.fly" or
+   * "stat.speed.climb"; value in feet, or "walk" for "equal to your walking
+   * speed". The best one of each kind counts.
+   */
+  "grantSpeed",
 ]);
 export type ModifierOp = z.infer<typeof ModifierOp>;
 
@@ -115,6 +121,8 @@ export const Modifier = z
     damageType: DamageType.optional(),
     /** Usable once per turn (Sneak Attack): the roll warns if it was already used this turn. */
     oncePerTurn: z.boolean().optional(),
+    /** grantSpeed (fly): it can hover. */
+    hover: z.boolean().optional(),
   })
   .strict();
 export type Modifier = z.infer<typeof Modifier>;

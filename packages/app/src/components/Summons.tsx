@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { creatureBlock, creatureCasting, summonBlock, creatureSpells, formatBonus, signed, summonOptions, type ContentRegistry, type CreatureSpellGroup, type CreatureSpells, type RollBreakdown, type WeaponAttack } from "@dnd/engine";
 import { ABILITIES, ABILITY_NAMES, SKILL_NAMES, type Character, type CreatureDef, type OperationType, type Skill, type SpellDef } from "@dnd/schema";
 import { RichText } from "./Conditions";
+import { SwipeButton } from "./Swipe";
 import { TextList } from "./Shapes";
 
 type Act = (type: OperationType, payload: unknown, label: string) => unknown;
@@ -562,9 +563,7 @@ export function SummonMemberPanel({
             {speeds.fly ? <p className="note">Flying: knocked prone, speed 0 or unable to move, it falls{b?.hover ? " (it hovers, so it doesn't)" : ""}.</p> : null}
           </div>
         )}
-        <button className="link" onClick={() => act("summonEconomy", { id: m.id, newTurn: true }, `${name}'s turn: everything is back.`)}>
-          New turn for {name}: everything back
-        </button>
+        <SwipeButton label={`Swipe: new turn for ${name}`} tone="plain" onConfirm={() => act("summonEconomy", { id: m.id, newTurn: true }, `${name}'s turn: everything is back.`)} />
         {!inCombat && <p className="note">Not in combat: track it anyway if you like.</p>}
       </section>
 

@@ -447,6 +447,11 @@ export const Character = z
       .default({}),
     notes: z.array(Note).default([]),
     story: Story.default({}),
+    /**
+     * Bonuses and penalties by hand on saves, skills and passive senses:
+     * "save.all", "save.dex", "skill.all", "skill.stealth", "passive.all", "passive.perception".
+     */
+    rollAdjust: z.record(z.string(), z.object({ bonus: z.number().int().min(0).default(0), penalty: z.number().int().min(0).default(0), note: z.string().max(80).optional() }).strict()).default({}),
     customBackground: CustomBackground.optional(),
   })
   .strict();

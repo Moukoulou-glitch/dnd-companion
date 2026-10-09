@@ -377,6 +377,19 @@
         "pack": "table-2014",
         "book": "PHB",
         "page": 50
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.speed.fly",
+            "op": "grantSpeed",
+            "value": "walk",
+            "label": "Eagle attunement",
+            "when": {
+              "toggle": "raging"
+            }
+          }
+        ]
       }
     },
     {
@@ -663,6 +676,12 @@
             "selector": "defense.resist.lightning",
             "op": "resist",
             "label": "Storm Soul"
+          },
+          {
+            "selector": "stat.speed.swim",
+            "op": "grantSpeed",
+            "value": 30,
+            "label": "Storm Soul (sea)"
           }
         ]
       }

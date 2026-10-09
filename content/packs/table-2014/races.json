@@ -850,6 +850,16 @@
         "pack": "table-2014",
         "book": "VRGR",
         "page": 189
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.speed.climb",
+            "op": "grantSpeed",
+            "value": "walk",
+            "label": "Spider Climb"
+          }
+        ]
       }
     },
     {
@@ -1407,6 +1417,15 @@
             "when": {
               "toggle": "radiant-soul",
               "text": "once on each of your turns"
+            }
+          },
+          {
+            "selector": "stat.speed.fly",
+            "op": "grantSpeed",
+            "value": 30,
+            "label": "Radiant Soul",
+            "when": {
+              "toggle": "radiant-soul"
             }
           }
         ]
@@ -2389,6 +2408,16 @@
         "pack": "table-2014",
         "book": "VGtM",
         "page": 113
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.speed.swim",
+            "op": "grantSpeed",
+            "value": 30,
+            "label": "Lizardfolk"
+          }
+        ]
       }
     },
     {
@@ -2723,6 +2752,14 @@
             "damage": "1d4",
             "damageType": "slashing"
           }
+        ],
+        "modifiers": [
+          {
+            "selector": "stat.speed.climb",
+            "op": "grantSpeed",
+            "value": 20,
+            "label": "Cat's Claws"
+          }
         ]
       }
     },
@@ -2806,6 +2843,16 @@
         "pack": "table-2014",
         "book": "VGtM",
         "page": 118
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.speed.swim",
+            "op": "grantSpeed",
+            "value": 30,
+            "label": "Triton"
+          }
+        ]
       }
     },
     {

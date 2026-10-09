@@ -325,7 +325,22 @@
       "grant": {
         "abilityBonuses": {
           "con": 1
-        }
+        },
+        "modifiers": [
+          {
+            "selector": "rule.durable",
+            "op": "allow",
+            "label": "Durable"
+          }
+        ],
+        "actions": [
+          {
+            "id": "durable-reduce",
+            "name": "Durable: spend a Hit Die",
+            "economy": "reaction",
+            "note": "When you take damage: spend a Hit Die and reduce the damage by the die + your Constitution modifier (at least 3), before resistances. Offered when you enter damage."
+          }
+        ]
       }
     },
     {

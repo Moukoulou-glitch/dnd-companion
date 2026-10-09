@@ -183,6 +183,12 @@ export interface ActionResult {
   dc?: FeatureDc;
 }
 
+export interface SpeedResult {
+  mode: "fly" | "swim" | "climb";
+  total: Breakdown;
+  hover?: boolean;
+}
+
 /** A feature that's on by itself, shown as a tag. */
 export interface FeatureTag {
   id: string;
@@ -270,6 +276,8 @@ export interface DerivedSheet {
   ac: Breakdown;
   initiative: RollBreakdown;
   speed: Breakdown;
+  /** Fly, swim and climb speeds the character has now. */
+  speeds: SpeedResult[];
   hpMax: Breakdown;
   hitDice: { die: string; total: number; used: number }[];
   attacks: WeaponAttack[];
@@ -310,7 +318,7 @@ export interface DerivedSheet {
   /** Attacks per Attack action: 2 with Extra Attack. */
   attacksPerAction: number;
   /** Rule permissions: two-weapon fighting with non-light weapons (Dual Wielder), ability modifier on off-hand damage (the style). */
-  rules: { twoWeaponNonLight: boolean; twoWeaponAbility: boolean };
+  rules: { twoWeaponNonLight: boolean; twoWeaponAbility: boolean; durable: boolean };
   /** Data problems found while deriving (missing choices, too many attuned items). */
   warnings: string[];
 }
@@ -658,11 +666,19 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
   const pbPart = (times = 1): Part =>
     times === 2 ? { label: "Expertise (2 × proficiency)", value: pb * 2 } : { label: "Proficiency bonus", value: pb };
 
+  /** Bonuses and penalties by hand ("save.all", "skill.stealth"), as breakdown lines. */
+  const handParts = (key: string, what: string): Part[] => {
+    const a = c.rollAdjust?.[key];
+    if (!a) return [];
+    const why = a.note ? ` (${a.note})` : "";
+    return [...(a.bonus ? [{ label: `Bonus by hand, ${what}${why}`, value: a.bonus }] : []), ...(a.penalty ? [{ label: `Penalty by hand, ${what}${why}`, value: -a.penalty }] : [])];
+  };
+
   // Saving throws.
   const saves = {} as Record<Ability, SaveResult>;
   for (const ab of ABILITIES) {
     const proficient = profs.save.has(ab);
-    const base = [abilityPart(ab), ...(proficient ? [pbPart()] : [])];
+    const base = [abilityPart(ab), ...(proficient ? [pbPart()] : []), ...handParts("save.all", "all saves"), ...handParts(`save.${ab}`, "this save")];
     saves[ab] = { ...roll([`roll.save.${ab}`], base), proficient };
   }
 
@@ -674,13 +690,13 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
     if (profs.expertise.has(sk) && !profs.skill.has(sk)) {
       warnings.push(`${SKILL_NAMES[sk]}: expertise without proficiency.`);
     }
-    const base = [abilityPart(ab), ...(proficiency > 0 ? [pbPart(proficiency)] : [])];
+    const base = [abilityPart(ab), ...(proficiency > 0 ? [pbPart(proficiency)] : []), ...handParts("skill.all", "all skills"), ...handParts(`skill.${sk}`, "this skill")];
     skills[sk] = { ...roll([`roll.check.skill.${sk}`, `roll.check.${ab}`], base), ability: ab, proficiency };
   }
 
   const passive = (sk: Skill): Breakdown => {
     const s = skills[sk];
-    const parts: Part[] = [{ label: "Base", value: 10 }, ...s.parts, ...statAdds(`stat.passive.${sk}`)];
+    const parts: Part[] = [{ label: "Base", value: 10 }, ...s.parts, ...statAdds(`stat.passive.${sk}`), ...handParts("passive.all", "all passives"), ...handParts(`passive.${sk}`, "this passive")];
     if (s.advantage.length && !s.disadvantage.length) parts.push({ label: `Advantage (${s.advantage.join(", ")})`, value: 5 });
     if (s.disadvantage.length && !s.advantage.length) parts.push({ label: `Disadvantage (${s.disadvantage.join(", ")})`, value: -5 });
     return sum(parts);
@@ -729,6 +745,22 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
   // Speed.
   const race = reg.get(c.race, "race");
   const speed = statWith("stat.speed.walk", [{ label: race.name, value: race.speed }]);
+  /** Swim, fly and climb speeds from features and effects: the best of each kind, then the same changes as walking (Grappled: 0). */
+  const otherSpeeds = (walk: Breakdown): SpeedResult[] => {
+    const out: SpeedResult[] = [];
+    for (const mode of ["fly", "swim", "climb"] as const) {
+      let best: { value: number; label: string; hover: boolean } | undefined;
+      for (const a of modsFor([`stat.speed.${mode}`])) {
+        if (a.mod.op !== "grantSpeed" || conditionState(a.mod.when) !== "pass" || a.mod.mode === "suggested") continue;
+        const v = a.mod.value === "walk" ? walk.total : flatOf(a);
+        const label = `${labelOf(a)}${a.mod.value === "walk" ? " (equal to walking)" : ""}`;
+        if (!best || v > best.value) best = { value: v, label, hover: !!a.mod.hover || !!best?.hover };
+        else if (a.mod.hover) best.hover = true;
+      }
+      if (best) out.push({ mode, total: statWith(`stat.speed.${mode}`, [{ label: best.label, value: best.value }]), ...(best.hover ? { hover: true } : {}) });
+    }
+    return out;
+  };
 
   // Hit points.
   const hpParts: Part[] = [];
@@ -762,7 +794,7 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
 
   // Rule permissions (Dual Wielder, Two-Weapon Fighting style).
   const allowed = (key: string) => modsFor([key]).some((a) => a.mod.op === "allow" && conditionState(a.mod.when) === "pass");
-  const rules = { twoWeaponNonLight: allowed("rule.twoWeapon.nonLight"), twoWeaponAbility: allowed("rule.twoWeapon.ability") };
+  const rules = { twoWeaponNonLight: allowed("rule.twoWeapon.nonLight"), twoWeaponAbility: allowed("rule.twoWeapon.ability"), durable: allowed("rule.durable") };
 
   // Attacks: every weapon carried (switching weapons needs no edit), plus attacks features grant.
   const attacks: WeaponAttack[] = [];
@@ -1152,6 +1184,13 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
       if (/^(feature|feat|race|background):/.test(s.id)) entry.featureId = s.id;
       if (a.roll) entry.roll = { ...amountOf(a.roll.dice, s), label: a.roll.label };
       if (a.duration) entry.duration = a.duration;
+      else if (!a.untilTurnStart && !NO_TIMER.has(a.id)) {
+        // "for 1 minute", "Lasts 8 hours": a timer tag when it's used, read from the note (or the feature's summary when it has one action).
+        const single = (s.grant.actions ?? []).length === 1;
+        const summary = single && reg.has(s.id) ? (reg.find(s.id, "feature") ?? reg.find(s.id, "feat"))?.summary : undefined;
+        const d = statedDuration(a.note ?? "") ?? (summary ? statedDuration(summary) : undefined);
+        if (d) entry.duration = d;
+      }
       if (a.notAfterMoving) entry.notAfterMoving = true;
       if (a.restores) entry.restores = a.restores;
       if (a.cost) {
@@ -1293,6 +1332,7 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
     ac,
     initiative,
     speed,
+    speeds: otherSpeeds(speed),
     hpMax,
     hitDice,
     attacks,
@@ -1382,6 +1422,8 @@ export function derive(c: Character, reg: ContentRegistry): DerivedSheet {
     sheet.attacksPerAction = shape.attacksPerAction;
     // Its walking speed replaces yours (Haste and the like still apply).
     if (shape.walk !== undefined) sheet.speed = statWith("stat.speed.walk", [{ label: `${shape.name}'s speed`, value: shape.walk }]);
+    // A form's own speeds come with its stat block; yours don't carry over.
+    sheet.speeds = [];
   }
   return sheet;
 }
@@ -1403,6 +1445,20 @@ function featureEntries(sources: Source[], reg: ContentRegistry): FeatureEntry[]
     out.push(e);
   }
   return out;
+}
+
+/** Uses whose stated duration belongs to someone else or to a spell (Bardic Inspiration's die, Extended Spell). */
+const NO_TIMER = new Set(["bardic-inspiration", "shadow-touched-invisibility", "extended-spell", "chef-treat"]);
+
+/** "for 1 minute", "Lasts 8 hours", ", up to 1 hour" → a timer; nothing when no duration is stated. */
+export function statedDuration(text: string): { rounds?: number; minutes?: number } | undefined {
+  const m = /\b(?:for|lasts?|,)\s+(?:up to\s+)?(1|one|an?|10|ten|8|eight|24)\s+(minute|hour|round)s?\b/i.exec(text);
+  if (!m) return undefined;
+  const n = { one: 1, a: 1, an: 1, ten: 10, eight: 8 }[m[1]!.toLowerCase() as "one"] ?? Number(m[1]);
+  const unit = m[2]!.toLowerCase();
+  if (unit === "round") return { rounds: n };
+  const minutes = unit === "hour" ? n * 60 : n;
+  return minutes <= 1 ? { rounds: minutes * 10 } : { minutes };
 }
 
 /** Sorcery points to create a spell slot (PHB p. 101). */

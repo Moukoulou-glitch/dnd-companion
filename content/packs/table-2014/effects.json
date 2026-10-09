@@ -94,7 +94,7 @@
       },
       "modifiers": [
         {
-          "selector": "stat.speed.walk",
+          "selector": "stat.speed.*",
           "op": "set",
           "value": 0
         }
@@ -153,7 +153,7 @@
       },
       "modifiers": [
         {
-          "selector": "stat.speed.walk",
+          "selector": "stat.speed.*",
           "op": "set",
           "value": 0
         },
@@ -187,7 +187,7 @@
       },
       "modifiers": [
         {
-          "selector": "stat.speed.walk",
+          "selector": "stat.speed.*",
           "op": "set",
           "value": 0
         },
@@ -317,7 +317,7 @@
       },
       "modifiers": [
         {
-          "selector": "stat.speed.walk",
+          "selector": "stat.speed.*",
           "op": "set",
           "value": 0
         },
@@ -347,7 +347,7 @@
       },
       "modifiers": [
         {
-          "selector": "stat.speed.walk",
+          "selector": "stat.speed.*",
           "op": "set",
           "value": 0
         },
@@ -381,7 +381,7 @@
       },
       "modifiers": [
         {
-          "selector": "stat.speed.walk",
+          "selector": "stat.speed.*",
           "op": "set",
           "value": 0
         },
@@ -425,7 +425,7 @@
         ],
         [
           {
-            "selector": "stat.speed.walk",
+            "selector": "stat.speed.*",
             "op": "multiply",
             "value": 0.5
           }
@@ -449,7 +449,7 @@
         ],
         [
           {
-            "selector": "stat.speed.walk",
+            "selector": "stat.speed.*",
             "op": "set",
             "value": 0
           }
@@ -573,7 +573,7 @@
           "op": "advantage"
         },
         {
-          "selector": "stat.speed.walk",
+          "selector": "stat.speed.*",
           "op": "multiply",
           "value": 2
         }
@@ -628,7 +628,7 @@
           "value": -2
         },
         {
-          "selector": "stat.speed.walk",
+          "selector": "stat.speed.*",
           "op": "multiply",
           "value": 0.5
         }
@@ -1907,6 +1907,92 @@
       "modifiers": [],
       "reminders": [
         "Only matters if you're the druid's enemy."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "effect:fly",
+      "name": "Fly",
+      "category": "spell",
+      "summary": "Flying speed 60 ft for up to 10 minutes; if it ends while you're aloft, you fall unless you can stop it.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 243
+      },
+      "minutes": 10,
+      "concentration": true,
+      "modifiers": [
+        {
+          "selector": "stat.speed.fly",
+          "op": "grantSpeed",
+          "value": 60,
+          "label": "Fly"
+        }
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "effect:spider-climb",
+      "name": "Spider Climb",
+      "category": "spell",
+      "summary": "Climb on walls and upside down on ceilings with your hands free; climbing speed equal to your walking speed, for up to 1 hour.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 277
+      },
+      "minutes": 60,
+      "concentration": true,
+      "modifiers": [
+        {
+          "selector": "stat.speed.climb",
+          "op": "grantSpeed",
+          "value": "walk",
+          "label": "Spider Climb"
+        }
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "effect:gaseous-form",
+      "name": "Gaseous Form",
+      "category": "spell",
+      "summary": "A misty cloud for up to 1 hour: flying speed 10 ft (hover), resistance to nonmagical damage, advantage on Strength, Dexterity and Constitution saves; you can't talk, attack or cast spells.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 244
+      },
+      "minutes": 60,
+      "concentration": true,
+      "modifiers": [
+        {
+          "selector": "stat.speed.fly",
+          "op": "grantSpeed",
+          "value": 10,
+          "label": "Gaseous Form",
+          "hover": true
+        },
+        {
+          "selector": "roll.save.str",
+          "op": "advantage",
+          "label": "Gaseous Form"
+        },
+        {
+          "selector": "roll.save.dex",
+          "op": "advantage",
+          "label": "Gaseous Form"
+        },
+        {
+          "selector": "roll.save.con",
+          "op": "advantage",
+          "label": "Gaseous Form"
+        }
+      ],
+      "reminders": [
+        "Resistance to nonmagical damage.",
+        "You can't talk, attack, cast spells or handle objects."
       ]
     }
   ]

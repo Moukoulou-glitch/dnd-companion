@@ -15,6 +15,8 @@ import { AddEffectPanel, EffectChips, EffectPanel } from "./components/Effects";
 import { FeaturePanel } from "./components/FeaturePanel";
 import { DcBig, Reminders } from "./components/DcBig";
 import { DistributePanel } from "./components/Distribute";
+import { RollAdjustPanel } from "./components/RollAdjust";
+import { DurablePanel } from "./components/Durable";
 import { BackstoryTab } from "./components/BackstoryTab";
 import { CUSTOM_BG, CustomBackgroundWizard } from "./components/CustomBackground";
 import { HpPad } from "./components/HpPad";
@@ -169,10 +171,13 @@ export function App() {
     open("Hit points", () => (
       <HpPad
         onDamage={(amount, type) => {
-          const prompts = s.act("damage", { amount, damageType: type }, `Took ${amount}${type ? ` ${type}` : ""} damage.`);
-          const check = prompts.find((p) => p.kind === "concentration");
-          if (check) openConcentrationCheck(check.dc);
-          else close();
+          // Durable: offer a Hit Die to soak the damage first (a reaction, before resistances).
+          const sh = live.current.sheet;
+          const ch = live.current.character;
+          const diceLeft = sh?.hitDice.filter((h) => h.total - h.used > 0) ?? [];
+          const reactionFree = !ch?.combat || (ch.combat.reaction ?? 0) < 1;
+          if (sh?.rules.durable && diceLeft.length && reactionFree && amount > 0) return openDurable(amount, type);
+          takeDamage(amount, type);
         }}
         onHeal={(amount) => {
           s.act("heal", { amount }, `Healed ${amount}.`);
@@ -186,6 +191,46 @@ export function App() {
         below={
           live.current.character && live.current.sheet ? <MaxHpPanel character={live.current.character} sheet={live.current.sheet} reg={registry} act={live.current.act} /> : null
         }
+      />
+    ));
+
+  /** Damage to the character, then what it leads to: a concentration save, or instant death. */
+  const takeDamage = (amount: number, type?: string) => {
+    const prompts = live.current.act("damage", { amount, damageType: type }, `Took ${amount}${type ? ` ${type}` : ""} damage.`) as { kind: string; dc: number; reason?: string }[];
+    const dead = prompts.find((p) => p.kind === "dead");
+    if (dead) return openDead(dead.reason ?? "");
+    const check = prompts.find((p) => p.kind === "concentration");
+    if (check) openConcentrationCheck(check.dc);
+    else close();
+  };
+  const openDead = (reason: string) =>
+    open("Instant death", () => (
+      <>
+        <p className="over-banner" role="alert">
+          <strong>Your character dies.</strong> {reason}
+        </p>
+        <p className="note">Only magic like Revivify, Raise Dead or a Wish brings them back. If your DM rules otherwise, undo the damage or set the death saves by hand on Play.</p>
+        <button className="big wide" onClick={close}>
+          Close
+        </button>
+      </>
+    ));
+  /** Durable (remastered): spend a Hit Die as a reaction to reduce damage by the die + Constitution (at least 3). */
+  const openDurable = (amount: number, type?: string) =>
+    open("Durable: spend a Hit Die?", () => (
+      <DurablePanel
+        amount={amount}
+        con={live.current.sheet?.abilities.con.modifier ?? 0}
+        dice={(live.current.sheet?.hitDice ?? []).filter((h) => h.total - h.used > 0).map((h) => ({ die: h.die, left: h.total - h.used }))}
+        physical={live.current.character?.settings.physicalDice ?? true}
+        onSkip={() => takeDamage(amount, type)}
+        onSpend={(die, roll, reduce) => {
+          live.current.act("spendHitDie", { die, roll, reduce: true }, `Durable: ${die} spent, ${reduce} less damage.`);
+          if (live.current.character?.combat) live.current.act("useEconomy", { kind: "reaction" }, "Reaction used.");
+          const left = Math.max(0, amount - reduce);
+          if (left > 0) takeDamage(left, type);
+          else close();
+        }}
       />
     ));
 
@@ -1948,9 +1993,32 @@ export function App() {
             <b>{formatBonus(sheet.initiative)}</b>
             <small>{sheet.initiative.advantage.length ? "Init, adv" : "Init"}</small>
           </button>
-          <button className="stat" onClick={() => open("Speed", <BreakdownLines b={sheet.speed} totalLabel="Feet" />)}>
+          <button
+            className="stat"
+            onClick={() =>
+              open("Speed", () => {
+                const sh = live.current.sheet!;
+                return (
+                  <>
+                    <h2 className="sub-head">Walking</h2>
+                    <BreakdownLines b={sh.speed} totalLabel="Feet" />
+                    {sh.speeds.map((x) => (
+                      <div key={x.mode}>
+                        <h2 className="sub-head">
+                          {x.mode === "fly" ? "Flying" : x.mode === "swim" ? "Swimming" : "Climbing"}
+                          {x.hover ? " (hover)" : ""}
+                        </h2>
+                        <BreakdownLines b={x.total} totalLabel="Feet" />
+                      </div>
+                    ))}
+                    {sh.speeds.some((x) => x.mode === "fly" && !x.hover) && <p className="note">Flying without hover: knocked prone, speed 0 or unable to move, you fall.</p>}
+                  </>
+                );
+              })
+            }
+          >
             <b>{sheet.shape ? Number(/^(\d+)/.exec(sheet.shape.speed)?.[1] ?? 0) : sheet.speed.total}</b>
-            <small>Speed</small>
+            <small>{sheet.speeds.length ? sheet.speeds.map((x) => `${x.mode} ${x.total.total}`).join(" · ") : "Speed"}</small>
           </button>
         </div>
 
@@ -2042,7 +2110,8 @@ export function App() {
             )
           }
           open={open}
-          openRoll={openRoll} openTrait={openTrait} openSkill={openSkill} openAddExtra={openAddExtra} openExtra={openExtra} />}
+          openRoll={openRoll} openTrait={openTrait} openSkill={openSkill} openAddExtra={openAddExtra} openExtra={openExtra}
+          openAdjust={(k) => open(k === "save" ? "Saving throws: bonus or penalty" : k === "skill" ? "Skills: bonus or penalty" : "Passive senses: bonus or penalty", () => (live.current.character ? <RollAdjustPanel kind={k} c={live.current.character} act={live.current.act} /> : null))} />}
       {tab === "story" && <BackstoryTab c={c} act={s.act} />}
       {tab === "inventory" && (
         <InventoryTab character={c} registry={registry} openItem={openItem} openAdd={openAdd} openCoin={openCoin} sheet={sheet} act={s.act} />

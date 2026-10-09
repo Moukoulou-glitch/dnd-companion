@@ -562,8 +562,8 @@ export function summonBlock(reg: ContentRegistry, m: SummonMember): ShapeResult 
     if (a.mod.selector === "stat.ac" && a.mod.op === "add") ac += flat;
     // Barkskin: AC can't be less than 16 (Mage Armor's formula uses its Dexterity).
     if (a.mod.selector === "stat.ac" && a.mod.op === "acBase") acFloor = Math.max(acFloor, flat);
-    if (a.mod.selector === "stat.speed.walk") {
-      if (a.mod.op === "add") walk += flat;
+    if (a.mod.selector === "stat.speed.walk" || a.mod.selector === "stat.speed.*") {
+      if (a.mod.op === "add" && a.mod.selector === "stat.speed.walk") walk += flat;
       if (a.mod.op === "multiply") multipliers.push(flat || 1);
       if (a.mod.op === "set") cap = Math.min(cap ?? Infinity, flat);
     }

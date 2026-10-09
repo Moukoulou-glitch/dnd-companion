@@ -837,6 +837,16 @@
         "pack": "table-2014",
         "book": "TCoE",
         "page": 73
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.speed.swim",
+            "op": "grantSpeed",
+            "value": 40,
+            "label": "Gift of the Sea"
+          }
+        ]
       }
     },
     {
@@ -1108,6 +1118,18 @@
               "minutes": 10
             },
             "note": "Fly 30 ft (can hover) for 10 minutes."
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "stat.speed.fly",
+            "op": "grantSpeed",
+            "value": 30,
+            "label": "Elemental Gift",
+            "when": {
+              "toggle": "elemental-gift-flight"
+            },
+            "hover": true
           }
         ]
       }

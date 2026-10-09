@@ -400,6 +400,12 @@ export function Composer({ title, base, attack, physical, onPhysicalChange, onRo
     return (
       <>
         {header}
+        {dc !== undefined && (
+          <div className="dc-big dc-target" role="note">
+            <span className="dc-num">DC {dc}</span>
+            <span className="dc-save">to succeed</span>
+          </div>
+        )}
         {which}
         {diceSwitch}
         {base.autoFail && base.autoFail.length > 0 && (

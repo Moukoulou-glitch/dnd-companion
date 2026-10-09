@@ -42,6 +42,7 @@ export function SheetTab({
   openSkill,
   openAddExtra,
   openExtra,
+  openAdjust,
 }: {
   sheet: DerivedSheet;
   character: Character;
@@ -53,6 +54,8 @@ export function SheetTab({
   openSkill: (s: Skill) => void;
   openAddExtra: () => void;
   openExtra: (id: string) => void;
+  /** Bonuses and penalties by hand on saves, skills or passive senses. */
+  openAdjust: (kind: "save" | "skill" | "passive") => void;
 }) {
   const featTag = (id: string) => sheet.extras.find((x) => x.kind === "feat" && x.value === id)?.tag;
   return (
@@ -76,7 +79,12 @@ export function SheetTab({
       </section>
 
       <section>
-        <h2>Saving throws</h2>
+        <h2>
+          Saving throws
+          <button className="link section-tool" onClick={() => openAdjust("save")}>
+            ± Bonus or penalty
+          </button>
+        </h2>
         <div className="group">
           {ABILITIES.map((ab) => (
             <RollRow
@@ -91,7 +99,12 @@ export function SheetTab({
       </section>
 
       <section>
-        <h2>Skills</h2>
+        <h2>
+          Skills
+          <button className="link section-tool" onClick={() => openAdjust("skill")}>
+            ± Bonus or penalty
+          </button>
+        </h2>
         <div className="group">
           {SKILLS.map((s) => (
             <RollRow
@@ -109,7 +122,12 @@ export function SheetTab({
       </section>
 
       <section>
-        <h2>Passive senses</h2>
+        <h2>
+          Passive senses
+          <button className="link section-tool" onClick={() => openAdjust("passive")}>
+            ± Bonus or penalty
+          </button>
+        </h2>
         <div className="group">
           {(
             [

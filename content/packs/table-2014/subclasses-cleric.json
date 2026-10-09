@@ -1481,6 +1481,19 @@
         "pack": "table-2014",
         "book": "PHB",
         "page": 63
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.speed.fly",
+            "op": "grantSpeed",
+            "value": "walk",
+            "label": "Stormborn",
+            "when": {
+              "text": "outdoors, not underground or indoors"
+            }
+          }
+        ]
       }
     },
     {
@@ -4016,6 +4029,17 @@
               "minutes": 1
             },
             "note": "In dim light or darkness: fly at your walking speed for 1 minute."
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "stat.speed.fly",
+            "op": "grantSpeed",
+            "value": "walk",
+            "label": "Steps of Night",
+            "when": {
+              "toggle": "steps-of-night"
+            }
           }
         ]
       }
