@@ -152,3 +152,28 @@ describe("Resistance to damage from spells", () => {
     expect(derive(l.character, reg).defenses.resist).not.toContain("spells");
   });
 });
+
+describe("Traits that start at a level", () => {
+  const at = (race: string, cls: string, level: number, subclass?: string) => {
+    const c = newCharacter({ id: "x", name: "X", race, class: cls, abilities: { str: 10, dex: 14, con: 14, int: 10, wis: 10, cha: 16 } }, reg);
+    c.classes[0] = { ...c.classes[0]!, level, ...(subclass ? { subclass } : {}) };
+    return derive(c, reg);
+  };
+  it("Drow Magic: Faerie Fire from 3rd, Darkness from 5th, with their uses", () => {
+    const has = (lvl: number, id: string) => at("race:drow", "class:fighter", lvl).spells.some((s) => s.id === id && s.list.id === "drow-magic");
+    expect(has(1, "spell:dancing-lights")).toBe(true);
+    expect(has(2, "spell:faerie-fire")).toBe(false);
+    expect(has(3, "spell:faerie-fire")).toBe(true);
+    expect(has(4, "spell:darkness")).toBe(false);
+    expect(has(5, "spell:darkness")).toBe(true);
+    expect(at("race:drow", "class:fighter", 4).resources.some((r) => r.id === "drow-magic-darkness")).toBe(false);
+  });
+  it("Aasimar transformations from 3rd; Tiefling's Hellish Rebuke from 3rd and Darkness from 5th; Shadow Magic's Darkness from sorcerer 3rd", () => {
+    expect(at("race:protector-aasimar", "class:fighter", 2).actions.some((a) => a.id === "radiant-soul")).toBe(false);
+    expect(at("race:protector-aasimar", "class:fighter", 3).actions.some((a) => a.id === "radiant-soul")).toBe(true);
+    expect(at("race:tiefling", "class:fighter", 2).spells.some((s) => s.id === "spell:hellish-rebuke" && s.list.id === "infernal-legacy")).toBe(false);
+    expect(at("race:tiefling", "class:fighter", 5).spells.some((s) => s.id === "spell:darkness" && s.list.id === "infernal-legacy")).toBe(true);
+    expect(at("race:human", "class:sorcerer", 2, "subclass:shadow-magic").spells.some((s) => s.id === "spell:darkness" && s.fromFeature)).toBe(false);
+    expect(at("race:human", "class:sorcerer", 3, "subclass:shadow-magic").spells.some((s) => s.id === "spell:darkness")).toBe(true);
+  });
+});

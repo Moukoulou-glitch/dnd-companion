@@ -172,5 +172,13 @@ export function collectSources(c: Character, baseReg: ContentRegistry): Source[]
     out.push({ id: `manual:${i}`, label: m.label, grant: m.grant, choices: {} });
   });
 
+  // Parts that start at a level (Drow Magic's Darkness at 5th): left out below it.
+  const total = c.classes.reduce((t, k) => t + k.level, 0);
+  const ok = (x: { minLevel?: number; levelOf?: string }) => !x.minLevel || (x.levelOf ? (c.classes.find((k) => k.class === x.levelOf)?.level ?? 0) : total) >= x.minLevel;
+  for (const s of out) {
+    const g = s.grant;
+    if (!g.spells?.some((x) => !ok(x)) && !g.actions?.some((x) => !ok(x)) && !g.resources?.some((x) => !ok(x))) continue;
+    s.grant = { ...g, ...(g.spells ? { spells: g.spells.filter(ok) } : {}), ...(g.actions ? { actions: g.actions.filter(ok) } : {}), ...(g.resources ? { resources: g.resources.filter(ok) } : {}) };
+  }
   return out;
 }

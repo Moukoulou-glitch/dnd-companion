@@ -174,6 +174,9 @@ export const ResourceDef = z
     min: z.number().int().optional(),
     /** Comes back on a short rest from this class level (Font of Inspiration: bard 5). */
     shortFrom: z.object({ class: DefId, level: z.number().int().min(1).max(20) }).strict().optional(),
+    /** Only from this level: the character's, or with `levelOf`, that class's (Drow Magic's Darkness: 5th; Shadow Magic's Darkness: sorcerer 3rd). */
+    minLevel: z.number().int().min(1).max(20).optional(),
+    levelOf: DefId.optional(),
   })
   .strict();
 export type ResourceDef = z.infer<typeof ResourceDef>;
@@ -211,6 +214,10 @@ export const GrantedSpell = z
     list: z.string().optional(),
     /** Cast at will, without a slot (Armor of Shadows: mage armor). */
     atWill: z.boolean().optional(),
+    /** Only from this level: the character's, or with `levelOf`, that class's (Drow Magic's Darkness: 5th; Shadow Magic's Darkness: sorcerer 3rd). */
+    minLevel: z.number().int().min(1).max(20).optional(),
+    levelOf: DefId.optional(),
+
     /** Given by the table beyond the rules: cast without a slot too, counted per rest (its tag: "DM allows"). */
     extra: z.string().optional(),
     /** Written on a spell scroll in the inventory: read it to cast it (used up). */
@@ -253,6 +260,10 @@ export const ActionDef = z
   .object({
     id: z.string(),
     name: z.string(),
+    /** Only from this level: the character's, or with `levelOf`, that class's (Drow Magic's Darkness: 5th; Shadow Magic's Darkness: sorcerer 3rd). */
+    minLevel: z.number().int().min(1).max(20).optional(),
+    levelOf: DefId.optional(),
+
     economy: z.enum(["action", "bonus", "reaction", "free"]),
     /** Resource spent per use. */
     cost: z.object({ resource: z.string(), amount: z.number().int().min(1).default(1) }).strict().optional(),

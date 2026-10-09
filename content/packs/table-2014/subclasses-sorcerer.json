@@ -570,8 +570,10 @@
           {
             "spell": "spell:darkness",
             "name": "Darkness",
-            "casting": "always known from 3rd level; or 2 sorcery points",
-            "list": "sorcerer"
+            "casting": "always known; or 2 sorcery points",
+            "list": "sorcerer",
+            "minLevel": 3,
+            "levelOf": "class:sorcerer"
           }
         ]
       }

@@ -4,7 +4,6 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 
 ## Engine limits (affect several features)
 - **Speeds that depend on a choice after a rest** (Path of the Beast's Bestial Soul) or on a form (Circle of Stars' Dragon) aren't tracked; other fly, swim and climb speeds from features and spells (Fly, Spider Climb, Gaseous Form) are.
-- **Spells appearing only from a higher level inside one feature** (Shadow Magic's Darkness shows from 1st with a "from 3rd" note).
 - **Feature timers** come from the duration a use states ("for 1 minute"); a feature whose wording doesn't say it gets none.
 
 ## Per class (summary only, or partly tracked)
@@ -36,7 +35,6 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 - Conditions a custom action imposes are named in its note; put them on the target yourself.
 
 ## Races (Volo's)
-- Traits that unlock at 3rd or 5th level (Aasimar transformations, Triton's Gust of Wind, Yuan-ti's Suggestion) are there from 1st with "from 3rd level" in the name.
 - Triton's Wall of Water isn't in the spell content (it's an XGtE spell); cast it from the book.
 - Long-Limbed reach, Powerful Build, Surprise Attack's once per combat and Feline Agility's recharge are reminders, not tracked.
 
