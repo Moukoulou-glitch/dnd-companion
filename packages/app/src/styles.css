@@ -2842,3 +2842,82 @@ button.mpip {
   .sfx-ongoing > span { animation: none !important; opacity: 0.5; }
   .sfx-ongoing-wind > span { left: 10%; }
 }
+
+/* ── Martial: Flurry, Way of Mercy, Reckless Attack ─────────────────────── */
+/* Flurry of Blows: three translucent afterimages flicking past; each strike's own impact comes from its hit */
+.fx-after { width: 34px; height: 54px; border-radius: 40% 40% 30% 30%; background: radial-gradient(ellipse, rgba(235, 240, 255, 0.45), rgba(235, 240, 255, 0) 70%); opacity: 0; animation: fx-after var(--fx-ms) ease-out forwards; animation-delay: calc(var(--i) * 90ms); }
+@keyframes fx-after { 0% { opacity: 0; translate: calc(-40px + var(--i) * 30px) 0; } 25% { opacity: 0.9; } 100% { opacity: 0; translate: calc(-10px + var(--i) * 30px) -4px; } }
+/* Hand of Healing: jade and ivory motes drawn in, then a gentle pulse out */
+.fx-mercy-heal .fx-dot { background: #bfe9d0; box-shadow: 0 0 6px #6fd3a2; animation: fx-inward var(--fx-ms) ease-in forwards; }
+@keyframes fx-inward { 0% { opacity: 0; transform: translate(-50%, -50%) rotate(var(--a)) translateY(-60px); } 30% { opacity: 1; } 60% { opacity: 1; transform: translate(-50%, -50%) rotate(var(--a)) translateY(-4px); } 100% { opacity: 0; transform: translate(-50%, -50%) rotate(var(--a)) translateY(0); } }
+.fx-mercy-heal .fx-ring { border-color: rgba(200, 240, 215, 0.85); animation: fx-ripple var(--fx-ms) 380ms ease-out forwards; }
+/* Hand of Harm: violet energy crawls round a spectral hand and snaps in */
+.fx-hand { width: 90px; height: 90px; fill: none; stroke: rgba(170, 110, 230, 0.9); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 6px rgba(90, 20, 140, 0.95)); animation: fx-harm var(--fx-ms) ease-in forwards; }
+@keyframes fx-harm { 0% { opacity: 0; scale: 1.3; } 35% { opacity: 1; scale: 1.15; rotate: -6deg; } 55% { rotate: 6deg; } 80% { opacity: 1; scale: 0.55; rotate: 0deg; } 100% { opacity: 0; scale: 0.4; } }
+.fx-mercy-harm .fx-core { background: radial-gradient(circle, rgba(120, 40, 180, 0.55), rgba(40, 0, 60, 0) 70%); animation: fx-pop var(--fx-ms) 300ms ease-in forwards; }
+/* Reckless Attack: a short red streak in the rage colours; an impact only on a hit */
+.fx-streak { width: 130px; height: 64px; fill: none; stroke: rgba(210, 20, 30, 0.9); stroke-width: 3; stroke-linecap: round; filter: drop-shadow(0 0 4px rgba(120, 0, 10, 0.9)); }
+.fx-streak path { stroke-dasharray: 1; stroke-dashoffset: 1; animation: fx-slash var(--fx-ms) ease-out forwards; }
+.fx-streak path + path { animation-delay: 50ms; opacity: 0.7; }
+.fx-reckless-hit .fx-ring { border-color: rgba(220, 30, 40, 0.9); box-shadow: 0 0 10px rgba(150, 0, 15, 0.8); animation: fx-ripple var(--fx-ms) 80ms ease-out forwards; }
+
+/* ── Ice Storm: frost at the edges, hail coming down, one wide icy wave ──── */
+.sfx-ice .sfx-cloud { display: block; position: fixed; inset: 0; transform: none; box-shadow: inset 0 0 36px 6px rgba(200, 230, 255, 0.5); animation: sfx-frost var(--fx-ms) ease-out forwards; }
+@keyframes sfx-frost { 0% { opacity: 0; } 25% { opacity: 1; } 70% { opacity: 1; } 100% { opacity: 0; } }
+.sfx-ice .sfx-hail { display: block; top: 0; bottom: 0; width: 170px; background: repeating-linear-gradient(100deg, rgba(225, 240, 255, 0) 0 14px, rgba(225, 240, 255, 0.7) 14px 16px, rgba(225, 240, 255, 0) 16px 34px); background-size: 100% 80px; animation: sfx-hail var(--fx-ms) linear forwards; mask-image: linear-gradient(to bottom, transparent, #000 25%, #000 85%, transparent); }
+@keyframes sfx-hail { 0% { opacity: 0; background-position: 0 -80px; } 15% { opacity: 1; } 65% { opacity: 1; } 100% { opacity: 0; background-position: 0 160px; } }
+.sfx-ice .sfx-glyph { display: block; bottom: -16px; width: 60px; height: 22px; border-radius: 50%; border: 2px solid rgba(215, 238, 255, 0.95); box-shadow: 0 0 14px rgba(180, 220, 255, 0.8); animation: sfx-icewave var(--fx-ms) ease-out forwards; }
+@keyframes sfx-icewave { 0%, 55% { opacity: 0; scale: 0.4; } 65% { opacity: 1; } 100% { opacity: 0; scale: 5; } }
+.sfx-hail { display: none; position: absolute; }
+
+/* ── Control Water: by the mode picked; neutral when none was ───────────── */
+.sfx-water-svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.sfx-water-svg path { fill: rgba(80, 160, 210, 0.28); stroke: rgba(170, 220, 245, 0.7); stroke-width: 0.8; transform-origin: 50% 100%; }
+.sfx-water .sfx-water-svg { animation: sfx-water-fade var(--fx-ms) ease-out forwards; }
+@keyframes sfx-water-fade { 0% { opacity: 0; } 25% { opacity: 1; } 75% { opacity: 1; } 100% { opacity: 0; } }
+.sfx-water-neutral .w1 { animation: sfx-sway var(--fx-ms) ease-in-out forwards; } .sfx-water-neutral .w2, .sfx-water-neutral .w3 { display: none; }
+@keyframes sfx-sway { 0% { translate: -6% 0; } 100% { translate: 6% 0; } }
+.sfx-water-flood path { animation: sfx-rise var(--fx-ms) ease-out forwards; } .sfx-water-flood .w3 { display: none; }
+@keyframes sfx-rise { 0% { transform: scaleY(0.2); } 100% { transform: scaleY(1.6); } }
+.sfx-water-part .w1 { display: none; } .sfx-water-part .w2 { transform-origin: 0 100%; animation: sfx-part-l var(--fx-ms) ease-out forwards; } .sfx-water-part .w3 { transform-origin: 100% 100%; animation: sfx-part-r var(--fx-ms) ease-out forwards; }
+@keyframes sfx-part-l { 0% { clip-path: inset(0 50% 0 0); } 100% { clip-path: inset(0 50% 0 0); translate: -30% 0; } }
+@keyframes sfx-part-r { 0% { clip-path: inset(0 0 0 50%); } 100% { clip-path: inset(0 0 0 50%); translate: 30% 0; } }
+.sfx-water-redirect .w1 { animation: sfx-bend var(--fx-ms) ease-in-out forwards; } .sfx-water-redirect .w2, .sfx-water-redirect .w3 { display: none; }
+@keyframes sfx-bend { 0% { transform: skewX(0deg); } 100% { transform: skewX(-35deg) translateX(20%); } }
+.sfx-whirl { width: 110px; height: 110px; fill: none; stroke: rgba(150, 210, 240, 0.85); stroke-width: 2.2; stroke-linecap: round; animation: sfx-whirl var(--fx-ms) ease-in forwards; }
+.sfx-whirl path { stroke-dasharray: 1; stroke-dashoffset: -1; animation: fx-converge var(--fx-ms) ease-in forwards; }
+@keyframes sfx-whirl { 0% { opacity: 0; rotate: 0deg; } 20% { opacity: 1; } 100% { opacity: 0; rotate: -300deg; scale: 0.6; } }
+
+/* ── Control Weather: slower; cloud layers and the light change, then a faint sky stays ── */
+.sfx-weather { position: absolute; inset: 0; overflow: hidden; background: linear-gradient(to bottom, var(--wx-sky, rgba(90, 100, 130, 0.35)), rgba(0, 0, 0, 0) 30%); animation: sfx-weather var(--fx-ms) ease-in-out forwards; }
+@keyframes sfx-weather { 0% { opacity: 0; } 35% { opacity: 1; } 75% { opacity: 1; } 100% { opacity: 0; } }
+.sfx-weather::before, .sfx-weather::after { content: ""; position: absolute; left: -20%; right: -20%; height: 70px; border-radius: 50%; background: radial-gradient(ellipse, var(--wx-cloud, rgba(140, 150, 175, 0.5)), rgba(0, 0, 0, 0) 70%); animation: sfx-clouds var(--fx-ms) ease-out forwards; }
+.sfx-weather::before { top: -10px; } .sfx-weather::after { top: 34px; animation-direction: reverse; opacity: 0.7; }
+@keyframes sfx-clouds { 0% { translate: -12% 0; } 100% { translate: 12% 0; } }
+.sfx-fleck { position: absolute; top: -10px; display: none; }
+.sfx-weather-clear { --wx-sky: rgba(250, 210, 120, 0.25); --wx-cloud: rgba(255, 235, 190, 0.25); }
+.sfx-weather-rain { --wx-sky: rgba(70, 90, 120, 0.5); }
+.sfx-weather-rain .sfx-fleck { display: block; width: 1.5px; height: 16px; background: rgba(190, 215, 245, 0.85); animation: sfx-fall var(--fx-ms) linear forwards; }
+.sfx-weather-snow { --wx-sky: rgba(170, 185, 210, 0.45); }
+.sfx-weather-snow .sfx-fleck { display: block; width: 4px; height: 4px; border-radius: 50%; background: rgba(245, 248, 255, 0.85); animation: sfx-fall var(--fx-ms) ease-in forwards; }
+@keyframes sfx-fall { 0% { opacity: 0; translate: 0 0; } 20% { opacity: 1; } 100% { opacity: 0; translate: -10px 45vh; } }
+.sfx-weather-wind { --wx-sky: rgba(120, 140, 150, 0.35); }
+.sfx-weather-wind .sfx-fleck { display: block; width: 36px; height: 1px; background: rgba(220, 235, 240, 0.6); animation: sfx-gustfleck var(--fx-ms) linear forwards; }
+@keyframes sfx-gustfleck { 0% { opacity: 0; translate: -40vw 20vh; } 30% { opacity: 1; } 100% { opacity: 0; translate: 60vw 26vh; } }
+.sfx-weather-storm { --wx-sky: rgba(35, 40, 60, 0.45); --wx-cloud: rgba(60, 66, 90, 0.5); }
+.sfx-weather-storm .sfx-fleck { display: block; width: 1px; height: 18px; background: rgba(170, 195, 230, 0.7); animation: sfx-fall var(--fx-ms) linear forwards; }
+
+/* While concentrating on them: faint water at the bottom edge, a faint sky at the top */
+.sfx-ongoing-water > span:first-child { display: block; left: 0; right: 0; bottom: 56px; height: 10px; background: linear-gradient(to top, rgba(90, 170, 215, 0.3), rgba(90, 170, 215, 0)); animation: sfx-shimmer 3.6s ease-in-out infinite; }
+.sfx-ongoing-weather > span:first-child { display: block; left: 0; right: 0; top: 0; height: 22px; background: linear-gradient(to bottom, var(--wx-sky, rgba(110, 120, 150, 0.35)), rgba(0, 0, 0, 0)); animation: sfx-shimmer 6s ease-in-out infinite; }
+.sfx-ongoing-clear { --wx-sky: rgba(250, 215, 130, 0.3); }
+.sfx-ongoing-rain { --wx-sky: rgba(90, 120, 160, 0.4); }
+.sfx-ongoing-snow { --wx-sky: rgba(220, 230, 245, 0.3); }
+.sfx-ongoing-windy { --wx-sky: rgba(160, 180, 190, 0.3); }
+
+@media (prefers-reduced-motion: reduce) {
+  .fx-after, .fx-hand, .sfx-whirl, .sfx-water-svg path, .sfx-fleck, .sfx-weather::before, .sfx-weather::after { animation: fx-static 450ms ease-out forwards !important; translate: 0 0 !important; rotate: 0deg !important; scale: 1 !important; }
+  .sfx-fleck, .fx-after { display: none !important; }
+  .sfx-weather, .sfx-water .sfx-water-svg { animation: fx-static 600ms ease-out forwards !important; }
+  .fx-streak path, .sfx-whirl path { stroke-dashoffset: 0 !important; }
+}

@@ -47,13 +47,17 @@ The effects are decoration only. Each one follows a confirmed change or result a
 - **Gust of Wind:** the cast sends a pressure wave across the screen. While it lasts, a faint stream of streaks drifts across the lower part.
 - **Ongoing loops:** they appear and go with concentration (a 400 ms fade when it ends). They pause while the app is in the background and stand still under reduced motion.
 - **Unarmed strikes:** they play from the player's call on the attack (Hit, Critical damage or Miss). A hit shows speed lines closing in plus a small shockwave. A crit shows a bigger one with sparks. A miss shows only a trail of air. Unarmed strikes are recognised by attack id: `martial-arts*`, `tavern-unarmed` and `unarmed-*`.
-- **Not yet built:**
-  - Ice Storm, Control Water, Control Weather;
-  - Flurry of Blows, Hand of Healing / Harm, Reckless Attack.
+- **Ice Storm:** frost at the screen's edges, hail coming down, then one wide icy wave. It plays on the cast only; its damage roll doesn't replay it.
+- **Control Water:** casting asks what the water does: Flood (water rises), Part Water (it separates), Redirect Flow (the current bends) or Whirlpool (it spirals in). The pick becomes the spell's tag. With no mode, or one the effects don't know, a neutral ripple plays instead of a guess. While it lasts, a faint line of water sits at the bottom edge.
+- **Control Weather:** casting asks which weather you're bringing: clear skies, rain, snow, wind or storm. The cast is slower (1.4 s), with cloud layers and changing light. Afterwards only a faint sky in that tone stays at the top, because the weather changes in stages, not at once.
+- **Flurry of Blows:** three afterimages when its ki is spent. Each strike's impact plays only when you call it a hit.
+- **Way of Mercy:**
+  - Hand of Healing: jade and ivory motes drawn in, then a gentle pulse. It plays when the feature is used.
+  - Hand of Harm: violet energy round a spectral hand that snaps in. It plays when its ki is spent on a damage roll. In a Flurry at 11th level, Hand of Harm costs no ki, so it has no use to follow and plays nothing.
+- **Reckless Attack:** a short red streak when it's ticked on an attack roll, and a small red impact only when that attack is called a hit. It never replays Rage's veins, and it shows nothing extra on damage. It's recognised by its option label, "Reckless Attack", as the content names it.
 - **What the app doesn't track, so no effect can follow it:**
   - where Moonbeam's beam is, or that it moved;
   - Gust of Wind's direction, or its bonus-action change of direction;
-  - Control Water's and Control Weather's chosen mode (when added, they'll use a neutral look until the mode is recorded).
 
 ## Device-dependent
 

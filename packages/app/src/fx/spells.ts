@@ -15,12 +15,20 @@
  */
 export type SpellPhase = "cast" | "again" | "resolve";
 
+/** The look of a phase, taking the picked mode into account (no mode, or an unknown one: the neutral look). */
+export function phaseLook(spell: string, phase: SpellPhase, mode?: string): PhaseLook | undefined {
+  const d = SPELL_FX[spell];
+  if (!d) return undefined;
+  if (phase === "cast" && mode) return d.modes?.[mode.toLowerCase()]?.cast ?? d.cast;
+  return d[phase];
+}
+
 export interface PhaseLook {
   /** CSS class with the look (styles.css, "Spell effects"). */
   look: string;
   ms: number;
   /** Where: where you tapped, the top of the screen down to the tap, or across the whole width. */
-  at: "tap" | "sky" | "across";
+  at: "tap" | "sky" | "across" | "edge";
   /** navigator.vibrate pattern, when the phone has it. */
   buzz?: number[];
 }
@@ -32,6 +40,12 @@ export interface SpellFxDef {
   resolve?: PhaseLook;
   /** CSS class of the quiet loop while concentrating; static under reduced motion, paused when the app is in the background. */
   ongoing?: string;
+  /**
+   * Looks by the mode the player picked when casting (the spell's effect
+   * choice, lower case: "flood", "rain"). No mode picked, or one not listed:
+   * the neutral cast and ongoing above, never a guess.
+   */
+  modes?: Record<string, { cast?: PhaseLook; ongoing?: string }>;
 }
 
 const moonPulse: PhaseLook = { look: "sfx-moon-pulse", ms: 450, at: "tap" };
@@ -58,5 +72,40 @@ export const SPELL_FX: Record<string, SpellFxDef> = {
     ongoing: "sfx-ongoing-wind",
   },
 };
+
+const water = (look: string): PhaseLook => ({ look: `sfx-water ${look}`, ms: 900, at: "across" });
+const weather = (look: string): PhaseLook => ({ look: `sfx-weather ${look}`, ms: 1400, at: "edge" });
+
+Object.assign(SPELL_FX, {
+  "spell:ice-storm": {
+    family: "ice",
+    // Frost at the edges, hail coming down, then one wide icy wave. Its damage roll doesn't replay it.
+    cast: { look: "sfx-ice", ms: 900, at: "sky", buzz: [25, 40, 25] },
+  },
+  "spell:control-water": {
+    family: "water",
+    cast: water("sfx-water-neutral"),
+    ongoing: "sfx-ongoing-water",
+    modes: {
+      flood: { cast: water("sfx-water-flood") },
+      "part water": { cast: water("sfx-water-part") },
+      "redirect flow": { cast: water("sfx-water-redirect") },
+      whirlpool: { cast: { look: "sfx-water sfx-water-whirl", ms: 900, at: "tap" } },
+    },
+  },
+  "spell:control-weather": {
+    family: "weather",
+    // Slower: layers of cloud and light settle in. The ongoing loop is only a faint sky at the top: the weather changes in stages, not at once.
+    cast: weather("sfx-weather-neutral"),
+    ongoing: "sfx-ongoing-weather",
+    modes: {
+      "clear skies": { cast: weather("sfx-weather-clear"), ongoing: "sfx-ongoing-weather sfx-ongoing-clear" },
+      rain: { cast: weather("sfx-weather-rain"), ongoing: "sfx-ongoing-weather sfx-ongoing-rain" },
+      snow: { cast: weather("sfx-weather-snow"), ongoing: "sfx-ongoing-weather sfx-ongoing-snow" },
+      wind: { cast: weather("sfx-weather-wind"), ongoing: "sfx-ongoing-weather sfx-ongoing-windy" },
+      storm: { cast: weather("sfx-weather-storm"), ongoing: "sfx-ongoing-weather sfx-ongoing-storm" },
+    },
+  },
+} satisfies Record<string, SpellFxDef>);
 
 export const spellFxOf = (spell: string | undefined): SpellFxDef | undefined => (spell ? SPELL_FX[spell] : undefined);

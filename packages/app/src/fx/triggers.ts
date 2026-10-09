@@ -22,7 +22,13 @@ export type FxEvent =
   | { kind: "inspiration"; gained: boolean }
   | { kind: "level-up"; level: number }
   /** A phase of a spell with its own look (fx/spells.ts). */
-  | { kind: "spell"; spell: string; phase: SpellPhase }
+  | { kind: "spell"; spell: string; phase: SpellPhase; mode?: string }
+  /** Flurry of Blows used (its ki spent): the afterimages; each strike's own impact comes from its hit. */
+  | { kind: "flurry" }
+  /** Way of Mercy, when the feature is actually used (Hand of Healing's or Hand of Harm's ki spent). */
+  | { kind: "mercy"; hand: "healing" | "harm" }
+  /** Reckless Attack taken on an attack roll (a streak); "hit" when that attack is called a hit. */
+  | { kind: "reckless"; hit: boolean }
   /** An unarmed strike the player marked as a hit, a critical hit or a miss. */
   | { kind: "unarmed"; result: "hit" | "crit" | "miss" };
 
@@ -30,10 +36,11 @@ export type FxEvent =
 export function rollFx(r: RollRecord): FxEvent[] {
   if (r.kind === "d20") {
     if (!r.attack) return [];
+    const reckless: FxEvent[] = r.options?.includes(RECKLESS) ? [{ kind: "reckless", hit: false }] : [];
     // The roll's own crit flag: a natural 20, or the crit range a feature gives (Champion's 19).
-    if (r.crit) return [{ kind: "crit" }];
-    if (r.natural === 1) return [{ kind: "fumble" }];
-    return [];
+    if (r.crit) return [...reckless, { kind: "crit" }];
+    if (r.natural === 1) return [...reckless, { kind: "fumble" }];
+    return reckless;
   }
   const out: FxEvent[] = r.lines.some((l) => /sneak attack/i.test(l.source) && l.detail !== "") ? [{ kind: "sneak" }] : [];
   // A spell's damage: right after casting it resolves; from the concentration chip it's a later use.
@@ -72,7 +79,10 @@ export function opFx(type: string, payload: unknown, before: Character, after: C
 
   if (type === "castSpell" && typeof p.spell === "string") {
     // A spell with its own cast look plays that; any other gets the arcane circle in its school's colour.
-    if (spellFxOf(p.spell)?.cast) out.push({ kind: "spell", spell: p.spell, phase: "cast" });
+    const def = spellFxOf(p.spell);
+    // The mode picked when casting (Control Water: Whirlpool); a mode the effects don't know is left out, so the neutral look plays.
+    const mode = typeof p.choice === "string" && def?.modes?.[p.choice.toLowerCase()] ? p.choice.toLowerCase() : undefined;
+    if (def?.cast) out.push({ kind: "spell", spell: p.spell, phase: "cast", ...(mode ? { mode } : {}) });
     else {
       const s = school?.(p.spell)?.toLowerCase();
       out.push(s ? { kind: "cast", school: s } : { kind: "cast" });
@@ -84,6 +94,12 @@ export function opFx(type: string, payload: unknown, before: Character, after: C
     const sb = ds(before), sa = ds(after);
     if (sa.successes > sb.successes) out.push({ kind: "death-save", result: "success", final: sa.successes >= 3 });
     else if (sa.failures > sb.failures) out.push({ kind: "death-save", result: "failure", final: sa.failures >= 3 });
+  }
+
+  if (type === "useAction") {
+    if (p.action === "flurry-of-blows") out.push({ kind: "flurry" });
+    if (p.action === "hand-of-healing") out.push({ kind: "mercy", hand: "healing" });
+    if (p.action === "hand-of-harm") out.push({ kind: "mercy", hand: "harm" });
   }
 
   const ib = before.inspirations ?? (before.inspiration ? 1 : 0);
@@ -98,13 +114,23 @@ export function opFx(type: string, payload: unknown, before: Character, after: C
 export const isUnarmed = (attackId: string) => attackId.startsWith("martial-arts") || attackId === "tavern-unarmed" || attackId.startsWith("unarmed-");
 
 /** The player's call on an attack (Hit, Critical damage or Miss): an unarmed strike gets its impact or its air-slice. */
-export function strikeFx(attackId: string, outcome: "hit" | "crit" | "miss"): FxEvent[] {
-  return isUnarmed(attackId) ? [{ kind: "unarmed", result: outcome }] : [];
+export function strikeFx(attackId: string, outcome: "hit" | "crit" | "miss", options: string[] = []): FxEvent[] {
+  const out: FxEvent[] = isUnarmed(attackId) ? [{ kind: "unarmed", result: outcome }] : [];
+  // Reckless Attack: an impact only when the attack is a hit (advantage isn't a hit, and it adds no damage).
+  if (outcome !== "miss" && options.includes(RECKLESS)) out.push({ kind: "reckless", hit: true });
+  return out;
 }
+
+/** The option's label on attack rolls, from the barbarian content. */
+const RECKLESS = "Reckless Attack";
 
 /** The quiet loop to show now: only while the engine says you're concentrating on a spell that has one. */
 export function ongoingFx(c: Character | undefined): { spell: string; look: string } | undefined {
   const spell = c?.concentration?.spell;
-  const look = spellFxOf(spell)?.ongoing;
-  return spell && look ? { spell, look } : undefined;
+  const def = spellFxOf(spell);
+  if (!spell || !def) return undefined;
+  // The mode picked for it, from its effect's choice (Control Weather: Rain).
+  const choice = c?.effects.find((e) => e.effect === spell.replace(/^spell:/, "effect:"))?.choice?.toLowerCase();
+  const look = (choice && def.modes?.[choice]?.ongoing) || def.ongoing;
+  return look ? { spell, look } : undefined;
 }

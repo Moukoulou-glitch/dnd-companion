@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import type { Character } from "@dnd/schema";
 import type { RollRecord } from "../rolls";
 import { ongoingFx, opFx, rollFx, type FxEvent } from "./triggers";
-import { SPELL_FX } from "./spells";
+import { phaseLook } from "./spells";
 
 /**
  * The effects themselves: small, reusable CSS/SVG pieces drawn where they
@@ -64,8 +64,15 @@ export function specOf(e: FxEvent): FxSpec {
         : e.result === "crit"
           ? { at: "tap", ms: 450, buzz: [30, 40, 30], look: "fx-unarmed fx-unarmed-crit", particles: 8 }
           : { at: "tap", ms: 380, buzz: [20], look: "fx-unarmed fx-unarmed-hit", particles: 5 };
+    case "flurry":
+      return { at: "tap", ms: 600, look: "fx-flurry" };
+    case "mercy":
+      return e.hand === "healing" ? { at: "tap", ms: 700, look: "fx-mercy-heal", particles: 8 } : { at: "tap", ms: 550, look: "fx-mercy-harm" };
+    case "reckless":
+      // The rage colours, small: a streak when it's taken, an impact only on a hit. Never Rage's whole veins.
+      return e.hit ? { at: "tap", ms: 380, look: "fx-reckless-hit" } : { at: "result", ms: 350, look: "fx-reckless" };
     case "spell": {
-      const p = SPELL_FX[e.spell]?.[e.phase];
+      const p = phaseLook(e.spell, e.phase, e.mode);
       // A phase with no look of its own plays nothing big: the generic circle for a cast, nothing otherwise.
       if (!p) return { at: "tap", ms: 700, look: "fx-cast" };
       return { at: p.at, ms: p.ms, look: `sfx ${p.look}`, ...(p.buzz ? { buzz: p.buzz } : {}) };
@@ -155,16 +162,25 @@ export function FxLayer({ school, character }: { school: (spell: string) => stri
               <path pathLength={1} d="M22,0 L14,30 L24,34 L10,66 L20,70 L8,100" />
             </svg>
             <span className="sfx-column" />
+            <span className="sfx-hail" />
             <span className="sfx-glyph" />
           </div>
         ) : spec.at === "across" ? (
           <div key={id} className={`fx fx-across ${spec.look}`} style={{ top: y, ["--fx-ms" as string]: `${spec.ms}ms` }}>
-            {Array.from({ length: 7 }, (_, i) => (
-              <span key={i} className="sfx-streak" style={{ top: `${10 + i * 13}%`, animationDelay: `${(i % 3) * 60}ms` }} />
-            ))}
+            {spec.look.includes("sfx-water") ? (
+              <svg className="sfx-water-svg" viewBox="0 0 200 60" preserveAspectRatio="none">
+                <path className="w1" d="M0,34 Q25,22 50,34 T100,34 T150,34 T200,34 L200,60 L0,60 Z" />
+                <path className="w2" d="M0,40 Q25,30 50,40 T100,40 T150,40 T200,40 L200,60 L0,60 Z" />
+                <path className="w3" d="M0,40 Q25,30 50,40 T100,40 T150,40 T200,40 L200,60 L0,60 Z" />
+              </svg>
+            ) : (
+              Array.from({ length: 7 }, (_, i) => <span key={i} className="sfx-streak" style={{ top: `${10 + i * 13}%`, animationDelay: `${(i % 3) * 60}ms` }} />)
+            )}
           </div>
         ) : spec.at === "edge" ? (
-          <div key={id} className={`fx ${spec.look}`} style={{ animationDuration: `${spec.ms}ms` }}>
+          <div key={id} className={`fx ${spec.look}`} style={{ animationDuration: `${spec.ms}ms`, ["--fx-ms" as string]: `${spec.ms}ms` }}>
+            {spec.look.includes("sfx-weather") &&
+              Array.from({ length: 14 }, (_, i) => <span key={i} className="sfx-fleck" style={{ left: `${(i * 37) % 100}%`, animationDelay: `${(i % 7) * 90}ms` }} />)}
             {spec.label && <span className="fx-label fx-label-mid">{spec.label}</span>}
           </div>
         ) : (
@@ -199,6 +215,23 @@ export function FxLayer({ school, character }: { school: (spell: string) => stri
                 {spec.look.includes("miss")
                   ? <path pathLength={1} d="M-50,18 Q0,-10 50,-22" />
                   : [0, 45, 90, 135, 180, 225, 270, 315].map((a) => <path key={a} pathLength={1} d="M0,-56 L0,-22" transform={`rotate(${a + 22})`} />)}
+              </svg>
+            )}
+            {spec.look === "fx-flurry" && [0, 1, 2].map((i) => <span key={i} className="fx-after" style={{ ["--i" as string]: String(i) }} />)}
+            {spec.look === "fx-mercy-harm" && (
+              <svg className="fx-hand" viewBox="-50 -50 100 100">
+                <path d="M-14,30 L-14,-4 L-20,-24 M-14,-4 L-6,-30 M-6,-4 L2,-32 M2,-4 L10,-28 M10,-2 L22,-14 M-14,30 L14,30 L22,-14" />
+              </svg>
+            )}
+            {(spec.look === "fx-reckless" || spec.look === "fx-reckless-hit") && (
+              <svg className="fx-streak" viewBox="-60 -30 120 60">
+                <path pathLength={1} d="M-56,14 L50,-10" />
+                <path pathLength={1} d="M-50,24 L56,0" />
+              </svg>
+            )}
+            {spec.look.includes("sfx-water-whirl") && (
+              <svg className="sfx-whirl" viewBox="-50 -50 100 100">
+                <path pathLength={1} d="M0,0 C6,-2 8,6 2,9 C-8,13 -14,2 -10,-8 C-4,-20 16,-20 20,-4 C26,16 4,30 -14,24 C-34,16 -36,-14 -18,-30 C0,-44 30,-38 40,-14" />
               </svg>
             )}
             {spec.look.startsWith("fx-insp") && (

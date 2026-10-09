@@ -458,7 +458,7 @@ export function App() {
         {...(portentFor() ? { portent: portentFor()! } : {})}
         onOptionsUsed={opts.onOptionsUsed ?? recordOptions}
         {...(opts.reaction ? { reaction: true } : {})}
-        {...(attack ? { onResolved: (o: "hit" | "crit" | "miss") => strikeFx(attack.attackId, o).forEach(playFx) } : {})}
+        {...(attack ? { onResolved: (o: "hit" | "crit" | "miss", options: string[]) => strikeFx(attack.attackId, o, options).forEach(playFx) } : {})}
         onSpend={(used) => {
           for (const u of used) {
             if (u.spends) {

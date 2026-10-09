@@ -5,7 +5,7 @@ import { tableRegistry } from "../../engine/test/helpers.js";
 import { CharacterLog } from "../../store/src/log.js";
 import { HybridClock } from "../../store/src/clock.js";
 import { ongoingFx, opFx, rollFx, strikeFx } from "../src/fx/triggers.js";
-import { SPELL_FX } from "../src/fx/spells.js";
+import { SPELL_FX, phaseLook } from "../src/fx/spells.js";
 import type { RollRecord } from "../src/rolls.js";
 
 const reg = tableRegistry();
@@ -114,7 +114,7 @@ describe("Spell phases and unarmed strikes", () => {
     // Every phase in the registry names a look and a length.
     for (const [id, d] of Object.entries(SPELL_FX)) {
       expect(id.startsWith("spell:")).toBe(true);
-      for (const p of [d.cast, d.again, d.resolve]) if (p) expect(p.look && p.ms > 0 && p.ms <= 1200).toBeTruthy();
+      for (const p of [d.cast, d.again, d.resolve]) if (p) expect(p.look && p.ms > 0 && p.ms <= 1500).toBeTruthy();
     }
   });
 
@@ -124,5 +124,45 @@ describe("Spell phases and unarmed strikes", () => {
     expect(strikeFx("tavern-unarmed", "miss")).toEqual([{ kind: "unarmed", result: "miss" }]);
     expect(strikeFx("unarmed-fighting-free-hands", "hit")).toEqual([{ kind: "unarmed", result: "hit" }]);
     expect(strikeFx("item:shortsword", "hit")).toEqual([]);
+  });
+});
+
+describe("Elemental spells by mode, martial effects", () => {
+  const c = () => fighter().character;
+  it("Control Water and Control Weather use the mode picked; none or an unknown one plays the neutral look", () => {
+    const ch = c();
+    expect(opFx("castSpell", { spell: "spell:control-water", choice: "Whirlpool" }, ch, ch)).toEqual([{ kind: "spell", spell: "spell:control-water", phase: "cast", mode: "whirlpool" }]);
+    expect(opFx("castSpell", { spell: "spell:control-water" }, ch, ch)).toEqual([{ kind: "spell", spell: "spell:control-water", phase: "cast" }]);
+    expect(opFx("castSpell", { spell: "spell:control-water", choice: "Lava" }, ch, ch)).toEqual([{ kind: "spell", spell: "spell:control-water", phase: "cast" }]);
+    expect(phaseLook("spell:control-water", "cast", "whirlpool")?.look).toMatch(/whirl/);
+    expect(phaseLook("spell:control-water", "cast")?.look).toMatch(/neutral/);
+    expect(phaseLook("spell:control-weather", "cast", "lava")?.look).toMatch(/neutral/);
+    // The ongoing sky follows the mode on the spell's tag, and goes with concentration.
+    const on = { ...ch, concentration: { spell: "spell:control-weather", name: "Control Weather" }, effects: [{ id: "w", effect: "effect:control-weather", choice: "Rain" }] } as Character;
+    expect(ongoingFx(on)?.look).toMatch(/sfx-ongoing-rain/);
+    expect(ongoingFx({ ...on, effects: [] })?.look).toBe("sfx-ongoing-weather");
+    expect(ongoingFx({ ...on, concentration: undefined } as Character)).toBeUndefined();
+  });
+
+  it("Ice Storm plays once, on the cast; its damage roll doesn't replay it", () => {
+    const ch = c();
+    expect(opFx("castSpell", { spell: "spell:ice-storm" }, ch, ch)).toEqual([{ kind: "spell", spell: "spell:ice-storm", phase: "cast" }]);
+    expect(rollFx(roll({ kind: "damage", spell: "spell:ice-storm", lines: [] }))).toEqual([]);
+  });
+
+  it("Flurry and the Way of Mercy hands play when the feature is actually used", () => {
+    const ch = c();
+    expect(opFx("useAction", { action: "flurry-of-blows" }, ch, ch)).toEqual([{ kind: "flurry" }]);
+    expect(opFx("useAction", { action: "hand-of-healing" }, ch, ch)).toEqual([{ kind: "mercy", hand: "healing" }]);
+    expect(opFx("useAction", { action: "hand-of-harm" }, ch, ch)).toEqual([{ kind: "mercy", hand: "harm" }]);
+    expect(opFx("useAction", { action: "second-wind" }, ch, ch)).toEqual([]);
+  });
+
+  it("Reckless Attack: a streak when it's taken on the roll, an impact only on a hit", () => {
+    expect(rollFx(roll({ attack: true, natural: 9, options: ["Reckless Attack"] }))).toEqual([{ kind: "reckless", hit: false }]);
+    expect(rollFx(roll({ attack: true, natural: 9 }))).toEqual([]);
+    expect(strikeFx("item:greataxe", "hit", ["Reckless Attack"])).toEqual([{ kind: "reckless", hit: true }]);
+    expect(strikeFx("item:greataxe", "miss", ["Reckless Attack"])).toEqual([]);
+    expect(strikeFx("item:greataxe", "hit", [])).toEqual([]);
   });
 });

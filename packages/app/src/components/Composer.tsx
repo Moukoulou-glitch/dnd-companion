@@ -26,7 +26,7 @@ interface Props {
   onPhysicalChange: (physical: boolean) => void;
   onRolled: (r: RollRecord) => void;
   /** The player's call on an attack roll: Hit, Critical damage or Miss (for effects only). */
-  onResolved?: (outcome: "hit" | "crit" | "miss") => void;
+  onResolved?: (outcome: "hit" | "crit" | "miss", options: string[]) => void;
   /** Skip the d20: save spells, Magic Missile, healing. */
   damageOnly?: boolean;
   /** The roll heals rather than damages: the result offers "Heal myself". */
@@ -381,6 +381,7 @@ export function Composer({ title, base, attack, physical, onPhysicalChange, onRo
   const rollD20 = (values?: number[], composed = d20) => {
     const rec = recordOf(dc ? `${title} (DC ${dc})` : title, "d20", rollComposed(composed, values));
     if (attack) rec.attack = true;
+    if (choices.enabled.length) rec.options = [...choices.enabled];
     setAttackMode(composed.d20Mode);
     commit();
     if (choices.enabled.length) onOptionsUsed?.(choices.enabled);
@@ -588,14 +589,14 @@ export function Composer({ title, base, attack, physical, onPhysicalChange, onRo
               </div>
             </div>
             <div className="big-actions" style={{ marginTop: 12 }}>
-              <button className={`big${r.crit ? "" : " primary"}`} onClick={() => { onResolved?.("hit"); startDamage(false, r); }}>
+              <button className={`big${r.crit ? "" : " primary"}`} onClick={() => { onResolved?.("hit", r.options ?? []); startDamage(false, r); }}>
                 Hit: roll damage
               </button>
-              <button className={`big${r.crit ? " primary" : ""}`} onClick={() => { onResolved?.("crit"); startDamage(true, r); }}>
+              <button className={`big${r.crit ? " primary" : ""}`} onClick={() => { onResolved?.("crit", r.options ?? []); startDamage(true, r); }}>
                 Critical damage
               </button>
             </div>
-            <button className="big wide miss" style={{ marginTop: 8 }} onClick={() => { onResolved?.("miss"); setStage({ step: "missed", record: r }); }}>
+            <button className="big wide miss" style={{ marginTop: 8 }} onClick={() => { onResolved?.("miss", r.options ?? []); setStage({ step: "missed", record: r }); }}>
               Miss
             </button>
           </>

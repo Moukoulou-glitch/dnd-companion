@@ -3052,6 +3052,63 @@
       "reminders": [
         "Ticked already on your next melee weapon damage roll; once rolled, this tag goes (concentration stays for any lasting part)."
       ]
+    },
+    {
+      "kind": "effect",
+      "id": "effect:control-water",
+      "name": "Control Water",
+      "category": "spell",
+      "summary": "You command water in a cube up to 100 ft on a side: flood it, part it, redirect its flow or make a whirlpool; your action can repeat or change the effect.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 227
+      },
+      "modifiers": [],
+      "reminders": [
+        "Your action each turn: repeat the effect or pick another."
+      ],
+      "minutes": 10,
+      "concentration": true,
+      "selfOnly": true,
+      "choice": {
+        "label": "What the water does",
+        "options": [
+          "Flood",
+          "Part Water",
+          "Redirect Flow",
+          "Whirlpool"
+        ]
+      }
+    },
+    {
+      "kind": "effect",
+      "id": "effect:control-weather",
+      "name": "Control Weather",
+      "category": "spell",
+      "summary": "You take control of the weather within 5 miles; each change of precipitation, temperature or wind takes 1d4 × 10 minutes, one stage at a time.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 228
+      },
+      "modifiers": [],
+      "reminders": [
+        "Changes come one stage at a time, 1d4 × 10 minutes each: the weather doesn't turn at once."
+      ],
+      "minutes": 480,
+      "concentration": true,
+      "selfOnly": true,
+      "choice": {
+        "label": "The weather you're bringing",
+        "options": [
+          "Clear skies",
+          "Rain",
+          "Snow",
+          "Wind",
+          "Storm"
+        ]
+      }
     }
   ]
 }
