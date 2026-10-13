@@ -1,10 +1,23 @@
 import { RichText } from "./Conditions";
 import { ABILITIES, ABILITY_NAMES, SKILL_ABILITY, SKILL_NAMES, type Character, type OperationType, type Skill } from "@dnd/schema";
-import { formatBonus, signed, turnReminders, type CompanionResult, type DerivedSheet, type RollBreakdown, type WeaponAttack } from "@dnd/engine";
+import { formatBonus, readiedNow, signed, turnReminders, type CompanionResult, type DerivedSheet, type RollBreakdown, type WeaponAttack } from "@dnd/engine";
 import { damageText } from "./ActionsTab";
 import { BreakdownLines } from "./Sheet";
 import { SwipeButton } from "./Swipe";
 import type { ReactNode } from "react";
+import { useLongPress } from "../longPress";
+
+export type EconomyKind = "action" | "bonus" | "reaction";
+
+/** A combat pill: a tap does what it always did; a long-press (right-click, Shift+F10) opens its menu. */
+function Pill({ used, onTap, onMenu, label, children, className = "pill" }: { used: boolean; onTap: () => void; onMenu: () => void; label: string; children: ReactNode; className?: string }) {
+  const press = useLongPress(onTap, onMenu);
+  return (
+    <button className={`${className} long-press`} data-used={used} aria-label={`${label}. Hold, or Shift+F10, for what you can do`} {...press}>
+      {children}
+    </button>
+  );
+}
 
 type Act = (type: OperationType, payload: unknown, label: string) => unknown;
 
@@ -17,6 +30,8 @@ export function CombatCard({
   openMove,
   onInitiative,
   onLimited,
+  onMenu,
+  spendReaction,
 }: {
   character: Character;
   sheet: DerivedSheet;
@@ -26,6 +41,10 @@ export function CombatCard({
   onInitiative: () => void;
   /** Opens an extra action of its own (Haste). */
   onLimited: (actionId: string) => void;
+  /** Long-press on Action, Bonus or Reaction: what you can do with it. */
+  onMenu: (kind: EconomyKind) => void;
+  /** Marks the reaction used, through the turn checks (a readied action asks first). */
+  spendReaction: () => void;
 }) {
   const cb = character.combat;
   if (!cb) {
@@ -49,6 +68,8 @@ export function CombatCard({
   const actionsLeft = actionsTotal - cb.action;
   const limited = sheet.actions.filter((a) => a.limited);
   const lethargy = sheet.effects.find((e) => e.id === "effect:haste-lethargy");
+  // What's readied (the same tag the Effects show): the Reaction pill says so, and its menu releases it.
+  const readied = readiedNow(character);
 
   return (
     <section className="turn" aria-label="Combat">
@@ -61,23 +82,23 @@ export function CombatCard({
         </button>
       </div>
       <div className="pills">
-        <button
-          className="pill"
-          data-used={actionsLeft <= 0 && (cb.attacks === 0 || cb.attacks >= max)}
-          onClick={() =>
+        <Pill
+          used={actionsLeft <= 0 && (cb.attacks === 0 || cb.attacks >= max)}
+          onTap={() =>
             cb.attacks > 0
               ? act("useEconomy", { kind: "attack", amount: -1 }, "One attack taken back.")
               : actionsLeft > 0
                 ? act("useEconomy", { kind: "action", amount: 1 }, "Action used.")
                 : act("useEconomy", { kind: "action", amount: -1 }, "Action given back.")
           }
-          aria-label={actionsLeft > 0 ? `${actionsLeft} action${actionsLeft === 1 ? "" : "s"} free. Tap to mark one used` : "Action used. Tap to give it back"}
+          onMenu={() => onMenu("action")}
+          label={actionsLeft > 0 ? `${actionsLeft} action${actionsLeft === 1 ? "" : "s"} free. Tap to mark one used` : "Action used. Tap to give it back"}
         >
           <b>{actionsTotal > 1 ? `Actions ×${actionsTotal}` : "Action"}</b>
           <small>
             {cb.attacks > 0 ? `${cb.attacks} of ${max} attack${max === 1 ? "" : "s"}${cb.attacks >= max && actionsLeft <= 0 ? " · used" : ""}` : actionsLeft <= 0 ? "used" : actionsTotal > 1 ? `${actionsLeft} free` : "free"}
           </small>
-        </button>
+        </Pill>
         {limited.map((a) => {
           const used = cb.usedThisTurn.includes(a.id);
           return (
@@ -87,14 +108,20 @@ export function CombatCard({
             </button>
           );
         })}
-        <button className="pill" data-used={cb.bonus > 0} onClick={() => toggle("bonus", cb.bonus, "Bonus action")}>
+        <Pill used={cb.bonus > 0} onTap={() => toggle("bonus", cb.bonus, "Bonus action")} onMenu={() => onMenu("bonus")} label={cb.bonus > 0 ? "Bonus action used. Tap to give it back" : "Bonus action free. Tap to mark it used"}>
           <b>Bonus</b>
           <small>{cb.bonus > 0 ? "used" : "free"}</small>
-        </button>
-        <button className="pill" data-used={cb.reaction > 0} onClick={() => toggle("reaction", cb.reaction, "Reaction")}>
+        </Pill>
+        <Pill
+          used={cb.reaction > 0}
+          // Marking it used goes through the turn checks: with something readied, it asks first.
+          onTap={() => (cb.reaction > 0 ? toggle("reaction", cb.reaction, "Reaction") : spendReaction())}
+          onMenu={() => onMenu("reaction")}
+          label={`${cb.reaction > 0 ? "Reaction used. Tap to give it back" : "Reaction free. Tap to mark it used"}${readied ? `. Readied: ${readied.name}` : ""}`}
+        >
           <b>Reaction</b>
-          <small>{cb.reaction > 0 ? "used" : "free"}</small>
-        </button>
+          <small>{cb.reaction > 0 ? "used" : readied ? "free · readied" : "free"}</small>
+        </Pill>
         <button className="pill" data-used={left === 0} onClick={openMove}>
           <b>Move</b>
           <small>
@@ -103,6 +130,7 @@ export function CombatCard({
           </small>
         </button>
       </div>
+      <p className="note pill-hint">Hold Action, Bonus or Reaction for what you can do with it.</p>
       {lethargy && (
         <p className="over-banner" role="alert">
           When the spell ends, the target can't move or take actions until after its next turn, as a wave of lethargy sweeps over it.

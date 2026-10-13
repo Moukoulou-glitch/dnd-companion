@@ -18,6 +18,8 @@ import { DistributePanel } from "./components/Distribute";
 import { RageVeins, greyLevel, useFlourishes } from "./components/Fx";
 import { FxLayer, playFx } from "./fx/FxLayer";
 import { ProficienciesPanel } from "./components/Proficiencies";
+import { EconomyMenu } from "./components/EconomyMenu";
+import type { EconomyKind } from "./components/Combat";
 import { HP_TIER_WORDS, hpBlinks, hpTier } from "./hp";
 import { strikeFx } from "./fx/triggers";
 import { CustomActionForm, CustomSpellForm } from "./components/CustomForms";
@@ -105,6 +107,9 @@ function BackupNote() {
     </p>
   );
 }
+
+/** War Caster's spell takes the reaction (castingEconomy reads "reaction"). */
+const WAR_CASTER_TIME = "1 reaction (War Caster)";
 
 /** Smites with nothing lasting after the hit: their concentration ends with it. */
 const ENDS_ON_HIT = new Set(["spell:thunderous-smite"]);
@@ -976,7 +981,7 @@ export function App() {
                 }),
               }
             : {})}
-          onUse={(rolled, free, check, choice, spend) => {
+          onUse={(rolled, free, check, choice, spend, onMe) => {
             // Readying a spell: pick it, then cast it now and hold it.
             if (choice === "Cast a Spell" && current.choose) return openReadySpell();
             if (a.id === "preserve-life") return openPreserveLife(!!free);
@@ -987,6 +992,7 @@ export function App() {
               ...(free ? { free: true } : {}),
               ...(choice ? { choice } : {}),
               ...(spend ? { amount: spend.amount, healSelf: spend.healSelf } : {}),
+              ...(onMe !== undefined ? { onMe } : {}),
             };
             const label = spend
               ? `${a.name}: ${spend.amount} ${spend.healSelf ? "hit points to yourself" : "points spent"}.`
@@ -994,7 +1000,7 @@ export function App() {
               ? `${a.name}: ${choice}. Use your reaction when the trigger happens.`
               : choice
               ? `${a.name}: ${choice.replace(/ \(not enough\)$/, "")}.`
-              : free ? `${a.name} switched on (nothing spent).` : current.roll && rolled !== undefined ? `${a.name}: ${rolled} ${current.roll.label}.` : `${a.name} used.`;
+              : free ? `${a.name} switched on (nothing spent).` : current.roll && rolled !== undefined ? `${a.name}: ${rolled} ${current.roll.label}.` : onMe === false ? `${a.name} used on another creature.` : `${a.name} used.`;
             if (free) {
               live.current.act("useAction", payload, label);
               return close();
@@ -1222,7 +1228,8 @@ export function App() {
    */
   const openAttack = (a: WeaponAttack, extra: Parameters<typeof openRoll>[3] = {}) => {
     const cb = live.current.character?.combat;
-    const reaction = !!cb && !cb.myTurn && a.action === "attack";
+    // An opportunity attack: on someone else's turn, or picked from the Reaction menu.
+    const reaction = (!!cb && !cb.myTurn && a.action === "attack") || !!extra.reaction;
     const economy = reaction ? "reaction" : a.action === "bonus" ? "bonus" : "action";
     const melee = a.mode === "melee" || a.mode === "thrown";
     const light = a.properties.includes("light");
@@ -1813,7 +1820,7 @@ export function App() {
       if (!current) return <p className="note">{e.name} has ended.</p>;
       const release = current.release
         ? () =>
-            guard({ name: current.name, economy: "reaction" }, () => {
+            guard({ name: current.name, economy: "reaction", releasesReadied: true }, () => {
               live.current.act("releaseReadied", { instanceId: current.instanceId }, current.release!.spell ? `${current.name.replace("Ready: ", "")} released.` : `${current.name}: done.`);
               const r = current.release!.spell;
               const sp = r && live.current.sheet?.spells.find((x) => x.id === r.id && x.list.id === r.list);
@@ -2088,7 +2095,8 @@ export function App() {
     return !!eff && (!!eff.selfOnly || /^(self|touch)/i.test(sp.range));
   };
 
-  const openSpell = (first: SpellResult, castAt?: number, readying = false) =>
+  /** asReaction: cast with your reaction instead of its casting time (War Caster's opportunity-attack spell). */
+  const openSpell = (first: SpellResult, castAt?: number, readying = false, asReaction = false) =>
     open(first.name, () => {
       const sp = live.current.sheet?.spells.find((x) => x.id === first.id && x.list.id === first.list.id) ?? first;
       const roller = (level: number, damageOnly: boolean) => rollSpell(sp, level, damageOnly);
@@ -2096,6 +2104,7 @@ export function App() {
       return (
         <>
         {extra && <ExtraInline extra={extra} act={live.current.act} />}
+        {asReaction && <p className="note">War Caster: cast as your reaction, at the creature that provoked the opportunity attack.</p>}
         <SpellPanel
           sp={sp}
           sheet={live.current.sheet!}
@@ -2105,7 +2114,7 @@ export function App() {
           casterDamage={!!registry.find(sp.id.replace(/^spell:/, "effect:"), "effect")?.modifiers.some((m) => m.selector.startsWith("roll.damage"))}
           initialCast={castAt}
           readying={readying}
-          onCast={(level, using, selfEffect, castingTime) => castFlow(sp, level, using, selfEffect, readying, castingTime)}
+          onCast={(level, using, selfEffect, castingTime) => castFlow(sp, level, using, selfEffect, readying, asReaction ? WAR_CASTER_TIME : castingTime)}
           onPrepare={(prepared) => live.current.act("setPrepared", { spell: sp.id, list: sp.list.id, prepared }, `${sp.name} ${prepared ? "prepared" : "unprepared"}.`)}
           onRollAttack={(level) => roller(level, false)}
           onRollDamage={(level) => roller(level, true)}
@@ -2113,6 +2122,24 @@ export function App() {
         </>
       );
     });
+
+  /** Long-press on a combat pill: what you can do with your action, bonus action or reaction. */
+  const openEconomyMenu = (kind: EconomyKind) =>
+    open(kind === "action" ? "Your action" : kind === "bonus" ? "Your bonus action" : "Your reaction", () =>
+      live.current.sheet && live.current.character ? (
+        <EconomyMenu
+          kind={kind}
+          sheet={live.current.sheet}
+          character={live.current.character}
+          openAttack={(a, reaction) => openAttack(a, reaction ? { reaction: true } : {})}
+          openFeature={openFeature}
+          openSpell={(sp) => openSpell(sp, undefined, false, kind === "reaction" && castingEconomy(sp.castingTime) !== "reaction")}
+          openEffect={openEffect}
+        />
+      ) : null,
+    );
+  /** The Reaction pill marks it used through the turn checks: with something readied, it asks first. */
+  const spendReaction = () => guard({ name: "Reaction", economy: "reaction" }, () => live.current.act("useEconomy", { kind: "reaction", amount: 1 }, "Reaction used."));
 
   const openRollHistory = () =>
     open("Rolls", () => (
@@ -2328,6 +2355,8 @@ export function App() {
           openTransform={openTransform}
           openSummonGroup={openSummonGroup}
           reg={registry}
+          onEconomyMenu={openEconomyMenu}
+          spendReaction={spendReaction}
           openLimited={(id) => {
             const a = live.current.sheet?.actions.find((x) => x.id === id);
             if (a) openFeature(a);

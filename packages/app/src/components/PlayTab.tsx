@@ -4,7 +4,7 @@ import { SummonsCard } from "./Summons";
 import type { ContentRegistry, DerivedSheet, ResourceResult, ShapeKind } from "@dnd/engine";
 import type { Character, OperationType } from "@dnd/schema";
 import type { RollRecord } from "../rolls";
-import { CombatCard, CompanionCard } from "./Combat";
+import { CombatCard, type EconomyKind, CompanionCard } from "./Combat";
 import { registry } from "../content";
 
 const ALIGNMENTS: Record<string, string> = {
@@ -166,11 +166,15 @@ export function PlayTab({
   openShape,
   openTransform,
   openLimited,
+  onEconomyMenu,
+  spendReaction,
   openSummonGroup,
   reg,
 }: {
   openShape: () => void;
   openLimited: (actionId: string) => void;
+  onEconomyMenu: (kind: EconomyKind) => void;
+  spendReaction: () => void;
   openSummonGroup: (group: string) => void;
   reg: ContentRegistry;
   openTransform: (kind: ShapeKind) => void;
@@ -200,7 +204,7 @@ export function PlayTab({
     <main>
       <Identity c={character} onBackground={openBackground} onIdentity={openIdentity} />
 
-      <CombatCard character={character} sheet={sheet} act={act} onStartCombat={onStartCombat} openMove={openMove} onInitiative={onInitiative} onLimited={openLimited} />
+      <CombatCard character={character} sheet={sheet} act={act} onStartCombat={onStartCombat} openMove={openMove} onInitiative={onInitiative} onLimited={openLimited} onMenu={onEconomyMenu} spendReaction={spendReaction} />
 
       <ShapeCard sheet={sheet} onOpen={openShape} onTransform={openTransform} />
       <SummonsCard character={character} reg={reg} onOpen={openSummonGroup} />

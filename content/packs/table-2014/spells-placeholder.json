@@ -39,7 +39,8 @@
           "11": "3d6",
           "17": "4d6"
         }
-      }
+      },
+      "singleTarget": true
     },
     {
       "kind": "spell",
@@ -81,7 +82,8 @@
           "11": "3d8",
           "17": "4d8"
         }
-      }
+      },
+      "singleTarget": true
     },
     {
       "kind": "spell",
@@ -167,7 +169,8 @@
           "9": "11d8"
         },
         "type": "acid"
-      }
+      },
+      "singleTarget": true
     },
     {
       "kind": "spell",
@@ -211,7 +214,8 @@
           "8": "10d6",
           "9": "11d6"
         }
-      }
+      },
+      "singleTarget": true
     },
     {
       "kind": "spell",
@@ -356,7 +360,8 @@
       "save": {
         "ability": "wis",
         "onSuccess": "none"
-      }
+      },
+      "singleTarget": true
     },
     {
       "kind": "spell",
@@ -400,7 +405,8 @@
           "8": "3d6",
           "9": "3d6"
         }
-      }
+      },
+      "singleTarget": true
     },
     {
       "kind": "spell",
@@ -439,7 +445,8 @@
           "11": "3d6",
           "17": "4d6"
         }
-      }
+      },
+      "singleTarget": true
     },
     {
       "kind": "spell",

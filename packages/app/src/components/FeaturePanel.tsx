@@ -29,20 +29,24 @@ export function FeaturePanel({
   text?: string[] | undefined;
   physical: boolean;
   /** The third argument: the skill to roll right after (Hide: stealth). */
-  onUse: (rolled?: number, free?: boolean, check?: string, choice?: string, spend?: { amount: number; healSelf: boolean }) => void;
+  /** onMe: for an action that can heal someone else (Healing Hands), whether it was on you. */
+  onUse: (rolled?: number, free?: boolean, check?: string, choice?: string, spend?: { amount: number; healSelf: boolean }, onMe?: boolean) => void;
   /** Skills it can roll, with their names and bonuses. */
   checks?: { skill: string; name: string; bonus: string }[];
 }) {
   const amount = a.tempHp ?? a.heal ?? a.roll;
   const [entry, setEntry] = useState("");
   const [points, setPoints] = useState("");
+  // Healing Hands and the like: on someone else unless ticked.
+  const [onMe, setOnMe] = useState(false);
+  const me = a.others ? onMe : undefined;
   const none = a.cost && a.cost.remaining < a.cost.amount;
 
   const useNow = (free = false) => {
-    if (!amount) return onUse(undefined, free);
-    if (physical) return onUse(Number(entry) + amount.flat, free);
+    if (!amount) return onUse(undefined, free, undefined, undefined, undefined, me);
+    if (physical) return onUse(Number(entry) + amount.flat, free, undefined, undefined, undefined, me);
     const formula = [...amount.dice, String(amount.flat)].join("+");
-    return onUse(Math.max(0, roll(formula).total), free);
+    return onUse(Math.max(0, roll(formula).total), free, undefined, undefined, undefined, me);
   };
 
 
@@ -70,6 +74,15 @@ export function FeaturePanel({
           Uses {a.cost.amount} {a.cost.name}: {a.cost.remaining} left.
           {none ? " None left; you can still use it if your DM allows." : ""}
         </p>
+      )}
+      {a.others && (
+        <label className="row check" style={{ padding: "8px 0" }}>
+          <input type="checkbox" checked={onMe} onChange={() => setOnMe(!onMe)} />
+          <div className="row-main">
+            <div className="row-title">Put its effect on me</div>
+            <div className="row-sub">Unticked: it goes to the creature you touch, and your hit points stay as they are.</div>
+          </div>
+        </label>
       )}
       {amount && (
         <>

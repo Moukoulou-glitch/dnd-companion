@@ -40,7 +40,8 @@
           "11": "3d6",
           "17": "4d6"
         }
-      }
+      },
+      "singleTarget": true
     },
     {
       "kind": "spell",
@@ -81,7 +82,8 @@
           "11": "3d8",
           "17": "4d8"
         }
-      }
+      },
+      "singleTarget": true
     },
     {
       "kind": "spell",
@@ -181,7 +183,8 @@
           "11": "1d10",
           "17": "1d10"
         }
-      }
+      },
+      "singleTarget": true
     },
     {
       "kind": "spell",
@@ -220,7 +223,8 @@
           "11": "3d10",
           "17": "4d10"
         }
-      }
+      },
+      "singleTarget": true
     },
     {
       "kind": "spell",
@@ -460,7 +464,8 @@
           "11": "3d12",
           "17": "4d12"
         }
-      }
+      },
+      "singleTarget": true
     },
     {
       "kind": "spell",
@@ -575,7 +580,8 @@
           "11": "3d8",
           "17": "4d8"
         }
-      }
+      },
+      "singleTarget": true
     },
     {
       "kind": "spell",
@@ -646,7 +652,8 @@
           "11": "3d8",
           "17": "4d8"
         }
-      }
+      },
+      "singleTarget": true
     },
     {
       "kind": "spell",
@@ -714,7 +721,8 @@
           "11": "3d8",
           "17": "4d8"
         }
-      }
+      },
+      "singleTarget": true
     },
     {
       "kind": "spell",
@@ -803,7 +811,8 @@
       "text": [
         "You extend your hand and point a finger at a target in range. Your magic grants you a brief insight into the target's defenses. On your next turn, you gain advantage on your first attack roll against the target, provided that this spell hasn't ended."
       ],
-      "higherLevels": []
+      "higherLevels": [],
+      "singleTarget": true
     },
     {
       "kind": "spell",
@@ -843,7 +852,8 @@
           "11": "3d4",
           "17": "4d4"
         }
-      }
+      },
+      "singleTarget": true
     },
     {
       "kind": "spell",
@@ -911,7 +921,8 @@
       "save": {
         "ability": "wis",
         "onSuccess": "none"
-      }
+      },
+      "singleTarget": true
     },
     {
       "kind": "spell",
@@ -1066,7 +1077,8 @@
       "save": {
         "ability": "wis",
         "onSuccess": "none"
-      }
+      },
+      "singleTarget": true
     },
     {
       "kind": "spell",
@@ -1139,7 +1151,8 @@
       "save": {
         "ability": "wis",
         "onSuccess": "none"
-      }
+      },
+      "singleTarget": true
     },
     {
       "kind": "spell",
@@ -1795,7 +1808,8 @@
           "8": "11d6",
           "9": "12d6"
         }
-      }
+      },
+      "singleTarget": true
     },
     {
       "kind": "spell",
@@ -1948,7 +1962,8 @@
       "save": {
         "ability": "wis",
         "onSuccess": "none"
-      }
+      },
+      "singleTarget": true
     },
     {
       "kind": "spell",
@@ -2084,7 +2099,8 @@
           "8": "10d10",
           "9": "11d10"
         }
-      }
+      },
+      "singleTarget": true
     },
     {
       "kind": "spell",
@@ -2224,7 +2240,8 @@
           "8": "10d4 + 10",
           "9": "11d4 + 11"
         }
-      }
+      },
+      "singleTarget": true
     },
     {
       "kind": "spell",
@@ -2612,7 +2629,8 @@
           "8": "10d4",
           "9": "11d4"
         }
-      }
+      },
+      "singleTarget": true
     },
     {
       "kind": "spell",
@@ -2883,7 +2901,8 @@
       "save": {
         "ability": "con",
         "onSuccess": "none"
-      }
+      },
+      "singleTarget": true
     },
     {
       "kind": "spell",
@@ -3196,7 +3215,8 @@
       "save": {
         "ability": "con",
         "onSuccess": "none"
-      }
+      },
+      "singleTarget": true
     },
     {
       "kind": "spell",
@@ -3543,7 +3563,8 @@
       "save": {
         "ability": "wis",
         "onSuccess": "none"
-      }
+      },
+      "singleTarget": true
     },
     {
       "kind": "spell",
@@ -4049,7 +4070,8 @@
       "save": {
         "ability": "con",
         "onSuccess": "none"
-      }
+      },
+      "singleTarget": true
     },
     {
       "kind": "spell",
@@ -4119,7 +4141,8 @@
         "atSlot": {
           "2": "2d6"
         }
-      }
+      },
+      "singleTarget": true
     },
     {
       "kind": "spell",
@@ -4386,7 +4409,8 @@
       "save": {
         "ability": "wis",
         "onSuccess": "none"
-      }
+      },
+      "singleTarget": true
     },
     {
       "kind": "spell",
@@ -4604,7 +4628,8 @@
         "atSlot": {
           "3": "1d8"
         }
-      }
+      },
+      "singleTarget": true
     },
     {
       "kind": "spell",
@@ -4880,7 +4905,8 @@
       ],
       "higherLevels": [
         "When you cast this spell using a spell slot of 4th level or higher, you automatically end the effects of a spell on the target if the spell's level is equal to or less than the level of the spell slot you used."
-      ]
+      ],
+      "singleTarget": true
     },
     {
       "kind": "spell",
@@ -6079,7 +6105,8 @@
       "save": {
         "ability": "cha",
         "onSuccess": "none"
-      }
+      },
+      "singleTarget": true
     },
     {
       "kind": "spell",
@@ -6170,7 +6197,8 @@
           "8": "12d8",
           "9": "13d8"
         }
-      }
+      },
+      "singleTarget": true
     },
     {
       "kind": "spell",
@@ -6509,7 +6537,8 @@
       "save": {
         "ability": "wis",
         "onSuccess": "none"
-      }
+      },
+      "singleTarget": true
     },
     {
       "kind": "spell",
@@ -6903,7 +6932,8 @@
         "atSlot": {
           "4": "4d10"
         }
-      }
+      },
+      "singleTarget": true
     },
     {
       "kind": "spell",
@@ -6943,7 +6973,8 @@
       "save": {
         "ability": "wis",
         "onSuccess": "none"
-      }
+      },
+      "singleTarget": true
     },
     {
       "kind": "spell",
@@ -7583,7 +7614,8 @@
       "save": {
         "ability": "con",
         "onSuccess": "other"
-      }
+      },
+      "singleTarget": true
     },
     {
       "kind": "spell",
@@ -7701,7 +7733,8 @@
       "save": {
         "ability": "wis",
         "onSuccess": "other"
-      }
+      },
+      "singleTarget": true
     },
     {
       "kind": "spell",
@@ -7955,7 +7988,8 @@
       "save": {
         "ability": "wis",
         "onSuccess": "none"
-      }
+      },
+      "singleTarget": true
     },
     {
       "kind": "spell",
@@ -8144,7 +8178,8 @@
       "save": {
         "ability": "wis",
         "onSuccess": "none"
-      }
+      },
+      "singleTarget": true
     },
     {
       "kind": "spell",
@@ -8415,7 +8450,8 @@
         "You can exert fine control on objects with your telekinetic grip, such as manipulating a simple tool, opening a door or a container, stowing or retrieving an item from an open container, or pouring the contents from a vial."
       ],
       "higherLevels": [],
-      "area": "30-foot sphere"
+      "area": "30-foot sphere",
+      "singleTarget": true
     },
     {
       "kind": "spell",
@@ -8851,7 +8887,8 @@
           "6": "10d6 + 40"
         }
       },
-      "area": "10-foot cube"
+      "area": "10-foot cube",
+      "singleTarget": true
     },
     {
       "kind": "spell",
@@ -8957,7 +8994,8 @@
       "save": {
         "ability": "con",
         "onSuccess": "none"
-      }
+      },
+      "singleTarget": true
     },
     {
       "kind": "spell",
@@ -9149,7 +9187,8 @@
         "atSlot": {
           "6": "14d6"
         }
-      }
+      },
+      "singleTarget": true
     },
     {
       "kind": "spell",
@@ -9187,7 +9226,8 @@
           "8": "90",
           "9": "100"
         }
-      }
+      },
+      "singleTarget": true
     },
     {
       "kind": "spell",
@@ -9278,7 +9318,8 @@
         "Choose one creature that you can see within range. The target begins a comic dance in place: shuffling, tapping its feet, and capering for the duration. Creatures that can't be charmed are immune to this spell.",
         "A dancing creature must use all its movement to dance without leaving its space and has disadvantage on Dexterity saving throws and attack rolls. While the target is affected by this spell, other creatures have advantage on attack rolls against it. As an action, a dancing creature makes a Wisdom saving throw to regain control of itself. On a successful save, the spell ends."
       ],
-      "higherLevels": []
+      "higherLevels": [],
+      "singleTarget": true
     },
     {
       "kind": "spell",
@@ -9944,7 +9985,8 @@
         "atSlot": {
           "7": "7d8 + 30"
         }
-      }
+      },
+      "singleTarget": true
     },
     {
       "kind": "spell",
@@ -10132,7 +10174,8 @@
       "save": {
         "ability": "cha",
         "onSuccess": "none"
-      }
+      },
+      "singleTarget": true
     },
     {
       "kind": "spell",
@@ -10751,7 +10794,8 @@
       "save": {
         "ability": "wis",
         "onSuccess": "none"
-      }
+      },
+      "singleTarget": true
     },
     {
       "kind": "spell",
@@ -10844,7 +10888,8 @@
         "atSlot": {
           "8": "4d6"
         }
-      }
+      },
+      "singleTarget": true
     },
     {
       "kind": "spell",
@@ -10975,7 +11020,8 @@
         "The target can use its action to attempt to escape. When it does so, it makes a DC 20 Intelligence check. If it succeeds, it escapes, and the spell ends (a minotaur or goristro demon automatically succeeds).",
         "When the spell ends, the target reappears in the space it left or, if that space is occupied, in the nearest unoccupied space."
       ],
-      "higherLevels": []
+      "higherLevels": [],
+      "singleTarget": true
     },
     {
       "kind": "spell",
@@ -11037,7 +11083,8 @@
       "save": {
         "ability": "con",
         "onSuccess": "other"
-      }
+      },
+      "singleTarget": true
     },
     {
       "kind": "spell",
@@ -11333,7 +11380,8 @@
       "text": [
         "You utter a word of power that can compel one creature you can see within range to die instantly. If the creature you choose has 100 hit points or fewer, it dies. Otherwise, the spell has no effect."
       ],
-      "higherLevels": []
+      "higherLevels": [],
+      "singleTarget": true
     },
     {
       "kind": "spell",

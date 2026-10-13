@@ -9,6 +9,8 @@ export interface TurnIntent {
   attack?: boolean;
   /** For spells: level 0 for cantrips, and whether it needs concentration. */
   spell?: { level: number; concentration: boolean };
+  /** Releasing what you readied (it's what the reaction was kept for: no warning about it). */
+  releasesReadied?: boolean;
   /** Only allowed if you haven't moved this turn (Steady Aim). */
   notAfterMoving?: boolean;
   /** Feature id, to notice it was already used this turn. */
@@ -24,6 +26,37 @@ export interface TurnIntent {
 }
 
 const INCAPACITATING = ["incapacitated", "paralyzed", "petrified", "stunned", "unconscious"];
+
+/**
+ * War Caster (PHB 2014): when a creature provokes an opportunity attack, a
+ * spell instead of the attack: a casting time of 1 action, targeting only that
+ * creature, and one you can cast now (known or prepared; not one only on your
+ * class list for preparing, not a scroll).
+ */
+export function warCasterSpells(sheet: DerivedSheet): DerivedSheet["spells"] {
+  if (!sheet.rules.warCaster) return [];
+  return sheet.spells.filter((s) => s.singleTarget && castingEconomy(s.castingTime) === "action" && s.ready !== "not prepared" && !s.cast.scroll);
+}
+
+/** What you've readied with the Ready action and not released yet (one tag on you: the same one the Effects show). */
+export function readiedNow(c: Character): { name: string; spell?: string } | undefined {
+  const e = c.effects.find((x) => x.effect === "custom" && x.untilTurnStart && x.custom?.name.startsWith("Ready"));
+  if (!e) return undefined;
+  const name = e.custom!.name.replace(/^Ready:?\s*/, "") || "your readied action";
+  return e.readied ? { name, spell: e.readied.spell } : { name };
+}
+
+/**
+ * Using your reaction for something else while something is readied: a
+ * readied spell stays held with concentration, but releasing it needs the
+ * reaction, so it can't be released this round and is lost when your next
+ * turn starts; a readied action simply can't be taken when its trigger comes.
+ */
+export function readiedWarning(r: { name: string; spell?: string }): string {
+  return r.spell
+    ? `You're holding ${r.name} (readied, with concentration). Releasing it takes your reaction: spend it on this and you can't release ${r.name} when its trigger comes; it's lost if it isn't released before your next turn starts.`
+    : `You've readied ${r.name}. Taking it when the trigger comes uses your reaction: spend it on this and you can't take the readied action this round.`;
+}
 
 /** Reads a spell's casting time as the part of the turn it uses. */
 export function castingEconomy(castingTime: string): TurnIntent["economy"] {
@@ -93,6 +126,8 @@ export function turnWarnings(c: Character, sheet: DerivedSheet, intent: TurnInte
   if (intent.notAfterMoving && cb.moved > 0) out.push(`You've moved ${cb.moved} ft this turn: ${intent.name} only works if you haven't moved.`);
   if (intent.actionId && cb.usedThisTurn.includes(intent.actionId)) out.push(`You've already used ${intent.name} this turn.`);
   if (intent.economy === "reaction" && cb.reaction > 0) out.push("You've already used your reaction this round.");
+  const readied = readiedNow(c);
+  if (intent.economy === "reaction" && !intent.releasesReadied && cb.reaction === 0 && readied) out.push(readiedWarning(readied));
 
   if (intent.spell) {
     // 2014 rule: with a bonus-action spell, the only other spell that turn is a cantrip with a casting time of 1 action.

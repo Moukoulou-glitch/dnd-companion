@@ -1312,7 +1312,8 @@
               "resource": "healing-hands"
             },
             "heal": "level",
-            "note": "Touch a creature: it regains hit points equal to your level."
+            "note": "Touch a creature: it regains hit points equal to your level.",
+            "others": true
           }
         ]
       }

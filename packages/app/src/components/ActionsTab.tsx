@@ -12,7 +12,7 @@ export function damageText(a: WeaponAttack): string {
   return `${a.damage.dice}${bonus} ${a.damage.type}${extra}`;
 }
 
-function AttackRow({ a, openAttack }: { a: WeaponAttack; openAttack: (a: WeaponAttack) => void }) {
+export function AttackRow({ a, openAttack }: { a: WeaponAttack; openAttack: (a: WeaponAttack) => void }) {
   return (
     <button className="row" onClick={() => openAttack(a)}>
       <div className="row-main">
@@ -31,7 +31,7 @@ function AttackRow({ a, openAttack }: { a: WeaponAttack; openAttack: (a: WeaponA
   );
 }
 
-function FeatureRow({ a, openFeature }: { a: ActionResult; openFeature: (a: ActionResult) => void }) {
+export function FeatureRow({ a, openFeature }: { a: ActionResult; openFeature: (a: ActionResult) => void }) {
   const none = a.cost && a.cost.remaining < a.cost.amount;
   return (
     <button className="row" onClick={() => openFeature(a)}>

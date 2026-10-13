@@ -271,6 +271,8 @@ export const ActionDef = z
     toggles: z.array(z.string()).default([]),
     tempHp: ValueExpr.optional(),
     heal: ValueExpr.optional(),
+    /** The healing can go to another creature (Healing Hands: touch a creature): asks whether it's on you. */
+    others: z.boolean().optional(),
     /** Dice rolled when used, with what the number means (Spirit Shield: damage prevented). */
     roll: z.object({ dice: ValueExpr, label: z.string() }).strict().optional(),
     /**

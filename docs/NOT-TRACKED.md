@@ -63,3 +63,8 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 ## Items and scrolls
 - Spell scrolls: the optional Scroll Mishap table is text only. A spell you write yourself for a scroll also joins your own spells.
 - Spells given beyond the rules can be cast without a slot as often as you like: the app counts, the DM decides how many.
+
+## Combat menus
+- War Caster knows which spells can target only one creature for the SRD spells and the table's placeholders; a spell that exists only in your book file isn't offered (cast it from the Spells tab).
+- Long-press was checked in a desktop browser with mouse and simulated touch; not yet on a real iPhone or Android phone.
+- Healing Hands on someone else: the app spends the use and says how much; the other character's HP is changed on their own sheet.

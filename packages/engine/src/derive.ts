@@ -134,6 +134,8 @@ export interface SpellResult {
   heal?: { byLevel: Record<number, string> };
   damageBonus?: RollBreakdown;
   /** How it can be cast right now. */
+  /** Can be cast at just one creature (for War Caster). */
+  singleTarget?: boolean;
   cast: {
     slotLevels: number[];
     pact?: { level: number; remaining: number };
@@ -177,6 +179,8 @@ export interface ActionResult {
   spells?: { id: string; list: string }[];
   tempHp?: Amount;
   heal?: Amount;
+  /** Its healing or effect can go to another creature (Healing Hands): the player says whether it's on them. */
+  others?: boolean;
   /** One of the actions anyone can take (Dash, Dodge, Grapple): listed in their own section. */
   common?: boolean;
   check?: { skills: string[]; dc?: number };
@@ -334,7 +338,7 @@ export interface DerivedSheet {
   /** Attacks per Attack action: 2 with Extra Attack. */
   attacksPerAction: number;
   /** Rule permissions: two-weapon fighting with non-light weapons (Dual Wielder), ability modifier on off-hand damage (the style). */
-  rules: { twoWeaponNonLight: boolean; twoWeaponAbility: boolean; durable: boolean; heavyArmorMaster: boolean };
+  rules: { twoWeaponNonLight: boolean; twoWeaponAbility: boolean; durable: boolean; heavyArmorMaster: boolean; warCaster: boolean };
   /** Data problems found while deriving (missing choices, too many attuned items). */
   warnings: string[];
 }
@@ -861,7 +865,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
 
   // Rule permissions (Dual Wielder, Two-Weapon Fighting style).
   const allowed = (key: string) => modsFor([key]).some((a) => a.mod.op === "allow" && conditionState(a.mod.when) === "pass");
-  const rules = { twoWeaponNonLight: allowed("rule.twoWeapon.nonLight"), twoWeaponAbility: allowed("rule.twoWeapon.ability"), durable: allowed("rule.durable"), heavyArmorMaster: allowed("rule.heavyArmorMaster") && armorWorn?.def.armor?.category === "heavy" };
+  const rules = { twoWeaponNonLight: allowed("rule.twoWeapon.nonLight"), twoWeaponAbility: allowed("rule.twoWeapon.ability"), durable: allowed("rule.durable"), heavyArmorMaster: allowed("rule.heavyArmorMaster") && armorWorn?.def.armor?.category === "heavy", warCaster: sources.some((s) => s.id === "feat:war-caster") };
 
   // Attacks: every weapon carried (switching weapons needs no edit), plus attacks features grant.
   const attacks: WeaponAttack[] = [];
@@ -1198,6 +1202,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     };
     if (def.material) r.material = def.material;
     if (def.summary) r.summary = def.summary;
+    if (def.singleTarget) r.singleTarget = true;
     if (granted?.from && granted.from !== listLabel) r.fromFeature = granted.from;
     else if (!classLists.has(list) && sc) r.fromFeature = listLabel;
     const beams = BEAMS[def.id];
@@ -1314,6 +1319,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       }
       if (a.tempHp !== undefined) entry.tempHp = amountOf(a.tempHp, s);
       if (a.heal !== undefined) entry.heal = amountOf(a.heal, s);
+      if (a.others) entry.others = true;
       if (s.common) entry.common = true;
       for (const k of ["asAttack", "dash", "untilTurnStart", "endsConcentration", "infoOnly"] as const) if (a[k]) entry[k] = true;
       if (a.check) entry.check = a.check;

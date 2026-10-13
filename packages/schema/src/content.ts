@@ -359,6 +359,8 @@ export const SpellDef = z
       .optional(),
     heal: z.object({ atSlot: DiceTable }).strict().optional(),
     area: z.string().optional(),
+    /** Can be cast at just one creature (War Caster's opportunity-attack spell needs this and a 1-action casting time). */
+    singleTarget: z.boolean().optional(),
   })
   .strict();
 export type SpellDef = z.infer<typeof SpellDef>;

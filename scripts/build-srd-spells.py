@@ -30,6 +30,10 @@ def attack_of(s):
     return None
 
 
+# Spells that can target only one creature (reviewed by hand): War Caster's
+# opportunity-attack spell needs a 1-action spell that targets only the creature.
+SINGLE_TARGET = set("""acid-splash chill-touch eldritch-blast fire-bolt poison-spray ray-of-frost sacred-flame shocking-grasp vicious-mockery true-strike animal-friendship charm-person command guiding-bolt hideous-laughter inflict-wounds magic-missile acid-arrow blindness-deafness hold-person ray-of-enfeeblement scorching-ray enlarge-reduce suggestion bestow-curse dispel-magic banishment blight dominate-beast phantasmal-killer polymorph contagion dominate-person hold-monster modify-memory telekinesis disintegrate flesh-to-stone harm heal irresistible-dance finger-of-death plane-shift dominate-monster feeblemind maze power-word-stun power-word-kill""".split())
+
 # Casting times the source data shortens to its first option.
 CASTING_TIMES = {"plant-growth": "1 action or 8 hours"}
 
@@ -74,6 +78,8 @@ def convert(s):
             d["damage"] = out
     if s.get("heal_at_slot_level"):
         d["heal"] = {"atSlot": s["heal_at_slot_level"]}
+    if s["index"] in SINGLE_TARGET:
+        d["singleTarget"] = True
     if s.get("area_of_effect"):
         ae = s["area_of_effect"]
         d["area"] = f"{ae['size']}-foot {ae['type']}"

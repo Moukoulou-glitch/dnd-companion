@@ -1040,7 +1040,9 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
           notes.push(`${rolled} temporary HP.`);
         } else notes.push(`Temporary HP don't stack: keeping ${c.hp.temp}, the higher value.`);
       }
-      if (a.heal && rolled !== undefined) {
+      if (a.heal && rolled !== undefined && op.payload.onMe === false) {
+        notes.push(`${a.name}: ${rolled} hit points to the creature you touched (yours stay as they are).`);
+      } else if (a.heal && rolled !== undefined) {
         const before = c.hp.current;
         c.hp.current = Math.min(maxHp, before + rolled);
         if (before === 0 && c.hp.current > 0) c.deathSaves = { successes: 0, failures: 0 };
