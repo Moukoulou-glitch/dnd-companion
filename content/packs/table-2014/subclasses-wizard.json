@@ -1479,6 +1479,37 @@
         "pack": "table-2014",
         "book": "TCoE",
         "page": 75
+      },
+      "grant": {
+        "expandedSpells": {
+          "class": "wizard",
+          "spells": [
+            "spell:booming-blade",
+            "spell:green-flame-blade",
+            "spell:lightning-lure",
+            "spell:mind-sliver",
+            "spell:sword-burst",
+            "spell:tashas-caustic-brew",
+            "spell:augury",
+            "spell:enhance-ability",
+            "spell:tashas-mind-whip",
+            "spell:intellect-fortress",
+            "spell:speak-with-dead",
+            "spell:spirit-shroud",
+            "spell:summon-fey",
+            "spell:summon-shadowspawn",
+            "spell:summon-undead",
+            "spell:divination",
+            "spell:summon-aberration",
+            "spell:summon-construct",
+            "spell:summon-elemental",
+            "spell:summon-fiend",
+            "spell:tashas-otherworldly-guise",
+            "spell:tensers-transformation",
+            "spell:dream-of-the-blue-veil",
+            "spell:blade-of-disaster"
+          ]
+        }
       }
     }
   ]

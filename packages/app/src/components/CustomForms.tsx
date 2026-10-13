@@ -1,3 +1,4 @@
+import { ChangesEditor, changesToModifiers, emptyChange, modifiersToChanges, type ChangeDraft } from "./ChangesEditor";
 import { useState } from "react";
 import type { ContentRegistry } from "@dnd/engine";
 import { ABILITIES, ABILITY_NAMES, type Ability, type Character, type CustomAction, type CustomSpell, type OperationType } from "@dnd/schema";
@@ -302,6 +303,10 @@ export function CustomSpellForm({ c, act, lists, editing, done }: { c: Character
   const [confirmDelete, setConfirmDelete] = useState(false);
   const set = (p: Partial<CustomSpell>) => setSp({ ...sp, ...p });
   const [dmgType, setDmgType] = useState(editing?.damage?.type ?? "fire");
+  // Its effect on whoever it's on: rows the sheet applies, and the player's own words for the rest.
+  const [changes, setChanges] = useState<ChangeDraft[]>(() => (editing?.effect?.modifiers.length ? modifiersToChanges(editing.effect.modifiers) : []));
+  const [effText, setEffText] = useState(editing?.effect?.text ?? "");
+  const [untilRest, setUntilRest] = useState<"" | "short" | "long">(editing?.effect?.untilRest ?? "");
   const effect = sp.attack ? "attack" : sp.save ? "save" : sp.heal ? "heal" : "none";
   const setEffect = (e: string) => {
     const { attack: _a, save: _s, heal: _h, ...rest } = sp;
@@ -458,6 +463,27 @@ export function CustomSpellForm({ c, act, lists, editing, done }: { c: Character
           </div>
         </div>
       )}
+      <section className="form-group">
+        <h2 className="sub-head">Its effect on a creature (optional)</h2>
+        <p className="note">
+          What the sheet applies while the spell is on someone: AC, advantage or disadvantage, bonuses or penalties. Cast on yourself (“Put its effect on me”), it becomes a tag on you for the spell's duration{sp.concentration ? ", ended with your concentration" : ""}.
+        </p>
+        {changes.length > 0 ? <ChangesEditor value={changes} onChange={setChanges} /> : (
+          <button className="link" onClick={() => setChanges([emptyChange()])}>
+            + Add a change the sheet applies
+          </button>
+        )}
+        <Field label="Reminder in your words (shown, not applied)">
+          <textarea className="story-text" rows={2} value={effText} maxLength={2000} onChange={(e) => setEffText(e.target.value)} aria-label="Effect reminder" placeholder="e.g. The target can't take reactions" />
+        </Field>
+        <div className="segmented small" role="radiogroup" aria-label="Ends at a rest">
+          {([["", "Spell's duration"], ["short", "Until a short rest"], ["long", "Until a long rest"]] as const).map(([k, l]) => (
+            <button key={k} role="radio" aria-checked={untilRest === k} onClick={() => setUntilRest(k)}>
+              {l}
+            </button>
+          ))}
+        </div>
+      </section>
       <Field label="What it does">
         <textarea className="story-text" rows={6} value={sp.description} onChange={(e) => set({ description: e.target.value })} aria-label="Spell description" />
       </Field>
@@ -488,7 +514,10 @@ export function CustomSpellForm({ c, act, lists, editing, done }: { c: Character
           className="big primary"
           disabled={!sp.name.trim()}
           onClick={() => {
-            const clean = JSON.parse(JSON.stringify({ ...sp, name: sp.name.trim() })) as CustomSpell;
+            const mods = changesToModifiers(changes, sp.name.trim());
+            const effect = mods.length || effText.trim() ? { modifiers: mods, ...(effText.trim() ? { text: effText.trim() } : {}), ...(untilRest ? { untilRest } : {}) } : undefined;
+            const { effect: _old, ...rest } = sp;
+            const clean = JSON.parse(JSON.stringify({ ...rest, name: sp.name.trim(), ...(effect ? { effect } : {}) })) as CustomSpell;
             act("setCustomSpell", { spell: clean, list }, `${clean.name} saved.`);
             done();
           }}

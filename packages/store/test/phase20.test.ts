@@ -77,7 +77,7 @@ describe("Divine Soul", () => {
   it("the sorcerer list becomes the Divine Soul list with cleric spells, tagged", () => {
     const c = newCharacter({ id: "d", name: "D", race: "race:human", class: "class:sorcerer", abilities: { str: 8, dex: 14, con: 14, int: 10, wis: 12, cha: 16 } }, reg);
     c.classes[0] = { ...c.classes[0]!, level: 3, subclass: "subclass:divine-soul" };
-    expect(spellListOf(c, reg, "class:sorcerer")).toEqual({ classes: ["sorcerer", "cleric"], name: "Divine Soul spell list" });
+    expect(spellListOf(c, reg, "class:sorcerer")).toMatchObject({ classes: ["sorcerer", "cleric"], name: "Divine Soul spell list" });
     const opts = classSpellOptions(reg, "class:sorcerer", "known", 2, c);
     expect(opts.find((o) => o.value === "spell:spiritual-weapon")?.detail).toMatch(/Cleric/);
     expect(opts.find((o) => o.value === "spell:magic-missile")?.detail).toMatch(/Sorcerer/);

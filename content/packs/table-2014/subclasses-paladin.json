@@ -130,11 +130,22 @@
       "kind": "feature",
       "id": "feature:paladin-additional-paladin-spells",
       "name": "Additional Paladin Spells",
-      "summary": "Tasha's adds more spells to the paladin spell list (e.g. Ceremony, Warding Bond, Aura of Vitality, Spirit Shroud, Summon Celestial).",
+      "summary": "Tasha's adds spells to the paladin list (Prayer of Healing, Warding Bond, Spirit Shroud and Summon Celestial) for you to prepare.",
       "source": {
         "pack": "table-2014",
         "book": "TCoE",
         "page": 52
+      },
+      "grant": {
+        "expandedSpells": {
+          "class": "paladin",
+          "spells": [
+            "spell:prayer-of-healing",
+            "spell:warding-bond",
+            "spell:spirit-shroud",
+            "spell:summon-celestial"
+          ]
+        }
       }
     },
     {

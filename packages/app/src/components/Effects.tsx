@@ -1,3 +1,4 @@
+import { ChangesEditor, changeValid, changesToModifiers, emptyChange, type ChangeDraft } from "./ChangesEditor";
 import { RichText } from "./Conditions";
 import { Fragment, useMemo, useState } from "react";
 import type { ContentRegistry, EffectResult } from "@dnd/engine";
@@ -14,6 +15,7 @@ export function effectChipLabel(e: EffectResult, hideTime = false): string {
   if (hideTime) return s;
   if (e.rounds !== undefined) s += ` (${e.rounds})`;
   else if (e.minutes !== undefined) s += ` (${formatMinutes(e.minutes)})`;
+  else if (e.untilRest) s += e.untilRest === "short" ? " (until rest)" : " (until long rest)";
   return s;
 }
 
@@ -83,6 +85,7 @@ export function EffectPanel({ e, act, close, onRelease }: { e: EffectResult; act
           </button>
         </>
       )}
+      {e.untilRest && <p className="note">Ends at your next {e.untilRest === "short" ? "rest (short or long)" : "long rest"}.</p>}
       {e.summary && (
         <p>
           <RichText text={e.summary} />
@@ -227,7 +230,7 @@ export function EffectPanel({ e, act, close, onRelease }: { e: EffectResult; act
             </div>
           </div>
         )}
-        {e.minutes === undefined && !e.untilTurnStart && (
+        {e.minutes === undefined && !e.untilTurnStart && !e.untilRest && (
         <div className="row">
           <div className="row-main">
             <div className="row-title">Rounds left</div>
@@ -271,68 +274,61 @@ export function EffectPanel({ e, act, close, onRelease }: { e: EffectResult; act
   );
 }
 
-const TARGETS = [
-  { id: "attack", label: "Attack rolls", selector: "roll.attack.*" },
-  { id: "save", label: "Saving throws", selector: "roll.save.*" },
-  { id: "check", label: "Ability checks", selector: "roll.check.*" },
-  { id: "damage", label: "Damage", selector: "roll.damage.*" },
-  { id: "ac", label: "Armor Class", selector: "stat.ac" },
-  { id: "speed", label: "Speed", selector: "stat.speed.walk" },
-] as const;
+type Duration = "removed" | "rounds" | "minutes" | "hours" | "short" | "long";
 
-/** A quick effect for DM rulings and anything not in the pack: one target, one change. */
+/**
+ * A custom effect for DM rulings and anything not in the pack: one or more
+ * changes the sheet applies, how long it lasts (rounds, minutes, hours, until a
+ * short or long rest, or until removed), and the player's own description.
+ */
 function CustomBuilder({ act, close }: { act: Act; close: () => void }) {
   const [name, setName] = useState("");
-  const [target, setTarget] = useState<(typeof TARGETS)[number]["id"]>("attack");
-  const [kind, setKind] = useState<"bonus" | "advantage" | "disadvantage">("bonus");
-  const [value, setValue] = useState("");
-  const [rounds, setRounds] = useState("");
-  const t = TARGETS.find((x) => x.id === target)!;
-  const isStat = t.selector.startsWith("stat.");
-  const validValue = /^-?\d+$/.test(value) || (!isStat && /^-?\d*d\d+$/.test(value));
-  const ready = name.trim() && (kind !== "bonus" || validValue);
+  const [changes, setChanges] = useState<ChangeDraft[]>([emptyChange()]);
+  const [text, setText] = useState("");
+  const [duration, setDuration] = useState<Duration>("removed");
+  const [amount, setAmount] = useState("");
+  const mods = changesToModifiers(changes, name.trim() || "Custom");
+  const needsAmount = duration === "rounds" || duration === "minutes" || duration === "hours";
+  // Something to apply or something to say, and every row either complete or empty-valued.
+  const ready = !!name.trim() && (mods.length > 0 || !!text.trim()) && changes.every((d) => changeValid(d) || (d.kind === "bonus" && !d.value)) && (!needsAmount || Number(amount) > 0);
 
   const create = () => {
-    const mod: Modifier =
-      kind === "bonus"
-        ? { selector: t.selector, op: "add", value: /^-?\d+$/.test(value) ? Number(value) : value, mode: "auto" }
-        : { selector: t.selector, op: kind, mode: "auto" };
-    const payload: Record<string, unknown> = { instanceId: crypto.randomUUID(), effect: "custom", custom: { name: name.trim(), modifiers: [mod] } };
-    if (Number(rounds) > 0) payload.rounds = Number(rounds);
+    const payload: Record<string, unknown> = { instanceId: crypto.randomUUID(), effect: "custom", custom: { name: name.trim(), modifiers: mods, ...(text.trim() ? { text: text.trim() } : {}) } };
+    const n = Number(amount);
+    if (duration === "rounds") payload.rounds = n;
+    if (duration === "minutes") payload.minutes = n;
+    if (duration === "hours") payload.minutes = n * 60;
+    if (duration === "short" || duration === "long") payload.untilRest = duration;
     act("addEffect", payload, `${name.trim()} added.`);
     close();
   };
 
   return (
     <>
-      <input className="search" placeholder="Name, e.g. High ground" value={name} onChange={(e) => setName(e.target.value)} />
+      <input className="search" placeholder="Name, e.g. High ground" value={name} onChange={(e) => setName(e.target.value)} aria-label="Effect name" />
       <p className="sub-head">Changes</p>
-      <div className="choice-grid">
-        {TARGETS.map((x) => (
-          <button key={x.id} className="switch" aria-pressed={target === x.id} onClick={() => { setTarget(x.id); if (x.id === "ac" || x.id === "speed" || x.id === "damage") setKind("bonus"); }}>
-            {x.label}
+      <ChangesEditor value={changes} onChange={setChanges} />
+      <p className="sub-head">How long</p>
+      <div className="types wrap" role="radiogroup" aria-label="How long">
+        {([
+          ["removed", "Until removed"],
+          ["rounds", "Rounds"],
+          ["minutes", "Minutes"],
+          ["hours", "Hours"],
+          ["short", "Until a short rest"],
+          ["long", "Until a long rest"],
+        ] as const).map(([k, l]) => (
+          <button key={k} className="switch" role="radio" aria-checked={duration === k} aria-pressed={duration === k} onClick={() => setDuration(k)}>
+            {l}
           </button>
         ))}
       </div>
-      {!isStat && t.id !== "damage" && (
-        <div className="segmented" role="radiogroup" aria-label="Kind" style={{ marginTop: 10 }}>
-          {(["bonus", "advantage", "disadvantage"] as const).map((k) => (
-            <button key={k} role="radio" aria-checked={kind === k} onClick={() => setKind(k)}>
-              {k === "bonus" ? "Bonus" : k === "advantage" ? "Adv" : "Disadv"}
-            </button>
-          ))}
-        </div>
+      {needsAmount && (
+        <input className="search" inputMode="numeric" placeholder={`How many ${duration}`} value={amount} onChange={(e) => setAmount(e.target.value.replace(/\D/g, ""))} aria-label={`How many ${duration}`} />
       )}
-      {kind === "bonus" && (
-        <input
-          className="search"
-          style={{ marginTop: 10 }}
-          placeholder={isStat ? "Amount, e.g. 2 or -10" : "Amount, e.g. 2, -1 or 1d4"}
-          value={value}
-          onChange={(e) => setValue(e.target.value.replace(/\s/g, "").toLowerCase())}
-        />
-      )}
-      <input className="search" inputMode="numeric" placeholder="Rounds (leave empty: until removed)" value={rounds} onChange={(e) => setRounds(e.target.value.replace(/\D/g, ""))} />
+      <p className="note">“Until a short rest” ends at any rest; “until a long rest” only at a long one.</p>
+      <p className="sub-head">Description (optional)</p>
+      <textarea className="story-text" rows={3} maxLength={2000} value={text} onChange={(e) => setText(e.target.value)} placeholder="In your words: shown on its card, not applied by the sheet" aria-label="Description" />
       <button className="big primary wide" disabled={!ready} onClick={create}>
         Add effect
       </button>

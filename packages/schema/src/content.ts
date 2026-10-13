@@ -277,6 +277,8 @@ export const EffectDef = z
     rounds: z.number().int().min(1).optional(),
     /** Longer default durations in minutes (Mage Armor: 480). Rests and "time passes" count them down. */
     minutes: z.number().int().min(1).optional(),
+    /** Lasts until the next short rest (any rest) or long rest. */
+    untilRest: z.enum(["short", "long"]).optional(),
     /**
      * Something chosen when it's applied (Hex: the ability). Selectors may use
      * "{choice}", e.g. "roll.check.{choice}".
@@ -347,6 +349,8 @@ export const SpellDef = z
     ritual: z.boolean(),
     /** Class lists the spell is on, e.g. ["wizard", "sorcerer"]. */
     classes: z.array(z.string()).default([]),
+    /** Classes it joins only with Tasha's optional expanded list on (a book's "Optional/Variant Classes"). */
+    optionalClasses: z.array(z.string()).optional(),
     /** The spell's text, one entry per paragraph. */
     text: z.array(z.string()).default([]),
     higherLevels: z.array(z.string()).default([]),

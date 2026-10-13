@@ -1197,6 +1197,33 @@
         "pack": "table-2014",
         "book": "TCoE",
         "page": 70
+      },
+      "grant": {
+        "expandedSpells": {
+          "class": "warlock",
+          "spells": [
+            "spell:booming-blade",
+            "spell:green-flame-blade",
+            "spell:lightning-lure",
+            "spell:mind-sliver",
+            "spell:sword-burst",
+            "spell:intellect-fortress",
+            "spell:spirit-shroud",
+            "spell:summon-fey",
+            "spell:summon-shadowspawn",
+            "spell:summon-undead",
+            "spell:summon-aberration",
+            "spell:mislead",
+            "spell:planar-binding",
+            "spell:teleportation-circle",
+            "spell:summon-fiend",
+            "spell:tashas-otherworldly-guise",
+            "spell:dream-of-the-blue-veil",
+            "spell:blade-of-disaster",
+            "spell:gate",
+            "spell:weird"
+          ]
+        }
       }
     },
     {

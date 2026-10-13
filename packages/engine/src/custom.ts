@@ -1,4 +1,4 @@
-import { ABILITY_NAMES, type Ability, type Character, type CustomAction, type CustomSpell, type Definition, type FeatureDef, type Modifier, type SpellDef } from "@dnd/schema";
+import { ABILITY_NAMES, type Ability, type Character, type CustomAction, type CustomSpell, type Definition, type EffectDef, type FeatureDef, type Modifier, type SpellDef } from "@dnd/schema";
 import { ContentRegistry } from "./registry.js";
 import type { DcSpec } from "./dcs.js";
 
@@ -153,7 +153,37 @@ export function customSpellDef(s: CustomSpell): SpellDef {
 
 /** Everything the character wrote, as definitions. */
 export function customDefinitions(c: Character, reg: ContentRegistry): Definition[] {
-  return [...(c.customActions ?? []).map((a) => customActionFeature(a, c, reg)), ...(c.customSpells ?? []).map(customSpellDef)];
+  return [
+    ...(c.customActions ?? []).map((a) => customActionFeature(a, c, reg)),
+    ...(c.customSpells ?? []).map(customSpellDef),
+    ...(c.customSpells ?? []).flatMap((s) => (customSpellEffect(s) ? [customSpellEffect(s)!] : [])),
+  ];
+}
+
+export const customSpellEffectId = (id: string) => `effect:custom-${id}`;
+
+/**
+ * A custom spell's effect, as an ordinary effect (its tag when cast on yourself):
+ * the modifiers the sheet applies, and the player's text as its summary, which
+ * the app shows but doesn't apply. Its time comes from the spell's duration.
+ */
+export function customSpellEffect(s: CustomSpell): EffectDef | undefined {
+  const e = s.effect;
+  if (!e || (!e.modifiers.length && !e.text?.trim())) return undefined;
+  const def: EffectDef = {
+    kind: "effect",
+    id: customSpellEffectId(s.id),
+    name: s.name,
+    category: "spell",
+    source: { pack: "custom", book: s.source || "Your own" },
+    modifiers: e.modifiers.map((m) => ({ ...m, label: m.label ?? s.name })),
+    reminders: [],
+    includes: [],
+    concentration: s.concentration,
+  } as EffectDef;
+  if (e.text?.trim()) def.summary = e.text.trim();
+  if (e.untilRest) def.untilRest = e.untilRest;
+  return def;
 }
 
 const cache = new WeakMap<ContentRegistry, { key: string; reg: ContentRegistry }>();

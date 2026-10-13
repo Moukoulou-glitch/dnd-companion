@@ -391,6 +391,12 @@ export const Grant = z
     spellcasting: SpellcastingDef.optional(),
     /** Another class's spells join a class's list (Divine Soul: cleric spells as sorcerer spells), and the list's new name. */
     spellListAdds: z.object({ list: z.string(), classes: z.array(z.string()).min(1), name: z.string() }).strict().optional(),
+    /**
+     * Tasha's expanded spell list for a class ("Additional Druid Spells"): these spells join that class's
+     * list while the feature is on, and so does any spell whose book entry names the class under
+     * "Optional/Variant Classes".
+     */
+    expandedSpells: z.object({ class: z.string(), spells: z.array(DefId).default([]) }).strict().optional(),
     spells: z.array(GrantedSpell).optional(),
     senses: z.record(z.string(), z.number()).optional(),
     companions: z.array(CompanionDef).optional(),

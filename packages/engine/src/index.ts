@@ -13,3 +13,4 @@ export { attackVariants, damageAfterDefenses, defenseCovers, type DamageSource, 
 export * from "./dcs.js";
 export * from "./tags.js";
 export * from "./custom.js";
+export * from "./expanded.js";

@@ -49,6 +49,8 @@ export interface ClassList {
   /** Class lists it draws on (Divine Soul: sorcerer and cleric) and its name. */
   classes: string[];
   listName: string;
+  /** Spells joining the list from Tasha's expanded list (Additional Druid Spells), while that's on. */
+  extra?: string[];
 }
 
 type ListRow = { sp: SpellResult; info?: undefined } | { sp?: undefined; info: { id: string; name: string; level: number; school: string; castingTime: string; ritual: boolean; concentration: boolean } };
@@ -93,7 +95,7 @@ export function SpellsTab({
     if (listOf.kind === "prepared") return [...mine.values()].map((sp) => ({ sp }));
     return reg
       .list("spell")
-      .filter((d) => d.classes.some((x) => listOf.classes.includes(x)) && d.level <= listOf.maxLevel)
+      .filter((d) => (d.classes.some((x) => listOf.classes.includes(x)) || !!listOf.extra?.includes(d.id)) && d.level <= listOf.maxLevel)
       .map((d) => {
         const sp = mine.get(d.id);
         return sp ? { sp } : { info: { id: d.id, name: d.name, level: d.level, school: d.school, castingTime: d.castingTime, ritual: d.ritual, concentration: d.concentration } };
@@ -188,6 +190,7 @@ export function SpellsTab({
                     </div>
                     <span className="row-tags">
                       {multi && classTags(r.sp.id)}
+                      {listOf?.extra?.includes(r.sp.id) && !(reg.find(r.sp.id, "spell")?.classes ?? []).some((x) => listOf.classes.includes(x)) && <span className="tag">Tasha's</span>}
                       {sheet.concentration?.spell === r.sp.id && <span className="tag conc">concentrating</span>}
                       {r.sp.ready === "prepared" && <span className="tag adv">prepared</span>}
                       {r.sp.fromFeature && <span className="tag">{r.sp.fromFeature}</span>}
@@ -209,6 +212,7 @@ export function SpellsTab({
                     </div>
                     <span className="row-tags">
                       {multi && classTags(r.info!.id)}
+                      {listOf?.extra?.includes(r.info!.id) && <span className="tag">Tasha's</span>}
                       <span className="tag">{missingTag}</span>
                     </span>
                   </button>

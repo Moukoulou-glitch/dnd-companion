@@ -107,6 +107,28 @@
         "pack": "table-2014",
         "book": "TCoE",
         "page": 27
+      },
+      "grant": {
+        "expandedSpells": {
+          "class": "bard",
+          "spells": [
+            "spell:color-spray",
+            "spell:command",
+            "spell:aid",
+            "spell:enlarge-reduce",
+            "spell:mirror-image",
+            "spell:intellect-fortress",
+            "spell:mass-healing-word",
+            "spell:slow",
+            "spell:phantasmal-killer",
+            "spell:telepathic-bond",
+            "spell:rarys-telepathic-bond",
+            "spell:heroes-feast",
+            "spell:prismatic-spray",
+            "spell:antipathy-sympathy",
+            "spell:prismatic-wall"
+          ]
+        }
       }
     },
     {

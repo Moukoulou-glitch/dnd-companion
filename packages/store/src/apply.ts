@@ -834,6 +834,12 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         if (!adj.bonus && adj.setTo === undefined && !adj.permanent) delete c.abilityAdjust[ab as keyof typeof c.abilityAdjust];
       }
       c.healerUsed = [];
+      // Effects that last until a rest: "short" ends at any rest, "long" at a long one.
+      const ending = c.effects.filter((e) => e.untilRest === "short" || (e.untilRest === "long" && kind === "long"));
+      if (ending.length) {
+        notes.push(`Ended with the rest: ${ending.map((e) => e.custom?.name ?? reg.find(e.effect, "effect")?.name ?? e.effect).join(", ")}.`);
+        removeEffects(ending);
+      }
       // Extra spells (beyond the rules): the "since short rest" count restarts on any rest, "since long rest" on a long one.
       for (const [k, n] of Object.entries(c.extraCasts ?? {})) {
         if (kind === "long") delete c.extraCasts[k];
@@ -1213,6 +1219,7 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         if (timer?.rounds) entry.rounds = timer.rounds;
         else if (timer?.minutes) entry.minutes = timer.minutes;
         if (def.upcast && level > 0) entry.castLevel = level;
+        if (def.untilRest) entry.untilRest = def.untilRest;
         combineSame(entry, def.name);
         gainHp(def, entry.castLevel);
         if (sp.concentration) entry.concentration = true;
@@ -1283,6 +1290,8 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       if (from) entry.from = from;
       if (op.payload.choice) entry.choice = op.payload.choice;
       if (op.payload.castLevel) entry.castLevel = op.payload.castLevel;
+      const untilRest = op.payload.untilRest ?? def?.untilRest;
+      if (untilRest) entry.untilRest = untilRest;
       if (def && def.category !== "condition") combineSame(entry, def.name);
       c.effects.push(entry);
       if (def?.choice && !entry.choice) notes.push(`${def.name}: choose the ${def.choice.label.toLowerCase()} on its card.`);

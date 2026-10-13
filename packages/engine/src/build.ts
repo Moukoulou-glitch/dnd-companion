@@ -1,3 +1,4 @@
+import { expandedSpellLists, onClassList } from "./expanded.js";
 import { ABILITIES, ABILITY_NAMES, Character, SKILL_NAMES, SKILLS, type Ability, type ChoiceDef, type ClassDef, type ItemDef, type Skill } from "@dnd/schema";
 import type { ContentRegistry } from "./registry.js";
 import { collectSources } from "./sources.js";
@@ -311,14 +312,14 @@ export function choiceOptions(ch: ChoiceDef, reg: ContentRegistry, slotMax?: num
 }
 
 /** Spells from these class lists, between two levels, by level then name. */
-export function spellOptions(reg: ContentRegistry, classes: string[] | undefined, minLevel: number, maxLevel: number, schools?: string[], ritual?: boolean): ChoiceOption[] {
+export function spellOptions(reg: ContentRegistry, classes: string[] | undefined, minLevel: number, maxLevel: number, schools?: string[], ritual?: boolean, expanded: Map<string, Set<string>> = new Map()): ChoiceOption[] {
   return reg
     .list("spell")
     .filter(
       (s) =>
         s.level >= minLevel &&
         s.level <= maxLevel &&
-        (!classes || s.classes.some((x) => classes.includes(x))) &&
+        (!classes || onClassList(s, classes, expanded)) &&
         (!schools || schools.includes(s.school.toLowerCase())) &&
         (!ritual || s.ritual),
     )
@@ -330,21 +331,24 @@ export function spellOptions(reg: ContentRegistry, classes: string[] | undefined
  * The classes whose spells make up a class's list for this character, and the
  * list's name: a Divine Soul sorcerer's list is sorcerer and cleric spells.
  */
-export function spellListOf(c: Character | undefined, reg: ContentRegistry, classId: string): { classes: string[]; name: string } {
+export function spellListOf(c: Character | undefined, reg: ContentRegistry, classId: string): { classes: string[]; name: string; extra: string[] } {
   const own = classId.replace(/^class:/, "");
   const name = `${reg.find(classId, "class")?.name ?? own} spell list`;
-  if (!c) return { classes: [own], name };
+  if (!c) return { classes: [own], name, extra: [] };
+  // Tasha's expanded list for this class, when its feature is on.
+  const extra = [...(expandedSpellLists(c, reg).get(own) ?? [])];
   for (const s of collectSources(c, reg)) {
     const add = s.grant.spellListAdds;
-    if (add && add.list === own) return { classes: [own, ...add.classes.filter((x) => x !== own)], name: add.name };
+    if (add && add.list === own) return { classes: [own, ...add.classes.filter((x) => x !== own)], name: add.name, extra };
   }
-  return { classes: [own], name };
+  return { classes: [own], name, extra };
 }
 
 /** The spells a class can learn now: its list, up to the highest level it can cast. With several classes' spells, each says whose it is. */
 export function classSpellOptions(reg: ContentRegistry, classId: string, kind: "cantrips" | "known" | "spellbook", maxLevel: number, c?: Character): ChoiceOption[] {
   const { classes } = spellListOf(c, reg, classId);
-  const opts = kind === "cantrips" ? spellOptions(reg, classes, 0, 0) : spellOptions(reg, classes, 1, Math.max(1, maxLevel));
+  const expanded = expandedSpellLists(c, reg);
+  const opts = kind === "cantrips" ? spellOptions(reg, classes, 0, 0, undefined, undefined, expanded) : spellOptions(reg, classes, 1, Math.max(1, maxLevel), undefined, undefined, expanded);
   if (classes.length < 2) return opts;
   const cap = (x: string) => x.replace(/^./, (ch) => ch.toUpperCase());
   return opts.map((o) => {

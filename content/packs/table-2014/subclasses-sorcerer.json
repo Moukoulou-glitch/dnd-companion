@@ -81,6 +81,35 @@
         "pack": "table-2014",
         "book": "TCoE",
         "page": 65
+      },
+      "grant": {
+        "expandedSpells": {
+          "class": "sorcerer",
+          "spells": [
+            "spell:booming-blade",
+            "spell:green-flame-blade",
+            "spell:lightning-lure",
+            "spell:mind-sliver",
+            "spell:sword-burst",
+            "spell:grease",
+            "spell:tashas-caustic-brew",
+            "spell:flame-blade",
+            "spell:mind-spike",
+            "spell:tashas-mind-whip",
+            "spell:intellect-fortress",
+            "spell:vampiric-touch",
+            "spell:fire-shield",
+            "spell:arcane-hand",
+            "spell:bigbys-hand",
+            "spell:flesh-to-stone",
+            "spell:freezing-sphere",
+            "spell:otilukes-freezing-sphere",
+            "spell:tashas-otherworldly-guise",
+            "spell:dream-of-the-blue-veil",
+            "spell:demiplane",
+            "spell:blade-of-disaster"
+          ]
+        }
       }
     },
     {

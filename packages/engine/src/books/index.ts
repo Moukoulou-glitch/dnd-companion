@@ -211,11 +211,20 @@ export function bookPack(files: BookFile[], base: ContentRegistry): { pack: Cont
       }
       continue;
     }
+    // An SRD spell keeps its own text; only the book's optional classes are added to it.
+    if (existing.source.pack === "srd-5.1" && s.optionalClasses?.length && !out.has(s.id)) {
+      const copy = structuredClone(existing) as typeof s;
+      copy.optionalClasses = [...new Set([...(copy.optionalClasses ?? []), ...s.optionalClasses])];
+      out.set(copy.id, copy);
+      continue;
+    }
     attach(existing, s.text, (d) => {
       const sp = d as typeof s;
       sp.higherLevels = s.higherLevels;
       if (!sp.classes.length) sp.classes = s.classes;
       if (!sp.material && s.material) sp.material = s.material;
+      // Revivify's "Optional/Variant Classes: Druid, Ranger": joins those lists with Tasha's expanded list on.
+      if (s.optionalClasses?.length) sp.optionalClasses = [...new Set([...(sp.optionalClasses ?? []), ...s.optionalClasses])];
       if (!sp.attack && !sp.save && !sp.damage && !sp.heal) Object.assign(sp, { attack: s.attack, save: s.save, damage: s.damage, heal: s.heal });
       for (const k of ["attack", "save", "damage", "heal"] as const) if (sp[k] === undefined) delete sp[k];
     });

@@ -68,3 +68,8 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 - War Caster knows which spells can target only one creature for the SRD spells and the table's placeholders; a spell that exists only in your book file isn't offered (cast it from the Spells tab).
 - Long-press was checked in a desktop browser with mouse and simulated touch; not yet on a real iPhone or Android phone.
 - Healing Hands on someone else: the app spends the use and says how much; the other character's HP is changed on their own sheet.
+
+## Expanded lists and custom effects
+- Tasha's expanded lists are names-only data in the table pack; a spell the app doesn't have yet (not SRD, not in your book files) can't appear until a book file adds it. The table's ranger has no separate “Additional Ranger Spells” switch.
+- A custom spell's effect is applied when it's on you (cast with “Put its effect on me”); on another creature it's a reminder for them.
+- The custom effect's description and a custom spell's reminder are shown, not applied.

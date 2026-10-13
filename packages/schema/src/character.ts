@@ -63,9 +63,12 @@ export const EffectInstance = z
     /** Pack effect id, or "custom" with `custom` filled in. */
     effect: DefId,
     custom: z
-      .object({ name: z.string(), modifiers: z.array(Modifier) })
+      /** text: the player's own description, shown on its card (not applied by the rules). */
+      .object({ name: z.string(), modifiers: z.array(Modifier), text: z.string().max(2000).optional() })
       .strict()
       .optional(),
+    /** Ends at the next short rest (or any rest) or at the next long rest. */
+    untilRest: z.enum(["short", "long"]).optional(),
     /** Rounds left; absent = until removed. */
     rounds: z.number().int().min(0).optional(),
     /** Minutes left, for long effects (Mage Armor: 480). */
@@ -234,6 +237,18 @@ export const CustomSpell = z
     heal: z.object({ dice: z.string().max(40), addMod: z.boolean().default(false), perSlot: z.string().max(20).optional() }).strict().optional(),
     area: z.string().max(60).optional(),
     source: z.string().max(80).default(""),
+    /**
+     * What it does to whoever it's on, applied by the sheet (AC, advantage, bonuses...), and a
+     * reminder in the player's words for what the app doesn't apply. Cast on yourself, it becomes a tag.
+     */
+    effect: z
+      .object({
+        modifiers: z.array(Modifier).default([]),
+        text: z.string().max(2000).optional(),
+        untilRest: z.enum(["short", "long"]).optional(),
+      })
+      .strict()
+      .optional(),
   })
   .strict();
 export type CustomSpell = z.infer<typeof CustomSpell>;

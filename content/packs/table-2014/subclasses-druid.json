@@ -1550,6 +1550,31 @@
         "pack": "table-2014",
         "book": "TCoE",
         "page": 41
+      },
+      "grant": {
+        "expandedSpells": {
+          "class": "druid",
+          "spells": [
+            "spell:infestation",
+            "spell:primal-savagery",
+            "spell:protection-from-evil-and-good",
+            "spell:augury",
+            "spell:continual-flame",
+            "spell:enlarge-reduce",
+            "spell:summon-beast",
+            "spell:aura-of-vitality",
+            "spell:elemental-weapon",
+            "spell:revivify",
+            "spell:summon-fey",
+            "spell:divination",
+            "spell:fire-shield",
+            "spell:summon-elemental",
+            "spell:cone-of-cold",
+            "spell:flesh-to-stone",
+            "spell:symbol",
+            "spell:incendiary-cloud"
+          ]
+        }
       }
     },
     {

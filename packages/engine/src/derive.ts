@@ -1,3 +1,4 @@
+import { expandedFromSources, onClassList } from "./expanded.js";
 import { maxSpellLevel } from "./build.js";
 import {
   ABILITIES,
@@ -246,6 +247,8 @@ export interface EffectResult {
   rounds?: number;
   /** Minutes left on a long effect (Mage Armor). */
   minutes?: number;
+  /** Ends at the next short rest (any rest) or long rest. */
+  untilRest?: "short" | "long";
   level?: number;
   maxLevel?: number;
   concentration: boolean;
@@ -1058,6 +1061,8 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     spellDefs.set(`${inst.list}|${inst.spell}`, { def: reg.has(inst.spell) ? reg.get(inst.spell, "spell") : undefined, list: inst.list, prepared: inst.prepared });
     if (!reg.has(inst.spell)) warnings.push(`Spell "${inst.spell}" isn't in any content pack.`);
   }
+  // Tasha's expanded lists that are on (Additional Druid Spells): their spells count as on the class list.
+  const expanded = expandedFromSources(sources, reg);
   // Prepared casters other than wizards (cleric, druid, paladin) prepare from their whole class list.
   for (const cl of c.classes) {
     const def = reg.find(cl.class, "class");
@@ -1066,7 +1071,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     const max = maxSpellLevel(def, cl.level);
     const listName = def.id.replace(/^class:/, "");
     for (const sp of reg.list("spell")) {
-      if (sp.level < 1 || sp.level > max || !sp.classes.includes(listName)) continue;
+      if (sp.level < 1 || sp.level > max || !onClassList(sp, [listName], expanded)) continue;
       const key = `${sc.id}|${sp.id}`;
       if (!spellDefs.has(key)) spellDefs.set(key, { def: sp, list: sc.id, prepared: false });
     }
@@ -1253,7 +1258,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       const [dc, attack] = SCROLL_DC[granted.scroll.level] ?? [13, 5];
       const myLists = c.classes.flatMap((cl) => {
         const d = reg.find(cl.class, "class");
-        return d?.spellcasting && def.classes.includes(d.id.replace(/^class:/, "")) ? [d] : [];
+        return d?.spellcasting && onClassList(def, [d.id.replace(/^class:/, "")], expanded) ? [d] : [];
       });
       // Above what you can cast: a check with your spellcasting ability, DC 10 + the spell's level.
       const highest = Math.max(0, ...slotsTotal.map((n, i) => (n > 0 ? i + 1 : 0)), slots.pact?.level ?? 0);
@@ -1378,6 +1383,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     const def = e.effect === "custom" ? undefined : reg.find(reg.effectId(e.effect), "effect");
     if (!def) {
       r = { ...base, id: e.effect, name: e.custom?.name ?? e.effect, category: "other" };
+      if (e.custom?.text) r.summary = e.custom.text;
       if (!e.custom) warnings.push(`Effect "${e.effect}" isn't in the content pack.`);
     } else {
       const reminders = [...def.reminders];
@@ -1392,6 +1398,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     if (e.rounds !== undefined) r.rounds = e.rounds;
     if (e.minutes !== undefined) r.minutes = e.minutes;
     if (e.from) r.from = e.from;
+    if (e.untilRest) r.untilRest = e.untilRest;
     if (def?.choice) {
       r.choice = { label: def.choice.label, options: def.choice.options };
       if (e.choice) r.choice.value = e.choice;

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
-import { buildItems, customSpellId, castingEconomy, creatureSpellRoll, formatBonus, summonBlock, materialNeed, maxSpellLevel, newCharacter, spellListOf, signed, turnWarnings, type TurnIntent, type RollBreakdown } from "@dnd/engine";
+import { buildItems, customSpellId, withCustom, castingEconomy, creatureSpellRoll, formatBonus, summonBlock, materialNeed, maxSpellLevel, newCharacter, spellListOf, signed, turnWarnings, type TurnIntent, type RollBreakdown } from "@dnd/engine";
 import { ABILITY_NAMES, SKILL_NAMES, type Character, type Skill } from "@dnd/schema";
 import { roll as rollDice, type ComposerBase } from "@dnd/dice";
 import { ShapePanel, TextList, TransformPanel } from "./components/Shapes";
@@ -179,6 +179,8 @@ export function App() {
     return () => clearTimeout(t);
   }, [s.toast, s.setToast]);
 
+  /** The content with this character's own spells and their effects (a custom spell's tag). */
+  const effReg = () => (live.current.character ? withCustom(registry, live.current.character) : registry);
   /** Set while a scroll's check has just passed, so casting goes on without asking again. */
   const scrollChecked = useRef(false);
   if (!s.ready) return null;
@@ -1680,7 +1682,7 @@ export function App() {
     if (!def || !sc || sc.progression === "none" || cl.level < (def.spellcastingFromLevel ?? 1)) return [];
     const kind: ClassList["kind"] = def.id === "class:wizard" ? "wizard" : def.spellPreparation === "prepared" ? "prepared" : "known";
     const list = spellListOf(c, registry, def.id);
-    return [{ id: sc.id, className: def.name, kind, maxLevel: maxSpellLevel(def, cl.level), classes: list.classes, listName: list.name }];
+    return [{ id: sc.id, className: def.name, kind, maxLevel: maxSpellLevel(def, cl.level), classes: list.classes, listName: list.name, extra: list.extra }];
   });
 
   /** A spell the character doesn't have: just its details. */
@@ -1937,7 +1939,7 @@ export function App() {
    */
   const castFlow = (sp: SpellResult, level: number, using: "slot" | "pact" | "free" | "ritual" | "none" | "extra" | "scroll", selfEffect: boolean, readying = false, castingTime?: string) => {
     // Its effect asks for something first (Hex: which ability).
-    const eff = selfEffect ? registry.find(sp.id.replace(/^spell:/, "effect:"), "effect") : undefined;
+    const eff = selfEffect ? effReg().find(sp.id.replace(/^spell:/, "effect:"), "effect") : undefined;
     // A scroll needs no material components.
     const go = (choice?: string) =>
       using === "scroll" ? castFlowAfterComponent(sp, level, using, selfEffect, readying, false, choice, castingTime) : withComponent(sp, (consume) => castFlowAfterComponent(sp, level, using, selfEffect, readying, consume, choice, castingTime));
@@ -2057,7 +2059,7 @@ export function App() {
               );
               flashForSpell(sp.id, level);
               // Polymorph or True Polymorph on yourself: which creature?
-              const eff = selfEffect ? registry.find(sp.id.replace(/^spell:/, "effect:"), "effect") : undefined;
+              const eff = selfEffect ? effReg().find(sp.id.replace(/^spell:/, "effect:"), "effect") : undefined;
               const inst = eff?.transform ? [...(live.current.character?.effects ?? [])].reverse().find((e) => e.effect === eff.id) : undefined;
               if (eff?.transform && inst) {
                 transformed = true;
@@ -2090,7 +2092,7 @@ export function App() {
 
   /** Spells cast on yourself put their effect on you unless you say otherwise. */
   const selfByDefault = (sp: SpellResult) => {
-    const eff = registry.find(sp.id.replace(/^spell:/, "effect:"), "effect");
+    const eff = effReg().find(sp.id.replace(/^spell:/, "effect:"), "effect");
     // Cast on yourself or what you touch (Shillelagh); the caster's side of Hex and Hunter's Mark is always tracked.
     return !!eff && (!!eff.selfOnly || /^(self|touch)/i.test(sp.range));
   };
@@ -2108,10 +2110,10 @@ export function App() {
         <SpellPanel
           sp={sp}
           sheet={live.current.sheet!}
-          hasSelfEffect={registry.has(sp.id.replace(/^spell:/, "effect:"))}
+          hasSelfEffect={effReg().has(sp.id.replace(/^spell:/, "effect:"))}
           selfDefault={selfByDefault(sp)}
-          casterSide={!!registry.find(sp.id.replace(/^spell:/, "effect:"), "effect")?.selfOnly}
-          casterDamage={!!registry.find(sp.id.replace(/^spell:/, "effect:"), "effect")?.modifiers.some((m) => m.selector.startsWith("roll.damage"))}
+          casterSide={!!effReg().find(sp.id.replace(/^spell:/, "effect:"), "effect")?.selfOnly}
+          casterDamage={!!effReg().find(sp.id.replace(/^spell:/, "effect:"), "effect")?.modifiers.some((m) => m.selector.startsWith("roll.damage"))}
           initialCast={castAt}
           readying={readying}
           onCast={(level, using, selfEffect, castingTime) => castFlow(sp, level, using, selfEffect, readying, asReaction ? WAR_CASTER_TIME : castingTime)}

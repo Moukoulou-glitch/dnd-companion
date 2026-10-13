@@ -4128,6 +4128,21 @@
         "pack": "table-2014",
         "book": "TCoE",
         "page": 30
+      },
+      "grant": {
+        "expandedSpells": {
+          "class": "cleric",
+          "spells": [
+            "spell:aura-of-vitality",
+            "spell:spirit-shroud",
+            "spell:aura-of-life",
+            "spell:aura-of-purity",
+            "spell:summon-celestial",
+            "spell:sunbeam",
+            "spell:sunburst",
+            "spell:power-word-heal"
+          ]
+        }
       }
     },
     {

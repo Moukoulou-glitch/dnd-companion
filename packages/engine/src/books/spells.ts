@@ -130,9 +130,19 @@ export function parseSpells(text: string, pack: string, excluded: string[] = [])
     const textOut: string[] = [];
     const higher: string[] = [];
     let classes: string[] = [];
+    let optionalClasses: string[] = [];
     for (const raw of e.lines.slice(start)) {
       const line = raw.trim();
       if (!line || /^(-{3,}|_{3,})$/.test(line)) continue;
+      // "**Optional/Variant Classes:** Druid, Ranger": the class gets it with Tasha's expanded list on.
+      const opt = /^\*\*Optional\/Variant Classes:?\*\*:?\s*(.*)$/i.exec(line);
+      if (opt) {
+        optionalClasses = clean(opt[1]!)
+          .split(",")
+          .map((c) => c.trim().toLowerCase())
+          .filter((c) => OFFICIAL_CLASSES.includes(c) && c !== "artificer");
+        continue;
+      }
       if (line.startsWith("**Classes:**")) {
         classes = clean(line.slice(12))
           .split(",")
@@ -164,6 +174,7 @@ export function parseSpells(text: string, pack: string, excluded: string[] = [])
       ...spellMechanics(level, textOut, higher),
     };
     if (material) def.material = material;
+    if (optionalClasses.length) def.optionalClasses = optionalClasses;
     out.push(def);
   }
   return out;
