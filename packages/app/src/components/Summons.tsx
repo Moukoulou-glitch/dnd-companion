@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { hpTier } from "../hp";
 import { creatureBlock, creatureCasting, summonBlock, creatureSpells, formatBonus, signed, summonOptions, type ContentRegistry, type CreatureSpellGroup, type CreatureSpells, type RollBreakdown, type WeaponAttack } from "@dnd/engine";
 import { ABILITIES, ABILITY_NAMES, SKILL_NAMES, type Character, type CreatureDef, type OperationType, type Skill, type SpellDef } from "@dnd/schema";
 import { RichText } from "./Conditions";
@@ -175,7 +176,7 @@ export function SummonGroupPanel({
                   {m.concentrating ? ` · concentrating on ${m.concentrating}` : ""}
                 </div>
               </button>
-              <button className={`chip${m.hp === 0 ? " danger-text" : ""}`} onClick={() => openHp(m.id)}>
+              <button className={`chip hp-frame tier-${hpTier(m.hp, summonBlock(reg, m)?.hp.max ?? d?.hp ?? 0)}${m.hp === 0 ? " danger-text" : ""}`} onClick={() => openHp(m.id)}>
                 {m.hp}/{summonBlock(reg, m)?.hp.max ?? d?.hp ?? "?"} HP
               </button>
               {!shared && (
@@ -472,7 +473,7 @@ export function SummonMemberPanel({
       </button>
       <h2 className="sub-head">{name}</h2>
       <div className="stat-row">
-        <button className={`stat-box${m.hp === 0 ? " danger-text" : ""}`} onClick={openHp}>
+        <button className={`stat-box hp-frame tier-${hpTier(m.hp, b?.hp.max ?? 0)}${m.hp === 0 ? " danger-text" : ""}`} onClick={openHp}>
           <b>
             {m.hp}
             <small>/{b?.hp.max ?? "?"}</small>

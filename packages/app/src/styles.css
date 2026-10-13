@@ -2928,3 +2928,18 @@ button.mpip {
 .text-table { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
 .text-table th, .text-table td { text-align: left; padding: 4px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
 .text-table th { font-weight: 700; }
+
+
+/* ── HP frame colour by how much is left (hp.ts hpTier). Only the border colour changes:
+   the low-HP blink (.hp.critical, box-shadow and background) is a separate rule and stays as it is. ── */
+:root { --tier-healthy: #46b866; --tier-wounded: #d8b23a; --tier-bloodied: #e3873a; --tier-danger: #e0505c; --tier-critical: #b0101e; }
+@media (prefers-color-scheme: light) {
+  :root { --tier-healthy: #2f8a4c; --tier-wounded: #9a7a12; --tier-bloodied: #b45f12; --tier-danger: #b8303d; --tier-critical: #7d0611; }
+}
+.hp[class*="tier-"] { border-width: 2px; padding: 3px 11px 5px; }
+.hp.tier-healthy, .hp-frame.tier-healthy { border-color: var(--tier-healthy); }
+.hp.tier-wounded, .hp-frame.tier-wounded { border-color: var(--tier-wounded); }
+.hp.tier-bloodied, .hp-frame.tier-bloodied { border-color: var(--tier-bloodied); }
+.hp.tier-danger, .hp-frame.tier-danger { border-color: var(--tier-danger); }
+.hp.tier-critical, .hp-frame.tier-critical { border-color: var(--tier-critical); }
+.hp.tier-critical { border-style: double; border-width: 3px; padding: 2px 10px 4px; }

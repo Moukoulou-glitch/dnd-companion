@@ -66,3 +66,8 @@ For whoever (a new Claude conversation) picks this up. Read this, docs/NOT-TRACK
 - Level-gated parts of a grant: minLevel (+ levelOf: a class id) on GrantedSpell, ActionDef and ResourceDef; collectSources filters them at the end (character level, or that class's level).
 - Copying scrolls: op copyScroll {instanceId, success} (consumes one; on success adds to list "wizard" and takes 50 gp × level from spellbookFunds); App openCopyScroll (Arcana composer), InventoryTab ScrollSpell onCopy.
 - Smite spells: placeholders (no text) in table-2014 spells-placeholder.json for the PHB smites; App onSpend ends concentration after the hit only for ENDS_ON_HIT (Thunderous Smite).
+
+## Roadmap from the 18-item list (Oct 13): one phase at a time, stop for approval after each
+Order agreed: 1 HP frame colours (done) · 2 combat interaction (#1-6) · 3 spell access + custom effects/spells (#7-9) · 4 custom items + rich Backstory (#10-11) · 5 charm/damage-type/Necrotic Shroud/Form of Dread animations (#13-15) · 6 nature spell animations (#16) · 7 3D dice (#18) · 8 Companion Builder (#12).
+Decisions: low-HP blink stays exactly as is (1 HP to 10%, not at 0 HP, not in a form; hp.ts hpBlinks, tested); combat menus open with a LONG-PRESS on Action/Bonus/Reaction (single tap unchanged and instant); Healing Hands gets only the "Put its effect on me" checkbox (unticked: spend the use, don't heal yourself); 3D dice = @3d-dice/dice-box, loaded only when switched on, the app's dice engine decides results.
+- HP frame: packages/app/src/hp.ts (hpTier, hpBlinks), classes tier-* on .hp and summon .hp-frame, CSS changes border colour only; test packages/app/test/hp.test.ts checks boundaries and that the blink rule is intact.

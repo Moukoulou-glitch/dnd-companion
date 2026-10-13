@@ -18,6 +18,7 @@ import { DistributePanel } from "./components/Distribute";
 import { RageVeins, greyLevel, useFlourishes } from "./components/Fx";
 import { FxLayer, playFx } from "./fx/FxLayer";
 import { ProficienciesPanel } from "./components/Proficiencies";
+import { HP_TIER_WORDS, hpBlinks, hpTier } from "./hp";
 import { strikeFx } from "./fx/triggers";
 import { CustomActionForm, CustomSpellForm } from "./components/CustomForms";
 import { RollAdjustPanel } from "./components/RollAdjust";
@@ -2201,7 +2202,11 @@ export function App() {
         </button>
 
         <div className="vitals">
-          <button className={`hp${hpNow >= 1 && hpNow <= sheet.hpMax.total * 0.1 && !sheet.shape ? " critical" : ""}`} onClick={openHp} aria-label={`Hit points ${hpNow} of ${sheet.hpMax.total}${c.hp.temp ? `, ${c.hp.temp} temporary` : ""}. Change`}>
+          <button
+            className={`hp tier-${hpTier(sheet.shape ? sheet.shape.hp.current : hpNow, sheet.shape ? sheet.shape.hp.max : sheet.hpMax.total)}${hpBlinks(hpNow, sheet.hpMax.total, !!sheet.shape) ? " critical" : ""}`}
+            onClick={openHp}
+            aria-label={`Hit points ${hpNow} of ${sheet.hpMax.total}${c.hp.temp ? `, ${c.hp.temp} temporary` : ""}, ${HP_TIER_WORDS[hpTier(hpNow, sheet.hpMax.total)]}. Change`}
+          >
             <div style={{ width: "100%" }}>
               <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
                 <span className="hp-now">{sheet.shape ? sheet.shape.hp.current : hpNow}</span>

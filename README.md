@@ -94,6 +94,7 @@ npm run build -w @dnd/app   # the PWA, as published
 | 14¾ · Traits that start at a level | Done: spells, actions and uses inside a trait can start at a character or class level, and appear only then: Drow Magic (Faerie Fire 3rd, Darkness 5th), Infernal Legacy (Hellish Rebuke 3rd, and Darkness 5th, now added), the Aasimar transformations (3rd), Triton's Gust of Wind and Yuan-ti's Suggestion (3rd), Shadow Magic's Darkness (sorcerer 3rd) |
 | 14⅞ · Scrolls into the spellbook | Done: a wizard can copy a wizard spell from a scroll: the Intelligence (Arcana) check at DC 10 + the spell's level is rolled from the scroll, success puts it in the spellbook and takes 50 gp per level from the spellbook fund (2 hours per level), and the scroll is destroyed either way |
 | 15 · Smites without the book | Done: Searing, Thunderous, Wrathful, Blinding, Staggering and Banishing Smite are in the table pack (mechanics and summaries; text from your book file), so any paladin can prepare and cast them; Thunderous Smite ends its concentration when it hits (the others keep it for their lasting part) |
+| 15¼ · HP frame colours | Done: the HP box's frame is green at 80–100%, yellow 50–79%, orange 25–49%, red 11–24% and darkest red (double frame) at 0–10%, also on summoned creatures' HP; the low-HP blink is unchanged (1 HP to 10%, not at 0 HP, not in a form) |
 
 ### Shortcuts to revisit
 
