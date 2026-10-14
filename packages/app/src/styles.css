@@ -3175,3 +3175,57 @@ button.mpip {
   .fx-dmg-svg path, .fx-dmg-svg circle { animation: fx-static 450ms ease-out forwards !important; stroke-dashoffset: 0 !important; scale: 1 !important; }
   .fx-tatter { display: none; }
 }
+
+/* ── Nature spells: plants and earth growing up from the ground to where you tapped ── */
+/* The ground is just above the tabs, so nothing grows behind them. */
+.fx-ground { position: absolute; bottom: calc(58px + env(safe-area-inset-bottom, 0px)); width: 0; }
+.fx-ground > * { position: absolute; }
+.sfx-vines-svg, .sfx-whip-svg { left: -80px; width: 160px; top: 0; bottom: 0; height: 100%; fill: none; stroke-linecap: round; }
+.sfx-vines-svg path, .sfx-whip-svg path { stroke-dasharray: 1; stroke-dashoffset: 1; }
+.sfx-vines-svg path { stroke: rgba(95, 170, 80, 0.95); stroke-width: 4; filter: drop-shadow(0 0 3px rgba(20, 60, 15, 0.9)); animation: sfx-grow var(--fx-ms) ease-out forwards; }
+.sfx-vines-svg .v2, .sfx-vines-svg .v3 { stroke-width: 3; stroke: rgba(120, 185, 90, 0.9); animation-delay: 90ms; }
+.sfx-vines-svg .v4, .sfx-vines-svg .v5 { stroke-width: 2.5; stroke: rgba(140, 200, 100, 0.85); animation-delay: 160ms; }
+/* Grasping Vine: one thick vine with its curl, nothing else */
+.sfx-vine-one .sfx-vines-svg .v1 { stroke-width: 7; stroke: rgba(85, 160, 70, 0.98); }
+.sfx-vine-one .sfx-vines-svg path:not(.v1) { display: none; }
+@keyframes sfx-grow { 0% { stroke-dashoffset: 1; opacity: 0; } 15% { opacity: 1; } 65% { stroke-dashoffset: 0; } 85% { opacity: 1; } 100% { stroke-dashoffset: 0; opacity: 0; } }
+/* Thorn Whip: the vine whips up fast, thorns along it, then snaps away */
+.sfx-whip-svg path { stroke: rgba(105, 165, 75, 0.95); stroke-width: 3.5; animation: sfx-whip var(--fx-ms) cubic-bezier(0.3, 0.8, 0.3, 1) forwards; }
+.sfx-whip-svg .thorns { stroke: rgba(225, 235, 190, 0.95); stroke-width: 7; stroke-dasharray: 0.006 0.03; stroke-dashoffset: 0; animation: sfx-thorns var(--fx-ms) ease-out forwards; }
+@keyframes sfx-whip { 0% { stroke-dashoffset: 1; opacity: 1; } 55% { stroke-dashoffset: 0; opacity: 1; } 100% { stroke-dashoffset: -1; opacity: 0.3; } }
+@keyframes sfx-thorns { 0% { opacity: 0; } 40% { opacity: 0; } 55% { opacity: 1; } 100% { opacity: 0; } }
+/* Spike Growth: a row of spikes rising from the ground, rippling out from the middle */
+.sfx-spike { bottom: 0; width: 0; height: 0; margin-left: -10px; border-left: 10px solid transparent; border-right: 10px solid transparent; border-bottom: 56px solid rgba(150, 120, 80, 0.95); filter: drop-shadow(0 0 2px rgba(30, 20, 5, 0.9)); transform-origin: 50% 100%; opacity: 0; animation: sfx-spike var(--fx-ms) ease-out forwards; }
+.sfx-spike:nth-child(odd) { border-bottom-color: rgba(120, 150, 80, 0.95); border-bottom-width: 42px; }
+@keyframes sfx-spike { 0% { opacity: 0; scale: 1 0; } 30% { opacity: 1; scale: 1 1.15; } 45% { scale: 1 1; } 85% { opacity: 1; } 100% { opacity: 0; } }
+/* Maximilian's Earthen Grasp: the ground cracks, a hand of earth rises and closes */
+.sfx-ground-cracks { left: -90px; bottom: -6px; width: 180px; height: 24px; fill: none; stroke: rgba(170, 130, 90, 0.95); stroke-width: 2; stroke-linecap: round; animation: fx-cracks var(--fx-ms) ease-out forwards; }
+.sfx-hand-svg { left: -60px; bottom: 0; width: 120px; height: 180px; fill: rgba(130, 100, 70, 0.95); stroke: rgba(70, 50, 30, 0.9); stroke-width: 2; stroke-linejoin: round; filter: drop-shadow(0 0 4px rgba(40, 25, 10, 0.8)); transform-origin: 50% 100%; animation: sfx-hand-rise var(--fx-ms) ease-out forwards; }
+.sfx-hand-svg .open { animation: sfx-hand-open var(--fx-ms) ease-in forwards; }
+.sfx-hand-svg .fist { opacity: 0; fill: rgba(120, 92, 62, 0.98); animation: sfx-hand-fist var(--fx-ms) ease-in forwards; }
+@keyframes sfx-hand-rise { 0% { opacity: 0; translate: 0 70%; } 30% { opacity: 1; translate: 0 0; } 85% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes sfx-hand-open { 0%, 55% { opacity: 1; } 65%, 100% { opacity: 0; } }
+@keyframes sfx-hand-fist { 0%, 55% { opacity: 0; } 65% { opacity: 1; scale: 1.06; } 75% { scale: 0.96; } 100% { opacity: 1; scale: 1; } }
+.sfx-dust { left: -60px; bottom: 0; width: 120px; height: 26px; border-radius: 50% 50% 0 0; background: radial-gradient(ellipse at 50% 100%, rgba(170, 145, 110, 0.5), rgba(170, 145, 110, 0) 70%); opacity: 0; animation: fx-pop var(--fx-ms) ease-out forwards; }
+.sfx-vines .sfx-dust, .sfx-whip .sfx-dust { background: radial-gradient(ellipse at 50% 100%, rgba(110, 160, 80, 0.45), rgba(110, 160, 80, 0) 70%); }
+/* A sting of thorns (Thorn Whip's damage, Spike Growth's), and the earthen hand's crush */
+.sfx-thorn-hit .fx-core { width: 50px; height: 50px; background: radial-gradient(circle, rgba(190, 220, 140, 0.7), rgba(80, 140, 60, 0) 70%); animation: fx-pop var(--fx-ms) ease-out forwards; }
+.sfx-thorn-hit .fx-dot { width: 3px; height: 10px; border-radius: 1px; background: #d9e8b0; box-shadow: 0 0 3px rgba(60, 110, 40, 0.9); }
+.sfx-crush .fx-dot { width: 5px; height: 5px; border-radius: 1px; background: #b89470; }
+.sfx-crush-svg { width: 70px; height: 70px; fill: rgba(130, 100, 70, 0.95); stroke: rgba(70, 50, 30, 0.9); stroke-width: 2; animation: sfx-squeeze var(--fx-ms) ease-in-out forwards; }
+@keyframes sfx-squeeze { 0% { opacity: 0; scale: 1.3; } 30% { opacity: 1; scale: 1; } 50% { scale: 0.82; } 65% { scale: 0.95; } 80% { scale: 0.85; opacity: 1; } 100% { opacity: 0; scale: 0.85; } }
+
+/* While concentrating on one: a low band at the bottom, above the tabs */
+.sfx-ongoing-vines > span:first-child, .sfx-ongoing-spikes > span:first-child, .sfx-ongoing-earth > span:first-child { display: block; left: 0; right: 0; bottom: 56px; height: 14px; animation: sfx-shimmer 4.6s ease-in-out infinite; }
+.sfx-ongoing-vines > span:first-child { background: repeating-radial-gradient(circle at 50% 120%, rgba(95, 165, 80, 0.4) 0 2px, rgba(0, 0, 0, 0) 3px 9px); background-size: 26px 14px; }
+.sfx-ongoing-spikes > span:first-child { background: linear-gradient(135deg, rgba(0, 0, 0, 0) 50%, rgba(150, 125, 85, 0.45) 50%) 0 0 / 12px 12px repeat-x, linear-gradient(225deg, rgba(0, 0, 0, 0) 50%, rgba(150, 125, 85, 0.45) 50%) 0 0 / 12px 12px repeat-x; background-position: 0 100%, 0 100%; }
+.sfx-ongoing-earth > span:first-child { background: linear-gradient(to top, rgba(150, 115, 80, 0.32), rgba(150, 115, 80, 0)); }
+.sfx-ongoing-vine > span:first-child { display: block; left: 6px; bottom: 56px; width: 26px; height: 46px; border: 3px solid rgba(90, 160, 75, 0.45); border-color: rgba(90, 160, 75, 0.45) transparent transparent rgba(90, 160, 75, 0.45); border-radius: 50% 50% 0 50%; transform-origin: 50% 100%; animation: sfx-vine-sway 4s ease-in-out infinite alternate; }
+@keyframes sfx-vine-sway { 0% { rotate: -6deg; } 100% { rotate: 6deg; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .sfx-vines-svg path, .sfx-whip-svg path, .sfx-spike, .sfx-hand-svg, .sfx-ground-cracks, .sfx-crush-svg, .sfx-dust { animation: fx-static 450ms ease-out forwards !important; stroke-dashoffset: 0 !important; scale: 1 !important; translate: 0 0 !important; }
+  .sfx-hand-svg .open { opacity: 0 !important; animation: none !important; }
+  .sfx-hand-svg .fist { opacity: 1 !important; animation: none !important; }
+  .sfx-whip-svg .thorns { display: none; }
+}

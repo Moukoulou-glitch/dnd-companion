@@ -15,7 +15,7 @@ import { DAMAGE_FX, FORM_FX } from "./looks";
  */
 export interface FxSpec {
   /** Where it's drawn. */
-  at: "tap" | "result" | "hp" | "conc" | "edge" | "center" | "sky" | "across";
+  at: "tap" | "result" | "hp" | "conc" | "edge" | "center" | "sky" | "across" | "ground";
   /** How long it stays on screen, in ms (the CSS animations match). */
   ms: number;
   /** navigator.vibrate pattern, when the phone has it. */
@@ -92,7 +92,7 @@ export function specOf(e: FxEvent): FxSpec {
       const p = phaseLook(e.spell, e.phase, e.mode);
       // A phase with no look of its own plays nothing big: the generic circle for a cast, nothing otherwise.
       if (!p) return { at: "tap", ms: 700, look: "fx-cast" };
-      return { at: p.at, ms: p.ms, look: `sfx ${p.look}`, ...(p.buzz ? { buzz: p.buzz } : {}) };
+      return { at: p.at, ms: p.ms, look: `sfx ${p.look}`, ...(p.buzz ? { buzz: p.buzz } : {}), ...(p.particles ? { particles: p.particles } : {}) };
     }
   }
 }
@@ -164,6 +164,8 @@ function placeOf(at: FxSpec["at"], tap: { x: number; y: number }): { x: number; 
   if (at === "hp") return center(".vitals .hp") ?? tap;
   if (at === "conc") return center(".chip.conc") ?? tap;
   if (at === "edge" || at === "center") return mid;
+  // Up from the bottom: at least a third of the screen to grow in, even when you tapped near the bottom.
+  if (at === "ground") return { x: Math.min(Math.max(tap.x, 90), window.innerWidth - 90), y: Math.min(tap.y, window.innerHeight * 0.6) };
   // From the top of the screen down to where you tapped (lightning, moonlight), or across at that height (wind).
   return tap;
 }
@@ -231,6 +233,37 @@ export function FxLayer({ school, character }: { school: (spell: string) => stri
             <span className="sfx-column" />
             <span className="sfx-hail" />
             <span className="sfx-glyph" />
+          </div>
+        ) : spec.at === "ground" ? (
+          <div key={id} className={`fx fx-ground ${spec.look}`} style={{ left: x, top: y, ["--fx-ms" as string]: `${spec.ms}ms` }}>
+            {spec.look.includes("sfx-vines") && (
+              <svg className="sfx-vines-svg" viewBox="0 0 100 200" preserveAspectRatio="none">
+                <path className="v1" pathLength={1} vectorEffect="non-scaling-stroke" d="M50,200 C40,160 64,130 50,95 C38,66 62,40 54,16 C52,8 44,6 42,14" />
+                <path className="v2" pathLength={1} vectorEffect="non-scaling-stroke" d="M20,200 C30,170 8,150 22,120 C32,98 14,82 24,66" />
+                <path className="v3" pathLength={1} vectorEffect="non-scaling-stroke" d="M80,200 C70,172 92,150 78,122 C68,100 88,84 76,64" />
+                <path className="v4" pathLength={1} vectorEffect="non-scaling-stroke" d="M36,200 C44,182 30,170 40,150" />
+                <path className="v5" pathLength={1} vectorEffect="non-scaling-stroke" d="M66,200 C58,184 72,170 62,150" />
+              </svg>
+            )}
+            {spec.look.includes("sfx-whip") && (
+              <svg className="sfx-whip-svg" viewBox="0 0 100 200" preserveAspectRatio="none">
+                <path pathLength={1} vectorEffect="non-scaling-stroke" d="M10,200 C20,150 90,150 70,100 C55,62 20,60 50,4" />
+                <path className="thorns" pathLength={1} vectorEffect="non-scaling-stroke" d="M10,200 C20,150 90,150 70,100 C55,62 20,60 50,4" />
+              </svg>
+            )}
+            {spec.look.includes("sfx-spikes") && Array.from({ length: 11 }, (_, i) => <span key={i} className="sfx-spike" style={{ left: `${(i - 5) * 26}px`, animationDelay: `${Math.abs(i - 5) * 45}ms` }} />)}
+            {spec.look.includes("sfx-grasp") && (
+              <>
+                <svg className="sfx-ground-cracks" viewBox="-60 -10 120 20">
+                  <path d="M0,0 L-18,-3 L-34,2 L-56,-2 M0,0 L16,3 L30,-2 L56,2 M-18,-3 L-24,-9 M16,3 L22,9" />
+                </svg>
+                <svg className="sfx-hand-svg" viewBox="-40 -60 80 120">
+                  <path className="open" d="M-22,60 L-22,4 L-30,-30 L-22,-32 L-14,-4 L-12,-48 L-4,-49 L-2,-6 L2,-52 L10,-51 L10,-6 L16,-44 L24,-42 L20,0 L30,-14 L36,-8 L22,24 L22,60 Z" />
+                  <path className="fist" d="M-22,60 L-22,-2 C-22,-20 -10,-24 0,-24 C14,-24 24,-18 24,-4 L24,14 L22,60 Z M-20,-8 L22,-8 M-20,4 L22,4" />
+                </svg>
+              </>
+            )}
+            <span className="sfx-dust" />
           </div>
         ) : spec.at === "across" ? (
           <div key={id} className={`fx fx-across ${spec.look}`} style={{ top: y, ["--fx-ms" as string]: `${spec.ms}ms` }}>
@@ -308,6 +341,11 @@ export function FxLayer({ school, character }: { school: (spell: string) => stri
               <svg className="fx-streak" viewBox="-60 -30 120 60">
                 <path pathLength={1} d="M-56,14 L50,-10" />
                 <path pathLength={1} d="M-50,24 L56,0" />
+              </svg>
+            )}
+            {spec.look.includes("sfx-crush") && (
+              <svg className="sfx-crush-svg" viewBox="-40 -40 80 80">
+                <path d="M-20,30 L-20,-2 C-20,-18 -8,-22 0,-22 C12,-22 22,-16 22,-2 L22,12 L20,30 Z M-18,-6 L20,-6 M-18,6 L20,6" />
               </svg>
             )}
             {spec.look.includes("sfx-charm") && (

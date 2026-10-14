@@ -28,14 +28,16 @@ export interface PhaseLook {
   /** CSS class with the look (styles.css, "Spell effects"). */
   look: string;
   ms: number;
-  /** Where: where you tapped, the top of the screen down to the tap, or across the whole width. */
-  at: "tap" | "sky" | "across" | "edge";
+  /** Where: where you tapped, the top of the screen down to the tap, across the whole width, or up from the ground (the bottom) to the tap. */
+  at: "tap" | "sky" | "across" | "edge" | "ground";
   /** navigator.vibrate pattern, when the phone has it. */
   buzz?: number[];
+  /** Flying pieces (thorns, grit). */
+  particles?: number;
 }
 
 export interface SpellFxDef {
-  family: "moonlight" | "lightning" | "wind" | "water" | "ice" | "weather" | "charm";
+  family: "moonlight" | "lightning" | "wind" | "water" | "ice" | "weather" | "charm" | "nature";
   cast?: PhaseLook;
   again?: PhaseLook;
   resolve?: PhaseLook;
@@ -112,5 +114,22 @@ Object.assign(SPELL_FX, {
 // Spells that charm (fx/looks.ts CHARM_SPELLS): a rose-violet spiral drawing in where you tapped; while you
 // concentrate on one (Dominate Person, Hypnotic Pattern), a faint rose shimmer at the bottom edge.
 for (const id of CHARM_SPELLS) SPELL_FX[id] = { family: "charm", cast: { look: "sfx-charm", ms: 900, at: "tap" }, ongoing: "sfx-ongoing-charm" };
+
+// Nature: plants and earth growing up from the ground (the bottom of the screen) toward where you tapped.
+const ground = (look: string, ms = 900, buzz?: number[]): PhaseLook => ({ look: `sfx-nature ${look}`, ms, at: "ground", ...(buzz ? { buzz } : {}) });
+const thornHit: PhaseLook = { look: "sfx-thorn-hit", ms: 380, at: "tap", particles: 6 };
+const crush: PhaseLook = { look: "sfx-crush", ms: 450, at: "tap", buzz: [30, 30], particles: 5 };
+Object.assign(SPELL_FX, {
+  // A thorny vine whips up and lashes; its damage, a sting of thorns.
+  "spell:thorn-whip": { family: "nature", cast: ground("sfx-whip", 600), resolve: thornHit },
+  // Weeds and vines spring up and twist; a low tangle at the bottom while it lasts.
+  "spell:entangle": { family: "nature", cast: ground("sfx-vines"), ongoing: "sfx-ongoing-vines" },
+  // The ground hardens into spikes; a creature's damage from them (from the chip) is a sting of thorns.
+  "spell:spike-growth": { family: "nature", cast: ground("sfx-spikes", 800), again: thornHit, resolve: thornHit, ongoing: "sfx-ongoing-spikes" },
+  // One thick vine rises with a curling tip, and stays curled at the edge while it lasts.
+  "spell:grasping-vine": { family: "nature", cast: ground("sfx-vines sfx-vine-one"), ongoing: "sfx-ongoing-vine" },
+  // The earth cracks, a hand of earth rises and closes; each crush (right after casting or later from the chip) squeezes.
+  "spell:maximilians-earthen-grasp": { family: "nature", cast: ground("sfx-grasp", 950, [40]), resolve: crush, again: crush, ongoing: "sfx-ongoing-earth" },
+} satisfies Record<string, SpellFxDef>);
 
 export const spellFxOf = (spell: string | undefined): SpellFxDef | undefined => (spell ? SPELL_FX[spell] : undefined);

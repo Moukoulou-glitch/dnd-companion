@@ -67,6 +67,17 @@ The effects are decoration only. Each one follows a confirmed change or result a
   - **Form of Dread:** a cold, deathly pallor washes out from the middle, with tatters of shadow rising.
   - Each plays once, when the feature's state turns on (however it was turned on). A quiet loop stays at the edges while the state is on, and it ends with the state (the duration running out, a rest, switching it off). A reload keeps the loop but doesn't replay the start.
 
+## Nature spells
+
+- **Where:** they grow up from the ground (just above the tabs) toward where you tapped, at least a third of the screen high. The placement is called "ground" in `fx/spells.ts`.
+- **Spells:**
+  - **Thorn Whip:** a thorny vine whips up and snaps away. Its damage plays a sting of thorns.
+  - **Entangle:** weeds and vines spring up and twist. While it lasts, a low tangle sits above the tabs.
+  - **Spike Growth:** a row of spikes rises, rippling out from the middle. Its damage (from the concentration chip) is a sting of thorns. While it lasts, a low band of spikes sits above the tabs.
+  - **Grasping Vine:** one thick vine rises with a curling tip, and a small curled vine sways at the bottom-left while it lasts. It deals no damage, so its later lashes have nothing to follow.
+  - **Maximilian's Earthen Grasp:** the ground cracks, and a hand of earth rises and closes into a fist. Each crush squeezes, right after casting and later from the chip. While it lasts, a band of earth sits above the tabs.
+- **Placeholders:** Grasping Vine and Maximilian's Earthen Grasp are in `content/packs/table-2014/spells-placeholder.json`, in our own words with no book text. A book file adds the full text.
+
 ## Spells by phase and unarmed strikes
 
 - **Registry:** `packages/app/src/fx/spells.ts` (`SPELL_FX`) is keyed by spell id. It holds looks only, no mechanics. Each spell can have a look for up to four phases:
@@ -101,6 +112,7 @@ The effects are decoration only. Each one follows a confirmed change or result a
 
 ## Testing
 
+- `packages/app/test/fx6.test.ts` covers the two placeholders (including Grasping Vine on the Nature domain's list), each nature spell's ground look, their damage looks, and the band following concentration.
 - `packages/app/test/fx5.test.ts` covers damage types (main type, own dice, priority), typed damage taken, charm spells and the Charmed condition, and both transformations with their loops.
 - `packages/app/test/fx.test.ts` also covers casting versus later uses, the ongoing loop following concentration, and unarmed hit, crit and miss.
 - `packages/app/test/fx.test.ts` runs real operations through the store and checks the triggers:

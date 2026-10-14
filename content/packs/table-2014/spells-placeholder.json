@@ -603,6 +603,86 @@
       ],
       "text": [],
       "higherLevels": []
+    },
+    {
+      "kind": "spell",
+      "id": "spell:grasping-vine",
+      "name": "Grasping Vine",
+      "summary": "A vine sprouts from the ground within 30 ft. When you cast it, and as a bonus action on your later turns while it lasts, it can lash at a creature within 30 ft of it: Dexterity save or pulled 20 ft toward the vine. Placeholder: your book file gives the full text.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 246
+      },
+      "level": 4,
+      "school": "Conjuration",
+      "castingTime": "1 bonus action",
+      "range": "30 feet",
+      "components": [
+        "V",
+        "S"
+      ],
+      "duration": "Concentration, up to 1 minute",
+      "concentration": true,
+      "ritual": false,
+      "classes": [
+        "druid",
+        "ranger"
+      ],
+      "text": [],
+      "higherLevels": [],
+      "save": {
+        "ability": "dex",
+        "onSuccess": "none"
+      }
+    },
+    {
+      "kind": "spell",
+      "id": "spell:maximilians-earthen-grasp",
+      "name": "Maximilian's Earthen Grasp",
+      "summary": "A hand of earth rises in a 5-ft square within 30 ft and grabs a creature next to it: Strength save or it takes bludgeoning damage and is restrained. While it lasts, your action can make the hand crush the restrained creature again or grab another. Placeholder: your book file gives the full text.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 161
+      },
+      "level": 2,
+      "school": "Transmutation",
+      "castingTime": "1 action",
+      "range": "30 feet",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ],
+      "material": "a miniature hand sculpted from clay",
+      "duration": "Concentration, up to 1 minute",
+      "concentration": true,
+      "ritual": false,
+      "classes": [
+        "sorcerer",
+        "wizard"
+      ],
+      "text": [],
+      "higherLevels": [],
+      "save": {
+        "ability": "str",
+        "onSuccess": "none"
+      },
+      "damage": {
+        "type": "bludgeoning",
+        "atSlot": {
+          "2": "2d6",
+          "3": "2d6",
+          "4": "2d6",
+          "5": "2d6",
+          "6": "2d6",
+          "7": "2d6",
+          "8": "2d6",
+          "9": "2d6"
+        }
+      },
+      "singleTarget": true
     }
   ]
 }

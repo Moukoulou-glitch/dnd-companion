@@ -59,6 +59,7 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 - Damage prevention shows for immunity, resistance, Heavy Armor Master, temp HP and Durable; a reduction rolled by hand before entering the damage (Parry, Deflect Missiles' panel) is already subtracted and doesn't show a shield.
 - No sound. Vibration on Android only.
 - Damage types: a roll with several types plays only the main one (the most damage). Typed damage you take plays only when all of it got through; when some was stopped, the shield ring plays. Necrotic Shroud's frightening and Form of Dread's frightening hit are on other creatures, so they have no effect here.
+- Nature spells: where the area is isn't recorded, so the looks grow toward where you tapped. Grasping Vine's later lashes (bonus action, no damage) have no effect; Plant Growth and Wall of Thorns have no look of their own yet (the arcane circle plays).
 - Spell effects: Moonbeam's position and movement and Gust of Wind's direction aren't recorded, so their effects can't follow them. Control Water's or Weather's mode changed later (a new action) isn't recorded: change the tag's choice by hand. Hand of Harm in a Flurry at 11th (no ki) shows no effect.
 
 ## Items and scrolls
