@@ -63,6 +63,10 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 - Nature spells: where the area is isn't recorded, so the looks grow toward where you tapped. Grasping Vine's later lashes (bonus action, no damage) have no effect; Plant Growth and Wall of Thorns have no look of their own yet (the arcane circle plays).
 - Spell effects: Moonbeam's position and movement and Gust of Wind's direction aren't recorded, so their effects can't follow them. Control Water's or Weather's mode changed later (a new action) isn't recorded: change the tag's choice by hand. Hand of Harm in a Flurry at 11th (no ki) shows no effect.
 
+## Spells with two damage types
+- Flame Strike: casting it higher adds the extra 1d6 to the fire; the spell lets you put it on the radiant instead (add it by hand if you do).
+- Spell lists exported one class at a time give their class only when the file name says whose list it is ("spells_available_to_druids…"); a renamed file loses that.
+
 ## Items and scrolls
 - Spell scrolls: the optional Scroll Mishap table is text only. A spell you write yourself for a scroll also joins your own spells.
 - Spells given beyond the rules can be cast without a slot as often as you like: the app counts, the DM decides how many.

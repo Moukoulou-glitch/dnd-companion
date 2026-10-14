@@ -34,6 +34,22 @@ def attack_of(s):
 # opportunity-attack spell needs a 1-action spell that targets only the creature.
 SINGLE_TARGET = set("""acid-splash chill-touch eldritch-blast fire-bolt poison-spray ray-of-frost sacred-flame shocking-grasp vicious-mockery true-strike animal-friendship charm-person command guiding-bolt hideous-laughter inflict-wounds magic-missile acid-arrow blindness-deafness hold-person ray-of-enfeeblement scorching-ray enlarge-reduce suggestion bestow-curse dispel-magic banishment blight dominate-beast phantasmal-killer polymorph contagion dominate-person hold-monster modify-memory telekinesis disintegrate flesh-to-stone harm heal irresistible-dance finger-of-death plane-shift dominate-monster feeblemind maze power-word-stun power-word-kill""".split())
 
+# Spells whose damage has two types at once (reviewed by hand): the source data
+# keeps only one. Each part rolls as its own dice of its own type, so
+# resistances apply per type. Upcasting adds to the type the spell names.
+def _scale(base, per, frm, to=9):
+    n, die = base.split("d")
+    return {str(l): f"{int(n) + (l - frm) * per}d{die}" for l in range(frm, to + 1)}
+
+DAMAGE_PARTS = {
+    # 2d8 bludgeoning (+1d8 per slot above 4th) and 4d6 cold.
+    "ice-storm": {"type": "bludgeoning", "atSlot": _scale("2d8", 1, 4), "also": [{"type": "cold", "atSlot": _scale("4d6", 0, 4)}]},
+    # 4d6 fire and 4d6 radiant; the extra 1d6 per slot above 5th goes on the fire here (the spell lets you put it on the radiant instead).
+    "flame-strike": {"type": "fire", "atSlot": _scale("4d6", 1, 5), "also": [{"type": "radiant", "atSlot": _scale("4d6", 0, 5)}]},
+    # 20d6 fire and 20d6 bludgeoning.
+    "meteor-swarm": {"type": "fire", "atSlot": {"9": "20d6"}, "also": [{"type": "bludgeoning", "atSlot": {"9": "20d6"}}]},
+}
+
 # Casting times the source data shortens to its first option.
 CASTING_TIMES = {"plant-growth": "1 action or 8 hours"}
 
@@ -76,6 +92,8 @@ def convert(s):
             out["atCharacterLevel"] = dmg["damage_at_character_level"]
         if out.get("atSlot") or out.get("atCharacterLevel"):
             d["damage"] = out
+    if s["index"] in DAMAGE_PARTS:
+        d["damage"] = DAMAGE_PARTS[s["index"]]
     if s.get("heal_at_slot_level"):
         d["heal"] = {"atSlot": s["heal_at_slot_level"]}
     if s["index"] in SINGLE_TARGET:

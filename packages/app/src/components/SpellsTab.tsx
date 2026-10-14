@@ -7,6 +7,15 @@ const LEVEL_NAME = ["Cantrips", "1st level", "2nd level", "3rd level", "4th leve
 
 export const ordinal = (n: number) => ["", "1st", "2nd", "3rd"][n] ?? `${n}th`;
 
+/** A spell's further damage parts (Ice Storm's 4d6 cold) as dice of their own type, after its own bonus dice. */
+function withParts<T extends { dice: { label: string; dice: string; damageType?: string }[] }>(sp: SpellResult, key: number, bonus: T): T {
+  const parts = (sp.damage?.also ?? []).flatMap((p) => {
+    const dice = p.byLevel[key];
+    return dice ? [{ label: `${sp.name} (${p.type})`, dice, damageType: p.type }] : [];
+  });
+  return parts.length ? { ...bonus, dice: [...bonus.dice, ...parts] } : bonus;
+}
+
 /** A spell shaped like a weapon attack, so the roll composer can roll its attack and damage. */
 export function spellAsAttack(sp: SpellResult, level: number): WeaponAttack & { saveNote?: string } {
   const key = sp.level === 0 ? 0 : level;
@@ -20,7 +29,7 @@ export function spellAsAttack(sp: SpellResult, level: number): WeaponAttack & { 
     ability: "int",
     proficient: true,
     attack: sp.attack ?? emptyRoll,
-    damage: { dice, type: sp.damage?.type ?? (sp.heal ? "healing" : ""), bonus: sp.damageBonus ?? emptyRoll, onCrit: [], critExtraDice: [] },
+    damage: { dice, type: sp.damage?.type ?? (sp.heal ? "healing" : ""), bonus: withParts(sp, key, sp.damageBonus ?? emptyRoll), onCrit: [], critExtraDice: [] },
     properties: [],
   };
   if (sp.save) {

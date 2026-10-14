@@ -358,7 +358,16 @@ export const SpellDef = z
     save: z.object({ ability: Ability, onSuccess: z.enum(["half", "none", "other"]) }).strict().optional(),
     /** "MOD" in dice strings means the caster's spellcasting modifier. */
     damage: z
-      .object({ type: z.string().optional(), atSlot: DiceTable.optional(), atCharacterLevel: DiceTable.optional() })
+      .object({
+        type: z.string().optional(),
+        atSlot: DiceTable.optional(),
+        atCharacterLevel: DiceTable.optional(),
+        /**
+         * More damage of another type in the same hit (Ice Storm: 4d6 cold with its
+         * bludgeoning). Each part is rolled as its own dice of its own type.
+         */
+        also: z.array(z.object({ type: z.string(), atSlot: DiceTable.optional(), atCharacterLevel: DiceTable.optional() }).strict()).optional(),
+      })
       .strict()
       .optional(),
     heal: z.object({ atSlot: DiceTable }).strict().optional(),

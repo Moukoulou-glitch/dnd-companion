@@ -131,7 +131,8 @@ export interface SpellResult {
   attack?: RollBreakdown;
   save?: { ability: Ability; dc: number; onSuccess: "half" | "none" | "other" };
   /** Damage or healing dice by the slot level it's cast at (cantrips: key 0). */
-  damage?: { type?: string; byLevel: Record<number, string> };
+  /** `also`: more damage of other types in the same hit (Ice Storm's cold), each rolled as its own dice. */
+  damage?: { type?: string; byLevel: Record<number, string>; also?: { type: string; byLevel: Record<number, string> }[] };
   heal?: { byLevel: Record<number, string> };
   damageBonus?: RollBreakdown;
   /** How it can be cast right now. */
@@ -1233,6 +1234,16 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     if (def.damage) {
       const byLevel = levelsFor(def.damage.atSlot ?? def.damage.atCharacterLevel, !def.damage.atSlot);
       if (byLevel) r.damage = def.damage.type ? { type: def.damage.type, byLevel } : { byLevel };
+      // Further parts never take the spellcasting modifier: only the spell's main damage says "+ MOD".
+      const also = (def.damage.also ?? []).flatMap((p) => {
+        const t = p.atSlot ?? p.atCharacterLevel;
+        if (!t) return [];
+        const out: Record<number, string> = {};
+        if (!p.atSlot || def.level === 0) out[0] = pickByLevel(t, level);
+        else for (let l = def.level; l <= 9; l++) out[l] = pickByLevel(t, l);
+        return [{ type: p.type, byLevel: out }];
+      });
+      if (r.damage && also.length) r.damage.also = also;
       // Spell-specific modifiers too (Agonizing Blast: "roll.damage.spell.eldritch-blast").
       r.damageBonus = roll(["roll.damage.spell", `roll.damage.spell.${def.id.replace(/^spell:/, "")}`], []);
       // Elemental Adept (remastered): dice of the chosen type count as at least your proficiency bonus.

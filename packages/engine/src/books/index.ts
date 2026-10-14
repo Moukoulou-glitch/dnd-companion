@@ -5,7 +5,7 @@ import { parseBackgrounds, type BookBackground } from "./backgrounds.js";
 import { parseBookRaces, type BookRace } from "./races.js";
 import { looksLikeBestiary, parseBestiary } from "./bestiary.js";
 import { looksLikeItems, parseItems } from "./items.js";
-import { looksLikeSpells, parseSpells } from "./spells.js";
+import { classFromFileName, looksLikeSpells, parseSpells } from "./spells.js";
 import { slug } from "./text.js";
 
 export { slug } from "./text.js";
@@ -135,7 +135,8 @@ export function bookPack(files: BookFile[], base: ContentRegistry): { pack: Cont
     const kind = bookFileKind(f.text);
     let count = 0;
     if (kind === "spells") {
-      const s = parseSpells(f.text, BOOK_PACK_ID, excluded);
+      const forClass = classFromFileName(f.name);
+      const s = parseSpells(f.text, BOOK_PACK_ID, excluded, forClass);
       spells.push(...s);
       count = s.length;
     } else if (kind === "items") {
@@ -201,8 +202,22 @@ export function bookPack(files: BookFile[], base: ContentRegistry): { pack: Cont
     report.textAdded++;
   };
 
-  // Spells: the book's version, but placeholders keep their checked numbers.
+  // The same spell in several files (each class's list has Tidal Wave): one spell, with every file's classes.
+  const merged = new Map<string, (typeof spells)[number]>();
   for (const s of spells) {
+    const prev = merged.get(s.id);
+    if (!prev) {
+      merged.set(s.id, s);
+      continue;
+    }
+    prev.classes = [...new Set([...prev.classes, ...s.classes])];
+    const opt = [...new Set([...(prev.optionalClasses ?? []), ...(s.optionalClasses ?? [])])];
+    if (opt.length) prev.optionalClasses = opt;
+    if (!prev.text.length && s.text.length) Object.assign(prev, { text: s.text, higherLevels: s.higherLevels });
+  }
+
+  // Spells: the book's version, but placeholders keep their checked numbers.
+  for (const s of merged.values()) {
     const existing = base.find(s.id, "spell");
     if (!existing) {
       if (!out.has(s.id)) {
@@ -211,17 +226,23 @@ export function bookPack(files: BookFile[], base: ContentRegistry): { pack: Cont
       }
       continue;
     }
-    // An SRD spell keeps its own text; only the book's optional classes are added to it.
-    if (existing.source.pack === "srd-5.1" && s.optionalClasses?.length && !out.has(s.id)) {
-      const copy = structuredClone(existing) as typeof s;
-      copy.optionalClasses = [...new Set([...(copy.optionalClasses ?? []), ...s.optionalClasses])];
-      out.set(copy.id, copy);
+    // An SRD spell keeps its own text; only the book's classes it doesn't list yet are added to it.
+    if (existing.source.pack === "srd-5.1") {
+      const sp = existing as typeof s;
+      const newClasses = s.classes.filter((c) => !sp.classes.includes(c));
+      const newOptional = (s.optionalClasses ?? []).filter((c) => !(sp.optionalClasses ?? []).includes(c));
+      if ((newClasses.length || newOptional.length) && !out.has(s.id)) {
+        const copy = structuredClone(sp);
+        if (newClasses.length) copy.classes = [...copy.classes, ...newClasses];
+        if (newOptional.length) copy.optionalClasses = [...(copy.optionalClasses ?? []), ...newOptional];
+        out.set(copy.id, copy);
+      }
       continue;
     }
     attach(existing, s.text, (d) => {
       const sp = d as typeof s;
       sp.higherLevels = s.higherLevels;
-      if (!sp.classes.length) sp.classes = s.classes;
+      sp.classes = [...new Set([...sp.classes, ...s.classes])];
       if (!sp.material && s.material) sp.material = s.material;
       // Revivify's "Optional/Variant Classes: Druid, Ranger": joins those lists with Tasha's expanded list on.
       if (s.optionalClasses?.length) sp.optionalClasses = [...new Set([...(sp.optionalClasses ?? []), ...s.optionalClasses])];

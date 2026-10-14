@@ -91,8 +91,21 @@ export function spellMechanics(level: number, text: string[], higher: string[]):
   return out;
 }
 
-/** Parses every spell in a markdown export into spell definitions. */
-export function parseSpells(text: string, pack: string, excluded: string[] = []): SpellDef[] {
+/**
+ * The class a spell-list file is for, from its name: an export of one class's
+ * list ("spells_available_to_druids_xge.md") writes no "Classes:" line in its
+ * spells, because the file itself says whose list it is.
+ */
+export function classFromFileName(name: string): string | undefined {
+  const m = /available[\s_-]+to[\s_-]+([a-z]+)/i.exec(name);
+  if (!m) return undefined;
+  const word = m[1]!.toLowerCase();
+  const cls = [word, word.replace(/e?s$/, ""), word.replace(/s$/, "")].find((c) => OFFICIAL_CLASSES.includes(c));
+  return cls && cls !== "artificer" ? cls : undefined;
+}
+
+/** Parses every spell in a markdown export into spell definitions. `forClass`: the class whose list the file is. */
+export function parseSpells(text: string, pack: string, excluded: string[] = [], forClass?: string): SpellDef[] {
   const out: SpellDef[] = [];
   for (const e of splitHeadings(text, "####")) {
     if (isThirdParty(e.lines.join("\n"))) {
@@ -137,17 +150,18 @@ export function parseSpells(text: string, pack: string, excluded: string[] = [])
       // "**Optional/Variant Classes:** Druid, Ranger": the class gets it with Tasha's expanded list on.
       const opt = /^\*\*Optional\/Variant Classes:?\*\*:?\s*(.*)$/i.exec(line);
       if (opt) {
-        optionalClasses = clean(opt[1]!)
+        // A class can be listed more than once ("Druid, Druid, Sorcerer, Sorcerer"): once is enough.
+        optionalClasses = [...new Set(clean(opt[1]!)
           .split(",")
           .map((c) => c.trim().toLowerCase())
-          .filter((c) => OFFICIAL_CLASSES.includes(c) && c !== "artificer");
+          .filter((c) => OFFICIAL_CLASSES.includes(c) && c !== "artificer"))];
         continue;
       }
       if (line.startsWith("**Classes:**")) {
-        classes = clean(line.slice(12))
+        classes = [...new Set(clean(line.slice(12))
           .split(",")
           .map((c) => c.trim().toLowerCase())
-          .filter((c) => OFFICIAL_CLASSES.includes(c));
+          .filter((c) => OFFICIAL_CLASSES.includes(c)))];
         continue;
       }
       const c = clean(line.replace(/^[-*] /, "• "));
@@ -174,6 +188,7 @@ export function parseSpells(text: string, pack: string, excluded: string[] = [])
       ...spellMechanics(level, textOut, higher),
     };
     if (material) def.material = material;
+    if (forClass && !def.classes.includes(forClass)) def.classes = [...def.classes, forClass];
     if (optionalClasses.length) def.optionalClasses = optionalClasses;
     out.push(def);
   }
