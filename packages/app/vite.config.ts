@@ -30,7 +30,13 @@ export default defineConfig({
         ],
       },
       // The content packs make the app bundle large; it still has to work offline.
-      workbox: { globPatterns: ["**/*.{js,css,html,svg,png,woff,woff2}"], maximumFileSizeToCacheInBytes: 6 * 1024 * 1024 },
+      // 3D dice (public/dice-box) aren't precached: they load only when switched on, then stay cached for offline use.
+      workbox: {
+        globPatterns: ["**/*.{js,css,html,svg,png,woff,woff2}"],
+        globIgnores: ["dice-box/**"],
+        maximumFileSizeToCacheInBytes: 6 * 1024 * 1024,
+        runtimeCaching: [{ urlPattern: ({ url }) => url.pathname.includes("/dice-box/"), handler: "CacheFirst", options: { cacheName: "dice-box" } }],
+      },
     }),
   ],
   server: { fs: { allow: ["../.."] } },

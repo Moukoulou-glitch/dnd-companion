@@ -1,7 +1,7 @@
 import { parseFormula, type DiceTerm, type Term } from "./formula.js";
 
-/** Returns a whole number from 1 to `sides`. */
-export type Rng = (sides: number) => number;
+/** Returns a whole number from 1 to `sides`. `reroll` is true for a die rolled again (Great Weapon Fighting); most sources ignore it. */
+export type Rng = (sides: number, reroll?: boolean) => number;
 
 /** Secure, unbiased die roll (rejection sampling over crypto random values). */
 export const secureRng: Rng = (sides) => {
@@ -72,7 +72,7 @@ function rollTerm(t: DiceTerm, rng: Rng): TermResult {
     const rolled = rng(t.sides);
     const d: DieResult = { rolled, value: rolled, dropped: false };
     if (t.rerollAtOrBelow && rolled <= t.rerollAtOrBelow) {
-      d.rerolled = rng(t.sides);
+      d.rerolled = rng(t.sides, true);
       d.value = d.rerolled;
     }
     if (t.min && d.value < t.min) {

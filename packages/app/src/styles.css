@@ -3229,3 +3229,8 @@ button.mpip {
   .sfx-hand-svg .fist { opacity: 1 !important; animation: none !important; }
   .sfx-whip-svg .thorns { display: none; }
 }
+
+/* ── 3D dice (diceBox.ts): drawn over everything while they roll, never take a tap ── */
+#dice-box-3d { position: fixed; inset: 0; pointer-events: none; z-index: 55; opacity: 0; transition: opacity 250ms ease-out; }
+#dice-box-3d.on { opacity: 1; }
+#dice-box-3d canvas { width: 100%; height: 100%; display: block; }

@@ -1,5 +1,8 @@
 import { RichText } from "./Conditions";
-import { useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { rollThrown } from "../dice3d";
+import { throwDice } from "../diceBox";
+import { useDice3d } from "../dice3dSetting";
 import {
   composeD20,
   composeDamage,
@@ -13,6 +16,7 @@ import {
   type ComposerBase,
   type ComposerChoices,
   type Composed,
+  type ComposedRoll,
 } from "@dnd/dice";
 import { signed, type WeaponAttack } from "@dnd/engine";
 import { recordOf, type RollRecord } from "../rolls";
@@ -23,7 +27,8 @@ interface Props {
   /** Set for weapon and feature attacks: enables the damage step. */
   attack?: WeaponAttack & { saveNote?: string };
   physical: boolean;
-  onPhysicalChange: (physical: boolean) => void;
+  /** `label`: what to say about the change (3D dice say so). */
+  onPhysicalChange: (physical: boolean, label?: string) => void;
   onRolled: (r: RollRecord) => void;
   /** The player's call on an attack roll: Hit, Critical damage or Miss (for effects only). */
   onResolved?: (outcome: "hit" | "crit" | "miss", options: string[]) => void;
@@ -275,6 +280,7 @@ export function ResultView({ r }: { r: RollRecord }) {
           </small>
         )}
         {r.physical && <small>From your dice</small>}
+        {r.thrown && <small>From the 3D dice</small>}
       </div>
       <ul className="lines">
         {r.lines.map((l, i) => (
@@ -378,8 +384,37 @@ export function Composer({ title, base, attack, physical, onPhysicalChange, onRo
     setStage(next);
   };
 
-  const rollD20 = (values?: number[], composed = d20) => {
-    const rec = recordOf(dc ? `${title} (DC ${dc})` : title, "d20", rollComposed(composed, values));
+  // 3D dice (this device's setting): the thrown faces are the roll; the engine does the rest.
+  const [dice3d, setDice3d] = useDice3d();
+  const throwing3d = !physical && dice3d;
+  const [throwing, setThrowing] = useState(false);
+  const [throwNote, setThrowNote] = useState<string | undefined>();
+  const alive = useRef(true);
+  useEffect(() => {
+    alive.current = true;
+    return () => {
+      alive.current = false;
+    };
+  }, []);
+  /** Throws the dice for `c`, then `done` with the roll; if the 3D dice fail, the app rolls instead and says so. */
+  const throwThen = async (c: Composed, done: (r: ComposedRoll, thrown: boolean) => void) => {
+    setThrowing(true);
+    setThrowNote(undefined);
+    let r: ComposedRoll | undefined;
+    try {
+      r = await rollThrown(c, throwDice);
+    } catch {
+      if (alive.current) setThrowNote("The 3D dice didn't work this time, so the app rolled.");
+    }
+    // Closed while the dice were in the air: nothing was rolled.
+    if (!alive.current) return;
+    setThrowing(false);
+    done(r ?? rollComposed(c), !!r);
+  };
+
+  const rollD20 = (values?: number[], composed = d20, done?: ComposedRoll, thrown = false) => {
+    const rec = recordOf(dc ? `${title} (DC ${dc})` : title, "d20", done ?? rollComposed(composed, values));
+    if (thrown) rec.thrown = true;
     if (attack) rec.attack = true;
     if (choices.enabled.length) rec.options = [...choices.enabled];
     setAttackMode(composed.d20Mode);
@@ -392,14 +427,15 @@ export function Composer({ title, base, attack, physical, onPhysicalChange, onRo
     setStage({ step: "d20-result", record: rec });
   };
 
-  const rollDamage = (diceTotal?: number) => {
+  const rollDamage = (diceTotal?: number, done?: ComposedRoll, thrown = false) => {
     if (!damage || stage.step !== "damage-setup") return;
     const label = `${attack!.name} ${healing ? "healing" : "damage"}${stage.crit ? " (critical)" : ""}`;
-    const result = rollComposed(damage);
+    const result = done ?? rollComposed(damage);
     const rec =
       diceTotal === undefined
         ? recordOf(label, "damage", result)
         : recordOf(label, "damage", { ...result, physical: true }, physicalDamageTotal(damage, diceTotal));
+    if (thrown) rec.thrown = true;
     if (diceTotal !== undefined) {
       rec.lines = [
         { source: `Your dice (${diceToRoll(damage)})`, detail: "", total: diceTotal },
@@ -424,12 +460,30 @@ export function Composer({ title, base, attack, physical, onPhysicalChange, onRo
   };
 
   const diceSwitch = (
-    <div className="segmented small" role="radiogroup" aria-label="Who rolls">
+    <div className="segmented small three" role="radiogroup" aria-label="Who rolls">
       <button role="radio" aria-checked={physical} onClick={() => onPhysicalChange(true)}>
         My dice
       </button>
-      <button role="radio" aria-checked={!physical} onClick={() => onPhysicalChange(false)}>
+      <button
+        role="radio"
+        aria-checked={!physical && !dice3d}
+        onClick={() => {
+          setDice3d(false);
+          if (physical) onPhysicalChange(false);
+        }}
+      >
         App rolls
+      </button>
+      <button
+        role="radio"
+        aria-checked={throwing3d}
+        onClick={() => {
+          setDice3d(true);
+          // From your own dice: the character's setting changes too (and says so). From the app's rolls: only this device's.
+          if (physical) onPhysicalChange(false, "3D dice: the faces they land on are your roll.");
+        }}
+      >
+        3D dice
       </button>
     </div>
   );
@@ -503,8 +557,8 @@ export function Composer({ title, base, attack, physical, onPhysicalChange, onRo
         {physical ? (
           <D20Entry key={d20Count(d20)} count={d20Count(d20)} onDone={rollD20} />
         ) : (
-          <button className="big primary wide" onClick={() => rollD20()}>
-            Roll
+          <button className="big primary wide" disabled={throwing} onClick={() => (throwing3d ? throwThen(d20, (r, t) => rollD20(undefined, d20, r, t)) : rollD20())}>
+            {throwing ? "Throwing…" : throwing3d ? "Throw the dice" : "Roll"}
           </button>
         )}
         {attack && (
@@ -539,6 +593,7 @@ export function Composer({ title, base, attack, physical, onPhysicalChange, onRo
     return (
       <>
         <ResultView r={r} />
+        {throwNote && <p className="note">{throwNote}</p>}
         {dc !== undefined && (
           <p className={r.total >= dc ? "pass" : "warn"}>
             {r.total >= dc ? `Success against DC ${dc}.` : `Failed against DC ${dc}.`}
@@ -694,8 +749,8 @@ export function Composer({ title, base, attack, physical, onPhysicalChange, onRo
             </button>
           )
         ) : (
-          <button className="big primary wide" onClick={() => rollDamage()}>
-            {healing ? "Roll healing" : "Roll damage"}
+          <button className="big primary wide" disabled={throwing} onClick={() => (throwing3d ? throwThen(damage, (r, t) => rollDamage(undefined, r, t)) : rollDamage())}>
+            {throwing ? "Throwing…" : throwing3d ? (healing ? "Throw the healing dice" : "Throw the damage dice") : healing ? "Roll healing" : "Roll damage"}
           </button>
         )}
       </>
@@ -706,6 +761,7 @@ export function Composer({ title, base, attack, physical, onPhysicalChange, onRo
     return (
       <>
         <ResultView r={stage.record} />
+        {throwNote && <p className="note">{throwNote}</p>}
         {healing && onHealSelf && (
           <button className="big heal wide" onClick={() => onHealSelf(stage.record.total)}>
             Heal myself {stage.record.total}

@@ -11,6 +11,8 @@ export interface RollRecord {
   /** The spell this roll is for (its content id), and whether it's a later use while it lasts (from the concentration chip). */
   spell?: string;
   again?: boolean;
+  /** The dice faces came from the 3D dice thrown on screen. */
+  thrown?: boolean;
   /** Options turned on for this roll (Reckless Attack), as their labels. */
   options?: string[];
   total: number;

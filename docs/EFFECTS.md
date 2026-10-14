@@ -104,6 +104,21 @@ The effects are decoration only. Each one follows a confirmed change or result a
   - where Moonbeam's beam is, or that it moved;
   - Gust of Wind's direction, or its bonus-action change of direction;
 
+## 3D dice
+
+- **Choice:** in any roll, "Who rolls" has three options: My dice, App rolls and 3D dice. 3D dice is this device's setting (kept in the browser), so a phone and a laptop can differ. Switching to it from "My dice" also changes the character's setting, and the toast says so.
+- **The roll:** the faces the thrown dice land on are the roll (`src/dice3d.ts`, `rollThrown`). The app's dice engine still decides which dice a roll needs and does everything else: keeping the higher or lower d20, crits and crit ranges, natural 1s, minimums, modifiers and totals.
+  - A die the rules roll again (Great Weapon Fighting's 1s and 2s) gets a second throw, for all of them at once.
+  - Dice the 3D set doesn't have (a d3, a d100) are rolled by the app.
+  - A d10's 0 counts as 10.
+- **Library:** @3d-dice/dice-box 1.1.4 (MIT), copied into `packages/app/public/dice-box` with its licence (`src/diceBox.ts`).
+  - It isn't bundled or precached. Nothing of it is fetched until the first throw.
+  - Once fetched, the service worker keeps it for offline use.
+  - The dice are drawn over the whole screen, never take a tap, and clear 1.6 s after they settle.
+- **If it fails:** if the library can't load or a throw doesn't settle in time, the app rolls instead and the result says so (warn, never block). If you close the roll while the dice are in the air, nothing is recorded.
+- **Where it applies:** rolls made in the roll panel (checks, saves, attacks, damage, healing dice from spells and features that open it). Rolls the app makes on its own (a feature's quick temp HP, starting gold) stay digital.
+- The roll's history shows "From the 3D dice".
+
 ## Device-dependent
 
 - **Vibration:** Android browsers only (iPhones don't allow it). It never repeats, because one event gives one pattern.
@@ -112,6 +127,7 @@ The effects are decoration only. Each one follows a confirmed change or result a
 
 ## Testing
 
+- `packages/app/test/dice3d.test.ts` covers 3D dice: faces into the engine (modifiers, advantage, disadvantage, crit range, natural 1), dice of several kinds in order, the reroll throw, dice the set doesn't have, a d10's 0, refused faces, and the engine's own rolls unchanged.
 - `packages/app/test/fx6.test.ts` covers the two placeholders (including Grasping Vine on the Nature domain's list), each nature spell's ground look, their damage looks, and the band following concentration.
 - `packages/app/test/fx5.test.ts` covers damage types (main type, own dice, priority), typed damage taken, charm spells and the Charmed condition, and both transformations with their loops.
 - `packages/app/test/fx.test.ts` also covers casting versus later uses, the ongoing loop following concentration, and unarmed hit, crit and miss.

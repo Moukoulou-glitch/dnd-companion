@@ -180,6 +180,9 @@ export function App() {
   }, [s.toast, s.setToast]);
 
   /** The content with this character's own spells and their effects (a custom spell's tag). */
+  /** "My dice", "App rolls" or "3D dice" in a roll: the character's setting, with what changed in words. */
+  const setPhysicalDice = (p: boolean, label?: string) =>
+    live.current.act("setField", { path: ["settings", "physicalDice"], value: p }, label ?? (p ? "Rolling your own dice." : "The app rolls for you."));
   const effReg = () => (live.current.character ? withCustom(registry, live.current.character) : registry);
   /** Set while a scroll's check has just passed, so casting goes on without asking again. */
   const scrollChecked = useRef(false);
@@ -497,9 +500,7 @@ export function App() {
           }
         }}
         physical={live.current.character?.settings.physicalDice ?? true}
-        onPhysicalChange={(p) =>
-          live.current.act("setField", { path: ["settings", "physicalDice"], value: p }, p ? "Rolling your own dice." : "The app rolls for you.")
-        }
+        onPhysicalChange={setPhysicalDice}
         onRolled={(r) => {
           live.current.addRoll(r);
           opts.onTotal?.(r.total);
@@ -807,7 +808,7 @@ export function App() {
           dcLabel="Constitution saving throw"
           onOptionsUsed={summonRollOpts(id).onOptionsUsed}
           physical={live.current.character?.settings.physicalDice ?? true}
-          onPhysicalChange={(p) => live.current.act("setField", { path: ["settings", "physicalDice"], value: p }, p ? "Rolling your own dice." : "The app rolls for you.")}
+          onPhysicalChange={setPhysicalDice}
           onRolled={(r) => live.current.addRoll(r)}
           onCheck={(passed) => {
             if (!passed) live.current.act("summonConcentration", { id, spell: null }, `${name} loses concentration.`);
@@ -1092,7 +1093,7 @@ export function App() {
         notes={[`Success: ${d.name} goes into your spellbook (${2 * d.level} hours, ${50 * d.level} gp from the spellbook fund). Either way the scroll is destroyed.`]}
         onOptionsUsed={recordOptions}
         physical={live.current.character?.settings.physicalDice ?? true}
-        onPhysicalChange={(p) => live.current.act("setField", { path: ["settings", "physicalDice"], value: p }, p ? "Rolling your own dice." : "The app rolls for you.")}
+        onPhysicalChange={setPhysicalDice}
         onRolled={(r) => live.current.addRoll(r)}
         onCheck={(passed) => live.current.act("copyScroll", { instanceId, success: passed }, passed ? `${d.name}: copied.` : `${d.name}: not copied.`)}
       />
@@ -1857,7 +1858,7 @@ export function App() {
         dcLabel="Constitution saving throw"
         onOptionsUsed={recordOptions}
         physical={live.current.character?.settings.physicalDice ?? true}
-        onPhysicalChange={(p) => live.current.act("setField", { path: ["settings", "physicalDice"], value: p }, p ? "Rolling your own dice." : "The app rolls for you.")}
+        onPhysicalChange={setPhysicalDice}
         onRolled={(r) => live.current.addRoll(r)}
         onCheck={(passed) => {
           // The result decides; the effect only follows it (played before the chip goes away).
@@ -1933,7 +1934,7 @@ export function App() {
           close();
         }}
         physical={live.current.character?.settings.physicalDice ?? true}
-        onPhysicalChange={(p) => live.current.act("setField", { path: ["settings", "physicalDice"], value: p }, p ? "Rolling your own dice." : "The app rolls for you.")}
+        onPhysicalChange={setPhysicalDice}
         onRolled={(r) => live.current.addRoll({ ...r, spell: sp.id, ...(again ? { again: true } : {}) })}
       />
     ));
@@ -1962,7 +1963,7 @@ export function App() {
           dcLabel={`${ab} check (your spellcasting ability)`}
           notes={["A failure: the spell fades from the scroll with no effect, and the scroll is gone."]}
           physical={live.current.character?.settings.physicalDice ?? true}
-          onPhysicalChange={(p) => live.current.act("setField", { path: ["settings", "physicalDice"], value: p }, p ? "Rolling your own dice." : "The app rolls for you.")}
+          onPhysicalChange={setPhysicalDice}
           onRolled={(r) => live.current.addRoll(r)}
           onCheck={(passed) => {
             if (!passed) {
