@@ -33,6 +33,40 @@ The effects are decoration only. Each one follows a confirmed change or result a
 | I | Golden star with rising motes (gained), or flare and dissolve (spent) | Inspiration count that actually changed | Where you swiped | 650 ms | — |
 | J | Slow golden rings and "Level N" growing | A confirmed level-up | Middle of the screen | 1 s | short triple |
 
+## Damage types, charm and transformations
+
+- **Data:** `packages/app/src/fx/looks.ts`. It holds looks only, no rules.
+  - `DAMAGE_FX`: a colour, a drawn piece and a name for each of the 13 damage types.
+  - `CHARM_SPELLS`: the spells that charm.
+  - `FORM_FX`: transformation looks, keyed by the state (toggle) the feature turns on in the content.
+- **Damage type on a damage roll:** the type with the most damage in the roll plays at the roll's total, with its name. If you entered your own dice's total, the roll's first type plays. Nothing plays when a spell's own look or Sneak Attack already does.
+- **Damage you take:** typed damage that all got through plays its type at the HP box ("−7 fire"). When some was stopped, the shield ring plays instead, as before. Untyped damage plays nothing, as before.
+- **Looks:**
+
+  | Type | Look |
+  |---|---|
+  | fire | embers rising |
+  | cold | frost shards and a dotted rim |
+  | lightning | a jagged bolt |
+  | thunder | rings pushing out |
+  | acid | drops falling |
+  | poison | slow cloud puffs |
+  | necrotic | dark wisps drawn in |
+  | radiant | golden rays |
+  | psychic | rings pressing in |
+  | force | one crisp ring |
+  | slashing | a cut |
+  | piercing | a thrust |
+  | bludgeoning | an impact |
+- **Charm:**
+  - Casting a spell that charms (Charm Person, Charm Monster, Animal Friendship, the Dominate spells, Hypnotic Pattern, Geas, Modify Memory) draws a rose-violet spiral in where you tapped.
+  - While you concentrate on one, a faint rose shimmer sits at the bottom edge.
+  - The Charmed condition landing on you plays a rose haze at the edges and a slow spiral, labelled "Charmed". It plays once, not again while it's there, and nothing plays when it ends.
+- **Transformations:**
+  - **Necrotic Shroud:** darkness and a violet glow close in from the edges, and faint skeletal wings draw at the sides.
+  - **Form of Dread:** a cold, deathly pallor washes out from the middle, with tatters of shadow rising.
+  - Each plays once, when the feature's state turns on (however it was turned on). A quiet loop stays at the edges while the state is on, and it ends with the state (the duration running out, a rest, switching it off). A reload keeps the loop but doesn't replay the start.
+
 ## Spells by phase and unarmed strikes
 
 - **Registry:** `packages/app/src/fx/spells.ts` (`SPELL_FX`) is keyed by spell id. It holds looks only, no mechanics. Each spell can have a look for up to four phases:
@@ -67,6 +101,7 @@ The effects are decoration only. Each one follows a confirmed change or result a
 
 ## Testing
 
+- `packages/app/test/fx5.test.ts` covers damage types (main type, own dice, priority), typed damage taken, charm spells and the Charmed condition, and both transformations with their loops.
 - `packages/app/test/fx.test.ts` also covers casting versus later uses, the ongoing loop following concentration, and unarmed hit, crit and miss.
 - `packages/app/test/fx.test.ts` runs real operations through the store and checks the triggers:
   - crit and natural 1 only on attack rolls;

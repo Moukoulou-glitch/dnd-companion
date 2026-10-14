@@ -3092,3 +3092,86 @@ button.mpip {
 .item-applied li + li {
   margin-top: 2px;
 }
+
+/* ── Damage types, charm and forms (fx/looks.ts) ───────────────────────── */
+/* A damage type: its colour (--fx-c) on shared pieces, plus one piece of its own. At the roll's total, or the HP box when it hits you. */
+.fx-dmg .fx-core { width: 64px; height: 64px; background: radial-gradient(circle, rgba(var(--fx-c), 0.75), rgba(var(--fx-c), 0) 70%); animation: fx-pop var(--fx-ms) ease-out forwards; }
+.fx-dmg .fx-ring { border-color: rgba(var(--fx-c), 0.8); animation: fx-ripple var(--fx-ms) ease-out forwards; }
+.fx-dmg .fx-dot { background: rgb(var(--fx-c)); box-shadow: 0 0 5px rgba(var(--fx-c), 0.9); }
+.fx-dmg .fx-label { color: rgb(var(--fx-c)); }
+.fx-hurt .fx-label { top: 44px; }
+.fx-dmg-svg { width: 100px; height: 100px; fill: none; stroke: rgba(var(--fx-c), 0.95); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 4px rgba(var(--fx-c), 0.8)); }
+.fx-dmg-svg path { stroke-dasharray: 1; stroke-dashoffset: 1; animation: fx-slash var(--fx-ms) ease-out forwards; }
+/* fire: embers rising */
+.fx-dmg-embers .fx-dot { animation-name: fx-rise; width: 4px; height: 6px; border-radius: 50% 50% 40% 40%; }
+/* cold: frost shards flying out, a hard white edge */
+.fx-dmg-frost .fx-dot { width: 3px; height: 9px; border-radius: 1px; background: #eaf6ff; }
+.fx-dmg-frost .fx-ring { border-width: 3px; border-style: dotted; }
+/* lightning: a jagged bolt and a flash */
+.fx-dmg-bolt .fx-core { animation-duration: 220ms; }
+.fx-dmg-bolt .fx-dmg-svg { stroke-width: 3.5; stroke: #fff; }
+/* thunder and psychic: rings, out (a shockwave) or in (waves pressing on the mind) */
+.fx-dmg-shock .fx-dmg-svg circle, .fx-dmg-waves .fx-dmg-svg circle { stroke-width: 2; opacity: 0; animation: fx-ring-out var(--fx-ms) ease-out forwards; }
+.fx-dmg-shock .fx-dmg-svg circle:nth-child(2), .fx-dmg-waves .fx-dmg-svg circle:nth-child(2) { animation-delay: 70ms; }
+.fx-dmg-shock .fx-dmg-svg circle:nth-child(3), .fx-dmg-waves .fx-dmg-svg circle:nth-child(3) { animation-delay: 140ms; }
+.fx-dmg-waves .fx-dmg-svg circle { animation-name: fx-ring-in; stroke-dasharray: 3 4; }
+@keyframes fx-ring-out { 0% { opacity: 0.9; scale: 0.4; } 100% { opacity: 0; scale: 1.5; } }
+@keyframes fx-ring-in { 0% { opacity: 0; scale: 1.5; } 40% { opacity: 0.9; } 100% { opacity: 0; scale: 0.3; } }
+/* acid: drops falling */
+.fx-dmg-drip .fx-dot { animation-name: fx-drop; width: 5px; height: 7px; border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%; }
+@keyframes fx-drop { 0% { opacity: 1; transform: translate(calc(-50% + var(--dx)), -50%); } 100% { opacity: 0; transform: translate(calc(-50% + var(--dx)), 34px); } }
+/* poison: slow puffs of a sickly cloud */
+.fx-dmg-cloud .fx-core { width: 90px; height: 70px; filter: blur(3px); }
+.fx-dmg-cloud .fx-dot { width: 18px; height: 18px; opacity: 0.5; filter: blur(3px); }
+/* necrotic: dark wisps drawn in, the light going out of it */
+.fx-dmg-wisps .fx-core { background: radial-gradient(circle, rgba(20, 0, 30, 0.75), rgba(var(--fx-c), 0.3) 45%, rgba(0, 0, 0, 0) 70%); }
+.fx-dmg-wisps .fx-dot { animation-name: fx-inward; width: 4px; height: 12px; border-radius: 2px; background: rgba(var(--fx-c), 0.9); }
+.fx-dmg-wisps .fx-label { color: #c9a6e8; }
+/* radiant: golden rays */
+.fx-dmg-rays .fx-core { background: radial-gradient(circle, #fff, rgba(var(--fx-c), 0.8) 35%, rgba(0, 0, 0, 0) 70%); }
+/* force: one crisp ring */
+.fx-dmg-force .fx-ring { border-width: 3px; box-shadow: 0 0 10px rgba(var(--fx-c), 0.8); animation: fx-shield var(--fx-ms) ease-out forwards; }
+/* slashing, piercing, bludgeoning: a cut, a thrust, an impact */
+.fx-dmg-cut .fx-core, .fx-dmg-stab .fx-core { opacity: 0 !important; animation: none; }
+.fx-dmg-impact .fx-core { width: 54px; height: 54px; }
+.fx-dmg-impact .fx-dot { width: 4px; height: 4px; border-radius: 1px; }
+
+/* Charmed on you: a rose haze at the edges and a slow spiral */
+.fx-charmed { position: absolute; inset: 0; box-shadow: inset 0 0 80px 18px rgba(240, 120, 190, 0.45); animation: fx-beat var(--fx-ms) ease-in-out forwards; }
+.fx-charm-swirl { position: absolute; left: 50%; top: 38%; width: 160px; height: 160px; translate: -50% -50%; fill: none; stroke: rgba(250, 170, 220, 0.75); stroke-width: 1.6; stroke-linecap: round; animation: sfx-whirl var(--fx-ms) ease-in-out forwards; }
+.fx-charm-swirl path { stroke-dasharray: 1; stroke-dashoffset: -1; animation: fx-converge var(--fx-ms) ease-in forwards; }
+.fx-charmed .fx-label { color: #ffc2e6; }
+/* A spell that charms: a rose-violet spiral drawing in where you tapped */
+.sfx-charm .fx-core { background: radial-gradient(circle, rgba(250, 160, 220, 0.55), rgba(170, 110, 240, 0.25) 50%, rgba(0, 0, 0, 0) 72%); animation: fx-pop var(--fx-ms) 250ms ease-out forwards; }
+.sfx-charm .fx-ring { border-color: rgba(240, 150, 215, 0.8); animation: fx-ring-in var(--fx-ms) ease-in forwards; }
+.sfx-charm-spiral { stroke: rgba(245, 160, 220, 0.9) !important; }
+.sfx-ongoing-charm > span:first-child { display: block; left: 0; right: 0; bottom: 56px; height: 12px; background: linear-gradient(to top, rgba(240, 140, 205, 0.28), rgba(240, 140, 205, 0)); animation: sfx-shimmer 4s ease-in-out infinite; }
+
+/* Transformations: full-screen, a short start, then a quiet loop at the edges while it lasts */
+.fx-form { position: absolute; inset: 0; }
+.fx-form .fx-label { font-size: 1.15rem; }
+/* Necrotic Shroud: darkness closing in from the edges, faint skeletal wings at the sides */
+.fx-form-shroud { background: radial-gradient(ellipse at 50% 45%, rgba(10, 0, 20, 0.15), rgba(10, 0, 20, 0.55) 75%); box-shadow: inset 0 0 90px 24px rgba(130, 70, 190, 0.6), inset 0 0 26px 4px rgba(190, 150, 240, 0.45); animation: fx-shroud var(--fx-ms) ease-in-out forwards; }
+@keyframes fx-shroud { 0% { opacity: 0; } 30% { opacity: 1; } 75% { opacity: 0.9; } 100% { opacity: 0; } }
+.fx-wings { position: absolute; inset: 0; width: 100%; height: 100%; fill: none; stroke: rgba(215, 195, 245, 0.9); stroke-width: 3; stroke-linecap: round; filter: drop-shadow(0 0 6px rgba(60, 20, 90, 0.95)); }
+.fx-wings path { stroke-dasharray: 1; stroke-dashoffset: 1; animation: fx-wing var(--fx-ms) ease-out forwards; }
+.fx-wings path:nth-child(even) { animation-delay: 120ms; opacity: 0.7; }
+@keyframes fx-wing { 0% { stroke-dashoffset: 1; opacity: 0; } 20% { opacity: 1; } 55% { stroke-dashoffset: 0; opacity: 1; } 100% { stroke-dashoffset: 0; opacity: 0; } }
+.fx-form-shroud .fx-label { color: #d6bff0; }
+.sfx-ongoing-shroud > span:nth-child(-n + 2) { display: block; top: 22%; bottom: 22%; width: 26px; background: linear-gradient(to right, rgba(130, 70, 190, 0.4), rgba(130, 70, 190, 0)); animation: sfx-shimmer 4.4s ease-in-out infinite; }
+.sfx-ongoing-shroud > span:nth-child(1) { left: 0; }
+.sfx-ongoing-shroud > span:nth-child(2) { right: 0; transform: scaleX(-1); animation-delay: -2.2s; }
+/* Form of Dread: a cold, deathly pallor washing out from the middle, tatters of shadow drifting up */
+.fx-form-dread { background: radial-gradient(circle at 50% 42%, rgba(210, 230, 210, 0.45), rgba(100, 125, 110, 0.3) 35%, rgba(10, 20, 15, 0.7) 85%); box-shadow: inset 0 0 60px 10px rgba(160, 200, 170, 0.35); animation: fx-dread var(--fx-ms) ease-out forwards; }
+@keyframes fx-dread { 0% { opacity: 0; } 18% { opacity: 1; } 30% { opacity: 0.55; } 42% { opacity: 1; } 100% { opacity: 0; } }
+.fx-tatter { position: absolute; bottom: -10%; left: calc(6% + var(--i) * 12%); width: 22px; height: 46%; border-radius: 50% 50% 0 0; background: linear-gradient(to top, rgba(20, 30, 25, 0.65), rgba(150, 175, 160, 0)); filter: blur(2px); animation: fx-tatter var(--fx-ms) ease-out forwards; animation-delay: calc(var(--i) * 40ms); }
+@keyframes fx-tatter { 0% { opacity: 0; translate: 0 20%; } 35% { opacity: 1; } 100% { opacity: 0; translate: 0 -45%; } }
+.fx-form-dread .fx-label { color: #cfe3d6; }
+.sfx-ongoing-dread > span:first-child { display: block; inset: 0; box-shadow: inset 0 0 50px 8px rgba(150, 185, 160, 0.3); animation: sfx-shimmer 5.2s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .fx-charmed, .fx-form, .fx-wings path, .fx-tatter, .fx-charm-swirl path { animation: fx-static 450ms ease-out forwards !important; translate: 0 0 !important; stroke-dashoffset: 0 !important; }
+  .fx-charm-swirl { translate: -50% -50% !important; }
+  .fx-dmg-svg path, .fx-dmg-svg circle { animation: fx-static 450ms ease-out forwards !important; stroke-dashoffset: 0 !important; scale: 1 !important; }
+  .fx-tatter { display: none; }
+}

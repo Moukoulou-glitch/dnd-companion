@@ -1,5 +1,6 @@
 import type { Character } from "@dnd/schema";
 import type { RollRecord } from "../rolls";
+import { CHARMED, DAMAGE_FX, FORM_FX, damageKey } from "./looks";
 import { spellFxOf, type SpellPhase } from "./spells";
 
 /**
@@ -30,7 +31,15 @@ export type FxEvent =
   /** Reckless Attack taken on an attack roll (a streak); "hit" when that attack is called a hit. */
   | { kind: "reckless"; hit: boolean }
   /** An unarmed strike the player marked as a hit, a critical hit or a miss. */
-  | { kind: "unarmed"; result: "hit" | "crit" | "miss" };
+  | { kind: "unarmed"; result: "hit" | "crit" | "miss" }
+  /** A damage roll's main damage type (the one with the most damage). */
+  | { kind: "damage-type"; type: string }
+  /** Typed damage that got through to you (none of it stopped). */
+  | { kind: "hurt"; type: string; amount: number }
+  /** The Charmed condition put on you. */
+  | { kind: "charmed" }
+  /** A transformation started (Necrotic Shroud, Form of Dread): by the state the feature turns on. */
+  | { kind: "form"; form: string };
 
 /** A saved roll: crit and natural 1 on attack rolls only; Sneak Attack when its dice are in the damage. */
 export function rollFx(r: RollRecord): FxEvent[] {
@@ -46,7 +55,23 @@ export function rollFx(r: RollRecord): FxEvent[] {
   // A spell's damage: right after casting it resolves; from the concentration chip it's a later use.
   const phase: SpellPhase = r.again ? "again" : "resolve";
   if (r.spell && spellFxOf(r.spell)?.[phase]) out.push({ kind: "spell", spell: r.spell, phase });
+  // The damage type's look, only when nothing else plays on this roll (a spell's own look or Sneak Attack say more).
+  if (!out.length) {
+    const type = mainType(r);
+    if (type) out.push({ kind: "damage-type", type });
+  }
   return out;
+}
+
+/** The damage type with the most damage in a roll (the first one on a tie); undefined when none has a look. */
+export function mainType(r: RollRecord): string | undefined {
+  let best: { key: string; n: number } | undefined;
+  for (const [label, n] of Object.entries(r.byType ?? {})) {
+    const key = damageKey(label);
+    if (key && n > 0 && (!best || n > best.n)) best = { key, n };
+  }
+  // Your own dice entered as a total: no split by type, so the weapon's (first) type.
+  return best?.key ?? (r.physical ? damageKey(r.mainType) : undefined);
 }
 
 const level = (c: Character) => c.classes.reduce((t, k) => t + k.level, 0);
@@ -72,6 +97,11 @@ export function opFx(type: string, payload: unknown, before: Character, after: C
       if (tempLost + hpLost === 0) out.push({ kind: "defend", how: tempLost > 0 ? "absorbed" : "prevented", amount: dealt });
       else if (tempLost > 0) out.push({ kind: "defend", how: "absorbed", amount: tempLost });
       else if (hpLost < dealt && ha.current > 0) out.push({ kind: "defend", how: "reduced", amount: dealt - hpLost });
+      // All of it got through: the damage type's look on the HP box (untyped damage: nothing, as before).
+      else {
+        const type = damageKey(typeof p.damageType === "string" ? p.damageType : undefined);
+        if (type && hpLost > 0) out.push({ kind: "hurt", type, amount: hpLost });
+      }
     }
   }
   // Durable's Hit Die against damage: the reduction is the result.
@@ -101,6 +131,13 @@ export function opFx(type: string, payload: unknown, before: Character, after: C
     if (p.action === "hand-of-healing") out.push({ kind: "mercy", hand: "healing" });
     if (p.action === "hand-of-harm") out.push({ kind: "mercy", hand: "harm" });
   }
+
+  // The Charmed condition, only when it's new on you (not on a summoned creature, not when it was already there).
+  const charmed = (c: Character) => c.effects.some((e) => e.effect === CHARMED);
+  if (!charmed(before) && charmed(after)) out.push({ kind: "charmed" });
+
+  // A transformation's state turned on (Necrotic Shroud, Form of Dread), whatever turned it on.
+  for (const t of after.toggles ?? []) if (FORM_FX[t] && !(before.toggles ?? []).includes(t)) out.push({ kind: "form", form: t });
 
   const ib = before.inspirations ?? (before.inspiration ? 1 : 0);
   const ia = after.inspirations ?? (after.inspiration ? 1 : 0);
@@ -134,3 +171,11 @@ export function ongoingFx(c: Character | undefined): { spell: string; look: stri
   const look = (choice && def.modes?.[choice]?.ongoing) || def.ongoing;
   return look ? { spell, look } : undefined;
 }
+
+/** The transformation loops to show now: one per feature state that's on and has a look. */
+export function formFx(c: Character | undefined): { form: string; look: string }[] {
+  return (c?.toggles ?? []).filter((t) => FORM_FX[t]).map((t) => ({ form: t, look: FORM_FX[t]!.ongoing }));
+}
+
+/** Known damage types (for tests and the effects list). */
+export const DAMAGE_TYPES = Object.keys(DAMAGE_FX);

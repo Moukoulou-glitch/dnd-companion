@@ -22,6 +22,8 @@ export interface RollRecord {
   lines: { source: string; detail: string; total: number }[];
   /** Damage only: total per damage type. */
   byType?: Record<string, number>;
+  /** Damage only: the first damage type in it (the weapon's or the spell's), kept even when you entered your own dice's total. */
+  mainType?: string;
 }
 
 export const MAX_ROLLS = 200;
@@ -44,6 +46,10 @@ export function recordOf(title: string, kind: RollRecord["kind"], r: ComposedRol
     lines,
   };
   if (kind === "d20" && r.result.natural !== undefined) rec.natural = r.result.natural;
+  if (kind === "damage") {
+    const first = r.result.terms[0]?.term.label;
+    if (first) rec.mainType = first;
+  }
   if (kind === "damage" && physicalTotal === undefined) {
     // Flat modifiers belong to the weapon's damage type; extra dice keep their own type.
     const byType: Record<string, number> = {};

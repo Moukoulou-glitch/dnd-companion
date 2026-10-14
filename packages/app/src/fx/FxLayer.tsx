@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import type { Character } from "@dnd/schema";
 import type { RollRecord } from "../rolls";
-import { ongoingFx, opFx, rollFx, type FxEvent } from "./triggers";
+import { formFx, ongoingFx, opFx, rollFx, type FxEvent } from "./triggers";
 import { phaseLook } from "./spells";
+import { DAMAGE_FX, FORM_FX } from "./looks";
 
 /**
  * The effects themselves: small, reusable CSS/SVG pieces drawn where they
@@ -24,6 +25,8 @@ export interface FxSpec {
   label?: string;
   /** Pieces flying outward (crit sparks, inspiration motes). */
   particles?: number;
+  /** A damage type's colour and piece (fx/looks.ts). */
+  dmg?: { rgb: string; shape: string };
 }
 
 const SCHOOLS = ["evocation", "abjuration", "necromancy", "conjuration"];
@@ -71,12 +74,73 @@ export function specOf(e: FxEvent): FxSpec {
     case "reckless":
       // The rage colours, small: a streak when it's taken, an impact only on a hit. Never Rage's whole veins.
       return e.hit ? { at: "tap", ms: 380, look: "fx-reckless-hit" } : { at: "result", ms: 350, look: "fx-reckless" };
+    case "damage-type": {
+      const d = DAMAGE_FX[e.type]!;
+      return { at: "result", ms: 520, look: `fx-dmg fx-dmg-${d.shape}`, label: d.label, dmg: { rgb: d.rgb, shape: d.shape }, ...(d.buzz ? { buzz: d.buzz } : {}), ...(PARTICLES[d.shape] ? { particles: PARTICLES[d.shape] } : {}) };
+    }
+    case "hurt": {
+      const d = DAMAGE_FX[e.type]!;
+      return { at: "hp", ms: 560, look: `fx-dmg fx-hurt fx-dmg-${d.shape}`, label: `−${e.amount} ${d.label.toLowerCase()}`, dmg: { rgb: d.rgb, shape: d.shape }, ...(PARTICLES[d.shape] ? { particles: PARTICLES[d.shape] } : {}) };
+    }
+    case "charmed":
+      return { at: "edge", ms: 900, look: "fx-charmed", label: "Charmed" };
+    case "form": {
+      const f = FORM_FX[e.form]!;
+      return { at: "edge", ms: f.ms, look: f.start, label: f.label, ...(f.buzz ? { buzz: f.buzz } : {}) };
+    }
     case "spell": {
       const p = phaseLook(e.spell, e.phase, e.mode);
       // A phase with no look of its own plays nothing big: the generic circle for a cast, nothing otherwise.
       if (!p) return { at: "tap", ms: 700, look: "fx-cast" };
       return { at: p.at, ms: p.ms, look: `sfx ${p.look}`, ...(p.buzz ? { buzz: p.buzz } : {}) };
     }
+  }
+}
+
+/** Damage pieces that use flying dots (embers rising, frost shards, acid drops...). */
+const PARTICLES: Record<string, number> = { embers: 7, frost: 6, drip: 5, cloud: 4, wisps: 6, impact: 5 };
+
+/** The drawn piece for a damage type, in its colour. */
+function DamagePiece({ shape }: { shape: string }) {
+  switch (shape) {
+    case "bolt":
+      return (
+        <svg className="fx-dmg-svg" viewBox="-50 -50 100 100">
+          <path pathLength={1} d="M6,-46 L-8,-10 L6,-6 L-10,46" />
+        </svg>
+      );
+    case "rays":
+      return (
+        <svg className="fx-dmg-svg" viewBox="-50 -50 100 100">
+          {[0, 45, 90, 135, 180, 225, 270, 315].map((a) => (
+            <path key={a} pathLength={1} d="M0,-14 L0,-46" transform={`rotate(${a})`} />
+          ))}
+        </svg>
+      );
+    case "cut":
+      return (
+        <svg className="fx-dmg-svg" viewBox="-50 -50 100 100">
+          <path pathLength={1} d="M-40,34 Q0,4 42,-38" />
+        </svg>
+      );
+    case "stab":
+      return (
+        <svg className="fx-dmg-svg" viewBox="-50 -50 100 100">
+          <path pathLength={1} d="M-44,0 L30,0" />
+          <path pathLength={1} d="M22,-7 L32,0 L22,7" />
+        </svg>
+      );
+    case "waves":
+    case "shock":
+      return (
+        <svg className="fx-dmg-svg" viewBox="-50 -50 100 100">
+          <circle r="16" />
+          <circle r="28" />
+          <circle r="40" />
+        </svg>
+      );
+    default:
+      return null;
   }
 }
 
@@ -153,7 +217,10 @@ export function FxLayer({ school, character }: { school: (spell: string) => stri
 
   return (
     <div className="fx-layer" aria-hidden="true">
-      <Ongoing c={character} />
+      <Ongoing look={ongoingFx(character)?.look} />
+      {FORM_KEYS.map((f) => (
+        <Ongoing key={f} look={formFx(character).find((x) => x.form === f)?.look} />
+      ))}
       {shown.map(({ id, spec, x, y }) =>
         spec.at === "sky" ? (
           <div key={id} className={`fx fx-sky ${spec.look}`} style={{ left: x, height: y, ["--fx-ms" as string]: `${spec.ms}ms` }}>
@@ -179,12 +246,26 @@ export function FxLayer({ school, character }: { school: (spell: string) => stri
           </div>
         ) : spec.at === "edge" ? (
           <div key={id} className={`fx ${spec.look}`} style={{ animationDuration: `${spec.ms}ms`, ["--fx-ms" as string]: `${spec.ms}ms` }}>
+            {spec.look.includes("fx-form-shroud") && (
+              <svg className="fx-wings" viewBox="0 0 390 844" preserveAspectRatio="none">
+                <path pathLength={1} d="M0,300 C60,250 90,300 120,360 C80,350 60,380 40,430 C30,400 10,400 0,420" />
+                <path pathLength={1} d="M0,330 C40,330 70,360 80,410" />
+                <path pathLength={1} d="M390,300 C330,250 300,300 270,360 C310,350 330,380 350,430 C360,400 380,400 390,420" />
+                <path pathLength={1} d="M390,330 C350,330 320,360 310,410" />
+              </svg>
+            )}
+            {spec.look.includes("fx-form-dread") && Array.from({ length: 8 }, (_, i) => <span key={i} className="fx-tatter" style={{ ["--i" as string]: String(i) }} />)}
+            {spec.look === "fx-charmed" && (
+              <svg className="fx-charm-swirl" viewBox="-50 -50 100 100">
+                <path pathLength={1} d="M0,0 C6,-2 8,6 2,9 C-8,13 -14,2 -10,-8 C-4,-20 16,-20 20,-4 C26,16 4,30 -14,24 C-34,16 -36,-14 -18,-30 C0,-44 30,-38 40,-14" />
+              </svg>
+            )}
             {spec.look.includes("sfx-weather") &&
               Array.from({ length: 14 }, (_, i) => <span key={i} className="sfx-fleck" style={{ left: `${(i * 37) % 100}%`, animationDelay: `${(i % 7) * 90}ms` }} />)}
             {spec.label && <span className="fx-label fx-label-mid">{spec.label}</span>}
           </div>
         ) : (
-          <div key={id} className={`fx fx-at ${spec.look}`} style={{ left: x, top: y, ["--fx-ms" as string]: `${spec.ms}ms` }}>
+          <div key={id} className={`fx fx-at ${spec.look}`} style={{ left: x, top: y, ["--fx-ms" as string]: `${spec.ms}ms`, ...(spec.dmg ? { ["--fx-c" as string]: spec.dmg.rgb } : {}) }}>
             <span className="fx-core" />
             <span className="fx-ring" />
             {spec.look.startsWith("fx-cast") && (
@@ -229,11 +310,17 @@ export function FxLayer({ school, character }: { school: (spell: string) => stri
                 <path pathLength={1} d="M-50,24 L56,0" />
               </svg>
             )}
+            {spec.look.includes("sfx-charm") && (
+              <svg className="sfx-whirl sfx-charm-spiral" viewBox="-50 -50 100 100">
+                <path pathLength={1} d="M0,0 C6,-2 8,6 2,9 C-8,13 -14,2 -10,-8 C-4,-20 16,-20 20,-4 C26,16 4,30 -14,24 C-34,16 -36,-14 -18,-30 C0,-44 30,-38 40,-14" />
+              </svg>
+            )}
             {spec.look.includes("sfx-water-whirl") && (
               <svg className="sfx-whirl" viewBox="-50 -50 100 100">
                 <path pathLength={1} d="M0,0 C6,-2 8,6 2,9 C-8,13 -14,2 -10,-8 C-4,-20 16,-20 20,-4 C26,16 4,30 -14,24 C-34,16 -36,-14 -18,-30 C0,-44 30,-38 40,-14" />
               </svg>
             )}
+            {spec.dmg && <DamagePiece shape={spec.dmg.shape} />}
             {spec.look.startsWith("fx-insp") && (
               <svg className="fx-star" viewBox="-50 -50 100 100">
                 <path d="M0,-22 L6,-7 L22,-7 L9,3 L14,19 L0,10 L-14,19 L-9,3 L-22,-7 L-6,-7 Z" />
@@ -251,21 +338,22 @@ export function FxLayer({ school, character }: { school: (spell: string) => stri
 }
 
 /**
- * A spell's quiet loop while you concentrate on it (Moonbeam's shimmer, Call
- * Lightning's storm, Gust of Wind's stream). Follows the engine's concentration
- * state only: it appears with it, fades out when it ends, pauses while the app
- * is in the background, and stands still under reduced motion.
+ * A quiet loop at the screen's edges: a spell's while you concentrate on it
+ * (Moonbeam's shimmer, Call Lightning's storm), or a transformation's while its
+ * state is on (Necrotic Shroud, Form of Dread). Follows the engine's state only:
+ * it appears with it, fades out when it ends, pauses while the app is in the
+ * background, and stands still under reduced motion.
  */
-function Ongoing({ c }: { c: Character | undefined }) {
-  const now = ongoingFx(c);
-  const [shown, setShown] = useState<{ look: string; ending: boolean } | undefined>(now ? { look: now.look, ending: false } : undefined);
+const FORM_KEYS = Object.keys(FORM_FX);
+
+function Ongoing({ look }: { look: string | undefined }) {
+  const [shown, setShown] = useState<{ look: string; ending: boolean } | undefined>(look ? { look, ending: false } : undefined);
   const [hidden, setHidden] = useState(typeof document !== "undefined" && document.hidden);
   useEffect(() => {
     const v = () => setHidden(document.hidden);
     document.addEventListener("visibilitychange", v);
     return () => document.removeEventListener("visibilitychange", v);
   }, []);
-  const look = now?.look;
   useEffect(() => {
     if (look) return setShown({ look, ending: false });
     setShown((s) => (s ? { ...s, ending: true } : s));

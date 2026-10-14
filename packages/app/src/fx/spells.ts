@@ -1,3 +1,4 @@
+import { CHARM_SPELLS } from "./looks";
 /**
  * Spell effects by phase, keyed by the spell's content id (never its name).
  * Animation only: nothing here knows or changes how a spell works. Each phase
@@ -34,7 +35,7 @@ export interface PhaseLook {
 }
 
 export interface SpellFxDef {
-  family: "moonlight" | "lightning" | "wind" | "water" | "ice" | "weather";
+  family: "moonlight" | "lightning" | "wind" | "water" | "ice" | "weather" | "charm";
   cast?: PhaseLook;
   again?: PhaseLook;
   resolve?: PhaseLook;
@@ -107,5 +108,9 @@ Object.assign(SPELL_FX, {
     },
   },
 } satisfies Record<string, SpellFxDef>);
+
+// Spells that charm (fx/looks.ts CHARM_SPELLS): a rose-violet spiral drawing in where you tapped; while you
+// concentrate on one (Dominate Person, Hypnotic Pattern), a faint rose shimmer at the bottom edge.
+for (const id of CHARM_SPELLS) SPELL_FX[id] = { family: "charm", cast: { look: "sfx-charm", ms: 900, at: "tap" }, ongoing: "sfx-ongoing-charm" };
 
 export const spellFxOf = (spell: string | undefined): SpellFxDef | undefined => (spell ? SPELL_FX[spell] : undefined);
