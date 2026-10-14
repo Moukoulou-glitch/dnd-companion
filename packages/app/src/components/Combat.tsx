@@ -1,3 +1,5 @@
+import { Markdown } from "./Markdown";
+import { hpTier } from "../hp";
 import { RichText } from "./Conditions";
 import { ABILITIES, ABILITY_NAMES, SKILL_ABILITY, SKILL_NAMES, type Character, type OperationType, type Skill } from "@dnd/schema";
 import { formatBonus, readiedNow, signed, turnReminders, type CompanionResult, type DerivedSheet, type RollBreakdown, type WeaponAttack } from "@dnd/engine";
@@ -241,7 +243,7 @@ export function CompanionCard({ comp, onOpen }: { comp: CompanionResult; onOpen:
         )}
       </div>
       {f && (
-        <span className={`num${f.hp.current === 0 ? " danger-text" : ""}`}>
+        <span className={`num hp-frame tier-${hpTier(f.hp.current, f.hpMax.total)}${f.hp.current === 0 ? " danger-text" : ""}`}>
           {f.hp.current}
           <small>/{f.hpMax.total}</small>
           {f.hp.temp > 0 && <small className="temp"> +{f.hp.temp}</small>}
@@ -262,7 +264,10 @@ export function CompanionPanel({
   openHp,
   onCommand,
   onAttackInstead,
+  onEdit,
 }: {
+  /** One you made: change it in the Companion Builder. */
+  onEdit?: () => void;
   comp: CompanionResult;
   character: Character;
   sheet: DerivedSheet;
@@ -307,11 +312,11 @@ export function CompanionPanel({
   return (
     <>
       <p className="row-sub">
-        {f.size} {f.type}, from {comp.source}
+        {f.size} {f.type}, {comp.custom ? `${comp.custom.kind || "companion"} of yours` : `from ${comp.source}`}
       </p>
 
       <div className="stat-row">
-        <button className="stat" onClick={openHp}>
+        <button className={`stat hp-frame tier-${hpTier(f.hp.current, f.hpMax.total)}`} onClick={openHp}>
           <b className={dead ? "danger-text" : ""}>
             {f.hp.current}
             <small>/{f.hpMax.total}</small>
@@ -344,7 +349,8 @@ export function CompanionPanel({
         </section>
       )}
 
-      {character.combat && !dead && (
+      {/* Your own companions act on their own (or as your DM says): no Beast Master commands. */}
+      {character.combat && !dead && !comp.custom && (
         <div className="big-actions">
           <button className="big" onClick={onCommand}>
             Command it
@@ -413,6 +419,22 @@ export function CompanionPanel({
         {f.saveDc !== undefined && <p className="note">Its save DC is your spell save DC, {f.saveDc}.</p>}
       </div>
 
+      {comp.custom ? (
+        <>
+          {comp.custom.notes && (
+            <>
+              <h2 className="sub-head">Notes</h2>
+              <Markdown className="story-view" text={comp.custom.notes} />
+            </>
+          )}
+          {onEdit && (
+            <button className="big wide" onClick={onEdit}>
+              Edit {comp.name}
+            </button>
+          )}
+        </>
+      ) : (
+        <>
       <h2 className="sub-head">Name and form</h2>
       <NameField
         value={character.companions[comp.id]?.name ?? ""}
@@ -421,6 +443,8 @@ export function CompanionPanel({
       />
       <p className="note">A different beast after a long rest arrives with full hit points.</p>
       {chooseForm}
+        </>
+      )}
     </>
   );
 }

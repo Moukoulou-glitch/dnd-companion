@@ -82,3 +82,8 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 - An item's description is shown, not applied; only the changes you add are.
 - Markdown: no tables, images or underline in the Backstory and notes; a list inside a list needs two spaces in front.
 - A note written before in-world dates were kept is placed by its date text; if the table changed calendars since, it goes under “No in-world date” (its date text still shows).
+
+## Your own companions
+- One stat block each (no forms to switch between). Skills, damage resistances and condition immunities from a stat block go in its traits as text; checks use the ability modifier.
+- Your own companions don't get the Beast Master's command buttons: they act on their own turn or as your DM says. Spending your action or bonus action to command one is up to you (the combat pills).
+- An attack's note (a save, knocking prone) is shown, not applied.

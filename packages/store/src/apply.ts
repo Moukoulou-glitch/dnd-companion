@@ -1,5 +1,5 @@
 import { Character, CombatState, type Operation, type ValueExpr } from "@dnd/schema";
-import { componentCount, withCustom, customItemId, customSpellId, FLEX_COST, castingEconomy, derive, evalFlat, levelGains, damageAfterDefenses, materialNeed, multiclassIssues, shapeIssues, summonBlock, summonHpBonus, type ContentRegistry } from "@dnd/engine";
+import { componentCount, withCustom, customCompanionId, customItemId, customSpellId, FLEX_COST, castingEconomy, derive, evalFlat, levelGains, damageAfterDefenses, materialNeed, multiclassIssues, shapeIssues, summonBlock, summonHpBonus, type ContentRegistry } from "@dnd/engine";
 
 /** Effects a summoned creature holds with its own concentration (Barkskin on itself) end with it. */
 function dropSummonConcentration(x: Character["summons"][number], spell: string) {
@@ -1856,6 +1856,23 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       const iid = customItemId(op.payload.id);
       c.customItems = c.customItems.filter((x) => x.id !== op.payload.id);
       c.inventory = c.inventory.filter((x) => x.item !== iid);
+      break;
+    }
+
+    case "setCustomCompanion": {
+      const cc = op.payload.companion;
+      const i = c.customCompanions.findIndex((x) => x.id === cc.id);
+      if (i >= 0) c.customCompanions[i] = cc;
+      else c.customCompanions.push(cc);
+      // Its HP can't be above a lower new maximum.
+      const st = c.companions[customCompanionId(cc.id)];
+      if (st?.hp && st.hp.current > cc.hpMax) st.hp.current = cc.hpMax;
+      break;
+    }
+
+    case "removeCustomCompanion": {
+      c.customCompanions = c.customCompanions.filter((x) => x.id !== op.payload.id);
+      delete c.companions[customCompanionId(op.payload.id)];
       break;
     }
 

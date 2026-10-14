@@ -158,6 +158,7 @@ export function PlayTab({
   onStartCombat,
   openMove,
   openCompanion,
+  openCompanionBuilder,
   prompts,
   onInitiative,
   openDeathSave,
@@ -188,6 +189,8 @@ export function PlayTab({
   onStartCombat: () => void;
   openMove: () => void;
   openCompanion: (id: string) => void;
+  /** The Companion Builder: a companion of your own. */
+  openCompanionBuilder: () => void;
   prompts: PlayPrompts;
   onInitiative: () => void;
   /** A death saving throw: tap the d20 or let the app roll. */
@@ -209,15 +212,22 @@ export function PlayTab({
       <ShapeCard sheet={sheet} onOpen={openShape} onTransform={openTransform} />
       <SummonsCard character={character} reg={reg} onOpen={openSummonGroup} />
 
-      {sheet.companions.length > 0 && (
+      {sheet.companions.length > 0 ? (
         <section>
-          <h2>Companion</h2>
+          <h2>{sheet.companions.length > 1 ? "Companions" : "Companion"}</h2>
           <div className="group">
             {sheet.companions.map((comp) => (
               <CompanionCard key={comp.id} comp={comp} onOpen={() => openCompanion(comp.id)} />
             ))}
           </div>
+          <button className="link" onClick={openCompanionBuilder}>
+            + Another companion
+          </button>
         </section>
+      ) : (
+        <button className="link" onClick={openCompanionBuilder}>
+          + A companion of your own (pet, mount, hireling)
+        </button>
       )}
 
       {!character.combat && sheet.effects.some((e) => e.rounds !== undefined) && (

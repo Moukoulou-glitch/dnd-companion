@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
-import { buildItems, customItemId, customSpellId, withCustom, castingEconomy, creatureSpellRoll, formatBonus, summonBlock, materialNeed, maxSpellLevel, newCharacter, spellListOf, signed, turnWarnings, type TurnIntent, type RollBreakdown } from "@dnd/engine";
+import { buildItems, customCompanionId, customItemId, customSpellId, withCustom, castingEconomy, creatureSpellRoll, formatBonus, summonBlock, materialNeed, maxSpellLevel, newCharacter, spellListOf, signed, turnWarnings, type TurnIntent, type RollBreakdown } from "@dnd/engine";
 import { ABILITY_NAMES, SKILL_NAMES, type Character, type Skill } from "@dnd/schema";
 import { roll as rollDice, type ComposerBase } from "@dnd/dice";
 import { ShapePanel, TextList, TransformPanel } from "./components/Shapes";
@@ -23,6 +23,7 @@ import type { EconomyKind } from "./components/Combat";
 import { HP_TIER_WORDS, hpBlinks, hpTier } from "./hp";
 import { strikeFx } from "./fx/triggers";
 import { CustomActionForm, CustomItemForm, CustomSpellForm } from "./components/CustomForms";
+import { CompanionBuilder } from "./components/CompanionBuilder";
 import { RollAdjustPanel } from "./components/RollAdjust";
 import { DurablePanel } from "./components/Durable";
 import { DefensesPanel } from "./components/Defenses";
@@ -1438,6 +1439,19 @@ export function App() {
       />
     ));
 
+  /** The Companion Builder: a new companion of your own, or one to change (then back to its sheet). */
+  const openCompanionBuilder = (customId?: string) => {
+    const editing = customId ? live.current.character?.customCompanions.find((x) => x.id === customId) : undefined;
+    open(editing ? `Change ${editing.name}` : "Your own companion", () => (
+      <CompanionBuilder
+        reg={registry}
+        act={live.current.act}
+        {...(editing ? { editing } : {})}
+        done={(deleted) => (editing && !deleted ? openCompanion(customCompanionId(editing.id)) : close())}
+      />
+    ));
+  };
+
   const openCompanion = (id: string) =>
     open(sheet.companions.find((x) => x.id === id)?.name ?? "Companion", () => {
       const comp = live.current.sheet?.companions.find((x) => x.id === id);
@@ -1452,6 +1466,7 @@ export function App() {
           open={open}
           openRoll={openRoll}
           openHp={() => openCompanionHp(id)}
+          {...(comp.custom ? { onEdit: () => openCompanionBuilder(comp.custom!.id) } : {})}
           onCommand={() =>
             guard(
               { name: `Command ${comp.name}`, economy: "bonus" },
@@ -2361,6 +2376,7 @@ export function App() {
           openIdentity={() => open("Who you are", () => (live.current.character ? <IdentityPanel c={live.current.character} act={live.current.act} /> : null))}
           openMove={openMove}
           openCompanion={openCompanion}
+          openCompanionBuilder={() => openCompanionBuilder()}
           openShape={openShape}
           openTransform={openTransform}
           openSummonGroup={openSummonGroup}

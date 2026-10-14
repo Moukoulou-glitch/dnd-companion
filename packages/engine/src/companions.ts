@@ -1,4 +1,4 @@
-import { ABILITIES, ABILITY_NAMES, type Ability, type CompanionDef, type CompanionState } from "@dnd/schema";
+import { ABILITIES, ABILITY_NAMES, type Ability, type CompanionDef, type CompanionState, type CreatureDef, type CustomCompanion } from "@dnd/schema";
 import type { Breakdown, Part, RollBreakdown } from "./breakdown.js";
 import { evalExpr, type ExprContext } from "./expr.js";
 import type { SpellcastingResult, WeaponAttack } from "./derive.js";
@@ -14,6 +14,8 @@ export interface CompanionResult {
   reviveNote?: string;
   /** Tags for what it's doing until your next turn starts (Dodge, Ready: Attack). */
   states: { id: string; name: string }[];
+  /** One the player made (Companion Builder): its own id, notes, and the creature it started from. */
+  custom?: { id: string; notes: string; kind: string; from?: string };
   /** Missing until the player picks a form. */
   form?: {
     id: string;
@@ -63,10 +65,7 @@ export function deriveCompanion(
 
   const acParts = exprParts(f.ac, "Base");
   const levels = ctx.classLevels[f.hp.class] ?? 0;
-  const hpParts: Part[] = [
-    { label: "Base", value: f.hp.base },
-    { label: `${f.hp.perLevel} × ${levels} class levels`, value: f.hp.perLevel * levels },
-  ];
+  const hpParts: Part[] = [{ label: "Base", value: f.hp.base }, ...(f.hp.perLevel ? [{ label: `${f.hp.perLevel} × ${levels} class levels`, value: f.hp.perLevel * levels }] : [])];
   const hpMax = hpParts.reduce((t, p) => t + p.value, 0);
   const hp = state?.hp ?? { current: hpMax, temp: 0 };
 
@@ -76,7 +75,9 @@ export function deriveCompanion(
     const score = f.abilities[ab] ?? 10;
     const modifier = Math.floor((score - 10) / 2);
     const base: Part[] = [{ label: `${ABILITY_NAMES[ab]} modifier`, value: modifier }, ...bonus.map((p) => ({ ...p, label: `${p.label} (${def.name})` }))];
-    abilities[ab] = { score, modifier, check: roll(base), save: roll(base) };
+    // A save written in the stat block (proficient saves) is its total.
+    const save = f.saves?.[ab] !== undefined ? [{ label: `${ABILITY_NAMES[ab]} save (stat block)`, value: f.saves[ab]! }, ...bonus.map((p) => ({ ...p, label: `${p.label} (${def.name})` }))] : base;
+    abilities[ab] = { score, modifier, check: roll(base), save: roll(save) };
   }
 
   const attacks = f.attacks.map((a) => {
@@ -117,4 +118,94 @@ export function deriveCompanion(
   if (f.languages) r.form.languages = f.languages;
   if (sc) r.form.saveDc = sc.saveDc.total;
   return r;
+}
+
+/** Companions the player made get ids of their own, never a feature's. */
+export const customCompanionId = (id: string) => `custom-${id}`;
+
+/** A companion the player made, as a companion with one stat block (always chosen). */
+export function customCompanionDef(cc: CustomCompanion): CompanionDef {
+  const form: CompanionDef["forms"][number] = {
+    id: "custom",
+    name: cc.kind.trim() || cc.type.replace(/^./, (x) => x.toUpperCase()),
+    size: cc.size,
+    type: cc.type,
+    ac: cc.ac,
+    hp: { base: cc.hpMax, perLevel: 0, class: "class:none" },
+    speed: cc.speed,
+    abilities: cc.abilities,
+    traits: cc.traits,
+    attacks: cc.attacks.map((a) => ({
+      name: a.name,
+      kind: a.kind,
+      toHit: a.toHit,
+      damage: a.damage || "0",
+      ...(a.damageBonus ? { damageBonus: a.damageBonus } : {}),
+      damageType: a.damageType,
+      ...(a.reach ? { reach: a.reach } : {}),
+      ...(a.note ? { note: a.note } : {}),
+    })),
+  };
+  if (cc.saves && Object.keys(cc.saves).length) form.saves = cc.saves;
+  if (cc.senses) form.senses = cc.senses;
+  if (cc.languages) form.languages = cc.languages;
+  return { id: customCompanionId(cc.id), name: cc.name, forms: [form] };
+}
+
+/** A companion the player made, worked out: its one stat block is always the one in use. */
+export function deriveCustomCompanion(cc: CustomCompanion, state: CompanionState | undefined, ctx: ExprContext): CompanionResult {
+  const r = deriveCompanion(customCompanionDef(cc), "your own companion", { states: [], ...state, form: "custom" }, ctx, []);
+  r.custom = { id: cc.id, notes: cc.notes, kind: cc.kind, ...(cc.from ? { from: cc.from } : {}) };
+  return r;
+}
+
+const SIZES = ["Tiny", "Small", "Medium", "Large", "Huge", "Gargantuan"] as const;
+
+/** "40 ft., swim 30 ft., fly 60 ft. (hover)" from a stat block's speeds. */
+export function speedText(sp: CreatureDef["speed"]): string {
+  const parts = [`${sp.walk ?? 0} ft.`];
+  for (const k of ["burrow", "climb", "fly", "swim"] as const) if (sp[k]) parts.push(`${k} ${sp[k]} ft.${k === "fly" && sp.hover ? " (hover)" : ""}`);
+  return parts.join(", ");
+}
+
+/**
+ * A companion started from a creature in the content (the Mastiff, a Riding
+ * Horse): its numbers, traits and attack actions, all editable afterwards.
+ * Actions that aren't attack rolls become traits, so nothing is lost.
+ */
+export function companionFromCreature(d: CreatureDef): Omit<CustomCompanion, "id" | "name" | "kind" | "notes"> {
+  const senses = Object.entries(d.senses ?? {})
+    .map(([k, v]) => `${k.replace(/_/g, " ")} ${v}${/passive/.test(k) ? "" : " ft."}`)
+    .join(", ");
+  const size = SIZES.find((x) => x.toLowerCase() === d.size.toLowerCase()) ?? "Medium";
+  const out: Omit<CustomCompanion, "id" | "name" | "kind" | "notes"> = {
+    from: d.id,
+    size,
+    type: d.type,
+    ac: d.ac,
+    hpMax: d.hp,
+    speed: speedText(d.speed),
+    abilities: { ...d.abilities },
+    traits: [
+      ...d.traits.map((t) => ({ name: t.name, summary: t.text })),
+      ...[...d.actions, ...(d.bonusActions ?? []), ...(d.reactions ?? [])].filter((a) => !a.attack && a.text).map((a) => ({ name: a.name, summary: a.text })),
+    ],
+    attacks: d.actions
+      .filter((a) => a.attack)
+      .map((a) => ({
+        name: a.name,
+        kind: a.attack!.kind,
+        toHit: a.attack!.toHit,
+        ...(a.attack!.reach ? { reach: a.attack!.reach } : {}),
+        damage: a.attack!.damage,
+        damageBonus: a.attack!.damageBonus,
+        damageType: a.attack!.damageType,
+        // The rest of the attack's text (a save, knocking prone) as a reminder.
+        ...(/Hit:.*?damage\.\s*(.+)$/s.exec(a.text)?.[1] ? { note: /Hit:.*?damage\.\s*(.+)$/s.exec(a.text)![1]!.slice(0, 400) } : {}),
+      })),
+  };
+  if (d.saves && Object.keys(d.saves).length) out.saves = { ...d.saves };
+  if (senses) out.senses = senses;
+  if (d.languages) out.languages = d.languages;
+  return out;
 }

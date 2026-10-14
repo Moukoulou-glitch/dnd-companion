@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { CalendarDef, CustomAction, CustomItem, CustomSpell, Extra, ExtraTag } from "./character.js";
+import { CalendarDef, CustomAction, CustomCompanion, CustomItem, CustomSpell, Extra, ExtraTag } from "./character.js";
 import { DefId } from "./core.js";
 import { Modifier } from "./modifiers.js";
 
@@ -331,6 +331,10 @@ export const OPERATION_PAYLOADS = {
   setCustomItem: z.object({ item: CustomItem, instanceId: z.string().optional(), quantity: z.number().int().min(1).optional() }).strict(),
   /** Deletes the item, and every copy of it in the inventory. */
   removeCustomItem: z.object({ id: z.string() }).strict(),
+  /** A companion of the player's own, made or changed (same id). Its HP and tags stay when it's changed. */
+  setCustomCompanion: z.object({ companion: CustomCompanion }).strict(),
+  /** Deletes it, with its HP and tags. */
+  removeCustomCompanion: z.object({ id: z.string() }).strict(),
   /** Proficiency bonus raised or lowered by hand. */
   setPbAdjust: z.object({ bonus: z.number().int().min(0).max(10).optional(), penalty: z.number().int().min(0).max(10).optional(), note: z.string().max(80).optional() }).strict(),
   /** A recharge action (Recharge 5–6) used, or back after its d6: on your form, or on a summoned creature. */
@@ -464,6 +468,8 @@ export const Operation = z.discriminatedUnion("type", [
   OperationBase.extend({ type: z.literal("removeCustomSpell"), payload: OPERATION_PAYLOADS.removeCustomSpell }),
   OperationBase.extend({ type: z.literal("setCustomItem"), payload: OPERATION_PAYLOADS.setCustomItem }),
   OperationBase.extend({ type: z.literal("removeCustomItem"), payload: OPERATION_PAYLOADS.removeCustomItem }),
+  OperationBase.extend({ type: z.literal("setCustomCompanion"), payload: OPERATION_PAYLOADS.setCustomCompanion }),
+  OperationBase.extend({ type: z.literal("removeCustomCompanion"), payload: OPERATION_PAYLOADS.removeCustomCompanion }),
   OperationBase.extend({ type: z.literal("setRollAdjust"), payload: OPERATION_PAYLOADS.setRollAdjust }),
   OperationBase.extend({ type: z.literal("setCalendar"), payload: OPERATION_PAYLOADS.setCalendar }),
   OperationBase.extend({ type: z.literal("addNote"), payload: OPERATION_PAYLOADS.addNote }),

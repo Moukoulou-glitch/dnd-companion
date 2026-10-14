@@ -355,6 +355,8 @@ export const CompanionForm = z
     abilities: z.record(Ability, z.number().int().min(1).max(30)),
     /** Added to every ability check and saving throw (Primal Bond). */
     checkBonus: ValueExpr.optional(),
+    /** Saving throw totals that differ from the ability modifier (a stat block's "Saving Throws" line). */
+    saves: z.record(Ability, z.number().int()).optional(),
     senses: z.string().optional(),
     languages: z.string().optional(),
     traits: z.array(z.object({ name: z.string(), summary: z.string() }).strict()).default([]),

@@ -25,7 +25,7 @@ import { customActionDc, customFeatureId, withCustom } from "./custom.js";
 import { maneuverGrant } from "./maneuvers.js";
 import type { ContentRegistry } from "./registry.js";
 import { collectSources, type Source } from "./sources.js";
-import { deriveCompanion, type CompanionResult } from "./companions.js";
+import { customCompanionId, deriveCompanion, deriveCustomCompanion, type CompanionResult } from "./companions.js";
 import { spellSlots } from "./spellSlots.js";
 import { materialNeed } from "./materials.js";
 import { deriveShape, wildShapeLimits, type ShapeResult, type WildShapeLimits } from "./shapes.js";
@@ -1531,7 +1531,11 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       }
       return out.sort((a, b) => a.spellName.localeCompare(b.spellName));
     })(),
-    companions: sources.flatMap((s) => (s.grant.companions ?? []).map((d) => deriveCompanion(d, s.label, c.companions[d.id], ctxFor(s), spellcasting))),
+    companions: [
+      ...sources.flatMap((s) => (s.grant.companions ?? []).map((d) => deriveCompanion(d, s.label, c.companions[d.id], ctxFor(s), spellcasting))),
+      // Companions the player made (Companion Builder).
+      ...(c.customCompanions ?? []).map((cc) => deriveCustomCompanion(cc, c.companions[customCompanionId(cc.id)], ctx)),
+    ],
     rules,
     attacksPerAction: Math.max(
       sources.some((s) => /^feature:extra-attack/.test(s.id)) ? 2 : 1,

@@ -277,6 +277,52 @@ export const CustomItem = z
   .strict();
 export type CustomItem = z.infer<typeof CustomItem>;
 
+/**
+ * A companion the player makes (a pet, a mount, a hireling): one stat block,
+ * written by hand or started from a creature in the content. It joins the
+ * companions on Play: HP, attacks, checks and saves, Dodge and Ready.
+ */
+export const CustomCompanion = z
+  .object({
+    id: z.string(),
+    name: z.string().min(1).max(60),
+    /** What it is to you, shown with it: "Pet", "Mount", "Hireling". */
+    kind: z.string().max(40).default(""),
+    /** The creature it was started from, if any. */
+    from: z.string().optional(),
+    size: z.enum(["Tiny", "Small", "Medium", "Large", "Huge", "Gargantuan"]).default("Medium"),
+    type: z.string().max(40).default("beast"),
+    ac: z.number().int().min(0).max(40),
+    hpMax: z.number().int().min(1).max(9999),
+    speed: z.string().max(120).default("30 ft."),
+    abilities: z.record(Ability, z.number().int().min(1).max(30)),
+    /** Saving throw totals that differ from the ability modifier. */
+    saves: z.record(Ability, z.number().int().min(-10).max(30)).optional(),
+    senses: z.string().max(200).optional(),
+    languages: z.string().max(200).optional(),
+    traits: z.array(z.object({ name: z.string().min(1).max(80), summary: z.string().max(2000) }).strict()).default([]),
+    attacks: z
+      .array(
+        z
+          .object({
+            name: z.string().min(1).max(60),
+            kind: z.enum(["melee", "ranged"]).default("melee"),
+            toHit: z.number().int().min(-10).max(30),
+            reach: z.string().max(60).optional(),
+            damage: z.string().max(40),
+            damageBonus: z.number().int().min(-20).max(50).default(0),
+            damageType: DamageType,
+            note: z.string().max(400).optional(),
+          })
+          .strict(),
+      )
+      .default([]),
+    /** The player's notes (Markdown), shown on its sheet. */
+    notes: z.string().max(4000).default(""),
+  })
+  .strict();
+export type CustomCompanion = z.infer<typeof CustomCompanion>;
+
 /** A background made by the player ("You don't know me!"). */
 export const CustomBackground = z
   .object({
@@ -593,6 +639,7 @@ export const Character = z
     customActions: z.array(CustomAction).default([]),
     customSpells: z.array(CustomSpell).default([]),
     customItems: z.array(CustomItem).default([]),
+    customCompanions: z.array(CustomCompanion).default([]),
     /** Proficiencies the table took away (a DM ruling), whatever gives them: kind, target, why. */
     profRemoved: z.array(z.object({ kind: z.enum(["save", "skill", "expertise", "armor", "weapon", "tool", "language"]), target: z.string(), reason: z.string().max(250).optional() }).strict()).default([]),
     /** Tasha's optional class features this character doesn't use (feature ids). */
