@@ -1,8 +1,9 @@
 import { ChangesEditor, changesToModifiers, emptyChange, modifiersToChanges, type ChangeDraft } from "./ChangesEditor";
 import { useState } from "react";
 import type { ContentRegistry } from "@dnd/engine";
-import { ABILITIES, ABILITY_NAMES, type Ability, type Character, type CustomAction, type CustomSpell, type OperationType } from "@dnd/schema";
+import { ABILITIES, ABILITY_NAMES, type Ability, type Character, type CustomAction, type CustomItem, type CustomSpell, type OperationType } from "@dnd/schema";
 import { NumberStep } from "./Adjust";
+import { MarkdownHelp } from "./Markdown";
 
 type Act = (type: OperationType, payload: unknown, label: string) => unknown;
 
@@ -525,6 +526,123 @@ export function CustomSpellForm({ c, act, lists, editing, done }: { c: Character
           Save
         </button>
       </div>
+    </div>
+  );
+}
+
+export const ITEM_TYPES: [CustomItem["category"], string][] = [
+  ["gear", "Gear"],
+  ["tool", "Tool"],
+  ["consumable", "Consumable"],
+  ["wondrous", "Wondrous item"],
+  ["focus", "Spellcasting focus"],
+];
+
+/**
+ * An item of your own: what it is and what it says (only shown), and, if you
+ * want, changes the sheet applies while it's equipped (and attuned, if it needs
+ * attunement), like a magic item's. Without changes it changes nothing.
+ */
+export function CustomItemForm({ act, editing, done }: { act: Act; editing?: CustomItem; done: (deleted?: boolean) => void }) {
+  const [it, setIt] = useState<CustomItem>(editing ?? { id: newId(), name: "", category: "gear", description: "", requiresAttunement: false, modifiers: [], source: "" });
+  const set = (p: Partial<CustomItem>) => setIt({ ...it, ...p });
+  const [quantity, setQuantity] = useState(1);
+  const [weight, setWeight] = useState(editing?.weight !== undefined ? String(editing.weight) : "");
+  const [value, setValue] = useState(editing?.value ? String(editing.value.amount) : "");
+  const [unit, setUnit] = useState<NonNullable<CustomItem["value"]>["unit"]>(editing?.value?.unit ?? "gp");
+  const [changes, setChanges] = useState<ChangeDraft[]>(() => (editing?.modifiers.length ? modifiersToChanges(editing.modifiers) : []));
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const num = (x: string) => (x.trim() === "" ? undefined : Number(x.replace(",", ".")));
+  const w = num(weight);
+  const v = num(value);
+  const bad = (x: number | undefined) => x !== undefined && (!Number.isFinite(x) || x < 0);
+  return (
+    <div className="custom-form">
+      <Field label="Name">
+        <input className="search" value={it.name} maxLength={80} placeholder="Grandmother's locket" onChange={(e) => set({ name: e.target.value })} aria-label="Item name" />
+      </Field>
+      <Field label="Type">
+        <Select label="Item type" value={it.category} onChange={(x) => set({ category: x as CustomItem["category"] })} options={ITEM_TYPES} />
+      </Field>
+      <div className="group">
+        {!editing && <NumberStep label="How many" value={quantity} min={1} max={9999} onChange={setQuantity} />}
+        <div className="row">
+          <div className="row-main row-title">Weight (lb.)</div>
+          <input className="search narrow" inputMode="decimal" value={weight} placeholder="—" onChange={(e) => setWeight(e.target.value)} aria-label="Weight in pounds" />
+        </div>
+        <div className="row">
+          <div className="row-main row-title">Value</div>
+          <input className="search narrow" inputMode="decimal" value={value} placeholder="—" onChange={(e) => setValue(e.target.value)} aria-label="Value" />
+          <Select label="Coin" value={unit} onChange={(x) => setUnit(x as typeof unit)} options={(["cp", "sp", "ep", "gp", "pp"] as const).map((x): [string, string] => [x, x])} />
+        </div>
+        <label className="row">
+          <div className="row-main">
+            <div className="row-title">Needs attunement</div>
+            <div className="row-sub">Its changes then apply only while attuned too</div>
+          </div>
+          <input type="checkbox" checked={it.requiresAttunement} onChange={(e) => set({ requiresAttunement: e.target.checked })} />
+        </label>
+      </div>
+      {(bad(w) || bad(v)) && <p className="note danger-text">Weight and value are numbers, 0 or more.</p>}
+      <Field label="Description (shown, not applied)" hint="What it looks like, what it does, where it came from">
+        <textarea className="story-text" rows={6} value={it.description} maxLength={6000} onChange={(e) => set({ description: e.target.value })} aria-label="Item description" />
+      </Field>
+      <MarkdownHelp />
+      <section className="form-group">
+        <h2 className="sub-head">What the sheet applies (optional)</h2>
+        <p className="note">
+          Only these change your numbers, and only while the item is equipped{it.requiresAttunement ? " and you're attuned to it" : ""}. Anything else it does, write in the description: the app shows it but doesn't apply it.
+        </p>
+        {changes.length > 0 ? (
+          <ChangesEditor value={changes} onChange={setChanges} />
+        ) : (
+          <button className="link" onClick={() => setChanges([emptyChange()])}>
+            + Add a change the sheet applies
+          </button>
+        )}
+      </section>
+      <Field label="Source">
+        <input className="search" value={it.source} maxLength={80} placeholder="Found in the crypt, a gift from your DM" onChange={(e) => set({ source: e.target.value })} aria-label="Item source" />
+      </Field>
+      <div className="big-actions">
+        {editing &&
+          (confirmDelete ? (
+            <button
+              className="big damage"
+              onClick={() => {
+                act("removeCustomItem", { id: it.id }, `${it.name} deleted.`);
+                done(true);
+              }}
+            >
+              Delete it
+            </button>
+          ) : (
+            <button className="big" onClick={() => setConfirmDelete(true)}>
+              Delete
+            </button>
+          ))}
+        <button
+          className="big primary"
+          disabled={!it.name.trim() || bad(w) || bad(v)}
+          onClick={() => {
+            const { weight: _w, value: _v, ...rest } = it;
+            const item: CustomItem = {
+              ...rest,
+              name: it.name.trim(),
+              description: it.description.trim(),
+              source: it.source.trim(),
+              modifiers: changesToModifiers(changes, it.name.trim()),
+              ...(w !== undefined ? { weight: w } : {}),
+              ...(v !== undefined ? { value: { amount: v, unit } } : {}),
+            };
+            act("setCustomItem", editing ? { item } : { item, instanceId: crypto.randomUUID(), quantity }, editing ? `${item.name} changed.` : `${item.name} added.`);
+            done();
+          }}
+        >
+          {editing ? "Save" : "Add it"}
+        </button>
+      </div>
+      {editing && confirmDelete && <p className="note">Deleting it takes every one of it out of your inventory.</p>}
     </div>
   );
 }

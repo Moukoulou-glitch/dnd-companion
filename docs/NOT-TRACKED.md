@@ -73,3 +73,9 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 - Tasha's expanded lists are names-only data in the table pack; a spell the app doesn't have yet (not SRD, not in your book files) can't appear until a book file adds it. The table's ranger has no separate “Additional Ranger Spells” switch.
 - A custom spell's effect is applied when it's on you (cast with “Put its effect on me”); on another creature it's a reminder for them.
 - The custom effect's description and a custom spell's reminder are shown, not applied.
+
+## Custom items and notes
+- Your own items can't be weapons or armor (no attack, no armor class from wearing it): for an attack, make your own action; for AC, add an Armor Class change to the item.
+- An item's description is shown, not applied; only the changes you add are.
+- Markdown: no tables, images or underline in the Backstory and notes; a list inside a list needs two spaces in front.
+- A note written before in-world dates were kept is placed by its date text; if the table changed calendars since, it goes under “No in-world date” (its date text still shows).

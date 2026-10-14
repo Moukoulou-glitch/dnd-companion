@@ -1,8 +1,11 @@
 import { NumberStep } from "./Adjust";
 import { RichText, TextBlocks } from "./Conditions";
 import { useEffect, useMemo, useState } from "react";
-import type { ContentRegistry, DerivedSheet } from "@dnd/engine";
-import type { Character, ItemDef, OperationType } from "@dnd/schema";
+import { isCustomItemId, type ContentRegistry, type DerivedSheet } from "@dnd/engine";
+import type { Character, CustomItem, ItemDef, OperationType } from "@dnd/schema";
+import { describeChanges } from "./ChangesEditor";
+import { ITEM_TYPES } from "./CustomForms";
+import { Markdown } from "./Markdown";
 
 type Act = (type: OperationType, payload: unknown, label: string) => void;
 type Inst = Character["inventory"][number];
@@ -19,8 +22,13 @@ function displayName(inst: Inst, def: ItemDef) {
   return inst.name ?? def.name;
 }
 
+/** An item whose definition can't be found (it shouldn't happen): a plain stand-in, so the page still opens. */
+const lost = (id: string): ItemDef => ({ kind: "item", id, name: id.replace(/^item:/, ""), category: "gear", requiresAttunement: false, source: { pack: "missing" } }) as ItemDef;
+export const itemDef = (reg: ContentRegistry, id: string): ItemDef => reg.find(id, "item") ?? lost(id);
+
 function itemTags(inst: Inst, def: ItemDef): string[] {
   const tags: string[] = [];
+  if (isCustomItemId(def.id)) tags.push("your own");
   if (def.requiresAttunement) tags.push(inst.attuned ? "attuned" : "needs attunement");
   if (def.magic?.rarity) tags.push(def.magic.rarity);
   return tags;
@@ -115,9 +123,14 @@ export function ItemPanel({
   onRead,
   onCopy,
   onCustomSpell,
+  custom,
+  onEditCustom,
 }: {
   inst: Inst;
   def: ItemDef;
+  /** One of your own items: what it says and what the sheet applies, and a way to change it. */
+  custom?: CustomItem;
+  onEditCustom?: () => void;
   act: Act;
   close: () => void;
   /** Spells a scroll can hold (the app's and your own). */
@@ -129,11 +142,43 @@ export function ItemPanel({
   onCustomSpell?: () => void;
 }) {
   const name = displayName(inst, def);
-  const canEquip = ["weapon", "armor", "shield", "wondrous", "focus"].includes(def.category);
+  const canEquip = !!custom || ["weapon", "armor", "shield", "wondrous", "focus"].includes(def.category);
+  const applied = custom ? describeChanges(custom.modifiers) : [];
+  const live = custom && inst.equipped && (!custom.requiresAttunement || inst.attuned);
   return (
     <>
+      {custom && (
+        <>
+          <p className="row-sub">
+            {[ITEM_TYPES.find((x) => x[0] === custom.category)?.[1], custom.weight !== undefined ? `${custom.weight} lb.` : "", custom.value ? `${custom.value.amount} ${custom.value.unit}` : "", custom.source || "Your own item"].filter(Boolean).join(" · ")}
+          </p>
+          {custom.description ? <Markdown text={custom.description} className="story-view" /> : <p className="note">No description.</p>}
+          <section className="item-applied">
+            <h2 className="sub-head">What the sheet applies</h2>
+            {applied.length ? (
+              <>
+                <ul>
+                  {applied.map((x) => (
+                    <li key={x}>{x}</li>
+                  ))}
+                </ul>
+                <p className={`note${live ? " gold-text" : ""}`}>
+                  {live ? "Applied now." : `Not applied now: only while equipped${custom.requiresAttunement ? " and attuned" : ""}.`}
+                </p>
+              </>
+            ) : (
+              <p className="note">Nothing: the description is only shown. To change your numbers, add a change the sheet applies.</p>
+            )}
+          </section>
+          {onEditCustom && (
+            <button className="big wide" onClick={onEditCustom}>
+              Edit this item
+            </button>
+          )}
+        </>
+      )}
       {def.summary && <p>{def.summary}</p>}
-      {def.text && def.text.length > 0 && (
+      {!custom && def.text && def.text.length > 0 && (
         <details className="book-text" open={!def.summary}>
           <summary>Full text</summary>
           <TextBlocks text={def.text} />
@@ -160,6 +205,7 @@ export function ItemPanel({
             <div className="row-main">
               <div className="row-title">{def.category === "armor" ? "Wearing" : def.category === "shield" ? "Holding" : "Equipped"}</div>
               {def.category === "armor" && <div className="row-sub">Wearing this takes off other armor.</div>}
+              {custom && <div className="row-sub">{custom.modifiers.length ? "Its changes apply while it's equipped." : "In use or worn; it changes nothing on the sheet."}</div>}
             </div>
           </label>
         )}
@@ -183,17 +229,24 @@ export function ItemPanel({
       >
         Remove from inventory
       </button>
+      {custom && <p className="note">Your item stays in “Add an item”, to add it again; Edit → Delete removes it for good.</p>}
     </>
   );
 }
 
 /** Search the pack's items and add one. */
-export function AddItemPanel({ registry, act, close }: { registry: ContentRegistry; act: Act; close: () => void }) {
+export function AddItemPanel({ registry, act, close, onCustom }: { registry: ContentRegistry; act: Act; close: () => void; onCustom?: () => void }) {
   const [q, setQ] = useState("");
-  const all = useMemo(() => registry.list("item"), [registry]);
+  // Your own items first.
+  const all = useMemo(() => registry.list("item").sort((a, b) => Number(isCustomItemId(b.id)) - Number(isCustomItemId(a.id))), [registry]);
   const found = all.filter((d) => d.name.toLowerCase().includes(q.trim().toLowerCase())).slice(0, 40);
   return (
     <>
+      {onCustom && (
+        <button className="big wide" onClick={onCustom}>
+          Make your own item
+        </button>
+      )}
       <input className="search" type="search" placeholder="Search items" value={q} onChange={(e) => setQ(e.target.value)} autoFocus />
       <div className="group">
         {found.map((d) => (
@@ -207,13 +260,13 @@ export function AddItemPanel({ registry, act, close }: { registry: ContentRegist
           >
             <div className="row-main">
               <div className="row-title">{d.name}</div>
-              <div className="row-sub">{[d.category, d.magic?.rarity, d.requiresAttunement ? "attunement" : ""].filter(Boolean).join(", ")}</div>
+              <div className="row-sub">{[isCustomItemId(d.id) ? "your own" : "", d.category, d.magic?.rarity, d.requiresAttunement ? "attunement" : ""].filter(Boolean).join(", ")}</div>
             </div>
           </button>
         ))}
         {found.length === 0 && (
           <div className="row">
-            <div className="row-main row-sub">No item called "{q}" yet. New items come from the content pack.</div>
+            <div className="row-main row-sub">No item called “{q}”. Make your own with the button above.</div>
           </div>
         )}
       </div>
@@ -293,7 +346,7 @@ export function InventoryTab({
   sheet: DerivedSheet;
   act: (type: OperationType, payload: unknown, label: string) => void;
 }) {
-  const items = character.inventory.map((inst) => ({ inst, def: registry.get(inst.item, "item") }));
+  const items = character.inventory.map((inst) => ({ inst, def: itemDef(registry, inst.item) }));
   const equipped = items.filter((i) => i.inst.equipped);
   const carried = items.filter((i) => !i.inst.equipped);
   const attuned = character.inventory.filter((i) => i.attuned).length;

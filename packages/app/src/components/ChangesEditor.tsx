@@ -89,6 +89,17 @@ export function modifiersToChanges(mods: Modifier[]): ChangeDraft[] {
   return rows;
 }
 
+/** These modifiers in plain words, one line per change: "+2 to Armor Class", "Advantage on Dexterity saving throws". */
+export function describeChanges(mods: Modifier[]): string[] {
+  return modifiersToChanges(mods).map((d) => {
+    const what = TARGETS.find((t) => t.id === d.target)!.label;
+    // "Dexterity saving throws", "attack rolls", "Armor Class".
+    const which = d.abilities.length ? `${d.abilities.map((a) => ABILITY_NAMES[a]).join(", ")} ${what.toLowerCase()}` : d.target === "ac" ? what : what.toLowerCase();
+    if (d.kind !== "bonus") return `${d.kind === "advantage" ? "Advantage" : "Disadvantage"} on ${which}`;
+    return `${d.value.startsWith("-") ? d.value : `+${d.value}`}${d.target === "speed" ? " ft." : ""} to ${which}`;
+  });
+}
+
 export function ChangesEditor({ value, onChange }: { value: ChangeDraft[]; onChange: (v: ChangeDraft[]) => void }) {
   const set = (i: number, patch: Partial<ChangeDraft>) => onChange(value.map((d, k) => (k === i ? { ...d, ...patch } : d)));
   return (

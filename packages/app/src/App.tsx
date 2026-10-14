@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
-import { buildItems, customSpellId, withCustom, castingEconomy, creatureSpellRoll, formatBonus, summonBlock, materialNeed, maxSpellLevel, newCharacter, spellListOf, signed, turnWarnings, type TurnIntent, type RollBreakdown } from "@dnd/engine";
+import { buildItems, customItemId, customSpellId, withCustom, castingEconomy, creatureSpellRoll, formatBonus, summonBlock, materialNeed, maxSpellLevel, newCharacter, spellListOf, signed, turnWarnings, type TurnIntent, type RollBreakdown } from "@dnd/engine";
 import { ABILITY_NAMES, SKILL_NAMES, type Character, type Skill } from "@dnd/schema";
 import { roll as rollDice, type ComposerBase } from "@dnd/dice";
 import { ShapePanel, TextList, TransformPanel } from "./components/Shapes";
@@ -22,7 +22,7 @@ import { EconomyMenu } from "./components/EconomyMenu";
 import type { EconomyKind } from "./components/Combat";
 import { HP_TIER_WORDS, hpBlinks, hpTier } from "./hp";
 import { strikeFx } from "./fx/triggers";
-import { CustomActionForm, CustomSpellForm } from "./components/CustomForms";
+import { CustomActionForm, CustomItemForm, CustomSpellForm } from "./components/CustomForms";
 import { RollAdjustPanel } from "./components/RollAdjust";
 import { DurablePanel } from "./components/Durable";
 import { DefensesPanel } from "./components/Defenses";
@@ -35,7 +35,7 @@ import { PbPanel, AbilityAdjustPanel, MaxHpPanel, SummonMaxHp } from "./componen
 import { DamageReducePanel } from "./components/Monk";
 import { BackgroundPicker } from "./components/BackgroundPicker";
 import { AddExtraPanel, ExtraEditor, ExtraInline, skillExtra } from "./components/Extras";
-import { AddItemPanel, CoinPanel, InventoryTab, ItemPanel } from "./components/InventoryTab";
+import { AddItemPanel, CoinPanel, InventoryTab, ItemPanel, itemDef } from "./components/InventoryTab";
 import { bookReport, registry } from "./content";
 import { BookText, BooksPanel } from "./components/BookText";
 import { BuildPanel, LevelUpPanel, NewCharacterPanel, type NewCharacterInput } from "./components/Builder";
@@ -311,6 +311,11 @@ export function App() {
     open(editing ? `Change ${editing.name}` : "Your own action", () =>
       live.current.character ? <CustomActionForm c={live.current.character} reg={registry} act={live.current.act} {...(editing ? { editing } : {})} done={close} /> : null,
     );
+  };
+  /** An item of your own: new (it goes into the inventory), or one to change. */
+  const openCustomItem = (id?: string, after?: () => void) => {
+    const editing = id ? live.current.character?.customItems.find((x) => x.id === id) : undefined;
+    open(editing ? `Change ${editing.name}` : "Your own item", () => <CustomItemForm act={live.current.act} {...(editing ? { editing } : {})} done={(deleted) => (after && !deleted ? after() : close())} />);
   };
   /** A spell of your own, cast with one of your spell lists. */
   const openCustomSpell = (id?: string, after?: () => void) => {
@@ -1097,10 +1102,11 @@ export function App() {
   const openItem = (instanceId: string) => {
     const first = c.inventory.find((i) => i.id === instanceId);
     if (!first) return;
-    open(first.name ?? registry.get(first.item, "item").name, () => {
+    open(first.name ?? itemDef(effReg(), first.item).name, () => {
       const inst = live.current.character?.inventory.find((i) => i.id === instanceId);
       if (!inst) return <p className="note">This item has been removed.</p>;
       const scrollSpell = live.current.sheet?.spells.find((x) => x.list.id === `scroll-${inst.id}`);
+      const custom = live.current.character?.customItems.find((x) => customItemId(x.id) === inst.item);
       const spells = [
         ...registry.list("spell").map((x) => ({ id: x.id, name: x.name, level: x.level })),
         ...(live.current.character?.customSpells ?? []).map((x) => ({ id: customSpellId(x.id), name: x.name, level: x.level })),
@@ -1108,7 +1114,8 @@ export function App() {
       return (
         <ItemPanel
           inst={inst}
-          def={registry.get(inst.item, "item")}
+          def={itemDef(effReg(), inst.item)}
+          {...(custom ? { custom, onEditCustom: () => openCustomItem(custom.id, () => openItem(inst.id)) } : {})}
           act={live.current.act}
           close={close}
           spells={spells}
@@ -1811,7 +1818,7 @@ export function App() {
       />
     ));
 
-  const openAdd = () => open("Add an item", <AddItemPanel registry={registry} act={s.act} close={close} />);
+  const openAdd = () => open("Add an item", <AddItemPanel registry={effReg()} act={s.act} close={close} onCustom={() => openCustomItem()} />);
 
   const openCoin = (coin: "cp" | "sp" | "ep" | "gp" | "pp", label: string) =>
     open(label, () => <CoinPanel coin={coin} label={label} have={live.current.character?.currency[coin] ?? 0} act={live.current.act} />);
@@ -2417,7 +2424,7 @@ export function App() {
           openAdjust={(k) => open(k === "save" ? "Saving throws: bonus or penalty" : k === "skill" ? "Skills: bonus or penalty" : "Passive senses: bonus or penalty", () => (live.current.character ? <RollAdjustPanel kind={k} c={live.current.character} act={live.current.act} /> : null))} />}
       {tab === "story" && <BackstoryTab c={c} act={s.act} />}
       {tab === "inventory" && (
-        <InventoryTab character={c} registry={registry} openItem={openItem} openAdd={openAdd} openCoin={openCoin} sheet={sheet} act={s.act} />
+        <InventoryTab character={c} registry={withCustom(registry, c)} openItem={openItem} openAdd={openAdd} openCoin={openCoin} sheet={sheet} act={s.act} />
       )}
 
       <nav className="tabs" aria-label="Sections">

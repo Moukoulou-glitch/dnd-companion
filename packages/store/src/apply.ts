@@ -1,5 +1,5 @@
 import { Character, CombatState, type Operation, type ValueExpr } from "@dnd/schema";
-import { componentCount, withCustom, customSpellId, FLEX_COST, castingEconomy, derive, evalFlat, levelGains, damageAfterDefenses, materialNeed, multiclassIssues, shapeIssues, summonBlock, summonHpBonus, type ContentRegistry } from "@dnd/engine";
+import { componentCount, withCustom, customItemId, customSpellId, FLEX_COST, castingEconomy, derive, evalFlat, levelGains, damageAfterDefenses, materialNeed, multiclassIssues, shapeIssues, summonBlock, summonHpBonus, type ContentRegistry } from "@dnd/engine";
 
 /** Effects a summoned creature holds with its own concentration (Barkskin on itself) end with it. */
 function dropSummonConcentration(x: Character["summons"][number], spell: string) {
@@ -1842,6 +1842,23 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       break;
     }
 
+    case "setCustomItem": {
+      const { item, instanceId, quantity } = op.payload;
+      const i = c.customItems.findIndex((x) => x.id === item.id);
+      if (i >= 0) c.customItems[i] = item;
+      else c.customItems.push(item);
+      if (i < 0 && instanceId) c.inventory.push({ id: instanceId, item: customItemId(item.id), quantity: quantity ?? 1, equipped: false, attuned: false });
+      if (!item.requiresAttunement) for (const inst of c.inventory) if (inst.item === customItemId(item.id)) inst.attuned = false;
+      break;
+    }
+
+    case "removeCustomItem": {
+      const iid = customItemId(op.payload.id);
+      c.customItems = c.customItems.filter((x) => x.id !== op.payload.id);
+      c.inventory = c.inventory.filter((x) => x.item !== iid);
+      break;
+    }
+
     case "setProfRemoved": {
       const { kind, target, removed, reason } = op.payload;
       c.profRemoved = (c.profRemoved ?? []).filter((x) => !(x.kind === kind && x.target === target));
@@ -1913,15 +1930,19 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
 
     case "addNote": {
       const at = new Date(Number(op.at.slice(0, 13)) || Date.now()).toISOString();
-      const { title, body, category, pinned, session, gameDate } = op.payload;
-      c.notes.unshift({ id: op.id, title, body, category, pinned: !!pinned, createdAt: at, updatedAt: at, ...(session !== undefined ? { session } : {}), ...(gameDate ? { gameDate } : {}) });
+      const { title, body, category, pinned, session, gameDate, gameMinutes } = op.payload;
+      c.notes.unshift({ id: op.id, title, body, category, pinned: !!pinned, createdAt: at, updatedAt: at, ...(session !== undefined ? { session } : {}), ...(gameDate ? { gameDate } : {}), ...(gameMinutes !== undefined ? { gameMinutes } : {}) });
       break;
     }
 
     case "updateNote": {
       const n = c.notes.find((x) => x.id === op.payload.id);
       if (!n) break;
-      const { title, body, category, pinned, session } = op.payload;
+      const { title, body, category, pinned, session, gameDate, gameMinutes } = op.payload;
+      if (gameDate === null) delete n.gameDate;
+      else if (gameDate !== undefined) n.gameDate = gameDate;
+      if (gameMinutes === null) delete n.gameMinutes;
+      else if (gameMinutes !== undefined) n.gameMinutes = gameMinutes;
       if (title !== undefined) n.title = title;
       if (body !== undefined) n.body = body;
       if (category !== undefined) n.category = category;

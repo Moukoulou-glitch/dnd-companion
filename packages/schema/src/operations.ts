@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { CalendarDef, CustomAction, CustomSpell, Extra, ExtraTag } from "./character.js";
+import { CalendarDef, CustomAction, CustomItem, CustomSpell, Extra, ExtraTag } from "./character.js";
 import { DefId } from "./core.js";
 import { Modifier } from "./modifiers.js";
 
@@ -324,6 +324,13 @@ export const OPERATION_PAYLOADS = {
   /** Turn a Tasha's optional class feature on or off for this character. */
   setOptionalFeature: z.object({ feature: z.string(), on: z.boolean() }).strict(),
   removeCustomSpell: z.object({ id: z.string() }).strict(),
+  /**
+   * An item of the player's own, made or changed (same id). New, with `instanceId`:
+   * `quantity` of it go into the inventory at once.
+   */
+  setCustomItem: z.object({ item: CustomItem, instanceId: z.string().optional(), quantity: z.number().int().min(1).optional() }).strict(),
+  /** Deletes the item, and every copy of it in the inventory. */
+  removeCustomItem: z.object({ id: z.string() }).strict(),
   /** Proficiency bonus raised or lowered by hand. */
   setPbAdjust: z.object({ bonus: z.number().int().min(0).max(10).optional(), penalty: z.number().int().min(0).max(10).optional(), note: z.string().max(80).optional() }).strict(),
   /** A recharge action (Recharge 5–6) used, or back after its d6: on your form, or on a summoned creature. */
@@ -341,8 +348,11 @@ export const OPERATION_PAYLOADS = {
     })
     .strict(),
   /** A note; it is dated with the real time it was written. */
-  addNote: z.object({ title: z.string().max(200), body: z.string().max(20000), category: z.string().default("none"), pinned: z.boolean().optional(), session: z.number().int().min(0).optional(), gameDate: z.string().max(120).optional() }).strict(),
-  updateNote: z.object({ id: z.string(), title: z.string().max(200).optional(), body: z.string().max(20000).optional(), category: z.string().optional(), pinned: z.boolean().optional(), session: z.number().int().min(0).nullable().optional() }).strict(),
+  addNote: z.object({ title: z.string().max(200), body: z.string().max(20000), category: z.string().default("none"), pinned: z.boolean().optional(), session: z.number().int().min(0).optional(), gameDate: z.string().max(120).optional(), gameMinutes: z.number().int().min(0).optional() }).strict(),
+  updateNote: z.object({ id: z.string(), title: z.string().max(200).optional(), body: z.string().max(20000).optional(), category: z.string().optional(), pinned: z.boolean().optional(), session: z.number().int().min(0).nullable().optional(),
+    /** The in-world date it's about: shown text and calendar minutes together; null clears both. */
+    gameDate: z.string().max(120).nullable().optional(),
+    gameMinutes: z.number().int().min(0).nullable().optional() }).strict(),
   removeNote: z.object({ id: z.string() }).strict(),
   /** The player's own background: its name, how many languages (the rest tools), and a feature written by hand. */
   setCustomBackground: z.object({ name: z.string().max(60).optional(), languages: z.number().int().min(0).max(2).optional(), featureName: z.string().max(80).optional(), featureText: z.string().max(2000).optional() }).strict(),
@@ -452,6 +462,8 @@ export const Operation = z.discriminatedUnion("type", [
   OperationBase.extend({ type: z.literal("setProfRemoved"), payload: OPERATION_PAYLOADS.setProfRemoved }),
   OperationBase.extend({ type: z.literal("copyScroll"), payload: OPERATION_PAYLOADS.copyScroll }),
   OperationBase.extend({ type: z.literal("removeCustomSpell"), payload: OPERATION_PAYLOADS.removeCustomSpell }),
+  OperationBase.extend({ type: z.literal("setCustomItem"), payload: OPERATION_PAYLOADS.setCustomItem }),
+  OperationBase.extend({ type: z.literal("removeCustomItem"), payload: OPERATION_PAYLOADS.removeCustomItem }),
   OperationBase.extend({ type: z.literal("setRollAdjust"), payload: OPERATION_PAYLOADS.setRollAdjust }),
   OperationBase.extend({ type: z.literal("setCalendar"), payload: OPERATION_PAYLOADS.setCalendar }),
   OperationBase.extend({ type: z.literal("addNote"), payload: OPERATION_PAYLOADS.addNote }),

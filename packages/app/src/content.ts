@@ -52,7 +52,8 @@ let stubPacks = 0;
 export function stubMissing(refs: Iterable<{ id: string; class?: string }>): void {
   const seen = new Map<string, { id: string; class?: string }>();
   for (const r of refs) if (!registry.has(r.id) && !seen.has(r.id)) seen.set(r.id, r);
-  const missing = [...seen.values()].filter((r) => /^(item|subclass|background|feat):/.test(r.id) && (!r.id.startsWith("subclass:") || r.class));
+  // A character's own items live on the character, not in the content: never a stand-in for those.
+  const missing = [...seen.values()].filter((r) => /^(item|subclass|background|feat):/.test(r.id) && !r.id.startsWith("item:custom-") && (!r.id.startsWith("subclass:") || r.class));
   if (!missing.length) return;
   const nameOf = (id: string) => id.replace(/^[a-z]+:/, "").replace(/-/g, " ").replace(/^./, (c) => c.toUpperCase());
   const summary = "This came from book text that isn't loaded on this device. Load the book files again to see its details.";

@@ -122,6 +122,8 @@ export const Note = z
     session: z.number().int().min(0).optional(),
     /** The in-world date when it was written, as shown by the character's calendar. */
     gameDate: z.string().optional(),
+    /** The same in-world moment as calendar minutes, for putting notes in order by in-world date (notes from before have only `gameDate`). */
+    gameMinutes: z.number().int().min(0).optional(),
   })
   .strict();
 
@@ -252,6 +254,28 @@ export const CustomSpell = z
   })
   .strict();
 export type CustomSpell = z.infer<typeof CustomSpell>;
+
+/**
+ * An item the player makes (a family locket, a strange key). Its name, type,
+ * description, weight and value are only shown; its `modifiers` (if any) are
+ * applied by the sheet while it's equipped, and attuned if it needs attunement,
+ * like a magic item's. No modifiers: nothing on the sheet changes.
+ */
+export const CustomItem = z
+  .object({
+    id: z.string(),
+    name: z.string().min(1).max(80),
+    /** Only the kinds that need no weapon or armor numbers. */
+    category: z.enum(["gear", "tool", "consumable", "wondrous", "focus"]).default("gear"),
+    description: z.string().max(6000).default(""),
+    weight: z.number().min(0).max(100000).optional(),
+    value: z.object({ amount: z.number().min(0), unit: z.enum(["cp", "sp", "ep", "gp", "pp"]) }).strict().optional(),
+    requiresAttunement: z.boolean().default(false),
+    modifiers: z.array(Modifier).default([]),
+    source: z.string().max(80).default(""),
+  })
+  .strict();
+export type CustomItem = z.infer<typeof CustomItem>;
 
 /** A background made by the player ("You don't know me!"). */
 export const CustomBackground = z
@@ -568,6 +592,7 @@ export const Character = z
     /** Actions and spells the player wrote. */
     customActions: z.array(CustomAction).default([]),
     customSpells: z.array(CustomSpell).default([]),
+    customItems: z.array(CustomItem).default([]),
     /** Proficiencies the table took away (a DM ruling), whatever gives them: kind, target, why. */
     profRemoved: z.array(z.object({ kind: z.enum(["save", "skill", "expertise", "armor", "weapon", "tool", "language"]), target: z.string(), reason: z.string().max(250).optional() }).strict()).default([]),
     /** Tasha's optional class features this character doesn't use (feature ids). */

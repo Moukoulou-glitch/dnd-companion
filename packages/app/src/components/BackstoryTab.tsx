@@ -1,7 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { CalendarDef, Character, Note, OperationType } from "@dnd/schema";
-import { MITHIOLOGIO, MITHIOLOGIO_URL, calendarName, formatReal, formatWorld, fromDate, hoursPerDay, monthsOf, toDate, type CalendarKind } from "../calendar";
+import { MITHIOLOGIO, MITHIOLOGIO_URL, calendarName, formatReal, formatWorld, formatWorldDay, fromDate, hoursPerDay, monthsOf, parseWorld, toDate, type CalendarKind } from "../calendar";
+import { plainText } from "../markdown";
 import { NumberStep } from "./Adjust";
+import { Markdown, MarkdownHelp } from "./Markdown";
 
 type Act = (type: OperationType, payload: unknown, label: string) => unknown;
 
@@ -53,6 +55,55 @@ function snippets(text: string, q: string): string[] {
     .map((l) => (l.length > 160 ? `${l.slice(0, 157)}…` : l));
 }
 
+/** How the notes are put in order. */
+export type NoteOrder = "written" | "world" | "session";
+
+/** A note's in-world moment: its minutes, or read back from its date text (older notes). */
+export function noteMinutes(n: Note, cal: Character["story"]["calendar"]): number | undefined {
+  return n.gameMinutes ?? (n.gameDate ? parseWorld(n.gameDate, cal.kind, cal.custom) : undefined);
+}
+
+/**
+ * Notes in groups under a heading: newest written first (pinned on top), by
+ * in-world day (latest day first, earliest note of the day first), or by
+ * session (latest first). Notes without that date go last.
+ */
+export function groupNotes(notes: Note[], order: NoteOrder, cal: Character["story"]["calendar"]): { label: string; notes: Note[] }[] {
+  if (order === "written") {
+    const sorted = [...notes].sort((a, b) => Number(b.pinned) - Number(a.pinned) || (b.createdAt ?? "").localeCompare(a.createdAt ?? ""));
+    return sorted.length ? [{ label: "", notes: sorted }] : [];
+  }
+  const groups = new Map<string, { label: string; key: number; notes: Note[] }>();
+  const none: Note[] = [];
+  for (const n of notes) {
+    let key: number | undefined;
+    let label = "";
+    if (order === "world") {
+      const m = noteMinutes(n, cal);
+      if (m !== undefined) {
+        const perDay = hoursPerDay(cal.kind, cal.custom) * 60;
+        key = Math.floor(m / perDay);
+        label = formatWorldDay(m, cal.kind, cal.custom);
+      }
+    } else if (n.session !== undefined) {
+      key = n.session;
+      label = `Session ${n.session}`;
+    }
+    if (key === undefined) {
+      none.push(n);
+      continue;
+    }
+    const g = groups.get(String(key)) ?? { label, key, notes: [] };
+    g.notes.push(n);
+    groups.set(String(key), g);
+  }
+  const within = (a: Note, b: Note) =>
+    order === "world" ? (noteMinutes(a, cal) ?? 0) - (noteMinutes(b, cal) ?? 0) || (a.createdAt ?? "").localeCompare(b.createdAt ?? "") : (a.createdAt ?? "").localeCompare(b.createdAt ?? "");
+  const out = [...groups.values()].sort((a, b) => b.key - a.key).map((g) => ({ label: g.label, notes: g.notes.sort(within) }));
+  if (none.length) out.push({ label: order === "world" ? "No in-world date" : "No session", notes: none.sort((a, b) => (b.createdAt ?? "").localeCompare(a.createdAt ?? "")) });
+  return out;
+}
+
 /** Highlights `q` in `text`. */
 function Mark({ text, q }: { text: string; q: string }) {
   if (!q) return <>{text}</>;
@@ -79,11 +130,21 @@ export function BackstoryTab({ c, act }: { c: Character; act: Act }) {
   const [colour, setColour] = useState<string>("all");
   const [sessionOnly, setSessionOnly] = useState(false);
   const [editing, setEditing] = useState<string | "new" | null>(null);
+  const [order, setOrder] = useState<NoteOrder>("written");
+  const [editStory, setEditStory] = useState(false);
 
-  const notes = useMemo(() => {
-    const list = c.notes.filter((n) => (colour === "all" || n.category === colour) && (!sessionOnly || n.session === story.session) && (!needle || `${n.title}\n${n.body}`.toLowerCase().includes(needle)));
-    return [...list].sort((a, b) => Number(b.pinned) - Number(a.pinned) || (b.createdAt ?? "").localeCompare(a.createdAt ?? ""));
-  }, [c.notes, colour, sessionOnly, needle, story.session]);
+  const notes = useMemo(
+    // Dates count for the search too: "Δανάη", "Session 4" or "Oct 2026" finds the notes of that day.
+    () =>
+      c.notes.filter(
+        (n) =>
+          (colour === "all" || n.category === colour) &&
+          (!sessionOnly || n.session === story.session) &&
+          (!needle || [n.title, n.body, n.gameDate ?? "", n.session !== undefined ? `session ${n.session}` : "", formatReal(n.createdAt)].join("\n").toLowerCase().includes(needle)),
+      ),
+    [c.notes, colour, sessionOnly, needle, story.session],
+  );
+  const groups = useMemo(() => groupNotes(notes, order, cal), [notes, order, cal]);
 
   const found = needle
     ? [...PARTS.map((p) => ({ label: p.label, lines: snippets(story[p.key], needle) })), { label: "Backstory", lines: snippets(story.backstory, needle) }].filter((x) => x.lines.length)
@@ -127,8 +188,27 @@ export function BackstoryTab({ c, act }: { c: Character; act: Act }) {
 
           <section>
             <h2>Backstory</h2>
-            <SavedText value={story.backstory} rows={10} big label="Backstory" placeholder="Where you come from, what happened, why you adventure…" onSave={(v) => act("setStory", { backstory: v }, "Backstory saved.")} />
-            <p className="note">{story.backstory.trim() ? `${story.backstory.trim().split(/\s+/).length} words. ` : ""}Saved when you tap outside the box.</p>
+            {story.backstory.trim() && !editStory ? (
+              <>
+                <Markdown className="story-view" text={story.backstory} />
+                <button className="big wide" onClick={() => setEditStory(true)}>
+                  Edit your backstory
+                </button>
+                <p className="note">{plainText(story.backstory).split(/\s+/).filter(Boolean).length} words.</p>
+              </>
+            ) : (
+              // Writing keeps the box open (a save doesn't switch to the formatted view) until Done.
+              <div onFocus={() => setEditStory(true)}>
+                <SavedText value={story.backstory} rows={10} big label="Backstory" placeholder="Where you come from, what happened, why you adventure…" onSave={(v) => act("setStory", { backstory: v }, "Backstory saved.")} />
+                <MarkdownHelp />
+                <p className="note">Saved when you tap outside the box.</p>
+                {editStory && (
+                  <button className="big wide" onClick={() => setEditStory(false)}>
+                    Done
+                  </button>
+                )}
+              </div>
+            )}
           </section>
         </>
       )}
@@ -149,6 +229,19 @@ export function BackstoryTab({ c, act }: { c: Character; act: Act }) {
             <button key={x.id} className={`chip swatch ${x.id}`} aria-label={x.label} aria-pressed={colour === x.id} onClick={() => setColour(colour === x.id ? "all" : x.id)} />
           ))}
         </div>
+        <div className="segmented small three" role="radiogroup" aria-label="Order of the notes">
+          {(
+            [
+              ["written", "Newest"],
+              ["world", "In-world date"],
+              ["session", "Session"],
+            ] as const
+          ).map(([k, l]) => (
+            <button key={k} role="radio" aria-checked={order === k} onClick={() => setOrder(k)}>
+              {l}
+            </button>
+          ))}
+        </div>
         {editing === "new" ? (
           <NoteEditor c={c} act={act} done={() => setEditing(null)} />
         ) : (
@@ -157,35 +250,63 @@ export function BackstoryTab({ c, act }: { c: Character; act: Act }) {
           </button>
         )}
         <div className="notes-list">
-          {notes.map((n) =>
-            editing === n.id ? (
-              <NoteEditor key={n.id} c={c} act={act} note={n} done={() => setEditing(null)} />
-            ) : (
-              <button key={n.id} className={`note-card ${n.category}`} onClick={() => setEditing(n.id)}>
-                <div className="note-head">
-                  {n.pinned && <span aria-label="Pinned">📌 </span>}
-                  <b>
-                    <Mark text={n.title || "Untitled"} q={needle} />
-                  </b>
-                </div>
-                {n.body && (
-                  <p className="note-body">
-                    <Mark text={n.body.length > 240 && !needle ? `${n.body.slice(0, 237)}…` : n.body} q={needle} />
-                  </p>
-                )}
-                <div className="note-meta">
-                  {n.session !== undefined && <span>Session {n.session}</span>}
-                  {n.createdAt && <span>{formatReal(n.createdAt)}</span>}
-                  {n.updatedAt && n.updatedAt !== n.createdAt && <span>edited {formatReal(n.updatedAt)}</span>}
-                  {n.gameDate && <span>In the world: {n.gameDate}</span>}
-                </div>
-              </button>
-            ),
-          )}
+          {groups.map((g) => (
+            <div className="note-group" key={g.label || "all"}>
+              {g.label && <h3 className="note-group-head">{g.label}</h3>}
+              {g.notes.map((n) =>
+                editing === n.id ? (
+                  <NoteEditor key={n.id} c={c} act={act} note={n} done={() => setEditing(null)} />
+                ) : (
+                  <NoteCard key={n.id} n={n} needle={needle} edit={() => setEditing(n.id)} />
+                ),
+              )}
+            </div>
+          ))}
           {notes.length === 0 && !needle && <p className="note">No notes{colour !== "all" || sessionOnly ? " like that" : " yet"}.</p>}
         </div>
       </section>
     </main>
+  );
+}
+
+/**
+ * One note: its text formatted (links open), its dates. A tap on the card
+ * (not on a link) opens it to edit; so does its Edit button, for keyboards.
+ */
+function NoteCard({ n, needle, edit }: { n: Note; needle: string; edit: () => void }) {
+  // A long note fades out at the bottom (open it for the rest); a short one doesn't.
+  const box = useRef<HTMLDivElement>(null);
+  const [cut, setCut] = useState(false);
+  useLayoutEffect(() => {
+    const el = box.current?.querySelector(".note-body");
+    setCut(!!el && el.scrollHeight > el.clientHeight + 2);
+  }, [n.body, needle]);
+  return (
+    <article className={`note-card ${n.category}`} onClick={edit} ref={box}>
+      <div className="note-head">
+        {n.pinned && <span aria-label="Pinned">📌 </span>}
+        <b>
+          <Mark text={n.title || "Untitled"} q={needle} />
+        </b>
+        <button
+          className="link note-edit"
+          onClick={(e) => {
+            e.stopPropagation();
+            edit();
+          }}
+          aria-label={`Edit ${n.title || "note"}`}
+        >
+          Edit
+        </button>
+      </div>
+      {n.body && <Markdown className={`note-body${needle ? "" : " clamp"}${cut ? " cut" : ""}`} text={n.body} highlight={needle} />}
+      <div className="note-meta">
+        {n.gameDate && <span>In the world: {n.gameDate}</span>}
+        {n.session !== undefined && <span>Session {n.session}</span>}
+        {n.createdAt && <span>{formatReal(n.createdAt)}</span>}
+        {n.updatedAt && n.updatedAt !== n.createdAt && <span>edited {formatReal(n.updatedAt)}</span>}
+      </div>
+    </article>
   );
 }
 
@@ -197,16 +318,63 @@ function NoteEditor({ c, act, note, done }: { c: Character; act: Act; note?: Not
   const [pinned, setPinned] = useState(note?.pinned ?? false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const cal = c.story.calendar;
+  // The in-world moment it's about: now for a new note; a note's own can be moved or taken away.
+  const startMinutes = note ? noteMinutes(note, cal) : cal.minutes;
+  const [when, setWhen] = useState<number | undefined>(startMinutes);
+  const [dateText, setDateText] = useState<string | undefined>(note ? note.gameDate : formatWorld(cal.minutes, cal.kind, cal.custom));
+  const [picking, setPicking] = useState(false);
   const save = () => {
     if (!title.trim() && !body.trim()) return done();
-    if (note) act("updateNote", { id: note.id, title: title.trim(), body, category, pinned }, "Note saved.");
-    else act("addNote", { title: title.trim(), body, category, pinned, session: c.story.session, gameDate: formatWorld(cal.minutes, cal.kind, cal.custom) }, "Note added.");
+    if (note) {
+      const moved = when !== startMinutes || dateText !== note.gameDate;
+      const date = moved ? (when !== undefined ? { gameDate: formatWorld(when, cal.kind, cal.custom), gameMinutes: when } : dateText ? {} : { gameDate: null, gameMinutes: null }) : {};
+      act("updateNote", { id: note.id, title: title.trim(), body, category, pinned, ...date }, "Note saved.");
+    } else
+      act(
+        "addNote",
+        { title: title.trim(), body, category, pinned, session: c.story.session, ...(when !== undefined ? { gameDate: formatWorld(when, cal.kind, cal.custom), gameMinutes: when } : {}) },
+        "Note added.",
+      );
     done();
   };
   return (
     <div className={`note-card editing ${category}`}>
       <input className="search" placeholder="Title" value={title} maxLength={200} onChange={(e) => setTitle(e.target.value)} aria-label="Note title" autoFocus={!note} />
       <textarea className="story-text" rows={6} placeholder="What happened, who you met, what to remember…" value={body} onChange={(e) => setBody(e.target.value)} aria-label="Note" />
+      <MarkdownHelp />
+      <div className="row note-date">
+        <div className="row-main">
+          <div className="row-title">In-world date</div>
+          <div className="row-sub">{when !== undefined ? formatWorld(when, cal.kind, cal.custom) : dateText ? `${dateText} (not on this calendar)` : "None"}</div>
+        </div>
+        <button className="link" onClick={() => setPicking(!picking)}>
+          {picking ? "Close" : "Change"}
+        </button>
+        {(when !== undefined || dateText) && (
+          <button
+            className="link"
+            onClick={() => {
+              setWhen(undefined);
+              setDateText(undefined);
+              setPicking(false);
+            }}
+          >
+            Clear
+          </button>
+        )}
+      </div>
+      {picking && (
+        <DatePicker
+          cal={cal}
+          initial={when ?? cal.minutes}
+          action="Use this date"
+          onSet={(m) => {
+            setWhen(m);
+            setDateText(formatWorld(m, cal.kind, cal.custom));
+            setPicking(false);
+          }}
+        />
+      )}
       <div className="note-filters" role="radiogroup" aria-label="Colour">
         {NOTE_COLORS.map((x) => (
           <button key={x.id} className={`chip swatch ${x.id}`} role="radio" aria-label={x.label} aria-checked={category === x.id} onClick={() => setCategory(x.id)} />
@@ -218,8 +386,7 @@ function NoteEditor({ c, act, note, done }: { c: Character; act: Act; note?: Not
       {note && (
         <p className="note">
           Written {formatReal(note.createdAt)}
-          {note.session !== undefined ? `, session ${note.session}` : ""}
-          {note.gameDate ? `; in the world ${note.gameDate}` : ""}.
+          {note.session !== undefined ? `, session ${note.session}` : ""}.
         </p>
       )}
       <div className="big-actions">
@@ -304,15 +471,25 @@ function WorldTime({ c, act }: { c: Character; act: Act }) {
           Calendar
         </button>
       </div>
-      {setting && <SetDate c={c} act={act} done={() => setSetting(false)} />}
+      {setting && (
+        <DatePicker
+          cal={cal}
+          initial={cal.minutes}
+          action="Set"
+          onSet={(m) => {
+            act("setCalendar", { minutes: m }, `Now ${formatWorld(m, cal.kind, cal.custom)}.`);
+            setSetting(false);
+          }}
+        />
+      )}
       {choosing && <ChooseCalendar c={c} act={act} done={() => setChoosing(false)} />}
     </section>
   );
 }
 
-function SetDate({ c, act, done }: { c: Character; act: Act; done: () => void }) {
-  const cal = c.story.calendar;
-  const now = toDate(cal.minutes, cal.kind, cal.custom);
+/** A date and time on the character's calendar. */
+function DatePicker({ cal, initial, action, onSet }: { cal: Character["story"]["calendar"]; initial: number; action: string; onSet: (minutes: number) => void }) {
+  const now = toDate(initial, cal.kind, cal.custom);
   const [v, setV] = useState({ year: now.year, month: now.month, day: now.day, hour: now.hour, minute: now.minute });
   const months = monthsOf(cal.kind, cal.custom);
   const hours = hoursPerDay(cal.kind, cal.custom);
@@ -333,15 +510,8 @@ function SetDate({ c, act, done }: { c: Character; act: Act; done: () => void })
       <NumberStep label="Hour" value={v.hour} min={0} max={hours - 1} onChange={(n) => setV({ ...v, hour: n })} />
       <NumberStep label="Minute" value={v.minute} min={0} max={59} onChange={(n) => setV({ ...v, minute: n })} />
       <div className="big-actions">
-        <button
-          className="big primary"
-          onClick={() => {
-            const m = fromDate(v, cal.kind, cal.custom);
-            act("setCalendar", { minutes: m }, `Now ${formatWorld(m, cal.kind, cal.custom)}.`);
-            done();
-          }}
-        >
-          Set
+        <button className="big primary" onClick={() => onSet(fromDate(v, cal.kind, cal.custom))}>
+          {action}
         </button>
       </div>
     </div>

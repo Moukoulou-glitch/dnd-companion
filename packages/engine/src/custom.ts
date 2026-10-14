@@ -1,9 +1,11 @@
-import { ABILITY_NAMES, type Ability, type Character, type CustomAction, type CustomSpell, type Definition, type EffectDef, type FeatureDef, type Modifier, type SpellDef } from "@dnd/schema";
+import { ABILITY_NAMES, type Ability, type Character, type CustomAction, type CustomItem, type CustomSpell, type Definition, type EffectDef, type FeatureDef, type ItemDef, type Modifier, type SpellDef } from "@dnd/schema";
 import { ContentRegistry } from "./registry.js";
 import type { DcSpec } from "./dcs.js";
 
 export const customFeatureId = (id: string) => `feature:custom-${id}`;
 export const customSpellId = (id: string) => `spell:custom-${id}`;
+export const customItemId = (id: string) => `item:custom-${id}`;
+export const isCustomItemId = (id: string) => id.startsWith("item:custom-");
 
 const ECON: Record<CustomAction["economy"], string> = { action: "Action", bonus: "Bonus action", reaction: "Reaction", free: "No action" };
 
@@ -157,6 +159,7 @@ export function customDefinitions(c: Character, reg: ContentRegistry): Definitio
     ...(c.customActions ?? []).map((a) => customActionFeature(a, c, reg)),
     ...(c.customSpells ?? []).map(customSpellDef),
     ...(c.customSpells ?? []).flatMap((s) => (customSpellEffect(s) ? [customSpellEffect(s)!] : [])),
+    ...(c.customItems ?? []).map(customItemDef),
   ];
 }
 
@@ -186,13 +189,35 @@ export function customSpellEffect(s: CustomSpell): EffectDef | undefined {
   return def;
 }
 
+/**
+ * A custom item as an item definition: what it says is only shown; its
+ * modifiers become the item's grant, which the sheet applies while it's
+ * equipped (and attuned, if it needs attunement), like any magic item's.
+ */
+export function customItemDef(i: CustomItem): ItemDef {
+  const text = i.description.split(/\n{2,}/).map((x) => x.trim()).filter(Boolean);
+  const def: ItemDef = {
+    kind: "item",
+    id: customItemId(i.id),
+    name: i.name,
+    source: { pack: "custom", book: i.source || "Your own" },
+    category: i.category,
+    requiresAttunement: i.requiresAttunement,
+    text,
+  } as ItemDef;
+  if (i.weight !== undefined) def.weight = i.weight;
+  if (i.value) def.cost = { amount: i.value.amount, unit: i.value.unit };
+  if (i.modifiers.length) def.grant = { modifiers: i.modifiers.map((m) => ({ ...m, label: m.label ?? i.name })) } as ItemDef["grant"];
+  return def;
+}
+
 const cache = new WeakMap<ContentRegistry, { key: string; reg: ContentRegistry }>();
 
 /** The content with the character's own actions and spells added; the same content when there are none. */
 export function withCustom(given: ContentRegistry, c: Character): ContentRegistry {
   const reg = given.base ?? given;
-  if (!c.customActions?.length && !c.customSpells?.length) return reg;
-  const key = JSON.stringify([c.customActions, c.customSpells, c.classes.map((x) => x.class)]);
+  if (!c.customActions?.length && !c.customSpells?.length && !c.customItems?.length) return reg;
+  const key = JSON.stringify([c.customActions, c.customSpells, c.customItems, c.classes.map((x) => x.class)]);
   const hit = cache.get(reg);
   if (hit && hit.key === key) return hit.reg;
   const out = reg.overlay(customDefinitions(c, reg));

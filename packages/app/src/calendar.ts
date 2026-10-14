@@ -137,3 +137,28 @@ export function formatReal(iso: string | undefined): string {
   if (Number.isNaN(d.getTime())) return "";
   return d.toLocaleString(undefined, { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
 }
+
+/**
+ * Back from `formatWorld` text to calendar minutes, for notes written before
+ * they kept the minutes too. Undefined when the text doesn't fit this calendar
+ * (the table changed calendars since): those notes keep their date as text.
+ */
+export function parseWorld(text: string, kind: CalendarKind, custom?: CalendarDef): number | undefined {
+  const m = /^([^,]*),\s*(\d+)\s+(.+?)\s+(\d+)(?:\s+[^,]*)?,\s*(\d{1,2}):(\d{2})\s*$/.exec(text.trim());
+  if (!m) return undefined;
+  const months = monthsOf(kind, custom);
+  const month = months.findIndex((x) => x.name === m[3]);
+  const day = Number(m[2]);
+  if (month < 0 || day < 1 || day > months[month]!.days) return undefined;
+  const hour = Number(m[5]);
+  if (hour >= hoursPerDay(kind, custom)) return undefined;
+  const minutes = fromDate({ year: Number(m[4]), month, day, hour, minute: Number(m[6]) }, kind, custom);
+  // The weekday has to agree too, or it was another calendar with the same month names.
+  return toDate(minutes, kind, custom).weekday === m[1]!.trim() ? minutes : undefined;
+}
+
+/** The day part of an in-world date: "Πέρια, 25 Δανάη 521 ΜΣ". */
+export function formatWorldDay(minutes: number, kind: CalendarKind, custom?: CalendarDef): string {
+  const d = toDate(minutes, kind, custom);
+  return `${d.weekday}, ${d.day} ${d.monthName} ${d.year}${d.era ? ` ${d.era}` : ""}`;
+}
