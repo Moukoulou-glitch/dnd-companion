@@ -1,3 +1,4 @@
+import { activeFeatures } from "./sources.js";
 import { expandedSpellLists, onClassList } from "./expanded.js";
 import { ABILITIES, ABILITY_NAMES, Character, SKILL_NAMES, SKILLS, type Ability, type ChoiceDef, type ClassDef, type ItemDef, type Skill } from "@dnd/schema";
 import type { ContentRegistry } from "./registry.js";
@@ -377,7 +378,8 @@ export function levelGains(c: Character, reg: ContentRegistry, classId: string):
   const cl = c.classes.find((x) => x.class === classId);
   const newLevel = (cl?.level ?? 0) + 1;
   const sub = cl?.subclass ? reg.find(cl.subclass, "subclass") : undefined;
-  const refs = [...def.features, ...(sub?.features ?? [])].filter((f) => f.level === newLevel);
+  // What the new level brings, with Tasha's choices applied (Roving instead of a third favored terrain).
+  const refs = [...activeFeatures(def.features, newLevel, c.optionalOff), ...(sub ? activeFeatures(sub.features, newLevel, c.optionalOff) : [])].filter((f) => f.level === newLevel);
   const features = refs.map((r) => {
     const f = reg.find(r.feature, "feature");
     return { id: r.feature, name: f?.name ?? r.feature, ...(f?.summary ? { summary: f.summary } : {}) };

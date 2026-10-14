@@ -70,12 +70,12 @@ export function collectSources(c: Character, baseReg: ContentRegistry): Source[]
     };
     out.push({ id: def.id, label: def.name, grant, choices: choicesFor(def.id) });
 
-    // Tasha's optional class features the player turned off stay off.
-    def.features.filter((f) => f.level <= cl.level && !(f.optional && c.optionalOff?.includes(f.feature))).forEach((f) => pushFeature(f.feature));
+    // Tasha's optional class features the player turned off stay off; one that's on leaves out what it replaces.
+    activeFeatures(def.features, cl.level, c.optionalOff).forEach((f) => pushFeature(f.feature));
 
     if (cl.subclass) {
       const sub = reg.get(cl.subclass, "subclass");
-      sub.features.filter((f) => f.level <= cl.level).forEach((f) => pushFeature(f.feature));
+      activeFeatures(sub.features, cl.level, c.optionalOff).forEach((f) => pushFeature(f.feature));
     }
   });
 
@@ -181,4 +181,16 @@ export function collectSources(c: Character, baseReg: ContentRegistry): Source[]
     s.grant = { ...g, ...(g.spells ? { spells: g.spells.filter(ok) } : {}), ...(g.actions ? { actions: g.actions.filter(ok) } : {}), ...(g.resources ? { resources: g.resources.filter(ok) } : {}) };
   }
   return out;
+}
+
+/**
+ * A class's (or subclass's) features at this level: optional ones the player
+ * turned off are left out, and so is every feature an optional one that's on
+ * replaces (Favored Foe: Favored Enemy and its improvements). Turning the
+ * optional one off brings the replaced ones back.
+ */
+export function activeFeatures<F extends { level: number; feature: string; optional?: boolean | undefined; replaces?: string[] | undefined }>(features: F[], level: number, off: string[] | undefined): F[] {
+  const isOff = (f: F) => !!f.optional && !!off?.includes(f.feature);
+  const replaced = new Set(features.filter((f) => f.optional && f.level <= level && !isOff(f)).flatMap((f) => f.replaces ?? []));
+  return features.filter((f) => f.level <= level && !isOff(f) && !replaced.has(f.feature));
 }

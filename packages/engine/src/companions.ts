@@ -15,7 +15,16 @@ export interface CompanionResult {
   /** Tags for what it's doing until your next turn starts (Dodge, Ready: Attack). */
   states: { id: string; name: string }[];
   /** One the player made (Companion Builder): its own id, notes, and the creature it started from. */
-  custom?: { id: string; notes: string; kind: string; from?: string };
+  custom?: {
+    id: string;
+    notes: string;
+    kind: string;
+    from?: string;
+    /** Bonded through a feature (Ranger's Companion); `active` while that feature is in use. */
+    bond?: { name: string; active: boolean };
+  };
+  /** What commanding it costs you, when it can be commanded (Primal Companion: bonus action; Ranger's Companion: action). */
+  command?: { economy: "action" | "bonus"; attackInstead: boolean };
   /** Missing until the player picks a form. */
   form?: {
     id: string;
@@ -65,7 +74,10 @@ export function deriveCompanion(
 
   const acParts = exprParts(f.ac, "Base");
   const levels = ctx.classLevels[f.hp.class] ?? 0;
-  const hpParts: Part[] = [{ label: "Base", value: f.hp.base }, ...(f.hp.perLevel ? [{ label: `${f.hp.perLevel} × ${levels} class levels`, value: f.hp.perLevel * levels }] : [])];
+  const hpParts: Part[] = [
+    ...(f.hp.base || !f.hp.perLevel ? [{ label: "Base", value: f.hp.base }] : []),
+    ...(f.hp.perLevel ? [{ label: `${f.hp.perLevel} × ${levels} class levels`, value: f.hp.perLevel * levels }] : []),
+  ];
   const hpMax = hpParts.reduce((t, p) => t + p.value, 0);
   const hp = state?.hp ?? { current: hpMax, temp: 0 };
 
@@ -152,10 +164,44 @@ export function customCompanionDef(cc: CustomCompanion): CompanionDef {
   return { id: customCompanionId(cc.id), name: cc.name, forms: [form] };
 }
 
-/** A companion the player made, worked out: its one stat block is always the one in use. */
-export function deriveCustomCompanion(cc: CustomCompanion, state: CompanionState | undefined, ctx: ExprContext): CompanionResult {
-  const r = deriveCompanion(customCompanionDef(cc), "your own companion", { states: [], ...state, form: "custom" }, ctx, []);
-  r.custom = { id: cc.id, notes: cc.notes, kind: cc.kind, ...(cc.from ? { from: cc.from } : {}) };
+export const RANGERS_COMPANION = "Ranger's Companion";
+
+/**
+ * A companion the player made, worked out: its one stat block is always the one in use.
+ * `bondActive`: it's the ranger's bonded beast and Ranger's Companion is in use, so it adds
+ * the proficiency bonus to its AC, attacks, damage and proficient saves, and its hit point
+ * maximum is its own or four times the ranger level, whichever is higher.
+ */
+export function deriveCustomCompanion(cc: CustomCompanion, state: CompanionState | undefined, ctx: ExprContext, bondActive = false): CompanionResult {
+  const def = customCompanionDef(cc);
+  const bonded = !!cc.bond && bondActive;
+  const rangerLevels = ctx.classLevels["class:ranger"] ?? 0;
+  if (bonded && 4 * rangerLevels > cc.hpMax) def.forms[0]!.hp = { base: 0, perLevel: 4, class: "class:ranger" };
+  const r = deriveCompanion(def, bonded ? RANGERS_COMPANION : "your own companion", { states: [], ...state, form: "custom" }, ctx, []);
+  r.custom = {
+    id: cc.id,
+    notes: cc.notes,
+    kind: cc.kind,
+    ...(cc.from ? { from: cc.from } : {}),
+    ...(cc.bond ? { bond: { name: RANGERS_COMPANION, active: bonded } } : {}),
+  };
+  const f = r.form;
+  if (bonded && f) {
+    const pb: Part = { label: `Proficiency bonus (${RANGERS_COMPANION})`, value: ctx.pb };
+    const add = (b: { total: number; parts: Part[] }) => {
+      b.parts.push(pb);
+      b.total += pb.value;
+    };
+    add(f.ac);
+    for (const a of f.attacks) {
+      add(a.attack);
+      add(a.damage.bonus);
+    }
+    // Only the saves it's proficient in: the ones its stat block lists.
+    for (const ab of Object.keys(cc.saves ?? {}) as (keyof typeof f.abilities)[]) add(f.abilities[ab].save);
+    if (def.forms[0]!.hp.perLevel) f.hpMax.parts = [{ label: `${RANGERS_COMPANION}: 4 × ${rangerLevels} ranger levels (more than its own ${cc.hpMax})`, value: 4 * rangerLevels }];
+    r.command = { economy: "action", attackInstead: false };
+  }
   return r;
 }
 

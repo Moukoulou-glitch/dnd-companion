@@ -159,6 +159,7 @@ export function PlayTab({
   openMove,
   openCompanion,
   openCompanionBuilder,
+  openRangersCompanion,
   prompts,
   onInitiative,
   openDeathSave,
@@ -191,6 +192,8 @@ export function PlayTab({
   openCompanion: (id: string) => void;
   /** The Companion Builder: a companion of your own. */
   openCompanionBuilder: () => void;
+  /** Beast Master (Ranger's Companion): pick the beast it bonds with. */
+  openRangersCompanion: () => void;
   prompts: PlayPrompts;
   onInitiative: () => void;
   /** A death saving throw: tap the d20 or let the app roll. */
@@ -212,6 +215,12 @@ export function PlayTab({
       <ShapeCard sheet={sheet} onOpen={openShape} onTransform={openTransform} />
       <SummonsCard character={character} reg={reg} onOpen={openSummonGroup} />
 
+      {sheet.features.some((f) => f.id === "feature:rangers-companion") && !character.customCompanions.some((x) => x.bond === "rangers-companion") && (
+        <button className="big wide" onClick={openRangersCompanion}>
+          Choose your Ranger's Companion
+          <span className="sub">a beast of Medium size or smaller, CR 1/4 or lower</span>
+        </button>
+      )}
       {sheet.companions.length > 0 ? (
         <section>
           <h2>{sheet.companions.length > 1 ? "Companions" : "Companion"}</h2>

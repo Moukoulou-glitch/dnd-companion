@@ -46,6 +46,7 @@ interface Draft {
   traits: { name: string; summary: string }[];
   attacks: (Omit<Attack, "toHit" | "damageBonus"> & { toHit: string; damageBonus: string })[];
   notes: string;
+  bond?: "rangers-companion";
 }
 
 const toDraft = (c: Omit<CustomCompanion, "id">): Draft => ({
@@ -64,6 +65,7 @@ const toDraft = (c: Omit<CustomCompanion, "id">): Draft => ({
   traits: c.traits.map((t) => ({ ...t })),
   attacks: c.attacks.map((a) => ({ ...a, toHit: String(a.toHit), damageBonus: String(a.damageBonus) })),
   notes: c.notes,
+  ...(c.bond ? { bond: c.bond } : {}),
 });
 
 const BLANK: Omit<CustomCompanion, "id"> = {
@@ -80,24 +82,34 @@ const BLANK: Omit<CustomCompanion, "id"> = {
   notes: "",
 };
 
+/** Ranger's Companion: a beast of Medium size or smaller, challenge rating 1/4 or lower. */
+export const fitsRangersCompanion = (c: { type: string; size: string; cr?: number }) =>
+  /^beast/i.test(c.type) && ["tiny", "small", "medium"].includes(c.size.toLowerCase()) && (c.cr === undefined || c.cr <= 0.25);
+
 /** Starting point: a creature from the content (its numbers copied in), or a blank stat block. */
-function StartFrom({ reg, pick }: { reg: ContentRegistry; pick: (d: Draft) => void }) {
+function StartFrom({ reg, pick, bond }: { reg: ContentRegistry; pick: (d: Draft) => void; bond?: boolean }) {
   const [q, setQ] = useState("");
-  const all = useMemo(() => reg.list("creature"), [reg]);
+  const all = useMemo(() => reg.list("creature").filter((c) => !bond || fitsRangersCompanion(c)), [reg, bond]);
   const needle = q.trim().toLowerCase();
-  const found = needle ? all.filter((c) => c.name.toLowerCase().includes(needle)).slice(0, 30) : [];
+  // A Ranger's Companion's choice is short enough to show whole.
+  const found = needle ? all.filter((c) => c.name.toLowerCase().includes(needle)).slice(0, 30) : bond ? all.slice().sort((a, b) => a.name.localeCompare(b.name)) : [];
+  const kind = bond ? "Animal companion" : "Pet";
   return (
     <>
-      <p className="note">Start from a creature (its stat block is copied in, and you can change anything), or from a blank one.</p>
+      <p className="note">
+        {bond
+          ? "Your Ranger's Companion: a beast of Medium size or smaller with a challenge rating of 1/4 or lower. Its stat block is copied in; the ranger's bonuses are added on top while the feature is in use."
+          : "Start from a creature (its stat block is copied in, and you can change anything), or from a blank one."}
+      </p>
       <input className="search" type="search" placeholder="Search creatures: mastiff, riding horse, mule…" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Search creatures" autoFocus />
       {found.length > 0 && (
         <div className="group">
           {found.map((c) => (
-            <button key={c.id} className="row" onClick={() => pick(toDraft({ ...BLANK, ...companionFromCreature(c), name: c.name, kind: "Pet", notes: "" }))}>
+            <button key={c.id} className="row" onClick={() => pick(toDraft({ ...BLANK, ...companionFromCreature(c), name: c.name, kind, notes: "", ...(bond ? { bond: "rangers-companion" as const } : {}) }))}>
               <div className="row-main">
                 <div className="row-title">{c.name}</div>
                 <div className="row-sub">
-                  {c.size} {c.type}, AC {c.ac}, {c.hp} HP
+                  {c.size} {c.type}, CR {c.cr === 0.125 ? "1/8" : c.cr === 0.25 ? "1/4" : c.cr === 0.5 ? "1/2" : c.cr}, AC {c.ac}, {c.hp} HP
                 </div>
               </div>
             </button>
@@ -105,7 +117,7 @@ function StartFrom({ reg, pick }: { reg: ContentRegistry; pick: (d: Draft) => vo
         </div>
       )}
       {needle && found.length === 0 && <p className="note">No creature called “{q.trim()}”.</p>}
-      <button className="big wide" style={{ marginTop: 10 }} onClick={() => pick(toDraft(BLANK))}>
+      <button className="big wide" style={{ marginTop: 10 }} onClick={() => pick(toDraft({ ...BLANK, kind, ...(bond ? { bond: "rangers-companion" as const } : {}) }))}>
         Start from a blank stat block
       </button>
     </>
@@ -117,10 +129,26 @@ function StartFrom({ reg, pick }: { reg: ContentRegistry; pick: (d: Draft) => vo
  * with one stat block. Saved, it joins your companions on Play, with its HP,
  * attacks, checks and saves worked out like any companion's.
  */
-export function CompanionBuilder({ reg, act, editing, done }: { reg: ContentRegistry; act: Act; editing?: CustomCompanion; done: (deleted?: boolean) => void }) {
+export function CompanionBuilder({
+  reg,
+  act,
+  editing,
+  done,
+  bond,
+  canBond,
+}: {
+  reg: ContentRegistry;
+  act: Act;
+  editing?: CustomCompanion;
+  done: (deleted?: boolean) => void;
+  /** Start a new Ranger's Companion (only fitting beasts offered). */
+  bond?: boolean;
+  /** The character has Ranger's Companion: offer to bond this one. */
+  canBond?: boolean;
+}) {
   const [d, setD] = useState<Draft | undefined>(editing ? toDraft(editing) : undefined);
   const [confirmDelete, setConfirmDelete] = useState(false);
-  if (!d) return <StartFrom reg={reg} pick={setD} />;
+  if (!d) return <StartFrom reg={reg} pick={setD} {...(bond ? { bond } : {})} />;
   const set = (p: Partial<Draft>) => setD({ ...d, ...p });
   const setAttack = (i: number, p: Partial<Draft["attacks"][number]>) => set({ attacks: d.attacks.map((a, k) => (k === i ? { ...a, ...p } : a)) });
   const setTrait = (i: number, p: Partial<Draft["traits"][number]>) => set({ traits: d.traits.map((t, k) => (k === i ? { ...t, ...p } : t)) });
@@ -159,6 +187,7 @@ export function CompanionBuilder({ reg, act, editing, done }: { reg: ContentRegi
         return out;
       }),
       notes: d.notes.trim(),
+      ...(d.bond ? { bond: d.bond } : {}),
     };
     act("setCustomCompanion", { companion }, editing ? `${companion.name} changed.` : `${companion.name} joins your companions.`);
     done();
@@ -302,6 +331,19 @@ export function CompanionBuilder({ reg, act, editing, done }: { reg: ContentRegi
 
       {field("Notes", <textarea className="story-text" rows={4} value={d.notes} maxLength={4000} onChange={(e) => set({ notes: e.target.value })} aria-label="Notes" placeholder="Where you found it, what it likes, what it's afraid of…" />)}
       <MarkdownHelp />
+
+      {(canBond || d.bond) && (
+        <label className="row check">
+          <input type="checkbox" checked={!!d.bond} onChange={() => set(d.bond ? { bond: undefined } : { bond: "rangers-companion" })} />
+          <div className="row-main">
+            <div className="row-title">Bonded as your Ranger's Companion</div>
+            <div className="row-sub">Adds your proficiency bonus to its AC, attacks, damage and the saves its stat block lists; its HP max is at least 4 × your ranger level.</div>
+          </div>
+        </label>
+      )}
+      {d.bond && !fitsRangersCompanion({ type: d.type, size: d.size, ...(d.from ? { cr: reg.find(d.from, "creature")?.cr } : {}) }) && (
+        <p className="warn">A Ranger's Companion is a beast of Medium size or smaller with a challenge rating of 1/4 or lower. This one isn't; keep it if your DM agrees.</p>
+      )}
 
       {problems.length > 0 && <p className="note danger-text">Still needs {problems.join(", ")}.</p>}
       <div className="big-actions">

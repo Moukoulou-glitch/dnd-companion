@@ -100,6 +100,11 @@ export const ClassFeatureRef = z
     feature: DefId,
     /** A Tasha's optional class feature: on unless the character turns it off. */
     optional: z.boolean().optional(),
+    /**
+     * The features this optional one stands in for (Favored Foe for Favored Enemy and
+     * its later improvements): left out while it's on, back when it's off.
+     */
+    replaces: z.array(DefId).optional(),
   })
   .strict();
 
@@ -137,7 +142,7 @@ export const ClassDef = z
      * Features added on top of an earlier pack's version, without replacing that
      * level's others (Tasha's optional class features: Ki-Fueled Attack at 3rd).
      */
-    adds: z.array(z.object({ level: z.number().int().min(1).max(20), feature: DefId }).strict()).optional(),
+    adds: z.array(z.object({ level: z.number().int().min(1).max(20), feature: DefId, replaces: z.array(DefId).optional() }).strict()).optional(),
     startingEquipment: StartingEquipment.optional(),
   })
   .strict();

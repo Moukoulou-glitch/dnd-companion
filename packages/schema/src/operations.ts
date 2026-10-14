@@ -322,7 +322,8 @@ export const OPERATION_PAYLOADS = {
   /** Take a proficiency away (removed: true) or give it back, whatever source grants it. */
   setProfRemoved: z.object({ kind: z.enum(["save", "skill", "expertise", "armor", "weapon", "tool", "language"]), target: z.string(), removed: z.boolean(), reason: z.string().max(250).optional() }).strict(),
   /** Turn a Tasha's optional class feature on or off for this character. */
-  setOptionalFeature: z.object({ feature: z.string(), on: z.boolean() }).strict(),
+  /** `also`: more of them switched the same way in one change (all of a class's Tasha's features). */
+  setOptionalFeature: z.object({ feature: z.string(), on: z.boolean(), also: z.array(z.string()).optional() }).strict(),
   removeCustomSpell: z.object({ id: z.string() }).strict(),
   /**
    * An item of the player's own, made or changed (same id). New, with `instanceId`:

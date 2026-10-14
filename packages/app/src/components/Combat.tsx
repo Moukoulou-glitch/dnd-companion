@@ -312,7 +312,7 @@ export function CompanionPanel({
   return (
     <>
       <p className="row-sub">
-        {f.size} {f.type}, {comp.custom ? `${comp.custom.kind || "companion"} of yours` : `from ${comp.source}`}
+        {f.size} {f.type}, {comp.custom ? `${comp.custom.kind || "companion"} of yours${comp.custom.bond?.active ? `, your ${comp.custom.bond.name}` : ""}` : `from ${comp.source}`}
       </p>
 
       <div className="stat-row">
@@ -349,17 +349,22 @@ export function CompanionPanel({
         </section>
       )}
 
-      {/* Your own companions act on their own (or as your DM says): no Beast Master commands. */}
-      {character.combat && !dead && !comp.custom && (
+      {comp.custom?.bond && !comp.custom.bond.active && (
+        <p className="warn">Bonded as your {comp.custom.bond.name}, but that feature isn't in use, so its bonuses are off.</p>
+      )}
+      {/* Your own companions act on their own (or as your DM says); a feature's companion (or your Ranger's Companion) takes commands. */}
+      {character.combat && !dead && comp.command && (
         <div className="big-actions">
           <button className="big" onClick={onCommand}>
             Command it
-            <span className="sub">bonus action</span>
+            <span className="sub">{comp.command.economy === "action" ? "your action" : "bonus action"}</span>
           </button>
-          <button className="big" onClick={onAttackInstead}>
-            Attack instead of me
-            <span className="sub">one of your attacks</span>
-          </button>
+          {comp.command.attackInstead && (
+            <button className="big" onClick={onAttackInstead}>
+              Attack instead of me
+              <span className="sub">one of your attacks</span>
+            </button>
+          )}
         </div>
       )}
 

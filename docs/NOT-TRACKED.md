@@ -77,7 +77,7 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 - Healing Hands on someone else: the app spends the use and says how much; the other character's HP is changed on their own sheet.
 
 ## Expanded lists and custom effects
-- Tasha's expanded lists are names-only data in the table pack; a spell the app doesn't have yet (not SRD, not in your book files) can't appear until a book file adds it. The table's ranger has no separate “Additional Ranger Spells” switch.
+- Tasha's expanded lists are names-only data in the table pack; a spell the app doesn't have yet (not SRD, not in your book files) can't appear until a book file adds it. The table's ranger has no separate “Additional Ranger Spells” switch. Primal Awareness's spells are free once per long rest each; casting them with a slot works as usual.
 - A custom spell's effect is applied when it's on you (cast with “Put its effect on me”); on another creature it's a reminder for them.
 - The custom effect's description and a custom spell's reminder are shown, not applied.
 
@@ -89,5 +89,11 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 
 ## Your own companions
 - One stat block each (no forms to switch between). Skills, damage resistances and condition immunities from a stat block go in its traits as text; checks use the ability modifier.
-- Your own companions don't get the Beast Master's command buttons: they act on their own turn or as your DM says. Spending your action or bonus action to command one is up to you (the combat pills).
+- Your own companions don't get command buttons (unless bonded as your Ranger's Companion): they act on their own turn or as your DM says. Spending your action or bonus action to command one is up to you (the combat pills).
+- Ranger's Companion (bonded): the proficiency bonus goes on its AC, attacks, damage and the saves its stat block lists; its skill proficiencies aren't tracked (checks use the ability modifier). From 5th level, commanding it to attack and still making one weapon attack yourself is up to you; Exceptional Training's bonus-action command, Bestial Fury's second attack and Share Spells are text. A new beast after 8 hours: change the stat block in the builder. Only one should be bonded; the sheet warns if more are.
 - An attack's note (a save, knocking prone) is shown, not applied.
+
+## Ranger (Tasha's or PHB)
+- Deft Explorer: Tireless's temporary hit points have no minimum of 1 applied (only with a negative Wisdom modifier would it matter); removing exhaustion on a short rest is text. Nature's Veil switches a "Nature's Veil" state on until the end of your next turn; being invisible is up to you (add the Invisible condition if your table wants its effects).
+- Martial Versatility and Cantrip/Fighting Style swaps at an Ability Score Improvement: change the pick on the Sheet.
+- Natural Explorer and Favored Enemy (PHB) keep their SRD text; their benefits (terrain travel, tracking, languages) aren't applied as numbers.

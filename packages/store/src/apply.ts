@@ -1884,10 +1884,12 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
     }
 
     case "setOptionalFeature": {
-      const { feature, on } = op.payload;
+      const { feature, on, also } = op.payload;
       const off = new Set(c.optionalOff ?? []);
-      if (on) off.delete(feature);
-      else off.add(feature);
+      for (const f of [feature, ...(also ?? [])]) {
+        if (on) off.delete(f);
+        else off.add(f);
+      }
       c.optionalOff = [...off];
       if (!on) notes.push("Its picks are kept in case you turn it back on.");
       break;

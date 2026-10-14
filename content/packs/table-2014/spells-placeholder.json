@@ -683,6 +683,33 @@
         }
       },
       "singleTarget": true
+    },
+    {
+      "kind": "spell",
+      "id": "spell:beast-sense",
+      "name": "Beast Sense",
+      "summary": "Touch a willing beast: while you concentrate, you can use your action to see and hear through its senses until your next turn (you're blind and deaf to your own surroundings meanwhile). Placeholder: your book file gives the full text.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 217
+      },
+      "level": 2,
+      "school": "Divination",
+      "castingTime": "1 action",
+      "range": "Touch",
+      "components": [
+        "S"
+      ],
+      "duration": "Concentration, up to 1 hour",
+      "concentration": true,
+      "ritual": true,
+      "classes": [
+        "druid",
+        "ranger"
+      ],
+      "text": [],
+      "higherLevels": []
     }
   ]
 }

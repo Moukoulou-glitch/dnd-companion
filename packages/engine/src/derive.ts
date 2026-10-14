@@ -313,7 +313,12 @@ export interface DerivedSheet {
   effects: EffectResult[];
   spellcasting: SpellcastingResult[];
   /** Tasha's optional class features within the character's levels, and whether each is in use. */
-  optionalFeatures: { id: string; name: string; className: string; level: number; summary?: string; on: boolean }[];
+  optionalFeatures: { id: string; name: string; className: string; level: number; summary?: string; instead?: string[]; on: boolean }[];
+  /**
+   * Each class with optional features, for one switch that takes them all on
+   * or off: `ids` are every level's (so later levels follow the choice).
+   */
+  optionalClasses: { className: string; ids: string[]; on: boolean; some: boolean }[];
   spellSlots: { level: number; total: number; used: number }[];
   pactSlots?: { count: number; level: number };
   resources: ResourceResult[];
@@ -404,6 +409,12 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
 
   const attunedCount = c.inventory.filter((i) => i.attuned).length;
   if (attunedCount > 3) warnings.push(`${attunedCount} items attuned; the limit is 3.`);
+  {
+    const bonded = (c.customCompanions ?? []).filter((x) => x.bond === "rangers-companion");
+    if (bonded.length > 1) warnings.push(`${bonded.length} companions are bonded as your Ranger's Companion; the feature gives you one. Only one should be.`);
+    if (bonded.length && !sources.some((s) => s.id === "feature:rangers-companion"))
+      warnings.push(`${bonded.map((x) => x.name).join(", ")}: bonded as a Ranger's Companion, but that feature isn't in use (it needs the Beast Master's Ranger's Companion, not Primal Companion), so its bonuses are off.`);
+  }
 
   // Ability scores: base, fixed bonuses, then bonuses to abilities the player picked.
   const chosenBonus = (s: Source, ab: Ability): number => {
@@ -1487,13 +1498,26 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     spellcasting,
     optionalFeatures: c.classes.flatMap((cl) => {
       const d = reg.find(cl.class, "class");
-      return (d?.features ?? [])
+      const sub = cl.subclass ? reg.find(cl.subclass, "subclass") : undefined;
+      return [...(d?.features ?? []), ...(sub?.features ?? [])]
         .filter((f) => f.optional && f.level <= cl.level)
         .flatMap((f) => {
           const fd = reg.find(f.feature, "feature");
           if (!fd) return [];
-          return [{ id: fd.id, name: fd.name, className: d!.name, level: f.level, ...(fd.summary ? { summary: fd.summary } : {}), on: !c.optionalOff?.includes(fd.id) }];
+          // What it stands in for, by name ("instead of Favored Enemy").
+          const instead = [...new Set((f.replaces ?? []).map((id) => (reg.find(id, "feature")?.name ?? id).replace(/\s*\(.*\)$/, "")))];
+          return [{ id: fd.id, name: fd.name, className: d!.name, level: f.level, ...(fd.summary ? { summary: fd.summary } : {}), ...(instead.length ? { instead } : {}), on: !c.optionalOff?.includes(fd.id) }];
         });
+    }),
+    optionalClasses: c.classes.flatMap((cl) => {
+      const d = reg.find(cl.class, "class");
+      const sub = cl.subclass ? reg.find(cl.subclass, "subclass") : undefined;
+      const all = [...(d?.features ?? []), ...(sub?.features ?? [])].filter((f) => f.optional && reg.find(f.feature, "feature"));
+      const reached = all.filter((f) => f.level <= cl.level);
+      if (reached.length < 2 || !d) return [];
+      const ids = [...new Set(all.map((f) => f.feature))];
+      const onCount = reached.filter((f) => !c.optionalOff?.includes(f.feature)).length;
+      return [{ className: d.name, ids, on: onCount === reached.length, some: onCount > 0 && onCount < reached.length }];
     }),
     spellSlots: slotsTotal.map((total, i) => ({ level: i + 1, total, used: Math.min(total, c.slotsUsed[String(i + 1)] ?? 0) })),
     resources,
@@ -1543,9 +1567,14 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       return out.sort((a, b) => a.spellName.localeCompare(b.spellName));
     })(),
     companions: [
-      ...sources.flatMap((s) => (s.grant.companions ?? []).map((d) => deriveCompanion(d, s.label, c.companions[d.id], ctxFor(s), spellcasting))),
+      ...sources.flatMap((s) =>
+        (s.grant.companions ?? []).map((d) => ({ ...deriveCompanion(d, s.label, c.companions[d.id], ctxFor(s), spellcasting), command: { economy: "bonus" as const, attackInstead: true } })),
+      ),
       // Companions the player made (Companion Builder).
-      ...(c.customCompanions ?? []).map((cc) => deriveCustomCompanion(cc, c.companions[customCompanionId(cc.id)], ctx)),
+      // Ranger's Companion bonds one of them while the feature is in use.
+      ...(c.customCompanions ?? []).map((cc) =>
+        deriveCustomCompanion(cc, c.companions[customCompanionId(cc.id)], ctx, cc.bond === "rangers-companion" && sources.some((s) => s.id === "feature:rangers-companion")),
+      ),
     ],
     rules,
     attacksPerAction: Math.max(

@@ -47,6 +47,7 @@ export function SheetTab({
   openPb,
   openDefenses,
   onOptional,
+  onOptionalAll,
   openProficiencies,
 }: {
   sheet: DerivedSheet;
@@ -67,6 +68,7 @@ export function SheetTab({
   openDefenses: () => void;
   /** Turn a Tasha's optional class feature on or off. */
   onOptional: (id: string, on: boolean) => void;
+  onOptionalAll: (ids: string[], on: boolean) => void;
   /** Take away (or give back) a proficiency by the table's ruling. */
   openProficiencies: () => void;
 }) {
@@ -189,6 +191,26 @@ export function SheetTab({
       {sheet.optionalFeatures.length > 0 && (
         <section>
           <h2>Tasha's optional class features</h2>
+          {sheet.optionalClasses.length > 0 && (
+            <div className="group">
+              {sheet.optionalClasses.map((oc) => (
+                <label className="row check" key={oc.className}>
+                  <input
+                    type="checkbox"
+                    checked={oc.on}
+                    ref={(el) => {
+                      if (el) el.indeterminate = oc.some;
+                    }}
+                    onChange={() => onOptionalAll(oc.ids, !oc.on)}
+                  />
+                  <div className="row-main">
+                    <div className="row-title">Use Tasha's optional features: {oc.className}</div>
+                    <div className="row-sub">{oc.on ? "All on. Untick to play the Player's Handbook version." : oc.some ? "Some on. Tick to switch them all on." : "All off: the Player's Handbook version."}</div>
+                  </div>
+                </label>
+              ))}
+            </div>
+          )}
           <div className="group">
             {sheet.optionalFeatures.map((f) => (
               <label className="row check" key={f.id}>
@@ -197,13 +219,14 @@ export function SheetTab({
                   <div className="row-title">{f.name}</div>
                   <div className="row-sub">
                     {f.className} {f.level}
+                    {f.instead ? ` · instead of ${f.instead.join(", ")}` : ""}
                     {f.summary ? ` · ${f.summary}` : ""}
                   </div>
                 </div>
               </label>
             ))}
           </div>
-          <p className="note">On unless your table doesn't use them. Turning one off takes it (and what it gives) off the sheet; its picks are kept.</p>
+          <p className="note">On unless your table doesn't use them. Turning one off takes it (and what it gives) off the sheet, and brings back the feature it stood in for; its picks are kept.</p>
         </section>
       )}
 

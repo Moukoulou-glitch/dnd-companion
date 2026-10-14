@@ -1440,13 +1440,16 @@ export function App() {
     ));
 
   /** The Companion Builder: a new companion of your own, or one to change (then back to its sheet). */
-  const openCompanionBuilder = (customId?: string) => {
+  const openCompanionBuilder = (customId?: string, bond?: boolean) => {
     const editing = customId ? live.current.character?.customCompanions.find((x) => x.id === customId) : undefined;
-    open(editing ? `Change ${editing.name}` : "Your own companion", () => (
+    const canBond = !!live.current.sheet?.features.some((f) => f.id === "feature:rangers-companion");
+    open(editing ? `Change ${editing.name}` : bond ? "Your Ranger's Companion" : "Your own companion", () => (
       <CompanionBuilder
         reg={registry}
         act={live.current.act}
         {...(editing ? { editing } : {})}
+        {...(bond ? { bond } : {})}
+        canBond={canBond}
         done={(deleted) => (editing && !deleted ? openCompanion(customCompanionId(editing.id)) : close())}
       />
     ));
@@ -1456,7 +1459,9 @@ export function App() {
     open(sheet.companions.find((x) => x.id === id)?.name ?? "Companion", () => {
       const comp = live.current.sheet?.companions.find((x) => x.id === id);
       if (!comp) return <p className="note">This companion is gone.</p>;
-      const command = live.current.sheet?.actions.find((a) => a.featureId && comp.source && a.economy === "bonus" && a.source === comp.source);
+      // The feature's own command action (Primal Companion: bonus action; Ranger's Companion: your action).
+      const economy = comp.command?.economy ?? "bonus";
+      const command = live.current.sheet?.actions.find((a) => a.featureId && comp.source && a.economy === economy && a.source === comp.source);
       return (
         <CompanionPanel
           comp={comp}
@@ -1469,11 +1474,11 @@ export function App() {
           {...(comp.custom ? { onEdit: () => openCompanionBuilder(comp.custom!.id) } : {})}
           onCommand={() =>
             guard(
-              { name: `Command ${comp.name}`, economy: "bonus" },
+              { name: `Command ${comp.name}`, economy },
               () =>
                 command
                   ? live.current.act("useAction", { action: command.id }, `${comp.name} commanded.`)
-                  : live.current.act("useEconomy", { kind: "bonus" }, `${comp.name} commanded.`),
+                  : live.current.act("useEconomy", { kind: economy }, `${comp.name} commanded.`),
               { cancelled: () => openCompanion(id), done: () => openCompanion(id) },
             )
           }
@@ -2377,6 +2382,7 @@ export function App() {
           openMove={openMove}
           openCompanion={openCompanion}
           openCompanionBuilder={() => openCompanionBuilder()}
+          openRangersCompanion={() => openCompanionBuilder(undefined, true)}
           openShape={openShape}
           openTransform={openTransform}
           openSummonGroup={openSummonGroup}
@@ -2437,6 +2443,7 @@ export function App() {
           openDefenses={() => open("Defenses", () => (live.current.character && live.current.sheet ? <DefensesPanel c={live.current.character} sheet={live.current.sheet} reg={registry} act={live.current.act} /> : null))}
           openProficiencies={() => open("Proficiencies", () => (live.current.sheet ? <ProficienciesPanel sheet={live.current.sheet} act={live.current.act} /> : null))}
           onOptional={(id, on) => live.current.act("setOptionalFeature", { feature: id, on }, `${registry.find(id, "feature")?.name ?? id} ${on ? "on" : "off"}.`)}
+          onOptionalAll={(ids, on) => live.current.act("setOptionalFeature", { feature: ids[0], on, also: ids.slice(1) }, `Tasha's optional features ${on ? "on" : "off"}.`)}
           openPb={() => open("Proficiency bonus", () => (live.current.character && live.current.sheet ? <PbPanel character={live.current.character} sheet={live.current.sheet} act={live.current.act} /> : null))}
           openAdjust={(k) => open(k === "save" ? "Saving throws: bonus or penalty" : k === "skill" ? "Skills: bonus or penalty" : "Passive senses: bonus or penalty", () => (live.current.character ? <RollAdjustPanel kind={k} c={live.current.character} act={live.current.act} /> : null))} />}
       {tab === "story" && <BackstoryTab c={c} act={s.act} />}

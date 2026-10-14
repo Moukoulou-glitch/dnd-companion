@@ -319,6 +319,12 @@ export const CustomCompanion = z
       .default([]),
     /** The player's notes (Markdown), shown on its sheet. */
     notes: z.string().max(4000).default(""),
+    /**
+     * Bonded through a feature: the Beast Master's Ranger's Companion. While
+     * that feature is in use it adds the ranger's numbers (proficiency bonus,
+     * hit points from ranger levels) to this stat block.
+     */
+    bond: z.enum(["rangers-companion"]).optional(),
   })
   .strict();
 export type CustomCompanion = z.infer<typeof CustomCompanion>;

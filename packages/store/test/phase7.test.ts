@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildItems, choiceOptions, classSpellOptions, derive, levelGains, multiclassIssues, newCharacter } from "@dnd/engine";
+import { activeFeatures, buildItems, choiceOptions, classSpellOptions, derive, levelGains, multiclassIssues, newCharacter } from "@dnd/engine";
 import type { Character } from "@dnd/schema";
 import { CharacterLog } from "../src/log.js";
 import { HybridClock } from "../src/clock.js";
@@ -38,7 +38,8 @@ describe("the SRD classes and the table's own", () => {
 
   it("the table's Tasha's ranger keeps its own first levels", () => {
     const ranger = reg.get("class:ranger", "class");
-    expect(ranger.features.filter((f) => f.level === 1).map((f) => f.feature)).toEqual(["feature:favored-foe", "feature:deft-explorer"]);
+    // Tasha's features replace the PHB ones they stand for (switch them off and the PHB ones come back).
+    expect(activeFeatures(ranger.features, 1, undefined).map((f) => f.feature)).toEqual(["feature:favored-foe", "feature:deft-explorer"]);
     expect(ranger.choices![0]).toMatchObject({ id: "skills", count: 3 });
   });
 

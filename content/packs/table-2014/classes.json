@@ -4,7 +4,7 @@
       "kind": "class",
       "id": "class:ranger",
       "name": "Ranger",
-      "summary": "Wilderness warrior and half caster using Wisdom. This table uses the Tasha's optional features (Favored Foe, Deft Explorer, Primal Awareness).",
+      "summary": "Wilderness warrior and half caster using Wisdom. Tasha's optional features (Favored Foe, Deft Explorer, Primal Awareness and more) replace their Player's Handbook versions; switch them off on the sheet to play the PHB ranger.",
       "source": {
         "pack": "table-2014",
         "book": "PHB",
@@ -45,30 +45,6 @@
           }
         ]
       },
-      "multiclassGrant": {
-        "proficiencies": [
-          {
-            "kind": "armor",
-            "target": "light"
-          },
-          {
-            "kind": "armor",
-            "target": "medium"
-          },
-          {
-            "kind": "armor",
-            "target": "shields"
-          },
-          {
-            "kind": "weapon",
-            "target": "simple"
-          },
-          {
-            "kind": "weapon",
-            "target": "martial"
-          }
-        ]
-      },
       "spellcasting": {
         "id": "ranger",
         "label": "Ranger",
@@ -79,23 +55,282 @@
       "subclassLevel": 3,
       "features": [
         {
-          "level": 1,
-          "feature": "feature:favored-foe"
-        },
-        {
-          "level": 1,
-          "feature": "feature:deft-explorer"
-        },
-        {
           "level": 2,
           "feature": "feature:fighting-style-ranger"
         },
         {
-          "level": 3,
-          "feature": "feature:primal-awareness"
+          "level": 2,
+          "feature": "feature:spellcasting-ranger"
         }
       ],
-      "spellPreparation": "known"
+      "spellPreparation": "known",
+      "adds": [
+        {
+          "level": 1,
+          "feature": "feature:favored-foe",
+          "replaces": [
+            "feature:favored-enemy-1-type",
+            "feature:favored-enemy-2-types",
+            "feature:favored-enemy-3-enemies"
+          ]
+        },
+        {
+          "level": 1,
+          "feature": "feature:deft-explorer",
+          "replaces": [
+            "feature:natural-explorer-1-terrain-type"
+          ]
+        },
+        {
+          "level": 2,
+          "feature": "feature:ranger-spellcasting-focus"
+        },
+        {
+          "level": 3,
+          "feature": "feature:primal-awareness",
+          "replaces": [
+            "feature:primeval-awareness"
+          ]
+        },
+        {
+          "level": 4,
+          "feature": "feature:ranger-martial-versatility"
+        },
+        {
+          "level": 6,
+          "feature": "feature:deft-explorer-roving",
+          "replaces": [
+            "feature:natural-explorer-2-terrain-types"
+          ]
+        },
+        {
+          "level": 10,
+          "feature": "feature:deft-explorer-tireless",
+          "replaces": [
+            "feature:natural-explorer-3-terrain-types"
+          ]
+        },
+        {
+          "level": 10,
+          "feature": "feature:natures-veil",
+          "replaces": [
+            "feature:hide-in-plain-sight"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:ranger-spellcasting-focus",
+      "name": "Spellcasting Focus",
+      "summary": "You can use a druidic focus as the spellcasting focus for your ranger spells.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 57
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:ranger-martial-versatility",
+      "name": "Martial Versatility",
+      "summary": "Whenever you gain an Ability Score Improvement from this class, you may swap your fighting style for another one the ranger can take.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 57
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:deft-explorer-roving",
+      "name": "Deft Explorer: Roving",
+      "summary": "Your walking speed rises by 5 feet, and you gain climbing and swimming speeds equal to your walking speed.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 56
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.speed.walk",
+            "op": "add",
+            "value": 5,
+            "label": "Roving"
+          },
+          {
+            "selector": "stat.speed.climb",
+            "op": "grantSpeed",
+            "value": "walk",
+            "label": "Roving"
+          },
+          {
+            "selector": "stat.speed.swim",
+            "op": "grantSpeed",
+            "value": "walk",
+            "label": "Roving"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:deft-explorer-tireless",
+      "name": "Deft Explorer: Tireless",
+      "summary": "Action: gain 1d8 + Wisdom modifier temporary hit points (at least 1), proficiency bonus times per long rest. A short rest also removes one level of exhaustion.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 56
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "tireless",
+            "name": "Tireless",
+            "max": "pb",
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "tireless",
+            "name": "Tireless",
+            "economy": "action",
+            "cost": {
+              "resource": "tireless"
+            },
+            "tempHp": "1d8 + mod.wis",
+            "note": "Gain 1d8 + Wisdom modifier temporary hit points (at least 1)."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:natures-veil",
+      "name": "Nature's Veil",
+      "summary": "Bonus action: you become invisible until the end of your next turn. Proficiency bonus times per long rest.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 57
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "natures-veil",
+            "name": "Nature's Veil",
+            "max": "pb",
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "natures-veil",
+            "name": "Nature's Veil",
+            "economy": "bonus",
+            "cost": {
+              "resource": "natures-veil"
+            },
+            "toggles": [
+              "natures-veil"
+            ],
+            "duration": {
+              "rounds": 2
+            },
+            "note": "You're invisible until the end of your next turn."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:style-druidic-warrior",
+      "name": "Druidic Warrior",
+      "summary": "Fighting style: learn two druid cantrips; they count as ranger spells (Wisdom). You can swap one when you gain a ranger level.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 57
+      },
+      "grant": {
+        "spellcasting": {
+          "id": "druidic-warrior",
+          "label": "Druidic Warrior",
+          "ability": "wis",
+          "progression": "none"
+        }
+      },
+      "choices": [
+        {
+          "id": "cantrips",
+          "label": "Druid cantrips",
+          "kind": "spell",
+          "count": 2,
+          "spells": {
+            "classes": [
+              "druid"
+            ],
+            "level": 0
+          }
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:rangers-companion",
+      "name": "Ranger's Companion",
+      "summary": "A beast of Medium size or smaller with a challenge rating of 1/4 or lower is your companion. It adds your proficiency bonus to its AC, attack rolls, damage rolls and the saves and skills it's proficient in, and its hit point maximum is its normal one or four times your ranger level, whichever is higher. It acts on your turn; it moves on its own, but attacks or takes another action only when you use your action to command it. If it dies, you can bond with another beast over 8 hours.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 93
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "rangers-companion",
+            "name": "Command companion",
+            "economy": "action",
+            "note": "Your beast takes the Attack, Dash, Disengage, Dodge or Help action. From 5th level you can still attack once yourself when you command it to attack."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:exceptional-training",
+      "name": "Exceptional Training",
+      "summary": "When your companion doesn't attack on your turn, your bonus action can command it to Dash, Disengage or Help. Its attacks count as magical for overcoming resistance.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 93
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:bestial-fury",
+      "name": "Bestial Fury",
+      "summary": "Your companion can make two attacks when you command it to attack (Ranger's Companion), or when it takes the Attack action (Primal Companion).",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 93
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:share-spells",
+      "name": "Share Spells",
+      "summary": "A spell you cast that targets only you can also target your companion if it's within 30 feet of you.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 93
+      }
     },
     {
       "kind": "feature",
@@ -127,7 +362,7 @@
             "toggles": [
               "favored-foe"
             ],
-            "note": "When you hit: mark the target for 1 minute (concentration). Once per turn, your first hit on it adds 1d4.",
+            "note": "When you hit: mark the target for 1 minute (concentration). Once per turn, your first hit on it adds the Favored Foe die.",
             "duration": {
               "rounds": 10
             }
@@ -137,7 +372,7 @@
           {
             "selector": "roll.damage.weapon.*",
             "op": "add",
-            "value": "1d4",
+            "value": "scale.die",
             "label": "Favored Foe",
             "when": {
               "toggle": "favored-foe",
@@ -146,6 +381,25 @@
             "oncePerTurn": true
           }
         ]
+      },
+      "scaling": {
+        "die": {
+          "class": "class:ranger",
+          "table": [
+            [
+              1,
+              "1d4"
+            ],
+            [
+              6,
+              "1d6"
+            ],
+            [
+              14,
+              "1d8"
+            ]
+          ]
+        }
       }
     },
     {
@@ -193,7 +447,7 @@
       "kind": "feature",
       "id": "feature:fighting-style-ranger",
       "name": "Fighting Style",
-      "summary": "Pick one fighting style.",
+      "summary": "Pick one fighting style. Blind Fighting, Druidic Warrior and Thrown Weapon Fighting are Tasha's options.",
       "source": {
         "pack": "table-2014",
         "book": "PHB",
@@ -207,7 +461,12 @@
           "count": 1,
           "from": [
             "feature:style-archery",
-            "feature:style-two-weapon-fighting"
+            "feature:style-defense",
+            "feature:style-dueling",
+            "feature:style-two-weapon-fighting",
+            "feature:style-blind-fighting",
+            "feature:style-druidic-warrior",
+            "feature:style-thrown-weapon-fighting"
           ]
         }
       ]
@@ -237,7 +496,7 @@
       "kind": "feature",
       "id": "feature:primal-awareness",
       "name": "Primal Awareness",
-      "summary": "Learn extra spells at certain ranger levels (Speak with Animals at 3rd); each can be cast once per long rest without a slot.",
+      "summary": "Extra spells as you gain ranger levels: Speak with Animals (3rd), Beast Sense (5th), Speak with Plants (9th), Locate Creature (13th), Commune with Nature (17th). They're always known, don't count against your spells known, and each can be cast once per long rest without a slot.",
       "source": {
         "pack": "table-2014",
         "book": "TCoE",
@@ -251,6 +510,42 @@
             "casting": "Free once per long rest, or with a ranger slot",
             "resource": "primal-awareness-speak-with-animals",
             "list": "ranger"
+          },
+          {
+            "spell": "spell:beast-sense",
+            "name": "Beast Sense",
+            "casting": "Free once per long rest, or with a ranger slot",
+            "resource": "primal-awareness-beast-sense",
+            "list": "ranger",
+            "minLevel": 5,
+            "levelOf": "class:ranger"
+          },
+          {
+            "spell": "spell:speak-with-plants",
+            "name": "Speak with Plants",
+            "casting": "Free once per long rest, or with a ranger slot",
+            "resource": "primal-awareness-speak-with-plants",
+            "list": "ranger",
+            "minLevel": 9,
+            "levelOf": "class:ranger"
+          },
+          {
+            "spell": "spell:locate-creature",
+            "name": "Locate Creature",
+            "casting": "Free once per long rest, or with a ranger slot",
+            "resource": "primal-awareness-locate-creature",
+            "list": "ranger",
+            "minLevel": 13,
+            "levelOf": "class:ranger"
+          },
+          {
+            "spell": "spell:commune-with-nature",
+            "name": "Commune with Nature",
+            "casting": "Free once per long rest, or with a ranger slot",
+            "resource": "primal-awareness-commune-with-nature",
+            "list": "ranger",
+            "minLevel": 17,
+            "levelOf": "class:ranger"
           }
         ],
         "resources": [
@@ -259,6 +554,38 @@
             "name": "Primal Awareness: Speak with Animals",
             "max": 1,
             "reset": "long"
+          },
+          {
+            "id": "primal-awareness-beast-sense",
+            "name": "Primal Awareness: Beast Sense",
+            "max": 1,
+            "reset": "long",
+            "minLevel": 5,
+            "levelOf": "class:ranger"
+          },
+          {
+            "id": "primal-awareness-speak-with-plants",
+            "name": "Primal Awareness: Speak with Plants",
+            "max": 1,
+            "reset": "long",
+            "minLevel": 9,
+            "levelOf": "class:ranger"
+          },
+          {
+            "id": "primal-awareness-locate-creature",
+            "name": "Primal Awareness: Locate Creature",
+            "max": 1,
+            "reset": "long",
+            "minLevel": 13,
+            "levelOf": "class:ranger"
+          },
+          {
+            "id": "primal-awareness-commune-with-nature",
+            "name": "Primal Awareness: Commune with Nature",
+            "max": 1,
+            "reset": "long",
+            "minLevel": 17,
+            "levelOf": "class:ranger"
           }
         ],
         "actions": [
@@ -278,7 +605,7 @@
       "kind": "subclass",
       "id": "subclass:beast-master",
       "name": "Beast Master",
-      "summary": "A primal beast companion fights alongside the ranger.",
+      "summary": "A beast companion fights alongside the ranger: the Player's Handbook's Ranger's Companion, or Tasha's Primal Companion in its place.",
       "source": {
         "pack": "table-2014",
         "book": "PHB",
@@ -288,7 +615,27 @@
       "features": [
         {
           "level": 3,
-          "feature": "feature:primal-companion"
+          "feature": "feature:rangers-companion"
+        },
+        {
+          "level": 3,
+          "feature": "feature:primal-companion",
+          "optional": true,
+          "replaces": [
+            "feature:rangers-companion"
+          ]
+        },
+        {
+          "level": 7,
+          "feature": "feature:exceptional-training"
+        },
+        {
+          "level": 11,
+          "feature": "feature:bestial-fury"
+        },
+        {
+          "level": 15,
+          "feature": "feature:share-spells"
         }
       ]
     },
