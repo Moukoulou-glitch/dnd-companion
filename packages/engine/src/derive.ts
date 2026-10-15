@@ -25,7 +25,7 @@ import { customActionDc, customFeatureId, withCustom } from "./custom.js";
 import { maneuverGrant } from "./maneuvers.js";
 import type { ContentRegistry } from "./registry.js";
 import { collectSources, type Source } from "./sources.js";
-import { customCompanionId, deriveCompanion, deriveCustomCompanion, type CompanionResult } from "./companions.js";
+import { companionOwnerResist, customCompanionId, deriveCompanion, deriveCustomCompanion, type CompanionResult } from "./companions.js";
 import { spellSlots } from "./spellSlots.js";
 import { materialNeed } from "./materials.js";
 import { deriveShape, wildShapeLimits, type ShapeResult, type WildShapeLimits } from "./shapes.js";
@@ -399,6 +399,14 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
   ]);
   const pb = Math.max(0, pbBreakdown.total);
   const classLevels = Object.fromEntries(c.classes.map((cl) => [cl.class, cl.level]));
+  // A companion out with you can give you something (Bond of Fang and Scale: resistance to the drake's essence).
+  for (const s of [...sources]) {
+    for (const d of s.grant.companions ?? []) {
+      const res = companionOwnerResist(d, c.companions[d.id], classLevels);
+      if (res.length)
+        sources.push({ id: `${s.id}#${d.id}-owner`, label: res[0]!.label, grant: { modifiers: res.map((r) => ({ selector: `defense.resist.${r.type}`, op: "resist" as const, mode: "auto" as const, label: r.label })) }, choices: {} });
+    }
+  }
 
   // Equipment state the conditions need.
   const equipped = c.inventory
@@ -1568,7 +1576,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     })(),
     companions: [
       ...sources.flatMap((s) =>
-        (s.grant.companions ?? []).map((d) => ({ ...deriveCompanion(d, s.label, c.companions[d.id], ctxFor(s), spellcasting), command: { economy: "bonus" as const, attackInstead: true } })),
+        (s.grant.companions ?? []).map((d) => ({ ...deriveCompanion(d, s.label, c.companions[d.id], ctxFor(s), spellcasting), command: d.command ?? { economy: "bonus" as const, attackInstead: true } })),
       ),
       // Companions the player made (Companion Builder).
       // Ranger's Companion bonds one of them while the feature is in use.

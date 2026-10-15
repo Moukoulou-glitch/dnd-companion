@@ -6,7 +6,7 @@ import { formatBonus, readiedNow, signed, turnReminders, type CompanionResult, t
 import { damageText } from "./ActionsTab";
 import { BreakdownLines } from "./Sheet";
 import { SwipeButton } from "./Swipe";
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { useLongPress } from "../longPress";
 
 export type EconomyKind = "action" | "bonus" | "reaction";
@@ -226,7 +226,7 @@ export function CompanionCard({ comp, onOpen }: { comp: CompanionResult; onOpen:
     <button className="row companion" onClick={onOpen}>
       <div className="row-main">
         <div className="row-title">{comp.name}</div>
-        <div className="row-sub">{f ? `${f.name}, AC ${f.ac.total}` : "Choose its form"}</div>
+        <div className="row-sub">{f ? `${f.name}, AC ${f.ac.total}${f.hp.current === 0 && comp.summon ? " · gone until summoned" : ""}` : comp.summon ? "Not summoned yet" : "Choose its form"}</div>
         {comp.states.length > 0 && (
           <div className="companion-tags">
             {comp.states.map((x) => (
@@ -250,6 +250,50 @@ export function CompanionCard({ comp, onOpen }: { comp: CompanionResult; onOpen:
         </span>
       )}
     </button>
+  );
+}
+
+/**
+ * Summoning a companion that's summoned (the Drakewarden's drake): pick its
+ * form (essence), then summon it free (once per long rest) or with a slot.
+ */
+function SummonSection({ comp, character, sheet, act }: { comp: CompanionResult; character: Character; sheet: DerivedSheet; act: Act }) {
+  const sm = comp.summon!;
+  const [form, setForm] = useState(comp.form?.id ?? comp.forms[0]!.id);
+  const free = sheet.resources.find((r) => r.id === sm.resource);
+  const slots = sheet.spellSlots.filter((s) => s.level >= sm.slotMin && s.total - s.used > 0);
+  const pact = sheet.pactSlots && sheet.pactSlots.level >= sm.slotMin && character.pactSlotsUsed < sheet.pactSlots.count;
+  const name = comp.forms.find((f) => f.id === form)?.name ?? form;
+  const summon = (extra: { level?: number; pact?: boolean }, how: string) => act("summonCompanion", { companion: comp.id, form, ...extra }, `${name} summoned (${how}).`);
+  return (
+    <section>
+      <p className="note">{sm.note}</p>
+      <div className="types wrap" role="group" aria-label="Form">
+        {comp.forms.map((f) => (
+          <button key={f.id} className="switch" aria-pressed={form === f.id} onClick={() => setForm(f.id)}>
+            {f.name}
+          </button>
+        ))}
+      </div>
+      <div className="big-actions">
+        <button className="big primary" onClick={() => summon({}, "free")}>
+          Summon
+          <span className="sub">{free ? (free.remaining > 0 ? `free · ${free.remaining} left` : "free use spent") : "free"}</span>
+        </button>
+        {slots.slice(0, 3).map((s) => (
+          <button key={s.level} className="big" onClick={() => summon({ level: s.level }, `level ${s.level} slot`)}>
+            Summon
+            <span className="sub">level {s.level} slot</span>
+          </button>
+        ))}
+        {pact && (
+          <button className="big" onClick={() => summon({ level: sheet.pactSlots!.level, pact: true }, "Pact slot")}>
+            Summon
+            <span className="sub">Pact slot</span>
+          </button>
+        )}
+      </div>
+    </section>
   );
 }
 
@@ -297,6 +341,7 @@ export function CompanionPanel({
     </div>
   );
 
+  if (!f && comp.summon) return <SummonSection comp={comp} character={character} sheet={sheet} act={act} />;
   if (!f) {
     return (
       <>
@@ -334,6 +379,12 @@ export function CompanionPanel({
       </div>
       <p className="note">{[f.speed, f.senses, f.languages].filter(Boolean).map((x) => `${x!.replace(/\.$/, "")}.`).join(" ")}</p>
 
+      {dead && comp.summon && (
+        <>
+          <p className="note danger-text">{comp.name} is gone until you summon it again.</p>
+          <SummonSection comp={comp} character={character} sheet={sheet} act={act} />
+        </>
+      )}
       {dead && comp.reviveNote && (
         <section>
           <p className="note danger-text">{comp.reviveNote}</p>
@@ -446,8 +497,19 @@ export function CompanionPanel({
         placeholder={comp.name}
         onSave={(name) => act("setCompanion", { companion: comp.id, name }, "Name saved.")}
       />
-      <p className="note">A different beast after a long rest arrives with full hit points.</p>
-      {chooseForm}
+      {comp.summon ? (
+        !dead && (
+          <>
+            <h2 className="sub-head">Summon again</h2>
+            <SummonSection comp={comp} character={character} sheet={sheet} act={act} />
+          </>
+        )
+      ) : (
+        <>
+          <p className="note">A different beast after a long rest arrives with full hit points.</p>
+          {chooseForm}
+        </>
+      )}
         </>
       )}
     </>

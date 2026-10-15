@@ -1567,6 +1567,42 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       break;
     }
 
+    case "summonCompanion": {
+      const { companion, form, level, pact } = op.payload;
+      const comp = sheet.companions.find((x) => x.id === companion);
+      if (!comp?.summon) {
+        notes.push(comp ? `${comp.name} isn't summoned that way.` : `No companion "${companion}".`);
+        break;
+      }
+      const formName = comp.forms.find((f) => f.id === form)?.name;
+      if (!formName) {
+        notes.push(`${comp.name} has no form "${form}".`);
+        break;
+      }
+      if (level === undefined && !pact) {
+        // The free summoning: its resource.
+        const r = sheet.resources.find((x) => x.id === comp.summon!.resource);
+        if (!r || r.remaining <= 0) notes.push(`No free summoning left (it comes back after a long rest). Summoned anyway; spend a spell slot of level ${comp.summon.slotMin} or higher if you're keeping count.`);
+        else c.resourcesUsed[r.id] = (c.resourcesUsed[r.id] ?? 0) + 1;
+      } else if (pact) {
+        if (!sheet.pactSlots || c.pactSlotsUsed >= sheet.pactSlots.count) notes.push("No Pact Magic slots left. Summoned anyway.");
+        else c.pactSlotsUsed += 1;
+      } else {
+        if (level! < comp.summon.slotMin) notes.push(`It takes a slot of level ${comp.summon.slotMin} or higher. Summoned anyway.`);
+        const total = sheet.spellSlots.find((x) => x.level === level)?.total ?? 0;
+        const used = c.slotsUsed[String(level)] ?? 0;
+        if (used >= total) notes.push(`No level ${level} slots left. Summoned anyway.`);
+        else c.slotsUsed[String(level)] = used + 1;
+      }
+      spendTurn("action");
+      const state = (c.companions[companion] ??= { states: [] });
+      state.form = form;
+      delete state.hp;
+      state.states = [];
+      notes.push(`${comp.name} arrives with all its hit points.`);
+      break;
+    }
+
     case "setDeathSaves": {
       c.deathSaves = { successes: op.payload.successes, failures: op.payload.failures };
       if (op.payload.failures === 3) notes.push("Three failures: the character dies.");

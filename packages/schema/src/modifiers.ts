@@ -355,12 +355,36 @@ export const CompanionForm = z
     abilities: z.record(Ability, z.number().int().min(1).max(30)),
     /** Added to every ability check and saving throw (Primal Bond). */
     checkBonus: ValueExpr.optional(),
-    /** Saving throw totals that differ from the ability modifier (a stat block's "Saving Throws" line). */
-    saves: z.record(Ability, z.number().int()).optional(),
+    /** Saving throw totals that differ from the ability modifier (a stat block's "Saving Throws" line); "2 + pb" for one that grows. */
+    saves: z.record(Ability, ValueExpr).optional(),
     senses: z.string().optional(),
     languages: z.string().optional(),
     traits: z.array(z.object({ name: z.string(), summary: z.string() }).strict()).default([]),
     attacks: z.array(CompanionAttack).default([]),
+    /**
+     * What it gains as the owner's class levels rise (the Drakewarden's drake:
+     * Medium and winged at 7th, Large at 15th). Each step that's reached applies,
+     * in order: size and speed replace, traits and extra damage add up.
+     */
+    growth: z
+      .array(
+        z
+          .object({
+            level: z.number().int().min(1).max(20),
+            class: DefId,
+            /** The feature's name, for breakdowns ("Bond of Fang and Scale"). */
+            label: z.string(),
+            size: z.string().optional(),
+            speed: z.string().optional(),
+            traits: z.array(z.object({ name: z.string(), summary: z.string() }).strict()).optional(),
+            /** Extra damage dice of their own type on one of its attacks (Magic Fang: 1d6 of its essence). */
+            extraDamage: z.array(z.object({ attack: z.string(), dice: z.string(), damageType: DamageType }).strict()).optional(),
+            /** The owner resists this damage type while it's with them (Bond of Fang and Scale). */
+            ownerResist: DamageType.optional(),
+          })
+          .strict(),
+      )
+      .optional(),
   })
   .strict();
 export type CompanionForm = z.infer<typeof CompanionForm>;
@@ -374,8 +398,16 @@ export const CompanionDef = z
     forms: z.array(CompanionForm).min(1),
     /** How it acts in combat, shown on the Play screen. */
     combatNote: z.string().optional(),
+    /** Commanding it: a bonus action by default, and it can attack in place of one of your attacks (Primal Companion). */
+    command: z.object({ economy: z.enum(["action", "bonus"]), attackInstead: z.boolean().default(false) }).strict().optional(),
     /** Bringing it back: spend a spell slot of 1st level or higher. */
     revive: z.object({ note: z.string() }).strict().optional(),
+    /**
+     * Summoned with an action (the Drakewarden's drake): free once per `resource`,
+     * or with a spell slot of `slotMin` or higher. Each summoning picks a form and
+     * brings it with all its hit points.
+     */
+    summon: z.object({ resource: z.string(), slotMin: z.number().int().min(1).max(9), note: z.string() }).strict().optional(),
   })
   .strict();
 export type CompanionDef = z.infer<typeof CompanionDef>;

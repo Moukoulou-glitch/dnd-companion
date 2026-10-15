@@ -372,6 +372,8 @@ export const OPERATION_PAYLOADS = {
   /** Takes a companion's tag away (the readied action was used, or it ended early). */
   endCompanionState: z.object({ companion: z.string(), id: z.string() }).strict(),
   reviveCompanion: z.object({ companion: z.string(), level: z.number().int().min(1).max(9), pact: z.boolean().default(false) }).strict(),
+  /** Summon a companion that's summoned (the drake): free with its resource, or with a slot (`level`); picks its form; all its hit points. */
+  summonCompanion: z.object({ companion: z.string(), form: z.string(), level: z.number().int().min(1).max(9).optional(), pact: z.boolean().default(false) }).strict(),
   deathSave: z.object({ result: z.enum(["success", "failure", "critSuccess", "critFailure"]) }).strict(),
   /** Set the death save marks by hand (tap a mark, or clear them). */
   setDeathSaves: z.object({ successes: z.number().int().min(0).max(3), failures: z.number().int().min(0).max(3) }).strict(),
@@ -434,6 +436,7 @@ export const Operation = z.discriminatedUnion("type", [
   OperationBase.extend({ type: z.literal("useEconomy"), payload: OPERATION_PAYLOADS.useEconomy }),
   OperationBase.extend({ type: z.literal("setCompanion"), payload: OPERATION_PAYLOADS.setCompanion }),
   OperationBase.extend({ type: z.literal("reviveCompanion"), payload: OPERATION_PAYLOADS.reviveCompanion }),
+  OperationBase.extend({ type: z.literal("summonCompanion"), payload: OPERATION_PAYLOADS.summonCompanion }),
   OperationBase.extend({ type: z.literal("levelUp"), payload: OPERATION_PAYLOADS.levelUp }),
   OperationBase.extend({ type: z.literal("levelDown"), payload: OPERATION_PAYLOADS.levelDown }),
   OperationBase.extend({ type: z.literal("setSubclass"), payload: OPERATION_PAYLOADS.setSubclass }),

@@ -97,3 +97,10 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 - Deft Explorer: Tireless's temporary hit points have no minimum of 1 applied (only with a negative Wisdom modifier would it matter); removing exhaustion on a short rest is text. Nature's Veil switches a "Nature's Veil" state on until the end of your next turn; being invisible is up to you (add the Invisible condition if your table wants its effects).
 - Martial Versatility and Cantrip/Fighting Style swaps at an Ability Score Improvement: change the pick on the Sheet.
 - Natural Explorer and Favored Enemy (PHB) keep their SRD text; their benefits (terrain travel, tracking, languages) aren't applied as numbers.
+
+## Drakewarden
+- The drake's Hit Dice (d10s equal to your ranger level) aren't tracked; summoning it again brings it back at full hit points.
+- Infused Strikes (its reaction: +1d6 of its essence on an ally's weapon hit) and Drake Mount (riding it, no flying while ridden until 15th) are shown as traits, not rolled or applied.
+- Drake's Breath rolls its damage when used and shows your spell save DC; the type you pick is named on the use, and the targets' saves are up to the table. Spending a 3rd-level or higher slot for another use: spend it on the slot pills.
+- Reflexive Resistance counts its uses; halving the damage is up to you (or apply it as resistance when you enter the damage).
+- Your resistance to the drake's essence lasts while it's summoned with hit points left; if it's dismissed some other way, summoning state isn't tracked beyond its hit points.

@@ -26,6 +26,8 @@ export const FEATURE_DCS: Record<string, DcSpec> = {
   "feature:way-of-the-sun-soul-searing-arc-strike": KI("Dexterity (Burning Hands)"),
   "feature:way-of-the-four-elements-disciple-of-the-elements": KI("as the discipline says"),
   "feature:way-of-shadow-shadow-arts": KI("as the spell says"),
+  // Ranger
+  "feature:drakewarden-drakes-breath": SPELL("ranger", "Dexterity"),
   // Cleric
   "feature:channel-divinity-turn-undead": SPELL("cleric", "Wisdom"),
   "feature:destroy-undead-cr-1-2-or-below": SPELL("cleric", "Wisdom (Turn Undead)"),

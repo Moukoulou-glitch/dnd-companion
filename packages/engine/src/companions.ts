@@ -23,6 +23,8 @@ export interface CompanionResult {
     /** Bonded through a feature (Ranger's Companion); `active` while that feature is in use. */
     bond?: { name: string; active: boolean };
   };
+  /** Summoned with an action: free once per `resource`, or with a slot of `slotMin`+ (the drake). */
+  summon?: { resource: string; slotMin: number; note: string };
   /** What commanding it costs you, when it can be commanded (Primal Companion: bonus action; Ranger's Companion: action). */
   command?: { economy: "action" | "bonus"; attackInstead: boolean };
   /** Missing until the player picks a form. */
@@ -65,6 +67,7 @@ export function deriveCompanion(
   };
   if (def.combatNote) r.combatNote = def.combatNote;
   if (def.revive) r.reviveNote = def.revive.note;
+  if (def.summon) r.summon = def.summon;
   const f = def.forms.find((x) => x.id === state?.form);
   if (!f) return r;
 
@@ -88,9 +91,18 @@ export function deriveCompanion(
     const modifier = Math.floor((score - 10) / 2);
     const base: Part[] = [{ label: `${ABILITY_NAMES[ab]} modifier`, value: modifier }, ...bonus.map((p) => ({ ...p, label: `${p.label} (${def.name})` }))];
     // A save written in the stat block (proficient saves) is its total.
-    const save = f.saves?.[ab] !== undefined ? [{ label: `${ABILITY_NAMES[ab]} save (stat block)`, value: f.saves[ab]! }, ...bonus.map((p) => ({ ...p, label: `${p.label} (${def.name})` }))] : base;
+    const save =
+      f.saves?.[ab] !== undefined
+        ? [...exprParts(f.saves[ab]!, `${ABILITY_NAMES[ab]} save (stat block)`).map((p) => (p.label === "Proficiency bonus" ? p : { ...p, label: `${ABILITY_NAMES[ab]} save (stat block)` })), ...bonus.map((p) => ({ ...p, label: `${p.label} (${def.name})` }))]
+        : base;
     abilities[ab] = { score, modifier, check: roll(base), save: roll(save) };
   }
+
+  // What it has grown into at the owner's level (the drake: wings at 7th, Large at 15th).
+  const grown = (f.growth ?? []).filter((g) => (ctx.classLevels[g.class] ?? 0) >= g.level);
+  const size = grown.reduce((x, g) => g.size ?? x, f.size);
+  const speed = grown.reduce((x, g) => g.speed ?? x, f.speed);
+  const traits = [...f.traits, ...grown.flatMap((g) => g.traits ?? [])];
 
   const attacks = f.attacks.map((a) => {
     const hit =
@@ -109,6 +121,7 @@ export function deriveCompanion(
       damage: { dice: a.damage, type: a.damageType, bonus: roll(dmgParts), onCrit: [], critExtraDice: [] },
       properties: [],
     };
+    for (const g of grown) for (const x of g.extraDamage ?? []) if (x.attack === a.name) w.damage.bonus.dice.push({ label: g.label, dice: x.dice, damageType: x.damageType });
     if (a.note) w.note = a.note;
     return w;
   });
@@ -116,20 +129,30 @@ export function deriveCompanion(
   r.form = {
     id: f.id,
     name: f.name,
-    size: f.size,
+    size,
     type: f.type,
     ac: { total: acParts.reduce((t, p) => t + p.value, 0), parts: acParts },
     hpMax: { total: hpMax, parts: hpParts },
     hp: { current: Math.min(hp.current, hpMax), temp: hp.temp },
-    speed: f.speed,
+    speed,
     abilities,
-    traits: f.traits,
+    traits,
     attacks,
   };
   if (f.senses) r.form.senses = f.senses;
   if (f.languages) r.form.languages = f.languages;
   if (sc) r.form.saveDc = sc.saveDc.total;
   return r;
+}
+
+/**
+ * What a companion gives its owner while it's out, at the owner's levels
+ * (Bond of Fang and Scale: resistance to the drake's essence).
+ */
+export function companionOwnerResist(def: CompanionDef, state: CompanionState | undefined, classLevels: Record<string, number>): { type: string; label: string }[] {
+  const f = def.forms.find((x) => x.id === state?.form);
+  if (!f || state?.hp?.current === 0) return [];
+  return (f.growth ?? []).filter((g) => g.ownerResist && (classLevels[g.class] ?? 0) >= g.level).map((g) => ({ type: g.ownerResist!, label: g.label }));
 }
 
 /** Companions the player made get ids of their own, never a feature's. */

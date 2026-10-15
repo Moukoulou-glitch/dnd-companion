@@ -1592,6 +1592,719 @@
           }
         ]
       }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:drakewarden",
+      "name": "Drakewarden",
+      "summary": "A ranger bonded to a draconic spirit that takes form as a drake, growing from a small companion into a winged mount.",
+      "source": {
+        "pack": "table-2014",
+        "book": "FTD",
+        "page": 15
+      },
+      "class": "class:ranger",
+      "features": [
+        {
+          "level": 3,
+          "feature": "feature:drakewarden-draconic-gift"
+        },
+        {
+          "level": 3,
+          "feature": "feature:drakewarden-drake-companion"
+        },
+        {
+          "level": 7,
+          "feature": "feature:drakewarden-bond-of-fang-and-scale"
+        },
+        {
+          "level": 11,
+          "feature": "feature:drakewarden-drakes-breath"
+        },
+        {
+          "level": 15,
+          "feature": "feature:drakewarden-perfected-bond"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:drakewarden-draconic-gift",
+      "name": "Draconic Gift",
+      "summary": "You learn the Thaumaturgy cantrip (a ranger spell for you), and Draconic or another language of your choice.",
+      "source": {
+        "pack": "table-2014",
+        "book": "FTD",
+        "page": 15
+      },
+      "choices": [
+        {
+          "id": "tongue",
+          "label": "Language (Draconic or another)",
+          "kind": "language",
+          "count": 1
+        }
+      ],
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:thaumaturgy",
+            "name": "Thaumaturgy",
+            "casting": "Cantrip",
+            "list": "ranger"
+          }
+        ],
+        "proficiencies": [
+          {
+            "kind": "language",
+            "target": {
+              "choice": "tongue"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:drakewarden-drake-companion",
+      "name": "Drake Companion",
+      "summary": "Action: summon your drake within 30 ft, choosing its essence (acid, cold, fire, lightning or poison). It uses your proficiency bonus and takes its turn right after yours, taking the Dodge action unless you command it with a bonus action. It stays until it drops to 0 hit points, you summon it again, or you die. Free once per long rest, or spend a spell slot of 1st level or higher.",
+      "source": {
+        "pack": "table-2014",
+        "book": "FTD",
+        "page": 15
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "drake-companion",
+            "name": "Summon drake (free)",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "drake-command",
+            "name": "Command drake",
+            "economy": "bonus",
+            "note": "Your drake takes an action from its stat block, or another action; otherwise it Dodges."
+          }
+        ],
+        "companions": [
+          {
+            "id": "drake",
+            "name": "Drake",
+            "spellcasting": "ranger",
+            "combatNote": "Takes its turn right after yours. It moves and uses its reaction on its own; it takes the Dodge action unless you spend a bonus action to command it. If you're incapacitated it acts as it likes.",
+            "command": {
+              "economy": "bonus",
+              "attackInstead": false
+            },
+            "summon": {
+              "resource": "drake-companion",
+              "slotMin": 1,
+              "note": "Summoning takes your action: free once per long rest, or with a spell slot of 1st level or higher. Choose its essence each time; it arrives with all its hit points."
+            },
+            "forms": [
+              {
+                "id": "acid",
+                "name": "Acid drake",
+                "size": "Small",
+                "type": "dragon",
+                "ac": "14 + pb",
+                "hp": {
+                  "base": 5,
+                  "perLevel": 5,
+                  "class": "class:ranger"
+                },
+                "speed": "40 ft.",
+                "abilities": {
+                  "str": 16,
+                  "dex": 12,
+                  "con": 15,
+                  "int": 8,
+                  "wis": 14,
+                  "cha": 8
+                },
+                "saves": {
+                  "dex": "1 + pb",
+                  "wis": "2 + pb"
+                },
+                "senses": "Darkvision 60 ft.",
+                "languages": "Draconic",
+                "traits": [
+                  {
+                    "name": "Draconic Essence",
+                    "summary": "Its essence is acid: it's immune to acid damage. You pick the essence each time you summon it."
+                  },
+                  {
+                    "name": "Infused Strikes",
+                    "summary": "Reaction: when another creature within 30 ft that it can see hits a target with a weapon attack, that target takes an extra 1d6 acid damage."
+                  }
+                ],
+                "attacks": [
+                  {
+                    "name": "Bite",
+                    "kind": "melee",
+                    "toHit": "spell",
+                    "reach": "5 ft.",
+                    "damage": "1d6",
+                    "damageBonus": "pb",
+                    "damageType": "piercing"
+                  }
+                ],
+                "growth": [
+                  {
+                    "level": 7,
+                    "class": "class:ranger",
+                    "label": "Bond of Fang and Scale",
+                    "size": "Medium",
+                    "speed": "40 ft., fly 40 ft.",
+                    "traits": [
+                      {
+                        "name": "Drake Mount",
+                        "summary": "You can ride it if you're Medium or smaller; while you ride it, it can't use its flying speed."
+                      },
+                      {
+                        "name": "Magic Fang",
+                        "summary": "Its Bite deals an extra 1d6 acid damage. While it's out, you resist acid damage."
+                      }
+                    ],
+                    "extraDamage": [
+                      {
+                        "attack": "Bite",
+                        "dice": "1d6",
+                        "damageType": "acid"
+                      }
+                    ],
+                    "ownerResist": "acid"
+                  },
+                  {
+                    "level": 15,
+                    "class": "class:ranger",
+                    "label": "Perfected Bond",
+                    "size": "Large",
+                    "traits": [
+                      {
+                        "name": "Large Drake",
+                        "summary": "It can fly while you ride it."
+                      },
+                      {
+                        "name": "Empowered Bite",
+                        "summary": "Its Bite deals another 1d6 acid damage (2d6 extra in all)."
+                      }
+                    ],
+                    "extraDamage": [
+                      {
+                        "attack": "Bite",
+                        "dice": "1d6",
+                        "damageType": "acid"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "id": "cold",
+                "name": "Cold drake",
+                "size": "Small",
+                "type": "dragon",
+                "ac": "14 + pb",
+                "hp": {
+                  "base": 5,
+                  "perLevel": 5,
+                  "class": "class:ranger"
+                },
+                "speed": "40 ft.",
+                "abilities": {
+                  "str": 16,
+                  "dex": 12,
+                  "con": 15,
+                  "int": 8,
+                  "wis": 14,
+                  "cha": 8
+                },
+                "saves": {
+                  "dex": "1 + pb",
+                  "wis": "2 + pb"
+                },
+                "senses": "Darkvision 60 ft.",
+                "languages": "Draconic",
+                "traits": [
+                  {
+                    "name": "Draconic Essence",
+                    "summary": "Its essence is cold: it's immune to cold damage. You pick the essence each time you summon it."
+                  },
+                  {
+                    "name": "Infused Strikes",
+                    "summary": "Reaction: when another creature within 30 ft that it can see hits a target with a weapon attack, that target takes an extra 1d6 cold damage."
+                  }
+                ],
+                "attacks": [
+                  {
+                    "name": "Bite",
+                    "kind": "melee",
+                    "toHit": "spell",
+                    "reach": "5 ft.",
+                    "damage": "1d6",
+                    "damageBonus": "pb",
+                    "damageType": "piercing"
+                  }
+                ],
+                "growth": [
+                  {
+                    "level": 7,
+                    "class": "class:ranger",
+                    "label": "Bond of Fang and Scale",
+                    "size": "Medium",
+                    "speed": "40 ft., fly 40 ft.",
+                    "traits": [
+                      {
+                        "name": "Drake Mount",
+                        "summary": "You can ride it if you're Medium or smaller; while you ride it, it can't use its flying speed."
+                      },
+                      {
+                        "name": "Magic Fang",
+                        "summary": "Its Bite deals an extra 1d6 cold damage. While it's out, you resist cold damage."
+                      }
+                    ],
+                    "extraDamage": [
+                      {
+                        "attack": "Bite",
+                        "dice": "1d6",
+                        "damageType": "cold"
+                      }
+                    ],
+                    "ownerResist": "cold"
+                  },
+                  {
+                    "level": 15,
+                    "class": "class:ranger",
+                    "label": "Perfected Bond",
+                    "size": "Large",
+                    "traits": [
+                      {
+                        "name": "Large Drake",
+                        "summary": "It can fly while you ride it."
+                      },
+                      {
+                        "name": "Empowered Bite",
+                        "summary": "Its Bite deals another 1d6 cold damage (2d6 extra in all)."
+                      }
+                    ],
+                    "extraDamage": [
+                      {
+                        "attack": "Bite",
+                        "dice": "1d6",
+                        "damageType": "cold"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "id": "fire",
+                "name": "Fire drake",
+                "size": "Small",
+                "type": "dragon",
+                "ac": "14 + pb",
+                "hp": {
+                  "base": 5,
+                  "perLevel": 5,
+                  "class": "class:ranger"
+                },
+                "speed": "40 ft.",
+                "abilities": {
+                  "str": 16,
+                  "dex": 12,
+                  "con": 15,
+                  "int": 8,
+                  "wis": 14,
+                  "cha": 8
+                },
+                "saves": {
+                  "dex": "1 + pb",
+                  "wis": "2 + pb"
+                },
+                "senses": "Darkvision 60 ft.",
+                "languages": "Draconic",
+                "traits": [
+                  {
+                    "name": "Draconic Essence",
+                    "summary": "Its essence is fire: it's immune to fire damage. You pick the essence each time you summon it."
+                  },
+                  {
+                    "name": "Infused Strikes",
+                    "summary": "Reaction: when another creature within 30 ft that it can see hits a target with a weapon attack, that target takes an extra 1d6 fire damage."
+                  }
+                ],
+                "attacks": [
+                  {
+                    "name": "Bite",
+                    "kind": "melee",
+                    "toHit": "spell",
+                    "reach": "5 ft.",
+                    "damage": "1d6",
+                    "damageBonus": "pb",
+                    "damageType": "piercing"
+                  }
+                ],
+                "growth": [
+                  {
+                    "level": 7,
+                    "class": "class:ranger",
+                    "label": "Bond of Fang and Scale",
+                    "size": "Medium",
+                    "speed": "40 ft., fly 40 ft.",
+                    "traits": [
+                      {
+                        "name": "Drake Mount",
+                        "summary": "You can ride it if you're Medium or smaller; while you ride it, it can't use its flying speed."
+                      },
+                      {
+                        "name": "Magic Fang",
+                        "summary": "Its Bite deals an extra 1d6 fire damage. While it's out, you resist fire damage."
+                      }
+                    ],
+                    "extraDamage": [
+                      {
+                        "attack": "Bite",
+                        "dice": "1d6",
+                        "damageType": "fire"
+                      }
+                    ],
+                    "ownerResist": "fire"
+                  },
+                  {
+                    "level": 15,
+                    "class": "class:ranger",
+                    "label": "Perfected Bond",
+                    "size": "Large",
+                    "traits": [
+                      {
+                        "name": "Large Drake",
+                        "summary": "It can fly while you ride it."
+                      },
+                      {
+                        "name": "Empowered Bite",
+                        "summary": "Its Bite deals another 1d6 fire damage (2d6 extra in all)."
+                      }
+                    ],
+                    "extraDamage": [
+                      {
+                        "attack": "Bite",
+                        "dice": "1d6",
+                        "damageType": "fire"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "id": "lightning",
+                "name": "Lightning drake",
+                "size": "Small",
+                "type": "dragon",
+                "ac": "14 + pb",
+                "hp": {
+                  "base": 5,
+                  "perLevel": 5,
+                  "class": "class:ranger"
+                },
+                "speed": "40 ft.",
+                "abilities": {
+                  "str": 16,
+                  "dex": 12,
+                  "con": 15,
+                  "int": 8,
+                  "wis": 14,
+                  "cha": 8
+                },
+                "saves": {
+                  "dex": "1 + pb",
+                  "wis": "2 + pb"
+                },
+                "senses": "Darkvision 60 ft.",
+                "languages": "Draconic",
+                "traits": [
+                  {
+                    "name": "Draconic Essence",
+                    "summary": "Its essence is lightning: it's immune to lightning damage. You pick the essence each time you summon it."
+                  },
+                  {
+                    "name": "Infused Strikes",
+                    "summary": "Reaction: when another creature within 30 ft that it can see hits a target with a weapon attack, that target takes an extra 1d6 lightning damage."
+                  }
+                ],
+                "attacks": [
+                  {
+                    "name": "Bite",
+                    "kind": "melee",
+                    "toHit": "spell",
+                    "reach": "5 ft.",
+                    "damage": "1d6",
+                    "damageBonus": "pb",
+                    "damageType": "piercing"
+                  }
+                ],
+                "growth": [
+                  {
+                    "level": 7,
+                    "class": "class:ranger",
+                    "label": "Bond of Fang and Scale",
+                    "size": "Medium",
+                    "speed": "40 ft., fly 40 ft.",
+                    "traits": [
+                      {
+                        "name": "Drake Mount",
+                        "summary": "You can ride it if you're Medium or smaller; while you ride it, it can't use its flying speed."
+                      },
+                      {
+                        "name": "Magic Fang",
+                        "summary": "Its Bite deals an extra 1d6 lightning damage. While it's out, you resist lightning damage."
+                      }
+                    ],
+                    "extraDamage": [
+                      {
+                        "attack": "Bite",
+                        "dice": "1d6",
+                        "damageType": "lightning"
+                      }
+                    ],
+                    "ownerResist": "lightning"
+                  },
+                  {
+                    "level": 15,
+                    "class": "class:ranger",
+                    "label": "Perfected Bond",
+                    "size": "Large",
+                    "traits": [
+                      {
+                        "name": "Large Drake",
+                        "summary": "It can fly while you ride it."
+                      },
+                      {
+                        "name": "Empowered Bite",
+                        "summary": "Its Bite deals another 1d6 lightning damage (2d6 extra in all)."
+                      }
+                    ],
+                    "extraDamage": [
+                      {
+                        "attack": "Bite",
+                        "dice": "1d6",
+                        "damageType": "lightning"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "id": "poison",
+                "name": "Poison drake",
+                "size": "Small",
+                "type": "dragon",
+                "ac": "14 + pb",
+                "hp": {
+                  "base": 5,
+                  "perLevel": 5,
+                  "class": "class:ranger"
+                },
+                "speed": "40 ft.",
+                "abilities": {
+                  "str": 16,
+                  "dex": 12,
+                  "con": 15,
+                  "int": 8,
+                  "wis": 14,
+                  "cha": 8
+                },
+                "saves": {
+                  "dex": "1 + pb",
+                  "wis": "2 + pb"
+                },
+                "senses": "Darkvision 60 ft.",
+                "languages": "Draconic",
+                "traits": [
+                  {
+                    "name": "Draconic Essence",
+                    "summary": "Its essence is poison: it's immune to poison damage. You pick the essence each time you summon it."
+                  },
+                  {
+                    "name": "Infused Strikes",
+                    "summary": "Reaction: when another creature within 30 ft that it can see hits a target with a weapon attack, that target takes an extra 1d6 poison damage."
+                  }
+                ],
+                "attacks": [
+                  {
+                    "name": "Bite",
+                    "kind": "melee",
+                    "toHit": "spell",
+                    "reach": "5 ft.",
+                    "damage": "1d6",
+                    "damageBonus": "pb",
+                    "damageType": "piercing"
+                  }
+                ],
+                "growth": [
+                  {
+                    "level": 7,
+                    "class": "class:ranger",
+                    "label": "Bond of Fang and Scale",
+                    "size": "Medium",
+                    "speed": "40 ft., fly 40 ft.",
+                    "traits": [
+                      {
+                        "name": "Drake Mount",
+                        "summary": "You can ride it if you're Medium or smaller; while you ride it, it can't use its flying speed."
+                      },
+                      {
+                        "name": "Magic Fang",
+                        "summary": "Its Bite deals an extra 1d6 poison damage. While it's out, you resist poison damage."
+                      }
+                    ],
+                    "extraDamage": [
+                      {
+                        "attack": "Bite",
+                        "dice": "1d6",
+                        "damageType": "poison"
+                      }
+                    ],
+                    "ownerResist": "poison"
+                  },
+                  {
+                    "level": 15,
+                    "class": "class:ranger",
+                    "label": "Perfected Bond",
+                    "size": "Large",
+                    "traits": [
+                      {
+                        "name": "Large Drake",
+                        "summary": "It can fly while you ride it."
+                      },
+                      {
+                        "name": "Empowered Bite",
+                        "summary": "Its Bite deals another 1d6 poison damage (2d6 extra in all)."
+                      }
+                    ],
+                    "extraDamage": [
+                      {
+                        "attack": "Bite",
+                        "dice": "1d6",
+                        "damageType": "poison"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:drakewarden-bond-of-fang-and-scale",
+      "name": "Bond of Fang and Scale",
+      "summary": "Your drake grows wings (flying speed equal to its walking speed) and becomes Medium; you can ride it if you're Medium or smaller (it can't fly while ridden). Its Bite deals an extra 1d6 damage of its essence, and while it's out you resist that damage type.",
+      "source": {
+        "pack": "table-2014",
+        "book": "FTD",
+        "page": 15
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:drakewarden-drakes-breath",
+      "name": "Drake's Breath",
+      "summary": "Action: you or your drake exhale a 30-ft cone of acid, cold, fire, lightning or poison (any of them, not just its essence). Dexterity save against your spell save DC: 8d6 damage on a fail, half on a success (10d6 at 15th level). Once per long rest, or spend a spell slot of 3rd level or higher.",
+      "source": {
+        "pack": "table-2014",
+        "book": "FTD",
+        "page": 15
+      },
+      "scaling": {
+        "breath": {
+          "class": "class:ranger",
+          "table": [
+            [
+              11,
+              "8d6"
+            ],
+            [
+              15,
+              "10d6"
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "drakes-breath",
+            "name": "Drake's Breath",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "drakes-breath",
+            "name": "Drake's Breath",
+            "economy": "action",
+            "cost": {
+              "resource": "drakes-breath"
+            },
+            "choose": {
+              "label": "Damage type",
+              "options": [
+                "Acid",
+                "Cold",
+                "Fire",
+                "Lightning",
+                "Poison"
+              ]
+            },
+            "roll": {
+              "dice": "scale.breath",
+              "label": "damage (Dexterity save for half)"
+            },
+            "note": "30-ft cone, from you or your drake. Or spend a spell slot of 3rd level or higher instead."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:drakewarden-perfected-bond",
+      "name": "Perfected Bond",
+      "summary": "Your drake becomes Large and can fly while you ride it, and its Bite deals another 1d6 of its essence (2d6 extra in all). Reflexive Resistance: when you or the drake takes damage while you're within 30 ft of each other, your reaction gives that one resistance to it; proficiency bonus times per long rest.",
+      "source": {
+        "pack": "table-2014",
+        "book": "FTD",
+        "page": 15
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "reflexive-resistance",
+            "name": "Reflexive Resistance",
+            "max": "pb",
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "reflexive-resistance",
+            "name": "Reflexive Resistance",
+            "economy": "reaction",
+            "cost": {
+              "resource": "reflexive-resistance"
+            },
+            "note": "You or your drake (within 30 ft of each other) resist this instance of damage."
+          }
+        ]
+      }
     }
   ]
 }
