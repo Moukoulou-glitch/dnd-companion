@@ -392,7 +392,7 @@ export function SpellPanel({
               </button>
             ))}
             {sp.cast.pact && (
-              <button className="big primary" onClick={() => doCast(sp.cast.pact!.level, "pact")}>
+              <button className={`big${sp.cast.slotLevels.includes(sp.level) ? "" : " primary"}`} onClick={() => doCast(sp.cast.pact!.level, "pact")}>
                 Pact slot
                 <span className="sub">
                   {ordinal(sp.cast.pact.level)} level, {sp.cast.pact.remaining} left

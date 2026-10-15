@@ -182,7 +182,7 @@ export function ShapePanel({
   onRevert: () => void;
   /** Recharge actions waiting for their d6 (Fire Breath). */
   recharging?: string[];
-  onHealSlot: (level: number) => void;
+  onHealSlot: (level: number, pact?: boolean) => void;
 }) {
   const onRecharge = (name: string, used: boolean) => act("recharge", { name, used }, used ? `${name}: used, recharging.` : `${name} is ready again.`);
   const slots = sheet.spellSlots.filter((x) => x.total - x.used > 0);
@@ -274,7 +274,12 @@ export function ShapePanel({
                 Level {x.level} · {x.level}d8
               </button>
             ))}
-            {slots.length === 0 && <span className="note">No spell slots left.</span>}
+            {sheet.pactSlots && sheet.pactSlots.used < sheet.pactSlots.count && (
+              <button className="tag" onClick={() => onHealSlot(sheet.pactSlots!.level, true)}>
+                Pact slot · {sheet.pactSlots.level}d8
+              </button>
+            )}
+            {slots.length === 0 && !(sheet.pactSlots && sheet.pactSlots.used < sheet.pactSlots.count) && <span className="note">No spell slots left.</span>}
           </div>
         </>
       )}

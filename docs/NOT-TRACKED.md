@@ -104,3 +104,7 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 - Drake's Breath rolls its damage when used and shows your spell save DC; the type you pick is named on the use, and the targets' saves are up to the table. Spending a 3rd-level or higher slot for another use: spend it on the slot pills.
 - Reflexive Resistance counts its uses; halving the damage is up to you (or apply it as resistance when you enter the damage).
 - Your resistance to the drake's essence lasts while it's summoned with hit points left; if it's dismissed some other way, summoning state isn't tracked beyond its hit points.
+
+## Pact Magic with another class
+- Getting slots back (Arcane Recovery, Natural Recovery, Harness Divine Power) restores your Spellcasting slots only, not Pact slots; use the slot pills by hand if your table allows otherwise.
+- Font of Magic makes ordinary slots only (never Pact slots).

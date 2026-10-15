@@ -395,7 +395,13 @@ export function CompanionPanel({
                 <span className="sub">level {s.level} slot</span>
               </button>
             ))}
-            {slots.length === 0 && <p className="note">No spell slots left.</p>}
+            {sheet.pactSlots && sheet.pactSlots.used < sheet.pactSlots.count && (
+              <button className="big" onClick={() => act("reviveCompanion", { companion: comp.id, level: sheet.pactSlots!.level, pact: true }, `${comp.name} revived.`)}>
+                Revive
+                <span className="sub">Pact slot</span>
+              </button>
+            )}
+            {slots.length === 0 && !(sheet.pactSlots && sheet.pactSlots.used < sheet.pactSlots.count) && <p className="note">No spell slots left.</p>}
           </div>
         </section>
       )}

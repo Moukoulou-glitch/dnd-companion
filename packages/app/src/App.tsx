@@ -858,10 +858,10 @@ export function App() {
               close();
             })
           }
-          onHealSlot={(level) =>
+          onHealSlot={(level, pact) =>
             guard({ name: "Combat Wild Shape healing", economy: "bonus" }, () => {
               const healed = rollDice(`${level}d8`).total;
-              live.current.act("spendSlot", { level }, `Level ${level} slot spent.`);
+              live.current.act("spendSlot", { level, pact: !!pact }, pact ? "Pact slot spent." : `Level ${level} slot spent.`);
               if (live.current.character?.combat) live.current.act("useEconomy", { kind: "bonus", amount: 1 }, "Bonus action used.");
               live.current.act("heal", { amount: healed }, `Combat Wild Shape: ${level}d8 = ${healed} HP.`);
               openShape();

@@ -912,6 +912,13 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
           c.resourcesUsed[pts.id] = Math.min(pts.max, pts.used + cost);
           c.extraSlots[String(lvl)] = (c.extraSlots[String(lvl)] ?? 0) + 1;
           notes.push(`A level ${lvl} spell slot created (it vanishes on a long rest). ${Math.max(0, pts.remaining - cost)} sorcery points left.`);
+        } else if (/^Pact/.test(op.payload.choice ?? "")) {
+          // A Pact Magic slot into points (it comes back on a short rest; the points don't).
+          if (!sheet.pactSlots || c.pactSlotsUsed >= sheet.pactSlots.count) notes.push("No Pact Magic slot left. Done anyway.");
+          else c.pactSlotsUsed += 1;
+          const gained = Math.min(lvl, pts.used);
+          c.resourcesUsed[pts.id] = pts.used - gained;
+          notes.push(`+${gained} sorcery points${gained < lvl ? " (you can't go above your maximum)" : ""}: ${pts.remaining + gained} now.`);
         } else {
           const slot = sheet.spellSlots.find((s) => s.level === lvl);
           if (!slot || slot.total - slot.used <= 0) notes.push(`No level ${lvl} slot left. Done anyway.`);

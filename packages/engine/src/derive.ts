@@ -320,7 +320,7 @@ export interface DerivedSheet {
    */
   optionalClasses: { className: string; ids: string[]; on: boolean; some: boolean }[];
   spellSlots: { level: number; total: number; used: number }[];
-  pactSlots?: { count: number; level: number };
+  pactSlots?: { count: number; level: number; used: number };
   resources: ResourceResult[];
   proficiencies: { armor: string[]; weapons: string[]; tools: string[]; languages: string[]; removed: { kind: string; target: string; reason?: string }[] };
   defenses: { resist: string[]; immune: string[]; vulnerable: string[] };
@@ -1223,7 +1223,9 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       source: def.source.book ?? def.source.pack,
       list: { id: list, label: listLabel },
       ready: def.level === 0 || granted || !preparedLists.has(list) ? "always" : prepared ? "prepared" : "not prepared",
-      cast: granted?.atWill ? { slotLevels: [], atWill: true } : { slotLevels: list === pactList ? [] : castLevels.filter((l) => l > 0) },
+      // Multiclassing (PHB p. 164): Pact Magic slots cast your other classes' spells, and your Spellcasting slots cast your warlock spells.
+      // A warlock spell of 6th level or higher is a Mystic Arcanum: cast once per long rest, never with a slot.
+      cast: granted?.atWill ? { slotLevels: [], atWill: true } : { slotLevels: list === pactList && def.level > 5 ? [] : castLevels.filter((l) => l > 0) },
     };
     if (def.material) r.material = def.material;
     if (def.summary) r.summary = def.summary;
@@ -1272,7 +1274,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     if (def.heal) r.heal = { byLevel: levelsFor(def.heal.atSlot)! };
     const typeChoices = r.damage ? damageTypeChoices(def, r.damage.type, list) : [];
     if (typeChoices.length) r.typeChoices = typeChoices;
-    if (!granted?.atWill && list === pactList && slots.pact && def.level > 0 && def.level <= slots.pact.level) {
+    if (!granted?.atWill && slots.pact && def.level > 0 && def.level <= slots.pact.level) {
       r.cast.pact = { level: slots.pact.level, remaining: Math.max(0, slots.pact.count - c.pactSlotsUsed) };
     }
     if (granted?.resource) {
@@ -1367,7 +1369,11 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
         const options =
           a.flexibleCasting === "toSlot"
             ? [1, 2, 3, 4, 5].map((l) => `Level ${l} slot for ${FLEX_COST[l]} points${FLEX_COST[l]! > points ? " (not enough)" : ""}`)
-            : slotsTotal.flatMap((n, i) => (n - (c.slotsUsed[String(i + 1)] ?? 0) > 0 ? [`Level ${i + 1} slot into ${i + 1} points`] : []));
+            : [
+                ...slotsTotal.flatMap((n, i) => (n - (c.slotsUsed[String(i + 1)] ?? 0) > 0 ? [`Level ${i + 1} slot into ${i + 1} points`] : [])),
+                // A Pact Magic slot is a spell slot too (Sage Advice): it turns into points like any other.
+                ...(slots.pact && c.pactSlotsUsed < slots.pact.count ? [`Pact Magic slot (Level ${slots.pact.level}) into ${slots.pact.level} points`] : []),
+              ];
         entry.choose = { label: a.flexibleCasting === "toSlot" ? "Which slot to create?" : "Which slot to turn into points?", options };
         entry.flexibleCasting = a.flexibleCasting;
         delete entry.cost;
@@ -1591,7 +1597,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     ),
     warnings,
   };
-  if (slots.pact) sheet.pactSlots = slots.pact;
+  if (slots.pact) sheet.pactSlots = { ...slots.pact, used: Math.min(slots.pact.count, c.pactSlotsUsed) };
   if (c.concentration) sheet.concentration = c.concentration;
   // Wild Shape and Polymorph.
   const limits = wildShapeLimits(c, sheet.features.map((f) => f.name));

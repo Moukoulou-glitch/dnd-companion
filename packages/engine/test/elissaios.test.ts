@@ -101,7 +101,7 @@ describe("Ελισσαίος (Rogue 8 / Warlock 1)", () => {
   });
 
   it("Pact Magic: one 1st-level slot, DC 15, +7; Haunted by the Shadows uses Intelligence: DC 14, +6", () => {
-    expect(sheet.pactSlots).toEqual({ count: 1, level: 1 });
+    expect(sheet.pactSlots).toEqual({ count: 1, level: 1, used: 0 });
     expect(sheet.spellSlots).toEqual([]);
     expect(sheet.spellcasting.map((s) => [s.label, s.saveDc.total, s.attack.total])).toEqual([
       ["Warlock (Pact Magic)", 15, 7],
