@@ -18,7 +18,7 @@ interface DieRoll {
 }
 interface Box {
   init(): Promise<unknown>;
-  roll(notation: { qty: number; sides: number }[]): Promise<DieRoll[]>;
+  roll(notation: { qty: number; sides: number; themeColor?: string }[]): Promise<DieRoll[]>;
   clear(): unknown;
   show(): unknown;
   hide(): unknown;
@@ -73,12 +73,13 @@ export function loadDiceBox(): Promise<Box> {
 export const diceBoxLoaded = () => loading !== undefined;
 
 /** Throws these dice and returns each one's face, in the order asked. */
-export const throwDice: Thrower = async (sides) => {
+export const throwDice: Thrower = async (sides, colours) => {
   const box = await withTimeout(loadDiceBox(), 20000, "loading");
   if (hideTimer) clearTimeout(hideTimer);
   document.getElementById(ID)?.classList.add("on");
   box.show();
-  const rolls = await withTimeout(box.roll(sides.map((s) => ({ qty: 1, sides: s }))), 12000, "the throw");
+  // Each die its own colour (its damage type's, or yours: diceColours.ts).
+  const rolls = await withTimeout(box.roll(sides.map((s, i) => ({ qty: 1, sides: s, ...(colours?.[i] ? { themeColor: colours[i] } : {}) }))), 12000, "the throw");
   // One group per die asked for, in order.
   const faces = [...rolls].sort((a, b) => a.groupId - b.groupId || a.rollId - b.rollId).map((r) => r.value);
   hideTimer = setTimeout(() => {

@@ -43,6 +43,7 @@ import { BuildPanel, LevelUpPanel, NewCharacterPanel, type NewCharacterInput } f
 import { flashEnabled, flashForFeature, flashForSpell, flashTorch, setFlashEnabled } from "./flash";
 import { PlayTab, type PlayPrompts } from "./components/PlayTab";
 import { liveAttack } from "./oneTime";
+import { CLASS_DICE_COLOURS, classDiceColour, mainClass, setDiceClasses, usePickedDiceColour } from "./diceColours";
 import { Choose, Confirm, PoolRollPanel, SlotSpendPanel, SpendDiePanel } from "./components/Prompts";
 import { BottomSheet, BreakdownLines } from "./components/Sheet";
 import { SheetTab } from "./components/SheetTab";
@@ -122,6 +123,8 @@ export function App() {
   const live = useRef(s);
   const growJoin = useRef(0);
   live.current = s;
+  // 3D dice follow the class this character has the most levels in.
+  setDiceClasses(s.character?.classes ?? []);
   const [tab, setTab] = useState<Tab>("play");
   // A panel's body is rendered on every app render, so it always shows the current character.
   // Panels stack: a condition opened from inside another panel goes back to it when closed.
@@ -2241,6 +2244,7 @@ export function App() {
           Book text{bookReport ? " (loaded)" : ""}
         </button>
         <FlashSetting />
+        <DiceColourSetting classes={live.current.character?.classes ?? []} />
         {live.current.deleted.length > 0 && (
           <button className="big" style={{ width: "100%", marginTop: 12 }} onClick={openDeleted}>
             Deleted characters ({live.current.deleted.length})
@@ -2542,6 +2546,45 @@ function ConcentrationPanel({
         End concentration
       </button>
     </>
+  );
+}
+
+/**
+ * The 3D dice's colour on this device: your class's (the one you have the most
+ * levels in), or one you pick, which wins until you switch back. Damage dice
+ * always take their damage type's colour.
+ */
+function DiceColourSetting({ classes }: { classes: { class: string; level: number }[] }) {
+  const [picked, setPicked] = usePickedDiceColour();
+  const main = mainClass(classes);
+  const cls = main ? CLASS_DICE_COLOURS[main] : undefined;
+  const followColour = classDiceColour(classes);
+  return (
+    <div className="group" style={{ marginTop: 12 }}>
+      <div className="row">
+        <div className="row-main">
+          <div className="row-title">3D dice colour</div>
+          <div className="row-sub">Your d20 and dice without a damage type. Damage dice take their type's colour (fire orange, cold blue…). This device only.</div>
+        </div>
+        <span className="dice-swatch" style={{ background: picked ?? followColour }} aria-hidden="true" />
+      </div>
+      <label className="row check">
+        <input type="radio" name="dice-colour" checked={!picked} onChange={() => setPicked(null)} />
+        <div className="row-main">
+          <div className="row-title">Follow my class</div>
+          <div className="row-sub">{cls ? `${cls.name}, the class with the most levels` : "The class with the most levels"}</div>
+        </div>
+        <span className="dice-swatch" style={{ background: followColour }} aria-hidden="true" />
+      </label>
+      <label className="row check">
+        <input type="radio" name="dice-colour" checked={!!picked} onChange={() => setPicked(picked ?? followColour)} />
+        <div className="row-main">
+          <div className="row-title">My own colour</div>
+          <div className="row-sub">Wins until you switch back to following your class.</div>
+        </div>
+        <input type="color" aria-label="Pick a dice colour" value={picked ?? followColour} onChange={(e) => setPicked(e.target.value)} />
+      </label>
+    </div>
   );
 }
 

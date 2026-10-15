@@ -2,6 +2,7 @@ import { RichText } from "./Conditions";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { rollThrown } from "../dice3d";
 import { throwDice } from "../diceBox";
+import { dieColour, myDiceColour } from "../diceColours";
 import { useDice3d } from "../dice3dSetting";
 import {
   composeD20,
@@ -406,7 +407,7 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
     setThrowNote(undefined);
     let r: ComposedRoll | undefined;
     try {
-      r = await rollThrown(c, throwDice);
+      r = await rollThrown(c, throwDice, undefined, (label) => dieColour(label, myDiceColour()));
     } catch {
       if (alive.current) setThrowNote("The 3D dice didn't work this time, so the app rolled.");
     }

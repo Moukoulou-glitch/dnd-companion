@@ -108,3 +108,8 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 ## Pact Magic with another class
 - Getting slots back (Arcane Recovery, Natural Recovery, Harness Divine Power) restores your Spellcasting slots only, not Pact slots; use the slot pills by hand if your table allows otherwise.
 - Font of Magic makes ordinary slots only (never Pact slots).
+
+## 3D dice colours
+- Colours are for the 3D dice only; "My dice" and "App rolls" look as before.
+- Dice of a damage type without a colour of its own (none today) and dice of a size the 3D set doesn't have (d2, d3, d100: rolled by the app) aren't coloured.
+- A reroll (Great Weapon Fighting) takes the colour of the first thrown die of that size, so with two groups of the same size it may show the other group's colour; the numbers are right either way.

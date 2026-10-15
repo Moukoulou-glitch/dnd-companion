@@ -3238,3 +3238,12 @@ button.mpip {
 /* Companions: the HP number framed in its health colour, like your own HP box and summoned creatures */
 .row.companion .num.hp-frame { border: 2px solid var(--line); border-radius: var(--radius-s); padding: 2px 8px; }
 .input-invalid, .search.invalid { border-color: var(--hp); }
+
+/* The 3D dice colour in its setting. */
+.dice-swatch {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  border: 1px solid color-mix(in srgb, var(--text) 30%, transparent);
+  flex: none;
+}
