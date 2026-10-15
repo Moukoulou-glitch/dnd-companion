@@ -42,6 +42,7 @@ import { BookText, BooksPanel } from "./components/BookText";
 import { BuildPanel, LevelUpPanel, NewCharacterPanel, type NewCharacterInput } from "./components/Builder";
 import { flashEnabled, flashForFeature, flashForSpell, flashTorch, setFlashEnabled } from "./flash";
 import { PlayTab, type PlayPrompts } from "./components/PlayTab";
+import { liveAttack } from "./oneTime";
 import { Choose, Confirm, PoolRollPanel, SlotSpendPanel, SpendDiePanel } from "./components/Prompts";
 import { BottomSheet, BreakdownLines } from "./components/Sheet";
 import { SheetTab } from "./components/SheetTab";
@@ -448,7 +449,11 @@ export function App() {
     // Each roll is a fresh composer: the next one (a strike after Hand of Healing) never inherits the last one's dice.
     const rollKey = crypto.randomUUID();
     const healing = attack?.damage.type === "healing";
-    return open(title, () => (
+    return open(title, () => {
+      // The attack as the sheet has it now (a smite used on the first hit of Extra Attack is gone from the next).
+      const atk = attack ? liveAttack(live.current.sheet, attack) : undefined;
+      const rollBase = attack && atk && base === attack.attack ? atk.attack : base;
+      return (
       <>
       {opts.back && (
         <button className="link back-link" onClick={opts.back.to}>
@@ -470,10 +475,10 @@ export function App() {
             }
           : {})}
         {...(attack && !opts.damageOnly ? { afterRoll: afterRollFor(), onDone: opts.back ? opts.back.to : close } : {})}
-        base={base}
+        base={rollBase}
         {...(opts.header ? { header: opts.header() } : {})}
         {...(opts.damageOnly ? { damageOnly: true } : {})}
-        {...(attack ? { attack } : {})}
+        {...(atk ? { attack: atk } : {})}
         {...(opts.notes ? { notes: opts.notes } : {})}
         {...(opts.optionInfo ? { optionInfo: typeof opts.optionInfo === "function" ? opts.optionInfo() : opts.optionInfo } : {})}
         {...(opts.onCommit ? { onCommit: opts.onCommit } : {})}
@@ -513,7 +518,8 @@ export function App() {
         </button>
       )}
       </>
-    ));
+      );
+    });
   };
 
   /**

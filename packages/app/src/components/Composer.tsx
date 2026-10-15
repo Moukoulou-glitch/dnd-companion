@@ -20,6 +20,7 @@ import {
 } from "@dnd/dice";
 import { signed, type WeaponAttack } from "@dnd/engine";
 import { recordOf, type RollRecord } from "../rolls";
+import { usedUpBy, withoutUsedUp, type UsedUp } from "../oneTime";
 
 interface Props {
   title: string;
@@ -297,8 +298,11 @@ export function ResultView({ r }: { r: RollRecord }) {
   );
 }
 
-export function Composer({ title, base, attack, physical, onPhysicalChange, onRolled, onResolved, damageOnly, healing, onHealSelf, dc, dcLabel, reaction, onSpend, onCheck, notes, header, typeChoices, portent, onOptionsUsed, optionInfo, onCommit, repeat, onDamageOptions, afterRoll, onDone }: Props) {
+export function Composer({ title, base: baseIn, attack, physical, onPhysicalChange, onRolled, onResolved, damageOnly, healing, onHealSelf, dc, dcLabel, reaction, onSpend, onCheck, notes, header, typeChoices, portent, onOptionsUsed, optionInfo, onCommit, repeat, onDamageOptions, afterRoll, onDone }: Props) {
   const [typePick, setTypePick] = useState<{ via: number; type: string } | null>(null);
+  // A smite used on an earlier hit (Extra Attack's first attack, or this one rolled again) is gone: it can't be ticked again.
+  const [usedUp, setUsedUp] = useState<UsedUp[]>([]);
+  const base = useMemo(() => withoutUsedUp(baseIn, usedUp), [baseIn, usedUp]);
   // Ticked from the start: what the app was told to (Hex on its target), options that wait for the next hit (a smite), and Riposte or Brace on a reaction attack.
   const presetOn = (sg: { label: string; preset?: string }) => optionInfo?.[sg.label]?.preselect || sg.preset === "always" || (sg.preset === "reaction" && reaction);
   const preselected = base.suggestions.filter(presetOn).map((sg) => sg.label);
@@ -334,7 +338,7 @@ export function Composer({ title, base, attack, physical, onPhysicalChange, onRo
 
   const d20 = useMemo(() => composeD20(base, choices), [base, choices]);
 
-  const damageBase = attack?.damage.bonus;
+  const damageBase = useMemo(() => (attack ? withoutUsedUp(attack.damage.bonus, usedUp) : undefined), [attack, usedUp]);
   // Smites: the slot picked decides the dice (Divine Smite with a 3rd-level slot: 4d8).
   const [slotPick, setSlotPick] = useState<Record<string, { key: string; extra: boolean }>>({});
   const smites = Object.entries(optionInfo ?? {}).filter(([label, info]) => info.slots && damageChoices.enabled.includes(label));
@@ -342,8 +346,8 @@ export function Composer({ title, base, attack, physical, onPhysicalChange, onRo
   const damage = useMemo(() => {
     if (!attack || stage.step !== "damage-setup") return undefined;
     const bonus = {
-      ...attack.damage.bonus,
-      suggestions: attack.damage.bonus.suggestions.map((sg) => {
+      ...damageBase!,
+      suggestions: damageBase!.suggestions.map((sg) => {
         const slots = optionInfo?.[sg.label]?.slots;
         if (!slots) return sg;
         const p = pickFor(sg.label);
@@ -356,7 +360,7 @@ export function Composer({ title, base, attack, physical, onPhysicalChange, onRo
     const natural20 = stage.attackRecord?.natural === 20 || !stage.attackRecord;
     return withCrit(c, extra, natural20 ? attack.damage.onCrit : []);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [attack, stage, damageChoices, slotPick, optionInfo, typePick]);
+  }, [attack, damageBase, stage, damageChoices, slotPick, optionInfo, typePick]);
 
   const [attackMode, setAttackMode] = useState<string | undefined>();
 
@@ -421,6 +425,8 @@ export function Composer({ title, base, attack, physical, onPhysicalChange, onRo
     commit();
     if (choices.enabled.length) onOptionsUsed?.(choices.enabled);
     onSpend?.(base.suggestions.filter((x) => choices.enabled.includes(x.label) && (x.spends || x.endsEffect)));
+    const usedNow = usedUpBy(base.suggestions, choices.enabled);
+    if (usedNow.length) setUsedUp((u) => [...u, ...usedNow]);
     onRolled(rec);
     if (dc !== undefined) onCheck?.(rec.total >= dc);
     setEntering(false);
@@ -452,6 +458,8 @@ export function Composer({ title, base, attack, physical, onPhysicalChange, onRo
     // A maneuver's die is spent once (not again if it was ticked on the attack); a smite is used up.
     const spentOnAttack = choices.enabled;
     onSpend?.(damage.terms.length ? (damageBase?.suggestions ?? []).filter((x) => damageChoices.enabled.includes(x.label) && (x.endsEffect || (x.spends && !spentOnAttack.includes(x.label)))) : []);
+    const usedNow = damage.terms.length ? usedUpBy(damageBase?.suggestions ?? [], damageChoices.enabled) : [];
+    if (usedNow.length) setUsedUp((u) => [...u, ...usedNow]);
     onRolled(rec);
     setEntering(false);
     const next: Stage = { step: "damage-result", record: rec, crit: stage.crit };
@@ -672,6 +680,11 @@ export function Composer({ title, base, attack, physical, onPhysicalChange, onRo
         {which}
         {diceSwitch}
         {stage.crit && <p className="note">Critical hit: every damage die is rolled twice.</p>}
+        {usedUp.length > 0 && (
+          <p className="note warn">
+            Used up on an earlier hit: {[...new Set(usedUp.map((u) => u.label))].join(", ")}. It doesn't apply again (Undo the earlier roll's toast to get it back).
+          </p>
+        )}
         {dc === undefined && attack?.saveNote && <p className="note">{attack.saveNote}</p>}
         {(damageBase.notes ?? []).map((n) => (
           <p className="note reminder" key={n}>
