@@ -1,3 +1,4 @@
+import { hpTier } from "../hp";
 import { useMemo, useState, type ReactNode } from "react";
 import { formatBonus, shapeIssues, signed, traitDice, type ContentRegistry, type DerivedSheet, type RollBreakdown, type ShapeKind, type ShapeResult, type WeaponAttack } from "@dnd/engine";
 import { ABILITIES, ABILITY_NAMES, SKILLS, SKILL_NAMES, type Character, type CreatureDef, type OperationType } from "@dnd/schema";
@@ -28,7 +29,7 @@ export function ShapeCard({ sheet, onOpen, onTransform }: { sheet: DerivedSheet;
                 AC {s.ac} · {s.speed}
               </div>
               <div className="mini-bar" aria-hidden="true">
-                <span style={{ width: `${pct}%` }} />
+                <span className={`tier-${hpTier(s.hp.current, s.hp.max)}`} style={{ width: `${pct}%` }} />
               </div>
             </div>
             <span className="num">

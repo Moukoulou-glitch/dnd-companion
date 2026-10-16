@@ -43,8 +43,28 @@ describe("The existing low-HP blink is kept as it was", () => {
     const css = readFileSync(fileURLToPath(new URL("../src/styles.css", import.meta.url)), "utf8");
     expect(css).toMatch(/\.hp\.critical\s*\{\s*animation:\s*hp-critical 1\.1s ease-in-out infinite;/);
     expect(css).toMatch(/@keyframes hp-critical/);
-    const tierRules = css.match(/\.hp(?:-frame)?\.tier-[a-z]+[^{]*\{[^}]*\}/g) ?? [];
+    // The frame rules (not the bar's fill, below) never touch the box's animation or background.
+    const tierRules = (css.match(/\.hp(?:-frame)?\.tier-[a-z]+[^{]*\{[^}]*\}/g) ?? []).filter((r) => !/hp-bar|mini-bar/.test(r.split("{")[0]!));
     expect(tierRules.length).toBeGreaterThan(0);
     for (const r of tierRules) expect(r).not.toMatch(/animation|box-shadow|background/);
+  });
+});
+
+describe("HP bar fill colour", () => {
+  const css = readFileSync(fileURLToPath(new URL("../src/styles.css", import.meta.url)), "utf8");
+  it("the main bar and the small bars (companions, forms, summons) are filled in the tier's colour", () => {
+    for (const tier of ["healthy", "wounded", "bloodied", "danger", "critical"]) {
+      const rule = new RegExp(`\\.hp\\.tier-${tier} \\.hp-bar > span, \\.mini-bar > span\\.tier-${tier} \\{ background: var\\(--tier-${tier}\\); \\}`);
+      expect(css).toMatch(rule);
+    }
+  });
+
+  it("each tier colour is defined for dark and light themes", () => {
+    for (const tier of ["healthy", "wounded", "bloodied", "danger", "critical"]) expect(css.match(new RegExp(`--tier-${tier}:`, "g"))?.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it("the bar fill rules don't animate and don't touch the box (the blink stays its own rule)", () => {
+    const fill = css.match(/[^}]*hp-bar > span[^{]*\{[^}]*\}/g) ?? [];
+    for (const r of fill) expect(r).not.toMatch(/animation|box-shadow/);
   });
 });

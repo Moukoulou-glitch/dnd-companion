@@ -238,7 +238,7 @@ export function CompanionCard({ comp, onOpen }: { comp: CompanionResult; onOpen:
         )}
         {f && (
           <div className="mini-bar" aria-hidden="true">
-            <span style={{ width: `${pct}%` }} />
+            <span className={`tier-${hpTier(f.hp.current, f.hpMax.total)}`} style={{ width: `${pct}%` }} />
           </div>
         )}
       </div>

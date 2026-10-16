@@ -115,7 +115,7 @@ export function SummonsCard({ character, reg, onOpen }: { character: Character; 
                   {members.some((m) => m.concentration) ? " · concentration" : ""}
                 </div>
                 <div className="mini-bar" aria-hidden="true">
-                  <span style={{ width: `${max ? Math.round((hp / max) * 100) : 0}%` }} />
+                  <span className={`tier-${hpTier(hp, max)}`} style={{ width: `${max ? Math.round((hp / max) * 100) : 0}%` }} />
                 </div>
               </div>
               <span className="num">

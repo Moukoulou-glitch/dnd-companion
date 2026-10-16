@@ -3247,3 +3247,11 @@ button.mpip {
   border: 1px solid color-mix(in srgb, var(--text) 30%, transparent);
   flex: none;
 }
+
+/* The HP bar's fill takes the same health colour as the frame (hp.ts tiers). The low-HP blink (.hp.critical)
+   and the 0 HP state are separate rules and stay as they are. */
+.hp.tier-healthy .hp-bar > span, .mini-bar > span.tier-healthy { background: var(--tier-healthy); }
+.hp.tier-wounded .hp-bar > span, .mini-bar > span.tier-wounded { background: var(--tier-wounded); }
+.hp.tier-bloodied .hp-bar > span, .mini-bar > span.tier-bloodied { background: var(--tier-bloodied); }
+.hp.tier-danger .hp-bar > span, .mini-bar > span.tier-danger { background: var(--tier-danger); }
+.hp.tier-critical .hp-bar > span, .mini-bar > span.tier-critical { background: var(--tier-critical); }
