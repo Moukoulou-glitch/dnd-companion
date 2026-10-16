@@ -397,7 +397,8 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
   // The character's own actions and spells join the content for this character.
   const reg = withCustom(baseReg, c);
   const warnings: string[] = [];
-  const sources = collectSources(c, reg);
+  const duplicatePicks: { feature: string; pickedIn: string }[] = [];
+  const sources = collectSources(c, reg, duplicatePicks);
   const level = c.classes.reduce((t, cl) => t + cl.level, 0);
   // Proficiency bonus: by level, then changed by hand (at least +1... or whatever the DM says: never below 0).
   const pbAdj = c.pbAdjust ?? { bonus: 0, penalty: 0 };
@@ -525,13 +526,38 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     return chosen;
   };
   const upgrades: string[] = [];
+  // Who gave each skill, tool, language or expertise first, to catch a pick of something you already have.
+  const givenBy = new Map<string, { label: string; picked: boolean }>();
+  const dupeNames: Record<string, string> = { skill: "skill", expertise: "expertise", tool: "tool", language: "language" };
   for (const s of sources) {
     for (const p of s.grant.proficiencies ?? []) {
       for (const t of resolveTargets(p, s)) {
         if (p.kind === "skillOrExpertise") upgrades.push(t);
         else profs[p.kind].add(t);
+        if (!(p.kind in dupeNames)) continue;
+        const key = `${p.kind}|${t.toLowerCase()}`;
+        const picked = typeof p.target !== "string";
+        const first = givenBy.get(key);
+        if (!first) givenBy.set(key, { label: s.label, picked });
+        else if ((picked || first.picked) && first.label !== s.label) {
+          const name = p.kind === "skill" || p.kind === "expertise" ? SKILL_NAMES[t as Skill] ?? t : t;
+          warnings.push(`${name}: you have this ${dupeNames[p.kind]} from ${first.label} and from ${s.label}; it counts once. Pick something else where you chose it.`);
+        }
       }
     }
+  }
+  // The same feat twice (one the rules don't let you repeat).
+  {
+    const seen = new Set<string>();
+    for (const f of c.feats) {
+      if (seen.has(f.feat) && f.feat !== "feat:elemental-adept") warnings.push(`${reg.find(f.feat, "feat")?.name ?? f.feat} is taken twice; it counts once. Pick another feat for ${f.from ?? "one of them"}.`);
+      seen.add(f.feat);
+    }
+  }
+  for (const d of duplicatePicks) {
+    const f = reg.find(d.feature, "feature");
+    const where = (reg.find(d.pickedIn, "feature") ?? reg.find(d.pickedIn, "feat"))?.name ?? d.pickedIn;
+    warnings.push(`${f?.name ?? d.feature} is picked again in ${where}, but you already have it; it counts once. Pick something else there.`);
   }
   // Proficiency, or expertise when another source already gives proficiency.
   for (const t of upgrades) {

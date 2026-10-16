@@ -1,5 +1,5 @@
-import { Character, CombatState, type Operation, type ValueExpr } from "@dnd/schema";
-import { componentCount, withCustom, customCompanionId, customItemId, customSpellId, FLEX_COST, castingEconomy, derive, evalFlat, levelGains, damageAfterDefenses, materialNeed, multiclassIssues, shapeIssues, summonBlock, summonHpBonus, type ContentRegistry } from "@dnd/engine";
+import { Character, CombatState, type ChoiceDef, type Operation, type ValueExpr } from "@dnd/schema";
+import { alreadyOwned, componentCount, withCustom, customCompanionId, customItemId, customSpellId, FLEX_COST, castingEconomy, derive, evalFlat, levelGains, damageAfterDefenses, materialNeed, multiclassIssues, shapeIssues, summonBlock, summonHpBonus, type ContentRegistry } from "@dnd/engine";
 
 /** Effects a summoned creature holds with its own concentration (Barkskin on itself) end with it. */
 function dropSummonConcentration(x: Character["summons"][number], spell: string) {
@@ -1783,6 +1783,16 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       if (values.length) forSource[choice] = values;
       else delete forSource[choice];
       if (!Object.keys(forSource).length) delete c.choices[source];
+      // Warn, never block: a pick you already have from elsewhere counts once.
+      {
+        const kind = /^(class|race|background|feat|feature):/.exec(source)?.[1] as "class" | "race" | "background" | "feat" | "feature" | undefined;
+        const d = kind ? (reg.find(source, kind) as { choices?: ChoiceDef[]; multiclassChoices?: ChoiceDef[] } | undefined) : undefined;
+        const ch = [...(d?.choices ?? []), ...(d?.multiclassChoices ?? [])].find((x) => x.id === choice);
+        if (ch && values.length) {
+          const owned = alreadyOwned(c, reg, source, ch);
+          for (const v of values) if (owned.has(v)) notes.push(`${owned.get(v)} It counts once: pick something else here if you can.`);
+        }
+      }
       break;
     }
 
@@ -1802,6 +1812,8 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       c.asi = c.asi.filter((a) => a !== old);
       if (clear) break;
       if (feat) {
+        // Warn, never block: a feat you already have (and can't repeat) counts once.
+        if (feat !== "feat:elemental-adept" && c.feats.some((f) => f.feat === feat)) notes.push(`You already have ${reg.find(feat, "feat")?.name ?? feat}: it counts once. Saved anyway; pick another feat if your table doesn't allow it.`);
         c.asi.push({ class: cls, level, feat });
         c.feats.push({ feat, from: tag });
       } else if (abilities) {

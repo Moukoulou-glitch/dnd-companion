@@ -3,7 +3,7 @@ import { expandedSpellLists, onClassList } from "./expanded.js";
 import { ABILITIES, ABILITY_NAMES, Character, SKILL_NAMES, SKILLS, type Ability, type ChoiceDef, type ClassDef, type ItemDef, type Skill } from "@dnd/schema";
 import type { ContentRegistry } from "./registry.js";
 import { collectSources } from "./sources.js";
-import { derive, schoolFreePicks } from "./derive.js";
+import { derive, featureOrigins, schoolFreePicks } from "./derive.js";
 
 /**
  * Building and levelling a character: what's still to choose, what each
@@ -167,7 +167,10 @@ export function buildItems(c: Character, reg: ContentRegistry): BuildItem[] {
   }
   const OVER_OK = new Set(["skill", "language", "tool", "spell"]);
   let sheet: ReturnType<typeof derive> | undefined;
-  for (const s of collectSources(c, reg)) {
+  const allSources = collectSources(c, reg);
+  // Which class (and level) a feature's choice belongs to, so two "Fighting Style" picks can be told apart.
+  const origins = featureOrigins(c, reg, allSources);
+  for (const s of allSources) {
     if (s.common || seen.has(s.id) || !/^(race|class|background|feature|feat):/.test(s.id)) continue;
     seen.add(s.id);
     for (let ch of defChoices(c, reg, s.id)) {
@@ -189,7 +192,7 @@ export function buildItems(c: Character, reg: ContentRegistry): BuildItem[] {
         const lvl = c.classes.reduce((t, x) => t + x.level, 0);
         ch = { ...ch, spells: { ...ch.spells, ...(from?.length ? { classes: from } : {}), ...(ch.spells.upToHalfLevel ? { maxLevel: Math.ceil(lvl / 2) } : {}) } };
       }
-      const item: BuildItem = { key: `${s.id}|${ch.id}`, kind: "choice", sourceName: s.label, label: ch.label, done: picked.length >= need, need, picked, source: s.id, choice: ch, ...(strict ? { strict } : {}), ...(picked.length > need && !ch.open ? { over: true } : {}) };
+      const item: BuildItem = { key: `${s.id}|${ch.id}`, kind: "choice", sourceName: s.id.startsWith("feature:") && origins.get(s.id) ? `${s.label} (${origins.get(s.id)})` : s.label, label: ch.label, done: picked.length >= need, need, picked, source: s.id, choice: ch, ...(strict ? { strict } : {}), ...(picked.length > need && !ch.open ? { over: true } : {}) };
       if (ch.spells?.upToSlots || ch.orSpells?.upToSlots) {
         const slots = (sheet ??= derive(c, reg)).spellSlots.filter((x) => x.total > 0).map((x) => x.level);
         item.slotMax = slots.length ? Math.max(...slots) : 1;
@@ -495,4 +498,62 @@ export function newCharacter(
   if (input.gold) c.currency.gp = (c.currency.gp ?? 0) + input.gold;
   c.hp.current = derive(c, reg).hpMax.total;
   return c;
+}
+
+/**
+ * Options of a choice you already have from somewhere else, with why: a
+ * fighting style another class gave you, a skill your background gives, a
+ * language your race speaks. Worked out without this choice's own picks, so
+ * what you picked here isn't counted against itself. Skills picked for
+ * expertise count expertise; picks that turn into expertise when you already
+ * have the skill (Athlete, Keen Mind) aren't filtered.
+ */
+export function alreadyOwned(c: Character, reg: ContentRegistry, source: string, ch: ChoiceDef): Map<string, string> {
+  const out = new Map<string, string>();
+  if (!["skill", "tool", "language", "feature"].includes(ch.kind)) return out;
+  const without: Character = { ...c, choices: { ...c.choices, [source]: { ...(c.choices[source] ?? {}), [ch.id]: [] } } };
+  let sheet: ReturnType<typeof derive>;
+  try {
+    sheet = derive(without, reg);
+  } catch {
+    return out;
+  }
+  const sources = collectSources(without, reg);
+  const kindOf = /^(class|race|background|feat|feature):/.exec(source)?.[1] as "class" | "race" | "background" | "feat" | "feature" | undefined;
+  const def = kindOf ? (reg.find(source, kindOf) as { grant?: { proficiencies?: { kind: string; target: unknown }[] }; startingGrant?: { proficiencies?: { kind: string; target: unknown }[] }; multiclassGrant?: { proficiencies?: { kind: string; target: unknown }[] } } | undefined) : undefined;
+  const grantKind = [...(def?.grant?.proficiencies ?? []), ...(def?.startingGrant?.proficiencies ?? []), ...(def?.multiclassGrant?.proficiencies ?? [])].find((p) => typeof p.target === "object" && (p.target as { choice?: string }).choice === ch.id)?.kind;
+  /** The first source that gives this proficiency, for the reason. */
+  const from = (kind: string, value: string) =>
+    sources.find((s) => (s.grant.proficiencies ?? []).some((p) => p.kind === kind && (typeof p.target === "string" ? p.target === value : (s.choices[p.target.choice] ?? []).includes(value))))?.label;
+  if (ch.kind === "feature") {
+    const origins = featureOrigins(without, reg, sources);
+    for (const f of sheet.features) out.set(f.id, `You already have it (${origins.get(f.id) ?? f.name}).`);
+  } else if (ch.kind === "skill") {
+    if (grantKind === "skillOrExpertise") return out;
+    const expertise = grantKind === "expertise";
+    for (const sk of SKILLS) {
+      const prof = sheet.skills[sk].proficiency;
+      if (expertise ? prof === 2 : prof >= 1) {
+        const by = from(expertise ? "expertise" : "skill", sk);
+        out.set(sk, `You already have ${expertise ? "expertise in" : "proficiency in"} ${SKILL_NAMES[sk]}${by ? ` (${by})` : ""}.`);
+      }
+    }
+  } else {
+    const have = ch.kind === "tool" ? sheet.proficiencies.tools : sheet.proficiencies.languages;
+    for (const v of have) {
+      const by = from(ch.kind, v);
+      out.set(v, `You already ${ch.kind === "tool" ? "have" : "speak"} ${v}${by ? ` (${by})` : ""}.`);
+    }
+  }
+  return out;
+}
+
+/** Feats the rules let you take more than once (each time for something different). */
+export const REPEATABLE_FEATS = new Set(["feat:elemental-adept"]);
+
+/** Why a feat can't be taken again (you have it already, from where), or undefined. `from`: the pick being changed, not counted. */
+export function featTaken(c: Character, featId: string, from?: string): string | undefined {
+  if (REPEATABLE_FEATS.has(featId)) return undefined;
+  const have = c.feats.find((f) => f.feat === featId && f.from !== from);
+  return have ? `You already have it${have.from ? ` (${have.from})` : ""}.` : undefined;
 }

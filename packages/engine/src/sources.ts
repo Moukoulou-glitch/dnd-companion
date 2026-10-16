@@ -28,7 +28,7 @@ export function effectModifiers(def: EffectDef, level = 1) {
 }
 
 /** Walks the character and returns every active source, in sheet order. */
-export function collectSources(c: Character, baseReg: ContentRegistry): Source[] {
+export function collectSources(c: Character, baseReg: ContentRegistry, duplicates?: { feature: string; pickedIn: string }[]): Source[] {
   const reg = withCustom(baseReg, c);
   const out: Source[] = [];
   const choicesFor = (id: string): ChoiceValues => c.choices[id] ?? {};
@@ -37,7 +37,14 @@ export function collectSources(c: Character, baseReg: ContentRegistry): Source[]
   const pushChosenFeatures = (defId: string, choiceDefs: ChoiceDef[] | undefined) => {
     for (const ch of choiceDefs ?? []) {
       if (ch.kind !== "feature") continue;
-      for (const picked of choicesFor(defId)[ch.id] ?? []) pushFeature(picked);
+      for (const picked of choicesFor(defId)[ch.id] ?? []) {
+        // Already there (Archery from Ranger, picked again for Fighter): it counts once, and the sheet says so.
+        if (out.some((s) => s.id === picked)) {
+          duplicates?.push({ feature: picked, pickedIn: defId });
+          continue;
+        }
+        pushFeature(picked);
+      }
     }
   };
 

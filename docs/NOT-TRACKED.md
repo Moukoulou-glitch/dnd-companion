@@ -123,3 +123,6 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 - A hound set up by hand before this change (a form picked on its sheet) now shows only while the feature's timer runs.
 - Elemental Affinity's Charisma bonus to one damage roll of your ancestry's type is offered as text; seeing through your own Darkness (Eyes of the Dark) is text.
 - A second identical tap within about a second is ignored with a message; a real second use a moment later goes through (and only warns when you're out).
+
+## Duplicate picks
+- Overlaps between two fixed grants (a race and a background both giving the same skill) aren't offered as a new choice; the Sheet warns only when one of the two was your pick. Spells you already know aren't filtered from spell choices.

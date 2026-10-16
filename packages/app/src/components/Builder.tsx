@@ -5,7 +5,9 @@ import {
   POINT_BUY_COST,
   STANDARD_ARRAY,
   buildItems,
+  alreadyOwned,
   choiceOptions,
+  featTaken,
   classSpellOptions,
   levelGains,
   multiclassIssues,
@@ -49,7 +51,10 @@ function PickList<T extends { id: string; name: string }>({
   onPick,
   sub,
   group,
+  unavailable,
 }: {
+  /** Why an item can't be picked (you already have that feat), shown instead of letting it be picked. */
+  unavailable?: (item: T) => string | undefined;
   items: T[];
   selected?: string | undefined;
   onPick: (item: T) => void;
@@ -66,9 +71,10 @@ function PickList<T extends { id: string; name: string }>({
         return (
           <div key={it.id}>
             {head}
-            <button className="row" aria-current={selected === it.id} onClick={() => onPick(it)}>
+            <button className={`row${unavailable?.(it) && selected !== it.id ? " dim" : ""}`} aria-current={selected === it.id} disabled={!!unavailable?.(it) && selected !== it.id} onClick={() => onPick(it)}>
               <div className="row-main">
                 <div className="row-title">{it.name}</div>
+                {unavailable?.(it) && selected !== it.id && <div className="row-sub">{unavailable(it)}</div>}
                 {sub && <div className="row-sub">{sub(it)}</div>}
               </div>
               {selected === it.id && <span className="tag adv">chosen</span>}
@@ -609,14 +615,16 @@ function ItemEditor({ itemKey, get, reg, act, back }: { itemKey: string; get: ()
   const c = get();
   const item = c ? buildItems(c, reg).find((i) => i.key === itemKey) : undefined;
   if (!c || !item) return <p className="note">Nothing to choose here any more.</p>;
-  if (item.kind === "choice") return <ChoiceEditor item={item} reg={reg} act={act} back={back} {...(c.extraNotes[noteKey(item)] ? { note: c.extraNotes[noteKey(item)]! } : {})} />;
+  if (item.kind === "choice") return <ChoiceEditor item={item} c={c} reg={reg} act={act} back={back} {...(c.extraNotes[noteKey(item)] ? { note: c.extraNotes[noteKey(item)]! } : {})} />;
   if (item.kind === "subclass") return <SubclassEditor item={item} reg={reg} act={act} back={back} />;
   if (item.kind === "asi") return <AsiEditor item={item} c={c} reg={reg} act={act} back={back} />;
   return <SpellsEditor item={item} reg={reg} act={act} c={c} {...(c.extraNotes[noteKey(item)] ? { note: c.extraNotes[noteKey(item)]! } : {})} />;
 }
 
-function ChoiceEditor({ item, reg, act, back, note }: { item: BuildItem; reg: ContentRegistry; act: Act; back: () => void; note?: ExtraNote }) {
+function ChoiceEditor({ item, c, reg, act, back, note }: { item: BuildItem; c: Character; reg: ContentRegistry; act: Act; back: () => void; note?: ExtraNote }) {
   const options = useMemo(() => choiceOptions(item.choice!, reg, item.slotMax), [item.choice, reg, item.slotMax]);
+  // What you already have from somewhere else (a style from another class, a skill from your background): not offered again.
+  const owned = useMemo(() => (item.source ? alreadyOwned(c, reg, item.source, item.choice!) : new Map<string, string>()), [c, reg, item.source, item.choice]);
   const [picked, setPicked] = useState<string[]>(item.picked);
   // Eldritch Knight, Arcane Trickster: most picks from two schools, a few from any.
   const lim = item.choice!.spells?.schoolLimit;
@@ -644,19 +652,25 @@ function ChoiceEditor({ item, reg, act, back, note }: { item: BuildItem; reg: Co
       {!open && picked.length > item.need && note && <ExtraBox note={note} />}
       {options.length > 12 && <input className="search" type="search" placeholder="Search" value={q} onChange={(e) => setQ(e.target.value)} />}
       <div className="group">
-        {shown.map((o) => (
-          <label className="row check" key={o.value}>
-            <input type="checkbox" checked={picked.includes(o.value)} onChange={() => toggle(o.value)} />
-            <div className="row-main">
-              <div className="row-title">{o.label}</div>
-              {o.detail && (
-                <div className="row-sub">
-                  <RichText text={o.detail} />
-                </div>
-              )}
-            </div>
-          </label>
-        ))}
+        {shown.map((o) => {
+          const have = owned.get(o.value);
+          const on = picked.includes(o.value);
+          return (
+            <label className={`row check${have && !on ? " dim" : ""}`} key={o.value}>
+              {/* Already yours: can't be picked again; one picked before this check can still be unticked. */}
+              <input type="checkbox" checked={on} disabled={!!have && !on} onChange={() => toggle(o.value)} />
+              <div className="row-main">
+                <div className="row-title">{o.label}</div>
+                {have && <div className={`row-sub${on ? " danger-text" : ""}`}>{on ? `${have} Untick it and pick something else.` : have}</div>}
+                {o.detail && (
+                  <div className="row-sub">
+                    <RichText text={o.detail} />
+                  </div>
+                )}
+              </div>
+            </label>
+          );
+        })}
         {options.length === 0 && <div className="row row-sub">Nothing to pick from here: load your book files for more options.</div>}
       </div>
       {!open && picked.length > item.need ? (
@@ -832,6 +846,7 @@ function AsiEditor({ item, c, reg, act, back }: { item: BuildItem; c: Character;
           <PickList
             items={feats}
             selected={rec?.feat}
+            unavailable={(f) => featTaken(c, f.id, rec?.feat ? c.feats.find((x) => x.feat === rec.feat)?.from : undefined)}
             onPick={(f) => {
               act("chooseAsi", { class: item.class, level: item.level, feat: f.id }, `${f.name} taken.`);
               back();
