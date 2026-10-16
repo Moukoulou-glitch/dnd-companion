@@ -3154,6 +3154,29 @@
         "feature:yuan-ti-magic-resistance",
         "feature:yuan-ti-poison-immunity"
       ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:trait-savage-attacks",
+      "name": "Savage Attacks",
+      "summary": "When you score a critical hit with a melee weapon attack, you can roll one of the weapon's damage dice one additional time and add it to the extra damage of the critical hit.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "When you score a critical hit with a melee weapon attack, you can roll one of the weapon's damage dice one additional time and add it to the extra damage of the critical hit."
+      ],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.damage.weapon.melee",
+            "op": "extraCritDice",
+            "value": 1,
+            "label": "Savage Attacks"
+          }
+        ]
+      }
     }
   ]
 }

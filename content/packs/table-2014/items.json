@@ -43,7 +43,7 @@
       "kind": "item",
       "id": "item:vicious-longbow",
       "name": "Vicious Longbow",
-      "summary": "On a natural 20 attack roll, the target takes 7 extra damage of the weapon's type.",
+      "summary": "On a critical hit, the target takes 7 extra damage of the weapon's type (the book says a natural 20; this table counts any critical hit).",
       "source": {
         "pack": "table-2014",
         "book": "DMG",
@@ -76,7 +76,7 @@
             "selector": "item.damage",
             "op": "critBonusDamage",
             "value": 7,
-            "label": "Vicious (natural 20)"
+            "label": "Vicious (critical hit)"
           }
         ]
       }

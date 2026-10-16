@@ -81,7 +81,7 @@ describe("composing damage", () => {
     const bow = attackOf(sheetOf("beren"), "Vicious Longbow");
     const bowCrit = withCrit(composeDamage(bow.damage.dice, bow.damage.type, bow.damage.bonus), 0, bow.damage.onCrit);
     expect(formatFormula(bowCrit.terms)).toBe("2d8[piercing]+3+7");
-    expect(bowCrit.sources.at(-1)).toBe("Vicious (natural 20)");
+    expect(bowCrit.sources.at(-1)).toBe("Vicious (critical hit)");
   });
 
   it("physical damage: one dice total plus the modifiers", () => {

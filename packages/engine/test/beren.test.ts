@@ -106,7 +106,7 @@ describe("Μπέρεν (Ranger 4) matches his sheet", () => {
     expect(bow.damage.dice).toBe("1d8");
     expect(bow.damage.bonus.total).toBe(3);
     expect(bow.damage.type).toBe("piercing");
-    expect(bow.damage.onCrit).toEqual([{ label: "Vicious (natural 20)", value: 7 }]);
+    expect(bow.damage.onCrit).toEqual([{ label: "Vicious (critical hit)", value: 7 }]);
   });
 
   it("Shortsword: +5, 1d6+3 (finesse uses DEX, Archery does not apply)", () => {

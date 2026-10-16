@@ -13,7 +13,6 @@ import {
   physicalDamageTotal,
   rollComposed,
   sourcesMode,
-  withCrit,
   type ComposerBase,
   type ComposerChoices,
   type Composed,
@@ -22,6 +21,7 @@ import {
 import { signed, type WeaponAttack } from "@dnd/engine";
 import { recordOf, type RollRecord } from "../rolls";
 import { usedUpBy, withoutUsedUp, type UsedUp } from "../oneTime";
+import { damageFor } from "../crit";
 
 interface Props {
   title: string;
@@ -356,10 +356,7 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
       }),
     };
     const c = composeDamage(attack.damage.dice, typePick?.type ?? attack.damage.type, bonus, damageChoices, attack.attackId.startsWith("spell:") ? attack.name : attack.attackId.startsWith("trait:") ? `${attack.name.replace(/^.*?: /, "")}${attack.damage.type ? ` (${attack.damage.type})` : ""}` : "Weapon");
-    if (!stage.crit) return c;
-    const extra = attack.damage.critExtraDice.reduce((n, p) => n + p.value, 0);
-    const natural20 = stage.attackRecord?.natural === 20 || !stage.attackRecord;
-    return withCrit(c, extra, natural20 ? attack.damage.onCrit : []);
+    return damageFor(c, attack, stage.crit);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [attack, damageBase, stage, damageChoices, slotPick, optionInfo, typePick]);
 
@@ -680,7 +677,24 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
       <>
         {which}
         {diceSwitch}
-        {stage.crit && <p className="note">Critical hit: every damage die is rolled twice.</p>}
+        {/* Hit or critical hit, changeable here too (after "Skip to damage", or a crit the d20 didn't show: a paralysed target). */}
+        {!damageOnly && !healing && (
+          <div className="segmented small" role="radiogroup" aria-label="Hit or critical hit">
+            <button role="radio" aria-checked={!stage.crit} onClick={() => setStage({ ...stage, crit: false })}>
+              Hit
+            </button>
+            <button role="radio" aria-checked={stage.crit} onClick={() => setStage({ ...stage, crit: true })}>
+              Critical hit
+            </button>
+          </div>
+        )}
+        {stage.crit && (
+          <p className="note">
+            Critical hit: every damage die is rolled twice
+            {attack!.damage.critExtraDice.length ? `, plus ${attack!.damage.critExtraDice.map((p) => `${p.value} more weapon ${p.value === 1 ? "die" : "dice"} (${p.label})`).join(", ")}` : ""}
+            {attack!.damage.onCrit.length ? `; ${attack!.damage.onCrit.map((p) => `${p.label} +${p.value}`).join(", ")}` : ""}.
+          </p>
+        )}
         {usedUp.length > 0 && (
           <p className="note warn">
             Used up on an earlier hit: {[...new Set(usedUp.map((u) => u.label))].join(", ")}. It doesn't apply again (Undo the earlier roll's toast to get it back).
