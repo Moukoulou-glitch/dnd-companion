@@ -19,7 +19,8 @@ const evalFlatSafe = (v: ValueExpr, ctx: Parameters<typeof evalFlat>[1]): number
 /** Something the player should do next, e.g. roll a concentration check. */
 /** A follow-up the app should open: a concentration save (yours, or a summoned creature's when `summon` is set). */
 /** A question for the player: a concentration save, or news of instant death (`reason`). */
-export type Prompt = { kind: "concentration" | "dead"; dc: number; spell: string; summon?: string; reason?: string };
+/** `grave`: Strength of the Grave could save you from this drop to 0 (DC in `dc`); asked before damage is recorded. */
+export type Prompt = { kind: "concentration" | "dead" | "grave"; dc: number; spell: string; summon?: string; reason?: string };
 
 /** What changed, in words the UI can show as a toast or reminder. */
 export interface ApplyResult {
@@ -320,7 +321,30 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
           c.hp.current = 1;
           removeEffects([ward]);
           notes.push("Death Ward: you drop to 1 hit point instead, and the spell ends.");
-        } else if (op.payload.relentless) {
+        }
+        // Strength of the Grave (Shadow Magic): a Charisma save, DC 5 + the damage taken; not against radiant
+        // damage or a critical hit, not if killed outright; spent only on a success (once per long rest).
+        const grave = sheet.resources.find((x) => x.id === "strength-of-the-grave");
+        const killedOutright = rest - before >= maxHp;
+        if (c.hp.current === 0 && grave && grave.remaining > 0 && damageType !== "radiant" && !killedOutright) {
+          const dc = 5 + dmg;
+          const g = op.payload.grave;
+          if (!g) prompts.push({ kind: "grave", dc, spell: "" });
+          else if (g.crit) notes.push("Strength of the Grave can't help against a critical hit: you drop to 0.");
+          else if (g.saved) {
+            c.hp.current = 1;
+            c.resourcesUsed[grave.id] = (c.resourcesUsed[grave.id] ?? 0) + 1;
+            notes.push(`Strength of the Grave: Charisma save${g.total !== undefined ? ` ${g.total}` : ""} against DC ${dc} succeeds; you drop to 1 hit point instead (once per long rest).`);
+          } else notes.push(`Strength of the Grave: Charisma save${g.total !== undefined ? ` ${g.total}` : ""} against DC ${dc} fails; you drop to 0 (it can be tried again).`);
+        } else if (op.payload.grave && c.hp.current === 0) {
+          notes.push(
+            damageType === "radiant" ? "Strength of the Grave doesn't work against radiant damage."
+            : killedOutright ? "Strength of the Grave can't help: that damage kills you outright."
+            : !grave ? "Strength of the Grave isn't one of your features."
+            : "Strength of the Grave is already used until your next long rest.",
+          );
+        }
+        if (c.hp.current === 0 && op.payload.relentless) {
           // Relentless Endurance (asked before the damage was recorded): not if killed outright, once per long rest.
           const r = sheet.resources.find((x) => x.id === "relentless-endurance");
           if (rest - before >= maxHp) notes.push("Relentless Endurance can't help: that damage kills you outright.");

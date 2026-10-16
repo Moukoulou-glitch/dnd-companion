@@ -19,3 +19,16 @@ export function offersRelentless(c: Character, payload: DamagePayload, reg: Cont
   const after = applyOperation(c, { ...op, payload: { ...payload, relentless: true } } as Operation, reg);
   return after.character.hp.current === 1;
 }
+
+/**
+ * What could stop this damage dropping the character to 0, asked before it's
+ * recorded: Strength of the Grave (its save DC: 5 + the damage taken, after
+ * resistances) and Relentless Endurance. Works on a copy: nothing is recorded.
+ */
+export function zeroHpOptions(c: Character, payload: DamagePayload, reg: ContentRegistry): { grave?: { dc: number }; relentless: boolean } {
+  const relentless = offersRelentless(c, payload, reg);
+  if (payload.companion || c.hp.current <= 0) return { relentless };
+  const op = { id: "dry-run", characterId: c.id, author: "dry-run", at: "0", type: "damage", payload } as Operation;
+  const g = applyOperation(c, op, reg).prompts.find((p) => p.kind === "grave");
+  return g ? { grave: { dc: g.dc }, relentless } : { relentless };
+}

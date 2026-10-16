@@ -115,6 +115,8 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 - A reroll (Great Weapon Fighting) takes the colour of the first thrown die of that size, so with two groups of the same size it may show the other group's colour; the numbers are right either way.
 
 ## Dropping to 0 HP
+
+- Strength of the Grave: the app can't tell whether the hit was a critical (damage is typed in), so it asks. "Damage taken" for the DC is the damage after resistance and vulnerability, temporary HP included. Closing the question without answering records no damage (as with Relentless Endurance): enter it again.
 - Relentless Endurance and Death Ward work on damage you enter for yourself. Death Ward's other part (it ends one instant-death effect that isn't damage, like a Power Word Kill) is up to you: remove the Death Ward tag when it's used that way.
 - Damage taken at 0 HP adds death save failures as before; neither feature applies then.
 

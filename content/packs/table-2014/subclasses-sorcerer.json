@@ -639,7 +639,7 @@
               "resource": "strength-of-the-grave",
               "amount": 1
             },
-            "note": "Dropped to 0 (not radiant, not a crit): CHA save DC 5 + damage; success = 1 HP instead. Spend only on a success."
+            "note": "The app asks when damage would drop you to 0 (not radiant, not a crit): CHA save DC 5 + damage; success = 1 HP instead. Spend it here only for a save made outside the app."
           }
         ]
       }

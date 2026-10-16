@@ -44,7 +44,10 @@ import { flashEnabled, flashForFeature, flashForSpell, flashTorch, setFlashEnabl
 import { PlayTab, type PlayPrompts } from "./components/PlayTab";
 import { liveAttack } from "./oneTime";
 import { NumberStep } from "./components/Adjust";
-import { offersRelentless } from "@dnd/store";
+import { zeroHpOptions } from "@dnd/store";
+
+/** What was chosen before damage that drops you to 0 is recorded. */
+type ZeroHpChoice = { relentless?: true; grave?: { saved: boolean; total?: number; crit?: boolean } };
 import { CLASS_DICE_COLOURS, classDiceColour, mainClass, setDiceClasses, usePickedDiceColour } from "./diceColours";
 import { Choose, Confirm, PoolRollPanel, SlotSpendPanel, SpendDiePanel } from "./components/Prompts";
 import { BottomSheet, BreakdownLines } from "./components/Sheet";
@@ -300,23 +303,68 @@ export function App() {
    * Relentless Endurance left: ask first, then record the damage once with the
    * answer in it (so a replay never asks again, and two taps can't record it twice).
    */
-  const withRelentless = (payload: { amount: number; damageType?: string; magical?: true; fromSpell?: true }, go: (relentless: boolean) => void) => {
+  /**
+   * Before damage that would drop you to 0 is recorded: Strength of the Grave (a Charisma save) and
+   * Relentless Endurance, each only when it would actually help. A failed save can still be followed
+   * by Relentless Endurance. `go` records the damage with what was chosen.
+   */
+  const withZeroHp = (payload: { amount: number; damageType?: string; magical?: true; fromSpell?: true }, go: (extra: ZeroHpChoice) => void) => {
     const ch = live.current.character;
-    if (!ch || !offersRelentless(ch, payload, registry)) return go(false);
+    const o = ch ? zeroHpOptions(ch, payload, registry) : { relentless: false };
+    if (!o.grave && !o.relentless) return go({});
     let answered = false;
-    const answer = (yes: boolean) => {
+    const finish = (extra: ZeroHpChoice) => {
       if (answered) return;
       answered = true;
-      go(yes);
+      go(extra);
     };
-    open("Relentless Endurance?", () => (
-      <Confirm
-        question={`${payload.amount} damage drops you to 0 hit points. Use Relentless Endurance to drop to 1 instead?`}
-        detail="Once per long rest. Not used: you fall unconscious and make death saves."
-        no="No, drop to 0"
-        yes="Yes, drop to 1"
-        onNo={() => answer(false)}
-        onYes={() => answer(true)}
+    const askRelentless = (extra: ZeroHpChoice) => {
+      if (!o.relentless) return finish(extra);
+      open("Relentless Endurance?", () => (
+        <Confirm
+          question={`${payload.amount} damage drops you to 0 hit points. Use Relentless Endurance to drop to 1 instead?`}
+          detail="Once per long rest. Not used: you fall unconscious and make death saves."
+          no="No, drop to 0"
+          yes="Yes, drop to 1"
+          onNo={() => finish(extra)}
+          onYes={() => finish({ ...extra, relentless: true })}
+        />
+      ));
+    };
+    const grave = o.grave;
+    if (!grave) return askRelentless({});
+    const rollSave = () => {
+      let total: number | undefined;
+      open(`Strength of the Grave: DC ${grave.dc}`, () => (
+        <Composer
+          title="Strength of the Grave"
+          base={live.current.sheet!.saves.cha}
+          dc={grave.dc}
+          dcLabel="Charisma saving throw"
+          onOptionsUsed={recordOptions}
+          physical={live.current.character?.settings.physicalDice ?? true}
+          onPhysicalChange={setPhysicalDice}
+          onRolled={(r) => {
+            total = r.total;
+            live.current.addRoll(r);
+          }}
+          onCheck={(passed) => {
+            const result = { saved: passed, ...(total !== undefined ? { total } : {}) };
+            // A moment to see the roll, then the damage is recorded with its result.
+            setTimeout(() => (passed ? finish({ grave: result }) : askRelentless({ grave: result })), 1100);
+          }}
+        />
+      ));
+    };
+    open("Strength of the Grave?", () => (
+      <Choose
+        question={`${payload.amount} damage drops you to 0 hit points. Strength of the Grave: a Charisma saving throw, DC ${grave.dc} (5 + the damage taken). On a success you drop to 1 instead.`}
+        detail="Not against a critical hit or radiant damage. It's used up only when the save succeeds, then not again until a long rest."
+        options={[
+          { label: `Roll the Charisma save (DC ${grave.dc})`, onPick: rollSave },
+          { label: "It was a critical hit: can't use it", onPick: () => askRelentless({ grave: { saved: false, crit: true } }) },
+          { label: "Don't use it", onPick: () => askRelentless({}) },
+        ]}
       />
     ));
   };
@@ -324,8 +372,8 @@ export function App() {
   /** Damage to the character, then what it leads to: a concentration save, or instant death. */
   const takeDamage = (amount: number, type?: string, magical?: boolean, fromSpell?: boolean) => {
     const payload = { amount, ...(type ? { damageType: type } : {}), ...(magical ? { magical: true as const } : {}), ...(fromSpell ? { fromSpell: true as const } : {}) };
-    withRelentless(payload, (relentless) => {
-      const prompts = live.current.act("damage", { ...payload, ...(relentless ? { relentless: true } : {}) }, `Took ${amount}${type ? ` ${type}` : ""} damage${fromSpell ? " from a spell" : ""}.`) as { kind: string; dc: number; reason?: string }[];
+    withZeroHp(payload, (extra) => {
+      const prompts = live.current.act("damage", { ...payload, ...extra }, `Took ${amount}${type ? ` ${type}` : ""} damage${fromSpell ? " from a spell" : ""}.`) as { kind: string; dc: number; reason?: string }[];
       const dead = prompts.find((p) => p.kind === "dead");
       if (dead) return openDead(dead.reason ?? "");
       const check = prompts.find((p) => p.kind === "concentration");
@@ -952,8 +1000,8 @@ export function App() {
         onApply={(left, reduced) => {
           use();
           if (left > 0) {
-            return withRelentless({ amount: left }, (relentless) => {
-              const prompts = live.current.act("damage", { amount: left, ...(relentless ? { relentless: true } : {}) }, `${a.name} stopped ${reduced}: ${left} damage taken.`);
+            return withZeroHp({ amount: left }, (extra) => {
+              const prompts = live.current.act("damage", { amount: left, ...extra }, `${a.name} stopped ${reduced}: ${left} damage taken.`);
               const check = prompts.find((p) => p.kind === "concentration" && !p.summon);
               if (check) return openConcentrationCheck(check.dc);
               close();

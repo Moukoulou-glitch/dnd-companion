@@ -24,8 +24,17 @@ export const OPERATION_PAYLOADS = {
   /** `magical`: from a magic weapon or spell (Heavy Armor Master and the like only stop nonmagical damage). */
   /** fromSpell: the damage comes from a spell (resistance to damage from spells: Aura of Warding). */
   /** `relentless`: the player chose Relentless Endurance if this damage drops them to 0 (asked before it's recorded). */
+  /** `grave`: Strength of the Grave, asked before it's recorded: the Charisma save's result (and whether the hit was a critical, which rules it out). */
   damage: z
-    .object({ amount: z.number().int().min(0), damageType: z.string().optional(), companion: z.string().optional(), magical: z.boolean().optional(), fromSpell: z.boolean().optional(), relentless: z.boolean().optional() })
+    .object({
+      amount: z.number().int().min(0),
+      damageType: z.string().optional(),
+      companion: z.string().optional(),
+      magical: z.boolean().optional(),
+      fromSpell: z.boolean().optional(),
+      relentless: z.boolean().optional(),
+      grave: z.object({ saved: z.boolean(), total: z.number().int().optional(), crit: z.boolean().optional() }).strict().optional(),
+    })
     .strict(),
   /** Healing, capped at maximum HP. Healing from 0 HP clears death saves. */
   heal: z.object({ amount: z.number().int().min(0), companion: z.string().optional() }).strict(),
