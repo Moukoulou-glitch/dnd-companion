@@ -5,6 +5,7 @@ import { CharacterLog, HybridClock, type Prompt } from "@dnd/store";
 import { addBooks, referencesOf, registry, starterCharacters, stubMissing } from "./content";
 import { db, deviceId, requestPersistentStorage, type StoredCharacter } from "./db";
 import { MAX_ROLLS, type RollRecord } from "./rolls";
+import { CommitGuard } from "./commitGuard";
 
 export interface Toast {
   id: number;
@@ -27,6 +28,7 @@ export function useCharacters() {
   const logs = useRef(new Map<string, CharacterLog>());
   const rolls = useRef(new Map<string, RollRecord[]>());
   const fixtureHashes = useRef(new Map<string, string>());
+  const guard = useRef(new CommitGuard());
   /** Deleted characters, kept whole (with their changes and rolls) so they can be restored. */
   const deleted = useRef(new Map<string, StoredCharacter & { deletedAt: number }>());
   const [ready, setReady] = useState(false);
@@ -99,6 +101,11 @@ export function useCharacters() {
   const act = useCallback(
     (type: OperationType, payload: unknown, label: string): Prompt[] => {
       if (!log || !selectedId) return [];
+      // A fast second tap on something that spends: recorded once (commitGuard.ts).
+      if (!guard.current.allow(type, payload, Date.now())) {
+        setToast({ id: Date.now(), text: "Second tap ignored: that was already recorded.", canUndo: false });
+        return log.lastPrompts;
+      }
       try {
         const before = log.character;
         const notes = log.record(type, payload);
@@ -120,6 +127,7 @@ export function useCharacters() {
     if (!log || !selectedId) return;
     const op = log.undo();
     if (!op) return;
+    guard.current.reset();
     setVersion((v) => v + 1);
     setToast({ id: Date.now(), text: "Undone.", canUndo: false });
     void persist(log, selectedId);

@@ -599,10 +599,14 @@
           {
             "spell": "spell:darkness",
             "name": "Darkness",
-            "casting": "always known; or 2 sorcery points",
+            "casting": "Always known; with a slot, or 2 sorcery points (then you can see through it)",
             "list": "sorcerer",
             "minLevel": 3,
-            "levelOf": "class:sorcerer"
+            "levelOf": "class:sorcerer",
+            "pointCost": {
+              "resource": "sorcery-points",
+              "amount": 2
+            }
           }
         ]
       }
@@ -663,7 +667,11 @@
             "duration": {
               "minutes": 5
             },
-            "note": "Summon the hound on a target you can see; it only attacks that target. 5 minutes, or until it or the target drops to 0 HP."
+            "note": "The hound appears within 30 ft of a target you can see, with temporary HP equal to half your sorcerer level; it only attacks that target. 5 minutes, or until it or the target drops to 0 HP (end it on its sheet).",
+            "summons": {
+              "companion": "hound-of-ill-omen",
+              "tempHp": "classLevel.class:sorcerer/2"
+            }
           }
         ],
         "companions": [
@@ -719,7 +727,8 @@
                   }
                 ]
               }
-            ]
+            ],
+            "summonedBy": "hound-of-ill-omen"
           }
         ]
       }

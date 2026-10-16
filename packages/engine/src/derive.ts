@@ -142,6 +142,8 @@ export interface SpellResult {
     slotLevels: number[];
     pact?: { level: number; remaining: number };
     free?: { resource: string; name: string; remaining: number };
+    /** Cast by spending points instead of a slot (Eyes of the Dark: Darkness for 2 sorcery points). */
+    points?: { resource: string; name: string; amount: number; remaining: number };
     /** Cast without a slot whenever you like (an invocation's at-will spell). */
     atWill?: boolean;
     /** Given by the table beyond the rules: castable without a slot, with how often it's been cast since each rest. */
@@ -197,6 +199,8 @@ export interface ActionResult {
   untilTurnStart?: boolean;
   endsConcentration?: boolean;
   infoOnly?: boolean;
+  /** Brings out this companion with these temporary HP (Hound of Ill Omen). */
+  summons?: { companion: string; tempHp: number };
   /** The DC a creature saves against (Stunning Strike: your ki save DC). */
   dc?: FeatureDc;
 }
@@ -1076,7 +1080,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
 
   // Spells: class lists from the character, plus spells features grant or let the player pick.
   const spellDefs = new Map<string, { def: ReturnType<typeof reg.get<"spell">> | undefined; list: string; prepared: boolean; granted?: GrantedSpellRef }>();
-  type GrantedSpellRef = { resource?: string; from?: string; atWill?: boolean; extra?: string; scroll?: { instanceId: string; level: number } };
+  type GrantedSpellRef = { resource?: string; from?: string; atWill?: boolean; extra?: string; scroll?: { instanceId: string; level: number }; pointCost?: { resource: string; amount: number } };
   for (const inst of c.spells) {
     spellDefs.set(`${inst.list}|${inst.spell}`, { def: reg.has(inst.spell) ? reg.get(inst.spell, "spell") : undefined, list: inst.list, prepared: inst.prepared });
     if (!reg.has(inst.spell)) warnings.push(`Spell "${inst.spell}" isn't in any content pack.`);
@@ -1103,6 +1107,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       const granted: GrantedSpellRef = { from: s.label };
       if (g.resource) granted.resource = g.resource;
       if (g.atWill) granted.atWill = true;
+      if (g.pointCost) granted.pointCost = g.pointCost;
       if (g.extra) granted.extra = g.extra;
       if (g.scroll) granted.scroll = g.scroll;
       spellDefs.set(`${list}|${g.spell}`, { def: reg.has(g.spell) ? reg.get(g.spell, "spell") : undefined, list, prepared: true, granted });
@@ -1277,6 +1282,10 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     if (!granted?.atWill && slots.pact && def.level > 0 && def.level <= slots.pact.level) {
       r.cast.pact = { level: slots.pact.level, remaining: Math.max(0, slots.pact.count - c.pactSlotsUsed) };
     }
+    if (granted?.pointCost) {
+      const res = resources.find((x) => x.id === granted.pointCost!.resource);
+      if (res) r.cast.points = { resource: res.id, name: res.name, amount: granted.pointCost.amount, remaining: res.remaining };
+    }
     if (granted?.resource) {
       const res = resources.find((x) => x.id === granted.resource);
       if (res) r.cast.free = { resource: res.id, name: res.name, remaining: res.remaining };
@@ -1348,6 +1357,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
         if (only && / spell \(free\)$/.test(a.name)) entry.name = `${only.name} (free)`;
       }
       if (a.stopsMovement) entry.stopsMovement = true;
+      if (a.summons) entry.summons = { companion: a.summons.companion, tempHp: a.summons.tempHp !== undefined ? Math.max(0, evalFlat(a.summons.tempHp, ctxFor(s))) : 0 };
       if (a.note) entry.note = a.note;
       if (a.cost) {
         const r = resources.find((x) => x.id === a.cost!.resource);
@@ -1582,7 +1592,14 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     })(),
     companions: [
       ...sources.flatMap((s) =>
-        (s.grant.companions ?? []).map((d) => ({ ...deriveCompanion(d, s.label, c.companions[d.id], ctxFor(s), spellcasting), command: d.command ?? { economy: "bonus" as const, attackInstead: true } })),
+        (s.grant.companions ?? []).map((d) => {
+          // One an action summons (Hound of Ill Omen) is only out while that action's timer runs.
+          const out = !d.summonedBy || c.effects.some((e) => e.companion === d.id);
+          const state = c.companions[d.id];
+          const r = deriveCompanion(d, s.label, out ? state : state && { ...state, form: undefined }, ctxFor(s), spellcasting);
+          if (d.summonedBy) r.summonedBy = { action: d.summonedBy, out };
+          return { ...r, command: d.command ?? { economy: "bonus" as const, attackInstead: true } };
+        }),
       ),
       // Companions the player made (Companion Builder).
       // Ranger's Companion bonds one of them while the feature is in use.

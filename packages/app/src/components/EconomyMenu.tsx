@@ -10,6 +10,7 @@ function spellState(sp: SpellResult): string | undefined {
   if (sp.level === 0 || sp.cast.atWill || sp.cast.extra) return undefined;
   if (sp.cast.free && sp.cast.free.remaining > 0) return undefined;
   if (sp.cast.pact && sp.cast.pact.remaining > 0) return undefined;
+  if (sp.cast.points && sp.cast.points.remaining >= sp.cast.points.amount) return undefined;
   if (sp.cast.slotLevels.length) return undefined;
   return "no slot left";
 }

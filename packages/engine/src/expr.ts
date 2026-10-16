@@ -43,6 +43,14 @@ export function evalExpr(expr: ValueExpr, ctx: ExprContext): Term[] {
   function single(sign: number, t: string): Term {
     if (/^\d+$/.test(t)) return { kind: "flat", value: sign * Number(t) };
 
+    // "classLevel.class:sorcerer/2": a number divided, rounded down (half your sorcerer level).
+    const div = /^(.+)\/(\d+)$/.exec(t);
+    if (div) {
+      const inner = single(1, div[1]!);
+      if (inner.kind === "dice") throw new Error(`Can't divide dice in "${expr}"`);
+      return { kind: "flat", value: sign * Math.floor(inner.value / Number(div[2])), label: `${inner.label ?? div[1]} ÷ ${div[2]}, rounded down` };
+    }
+
     // "5*slotLevel": a whole number times one named term.
     const times = /^(\d+)\*(.+)$/.exec(t);
     if (times) {

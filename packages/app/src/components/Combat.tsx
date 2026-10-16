@@ -226,7 +226,7 @@ export function CompanionCard({ comp, onOpen }: { comp: CompanionResult; onOpen:
     <button className="row companion" onClick={onOpen}>
       <div className="row-main">
         <div className="row-title">{comp.name}</div>
-        <div className="row-sub">{f ? `${f.name}, AC ${f.ac.total}${f.hp.current === 0 && comp.summon ? " · gone until summoned" : ""}` : comp.summon ? "Not summoned yet" : "Choose its form"}</div>
+        <div className="row-sub">{f ? `${f.name}, AC ${f.ac.total}${f.hp.current === 0 && comp.summon ? " · gone until summoned" : ""}` : comp.summon || comp.summonedBy ? "Not summoned" : "Choose its form"}</div>
         {comp.states.length > 0 && (
           <div className="companion-tags">
             {comp.states.map((x) => (
@@ -309,7 +309,10 @@ export function CompanionPanel({
   onCommand,
   onAttackInstead,
   onEdit,
+  onSummon,
 }: {
+  /** Out only while its action's timer runs (Hound of Ill Omen): use that action. */
+  onSummon?: () => void;
   /** One you made: change it in the Companion Builder. */
   onEdit?: () => void;
   comp: CompanionResult;
@@ -342,6 +345,23 @@ export function CompanionPanel({
   );
 
   if (!f && comp.summon) return <SummonSection comp={comp} character={character} sheet={sheet} act={act} />;
+  if (!f && comp.summonedBy) {
+    const a = sheet.actions.find((x) => x.id === comp.summonedBy!.action);
+    return (
+      <>
+        <p className="note">Not here now. It comes when you use {a?.name ?? "its feature"}, and stays while that lasts.</p>
+        {a && onSummon && (
+          <button className="big primary wide" onClick={onSummon}>
+            {a.name}
+            <span className="sub">
+              {a.economy === "bonus" ? "bonus action" : a.economy}
+              {a.cost ? ` · ${a.cost.amount} ${a.cost.name.toLowerCase()} (${a.cost.remaining} left)` : ""}
+            </span>
+          </button>
+        )}
+      </>
+    );
+  }
   if (!f) {
     return (
       <>
@@ -406,6 +426,17 @@ export function CompanionPanel({
         </section>
       )}
 
+      {comp.summonedBy?.out && (
+        <button
+          className="link"
+          onClick={() => {
+            const e = character.effects.find((x) => x.companion === comp.id);
+            if (e) act("removeEffect", { instanceId: e.id }, `${comp.name} is gone.`);
+          }}
+        >
+          End it now (its target dropped to 0, or you dismiss it)
+        </button>
+      )}
       {comp.custom?.bond && !comp.custom.bond.active && (
         <p className="warn">Bonded as your {comp.custom.bond.name}, but that feature isn't in use, so its bonuses are off.</p>
       )}

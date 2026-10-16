@@ -238,7 +238,8 @@ export const OPERATION_PAYLOADS = {
       list: z.string(),
       level: z.number().int().min(0).max(9),
       /** "extra": a spell the table gave, without a slot (counted per rest); "scroll": read from a spell scroll, which is used up. */
-      using: z.enum(["slot", "pact", "free", "ritual", "none", "extra", "scroll"]),
+      /** "points": spends the spell's point cost (Eyes of the Dark: 2 sorcery points). */
+      using: z.enum(["slot", "pact", "free", "ritual", "none", "extra", "scroll", "points"]),
       /** A scroll spell above your level: the ability check failed, the spell fades from the scroll with no effect. */
       failed: z.boolean().optional(),
       selfEffect: z.boolean().default(false),

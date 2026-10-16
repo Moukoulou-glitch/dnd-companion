@@ -62,6 +62,8 @@ export const EffectInstance = z
     id: z.string(),
     /** Pack effect id, or "custom" with `custom` filled in. */
     effect: DefId,
+    /** The companion this effect's action brought out (Hound of Ill Omen): it's gone when the effect ends. */
+    companion: z.string().optional(),
     custom: z
       /** text: the player's own description, shown on its card (not applied by the rules). */
       .object({ name: z.string(), modifiers: z.array(Modifier), text: z.string().max(2000).optional() })

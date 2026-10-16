@@ -23,6 +23,8 @@ export interface CompanionResult {
     /** Bonded through a feature (Ranger's Companion); `active` while that feature is in use. */
     bond?: { name: string; active: boolean };
   };
+  /** Out only while the timer of this action runs (Hound of Ill Omen); `out`: it's here now. */
+  summonedBy?: { action: string; out: boolean };
   /** Summoned with an action: free once per `resource`, or with a slot of `slotMin`+ (the drake). */
   summon?: { resource: string; slotMin: number; note: string };
   /** What commanding it costs you, when it can be commanded (Primal Companion: bonus action; Ranger's Companion: action). */

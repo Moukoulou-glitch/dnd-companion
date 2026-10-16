@@ -102,6 +102,8 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
     }
     const ids = new Set(gone.map((e) => e.id));
     c.effects = c.effects.filter((e) => !ids.has(e.id));
+    // The companion it brought out goes with it.
+    for (const e of gone) if (e.companion && c.companions[e.companion]) c.companions[e.companion]!.states = [];
     const off = new Set(gone.flatMap((e) => e.toggles ?? []));
     if (off.size) c.toggles = c.toggles.filter((t) => !off.has(t));
   };
@@ -218,6 +220,8 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         if (t.state.hp.current === 0) {
           notes.push(`${t.comp.name} drops to 0 HP and dies.${t.comp.reviveNote ? ` ${t.comp.reviveNote}` : ""}`);
           t.state.states = [];
+          // One a timed action brought out (Hound of Ill Omen) is gone, and its timer with it.
+          removeEffects(c.effects.filter((e) => e.companion === op.payload.companion));
         }
         break;
       }
@@ -1062,9 +1066,22 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         } else if (d.rounds) entry.rounds = d.rounds;
         else if (d.minutes) entry.minutes = d.minutes;
         if (a.toggles.length) entry.toggles = a.toggles;
+        if (a.summons) entry.companion = a.summons.companion;
         // Using it again restarts the timer instead of stacking a second one.
         removeEffects(c.effects.filter((e) => e.effect === "custom" && e.custom?.name === a.name));
         c.effects.push(entry);
+      }
+      // Hound of Ill Omen: the companion arrives, fresh, with its temporary HP; it stays while the timer runs.
+      if (a.summons) {
+        const comp = sheet.companions.find((x) => x.id === a.summons!.companion);
+        const form = comp?.forms[0]?.id;
+        if (comp && form) {
+          c.companions[comp.id] = { ...(c.companions[comp.id] ?? {}), states: [], form };
+          delete c.companions[comp.id]!.hp;
+          const max = derive(c, reg).companions.find((x) => x.id === comp.id)?.form?.hpMax.total;
+          if (max !== undefined) c.companions[comp.id]!.hp = { current: max, temp: a.summons.tempHp };
+          notes.push(`${comp.name} appears${a.summons.tempHp ? ` with ${a.summons.tempHp} temporary HP` : ""}.`);
+        }
       }
       const rolled = op.payload.rolled;
       if (a.tempHp && rolled !== undefined) {
@@ -1163,6 +1180,15 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
           const max = sheet.resources.find((r) => r.id === f.resource)?.max ?? 0;
           if (f.remaining <= 0) notes.push(`${f.name}: none left. Cast anyway.`);
           c.resourcesUsed[f.resource] = Math.min(max, (c.resourcesUsed[f.resource] ?? 0) + 1);
+        }
+      } else if (using === "points") {
+        const pc = sp.cast.points;
+        if (!pc) notes.push(`${sp.name} can't be cast with points here. Cast anyway.`);
+        else {
+          const max = sheet.resources.find((r) => r.id === pc.resource)?.max ?? 0;
+          if (pc.remaining < pc.amount) notes.push(`${pc.name}: ${pc.remaining} left, ${pc.amount} needed. Cast anyway.`);
+          c.resourcesUsed[pc.resource] = Math.min(max, (c.resourcesUsed[pc.resource] ?? 0) + pc.amount);
+          notes.push(`${pc.amount} ${pc.name.toLowerCase()} spent.`);
         }
       } else if (using === "ritual" && !sp.ritual) {
         notes.push(`${sp.name} isn't a ritual.`);

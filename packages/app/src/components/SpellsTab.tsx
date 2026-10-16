@@ -282,7 +282,7 @@ export function SpellPanel({
   casterSide?: boolean;
   /** That tag adds damage to your attacks (Hex), so the note can say so. */
   casterDamage?: boolean;
-  onCast: (level: number, using: "slot" | "pact" | "free" | "ritual" | "none" | "extra" | "scroll", selfEffect: boolean, castingTime?: string) => void;
+  onCast: (level: number, using: "slot" | "pact" | "free" | "ritual" | "none" | "extra" | "scroll" | "points", selfEffect: boolean, castingTime?: string) => void;
   /** Opens already cast at this level (after a turn warning was confirmed). */
   initialCast?: number | undefined;
   onPrepare: (prepared: boolean) => void;
@@ -319,7 +319,7 @@ export function SpellPanel({
       : []),
   ];
 
-  const doCast = (level: number, using: "slot" | "pact" | "free" | "ritual" | "none" | "extra" | "scroll") => {
+  const doCast = (level: number, using: "slot" | "pact" | "free" | "ritual" | "none" | "extra" | "scroll" | "points") => {
     onCast(level, using, casterSide ? true : onMe, times.length > 1 ? time : undefined);
     setCast(level);
   };
@@ -399,6 +399,12 @@ export function SpellPanel({
                 </span>
               </button>
             )}
+            {sp.cast.points && (
+              <button className={sp.cast.points.remaining >= sp.cast.points.amount ? "big" : "big damage"} onClick={() => doCast(sp.level, "points")}>
+                {sp.cast.points.amount} {sp.cast.points.name.toLowerCase()}
+                <span className="sub">{sp.cast.points.remaining} left</span>
+              </button>
+            )}
             {sp.cast.free && (
               <button className={sp.cast.free.remaining > 0 ? "big" : "big damage"} onClick={() => doCast(sp.level, "free")}>
                 Free use
@@ -438,7 +444,7 @@ export function SpellPanel({
               {sp.cast.scroll.onList ? "" : " It isn't on your class's spell list: the scroll is unintelligible to you unless your DM says otherwise."}
             </p>
           )}
-          {sp.level > 0 && sp.cast.slotLevels.length === 0 && !sp.cast.pact && !sp.cast.free && !sp.ritual && !sp.cast.extra && !sp.cast.scroll && (
+          {sp.level > 0 && sp.cast.slotLevels.length === 0 && !sp.cast.pact && !sp.cast.free && !sp.cast.points && !sp.ritual && !sp.cast.extra && !sp.cast.scroll && (
             <p className="note">No slots of this level. Use your feature or ask your DM.</p>
           )}
         </>

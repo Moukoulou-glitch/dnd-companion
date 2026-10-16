@@ -1067,6 +1067,8 @@ export function App() {
                 () => {
                   live.current.act("useAction", payload, label);
                   flashForFeature(current.id);
+                  // Hound of Ill Omen: straight to the companion it brought out.
+                  if (current.summons) return openCompanion(current.summons.companion);
                   const sk = check as Skill | undefined;
                   const base = sk && live.current.sheet?.skills[sk];
                   const grows = GROWING_AREAS[current.id];
@@ -1514,6 +1516,14 @@ export function App() {
           openRoll={openRoll}
           openHp={() => openCompanionHp(id)}
           {...(comp.custom ? { onEdit: () => openCompanionBuilder(comp.custom!.id) } : {})}
+          {...(comp.summonedBy
+            ? {
+                onSummon: () => {
+                  const a = live.current.sheet?.actions.find((x) => x.id === comp.summonedBy!.action);
+                  if (a) openFeature(a);
+                },
+              }
+            : {})}
           onCommand={() =>
             guard(
               { name: `Command ${comp.name}`, economy },
@@ -2007,7 +2017,7 @@ export function App() {
    * casting ask first, the turn rules warn, free uses with none left ask
    * "Are you sure?", and the spell sheet comes back showing it was cast.
    */
-  const castFlow = (sp: SpellResult, level: number, using: "slot" | "pact" | "free" | "ritual" | "none" | "extra" | "scroll", selfEffect: boolean, readying = false, castingTime?: string) => {
+  const castFlow = (sp: SpellResult, level: number, using: "slot" | "pact" | "free" | "ritual" | "none" | "extra" | "scroll" | "points", selfEffect: boolean, readying = false, castingTime?: string) => {
     // Its effect asks for something first (Hex: which ability).
     const eff = selfEffect ? effReg().find(sp.id.replace(/^spell:/, "effect:"), "effect") : undefined;
     // A scroll needs no material components.
@@ -2098,7 +2108,7 @@ export function App() {
   const castFlowAfterComponent = (
     sp: SpellResult,
     level: number,
-    using: "slot" | "pact" | "free" | "ritual" | "none" | "extra" | "scroll",
+    using: "slot" | "pact" | "free" | "ritual" | "none" | "extra" | "scroll" | "points",
     selfEffect: boolean,
     readying: boolean,
     consume: boolean,

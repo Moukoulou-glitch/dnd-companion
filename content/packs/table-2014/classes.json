@@ -828,6 +828,299 @@
           }
         ]
       }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:dragon-ancestor-black---acid-damage",
+      "name": "Dragon Ancestor: Black - Acid Damage",
+      "summary": "At 1st level, you choose one type of dragon as your ancestor.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "At 1st level, you choose one type of dragon as your ancestor. The damage type associated with each dragon is used by features you gain later.",
+        "You can speak, read, and write Draconic. Additionally, whenever you make a Charisma check when interacting with dragons, your proficiency bonus is doubled if it applies to the check."
+      ],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.acid",
+            "op": "resist",
+            "label": "Elemental Affinity",
+            "when": {
+              "toggle": "elemental-affinity-resistance"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:dragon-ancestor-blue---lightning-damage",
+      "name": "Dragon Ancestor: Blue - Lightning Damage",
+      "summary": "At 1st level, you choose one type of dragon as your ancestor.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "At 1st level, you choose one type of dragon as your ancestor. The damage type associated with each dragon is used by features you gain later.",
+        "You can speak, read, and write Draconic. Additionally, whenever you make a Charisma check when interacting with dragons, your proficiency bonus is doubled if it applies to the check."
+      ],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.lightning",
+            "op": "resist",
+            "label": "Elemental Affinity",
+            "when": {
+              "toggle": "elemental-affinity-resistance"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:dragon-ancestor-brass---fire-damage",
+      "name": "Dragon Ancestor: Brass - Fire Damage",
+      "summary": "At 1st level, you choose one type of dragon as your ancestor.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "At 1st level, you choose one type of dragon as your ancestor. The damage type associated with each dragon is used by features you gain later.",
+        "You can speak, read, and write Draconic. Additionally, whenever you make a Charisma check when interacting with dragons, your proficiency bonus is doubled if it applies to the check."
+      ],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.fire",
+            "op": "resist",
+            "label": "Elemental Affinity",
+            "when": {
+              "toggle": "elemental-affinity-resistance"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:dragon-ancestor-bronze---lightning-damage",
+      "name": "Dragon Ancestor: Bronze - Lightning Damage",
+      "summary": "At 1st level, you choose one type of dragon as your ancestor.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "At 1st level, you choose one type of dragon as your ancestor. The damage type associated with each dragon is used by features you gain later.",
+        "You can speak, read, and write Draconic. Additionally, whenever you make a Charisma check when interacting with dragons, your proficiency bonus is doubled if it applies to the check."
+      ],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.lightning",
+            "op": "resist",
+            "label": "Elemental Affinity",
+            "when": {
+              "toggle": "elemental-affinity-resistance"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:dragon-ancestor-copper---acid-damage",
+      "name": "Dragon Ancestor: Copper - Acid Damage",
+      "summary": "At 1st level, you choose one type of dragon as your ancestor.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "At 1st level, you choose one type of dragon as your ancestor. The damage type associated with each dragon is used by features you gain later.",
+        "You can speak, read, and write Draconic. Additionally, whenever you make a Charisma check when interacting with dragons, your proficiency bonus is doubled if it applies to the check."
+      ],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.acid",
+            "op": "resist",
+            "label": "Elemental Affinity",
+            "when": {
+              "toggle": "elemental-affinity-resistance"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:dragon-ancestor-gold---fire-damage",
+      "name": "Dragon Ancestor: Gold - Fire Damage",
+      "summary": "At 1st level, you choose one type of dragon as your ancestor.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "At 1st level, you choose one type of dragon as your ancestor. The damage type associated with each dragon is used by features you gain later.",
+        "You can speak, read, and write Draconic. Additionally, whenever you make a Charisma check when interacting with dragons, your proficiency bonus is doubled if it applies to the check."
+      ],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.fire",
+            "op": "resist",
+            "label": "Elemental Affinity",
+            "when": {
+              "toggle": "elemental-affinity-resistance"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:dragon-ancestor-green---poison-damage",
+      "name": "Dragon Ancestor: Green - Poison Damage",
+      "summary": "At 1st level, you choose one type of dragon as your ancestor.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "At 1st level, you choose one type of dragon as your ancestor. The damage type associated with each dragon is used by features you gain later.",
+        "You can speak, read, and write Draconic. Additionally, whenever you make a Charisma check when interacting with dragons, your proficiency bonus is doubled if it applies to the check."
+      ],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.poison",
+            "op": "resist",
+            "label": "Elemental Affinity",
+            "when": {
+              "toggle": "elemental-affinity-resistance"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:dragon-ancestor-red---fire-damage",
+      "name": "Dragon Ancestor: Red - Fire Damage",
+      "summary": "At 1st level, you choose one type of dragon as your ancestor.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "At 1st level, you choose one type of dragon as your ancestor. The damage type associated with each dragon is used by features you gain later.",
+        "You can speak, read, and write Draconic. Additionally, whenever you make a Charisma check when interacting with dragons, your proficiency bonus is doubled if it applies to the check."
+      ],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.fire",
+            "op": "resist",
+            "label": "Elemental Affinity",
+            "when": {
+              "toggle": "elemental-affinity-resistance"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:dragon-ancestor-silver---cold-damage",
+      "name": "Dragon Ancestor: Silver - Cold Damage",
+      "summary": "At 1st level, you choose one type of dragon as your ancestor.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "At 1st level, you choose one type of dragon as your ancestor. The damage type associated with each dragon is used by features you gain later.",
+        "You can speak, read, and write Draconic. Additionally, whenever you make a Charisma check when interacting with dragons, your proficiency bonus is doubled if it applies to the check."
+      ],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.cold",
+            "op": "resist",
+            "label": "Elemental Affinity",
+            "when": {
+              "toggle": "elemental-affinity-resistance"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:dragon-ancestor-white---cold-damage",
+      "name": "Dragon Ancestor: White - Cold Damage",
+      "summary": "At 1st level, you choose one type of dragon as your ancestor.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "At 1st level, you choose one type of dragon as your ancestor. The damage type associated with each dragon is used by features you gain later.",
+        "You can speak, read, and write Draconic. Additionally, whenever you make a Charisma check when interacting with dragons, your proficiency bonus is doubled if it applies to the check."
+      ],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.cold",
+            "op": "resist",
+            "label": "Elemental Affinity",
+            "when": {
+              "toggle": "elemental-affinity-resistance"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:elemental-affinity",
+      "name": "Elemental Affinity",
+      "summary": "Starting at 6th level, when you cast a spell that deals damage of the type associated with your draconic ancestry, you can add your Charisma modifier to one damage roll of that spell.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "Starting at 6th level, when you cast a spell that deals damage of the type associated with your draconic ancestry, you can add your Charisma modifier to one damage roll of that spell. At the same time, you can spend 1 sorcery point to gain resistance to that damage type for 1 hour."
+      ],
+      "grant": {
+        "actions": [
+          {
+            "id": "elemental-affinity-resistance",
+            "name": "Elemental Affinity: resistance",
+            "economy": "free",
+            "cost": {
+              "resource": "sorcery-points",
+              "amount": 1
+            },
+            "toggles": [
+              "elemental-affinity-resistance"
+            ],
+            "duration": {
+              "minutes": 60
+            },
+            "note": "When you cast a spell of your dragon ancestor's damage type: 1 sorcery point for resistance to that type for 1 hour."
+          }
+        ]
+      }
     }
   ]
 }

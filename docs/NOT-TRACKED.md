@@ -117,3 +117,9 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 ## Dropping to 0 HP
 - Relentless Endurance and Death Ward work on damage you enter for yourself. Death Ward's other part (it ends one instant-death effect that isn't damage, like a Power Word Kill) is up to you: remove the Death Ward tag when it's used that way.
 - Damage taken at 0 HP adds death save failures as before; neither feature applies then.
+
+## Hound of Ill Omen and sorcery points
+- The hound's target isn't tracked: its disadvantage on saves against your spells while the hound is within 5 ft is shown in its note, and you end the hound from its sheet when the target drops to 0.
+- A hound set up by hand before this change (a form picked on its sheet) now shows only while the feature's timer runs.
+- Elemental Affinity's Charisma bonus to one damage roll of your ancestry's type is offered as text; seeing through your own Darkness (Eyes of the Dark) is text.
+- A second identical tap within about a second is ignored with a message; a real second use a moment later goes through (and only warns when you're out).
