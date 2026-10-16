@@ -24,7 +24,7 @@ import { FEATURE_TAGS, TOGGLE_LABELS, TOGGLE_REMINDERS } from "./tags.js";
 import { customActionDc, customFeatureId, withCustom } from "./custom.js";
 import { maneuverGrant } from "./maneuvers.js";
 import type { ContentRegistry } from "./registry.js";
-import { collectSources, type Source } from "./sources.js";
+import { activeFeatures, collectSources, type Source } from "./sources.js";
 import { companionOwnerResist, customCompanionId, deriveCompanion, deriveCustomCompanion, type CompanionResult } from "./companions.js";
 import { spellSlots } from "./spellSlots.js";
 import { materialNeed } from "./materials.js";
@@ -240,6 +240,8 @@ export interface FeatureEntry {
   /** One of the actions anyone can take: shown in the Actions tab's own section, not with the features. */
   common?: boolean;
   dc?: FeatureDc;
+  /** Where it comes from and when: "Fighter 3", "Battle Master (Fighter 3)", "Race", "Background", "Feat", or the feature it was picked in. */
+  origin?: string;
 }
 
 /** An active effect or condition, for the status strip. */
@@ -288,6 +290,8 @@ export interface ResourceResult {
   source: string;
   /** Rolls made in advance (Portent): the dice size and the values kept so far. */
   pool?: { sides: number; values: number[] };
+  /** What one use rolls and does, from the feature that spends it (Second Wind: "heals 1d10 + 3"). */
+  effect?: string;
 }
 
 export interface DerivedSheet {
@@ -1519,6 +1523,15 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     featureTags.push({ id: s.id, name: t.name, active: !why, ...(why ? { why } : {}), reminders: t.reminders.map(fillTag) });
   }
 
+  // A resource spent by a feature that rolls a die (Second Wind's d10): that die, and what it does.
+  for (const r of resources) {
+    const a = actions.find((x) => x.cost?.resource === r.id && (x.heal?.dice.length || x.tempHp?.dice.length || x.roll?.dice.length));
+    if (!a) continue;
+    const amt = a.heal ?? a.tempHp ?? a.roll!;
+    if (!r.die) r.die = amt.dice[0]!.replace(/^1d/, "d");
+    r.effect = a.heal ? `heals ${amt.text}` : a.tempHp ? `${amt.text} temporary HP` : `${amt.text} ${a.roll!.label}`;
+  }
+
   const sheet: DerivedSheet = {
     toggles,
     featureTags,
@@ -1576,10 +1589,14 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     senses,
     senseSources,
     features: [
-      ...featureEntries(sources, reg).map((f) => {
-        const dc = dcOf(FEATURE_DCS[f.id] ?? customDc(f.id));
-        return dc ? { ...f, dc } : f;
-      }),
+      ...(() => {
+        const origins = featureOrigins(c, reg, sources);
+        return featureEntries(sources, reg).map((f) => {
+          const dc = dcOf(FEATURE_DCS[f.id] ?? customDc(f.id));
+          const origin = origins.get(f.id);
+          return { ...f, ...(dc ? { dc } : {}), ...(origin ? { origin } : {}) };
+        });
+      })(),
       // A custom background's feature written by the player.
       ...(c.background === "background:custom" && c.customBackground?.featureName
         ? [{ id: "background:custom-feature", name: c.customBackground.featureName, kind: "background" as const, source: "Your own background", ...(c.customBackground.featureText ? { summary: c.customBackground.featureText } : {}) }]
@@ -1684,6 +1701,51 @@ function featureEntries(sources: Source[], reg: ContentRegistry): FeatureEntry[]
     if (def.text?.length) e.text = def.text;
     if (s.common) e.common = true;
     out.push(e);
+  }
+  return out;
+}
+
+/**
+ * Where each feature comes from: the class and the class level it's gained at
+ * (not the character's total level), the subclass, race, background, a feat,
+ * or the feature it was picked in (Archery: "Fighter 1 · Fighting Style").
+ */
+export function featureOrigins(c: Character, reg: ContentRegistry, sources: Source[]): Map<string, string> {
+  const out = new Map<string, string>();
+  const race = reg.find(c.race, "race");
+  if (race) {
+    out.set(race.id, "Race");
+    for (const f of race.features) out.set(f, `Race (${race.name})`);
+  }
+  const bg = c.background ? reg.find(c.background, "background") : undefined;
+  if (bg) {
+    out.set(bg.id, "Background");
+    for (const f of bg.features) out.set(f, `Background (${bg.name})`);
+  }
+  for (const cl of c.classes) {
+    const def = reg.find(cl.class, "class");
+    if (!def) continue;
+    for (const f of activeFeatures(def.features, cl.level, c.optionalOff)) if (!out.has(f.feature)) out.set(f.feature, `${def.name} ${f.level}`);
+    const sub = cl.subclass ? reg.find(cl.subclass, "subclass") : undefined;
+    if (sub) for (const f of activeFeatures(sub.features, cl.level, c.optionalOff)) if (!out.has(f.feature)) out.set(f.feature, `${sub.name} (${def.name} ${f.level})`);
+  }
+  for (const ft of c.feats) {
+    const def = reg.find(ft.feat, "feat");
+    if (!def) continue;
+    out.set(def.id, "Feat");
+    for (const f of def.features) if (!out.has(f)) out.set(f, `Feat (${def.name})`);
+  }
+  for (const x of c.extras) if (x.kind === "feat" && !out.has(x.value)) out.set(x.value, `Beyond the rules (${x.tag})`);
+  // Picked in another feature (a fighting style, a maneuver, an invocation): that feature's origin and name.
+  for (let pass = 0; pass < 3; pass++) {
+    for (const s of sources) {
+      const parent = out.get(s.id);
+      if (!parent) continue;
+      const name = (reg.find(s.id, "feature") ?? reg.find(s.id, "feat"))?.name ?? s.label;
+      for (const picked of Object.values(s.choices).flat()) {
+        if (typeof picked === "string" && !out.has(picked) && /^(feature|feat):/.test(picked)) out.set(picked, `${parent} · ${name}`);
+      }
+    }
   }
   return out;
 }

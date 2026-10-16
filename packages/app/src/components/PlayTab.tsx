@@ -105,7 +105,9 @@ export interface PlayPrompts {
   rollPool: (r: ResourceResult) => void;
 }
 
-function Pips({ total, used, onSpend, onRestore, kind, name }: {
+function Pips({ total, used, onSpend, onRestore, kind, name, die }: {
+  /** Each use is a die (Superiority d8, Second Wind d10): shown on the pips. */
+  die?: string;
   total: number;
   used: number;
   onSpend: () => void;
@@ -123,6 +125,7 @@ function Pips({ total, used, onSpend, onRestore, kind, name }: {
         <span>
           {total - used}
           <small>/{total}</small>
+          {die && <small> {die}</small>}
         </span>
         <button aria-label={`Get back one ${name}`} disabled={used === 0} onClick={onRestore}>
           +
@@ -136,11 +139,13 @@ function Pips({ total, used, onSpend, onRestore, kind, name }: {
         return (
           <button
             key={i}
-            className={`pip${kind === "slot" ? " slot" : ""}`}
+            className={`pip${kind === "slot" ? " slot" : ""}${die ? " die" : ""}`}
             data-spent={spent}
-            aria-label={spent ? `Get back one ${name}` : `Spend one ${name}`}
+            aria-label={spent ? `Get back one ${name}` : `Spend one ${name}${die ? ` (${die})` : ""}`}
             onClick={spent ? onRestore : onSpend}
-          />
+          >
+            {die}
+          </button>
         );
       })}
     </div>
@@ -329,7 +334,8 @@ export function PlayTab({
                   <div className="row-title">{r.name}</div>
                   <div className="row-sub">
                     {r.remaining} of {r.max}
-                    {r.die ? `, ${r.die}` : ""}, {resetLabel(r.reset)}
+                    {r.die ? ` ${r.die}` : ""}
+                    {r.effect ? ` · ${r.effect}` : ""} · {resetLabel(r.reset)}
                   </div>
                   {r.pool && r.remaining > 0 && (
                     <div className="pool">
@@ -349,6 +355,7 @@ export function PlayTab({
                 </div>
                 <Pips
                   name={r.name}
+                  {...(r.die && !r.pool ? { die: r.die } : {})}
                   total={r.max}
                   used={r.used}
                   onSpend={() => prompts.spendResource(r)}

@@ -189,7 +189,11 @@ export function SheetTab({
             <button className="row" key={f.id} onClick={() => openTrait(f.id)}>
               <div className="row-main">
                 <div className="row-title">{f.name}</div>
-                <div className="row-sub">{f.summary ?? KIND_LABEL[f.kind]}</div>
+                <div className="row-sub">
+                  {f.origin && <span className="origin">{f.origin}</span>}
+                  {f.origin ? " · " : ""}
+                  {f.summary ?? KIND_LABEL[f.kind]}
+                </div>
               </div>
               {f.dc && <span className="tag dc-tag">DC {f.dc.value} {shortSave(f.dc.save)}</span>}
               {featTag(f.id) && <span className="tag extra-tag">{featTag(f.id)}</span>}

@@ -3255,3 +3255,9 @@ button.mpip {
 .hp.tier-bloodied .hp-bar > span, .mini-bar > span.tier-bloodied { background: var(--tier-bloodied); }
 .hp.tier-danger .hp-bar > span, .mini-bar > span.tier-danger { background: var(--tier-danger); }
 .hp.tier-critical .hp-bar > span, .mini-bar > span.tier-critical { background: var(--tier-critical); }
+
+/* A die on a resource's pips (Second Wind d10, Superiority d8). */
+.pip.die { font-size: 10px; font-weight: 700; line-height: 1; padding: 0; color: var(--bg); display: inline-flex; align-items: center; justify-content: center; }
+.pip.die[data-spent="true"] { color: var(--muted); }
+/* Where a feature comes from (Fighter 3, Race), before its summary on the Sheet. */
+.row-sub .origin { color: var(--text); font-weight: 600; }

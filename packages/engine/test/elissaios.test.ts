@@ -125,7 +125,7 @@ describe("Ελισσαίος (Rogue 8 / Warlock 1)", () => {
     expect(sheet.resources.map((r) => [r.name, r.remaining, r.max, r.die])).toEqual([
       ["Psionic Energy dice", 6, 8, "d8"],
       ["Regain a Psionic Energy die", 1, 1, undefined],
-      ["Form of Dread", 3, 4, undefined],
+      ["Form of Dread", 3, 4, "d10"], // each use rolls 1d10 + warlock level temporary HP
       ["Haunted: Invisibility", 1, 1, undefined],
       ["Haunted: Cause Fear", 1, 1, undefined],
     ]);
