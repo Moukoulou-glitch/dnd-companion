@@ -43,6 +43,7 @@ import { BuildPanel, LevelUpPanel, NewCharacterPanel, type NewCharacterInput } f
 import { flashEnabled, flashForFeature, flashForSpell, flashTorch, setFlashEnabled } from "./flash";
 import { PlayTab, type PlayPrompts } from "./components/PlayTab";
 import { liveAttack } from "./oneTime";
+import { offersRelentless } from "@dnd/store";
 import { CLASS_DICE_COLOURS, classDiceColour, mainClass, setDiceClasses, usePickedDiceColour } from "./diceColours";
 import { Choose, Confirm, PoolRollPanel, SlotSpendPanel, SpendDiePanel } from "./components/Prompts";
 import { BottomSheet, BreakdownLines } from "./components/Sheet";
@@ -273,14 +274,43 @@ export function App() {
       />
     ));
 
+  /**
+   * Damage that would drop you to 0 without killing you outright, with
+   * Relentless Endurance left: ask first, then record the damage once with the
+   * answer in it (so a replay never asks again, and two taps can't record it twice).
+   */
+  const withRelentless = (payload: { amount: number; damageType?: string; magical?: true; fromSpell?: true }, go: (relentless: boolean) => void) => {
+    const ch = live.current.character;
+    if (!ch || !offersRelentless(ch, payload, registry)) return go(false);
+    let answered = false;
+    const answer = (yes: boolean) => {
+      if (answered) return;
+      answered = true;
+      go(yes);
+    };
+    open("Relentless Endurance?", () => (
+      <Confirm
+        question={`${payload.amount} damage drops you to 0 hit points. Use Relentless Endurance to drop to 1 instead?`}
+        detail="Once per long rest. Not used: you fall unconscious and make death saves."
+        no="No, drop to 0"
+        yes="Yes, drop to 1"
+        onNo={() => answer(false)}
+        onYes={() => answer(true)}
+      />
+    ));
+  };
+
   /** Damage to the character, then what it leads to: a concentration save, or instant death. */
   const takeDamage = (amount: number, type?: string, magical?: boolean, fromSpell?: boolean) => {
-    const prompts = live.current.act("damage", { amount, damageType: type, ...(magical ? { magical: true } : {}), ...(fromSpell ? { fromSpell: true } : {}) }, `Took ${amount}${type ? ` ${type}` : ""} damage${fromSpell ? " from a spell" : ""}.`) as { kind: string; dc: number; reason?: string }[];
-    const dead = prompts.find((p) => p.kind === "dead");
-    if (dead) return openDead(dead.reason ?? "");
-    const check = prompts.find((p) => p.kind === "concentration");
-    if (check) openConcentrationCheck(check.dc);
-    else close();
+    const payload = { amount, ...(type ? { damageType: type } : {}), ...(magical ? { magical: true as const } : {}), ...(fromSpell ? { fromSpell: true as const } : {}) };
+    withRelentless(payload, (relentless) => {
+      const prompts = live.current.act("damage", { ...payload, ...(relentless ? { relentless: true } : {}) }, `Took ${amount}${type ? ` ${type}` : ""} damage${fromSpell ? " from a spell" : ""}.`) as { kind: string; dc: number; reason?: string }[];
+      const dead = prompts.find((p) => p.kind === "dead");
+      if (dead) return openDead(dead.reason ?? "");
+      const check = prompts.find((p) => p.kind === "concentration");
+      if (check) openConcentrationCheck(check.dc);
+      else close();
+    });
   };
   const openDead = (reason: string) =>
     open("Instant death", () => (
@@ -901,9 +931,12 @@ export function App() {
         onApply={(left, reduced) => {
           use();
           if (left > 0) {
-            const prompts = live.current.act("damage", { amount: left }, `${a.name} stopped ${reduced}: ${left} damage taken.`);
-            const check = prompts.find((p) => p.kind === "concentration" && !p.summon);
-            if (check) return openConcentrationCheck(check.dc);
+            return withRelentless({ amount: left }, (relentless) => {
+              const prompts = live.current.act("damage", { amount: left, ...(relentless ? { relentless: true } : {}) }, `${a.name} stopped ${reduced}: ${left} damage taken.`);
+              const check = prompts.find((p) => p.kind === "concentration" && !p.summon);
+              if (check) return openConcentrationCheck(check.dc);
+              close();
+            });
           }
           close();
         }}

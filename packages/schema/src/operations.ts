@@ -23,7 +23,10 @@ export const OPERATION_PAYLOADS = {
   /** `companion` sends it to a companion instead of the character. */
   /** `magical`: from a magic weapon or spell (Heavy Armor Master and the like only stop nonmagical damage). */
   /** fromSpell: the damage comes from a spell (resistance to damage from spells: Aura of Warding). */
-  damage: z.object({ amount: z.number().int().min(0), damageType: z.string().optional(), companion: z.string().optional(), magical: z.boolean().optional(), fromSpell: z.boolean().optional() }).strict(),
+  /** `relentless`: the player chose Relentless Endurance if this damage drops them to 0 (asked before it's recorded). */
+  damage: z
+    .object({ amount: z.number().int().min(0), damageType: z.string().optional(), companion: z.string().optional(), magical: z.boolean().optional(), fromSpell: z.boolean().optional(), relentless: z.boolean().optional() })
+    .strict(),
   /** Healing, capped at maximum HP. Healing from 0 HP clears death saves. */
   heal: z.object({ amount: z.number().int().min(0), companion: z.string().optional() }).strict(),
   /** Gain temporary HP: they don't stack, so the higher value is kept. 0 clears them. */

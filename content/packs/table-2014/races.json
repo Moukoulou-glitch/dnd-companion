@@ -3177,6 +3177,29 @@
           }
         ]
       }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:trait-relentless-endurance",
+      "name": "Relentless Endurance",
+      "summary": "When you are reduced to 0 hit points but not killed outright, you can drop to 1 hit point instead. Once per long rest. The app asks when damage would drop you to 0.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "When you are reduced to 0 hit points but not killed outright, you can drop to 1 hit point instead. You can't use this feature again until you finish a long rest."
+      ],
+      "grant": {
+        "resources": [
+          {
+            "id": "relentless-endurance",
+            "name": "Relentless Endurance",
+            "max": 1,
+            "reset": "long"
+          }
+        ]
+      }
     }
   ]
 }

@@ -113,3 +113,7 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 - Colours are for the 3D dice only; "My dice" and "App rolls" look as before.
 - Dice of a damage type without a colour of its own (none today) and dice of a size the 3D set doesn't have (d2, d3, d100: rolled by the app) aren't coloured.
 - A reroll (Great Weapon Fighting) takes the colour of the first thrown die of that size, so with two groups of the same size it may show the other group's colour; the numbers are right either way.
+
+## Dropping to 0 HP
+- Relentless Endurance and Death Ward work on damage you enter for yourself. Death Ward's other part (it ends one instant-death effect that isn't damage, like a Power Word Kill) is up to you: remove the Death Ward tag when it's used that way.
+- Damage taken at 0 HP adds death save failures as before; neither feature applies then.

@@ -309,6 +309,26 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
 
       const before = c.hp.current;
       c.hp.current = Math.max(0, before - rest);
+      if (c.hp.current === 0 && before > 0) {
+        // Death Ward: automatic, the first time you'd drop to 0; you drop to 1 instead and the spell ends.
+        const ward = c.effects.find((e) => e.effect !== "custom" && reg.effectId(e.effect) === "effect:death-ward");
+        if (ward) {
+          c.hp.current = 1;
+          removeEffects([ward]);
+          notes.push("Death Ward: you drop to 1 hit point instead, and the spell ends.");
+        } else if (op.payload.relentless) {
+          // Relentless Endurance (asked before the damage was recorded): not if killed outright, once per long rest.
+          const r = sheet.resources.find((x) => x.id === "relentless-endurance");
+          if (rest - before >= maxHp) notes.push("Relentless Endurance can't help: that damage kills you outright.");
+          else if (!r) notes.push("Relentless Endurance isn't one of your features.");
+          else if (r.remaining <= 0) notes.push("Relentless Endurance is already used until your next long rest: you drop to 0.");
+          else {
+            c.hp.current = 1;
+            c.resourcesUsed[r.id] = (c.resourcesUsed[r.id] ?? 0) + 1;
+            notes.push("Relentless Endurance: you drop to 1 hit point instead (once per long rest).");
+          }
+        }
+      }
       if (concentrating) {
         if (c.hp.current === 0) endConcentration(c, notes, "Dropped to 0 HP.");
         // 2014: DC 10 or half the damage taken, whichever is higher. Temp HP still count as damage taken.
