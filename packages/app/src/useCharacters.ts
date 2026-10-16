@@ -6,6 +6,9 @@ import { addBooks, referencesOf, registry, starterCharacters, stubMissing } from
 import { db, deviceId, requestPersistentStorage, type StoredCharacter } from "./db";
 import { MAX_ROLLS, type RollRecord } from "./rolls";
 import { CommitGuard } from "./commitGuard";
+import { lastBackup, markBackup } from "./backup";
+
+export { lastBackup };
 
 export interface Toast {
   id: number;
@@ -171,9 +174,28 @@ export function useCharacters() {
   const exportAll = useCallback(() => {
     const characters = [...logs.current.entries()].map(([id, l]) => ({ format: "table-companion/character@1", character: l.character, operations: l.operations, rolls: rolls.current.get(id) ?? [] }));
     if (!characters.length) return;
-    download(`D&D Companion backup ${new Date().toISOString().slice(0, 10)}.json`, { format: "table-companion/backup@1", exportedAt: new Date().toISOString(), characters });
+    download(`D&D Companion backup ${new Date().toLocaleDateString("sv-SE")}.json`, { format: "table-companion/backup@1", exportedAt: new Date().toISOString(), characters });
     markBackup();
+    setVersion((v) => v + 1); // the reminder goes away
   }, []);
+
+  /**
+   * The oldest change not in a full backup yet: the earliest change recorded after
+   * the last backup (with none ever, any change). Undefined: nothing to back up.
+   */
+  const oldestUnsaved = useMemo((): number | undefined => {
+    if (!ready) return undefined;
+    const since = lastBackup() ?? 0;
+    let oldest: number | undefined;
+    for (const l of logs.current.values()) {
+      for (const op of l.operations) {
+        const ms = HybridClock.parse(op.at).ms;
+        if (ms > since && (oldest === undefined || ms < oldest)) oldest = ms;
+      }
+    }
+    return oldest;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ready, version]);
 
   /** Adds a character (a new one from the builder, or an imported file) and selects it. */
   const create = useCallback(
@@ -288,7 +310,7 @@ export function useCharacters() {
     [ready, version],
   );
 
-  return { ready, error, character, sheet, roster, selectedId, select, act, undo, canUndo: !!log?.canUndo, toast, setToast, history: log?.history ?? [], exportSelected, exportAll, addRoll, rolls: (selectedId && rolls.current.get(selectedId)) || [], create, readImport, remove, restore, purge, deleted: deletedList };
+  return { ready, error, character, sheet, roster, selectedId, select, act, undo, canUndo: !!log?.canUndo, toast, setToast, history: log?.history ?? [], exportSelected, exportAll, oldestUnsaved, addRoll, rolls: (selectedId && rolls.current.get(selectedId)) || [], create, readImport, remove, restore, purge, deleted: deletedList };
 }
 
 function download(name: string, data: unknown) {
@@ -300,22 +322,6 @@ function download(name: string, data: unknown) {
   URL.revokeObjectURL(a.href);
 }
 
-/** When this device last made a full backup (a reminder only: it lives in this browser). */
-export function lastBackup(): number | undefined {
-  try {
-    const v = Number(localStorage.getItem("dnd-last-backup"));
-    return v > 0 ? v : undefined;
-  } catch {
-    return undefined;
-  }
-}
-function markBackup() {
-  try {
-    localStorage.setItem("dnd-last-backup", String(Date.now()));
-  } catch {
-    /* private window: no reminder, nothing lost */
-  }
-}
 
 /** The character files inside a backup (or the one character file), for importing. */
 export function filesIn(text: string): string[] {

@@ -33,6 +33,23 @@ function addDice(dice: string, extraCount: number): string {
   return `${Number(m[1]) + extraCount}d${m[2]}${m[3]}`;
 }
 
+const AREA = /\b\d+-foot[- ](?:radius|cone|cube|line|sphere|square|emanation|cylinder|wide)|\beach (?:creature|target|ally|enemy|object)\b|\bcreatures of your choice\b|\bany number of\b|\bup to (?:two|three|four|five|six|seven|eight|nine|ten|twelve|\d+) (?:creatures|willing|targets|humanoids|beasts|allies)\b|\ball creatures\b|\ba point (?:you choose )?(?:within range|that you can see)|\bother targets\b|\b(?:appears?|summon\w*|create\w*)\b[^.]*\bunoccupied space\b/i;
+const ONE_TARGET = /\b(?:spell attack|an? (?:creature|target) of your choice that you can see|a target (?:that )?you can see|a target in range|one (?:creature|humanoid|beast|target|object)|an? (?:creature|humanoid|beast|undead|fiend|celestial|object)(?: or object)? (?:you can see|within range|you touch|that you can see)|the creature you touch|you touch an? (?:creature|willing creature)|choose an? (?:creature|humanoid|beast)|choose one creature)\b/i;
+
+/**
+ * Whether a book spell is aimed at a single creature (War Caster's opportunity spell).
+ * Read from its words, conservatively: a spell with an area, or one that names
+ * several targets, isn't; one that makes a spell attack or names one creature is.
+ */
+export function singleTargetFromText(range: string, text: string[]): boolean {
+  if (/^self\b/i.test(range.trim()) || /^sight|^unlimited|^special/i.test(range.trim())) return false;
+  const all = text.join(" ");
+  if (AREA.test(all)) return false;
+  // Something you'd aim at an enemy: an attack, a save it must make, or damage it takes.
+  if (!/spell attack|must (?:make|succeed on) an? \w+ saving throw|makes? an? \w+ saving throw|\b(?:takes?|deals?) (?:an extra )?\d+d\d+/i.test(all)) return false;
+  return ONE_TARGET.test(all);
+}
+
 /** Reads damage, saves, attacks and healing out of a spell's text. Anything unclear is left out. */
 export function spellMechanics(level: number, text: string[], higher: string[]): Partial<SpellDef> {
   const all = text.join(" ");
@@ -188,6 +205,7 @@ export function parseSpells(text: string, pack: string, excluded: string[] = [],
       ...spellMechanics(level, textOut, higher),
     };
     if (material) def.material = material;
+    if (singleTargetFromText(def.range, textOut)) def.singleTarget = true;
     if (forClass && !def.classes.includes(forClass)) def.classes = [...def.classes, forClass];
     if (optionalClasses.length) def.optionalClasses = optionalClasses;
     out.push(def);

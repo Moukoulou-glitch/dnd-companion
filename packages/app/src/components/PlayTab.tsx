@@ -166,6 +166,7 @@ export function PlayTab({
   openCompanionBuilder,
   onTimedDone,
   onTimedInterrupt,
+  backup,
   openRangersCompanion,
   prompts,
   onInitiative,
@@ -202,6 +203,8 @@ export function PlayTab({
   /** A ritual or a long casting under way: it's done, or it was broken off. */
   onTimedDone: () => void;
   onTimedInterrupt: () => void;
+  /** A full backup is due (see backup.ts): how long since the last one, and what to do. Never shown in combat. */
+  backup?: { days?: number; onBackup: () => void; onLater: () => void };
   /** Beast Master (Ranger's Companion): pick the beast it bonds with. */
   openRangersCompanion: () => void;
   prompts: PlayPrompts;
@@ -219,6 +222,30 @@ export function PlayTab({
   return (
     <main>
       <Identity c={character} onBackground={openBackground} onIdentity={openIdentity} />
+
+      {backup && !character.combat && (
+        <section className="timed-card backup-card">
+          <div className="row">
+            <div className="row-main">
+              <div className="row-title">Back up your characters</div>
+              <div className="row-sub">
+                They're saved only in this browser, which can lose them (cleared data, a new phone).{" "}
+                {backup.days === undefined ? "No full backup from this device yet." : `Last full backup: ${backup.days} days ago.`}
+              </div>
+            </div>
+          </div>
+          <div className="big-actions">
+            <button className="big primary" onClick={backup.onBackup}>
+              Back up now
+              <span className="sub">one file with every character</span>
+            </button>
+            <button className="big" onClick={backup.onLater}>
+              Later
+              <span className="sub">ask again in a week</span>
+            </button>
+          </div>
+        </section>
+      )}
 
       {character.timed && (
         <section className="timed-card">

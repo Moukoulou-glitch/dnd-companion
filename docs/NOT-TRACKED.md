@@ -134,3 +134,11 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 - One action under way at a time; starting another replaces it (the app says so).
 - In combat it warns how many rounds the casting is, but doesn't stop the encounter or advance it round by round.
 - War Caster and readied spells are unaffected (they're cast as a reaction, never timed).
+
+## War Caster and book spells
+
+- Whether a spell from your book text is aimed at one creature is read from its wording, conservatively: a few single-target spells are missed (ones that only name "a target", or have no attack, save or damage, like Power Word Kill) and a rare one is offered that arguably shouldn't be. The War Caster list is a suggestion; nothing stops you casting another spell.
+
+## Backup reminder
+
+- The reminder and the "last backup" date live in this browser's storage: a different browser or a cleared one starts over. It counts recorded changes only; importing a character or changing book text alone doesn't make a backup due.

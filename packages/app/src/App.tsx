@@ -50,7 +50,8 @@ import { Choose, Confirm, PoolRollPanel, SlotSpendPanel, SpendDiePanel } from ".
 import { BottomSheet, BreakdownLines } from "./components/Sheet";
 import { SheetTab } from "./components/SheetTab";
 import { SpellPanel, SpellsTab, spellAsAttack, type ClassList } from "./components/SpellsTab";
-import { filesIn, lastBackup, useCharacters } from "./useCharacters";
+import { filesIn, useCharacters } from "./useCharacters";
+import { backupDue, daysSince, lastBackup, snoozeBackup, snoozedUntil } from "./backup";
 import { formatMinutes } from "./time";
 import { vibrateFor, type HpState } from "./vibrate";
 
@@ -104,11 +105,17 @@ function rollDie(sides: number): number {
 /** How long since the last full backup; louder after a month (the browser can lose its storage). */
 function BackupNote() {
   const at = lastBackup();
-  const days = at ? Math.floor((Date.now() - at) / 86_400_000) : undefined;
+  const days = at ? daysSince(at) : undefined;
   const stale = days === undefined || days >= 30;
+  // Whether the browser agreed to keep this site's storage (asked at start; browsers decide on their own).
+  const [kept, setKept] = useState<boolean | undefined>();
+  useEffect(() => {
+    void navigator.storage?.persisted?.().then(setKept, () => undefined);
+  }, []);
   return (
     <p className={`note${stale ? " danger-text" : ""}`}>
       Everything is saved on this device as you play, but a browser can lose it (cleared data, a new phone). {days === undefined ? "No full backup from this device yet." : days === 0 ? "Last full backup: today." : `Last full backup: ${days} day${days === 1 ? "" : "s"} ago.`} Import the backup file here to bring everyone back.
+      {kept === true ? " This browser has agreed to keep the app's data (it won't clear it to free space)." : kept === false ? " This browser hasn't promised to keep the app's data, so a backup matters more." : ""}
     </p>
   );
 }
@@ -128,6 +135,19 @@ export function App() {
   // 3D dice follow the class this character has the most levels in.
   setDiceClasses(s.character?.classes ?? []);
   const [tab, setTab] = useState<Tab>("play");
+  // The backup reminder on Play: only when there are changes no backup has, and the last one is old.
+  const [, setSnoozed] = useState(0);
+  const lastFull = lastBackup();
+  const backupCard = backupDue({ now: Date.now(), lastBackup: lastFull, snoozedUntil: snoozedUntil(), oldestUnsaved: s.oldestUnsaved })
+    ? {
+        days: lastFull ? daysSince(lastFull) : undefined,
+        onBackup: () => s.exportAll(),
+        onLater: () => {
+          snoozeBackup();
+          setSnoozed((n) => n + 1);
+        },
+      }
+    : undefined;
   // A panel's body is rendered on every app render, so it always shows the current character.
   // Panels stack: a condition opened from inside another panel goes back to it when closed.
   const [panels, setPanels] = useState<{ title: string; body: ReactNode | (() => ReactNode) }[]>([]);
@@ -2485,6 +2505,7 @@ export function App() {
           openCompanionBuilder={() => openCompanionBuilder()}
           onTimedDone={finishTimed}
           onTimedInterrupt={interruptTimed}
+          backup={backupCard}
           openRangersCompanion={() => openCompanionBuilder(undefined, true)}
           openShape={openShape}
           openTransform={openTransform}

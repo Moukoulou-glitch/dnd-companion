@@ -36,9 +36,22 @@ export class ContentRegistry {
     for (const p of packs) this.add(p);
   }
 
+  /**
+   * A registry from packs that were already validated (ContentPack.parse output,
+   * as the app's build ships its own packs), so start-up doesn't check them again.
+   */
+  static fromValidated(packs: ContentPack[]): ContentRegistry {
+    const out = new ContentRegistry();
+    for (const p of packs) out.addParsed(p);
+    return out;
+  }
+
   /** Validates a pack and adds its definitions. Throws with the failing path on bad data. */
   add(pack: unknown): void {
-    const parsed = ContentPackSchema.parse(pack);
+    this.addParsed(ContentPackSchema.parse(pack));
+  }
+
+  private addParsed(parsed: ContentPack): void {
     this.packs.push(parsed);
     for (const d of parsed.definitions) {
       const old = this.defs.get(d.id);
