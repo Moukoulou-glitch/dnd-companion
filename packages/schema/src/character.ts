@@ -327,6 +327,8 @@ export const CustomCompanion = z
      * hit points from ranger levels) to this stat block.
      */
     bond: z.enum(["rangers-companion"]).optional(),
+    /** When it takes its turn: its own initiative (the default) or on your turn. A bonded Ranger's Companion acts on your turn. */
+    turn: z.enum(["own", "yours"]).optional(),
   })
   .strict();
 export type CustomCompanion = z.infer<typeof CustomCompanion>;
@@ -385,9 +387,26 @@ export const CombatState = z
   .strict();
 export type CombatState = z.infer<typeof CombatState>;
 
+/** What a creature beside you (a companion) has used of its turn; reset when its turn starts. */
+export const TurnUsed = z
+  .object({
+    action: z.boolean().default(false),
+    bonus: z.boolean().default(false),
+    reaction: z.boolean().default(false),
+    attacks: z.number().int().min(0).default(0),
+    moved: z.number().int().min(0).default(0),
+    dashes: z.number().int().min(0).default(0),
+  })
+  .strict();
+export type TurnUsed = z.infer<typeof TurnUsed>;
+
 /** A companion's state: which form it has, its name and hit points. HP missing means full. */
 export const CompanionState = z
   .object({
+    /** Its initiative in this combat (one that rolls its own). */
+    initiative: z.number().int().optional(),
+    /** Its turn: what it has used. */
+    used: TurnUsed.optional(),
     form: z.string().optional(),
     name: z.string().optional(),
     hp: z.object({ current: z.number().int().min(0), temp: z.number().int().min(0).default(0) }).strict().optional(),

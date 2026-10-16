@@ -1,4 +1,4 @@
-import { ABILITIES, ABILITY_NAMES, type Ability, type CompanionDef, type CompanionState, type CreatureDef, type CustomCompanion } from "@dnd/schema";
+import { ABILITIES, ABILITY_NAMES, type Ability, type CompanionDef, type CompanionState, type CreatureDef, type CustomCompanion, type TurnUsed } from "@dnd/schema";
 import type { Breakdown, Part, RollBreakdown } from "./breakdown.js";
 import { evalExpr, type ExprContext } from "./expr.js";
 import type { SpellcastingResult, WeaponAttack } from "./derive.js";
@@ -14,6 +14,12 @@ export interface CompanionResult {
   reviveNote?: string;
   /** Tags for what it's doing until your next turn starts (Dodge, Ready: Attack). */
   states: { id: string; name: string }[];
+  /** When it takes its turn: its own initiative, on your turn, or right after yours. */
+  turn: "own" | "yours" | "after";
+  /** Its initiative this combat (one with its own). */
+  initiative?: number;
+  /** What it has used of its turn. */
+  used: TurnUsed;
   /** One the player made (Companion Builder): its own id, notes, and the creature it started from. */
   custom?: {
     id: string;
@@ -39,6 +45,10 @@ export interface CompanionResult {
     hpMax: Breakdown;
     hp: { current: number; temp: number };
     speed: string;
+    /** Feet by kind of movement (walk, fly, swim, climb, burrow), read from `speed`. */
+    speeds: Record<string, number>;
+    /** Attacks its Attack action makes (Multiattack: two or more). */
+    attacksPerAction: number;
     senses?: string;
     languages?: string;
     abilities: Record<Ability, { score: number; modifier: number; check: RollBreakdown; save: RollBreakdown }>;
@@ -48,6 +58,28 @@ export interface CompanionResult {
     /** Save DC for its effects (the owner's spell save DC), if it uses one. */
     saveDc?: number;
   };
+}
+
+/** Nothing used yet this turn. */
+export const NO_TURN_USED: TurnUsed = { action: false, bonus: false, reaction: false, attacks: 0, moved: 0, dashes: 0 };
+
+/** "40 ft., swim 30 ft., fly 60 ft. (hover)" → { walk: 40, swim: 30, fly: 60 }. */
+export function speedsOf(speed: string): Record<string, number> {
+  const out: Record<string, number> = {};
+  for (const part of speed.split(",")) {
+    const m = /(?:(walk|fly|swim|climb|burrow)\s+)?(\d+)\s*ft/i.exec(part.trim());
+    if (m) out[(m[1] ?? "walk").toLowerCase()] = Number(m[2]);
+  }
+  if (out.walk === undefined) out.walk = 0;
+  return out;
+}
+
+/** A Multiattack trait or action ("makes two attacks") gives that many; otherwise one. */
+export function attacksPerAction(entries: { name: string; summary: string }[]): number {
+  const m = entries.find((t) => /multiattack/i.test(t.name));
+  if (!m) return 1;
+  const n = /\b(two|three|four|five|2|3|4|5)\b/i.exec(m.summary)?.[1]?.toLowerCase();
+  return n ? ({ two: 2, three: 3, four: 4, five: 5 } as Record<string, number>)[n] ?? Number(n) : 2;
 }
 
 const roll = (parts: Part[]): RollBreakdown => ({ total: parts.reduce((t, p) => t + p.value, 0), parts, dice: [], advantage: [], disadvantage: [], suggestions: [] });
@@ -66,7 +98,10 @@ export function deriveCompanion(
     source,
     forms: def.forms.map((f) => ({ id: f.id, name: f.name })),
     states: (state?.states ?? []).map((x) => ({ id: x.id, name: x.name })),
+    turn: def.turn ?? "own",
+    used: { ...NO_TURN_USED, ...state?.used },
   };
+  if (state?.initiative !== undefined) r.initiative = state.initiative;
   if (def.combatNote) r.combatNote = def.combatNote;
   if (def.revive) r.reviveNote = def.revive.note;
   if (def.summon) r.summon = def.summon;
@@ -137,6 +172,8 @@ export function deriveCompanion(
     hpMax: { total: hpMax, parts: hpParts },
     hp: { current: Math.min(hp.current, hpMax), temp: hp.temp },
     speed,
+    speeds: speedsOf(speed),
+    attacksPerAction: attacksPerAction([...traits, ...(f.attacks ?? []).map((a) => ({ name: a.name, summary: a.note ?? "" }))]),
     abilities,
     traits,
     attacks,
@@ -203,6 +240,8 @@ export function deriveCustomCompanion(cc: CustomCompanion, state: CompanionState
   const rangerLevels = ctx.classLevels["class:ranger"] ?? 0;
   if (bonded && 4 * rangerLevels > cc.hpMax) def.forms[0]!.hp = { base: 0, perLevel: 4, class: "class:ranger" };
   const r = deriveCompanion(def, bonded ? RANGERS_COMPANION : "your own companion", { states: [], ...state, form: "custom" }, ctx, []);
+  // Its own initiative unless the player said otherwise; the bonded Ranger's Companion acts on your initiative (PHB).
+  r.turn = cc.turn ?? (bonded ? "yours" : "own");
   r.custom = {
     id: cc.id,
     notes: cc.notes,

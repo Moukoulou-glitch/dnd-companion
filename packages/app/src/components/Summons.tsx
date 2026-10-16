@@ -3,8 +3,8 @@ import { hpTier } from "../hp";
 import { creatureBlock, creatureCasting, summonBlock, creatureSpells, formatBonus, signed, summonOptions, type ContentRegistry, type CreatureSpellGroup, type CreatureSpells, type RollBreakdown, type WeaponAttack } from "@dnd/engine";
 import { ABILITIES, ABILITY_NAMES, SKILL_NAMES, type Character, type CreatureDef, type OperationType, type Skill, type SpellDef } from "@dnd/schema";
 import { RichText } from "./Conditions";
-import { SwipeButton } from "./Swipe";
 import { TextList } from "./Shapes";
+import { TurnTracker } from "./TurnTracker";
 
 type Act = (type: OperationType, payload: unknown, label: string) => unknown;
 
@@ -402,8 +402,6 @@ export function SummonMemberPanel({
   const [init, setInit] = useState<string>(m.initiative !== undefined ? String(m.initiative) : "");
   const def = reg.find(m.creature, "creature");
   const b = summonBlock(reg, m);
-  const [moving, setMoving] = useState(false);
-  const [mode, setMode] = useState("walk");
   const [pending, setPending] = useState<{ what: string; why: string; run: () => void } | null>(null);
   const [editEffect, setEditEffect] = useState<string | null>(null);
   const spells = useMemo(() => (def ? creatureSpells(reg, def) : []), [reg, def]);
@@ -415,16 +413,6 @@ export function SummonMemberPanel({
     for (const info of spells) for (const group of info.groups) if (group.spells.some((x) => (x.id && x.id === sp.id) || x.name.toLowerCase() === sp.name.toLowerCase())) return { info, group };
     return {};
   };
-  const economy = (kind: "action" | "bonus" | "reaction", label: string) => (
-    <button
-      className="pill"
-      data-used={used[kind] && (kind !== "action" || used.attacks === 0 || used.attacks >= perAction)}
-      onClick={() => act("summonEconomy", { id: m.id, kind, used: !used[kind] }, used[kind] ? `${name}'s ${label.toLowerCase()} is back.` : `${name}'s ${label.toLowerCase()} used.`)}
-    >
-      <b>{label}</b>
-      <small>{kind === "action" && used.attacks > 0 ? `${used.attacks} of ${perAction} attack${perAction === 1 ? "" : "s"}` : used[kind] ? "used" : "free"}</small>
-    </button>
-  );
   const commons = reg
     .list("feature")
     .filter((f) => f.common)
@@ -453,7 +441,6 @@ export function SummonMemberPanel({
     else run();
   };
   const speeds = b?.speeds ?? { walk: b?.walk ?? 0 };
-  const left = (mode: string) => Math.max(0, (speeds[mode] ?? 0) * (1 + used.dashes) - used.moved);
   const editing = (m.effects ?? []).find((e) => e.id === editEffect);
   const editingDef = editing ? reg.find(editing.effect, "effect") : undefined;
   // "Legendary Resistance (3/Day)", "Breath Weapon (Recharge 5–6)": uses to mark.
@@ -513,60 +500,25 @@ export function SummonMemberPanel({
         </p>
       )}
 
-      <section className="turn" aria-label={`${name}'s turn`}>
-        <div className="pills">
-          {economy("action", "Action")}
-          {economy("bonus", "Bonus")}
-          {economy("reaction", "Reaction")}
-          <button className="pill" data-used={Object.keys(speeds).every((k) => left(k) === 0)} onClick={() => setMoving(!moving)}>
-            <b>Move</b>
-            <small>
-              {Object.entries(speeds)
-                .filter(([, v]) => v > 0)
-                .map(([k]) => `${k === "walk" ? "" : `${k} `}${left(k)}`)
-                .join(" · ") || "0"}{" "}
-              ft
-            </small>
-          </button>
-        </div>
-        {moving && (
-          <div className="pick-inline">
-            <p className="note">
-              Moved {used.moved} ft{used.dashes ? `, Dash ×${used.dashes}` : ""}. Switching speeds: what it has moved comes off the new one.
-            </p>
-            {Object.keys(speeds).length > 1 && (
-              <div className="segmented small" role="tablist" aria-label="Moving by">
-                {Object.entries(speeds).map(([k, v]) => (
-                  <button key={k} role="tab" aria-selected={mode === k} onClick={() => setMode(k)}>
-                    {k} {v} · {left(k)} left
-                  </button>
-                ))}
-              </div>
-            )}
-            <div className="choice-grid">
-              {[5, 10, 15, 20, 30].map((ft) => (
-                <button key={ft} className="chip" onClick={() => act("summonEconomy", { id: m.id, move: ft, mode }, `${name} ${mode === "walk" ? "moves" : mode === "fly" ? "flies" : `moves (${mode})`} ${ft} ft.`)}>
-                  +{ft} ft
-                </button>
-              ))}
-              <button className="chip" disabled={used.moved === 0} onClick={() => act("summonEconomy", { id: m.id, move: -5, mode }, "5 ft taken back.")}>
-                −5 ft
-              </button>
-              <button className="chip" onClick={() => tryUse("action", "Dash", () => act("summonEconomy", { id: m.id, dash: true, kind: "action", used: true }, `${name} dashes: its speeds double this turn.`))}>
-                Dash (action)
-              </button>
-              {used.dashes > 0 && (
-                <button className="chip" onClick={() => act("summonEconomy", { id: m.id, dash: false, kind: "action", used: false }, "Dash taken back.")}>
-                  Undo Dash
-                </button>
-              )}
-            </div>
-            {speeds.fly ? <p className="note">Flying: knocked prone, speed 0 or unable to move, it falls{b?.hover ? " (it hovers, so it doesn't)" : ""}.</p> : null}
-          </div>
-        )}
-        <SwipeButton label={`Swipe: new turn for ${name}`} tone="plain" onConfirm={() => act("summonEconomy", { id: m.id, newTurn: true }, `${name}'s turn: everything is back.`)} />
-        {!inCombat && <p className="note">Not in combat: track it anyway if you like.</p>}
-      </section>
+      <TurnTracker
+        name={name}
+        used={used}
+        perAction={perAction}
+        speeds={speeds}
+        {...(b?.hover ? { hover: true } : {})}
+        inCombat={inCombat}
+        tryUse={tryUse}
+        onEconomy={(kind, on, label) => act("summonEconomy", { id: m.id, kind, used: on }, on ? `${name}'s ${label.toLowerCase()} used.` : `${name}'s ${label.toLowerCase()} is back.`)}
+        onMove={(ft, mode) =>
+          act("summonEconomy", { id: m.id, move: ft, mode }, ft < 0 ? `${-ft} ft taken back.` : `${name} ${mode === "walk" ? "moves" : mode === "fly" ? "flies" : `moves (${mode})`} ${ft} ft.`)
+        }
+        onDash={(on) =>
+          on
+            ? act("summonEconomy", { id: m.id, dash: true, kind: "action", used: true }, `${name} dashes: its speeds double this turn.`)
+            : act("summonEconomy", { id: m.id, dash: false, kind: "action", used: false }, "Dash taken back.")
+        }
+        onNewTurn={() => act("summonEconomy", { id: m.id, newTurn: true }, `${name}'s turn: everything is back.`)}
+      />
 
       <h2 className="sub-head">Effects on it</h2>
       <div className="switches effects" role="group" aria-label={`Effects on ${name}`}>

@@ -2,12 +2,13 @@ import { Markdown } from "./Markdown";
 import { hpTier } from "../hp";
 import { RichText } from "./Conditions";
 import { ABILITIES, ABILITY_NAMES, SKILL_ABILITY, SKILL_NAMES, type Character, type OperationType, type Skill } from "@dnd/schema";
-import { formatBonus, readiedNow, signed, turnReminders, type CompanionResult, type DerivedSheet, type RollBreakdown, type WeaponAttack } from "@dnd/engine";
+import { formatBonus, readiedNow, signed, turnReminders, type CompanionResult, type ContentRegistry, type DerivedSheet, type RollBreakdown, type WeaponAttack } from "@dnd/engine";
 import { damageText } from "./ActionsTab";
 import { BreakdownLines } from "./Sheet";
 import { SwipeButton } from "./Swipe";
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { useLongPress } from "../longPress";
+import { TurnTracker, type TurnKind } from "./TurnTracker";
 
 export type EconomyKind = "action" | "bonus" | "reaction";
 
@@ -34,7 +35,10 @@ export function CombatCard({
   onLimited,
   onMenu,
   spendReaction,
+  reg,
 }: {
+  /** For the names and turn rules of summoned creatures in the turn order. */
+  reg?: ContentRegistry;
   character: Character;
   sheet: DerivedSheet;
   act: Act;
@@ -83,6 +87,7 @@ export function CombatCard({
           <b>{cb.initiative ?? "?"}</b>
         </button>
       </div>
+      <TurnOrder character={character} sheet={sheet} {...(reg ? { reg } : {})} />
       <div className="pills">
         <Pill
           used={actionsLeft <= 0 && (cb.attacks === 0 || cb.attacks >= max)}
@@ -298,6 +303,157 @@ function SummonSection({ comp, character, sheet, act }: { comp: CompanionResult;
 }
 
 /** A companion's full stat block, with rolls, HP and form changes. */
+/**
+ * Who goes when: you, the companions and summoned creatures with their own initiative,
+ * highest first; those that act on your turn or right after it go with you.
+ */
+export function turnOrder(character: Character, sheet: DerivedSheet, reg?: ContentRegistry): { name: string; initiative?: number; you?: boolean; with?: string[] }[] {
+  const you = { name: "You", you: true, with: [] as string[], ...(character.combat?.initiative !== undefined ? { initiative: character.combat.initiative } : {}) };
+  const out: { name: string; initiative?: number; you?: boolean; with?: string[] }[] = [you];
+  for (const comp of sheet.companions) {
+    if (!comp.form || comp.form.hp.current === 0 || (comp.summonedBy && !comp.summonedBy.out)) continue;
+    if (comp.turn === "own") out.push({ name: comp.name, ...(comp.initiative !== undefined ? { initiative: comp.initiative } : {}) });
+    else you.with.push(comp.turn === "after" ? `${comp.name} (right after)` : comp.name);
+  }
+  const groups = new Map<string, typeof character.summons>();
+  for (const m of character.summons) if (m.hp > 0) groups.set(m.group, [...(groups.get(m.group) ?? []), m]);
+  for (const ms of groups.values()) {
+    const first = ms[0]!;
+    const sum = reg?.list("summon").find((x) => x.spell === first.spell);
+    const base = first.name ?? reg?.find(first.creature, "creature")?.name ?? first.creature.replace(/^creature:/, "").replace(/-/g, " ");
+    const name = ms.length > 1 && !first.name ? `${base} ×${ms.length}` : base;
+    if (sum?.initiative === "yours") you.with.push(name);
+    else {
+      // Each with its own (Conjure Elemental) or one for the group.
+      const own = sum?.initiative === "own" ? ms : [first];
+      for (const m of own) out.push({ name: own.length > 1 ? (m.name ?? base) : name, ...(m.initiative !== undefined ? { initiative: m.initiative } : {}) });
+    }
+  }
+  return out.sort((a, b) => (b.initiative ?? -999) - (a.initiative ?? -999));
+}
+
+function TurnOrder({ character, sheet, reg }: { character: Character; sheet: DerivedSheet; reg?: ContentRegistry }) {
+  const order = turnOrder(character, sheet, reg);
+  if (order.length < 2 && !order[0]?.with?.length) return null;
+  return (
+    <p className="turn-order" aria-label="Turn order">
+      {order.map((x, i) => (
+        <span key={i} className={x.you ? "you" : ""}>
+          {x.name} {x.initiative ?? "?"}
+          {x.with?.length ? <small> + {x.with.join(", ")}</small> : null}
+        </span>
+      ))}
+    </p>
+  );
+}
+
+const TURN_WORDS: Record<CompanionResult["turn"], string> = {
+  own: "Rolls its own initiative and takes its own turn.",
+  yours: "Acts on your turn: its turn comes back when yours starts.",
+  after: "Shares your initiative and takes its turn right after yours: it comes back when yours starts.",
+};
+
+/** A companion's initiative (when it rolls its own) and its turn: action, bonus action, reaction, movement. */
+function CompanionTurn({ comp, character, act, onRollInitiative }: { comp: CompanionResult; character: Character; act: Act; onRollInitiative: () => void }) {
+  const f = comp.form!;
+  const used = comp.used;
+  const [init, setInit] = useState(comp.initiative !== undefined ? String(comp.initiative) : "");
+  // A rolled initiative shows in the box.
+  useEffect(() => setInit(comp.initiative !== undefined ? String(comp.initiative) : ""), [comp.initiative]);
+  const [pending, setPending] = useState<{ what: string; why: string; run: () => void } | null>(null);
+  const name = comp.name;
+  const per = f.attacksPerAction;
+  const busy = (kind: TurnKind | "attack"): string | undefined => {
+    if (kind === "attack") {
+      if (used.action && used.attacks === 0) return "Its action is already used this turn.";
+      if (used.attacks >= per) return `It has made ${used.attacks} of ${per} attacks for its Attack action.`;
+      return undefined;
+    }
+    if (used[kind]) return `Its ${kind === "bonus" ? "bonus action" : kind} is already used this turn.`;
+    if (kind === "action" && used.attacks > 0) return "Its action went to the Attack action this turn.";
+    return undefined;
+  };
+  /** Warn, never block: "Use anyway" goes ahead. */
+  const tryUse = (kind: TurnKind | "attack", what: string, run: () => void) => {
+    const why = busy(kind);
+    if (why) setPending({ what, why, run });
+    else run();
+  };
+  const commitInit = () => {
+    const n = Number(init);
+    if (init.trim() !== "" && Number.isFinite(n) && n !== comp.initiative) act("companionInitiative", { companion: comp.id, value: Math.round(n) }, `${name}: initiative ${Math.round(n)}.`);
+  };
+  const yourInit = character.combat?.initiative;
+  return (
+    <>
+      <h2 className="sub-head">Its turn</h2>
+      <p className="note">{TURN_WORDS[comp.turn]}</p>
+      {comp.turn === "own" ? (
+        <label className="roll-entry">
+          <span>Initiative</span>
+          <input
+            className="init-input"
+            inputMode="numeric"
+            value={init}
+            placeholder="?"
+            onChange={(e) => setInit(e.target.value.replace(/[^0-9-]/g, ""))}
+            onBlur={commitInit}
+            onKeyDown={(e) => e.key === "Enter" && commitInit()}
+            aria-label={`${name}'s initiative`}
+          />
+          <button className="link inline" onClick={onRollInitiative}>
+            roll (d20 {signed(f.abilities.dex.modifier)})
+          </button>
+        </label>
+      ) : (
+        yourInit !== undefined && <p className="note">Initiative {yourInit}, with you.</p>
+      )}
+      {pending && (
+        <div className="over-banner pending-float" role="alert">
+          <p>
+            {pending.what}: {pending.why}
+          </p>
+          <div className="big-actions">
+            <button className="big" onClick={() => setPending(null)}>
+              Cancel
+            </button>
+            <button
+              className="big primary"
+              onClick={() => {
+                const r = pending.run;
+                setPending(null);
+                r();
+              }}
+            >
+              Use anyway
+            </button>
+          </div>
+        </div>
+      )}
+      <TurnTracker
+        name={name}
+        used={used}
+        perAction={per}
+        speeds={f.speeds}
+        {...(/hover/i.test(f.speed) ? { hover: true } : {})}
+        inCombat={!!character.combat}
+        tryUse={tryUse}
+        onEconomy={(kind, on, label) => act("companionEconomy", { companion: comp.id, kind, used: on }, on ? `${name}'s ${label.toLowerCase()} used.` : `${name}'s ${label.toLowerCase()} is back.`)}
+        onMove={(ft, mode) =>
+          act("companionEconomy", { companion: comp.id, move: ft, mode }, ft < 0 ? `${-ft} ft taken back.` : `${name} ${mode === "walk" ? "moves" : mode === "fly" ? "flies" : `moves (${mode})`} ${ft} ft.`)
+        }
+        onDash={(on) =>
+          on
+            ? act("companionEconomy", { companion: comp.id, dash: true, kind: "action", used: true }, `${name} dashes: its speeds double this turn.`)
+            : act("companionEconomy", { companion: comp.id, dash: false, kind: "action", used: false }, "Dash taken back.")
+        }
+        onNewTurn={() => act("companionEconomy", { companion: comp.id, newTurn: true }, `${name}'s turn: everything is back.`)}
+        {...(comp.turn !== "own" ? { newTurnNote: "It also comes back by itself when your turn starts." } : {})}
+      />
+    </>
+  );
+}
+
 export function CompanionPanel({
   comp,
   character,
@@ -310,7 +466,10 @@ export function CompanionPanel({
   onAttackInstead,
   onEdit,
   onSummon,
+  onRollInitiative,
 }: {
+  /** Its own initiative, rolled (d20 + its Dexterity). */
+  onRollInitiative: () => void;
   /** Out only while its action's timer runs (Hound of Ill Omen): use that action. */
   onSummon?: () => void;
   /** One you made: change it in the Companion Builder. */
@@ -398,6 +557,7 @@ export function CompanionPanel({
         </button>
       </div>
       <p className="note">{[f.speed, f.senses, f.languages].filter(Boolean).map((x) => `${x!.replace(/\.$/, "")}.`).join(" ")}</p>
+      {!dead && <CompanionTurn comp={comp} character={character} act={act} onRollInitiative={onRollInitiative} />}
 
       {dead && comp.summon && (
         <>

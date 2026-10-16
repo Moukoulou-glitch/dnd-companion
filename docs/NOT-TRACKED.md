@@ -157,3 +157,10 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 ## Sending
 
 - The reply isn't asked for: add it to the note (Edit) if you want it kept. A Sending from a scroll or an item goes through the same box; a readied Sending released later doesn't open it.
+
+## Companions in combat
+
+- A companion's turn is tracked by tapping its Action, Bonus, Reaction and Move: rolling one of its attacks doesn't mark its action by itself yet.
+- With your own dice, companions' and summoned creatures' initiatives wait for you (the turn order shows "?"); the app rolls them only when it rolls your dice.
+- A companion with its own initiative gets its turn back when you swipe "new turn" on it; the app doesn't step through the turn order for you.
+- A mount you control moves on your turn: set your own mount to "On my turn" in the Companion Builder. Find Steed (a summon) already shares your turn.

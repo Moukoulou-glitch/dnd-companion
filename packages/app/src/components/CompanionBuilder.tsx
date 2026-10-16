@@ -47,6 +47,7 @@ interface Draft {
   attacks: (Omit<Attack, "toHit" | "damageBonus"> & { toHit: string; damageBonus: string })[];
   notes: string;
   bond?: "rangers-companion";
+  turn?: "own" | "yours";
 }
 
 const toDraft = (c: Omit<CustomCompanion, "id">): Draft => ({
@@ -66,6 +67,7 @@ const toDraft = (c: Omit<CustomCompanion, "id">): Draft => ({
   attacks: c.attacks.map((a) => ({ ...a, toHit: String(a.toHit), damageBonus: String(a.damageBonus) })),
   notes: c.notes,
   ...(c.bond ? { bond: c.bond } : {}),
+  ...(c.turn ? { turn: c.turn } : {}),
 });
 
 const BLANK: Omit<CustomCompanion, "id"> = {
@@ -188,6 +190,7 @@ export function CompanionBuilder({
       }),
       notes: d.notes.trim(),
       ...(d.bond ? { bond: d.bond } : {}),
+      ...(d.turn ? { turn: d.turn } : {}),
     };
     act("setCustomCompanion", { companion }, editing ? `${companion.name} changed.` : `${companion.name} joins your companions.`);
     done();
@@ -217,6 +220,17 @@ export function CompanionBuilder({
           </div>
           <input className="search" value={d.kind} maxLength={40} placeholder="Or your own word" onChange={(e) => set({ kind: e.target.value })} aria-label="Kind (your own word)" />
         </>,
+      )}
+      {field(
+        "In combat",
+        <div className="segmented small" role="radiogroup" aria-label="When it takes its turn">
+          {(["own", "yours"] as const).map((t) => (
+            <button key={t} role="radio" aria-checked={(d.turn ?? (d.bond ? "yours" : "own")) === t} onClick={() => set({ turn: t })}>
+              {t === "own" ? "Its own initiative" : "On my turn"}
+            </button>
+          ))}
+        </div>,
+        d.bond ? "Your Ranger's Companion acts on your initiative by the rules." : "A pet, mount or hireling usually rolls its own initiative; a mount you control moves on your turn.",
       )}
       <div className="group">
         <div className="row">

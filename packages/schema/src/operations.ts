@@ -116,6 +116,20 @@ export const OPERATION_PAYLOADS = {
     })
     .strict(),
   summonInitiative: z.object({ group: z.string(), id: z.string().optional(), value: z.number().int() }).strict(),
+  /** A companion's own initiative for this combat. */
+  companionInitiative: z.object({ companion: z.string(), value: z.number().int() }).strict(),
+  /** A companion's turn, like a summoned creature's: use or give back its action, bonus action, reaction or an attack; move; Dash; `newTurn` resets them. */
+  companionEconomy: z
+    .object({
+      companion: z.string(),
+      kind: z.enum(["action", "bonus", "reaction", "attack"]).optional(),
+      used: z.boolean().default(true),
+      newTurn: z.boolean().optional(),
+      move: z.number().int().optional(),
+      dash: z.boolean().optional(),
+      mode: z.string().optional(),
+    })
+    .strict(),
   /** A summoned creature's turn: use or give back its action, bonus action, reaction or an attack; `newTurn` resets them. */
   summonEconomy: z
     .object({
@@ -439,6 +453,8 @@ export const Operation = z.discriminatedUnion("type", [
   OperationBase.extend({ type: z.literal("summonInitiative"), payload: OPERATION_PAYLOADS.summonInitiative }),
   OperationBase.extend({ type: z.literal("dismiss"), payload: OPERATION_PAYLOADS.dismiss }),
   OperationBase.extend({ type: z.literal("summonEconomy"), payload: OPERATION_PAYLOADS.summonEconomy }),
+  OperationBase.extend({ type: z.literal("companionInitiative"), payload: OPERATION_PAYLOADS.companionInitiative }),
+  OperationBase.extend({ type: z.literal("companionEconomy"), payload: OPERATION_PAYLOADS.companionEconomy }),
   OperationBase.extend({ type: z.literal("summonCast"), payload: OPERATION_PAYLOADS.summonCast }),
   OperationBase.extend({ type: z.literal("summonEffectEdit"), payload: OPERATION_PAYLOADS.summonEffectEdit }),
   OperationBase.extend({ type: z.literal("setInspiration"), payload: OPERATION_PAYLOADS.setInspiration }),

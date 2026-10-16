@@ -271,7 +271,7 @@ export function PlayTab({
         </section>
       )}
 
-      <CombatCard character={character} sheet={sheet} act={act} onStartCombat={onStartCombat} openMove={openMove} onInitiative={onInitiative} onLimited={openLimited} onMenu={onEconomyMenu} spendReaction={spendReaction} />
+      <CombatCard reg={reg} character={character} sheet={sheet} act={act} onStartCombat={onStartCombat} openMove={openMove} onInitiative={onInitiative} onLimited={openLimited} onMenu={onEconomyMenu} spendReaction={spendReaction} />
 
       <ShapeCard sheet={sheet} onOpen={openShape} onTransform={openTransform} />
       <SummonsCard character={character} reg={reg} onOpen={openSummonGroup} />

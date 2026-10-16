@@ -900,6 +900,14 @@ export function App() {
       />
     ));
 
+  /** A companion's own initiative: d20 + its Dexterity. */
+  const rollCompanionInit = (id: string) => {
+    const cur = live.current.sheet?.companions.find((x) => x.id === id);
+    const dex = cur?.form?.abilities.dex.modifier ?? 0;
+    const r = rollDice("1d20").total;
+    live.current.act("companionInitiative", { companion: id, value: r + dex }, `${cur?.name ?? "Companion"}: initiative ${r} ${dex >= 0 ? "+" : "−"} ${Math.abs(dex)} = ${r + dex}.`);
+  };
+
   const rollSummonInit = (group: string, id?: string) => {
     const m = live.current.character?.summons.find((s) => s.group === group && (!id || s.id === id));
     const d = m ? registry.find(m.creature, "creature") : undefined;
@@ -1448,6 +1456,20 @@ export function App() {
 
   const startCombat = () => {
     s.act("startCombat", {}, "Combat started.");
+    // The app rolls the dice: companions and summoned creatures with their own initiative roll now too.
+    // With your own dice, theirs wait for you (the turn order shows "?").
+    if (live.current.character?.settings.physicalDice === false) {
+      for (const comp of live.current.sheet?.companions ?? [])
+        if (comp.turn === "own" && comp.form && comp.form.hp.current > 0 && !(comp.summonedBy && !comp.summonedBy.out)) rollCompanionInit(comp.id);
+      const groups = new Map<string, NonNullable<typeof live.current.character>["summons"]>();
+      for (const m of live.current.character?.summons ?? []) if (m.hp > 0) groups.set(m.group, [...(groups.get(m.group) ?? []), m]);
+      for (const [group, ms] of groups) {
+        const how = registry.list("summon").find((x) => x.spell === ms[0]!.spell)?.initiative;
+        if (how === "yours") continue;
+        if (how === "own") for (const m of ms) rollSummonInit(group, m.id);
+        else rollSummonInit(group);
+      }
+    }
     rollInitiative();
   };
 
@@ -1625,6 +1647,7 @@ export function App() {
           open={open}
           openRoll={openRoll}
           openHp={() => openCompanionHp(id)}
+          onRollInitiative={() => rollCompanionInit(id)}
           {...(comp.custom ? { onEdit: () => openCompanionBuilder(comp.custom!.id) } : {})}
           {...(comp.summonedBy
             ? {

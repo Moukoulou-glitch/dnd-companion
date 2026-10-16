@@ -1390,6 +1390,7 @@
             "name": "Wildfire Spirit",
             "spellcasting": "druid",
             "combatNote": "Shares your initiative and acts right after you. It takes the Dodge action unless you spend a bonus action to command it. Lasts 1 hour, until it drops to 0 HP, you summon it again, or you die.",
+            "turn": "after",
             "forms": [
               {
                 "id": "wildfire-spirit",

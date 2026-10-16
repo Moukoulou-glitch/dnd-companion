@@ -413,6 +413,11 @@ export const CompanionDef = z
     forms: z.array(CompanionForm).min(1),
     /** How it acts in combat, shown on the Play screen. */
     combatNote: z.string().optional(),
+    /**
+     * When it takes its turn: `own` (rolls its own initiative: the Hound of Ill Omen), `yours` (acts on your
+     * turn: the Primal Companion), `after` (shares your initiative, right after you: the Wildfire Spirit).
+     */
+    turn: z.enum(["own", "yours", "after"]).optional(),
     /** Only out while the timer of the action that summons it runs (Hound of Ill Omen: that action's id). */
     summonedBy: z.string().optional(),
     /** Commanding it: a bonus action by default, and it can attack in place of one of your attacks (Primal Companion). */

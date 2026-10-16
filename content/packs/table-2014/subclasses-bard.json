@@ -927,6 +927,7 @@
             "name": "Dancing Item",
             "spellcasting": "bard",
             "combatNote": "Shares your initiative and acts right after you. It Dodges unless you use a bonus action to command it. You can also have it use its reaction when you use Bardic Inspiration.",
+            "turn": "after",
             "forms": [
               {
                 "id": "dancing-item",

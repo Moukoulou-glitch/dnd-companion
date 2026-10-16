@@ -1703,6 +1703,7 @@
             "name": "Drake",
             "spellcasting": "ranger",
             "combatNote": "Takes its turn right after yours. It moves and uses its reaction on its own; it takes the Dodge action unless you spend a bonus action to command it. If you're incapacitated it acts as it likes.",
+            "turn": "after",
             "command": {
               "economy": "bonus",
               "attackInstead": false

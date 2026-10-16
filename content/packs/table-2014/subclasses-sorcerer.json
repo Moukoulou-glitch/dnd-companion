@@ -678,7 +678,8 @@
           {
             "id": "hound-of-ill-omen",
             "name": "Hound of Ill Omen",
-            "combatNote": "Acts on your turn and can only move toward and attack its target. Starts with temp HP equal to half your sorcerer level. While it's within 5 ft of the target, the target has disadvantage on saves against your spells.",
+            "combatNote": "Rolls its own initiative. On its turn it can only move toward its target by the most direct route and use its action to attack it. Starts with temp HP equal to half your sorcerer level. While it's within 5 ft of the target, the target has disadvantage on saves against your spells.",
+            "turn": "own",
             "forms": [
               {
                 "id": "hound",

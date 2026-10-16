@@ -3339,3 +3339,9 @@ button.mpip {
 /* A soft dark veil behind the words, so they read over a busy screen */
 .fx-sending .fx-core { width: min(360px, 92vw); height: 240px; border-radius: 50%; background: radial-gradient(ellipse at center, rgba(8, 14, 32, 0.88) 0%, rgba(8, 14, 32, 0.6) 45%, rgba(8, 14, 32, 0) 72%); animation: fx-send-veil var(--fx-ms) ease-in-out forwards; }
 @keyframes fx-send-veil { 0% { opacity: 0; } 12% { opacity: 1; } 60% { opacity: 1; } 100% { opacity: 0; } }
+
+/* Turn order on the combat card: highest initiative first; you highlighted, with those who act on your turn */
+.turn-order { display: flex; flex-wrap: wrap; gap: 4px 12px; margin: 2px 0 8px; font-size: 0.9rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.turn-order > span:not(:last-child)::after { content: "›"; margin-left: 12px; opacity: 0.6; }
+.turn-order .you { color: var(--text); font-weight: 700; }
+.turn-order small { font-weight: 400; color: var(--muted); }

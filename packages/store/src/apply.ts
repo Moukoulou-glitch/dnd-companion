@@ -1,5 +1,5 @@
 import { Character, CombatState, type ChoiceDef, type Operation, type ValueExpr } from "@dnd/schema";
-import { alreadyOwned, componentCount, withCustom, customCompanionId, customItemId, customSpellId, FLEX_COST, castingEconomy, derive, evalFlat, levelGains, damageAfterDefenses, materialNeed, multiclassIssues, shapeIssues, summonBlock, summonHpBonus, type ContentRegistry } from "@dnd/engine";
+import { NO_TURN_USED, alreadyOwned, componentCount, withCustom, customCompanionId, customItemId, customSpellId, FLEX_COST, castingEconomy, derive, evalFlat, levelGains, damageAfterDefenses, materialNeed, multiclassIssues, shapeIssues, summonBlock, summonHpBonus, type ContentRegistry } from "@dnd/engine";
 
 /** Effects a summoned creature holds with its own concentration (Barkskin on itself) end with it. */
 function dropSummonConcentration(x: Character["summons"][number], spell: string) {
@@ -584,6 +584,47 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         }
       }
       if (x.hp === 0 && lost > 0) notes.push(`${who} drops to 0 HP.`);
+      break;
+    }
+
+    case "companionInitiative": {
+      const st = (c.companions[op.payload.companion] ??= { states: [] });
+      st.initiative = op.payload.value;
+      break;
+    }
+
+    case "companionEconomy": {
+      const comp = sheet.companions.find((x) => x.id === op.payload.companion);
+      const st = (c.companions[op.payload.companion] ??= { states: [] });
+      const name = comp?.name ?? "It";
+      if (op.payload.newTurn) {
+        st.used = { ...NO_TURN_USED };
+        break;
+      }
+      const u = (st.used ??= { ...NO_TURN_USED });
+      if (op.payload.move !== undefined) {
+        u.moved = Math.max(0, u.moved + op.payload.move);
+        // Switching speeds: what it has moved comes off the new speed (PHB p. 190).
+        const mode = op.payload.mode ?? "walk";
+        const speed = (comp?.form?.speeds[mode] ?? 0) * (1 + u.dashes);
+        if (op.payload.move > 0 && u.moved > speed) notes.push(`${u.moved} ft is beyond ${name}'s ${mode} speed (${speed} ft) this turn.`);
+      }
+      if (op.payload.dash !== undefined) u.dashes = Math.max(0, u.dashes + (op.payload.dash ? 1 : -1));
+      const k = op.payload.kind;
+      if (k === "attack") {
+        if (op.payload.used) {
+          if (u.attacks === 0) u.action = true;
+          u.attacks += 1;
+          const per = comp?.form?.attacksPerAction ?? 1;
+          if (u.attacks > per) notes.push(`That's attack ${u.attacks} of ${per} for ${name}'s Attack action.`);
+        } else {
+          u.attacks = Math.max(0, u.attacks - 1);
+          if (u.attacks === 0) u.action = false;
+        }
+      } else if (k) {
+        if (op.payload.used && u[k]) notes.push(`${name}'s ${k === "bonus" ? "bonus action" : k} is already used this turn. Used anyway.`);
+        u[k] = op.payload.used;
+      }
       break;
     }
 
@@ -1577,7 +1618,18 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
 
     case "startCombat": {
       if (c.combat) notes.push("Already in combat.");
-      else c.combat = CombatState.parse({});
+      else {
+        c.combat = CombatState.parse({});
+        // Companions and summoned creatures start the fight fresh: no initiative yet, nothing used.
+        for (const st of Object.values(c.companions)) {
+          delete st.initiative;
+          delete st.used;
+        }
+        for (const m of c.summons) {
+          delete m.initiative;
+          delete m.used;
+        }
+      }
       notes.push("Roll initiative.");
       break;
     }
@@ -1586,6 +1638,8 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       const prev = c.combat;
       endTurnStartEffects(c.effects.filter((e) => e.untilTurnStart), "your turn has started");
       clearCompanionStates(() => true);
+      // Companions that act on your turn or right after it get their turn back with yours.
+      for (const comp of sheet.companions) if (comp.turn !== "own" && c.companions[comp.id]?.used) delete c.companions[comp.id]!.used;
       const round = !prev ? 1 : prev.hadTurn && !prev.myTurn ? prev.round + 1 : prev.round;
       if (prev?.myTurn) notes.push("Your turn had already started: everything is back for a fresh turn.");
       c.combat = CombatState.parse({ round, myTurn: true, hadTurn: true, ...(prev?.initiative !== undefined ? { initiative: prev.initiative } : {}) });
@@ -1596,6 +1650,10 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
     case "endCombat": {
       if (!c.combat) notes.push("Not in combat.");
       delete c.combat;
+      for (const st of Object.values(c.companions)) {
+        delete st.initiative;
+        delete st.used;
+      }
       const timed = c.effects.filter((e) => e.rounds !== undefined);
       if (timed.length) notes.push(`Still running: ${timed.map((e) => e.custom?.name ?? reg.find(reg.effectId(e.effect), "effect")?.name ?? e.effect).join(", ")}.`);
       break;

@@ -664,6 +664,7 @@
             "name": "Primal beast",
             "spellcasting": "ranger",
             "combatNote": "Acts on your turn. It takes the Dodge action unless you spend a bonus action to command it, or give up one of your attacks to have it attack. If you're incapacitated it acts on its own.",
+            "turn": "yours",
             "revive": {
               "note": "Within an hour of its death, touch it as an action and spend a spell slot: it returns after 1 minute with all its hit points."
             },
