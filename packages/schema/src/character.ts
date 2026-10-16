@@ -484,6 +484,32 @@ export const Character = z
       })
       .strict()
       .optional(),
+    /**
+     * Something under way that takes time (a ritual, a spell with a casting time of
+     * minutes or hours): started, not finished. Finishing passes the time and then
+     * casts it (the slot is spent then); interrupted, nothing is spent.
+     */
+    timed: z
+      .object({
+        name: z.string(),
+        minutes: z.number().int().min(1),
+        /** The cast it finishes with: the castSpell details. */
+        cast: z
+          .object({
+            spell: DefId,
+            list: z.string(),
+            level: z.number().int().min(0).max(9),
+            using: z.enum(["slot", "pact", "free", "ritual", "none", "extra", "scroll", "points"]),
+            selfEffect: z.boolean().default(false),
+            choice: z.string().optional(),
+            castingTime: z.string().optional(),
+            consumeComponent: z.boolean().optional(),
+          })
+          .strict()
+          .optional(),
+      })
+      .strict()
+      .optional(),
     /** Conditions and effects currently on the character. */
     effects: z.array(EffectInstance).default([]),
     /** Named on/off states the engine reads, e.g. "raging". */

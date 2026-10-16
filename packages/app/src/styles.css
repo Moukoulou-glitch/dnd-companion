@@ -3261,3 +3261,7 @@ button.mpip {
 .pip.die[data-spent="true"] { color: var(--muted); }
 /* Where a feature comes from (Fighter 3, Race), before its summary on the Sheet. */
 .row-sub .origin { color: var(--text); font-weight: 600; }
+
+/* A ritual or long casting under way, on Play. */
+.timed-card { border: 1px solid var(--line); border-radius: var(--radius-m); background: var(--panel); padding: 4px 12px 12px; margin-bottom: 12px; }
+.timed-card .row { padding-left: 0; padding-right: 0; }

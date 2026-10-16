@@ -126,3 +126,11 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 
 ## Duplicate picks
 - Overlaps between two fixed grants (a race and a background both giving the same skill) aren't offered as a new choice; the Sheet warns only when one of the two was your pick. Spells you already know aren't filtered from spell choices.
+
+## Rituals and long castings
+
+- Only spells are timed. Features or items that take minutes or hours to use (attuning, a short rest's activities, crafting) aren't.
+- Holding concentration through a long casting (the 2014 rule for spells cast over more than one action) isn't modelled: starting a long casting doesn't end your other concentration; finishing it starts the new one as usual.
+- One action under way at a time; starting another replaces it (the app says so).
+- In combat it warns how many rounds the casting is, but doesn't stop the encounter or advance it round by round.
+- War Caster and readied spells are unaffected (they're cast as a reaction, never timed).

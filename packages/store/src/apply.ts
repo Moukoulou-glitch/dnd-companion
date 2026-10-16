@@ -1455,6 +1455,47 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       break;
     }
 
+    case "startTimed": {
+      if (c.timed) notes.push(`${c.timed.name} was still under way: it's replaced (nothing of it was spent).`);
+      c.timed = { name: op.payload.name, minutes: op.payload.minutes, ...(op.payload.cast ? { cast: op.payload.cast } : {}) };
+      const h = op.payload.minutes >= 60 ? `${+(op.payload.minutes / 60).toFixed(1)} hours` : `${op.payload.minutes} minutes`;
+      notes.push(`${op.payload.name}: under way, ${h}. Mark it done when it's finished, or interrupted if it's broken off.`);
+      if (c.combat) notes.push(`You're in combat: that's ${op.payload.minutes * 10} rounds. Finishing it moves every timer on by that much.`);
+      break;
+    }
+
+    case "finishTimed": {
+      const t = c.timed;
+      if (!t) {
+        notes.push("Nothing is under way.");
+        break;
+      }
+      delete c.timed;
+      // The time passes first (timers count down); then the spell takes effect and its slot is spent.
+      passMinutes(t.minutes);
+      notes.push(`${t.name}: done after ${t.minutes} minutes.`);
+      if (t.cast) {
+        const r = applyOperation(c, { ...op, type: "castSpell", payload: t.cast } as Operation, baseReg);
+        for (const k of Object.keys(c) as (keyof Character)[]) if (!(k in r.character)) delete (c as Partial<Character>)[k];
+        Object.assign(c, r.character);
+        notes.push(...r.notes);
+        prompts.push(...r.prompts);
+      }
+      break;
+    }
+
+    case "cancelTimed": {
+      const t = c.timed;
+      if (!t) {
+        notes.push("Nothing is under way.");
+        break;
+      }
+      delete c.timed;
+      if (op.payload.minutes) passMinutes(Math.min(op.payload.minutes, t.minutes));
+      notes.push(`${t.name}: interrupted. Nothing is cast and no slot is spent${op.payload.minutes ? `; ${Math.min(op.payload.minutes, t.minutes)} minutes passed` : ""}.`);
+      break;
+    }
+
     case "setInitiative": {
       if (!c.combat) c.combat = CombatState.parse({});
       c.combat.initiative = op.payload.value;

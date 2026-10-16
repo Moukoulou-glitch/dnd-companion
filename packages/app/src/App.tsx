@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
-import { buildItems, customCompanionId, customItemId, customSpellId, withCustom, castingEconomy, creatureSpellRoll, formatBonus, summonBlock, materialNeed, maxSpellLevel, newCharacter, spellListOf, signed, turnWarnings, type TurnIntent, type RollBreakdown } from "@dnd/engine";
+import { buildItems, customCompanionId, customItemId, customSpellId, withCustom, castingEconomy, castingMinutes, creatureSpellRoll, formatBonus, summonBlock, materialNeed, maxSpellLevel, newCharacter, spellListOf, signed, turnWarnings, type TurnIntent, type RollBreakdown } from "@dnd/engine";
 import { ABILITY_NAMES, SKILL_NAMES, type Character, type Skill } from "@dnd/schema";
 import { roll as rollDice, type ComposerBase } from "@dnd/dice";
 import { ShapePanel, TextList, TransformPanel } from "./components/Shapes";
@@ -43,6 +43,7 @@ import { BuildPanel, LevelUpPanel, NewCharacterPanel, type NewCharacterInput } f
 import { flashEnabled, flashForFeature, flashForSpell, flashTorch, setFlashEnabled } from "./flash";
 import { PlayTab, type PlayPrompts } from "./components/PlayTab";
 import { liveAttack } from "./oneTime";
+import { NumberStep } from "./components/Adjust";
 import { offersRelentless } from "@dnd/store";
 import { CLASS_DICE_COLOURS, classDiceColour, mainClass, setDiceClasses, usePickedDiceColour } from "./diceColours";
 import { Choose, Confirm, PoolRollPanel, SlotSpendPanel, SpendDiePanel } from "./components/Prompts";
@@ -2125,6 +2126,29 @@ export function App() {
         },
       );
     let transformed = false;
+    // A ritual (+10 minutes) or a casting of minutes or hours takes its time: started now, cast when it's done.
+    const minutes = castingMinutes(castingTime ?? sp.castingTime, using === "ritual");
+    if (minutes >= 1) {
+      const payload = { spell: sp.id, list: sp.list.id, level, using, selfEffect, ...comp, ...(choice ? { choice } : {}), ...(castingTime ? { castingTime } : {}) };
+      const name = `${sp.name}${using === "ritual" ? " (ritual)" : ""}`;
+      return open(name, () => (
+        <TimedPanel
+          name={name}
+          minutes={minutes}
+          inCombat={!!live.current.character?.combat}
+          ritual={using === "ritual"}
+          onNow={() => {
+            live.current.act("startTimed", { name, minutes, cast: payload }, `${name} started.`);
+            finishTimed();
+          }}
+          onLater={() => {
+            live.current.act("startTimed", { name, minutes, cast: payload }, `${name} started.`);
+            close();
+          }}
+          onCancel={() => openSpell(sp)}
+        />
+      ));
+    }
     const castIt = () =>
       askEndsOn(
         "cast",
@@ -2169,6 +2193,30 @@ export function App() {
       ));
     else castIt();
   };
+
+  /**
+   * The timed action under way is done: its time passes, then its spell is cast
+   * (the slot spent then), with what a cast brings (a summoning, a transformation).
+   */
+  const finishTimed = () => {
+    const t = live.current.character?.timed;
+    if (!t) return close();
+    const prompts = live.current.act("finishTimed", {}, `${t.name}: done.`);
+    const sp = t.cast && live.current.sheet?.spells.find((x) => x.id === t.cast!.spell && x.list.id === t.cast!.list);
+    if (!sp || !t.cast) return close();
+    flashForSpell(sp.id, t.cast.level);
+    const eff = t.cast.selfEffect ? effReg().find(sp.id.replace(/^spell:/, "effect:"), "effect") : undefined;
+    const inst = eff?.transform ? [...(live.current.character?.effects ?? [])].reverse().find((e) => e.effect === eff.id) : undefined;
+    if (eff?.transform && inst) return openTransform(eff.transform === "creature" ? "truepolymorph" : "polymorph", { effectId: inst.id });
+    const sum = registry.list("summon").find((x) => x.spell === sp.id);
+    if (sum) return openSummon(sum.id, t.cast.level);
+    const check = prompts.find((p) => p.kind === "concentration");
+    if (check) return openConcentrationCheck(check.dc);
+    openSpell(sp, t.cast.level);
+  };
+  /** Broken off: nothing is cast or spent; the player says how many minutes did pass. */
+  const interruptTimed = () =>
+    open("Interrupted", () => <InterruptPanel name={live.current.character?.timed?.name ?? ""} max={live.current.character?.timed?.minutes ?? 1} onDone={(m) => { live.current.act("cancelTimed", m ? { minutes: m } : {}, "Interrupted."); close(); }} />);
 
   /** Spells cast on yourself put their effect on you unless you say otherwise. */
   const selfByDefault = (sp: SpellResult) => {
@@ -2435,6 +2483,8 @@ export function App() {
           openMove={openMove}
           openCompanion={openCompanion}
           openCompanionBuilder={() => openCompanionBuilder()}
+          onTimedDone={finishTimed}
+          onTimedInterrupt={interruptTimed}
           openRangersCompanion={() => openCompanionBuilder(undefined, true)}
           openShape={openShape}
           openTransform={openTransform}
@@ -2628,6 +2678,52 @@ function DiceColourSetting({ classes }: { classes: { class: string; level: numbe
         <input type="color" aria-label="Pick a dice colour" value={picked ?? followColour} onChange={(e) => setPicked(e.target.value)} />
       </label>
     </div>
+  );
+}
+
+const hoursText = (m: number) => (m >= 60 ? `${+(m / 60).toFixed(1)} hour${m === 60 ? "" : "s"}` : `${m} minute${m === 1 ? "" : "s"}`);
+
+/** A casting that takes time: how long, before anything is spent; cast it now (the time passes) or start it and finish later. */
+function TimedPanel({ name, minutes, inCombat, ritual, onNow, onLater, onCancel }: { name: string; minutes: number; inCombat: boolean; ritual: boolean; onNow: () => void; onLater: () => void; onCancel: () => void }) {
+  return (
+    <>
+      <p className="question">
+        {name} takes {hoursText(minutes)}.
+      </p>
+      <p className="note">
+        {ritual ? "As a ritual: its casting time plus 10 minutes, and no slot. " : "The slot is spent when the casting is done, not now. "}
+        It takes effect when the casting ends; if it's interrupted, nothing is spent.
+      </p>
+      {inCombat && <p className="warn">You're in combat: that's {minutes * 10} rounds. Finishing it moves every timer on by that much.</p>}
+      <div className="big-actions">
+        <button className="big primary" onClick={onNow}>
+          Cast it now
+          <span className="sub">{hoursText(minutes)} {minutes === 1 || minutes === 60 ? "passes" : "pass"}</span>
+        </button>
+        <button className="big" onClick={onLater}>
+          Start it
+          <span className="sub">finish it later on Play</span>
+        </button>
+      </div>
+      <button className="link" onClick={onCancel}>
+        Back
+      </button>
+    </>
+  );
+}
+
+/** How many minutes passed before it was broken off (0: none). */
+function InterruptPanel({ name, max, onDone }: { name: string; max: number; onDone: (minutes: number) => void }) {
+  const [m, setM] = useState(0);
+  return (
+    <>
+      <p className="question">{name}: interrupted.</p>
+      <p className="note">Nothing is cast and no slot is spent. How many minutes had passed (they count for your other timers)?</p>
+      <NumberStep label="Minutes passed" value={m} min={0} max={max} onChange={setM} />
+      <button className="big primary wide" onClick={() => onDone(m)}>
+        Interrupted
+      </button>
+    </>
   );
 }
 

@@ -59,6 +59,18 @@ export function readiedWarning(r: { name: string; spell?: string }): string {
 }
 
 /** Reads a spell's casting time as the part of the turn it uses. */
+/**
+ * How many minutes a casting takes ("10 minutes", "1 hour", "8 hours"); 0 for an
+ * action, bonus action or reaction. With two casting times ("1 action or 8 hours")
+ * the first counts unless the chosen one is given. A ritual adds 10 minutes.
+ */
+export function castingMinutes(castingTime: string, ritual = false): number {
+  const first = castingTime.split(/\s+or\s+/i)[0] ?? castingTime;
+  const m = /(\d+)\s*(minute|hour)/i.exec(first);
+  const base = m ? Number(m[1]) * (/^hour/i.test(m[2]!) ? 60 : 1) : 0;
+  return base + (ritual ? 10 : 0);
+}
+
 export function castingEconomy(castingTime: string): TurnIntent["economy"] {
   const t = castingTime.toLowerCase();
   if (t.includes("bonus action")) return "bonus";

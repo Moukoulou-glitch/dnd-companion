@@ -164,6 +164,8 @@ export function PlayTab({
   openMove,
   openCompanion,
   openCompanionBuilder,
+  onTimedDone,
+  onTimedInterrupt,
   openRangersCompanion,
   prompts,
   onInitiative,
@@ -197,6 +199,9 @@ export function PlayTab({
   openCompanion: (id: string) => void;
   /** The Companion Builder: a companion of your own. */
   openCompanionBuilder: () => void;
+  /** A ritual or a long casting under way: it's done, or it was broken off. */
+  onTimedDone: () => void;
+  onTimedInterrupt: () => void;
   /** Beast Master (Ranger's Companion): pick the beast it bonds with. */
   openRangersCompanion: () => void;
   prompts: PlayPrompts;
@@ -214,6 +219,30 @@ export function PlayTab({
   return (
     <main>
       <Identity c={character} onBackground={openBackground} onIdentity={openIdentity} />
+
+      {character.timed && (
+        <section className="timed-card">
+          <div className="row">
+            <div className="row-main">
+              <div className="row-title">{character.timed.name}: under way</div>
+              <div className="row-sub">
+                Takes {character.timed.minutes >= 60 ? `${+(character.timed.minutes / 60).toFixed(1)} hours` : `${character.timed.minutes} minutes`}
+                {character.timed.cast && character.timed.cast.using !== "ritual" ? "; its slot is spent when it's done" : ""}.
+              </div>
+            </div>
+          </div>
+          <div className="big-actions">
+            <button className="big primary" onClick={onTimedDone}>
+              Done
+              <span className="sub">the time passes, then it takes effect</span>
+            </button>
+            <button className="big" onClick={onTimedInterrupt}>
+              Interrupted
+              <span className="sub">nothing spent</span>
+            </button>
+          </div>
+        </section>
+      )}
 
       <CombatCard character={character} sheet={sheet} act={act} onStartCombat={onStartCombat} openMove={openMove} onInitiative={onInitiative} onLimited={openLimited} onMenu={onEconomyMenu} spendReaction={spendReaction} />
 

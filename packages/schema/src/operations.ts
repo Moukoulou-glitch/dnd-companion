@@ -219,6 +219,30 @@ export const OPERATION_PAYLOADS = {
     .strict(),
   /** Time passes outside combat: long effects and concentration count down. Rests do this too. */
   passTime: z.object({ minutes: z.number().int().min(1) }).strict(),
+  /** Start something that takes time (a ritual: its casting time + 10 minutes); `cast`: the spell it finishes with. */
+  startTimed: z
+    .object({
+      name: z.string(),
+      minutes: z.number().int().min(1),
+      cast: z
+        .object({
+          spell: z.string(),
+          list: z.string(),
+          level: z.number().int().min(0).max(9),
+          using: z.enum(["slot", "pact", "free", "ritual", "none", "extra", "scroll", "points"]),
+          selfEffect: z.boolean().default(false),
+          choice: z.string().optional(),
+          castingTime: z.string().optional(),
+          consumeComponent: z.boolean().optional(),
+        })
+        .strict()
+        .optional(),
+    })
+    .strict(),
+  /** It's done: its time passes, then the spell is cast (and its slot spent). */
+  finishTimed: z.object({}).strict(),
+  /** Interrupted (or called off): nothing is cast or spent; `minutes` that did pass, if any. */
+  cancelTimed: z.object({ minutes: z.number().int().min(1).optional() }).strict(),
   /** Your initiative roll for the current combat. */
   setInitiative: z.object({ value: z.number().int() }).strict(),
   /** Record rolls made in advance (Portent after a long rest). */
@@ -453,6 +477,9 @@ export const Operation = z.discriminatedUnion("type", [
   OperationBase.extend({ type: z.literal("companionAction"), payload: OPERATION_PAYLOADS.companionAction }),
   OperationBase.extend({ type: z.literal("endCompanionState"), payload: OPERATION_PAYLOADS.endCompanionState }),
   OperationBase.extend({ type: z.literal("passTime"), payload: OPERATION_PAYLOADS.passTime }),
+  OperationBase.extend({ type: z.literal("startTimed"), payload: OPERATION_PAYLOADS.startTimed }),
+  OperationBase.extend({ type: z.literal("finishTimed"), payload: OPERATION_PAYLOADS.finishTimed }),
+  OperationBase.extend({ type: z.literal("cancelTimed"), payload: OPERATION_PAYLOADS.cancelTimed }),
   OperationBase.extend({ type: z.literal("setInitiative"), payload: OPERATION_PAYLOADS.setInitiative }),
   OperationBase.extend({ type: z.literal("setPool"), payload: OPERATION_PAYLOADS.setPool }),
   OperationBase.extend({ type: z.literal("usePool"), payload: OPERATION_PAYLOADS.usePool }),
