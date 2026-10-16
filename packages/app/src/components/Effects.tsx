@@ -1,4 +1,4 @@
-import { ChangesEditor, changeValid, changesToModifiers, emptyChange, type ChangeDraft } from "./ChangesEditor";
+import { ChangesEditor, changeValid, changesToModifiers, describeChanges, emptyChange, type ChangeDraft } from "./ChangesEditor";
 import { RichText } from "./Conditions";
 import { Fragment, useMemo, useState } from "react";
 import type { ContentRegistry, EffectResult } from "@dnd/engine";
@@ -90,6 +90,13 @@ export function EffectPanel({ e, act, close, onRelease }: { e: EffectResult; act
         <p>
           <RichText text={e.summary} />
         </p>
+      )}
+      {e.changes && e.changes.length > 0 && (
+        <ul className="plain-list">
+          {describeChanges(e.changes).map((line) => (
+            <li key={line}>{line}</li>
+          ))}
+        </ul>
       )}
       {e.includes.length > 0 && (
         <p className="note">

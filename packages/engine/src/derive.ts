@@ -269,6 +269,8 @@ export interface EffectResult {
   levelNotes?: string[];
   /** Conditions it brings with it (Hold Person: Paralyzed; Invisibility: Invisible). */
   includes: { id: string; name: string }[];
+  /** A custom effect: the changes it makes (shown on its card in plain words). */
+  changes?: Modifier[];
   /** Ends when you attack or cast a spell (Invisibility). */
   endsOn?: ("attack" | "cast")[];
   /** Gone once its bonus is used in a roll (Bardic Inspiration): the label to look for. */
@@ -1480,6 +1482,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     if (!def) {
       r = { ...base, id: e.effect, name: e.custom?.name ?? e.effect, category: "other" };
       if (e.custom?.text) r.summary = e.custom.text;
+      if (e.custom?.modifiers.length) r.changes = e.custom.modifiers;
       if (!e.custom) warnings.push(`Effect "${e.effect}" isn't in the content pack.`);
     } else {
       const reminders = [...def.reminders];

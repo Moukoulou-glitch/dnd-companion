@@ -132,4 +132,19 @@ Object.assign(SPELL_FX, {
   "spell:maximilians-earthen-grasp": { family: "nature", cast: ground("sfx-grasp", 950, [40]), resolve: crush, again: crush, ongoing: "sfx-ongoing-earth" },
 } satisfies Record<string, SpellFxDef>);
 
+// Plant Growth: in a moment (Overgrowth), plants burst up and spread wide with leaves flying;
+// over 8 hours (Enrichment), slow sprouts and a warm glow over the land. It doesn't last, so no loop.
+Object.assign(SPELL_FX, {
+  "spell:plant-growth": {
+    family: "nature",
+    cast: ground("sfx-vines sfx-overgrowth", 1300, [20, 30, 20]),
+    modes: { "8 hours": { cast: ground("sfx-enrich", 1700) } },
+  },
+  // A wall of tangled brambles rises across the ground; a creature's damage from it is a sting of thorns.
+  "spell:wall-of-thorns": { family: "nature", cast: ground("sfx-thorn-wall", 1100, [30, 40, 30]), again: thornHit, resolve: thornHit, ongoing: "sfx-ongoing-thorns" },
+} satisfies Record<string, SpellFxDef>);
+
+// Shocking Grasp: lightning crackles over your hand where you touch (its damage then plays the lightning look).
+SPELL_FX["spell:shocking-grasp"] = { family: "lightning", cast: { look: "sfx-shock", ms: 600, at: "tap", buzz: [15, 25, 15], particles: 6 } };
+
 export const spellFxOf = (spell: string | undefined): SpellFxDef | undefined => (spell ? SPELL_FX[spell] : undefined);

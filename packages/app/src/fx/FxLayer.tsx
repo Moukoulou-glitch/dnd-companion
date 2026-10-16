@@ -251,6 +251,26 @@ export function FxLayer({ school, character }: { school: (spell: string) => stri
                 <path className="thorns" pathLength={1} vectorEffect="non-scaling-stroke" d="M10,200 C20,150 90,150 70,100 C55,62 20,60 50,4" />
               </svg>
             )}
+            {spec.look.includes("sfx-overgrowth") &&
+              Array.from({ length: 12 }, (_, i) => <span key={`l${i}`} className="sfx-leaf" style={{ ["--a" as string]: `${-80 + i * 14.5}deg`, animationDelay: `${300 + (i % 4) * 70}ms` }} />)}
+            {spec.look.includes("sfx-enrich") && (
+              <>
+                <span className="sfx-glow" />
+                {Array.from({ length: 9 }, (_, i) => (
+                  <span key={i} className="sfx-sprout" style={{ left: `${(i - 4) * 34}px`, animationDelay: `${(Math.abs(i - 4) * 110 + (i % 2) * 60)}ms` }} />
+                ))}
+              </>
+            )}
+            {spec.look.includes("sfx-thorn-wall") && (
+              <svg className="sfx-thorn-wall-svg" viewBox="0 0 400 120" preserveAspectRatio="none">
+                {["M0,120 C40,60 80,110 120,50 C160,0 200,90 240,40 C280,0 330,80 400,30", "M0,110 C50,40 90,90 140,60 C190,30 220,100 270,60 C320,20 360,90 400,60", "M0,120 C30,80 70,70 100,90 C150,120 180,40 230,70 C280,100 330,50 400,90"].map((d, i) => (
+                  <g key={i} className={`b${i + 1}`}>
+                    <path pathLength={1} vectorEffect="non-scaling-stroke" d={d} />
+                    <path className="thorns" pathLength={1} vectorEffect="non-scaling-stroke" d={d} />
+                  </g>
+                ))}
+              </svg>
+            )}
             {spec.look.includes("sfx-spikes") && Array.from({ length: 11 }, (_, i) => <span key={i} className="sfx-spike" style={{ left: `${(i - 5) * 26}px`, animationDelay: `${Math.abs(i - 5) * 45}ms` }} />)}
             {spec.look.includes("sfx-grasp") && (
               <>
@@ -341,6 +361,13 @@ export function FxLayer({ school, character }: { school: (spell: string) => stri
               <svg className="fx-streak" viewBox="-60 -30 120 60">
                 <path pathLength={1} d="M-56,14 L50,-10" />
                 <path pathLength={1} d="M-50,24 L56,0" />
+              </svg>
+            )}
+            {spec.look.includes("sfx-shock") && (
+              <svg className="sfx-arcs" viewBox="-50 -50 100 100">
+                {[0, 72, 144, 216, 288].map((a, i) => (
+                  <path key={a} className={`a${i % 2}`} d="M0,-8 L4,-18 L-3,-24 L3,-34 L-2,-44" transform={`rotate(${a + 15})`} />
+                ))}
               </svg>
             )}
             {spec.look.includes("sfx-crush") && (

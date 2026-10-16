@@ -107,14 +107,18 @@ export function opFx(type: string, payload: unknown, before: Character, after: C
   // Durable's Hit Die against damage: the reduction is the result.
   if (type === "spendHitDie" && p.reduce) out.push({ kind: "defend", how: "reduced", amount: Number(p.roll) || 0 });
 
-  if (type === "castSpell" && typeof p.spell === "string") {
+  // A ritual or long casting takes effect when it's finished: its cast look plays then, never when it's started.
+  const cast = type === "castSpell" ? p : type === "finishTimed" && before.timed?.cast ? (before.timed.cast as Record<string, unknown>) : undefined;
+  if (cast && typeof cast.spell === "string") {
     // A spell with its own cast look plays that; any other gets the arcane circle in its school's colour.
-    const def = spellFxOf(p.spell);
-    // The mode picked when casting (Control Water: Whirlpool); a mode the effects don't know is left out, so the neutral look plays.
-    const mode = typeof p.choice === "string" && def?.modes?.[p.choice.toLowerCase()] ? p.choice.toLowerCase() : undefined;
-    if (def?.cast) out.push({ kind: "spell", spell: p.spell, phase: "cast", ...(mode ? { mode } : {}) });
+    const def = spellFxOf(cast.spell);
+    // The mode picked when casting (Control Water: Whirlpool), or the casting time picked (Plant Growth: 8 hours);
+    // a mode the effects don't know is left out, so the neutral look plays.
+    const picked = [cast.choice, cast.castingTime].find((m): m is string => typeof m === "string" && !!def?.modes?.[m.toLowerCase()]);
+    const mode = picked?.toLowerCase();
+    if (def?.cast) out.push({ kind: "spell", spell: cast.spell, phase: "cast", ...(mode ? { mode } : {}) });
     else {
-      const s = school?.(p.spell)?.toLowerCase();
+      const s = school?.(cast.spell)?.toLowerCase();
       out.push(s ? { kind: "cast", school: s } : { kind: "cast" });
     }
   }

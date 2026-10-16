@@ -76,6 +76,10 @@ The effects are decoration only. Each one follows a confirmed change or result a
   - **Spike Growth:** a row of spikes rises, rippling out from the middle. Its damage (from the concentration chip) is a sting of thorns. While it lasts, a low band of spikes sits above the tabs.
   - **Grasping Vine:** one thick vine rises with a curling tip, and a small curled vine sways at the bottom-left while it lasts. It deals no damage, so its later lashes have nothing to follow.
   - **Maximilian's Earthen Grasp:** the ground cracks, and a hand of earth rises and closes into a fist. Each crush squeezes, right after casting and later from the chip. While it lasts, a band of earth sits above the tabs.
+  - **Plant Growth:** cast in a moment, vines burst up twice as wide and leaves fly out. Cast over 8 hours, a warm glow settles over the ground and small sprouts rise slowly, when the casting is done. It doesn't last, so there's no band.
+  - **Wall of Thorns:** tangled brambles grow across the whole width, thorns showing as they set. Its damage is a sting of thorns. While it lasts, a thorny band sits above the tabs.
+- **Shocking Grasp** (lightning, not nature): a blue-white flash where you touch, with arcs crackling out. Its damage then plays the usual lightning look.
+- **Rituals and long castings:** the cast look plays when the casting is finished (Done on Play), never when it's started; an interrupted casting plays nothing.
 - **Placeholders:** Grasping Vine and Maximilian's Earthen Grasp are in `content/packs/table-2014/spells-placeholder.json`, in our own words with no book text. A book file adds the full text.
 
 ## Spells by phase and unarmed strikes
