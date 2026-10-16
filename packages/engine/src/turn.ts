@@ -98,7 +98,8 @@ export function turnWarnings(c: Character, sheet: DerivedSheet, intent: TurnInte
 
   if (intent.spell) {
     if (c.toggles.includes("raging")) out.push("You can't cast spells while raging.");
-    if (c.shape && c.shape.kind !== "truepolymorph" && !(c.shape.kind === "wildshape" && sheet.wildShape?.beastSpells)) out.push(`You can't cast spells in ${c.shape.kind === "wildshape" ? "Wild Shape" : "a polymorphed form"}.`);
+    if (c.shape?.kind === "shapechange") out.push("In Shapechange you can cast only if the form can speak and gesture (verbal and somatic components).");
+    else if (c.shape && c.shape.kind !== "truepolymorph" && !(c.shape.kind === "wildshape" && sheet.wildShape?.beastSpells)) out.push(`You can't cast spells in ${c.shape.kind === "wildshape" ? "Wild Shape" : "a polymorphed form"}.`);
     if (intent.spell.concentration && c.concentration) {
       out.push(`You're concentrating on ${c.concentration.name}: casting ${intent.name} ends it.`);
     }

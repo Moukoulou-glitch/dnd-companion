@@ -329,7 +329,7 @@ export const EffectDef = z
     /** Said when it ends (Haste: the wave of lethargy). */
     endNote: z.string().optional(),
     /** Turns you into a creature (Polymorph: a beast; True Polymorph: any creature): the app asks which. */
-    transform: z.enum(["beast", "creature"]).optional(),
+    transform: z.enum(["beast", "creature", "shapechange"]).optional(),
     /** An effect that follows when it ends, lasting until after your next turn (Haste's lethargy). */
     afterEffect: DefId.optional(),
   })

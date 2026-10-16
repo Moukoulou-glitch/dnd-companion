@@ -148,3 +148,8 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 ## Custom effects
 
 - A skill change applies to that skill's checks (and passive, for Perception, Investigation and Insight). Checks made with a different ability than usual (a Strength (Intimidation) check, as the DM may call for) aren't covered.
+
+## Polymorph, True Polymorph and Shapechange
+
+- Cast on another creature, nothing changes on your sheet (its statistics are the DM's). True Polymorph into an object, and its permanence after a full hour, aren't tracked: remove the effect when it's dispelled.
+- Shapechange: your class features and spells while in a form are up to the form's body (the app reminds you); equipment falling, merging or being worn isn't tracked. Animal Shapes (on others) isn't tracked.

@@ -81,7 +81,10 @@ export function TransformPanel({
   reg,
   character,
   onPick,
+  maxCr,
 }: {
+  /** A lower limit than the caster's level (Shapechanger: a beast of CR 1 or lower). */
+  maxCr?: number;
   kind: ShapeKind;
   sheet: DerivedSheet;
   reg: ContentRegistry;
@@ -90,14 +93,14 @@ export function TransformPanel({
 }) {
   const kind = first;
   const [q, setQ] = useState("");
-  const [casterLevel, setCasterLevel] = useState(String(sheet.level));
+  const [casterLevel, setCasterLevel] = useState(String(maxCr ?? sheet.level));
   const limits = sheet.wildShape;
   const polyMax = Number(casterLevel) || 0;
   const list = useMemo(() => {
     const elementals = new Set(["creature:air-elemental", "creature:earth-elemental", "creature:fire-elemental", "creature:water-elemental"]);
     return reg
       .list("creature")
-      .filter((d) => kind === "truepolymorph" || d.type === "beast" || (kind === "wildshape" && elementals.has(d.id)))
+      .filter((d) => kind === "truepolymorph" || kind === "shapechange" || d.type === "beast" || (kind === "wildshape" && elementals.has(d.id)))
       .map((d) => ({ d, issues: shapeIssues(d, kind, limits, polyMax), elemental: elementals.has(d.id) }))
       .sort((a, b) => a.d.cr - b.d.cr || a.d.name.localeCompare(b.d.name));
   }, [reg, kind, limits, polyMax]);
@@ -109,7 +112,7 @@ export function TransformPanel({
       <div className="row-main">
         <div className="row-title">{x.d.name}</div>
         <div className="row-sub">
-          CR {crText(x.d.cr)} · {x.d.size} {kind === "truepolymorph" ? x.d.type : ""} · AC {x.d.ac} · {x.d.hp} HP · {speedText(x.d)}
+          CR {crText(x.d.cr)} · {x.d.size} {kind === "truepolymorph" || kind === "shapechange" ? x.d.type : ""} · AC {x.d.ac} · {x.d.hp} HP · {speedText(x.d)}
         </div>
         {x.issues.length > 0 && <div className="row-sub danger-text">{x.issues.join(" ")}</div>}
       </div>
@@ -126,10 +129,16 @@ export function TransformPanel({
           {limits.elemental ? " Elementals take two uses." : ""}
         </p>
       )}
-      {kind !== "wildshape" && (
+      {kind === "shapechange" && (
+        <p className="note">
+          A creature of CR {crText(polyMax)} or lower (your level), not a construct or an undead. Its body replaces yours; your Intelligence, Wisdom and Charisma, your skills and saves, and your features stay with you.
+        </p>
+      )}
+      {kind !== "wildshape" && kind !== "shapechange" && (
         <>
           <p className="note">
-            {kind === "truepolymorph" ? "What type of creature? Its statistics, mind included, replace yours." : "Which beast? Its statistics, mind included, replace yours."} Your table's rule: its CR can be up to the caster's level.
+            {kind === "truepolymorph" ? "What type of creature? Its statistics, mind included, replace yours." : "Which beast? Its statistics, mind included, replace yours."}{" "}
+            {maxCr !== undefined ? `Shapechanger: a beast of CR ${crText(maxCr)} or lower.` : "Your table's rule: its CR can be up to the caster's level."}
           </p>
           <label className="roll-entry">
             <span>Caster's level</span>
@@ -138,7 +147,7 @@ export function TransformPanel({
         </>
       )}
       {character.shape && <p className="note">You're in a form now: picking another replaces it{kind === "wildshape" ? " and uses Wild Shape again" : ""}.</p>}
-      <input className="search" type="search" placeholder={kind === "truepolymorph" ? "Search creatures (name or type)" : "Search beasts"} value={q} onChange={(e) => setQ(e.target.value)} />
+      <input className="search" type="search" placeholder={kind === "truepolymorph" || kind === "shapechange" ? "Search creatures (name or type)" : "Search beasts"} value={q} onChange={(e) => setQ(e.target.value)} />
       <div className="group">{ok.map(row)}</div>
       {ok.length === 0 && <p className="note">Nothing within the rules matches. Load a bestiary book file for more beasts.</p>}
       {beyond.length > 0 && (
@@ -159,6 +168,7 @@ export function ShapePanel({
   openRoll,
   openHp,
   onRevert,
+  onAnotherForm,
   onHealSlot,
   normalHp,
   openAttack,
@@ -181,6 +191,8 @@ export function ShapePanel({
   openRoll: (title: string, base: RollBreakdown, attack?: WeaponAttack) => void;
   openHp: () => void;
   onRevert: () => void;
+  /** Shapechange: take another form (an action) while the spell lasts. */
+  onAnotherForm?: () => void;
   /** Recharge actions waiting for their d6 (Fire Breath). */
   recharging?: string[];
   onHealSlot: (level: number, pact?: boolean) => void;
@@ -239,6 +251,12 @@ export function ShapePanel({
           Change back
           <span className="sub">{s.kind === "wildshape" ? "bonus action" : "the spell ends"}</span>
         </button>
+        {s.kind === "shapechange" && onAnotherForm && (
+          <button className="big" onClick={onAnotherForm}>
+            Another form
+            <span className="sub">action</span>
+          </button>
+        )}
       </div>
 
       {s.attacks.length > 0 && (

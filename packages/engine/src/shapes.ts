@@ -46,11 +46,21 @@ export function wildShapeLimits(c: Character, featureNames: string[]): WildShape
 }
 
 /** Why a creature is outside the limits (empty when it's fine). Warned about, never blocked. */
-export type ShapeKind = "wildshape" | "polymorph" | "truepolymorph";
+export type ShapeKind = "wildshape" | "polymorph" | "truepolymorph" | "shapechange";
+
+/** The picker for an effect's `transform`: a beast (Polymorph), any creature (True Polymorph), or Shapechange. */
+export function shapeKindOf(transform: "beast" | "creature" | "shapechange"): ShapeKind {
+  return transform === "creature" ? "truepolymorph" : transform === "shapechange" ? "shapechange" : "polymorph";
+}
 
 export function shapeIssues(d: CreatureDef, kind: ShapeKind, limits: WildShapeLimits | undefined, polymorphMax: number): string[] {
   const out: string[] = [];
   const crText = (n: number) => (n === 0.125 ? "1/8" : n === 0.25 ? "1/4" : n === 0.5 ? "1/2" : String(n));
+  if (kind === "shapechange") {
+    if (d.type === "construct" || d.type === "undead") out.push("Shapechange can't be a construct or an undead.");
+    if (d.cr > polymorphMax) out.push(`CR ${crText(d.cr)} is above ${crText(polymorphMax)} (your level).`);
+    return out;
+  }
   if (kind === "polymorph" || kind === "truepolymorph") {
     if (kind === "polymorph" && d.type !== "beast") out.push("Polymorph turns you into a beast.");
     if (d.cr > polymorphMax) out.push(`CR ${crText(d.cr)} is above ${crText(polymorphMax)} (the caster's level, by your table's rule).`);
@@ -306,7 +316,8 @@ export function deriveShape(
   if (!s) return undefined;
   const d = reg.find(s.creature, "creature");
   if (!d) return undefined;
-  const wild = s.kind === "wildshape";
+  // Wild Shape and Shapechange: your Intelligence, Wisdom and Charisma stay, and your proficiencies with them.
+  const wild = s.kind === "wildshape" || s.kind === "shapechange";
   const abilities = {} as ShapeResult["abilities"];
   for (const a of ABILITIES) {
     const keepMine = wild && (a === "int" || a === "wis" || a === "cha");
@@ -366,7 +377,13 @@ export function deriveShape(
       return w;
     }),
   );
-  const notes = wild
+  const notes = s.kind === "shapechange"
+    ? [
+        "Your Intelligence, Wisdom and Charisma stay yours, with your skill and save proficiencies (the creature's too). Your features work if its body can use them; special senses only if it has them.",
+        "As an action while the spell lasts, you can take another form.",
+        "At 0 HP you change back to the hit points you had, and extra damage carries over.",
+      ]
+    : wild
     ? [
         "You can't cast spells" + (limits?.beastSpells ? " except with Beast Spells (no material components with a cost)." : ", but concentration on a spell you already cast holds."),
         "You keep your features if the beast's body can use them; special senses only if the beast has them too.",

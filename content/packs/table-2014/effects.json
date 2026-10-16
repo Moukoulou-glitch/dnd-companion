@@ -1420,6 +1420,25 @@
     },
     {
       "kind": "effect",
+      "id": "effect:shapechange",
+      "name": "Shapechange",
+      "category": "spell",
+      "summary": "You take the form of a creature of your level or lower (not a construct or undead). Its body replaces yours; your mind, skills and saves stay.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 274
+      },
+      "modifiers": [],
+      "minutes": 60,
+      "concentration": true,
+      "transform": "shapechange",
+      "reminders": [
+        "As an action while it lasts, take another form. At 0 HP you change back and extra damage carries over."
+      ]
+    },
+    {
+      "kind": "effect",
       "id": "effect:barkskin",
       "name": "Barkskin",
       "category": "spell",

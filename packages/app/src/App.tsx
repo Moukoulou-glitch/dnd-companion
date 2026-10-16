@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
-import { buildItems, customCompanionId, customItemId, customSpellId, withCustom, castingEconomy, castingMinutes, creatureSpellRoll, formatBonus, summonBlock, materialNeed, maxSpellLevel, newCharacter, spellListOf, signed, turnWarnings, type TurnIntent, type RollBreakdown } from "@dnd/engine";
+import { buildItems, shapeKindOf, customCompanionId, customItemId, customSpellId, withCustom, castingEconomy, castingMinutes, creatureSpellRoll, formatBonus, summonBlock, materialNeed, maxSpellLevel, newCharacter, spellListOf, signed, turnWarnings, type TurnIntent, type RollBreakdown } from "@dnd/engine";
 import { ABILITY_NAMES, SKILL_NAMES, type Character, type Skill } from "@dnd/schema";
 import { roll as rollDice, type ComposerBase } from "@dnd/dice";
 import { ShapePanel, TextList, TransformPanel } from "./components/Shapes";
@@ -669,20 +669,30 @@ export function App() {
   };
 
   /** Wild Shape or Polymorph: choose the creature. */
-  const openTransform = (kind: ShapeKind, via: { effectId?: string; addEffect?: string } = {}) =>
-    open(kind === "wildshape" ? "Wild Shape" : kind === "truepolymorph" ? "True Polymorph" : "Polymorph", () =>
+  /**
+   * Choose a form. `via`: the effect instance it belongs to (`effectId`), an effect to add first (`addEffect`,
+   * from "+ Effect"), or the effect a spell just put on you (`forEffect`): looked up when you pick, once the
+   * cast is in the character.
+   */
+  const openTransform = (kind: ShapeKind, via: { effectId?: string; addEffect?: string; forEffect?: string; maxCr?: number } = {}) =>
+    open(kind === "wildshape" ? "Wild Shape" : kind === "truepolymorph" ? "True Polymorph" : kind === "shapechange" ? "Shapechange" : "Polymorph", () =>
       live.current.sheet && live.current.character ? (
         <TransformPanel
           kind={kind}
           sheet={live.current.sheet}
           reg={registry}
           character={live.current.character}
+          {...(via.maxCr !== undefined ? { maxCr: via.maxCr } : {})}
           onPick={(k, d, uses) =>
             guard(
-              { name: k === "wildshape" ? "Wild Shape" : "Polymorph", economy: k === "wildshape" ? (live.current.sheet?.wildShape?.bonusAction ? "bonus" : "action") : "free" },
+              {
+                name: k === "wildshape" ? "Wild Shape" : k === "shapechange" ? "Shapechange" : "Polymorph",
+                // Shapechange: the first form comes with the casting; another one later takes an action.
+                economy: k === "wildshape" ? (live.current.sheet?.wildShape?.bonusAction ? "bonus" : "action") : k === "shapechange" && live.current.character?.shape?.kind === "shapechange" ? "action" : "free",
+              },
               () => {
                 // From "+ Effect": the effect goes on first, and the form is tied to it.
-                let effectId = via.effectId;
+                let effectId = via.effectId ?? (via.forEffect ? [...(live.current.character?.effects ?? [])].reverse().find((e) => e.effect === via.forEffect)?.id : undefined);
                 if (via.addEffect) {
                   effectId = crypto.randomUUID();
                   live.current.act("addEffect", { instanceId: effectId, effect: via.addEffect }, `${registry.find(via.addEffect, "effect")?.name ?? "Effect"} added.`);
@@ -959,6 +969,10 @@ export function App() {
             })
           }
           normalHp={{ current: cur.character.hp.current, max: cur.sheet.hpMax.total }}
+          onAnotherForm={() => {
+            const effectId = live.current.character?.shape?.effect;
+            openTransform("shapechange", effectId ? { effectId } : {});
+          }}
           onRevert={() =>
             guard({ name: "Change back", economy: s.kind === "wildshape" ? "bonus" : "free" }, () => {
               if (s.kind === "wildshape" && live.current.character?.combat) live.current.act("useEconomy", { kind: "bonus", amount: 1 }, "Bonus action used.");
@@ -1985,7 +1999,7 @@ export function App() {
   const openAddEffect = () =>
     open(
       "Add an effect",
-      <AddEffectPanel registry={registry} act={s.act} close={close} onTransform={(d) => openTransform(d.transform === "creature" ? "truepolymorph" : "polymorph", { addEffect: d.id })} />,
+      <AddEffectPanel registry={registry} act={s.act} close={close} onTransform={(d) => openTransform(shapeKindOf(d.transform!), { addEffect: d.id })} />,
     );
 
   /** Constitution save against a DC; a failure ends concentration (undo is one tap away). */
@@ -2086,7 +2100,23 @@ export function App() {
    * casting ask first, the turn rules warn, free uses with none left ask
    * "Are you sure?", and the spell sheet comes back showing it was cast.
    */
-  const castFlow = (sp: SpellResult, level: number, using: "slot" | "pact" | "free" | "ritual" | "none" | "extra" | "scroll" | "points", selfEffect: boolean, readying = false, castingTime?: string) => {
+  const castFlow = (sp: SpellResult, level: number, using: "slot" | "pact" | "free" | "ritual" | "none" | "extra" | "scroll" | "points", selfEffect: boolean, readying = false, castingTime?: string, targetAsked = false) => {
+    // A spell that changes a creature's form: Shapechange is always you; Polymorph and True Polymorph ask who, every time.
+    const transform = readying ? undefined : effReg().find(sp.id.replace(/^spell:/, "effect:"), "effect")?.transform;
+    // Shapechange is always you; so is the Transmutation wizard's Shapechanger (Polymorph on yourself, once per short rest).
+    const selfOnly = transform === "shapechange" || (using === "free" && sp.cast.free?.resource === "shapechanger");
+    if (selfOnly && !selfEffect) return castFlow(sp, level, using, true, readying, castingTime, true);
+    if (transform && !selfOnly && !targetAsked)
+      return open(sp.name, () => (
+        <Choose
+          question={`Who are you casting ${sp.name} on?`}
+          detail={transform === "beast" ? "On yourself, you pick the beast next." : "On yourself, you pick the creature next."}
+          options={[
+            { label: "Me", onPick: () => castFlow(sp, level, using, true, readying, castingTime, true) },
+            { label: "Another creature", onPick: () => castFlow(sp, level, using, false, readying, castingTime, true) },
+          ]}
+        />
+      ));
     // Its effect asks for something first (Hex: which ability).
     const eff = selfEffect ? effReg().find(sp.id.replace(/^spell:/, "effect:"), "effect") : undefined;
     // A scroll needs no material components.
@@ -2113,7 +2143,7 @@ export function App() {
             }
             scrollChecked.current = true;
             setTimeout(() => {
-              castFlow(sp, level, using, selfEffect, readying, castingTime);
+              castFlow(sp, level, using, selfEffect, readying, castingTime, true);
               scrollChecked.current = false;
             }, 600);
           }}
@@ -2230,12 +2260,11 @@ export function App() {
                 `${sp.name} cast${castingTime ? ` (${castingTime})` : ""}${choice ? `: ${ABILITY_NAMES[choice as keyof typeof ABILITY_NAMES] ?? choice}` : ""}.`,
               );
               flashForSpell(sp.id, level);
-              // Polymorph or True Polymorph on yourself: which creature?
+              // Polymorph, True Polymorph or Shapechange on yourself: which creature? (Its effect is found when you pick.)
               const eff = selfEffect ? effReg().find(sp.id.replace(/^spell:/, "effect:"), "effect") : undefined;
-              const inst = eff?.transform ? [...(live.current.character?.effects ?? [])].reverse().find((e) => e.effect === eff.id) : undefined;
-              if (eff?.transform && inst) {
+              if (eff?.transform) {
                 transformed = true;
-                openTransform(eff.transform === "creature" ? "truepolymorph" : "polymorph", { effectId: inst.id });
+                openTransform(shapeKindOf(eff.transform), { forEffect: eff.id, ...(using === "free" && sp.cast.free?.resource === "shapechanger" ? { maxCr: 1 } : {}) });
               }
               // Spells that summon, create or animate creatures: which ones?
               const sum = registry.list("summon").find((x) => x.spell === sp.id);
@@ -2274,8 +2303,7 @@ export function App() {
     if (!sp || !t.cast) return close();
     flashForSpell(sp.id, t.cast.level);
     const eff = t.cast.selfEffect ? effReg().find(sp.id.replace(/^spell:/, "effect:"), "effect") : undefined;
-    const inst = eff?.transform ? [...(live.current.character?.effects ?? [])].reverse().find((e) => e.effect === eff.id) : undefined;
-    if (eff?.transform && inst) return openTransform(eff.transform === "creature" ? "truepolymorph" : "polymorph", { effectId: inst.id });
+    if (eff?.transform) return openTransform(shapeKindOf(eff.transform), { forEffect: eff.id });
     const sum = registry.list("summon").find((x) => x.spell === sp.id);
     if (sum) return openSummon(sum.id, t.cast.level);
     const check = prompts.find((p) => p.kind === "concentration");
@@ -2306,7 +2334,8 @@ export function App() {
         <SpellPanel
           sp={sp}
           sheet={live.current.sheet!}
-          hasSelfEffect={effReg().has(sp.id.replace(/^spell:/, "effect:"))}
+          // A form-changing spell asks who it's on when cast (Shapechange is always you): no switch.
+          hasSelfEffect={effReg().has(sp.id.replace(/^spell:/, "effect:")) && !effReg().find(sp.id.replace(/^spell:/, "effect:"), "effect")?.transform}
           selfDefault={selfByDefault(sp)}
           casterSide={!!effReg().find(sp.id.replace(/^spell:/, "effect:"), "effect")?.selfOnly}
           casterDamage={!!effReg().find(sp.id.replace(/^spell:/, "effect:"), "effect")?.modifiers.some((m) => m.selector.startsWith("roll.damage"))}

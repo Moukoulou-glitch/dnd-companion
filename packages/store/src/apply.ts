@@ -251,7 +251,8 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         const overflow = -c.shape.hp;
         const own = c.shape.ownSpell;
         delete c.shape;
-        if (own && c.concentration?.spell === "spell:polymorph") {
+        // Polymorph and True Polymorph end when the form drops to 0; Shapechange goes on (another form is an action away).
+        if (own && (c.concentration?.spell === "spell:polymorph" || c.concentration?.spell === "spell:true-polymorph")) {
           delete c.concentration;
           c.effects = c.effects.filter((e) => !e.concentration);
         }
@@ -521,8 +522,13 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         spendTurn(sheet.wildShape?.bonusAction ? "bonus" : "action");
         notes.push(`${d.name}: ${d.hp} HP, AC ${d.ac}.${sheet.wildShape ? ` Up to ${sheet.wildShape.hours} hour${sheet.wildShape.hours === 1 ? "" : "s"}.` : ""}`);
       } else {
-        ownSpell = c.concentration?.spell === (kind === "truepolymorph" ? "spell:true-polymorph" : "spell:polymorph");
-        notes.push(`${kind === "truepolymorph" ? "True Polymorph" : "Polymorphed"}: ${d.name}, ${d.hp} HP, AC ${d.ac}.`);
+        ownSpell = c.concentration?.spell === (kind === "truepolymorph" ? "spell:true-polymorph" : kind === "shapechange" ? "spell:shapechange" : "spell:polymorph");
+        notes.push(`${kind === "truepolymorph" ? "True Polymorph" : kind === "shapechange" ? "Shapechange" : "Polymorphed"}: ${d.name}, ${d.hp} HP, AC ${d.ac}.`);
+        if (kind === "shapechange") {
+          for (const issue of shapeIssues(d, kind, undefined, sheet.level)) notes.push(`Beyond the rules: ${issue}`);
+          // The first form comes with the casting; another one while it lasts takes an action.
+          if (c.shape?.kind === "shapechange") spendTurn("action");
+        }
       }
       c.shape = { kind, creature, hp: d.hp, ...(ownSpell ? { ownSpell } : {}), ...(op.payload.effect ? { effect: op.payload.effect } : {}) };
       break;
@@ -832,7 +838,8 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       const d = reg.find(c.shape.creature, "creature");
       // Leaving Wild Shape early takes a bonus action; Polymorph ends when the spell does.
       if (c.shape.kind === "wildshape" && !op.payload.why) spendTurn("bonus");
-      if (c.shape.ownSpell && c.concentration?.spell === "spell:polymorph") {
+      // Changing back from your own Polymorph, True Polymorph or Shapechange ends the spell.
+      if (c.shape.ownSpell && ["spell:polymorph", "spell:true-polymorph", "spell:shapechange"].includes(c.concentration?.spell ?? "")) {
         delete c.concentration;
         c.effects = c.effects.filter((e) => !e.concentration);
       }
@@ -2200,12 +2207,13 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
     }
   }
 
-  // A form held by an effect (Polymorph): the effect gone ends the form, and the form ending ends the effect.
+  // A form held by an effect (Polymorph): the effect gone ends the form, and the form ending ends the effect
+  // (not Shapechange's: it lasts, and you can take another form while it does).
   if (c.shape?.effect && !c.effects.some((e) => e.id === c.shape!.effect)) {
     notes.push(`${reg.find(c.shape.creature, "creature")?.name ?? "The form"} ends with the spell: back in your normal form.`);
     delete c.shape;
   }
-  if (input.shape?.effect && c.shape?.effect !== input.shape.effect && c.effects.some((e) => e.id === input.shape!.effect)) {
+  if (input.shape?.effect && input.shape.kind !== "shapechange" && c.shape?.effect !== input.shape.effect && c.effects.some((e) => e.id === input.shape!.effect)) {
     c.effects = c.effects.filter((e) => e.id !== input.shape!.effect);
   }
 
