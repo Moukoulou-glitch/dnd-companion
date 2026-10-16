@@ -160,14 +160,25 @@ export function SheetTab({
               <span className="num">{b.total}</span>
             </button>
           ))}
-          {Object.entries(sheet.senses).map(([sense, range]) => (
-            <div className="row" key={sense}>
-              <div className="row-main row-title" style={{ textTransform: "capitalize" }}>
-                {sense}
+          {Object.entries(sheet.senses).map(([sense, range]) => {
+            const from = sheet.senseSources[sense] ?? [];
+            return (
+              <div className="row" key={sense}>
+                <div className="row-main">
+                  <div className="row-title" style={{ textTransform: "capitalize" }}>
+                    {sense}
+                  </div>
+                  {from.length > 0 && (
+                    <div className="row-sub">
+                      {from[0]!.label}
+                      {from.length > 1 ? ` (best of: ${from.map((x) => `${x.label} ${x.value} ft`).join(", ")})` : ""}
+                    </div>
+                  )}
+                </div>
+                <span className="num">{range} ft</span>
               </div>
-              <span className="num">{range} ft</span>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </section>
 

@@ -1780,10 +1780,15 @@
         "page": 34
       },
       "minutes": 60,
-      "modifiers": [],
-      "reminders": [
-        "Darkvision 300 ft."
-      ]
+      "modifiers": [
+        {
+          "selector": "sense.darkvision",
+          "op": "grantSense",
+          "value": 300,
+          "label": "Eyes of Night (shared)"
+        }
+      ],
+      "reminders": []
     },
     {
       "kind": "effect",
@@ -2250,10 +2255,15 @@
         "book": "PHB",
         "page": 230
       },
-      "modifiers": [],
-      "reminders": [
-        "Darkvision 60 ft."
+      "modifiers": [
+        {
+          "selector": "sense.darkvision",
+          "op": "grantSense",
+          "value": 60,
+          "label": "Darkvision (spell)"
+        }
       ],
+      "reminders": [],
       "minutes": 480
     },
     {

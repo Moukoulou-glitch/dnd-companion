@@ -103,6 +103,12 @@ export const ModifierOp = z.enum([
    * speed". The best one of each kind counts.
    */
   "grantSpeed",
+  /**
+   * A sense: selector "sense.darkvision" (or blindsight, tremorsense, truesight), `value` in feet.
+   * With `ifAlready`: that many feet more instead, if you already have the sense from something
+   * else (Goggles of Night: 60, or +60; Umbral Sight: 60, or +30). The best range counts; they don't add up.
+   */
+  "grantSense",
 ]);
 export type ModifierOp = z.infer<typeof ModifierOp>;
 
@@ -123,6 +129,8 @@ export const Modifier = z
     oncePerTurn: z.boolean().optional(),
     /** grantSpeed (fly): it can hover. */
     hover: z.boolean().optional(),
+    /** grantSense: feet added instead when you already have the sense from something else. */
+    ifAlready: z.number().int().min(1).optional(),
     /** Ticking it on a roll spends this (a superiority die). */
     spends: z.object({ resource: z.string(), amount: z.number().int().min(1).default(1) }).strict().optional(),
     /** Only one option of a group per roll (one maneuver per attack). */

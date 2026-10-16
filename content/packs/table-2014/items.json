@@ -539,6 +539,17 @@
       "category": "wondrous",
       "magic": {
         "rarity": "uncommon"
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "sense.darkvision",
+            "op": "grantSense",
+            "value": 60,
+            "ifAlready": 60,
+            "label": "Goggles of Night"
+          }
+        ]
       }
     },
     {

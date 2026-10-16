@@ -201,9 +201,15 @@
         "page": 41
       },
       "grant": {
-        "senses": {
-          "darkvision": 60
-        }
+        "modifiers": [
+          {
+            "selector": "sense.darkvision",
+            "op": "grantSense",
+            "value": 60,
+            "ifAlready": 30,
+            "label": "Umbral Sight"
+          }
+        ]
       }
     },
     {

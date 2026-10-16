@@ -329,6 +329,8 @@ export interface DerivedSheet {
   proficiencies: { armor: string[]; weapons: string[]; tools: string[]; languages: string[]; removed: { kind: string; target: string; reason?: string }[] };
   defenses: { resist: string[]; immune: string[]; vulnerable: string[] };
   senses: Record<string, number>;
+  /** Where each sense's range comes from, best first (race 60, Goggles of Night +60 → 120). */
+  senseSources: Record<string, { label: string; value: number }[]>;
   /** On/off states some active feature reads (Rage, Mage Armor, a lit Flame Tongue), for the UI to offer as switches. */
   toggles: { name: string; label: string; on: boolean; reminders?: string[] }[];
   /** Features that are on by themselves (Aura of Protection), with what they do; off while unconscious and so on. */
@@ -1418,9 +1420,27 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
   }
   // Given by hand.
   for (const k of ["resist", "immune", "vulnerable"] as const) for (const v of c.defenseAdjust?.[k] ?? []) if (!defenses[k].includes(v)) defenses[k].push(v);
+  // Senses: the best range of each. A race's or feature's own sense, and senses from items and effects
+  // (Goggles of Night, a shared Eyes of Night); one that extends a sense you already have adds to the best
+  // of the others (Goggles: +60), never to another extension. Ranges don't add up otherwise.
+  const plain: Record<string, { label: string; value: number }[]> = {};
+  const extenders: Record<string, { label: string; value: number; ifAlready: number }[]> = {};
+  for (const s of sources) for (const [sense, range] of Object.entries(s.grant.senses ?? {})) (plain[sense] ??= []).push({ label: s.label, value: range });
+  for (const a of active) {
+    const m = /^sense\.(.+)$/.exec(a.mod.selector);
+    if (!m || a.mod.op !== "grantSense" || a.mod.mode === "suggested" || conditionState(a.mod.when) !== "pass") continue;
+    const value = typeof a.mod.value === "number" ? a.mod.value : evalFlat(a.mod.value ?? 0, ctxFor(a.source));
+    if (a.mod.ifAlready) (extenders[m[1]!] ??= []).push({ label: labelOf(a), value, ifAlready: a.mod.ifAlready });
+    else (plain[m[1]!] ??= []).push({ label: labelOf(a), value });
+  }
   const senses: Record<string, number> = {};
-  for (const s of sources) {
-    for (const [sense, range] of Object.entries(s.grant.senses ?? {})) senses[sense] = Math.max(senses[sense] ?? 0, range);
+  const senseSources: Record<string, { label: string; value: number }[]> = {};
+  for (const sense of new Set([...Object.keys(plain), ...Object.keys(extenders)])) {
+    const own = plain[sense] ?? [];
+    const had = Math.max(0, ...own.map((x) => x.value));
+    const all = [...own, ...(extenders[sense] ?? []).map((e) => (had > 0 ? { label: `${e.label} (+${e.ifAlready})`, value: had + e.ifAlready } : { label: e.label, value: e.value }))].sort((a, b) => b.value - a.value);
+    senses[sense] = all[0]!.value;
+    senseSources[sense] = all;
   }
 
   const effects: EffectResult[] = c.effects.map((e) => {
@@ -1554,6 +1574,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     },
     defenses,
     senses,
+    senseSources,
     features: [
       ...featureEntries(sources, reg).map((f) => {
         const dc = dcOf(FEATURE_DCS[f.id] ?? customDc(f.id));
