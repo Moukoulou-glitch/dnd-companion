@@ -27,6 +27,8 @@ export interface FxSpec {
   particles?: number;
   /** A damage type's colour and piece (fx/looks.ts). */
   dmg?: { rgb: string; shape: string };
+  /** Words shown and sent off (Sending). */
+  words?: string[];
 }
 
 const SCHOOLS = ["evocation", "abjuration", "necromancy", "conjuration"];
@@ -58,6 +60,9 @@ export function specOf(e: FxEvent): FxSpec {
       };
     case "inspiration":
       return { at: "tap", ms: 650, look: e.gained ? "fx-insp-gain" : "fx-insp-spend", ...(e.gained ? { particles: 5 } : {}) };
+    // Sending: the words gather, drift up one after another and thin into a line of light that shoots away.
+    case "sending":
+      return { at: "center", ms: Math.min(3400, 1600 + e.words.length * 60), buzz: [15, 40, 15], look: "fx-sending", words: e.words };
     case "level-up":
       return { at: "center", ms: 1000, buzz: [30, 80, 30, 80, 60], look: "fx-level", label: `Level ${e.level}` };
     case "unarmed":
@@ -386,6 +391,18 @@ export function FxLayer({ school, character }: { school: (spell: string) => stri
               </svg>
             )}
             {spec.dmg && <DamagePiece shape={spec.dmg.shape} />}
+            {spec.words && (
+              <>
+                <span className="fx-send-words">
+                  {spec.words.map((w, i) => (
+                    <span key={i} style={{ ["--i" as string]: String(i), ["--n" as string]: String(spec.words!.length) }}>
+                      {w}
+                    </span>
+                  ))}
+                </span>
+                <span className="fx-send-line" />
+              </>
+            )}
             {spec.look.startsWith("fx-insp") && (
               <svg className="fx-star" viewBox="-50 -50 100 100">
                 <path d="M0,-22 L6,-7 L22,-7 L9,3 L14,19 L0,10 L-14,19 L-9,3 L-22,-7 L-6,-7 Z" />

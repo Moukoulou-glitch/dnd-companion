@@ -39,6 +39,8 @@ import { AddExtraPanel, ExtraEditor, ExtraInline, skillExtra } from "./component
 import { AddItemPanel, CoinPanel, InventoryTab, ItemPanel, itemDef } from "./components/InventoryTab";
 import { bookReport, registry } from "./content";
 import { BookText, BooksPanel } from "./components/BookText";
+import { SendingPanel, sendingNote } from "./components/Sending";
+import { formatWorld } from "./calendar";
 import { BuildPanel, LevelUpPanel, NewCharacterPanel, type NewCharacterInput } from "./components/Builder";
 import { flashEnabled, flashForFeature, flashForSpell, flashTorch, setFlashEnabled } from "./flash";
 import { PlayTab, type PlayPrompts } from "./components/PlayTab";
@@ -368,6 +370,31 @@ export function App() {
       />
     ));
   };
+
+  /** Sending's message: written after the cast, saved as a note (with the session and in-world date), the words sent off. */
+  const openSending = () =>
+    open("Sending", () => (
+      <SendingPanel
+        onSkip={close}
+        onSend={(to, text) => {
+          const ch = live.current.character;
+          const cal = ch?.story.calendar;
+          live.current.act(
+            "addNote",
+            {
+              ...sendingNote(to, text),
+              category: "blue",
+              pinned: false,
+              ...(ch?.story.session !== undefined ? { session: ch.story.session } : {}),
+              ...(cal ? { gameDate: formatWorld(cal.minutes, cal.kind, cal.custom), gameMinutes: cal.minutes } : {}),
+            },
+            "Words sent: saved in your notes.",
+          );
+          playFx({ kind: "sending", words: text.trim().split(/\s+/).filter(Boolean).slice(0, 40) });
+          close();
+        }}
+      />
+    ));
 
   /** Damage to the character, then what it leads to: a concentration save, or instant death. */
   const takeDamage = (amount: number, type?: string, magical?: boolean, fromSpell?: boolean) => {
@@ -2271,6 +2298,11 @@ export function App() {
               if (sum) {
                 transformed = true;
                 openSummon(sum.id, level);
+              }
+              // Sending: the message, then it's saved in your notes.
+              if (sp.id === "spell:sending") {
+                transformed = true;
+                openSending();
               }
             },
             { cancelled: () => openSpell(sp), done: () => (transformed ? undefined : openSpell(sp, level)) },

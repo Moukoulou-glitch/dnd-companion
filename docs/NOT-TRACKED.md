@@ -153,3 +153,7 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 
 - Cast on another creature, nothing changes on your sheet (its statistics are the DM's). True Polymorph into an object, and its permanence after a full hour, aren't tracked: remove the effect when it's dispelled.
 - Shapechange: your class features and spells while in a form are up to the form's body (the app reminds you); equipment falling, merging or being worn isn't tracked. Animal Shapes (on others) isn't tracked.
+
+## Sending
+
+- The reply isn't asked for: add it to the note (Edit) if you want it kept. A Sending from a scroll or an item goes through the same box; a readied Sending released later doesn't open it.

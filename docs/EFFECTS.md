@@ -79,6 +79,7 @@ The effects are decoration only. Each one follows a confirmed change or result a
   - **Plant Growth:** cast in a moment, vines burst up twice as wide and leaves fly out. Cast over 8 hours, a warm glow settles over the ground and small sprouts rise slowly, when the casting is done. It doesn't last, so there's no band.
   - **Wall of Thorns:** tangled brambles grow across the whole width, thorns showing as they set. Its damage is a sting of thorns. While it lasts, a thorny band sits above the tabs.
 - **Shocking Grasp** (lightning, not nature): a blue-white flash where you touch, with arcs crackling out. Its damage then plays the usual lightning look.
+- **Sending:** once the message is sent, its words appear over a soft dark veil, drift up one after another and fade, and a thin line of light shoots away upward. Longer messages last a little longer (up to about 3.4 s). Reduced motion: the words only fade.
 - **Rituals and long castings:** the cast look plays when the casting is finished (Done on Play), never when it's started; an interrupted casting plays nothing.
 - **Placeholders:** Grasping Vine and Maximilian's Earthen Grasp are in `content/packs/table-2014/spells-placeholder.json`, in our own words with no book text. A book file adds the full text.
 

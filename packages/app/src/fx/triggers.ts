@@ -39,7 +39,9 @@ export type FxEvent =
   /** The Charmed condition put on you. */
   | { kind: "charmed" }
   /** A transformation started (Necrotic Shroud, Form of Dread): by the state the feature turns on. */
-  | { kind: "form"; form: string };
+  | { kind: "form"; form: string }
+  /** Sending: the message's words, once it's sent. */
+  | { kind: "sending"; words: string[] };
 
 /** A saved roll: crit and natural 1 on attack rolls only; Sneak Attack when its dice are in the damage. */
 export function rollFx(r: RollRecord): FxEvent[] {
