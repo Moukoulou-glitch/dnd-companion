@@ -402,10 +402,13 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
   const [throwing, setThrowing] = useState(false);
   const [throwNote, setThrowNote] = useState<string | undefined>();
   const alive = useRef(true);
+  const inAir = useRef(false);
   useEffect(() => {
     alive.current = true;
     return () => {
       alive.current = false;
+      // Closed while the dice are in the air: nothing is rolled, so the dice don't keep flying.
+      if (inAir.current) skipThrow();
     };
   }, []);
   /**
@@ -423,6 +426,7 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
   const throwThen = async (c: Composed, done: (r: ComposedRoll, thrown: boolean) => void, options?: ThrowOptions) => {
     setThrowing(true);
     setThrowNote(undefined);
+    inAir.current = true;
     let r: ComposedRoll | undefined;
     try {
       // Raging: your dice are thrown with Rage's force.
@@ -438,6 +442,7 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
               : "The 3D dice didn't work this time, so the app rolled.",
         );
     }
+    inAir.current = false;
     // Closed while the dice were in the air: nothing was rolled.
     if (!alive.current) return;
     setThrowing(false);

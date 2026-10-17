@@ -715,6 +715,15 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
         if (conditionState(mod.when) !== "fail" && mod.label) notes.push(mod.label);
         continue;
       }
+      // Great Weapon Fighting: a tick-box on the damage roll (the player knows whether the weapon is held in two hands).
+      if (mod.op === "reroll" && mod.value !== undefined && conditionState(mod.when) !== "fail") {
+        const v = flatOf(a);
+        const s: Suggestion = { label: labelOf(a), effect: `reroll ${v === 1 ? "1s" : `1–${v}`} once`, apply: { flat: 0, dice: [], rerollAtOrBelow: v } };
+        if (mod.when?.text) s.reason = mod.when.text;
+        if (mod.preset) s.preset = mod.preset;
+        suggestions.push(s);
+        continue;
+      }
       if (!["add", "advantage", "disadvantage"].includes(mod.op)) continue;
       const state = conditionState(mod.when);
       if (state === "fail") continue;

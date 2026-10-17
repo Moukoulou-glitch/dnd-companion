@@ -164,4 +164,5 @@ The effects are decoration only. Each one follows a confirmed change or result a
 - **Spell accents:** Fireball (an ember burst), Lightning Bolt (an arc across), Tidal Wave (the flood), on their damage; other spells keep their damage type's look.
 - **Sound and vibration:** a short knock as dice land (made in the browser, pitch by material) and each theme's buzz; both off until turned on in the dice settings; at most one per frame.
 - **Settings (7d):** in the Characters panel: 3D on/off, your dice's colour (class or own) and material, damage-type and feature looks (on by default; off → those dice look like yours), motion, sound, vibration, and two test throws. Device-only; looks never change a result.
+- **Acceptance (7e):** faces read from the 3D dice equal the recorded roll for every die size, advantage/disadvantage, crits, Great Weapon Fighting rerolls (thrown as a second throw), mixed damage and resource dice. Closing a roll mid-throw stops the dice and records nothing.
 

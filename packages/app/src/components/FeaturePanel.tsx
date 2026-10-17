@@ -1,8 +1,10 @@
 import { RichText, TextBlocks } from "./Conditions";
 import { DcBig } from "./DcBig";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { roll } from "@dnd/dice";
 import type { ActionResult } from "@dnd/engine";
+import { facesOrRoll } from "../dice/quick";
+import { skipThrow } from "../diceBox";
 
 const ECONOMY: Record<ActionResult["economy"], string> = {
   action: "Action",
@@ -42,11 +44,41 @@ export function FeaturePanel({
   const me = a.others ? onMe : undefined;
   const none = a.cost && a.cost.remaining < a.cost.amount;
 
-  const useNow = (free = false) => {
+  const [throwing, setThrowing] = useState(false);
+  // Closed while its dice are in the air: the dice stop and the feature isn't used.
+  const alive = useRef(true);
+  const inAir = useRef(false);
+  useEffect(() => {
+    alive.current = true;
+    return () => {
+      alive.current = false;
+      if (inAir.current) skipThrow();
+    };
+  }, []);
+  const useNow = async (free = false) => {
     if (!amount) return onUse(undefined, free, undefined, undefined, undefined, me);
     if (physical) return onUse(Number(entry) + amount.flat, free, undefined, undefined, undefined, me);
-    const formula = [...amount.dice, String(amount.flat)].join("+");
-    return onUse(Math.max(0, roll(formula).total), free, undefined, undefined, undefined, me);
+    // The app rolls for this character: 3D dice when they're on (in the feature's own look: Second Wind's), else the app's roll.
+    setThrowing(true);
+    inAir.current = true;
+    try {
+      let total = amount.flat;
+      for (const d of amount.dice) {
+        const m = /^(\d*)d(\d+)$/.exec(d);
+        if (!m) {
+          total += roll(d).total;
+          continue;
+        }
+        const faces = await facesOrRoll(Number(m[1] || 1), Number(m[2]), true, { source: a.name, keys: a.cost ? [`resource:${a.cost.resource}`] : [] });
+        total += faces.reduce((x, f) => x + f, 0);
+      }
+      inAir.current = false;
+      if (!alive.current) return;
+      return onUse(Math.max(0, total), free, undefined, undefined, undefined, me);
+    } finally {
+      inAir.current = false;
+      if (alive.current) setThrowing(false);
+    }
   };
 
 
@@ -145,12 +177,12 @@ export function FeaturePanel({
           </button>
         </>
       ) : (
-      <button className={`big wide ${none ? "damage" : "primary"}`} disabled={!!amount && physical && amount.dice.length > 0 && !entry} onClick={() => useNow()}>
-        {none ? `Use ${a.name} anyway` : a.roll && !physical ? `Roll and use ${a.name}` : `Use ${a.name}`}
+      <button className={`big wide ${none ? "damage" : "primary"}`} disabled={throwing || (!!amount && physical && amount.dice.length > 0 && !entry)} onClick={() => void useNow()}>
+        {throwing ? "Throwing…" : none ? `Use ${a.name} anyway` : a.roll && !physical ? `Roll and use ${a.name}` : `Use ${a.name}`}
       </button>
       )}
       {!a.common && (a.cost || a.economy !== "free") && (a.toggles.length > 0 || a.duration) && (
-        <button className="link" disabled={!!amount && physical && amount.dice.length > 0 && !entry} onClick={() => useNow(true)}>
+        <button className="link" disabled={throwing || (!!amount && physical && amount.dice.length > 0 && !entry)} onClick={() => void useNow(true)}>
           Just activate: switch it on without spending anything
         </button>
       )}
