@@ -3358,3 +3358,74 @@ button.mpip {
 .dice-strip.many { gap: 4px 8px; }
 @keyframes dice-land { 0% { transform: scale(1.35); } 100% { transform: scale(1); } }
 @media (prefers-reduced-motion: reduce) { .dice-strip b.landed { animation: none; } }
+
+/* ── 3D dice effects (7b): presets named by the themes (src/dice/themes.ts), shared keyframes, few elements ── */
+.dice-strip b { position: relative; }
+.dice-strip.strong { box-shadow: 0 0 0 1px rgba(255, 214, 120, 0.7), 0 2px 14px rgba(255, 200, 90, 0.35); }
+.dice-strip-crit { width: 100%; text-align: center; font-weight: 800; font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase; color: #ffd67a; }
+.dice-strip.strong b.landed { box-shadow: 0 0 0 1px rgba(255, 214, 120, 0.8); }
+.dice-strip b em { margin-left: 6px; white-space: nowrap; font-style: normal; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.04em; }
+.dice-strip b.nat20, .dice-strip b.nat1 { padding: 0 8px; isolation: isolate; }
+/* The flames and ash sit behind the value and its words */
+.dice-strip b.nat20::before, .dice-strip b.nat1::before, .dice-strip b.nat1::after { z-index: -1; }
+
+/* Impacts as each die lands: one keyframe set, shaped by the preset */
+.dice-strip b[class*="hit-"]::after { content: ""; position: absolute; inset: -6px; border-radius: 10px; pointer-events: none; opacity: 0; animation: dice-impact 520ms ease-out; }
+.dice-strip b.hit-flare::after { background: radial-gradient(circle, rgba(255, 190, 80, 0.9), rgba(255, 90, 20, 0) 70%); }
+.dice-strip b.hit-frost::after { background: radial-gradient(circle, rgba(225, 245, 255, 0.95), rgba(140, 200, 255, 0) 70%); border: 1px dashed rgba(220, 240, 255, 0.8); }
+.dice-strip b.hit-splash::after, .dice-strip b.hit-puff::after { background: radial-gradient(circle, rgba(170, 255, 90, 0.8), rgba(80, 160, 40, 0) 70%); }
+.dice-strip b.hit-thud::after { background: radial-gradient(ellipse at 50% 100%, rgba(190, 160, 120, 0.8), rgba(120, 90, 60, 0) 70%); }
+.dice-strip b.hit-pulse::after { border: 2px solid var(--die); box-shadow: 0 0 10px var(--die); }
+.dice-strip b.hit-spark::after { background: radial-gradient(circle, rgba(255, 255, 220, 1), rgba(120, 170, 255, 0) 60%); animation-timing-function: steps(3); }
+.dice-strip b.hit-drain::after { background: radial-gradient(circle, rgba(10, 5, 20, 0.9), rgba(90, 40, 120, 0) 70%); animation-name: dice-drain; }
+.dice-strip b.hit-pin::after, .dice-strip b.hit-cut::after { background: linear-gradient(115deg, transparent 40%, rgba(255, 255, 255, 0.95) 50%, transparent 60%); }
+.dice-strip b.hit-ripple::after { border: 2px solid rgba(255, 170, 230, 0.8); border-radius: 50%; }
+.dice-strip b.hit-shock::after { border: 3px solid rgba(200, 190, 255, 0.85); border-radius: 50%; }
+.dice-strip b.hit-bloom::after { background: radial-gradient(circle, rgba(170, 255, 170, 0.85), rgba(60, 200, 90, 0) 70%); }
+@keyframes dice-impact { 0% { opacity: 1; transform: scale(0.6); } 100% { opacity: 0; transform: scale(1.7); } }
+@keyframes dice-drain { 0% { opacity: 0; transform: scale(1.8); } 60% { opacity: 1; } 100% { opacity: 0; transform: scale(0.6); } }
+
+/* Natural 20: radiant flames of glory around the die's value, and a golden flare */
+.dice-strip b.nat20 { background: linear-gradient(180deg, #fff3c4, #f0b429 55%, #c77d0a); color: #3b2300; text-shadow: none; box-shadow: 0 0 10px 2px rgba(255, 200, 80, 0.9), 0 0 22px 6px rgba(255, 150, 30, 0.55); }
+.dice-strip b.nat20 em { color: #3b2300; }
+.dice-strip b.nat20::before { content: ""; position: absolute; left: -6px; right: -6px; bottom: 30%; height: 44px; pointer-events: none; background: radial-gradient(ellipse at 50% 100%, rgba(255, 240, 180, 0.95), rgba(255, 170, 40, 0.75) 40%, rgba(255, 90, 0, 0) 72%); filter: blur(1px); transform-origin: 50% 100%; animation: dice-flames 420ms ease-in-out infinite alternate; }
+@keyframes dice-flames { 0% { transform: scaleY(0.85) skewX(-4deg); opacity: 0.85; } 100% { transform: scaleY(1.15) skewX(4deg); opacity: 1; } }
+.dice-flash.nat20 { position: fixed; inset: 0; z-index: 56; pointer-events: none; background: radial-gradient(circle at 50% 16%, rgba(255, 236, 170, 0.75), rgba(255, 170, 40, 0.3) 35%, rgba(255, 140, 0, 0) 70%); animation: dice-glory 1400ms ease-out forwards; }
+@keyframes dice-glory { 0% { opacity: 0; } 15% { opacity: 1; } 100% { opacity: 0; } }
+
+/* Natural 1: the value goes to ash (greyed, cracked, flakes falling) and the screen dims a moment */
+.dice-strip b.nat1 { background: #4a4a4a; color: #d8d8d8; filter: grayscale(1); box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.6); animation: dice-ash 900ms ease-out forwards; }
+.dice-strip b.nat1 em { color: #e2e2e2; }
+.dice-strip b.nat1::before { content: ""; position: absolute; inset: 0; border-radius: 7px; pointer-events: none; background: linear-gradient(120deg, transparent 46%, rgba(0, 0, 0, 0.7) 48%, transparent 51%), linear-gradient(40deg, transparent 58%, rgba(0, 0, 0, 0.6) 60%, transparent 62%); }
+.dice-strip b.nat1::after { content: ""; position: absolute; left: 10%; right: 10%; top: 60%; height: 18px; pointer-events: none; background: radial-gradient(circle, rgba(170, 170, 170, 0.9) 1px, transparent 2px) 0 0 / 7px 6px; animation: dice-ash-fall 1100ms ease-in forwards; }
+@keyframes dice-ash { 0% { transform: scale(1.1); } 30% { transform: scale(0.95) rotate(-3deg); } 100% { transform: scale(1) rotate(0); } }
+@keyframes dice-ash-fall { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(22px); } }
+.dice-flash.nat1 { position: fixed; inset: 0; z-index: 56; pointer-events: none; background: radial-gradient(circle at 50% 18%, rgba(20, 20, 24, 0.1), rgba(0, 0, 0, 0.45) 75%); animation: dice-glory 1100ms ease-out forwards; }
+
+/* Particles in the air while the dice roll: one set of spans, shaped by the preset */
+.dice-air { position: fixed; inset: 0; z-index: 54; pointer-events: none; overflow: hidden; }
+.dice-air > span { position: absolute; bottom: -10px; left: calc(var(--i) * 8.3% + 2%); width: 6px; height: 6px; border-radius: 50%; background: var(--die); opacity: 0; animation: dice-rise 2200ms ease-out infinite; animation-delay: calc(var(--i) * -180ms); }
+.dice-air.fast > span { animation-duration: 1300ms; }
+.air-embers > span { background: radial-gradient(circle, #fff1b0, #ff8a1c 60%, transparent 70%); width: 5px; height: 5px; }
+.air-snow > span { background: #f2f8ff; animation-name: dice-fall; top: -10px; bottom: auto; }
+.air-smoke > span { width: 40px; height: 40px; background: radial-gradient(circle, rgba(60, 30, 80, 0.45), transparent 70%); filter: blur(4px); }
+.air-vapour > span { width: 30px; height: 30px; background: radial-gradient(circle, rgba(120, 220, 90, 0.35), transparent 70%); filter: blur(3px); }
+.air-droplets > span { border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; background: rgba(160, 255, 80, 0.75); animation-name: dice-fall; top: -10px; bottom: auto; }
+.air-dust > span { background: rgba(180, 150, 110, 0.6); width: 4px; height: 4px; animation-duration: 1600ms; }
+.air-runes > span { width: 10px; height: 10px; border-radius: 1px; background: none; border: 1.5px solid var(--die); transform: rotate(45deg); }
+.air-arcs > span { width: 2px; height: 18px; border-radius: 1px; background: #f4f8ff; box-shadow: 0 0 6px #9fb4ff; animation-timing-function: steps(4); }
+.air-glints > span { width: 3px; height: 3px; background: #fff; box-shadow: 0 0 6px #fff; }
+.air-motes > span { background: rgba(255, 170, 230, 0.8); box-shadow: 0 0 8px rgba(255, 140, 220, 0.8); }
+.air-light > span { background: rgba(255, 240, 190, 0.9); box-shadow: 0 0 10px rgba(255, 220, 120, 0.9); }
+.air-rings > span { width: 26px; height: 26px; background: none; border: 2px solid rgba(200, 190, 255, 0.6); }
+@keyframes dice-rise { 0% { opacity: 0; transform: translateY(0); } 20% { opacity: 0.9; } 100% { opacity: 0; transform: translateY(-55vh); } }
+@keyframes dice-fall { 0% { opacity: 0; transform: translateY(0); } 20% { opacity: 0.9; } 100% { opacity: 0; transform: translateY(55vh); } }
+
+/* Reduced: no motion; the words and colours still say what happened */
+.dice-strip.reduced b::after, .dice-strip.reduced b::before { animation: none !important; opacity: 0.6; }
+.dice-flash.reduced { animation-duration: 600ms; }
+@media (prefers-reduced-motion: reduce) {
+  .dice-air { display: none; }
+  .dice-strip b::after, .dice-strip b::before { animation: none !important; }
+  .dice-strip b.nat1 { animation: none; }
+}

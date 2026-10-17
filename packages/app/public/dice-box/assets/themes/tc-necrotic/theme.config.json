@@ -1,0 +1,27 @@
+{
+  "name": "Necrotic (Table Companion)",
+  "systemName": "tc-necrotic",
+  "author": "Table Companion (numbers and dice shapes: dice-box default theme, MIT)",
+  "version": 1,
+  "material": {
+    "type": "color",
+    "diffuseTexture": {
+      "light": "diffuse-light.png",
+      "dark": "diffuse-dark.png"
+    },
+    "diffuseLevel": 1,
+    "bumpTexture": "normal.jpg",
+    "bumpLevel": 0.5,
+    "specularTexture": "specular.jpg",
+    "specularPower": 0.5
+  },
+  "diceAvailable": [
+    "d4",
+    "d6",
+    "d8",
+    "d10",
+    "d12",
+    "d20",
+    "d100"
+  ]
+}

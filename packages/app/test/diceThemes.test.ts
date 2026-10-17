@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { CLASS_THEMES, DAMAGE_THEMES, DEFAULT_THEME, lookOf, registerDiceTheme, resolveTheme, type DicePrefs } from "../src/dice/themes";
+import { existsSync, readFileSync } from "node:fs";
+import { CLASS_THEMES, DAMAGE_MATERIALS, DAMAGE_THEMES, DEFAULT_THEME, lookOf, registerDiceTheme, resolveTheme, type DicePrefs } from "../src/dice/themes";
 import { batches, MAX_IN_AIR } from "../src/dice/plan";
 
 const prefs = (p: Partial<DicePrefs> = {}): DicePrefs => ({ picked: null, classes: [{ class: "class:wizard", level: 5 }], damageThemes: true, featureThemes: true, ...p });
@@ -31,7 +32,7 @@ describe("Dice themes: data, resolved in a fixed order", () => {
     expect(resolveTheme({ label: "fire", source: "feature:test-surge" }, prefs()).id).toBe("test-surge");
     expect(resolveTheme({ label: "fire", source: "feature:test-surge" }, prefs({ featureThemes: false })).id).toBe("damage-fire");
     expect(resolveTheme({ source: "feature:unknown" }, prefs()).id).toBe("class-wizard");
-    expect(lookOf(DAMAGE_THEMES.fire!, "fire")).toEqual({ theme: "default", color: DAMAGE_THEMES.fire!.color, id: "damage-fire", label: "fire" });
+    expect(lookOf(DAMAGE_THEMES.fire!, "fire")).toEqual({ theme: "tc-fire", color: DAMAGE_THEMES.fire!.color, id: "damage-fire", label: "fire", impact: "flare", particles: "embers", glow: 2 });
   });
 });
 
@@ -46,5 +47,23 @@ describe("Large rolls go up in batches", () => {
     // 10 of one type and 4 of another: the 4 start the second throw rather than being split 2 + 2.
     const mixed = [...Array.from({ length: 10 }, (_, i) => ({ g: "a", i })), ...Array.from({ length: 4 }, (_, i) => ({ g: "b", i: 10 + i }))];
     expect(batches(mixed, (x) => x.g).map((x) => x.map((y) => y.g).join(""))).toEqual(["aaaaaaaaaa", "bbbb"]);
+  });
+});
+
+describe("The 13 damage-type materials", () => {
+  const dir = new URL("../public/dice-box/assets/themes/", import.meta.url).pathname;
+  it("each type has its own material folder, complete, with the default dice shapes and all dice", () => {
+    for (const type of DAMAGE_MATERIALS) {
+      const t = DAMAGE_THEMES[type]!;
+      expect(t.material).toBe(`tc-${type}`);
+      const cfg = JSON.parse(readFileSync(`${dir}${t.material}/theme.config.json`, "utf8"));
+      expect(cfg.systemName).toBe(t.material);
+      expect(cfg.meshFile).toBeUndefined(); // dice-box then uses the default dice shapes
+      expect(cfg.diceAvailable).toEqual(expect.arrayContaining(["d4", "d6", "d8", "d10", "d12", "d20"]));
+      for (const f of [cfg.material.diffuseTexture.light, cfg.material.diffuseTexture.dark, cfg.material.bumpTexture, cfg.material.specularTexture]) expect(existsSync(`${dir}${t.material}/${f}`)).toBe(true);
+      // Effects named for the strip and screen.
+      expect(t.impact).toBeTruthy();
+    }
+    expect(DAMAGE_THEMES.healing!.material).toBe("default");
   });
 });

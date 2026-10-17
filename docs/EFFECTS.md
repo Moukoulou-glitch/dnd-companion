@@ -152,3 +152,12 @@ The effects are decoration only. Each one follows a confirmed change or result a
   - Make death saves at 0 HP.
   - Level up.
   - Turn on "reduce motion" in the phone's settings to see the static versions.
+
+## 3D dice (7a, 7b)
+
+- **Materials:** each damage type's dice have their own surface (scripts/build-dice-themes.py → public/dice-box/assets/themes/tc-<type>), loaded the first time that type is thrown. The numbers and dice shapes are dice-box's default (MIT); a ring of plain tint around every number keeps it readable, and no pattern is stronger than half.
+- **The result strip** (top, below toasts): each die's value as it lands, by group, in its theme's colour, with its type's impact (flare, frost, splash, thud, pulse, spark, drain, pin, puff, ripple, cut, shock, bloom). A critical hit's damage says "Critical hit".
+- **In the air:** up to 12 of the main type's particles (embers, snow, smoke, vapour, droplets, dust, runes, arcs, glints, motes, light, rings); none in Reduced or with reduced motion.
+- **Natural 20 on a d20:** radiant flames around its value, "Natural 20" written on it, a golden flare across the screen. **Natural 1:** the value goes to ash ("Natural 1"), the screen dims a moment. Never called a rules success or failure.
+- The dice draw in their own worker: these effects are drawn over them, not on a particular die.
+
