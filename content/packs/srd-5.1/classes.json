@@ -9115,6 +9115,12 @@
             "op": "add",
             "value": "mod.dex",
             "label": "Second-Story Work"
+          },
+          {
+            "selector": "stat.jump.high.running",
+            "op": "add",
+            "value": "mod.dex",
+            "label": "Second-Story Work"
           }
         ]
       }

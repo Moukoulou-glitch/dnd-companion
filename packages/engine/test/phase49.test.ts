@@ -49,8 +49,8 @@ describe("8j: jumping (a human: Strength 15 + 1 = 16)", () => {
     const x = j({ classes: [{ class: "class:paladin", level: 3, subclass: "subclass:oath-of-glory" }], toggles: ["peerless-athlete"] });
     expect([x.long.running.total, x.high.running.total]).toEqual([26, 16]);
   });
-  it("Second-Story Work: the Dexterity modifier (+2) on a running long jump", () => {
+  it("Second-Story Work: the Dexterity modifier (+2) on running jumps, long and high (table ruling)", () => {
     const x = j({ classes: [{ class: "class:rogue", level: 3, subclass: "subclass:thief" }] });
-    expect(x.long.running.total).toBe(18);
+    expect([x.long.running.total, x.long.standing.total, x.high.running.total, x.high.standing.total]).toEqual([18, 8, 8, 3]);
   });
 });
