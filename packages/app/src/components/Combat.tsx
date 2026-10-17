@@ -231,12 +231,18 @@ export function CompanionCard({ comp, onOpen }: { comp: CompanionResult; onOpen:
     <button className="row companion" onClick={onOpen}>
       <div className="row-main">
         <div className="row-title">{comp.name}</div>
-        <div className="row-sub">{f ? `${f.name}, AC ${f.ac.total}${f.hp.current === 0 && comp.summon ? " · gone until summoned" : ""}` : comp.summon || comp.summonedBy ? "Not summoned" : "Choose its form"}</div>
-        {comp.states.length > 0 && (
+        <div className="row-sub">{comp.away ? "Away: dismissed until you summon it again" : f ? `${f.name}, AC ${f.ac.total}${f.hp.current === 0 && comp.summon ? " · gone until summoned" : ""}` : comp.summon || comp.summonedBy ? "Not summoned" : "Choose its form"}</div>
+        {comp.states.length + comp.effects.length > 0 && !comp.away && (
           <div className="companion-tags">
             {comp.states.map((x) => (
               <span key={x.id} className="chip other">
                 {x.name} (1)
+              </span>
+            ))}
+            {comp.effects.map((e) => (
+              <span key={e.id} className="chip other">
+                {e.name}
+                {e.rounds !== undefined ? ` · ${e.rounds}` : ""}
               </span>
             ))}
           </div>
@@ -311,7 +317,7 @@ export function turnOrder(character: Character, sheet: DerivedSheet, reg?: Conte
   const you = { name: "You", you: true, with: [] as string[], ...(character.combat?.initiative !== undefined ? { initiative: character.combat.initiative } : {}) };
   const out: { name: string; initiative?: number; you?: boolean; with?: string[] }[] = [you];
   for (const comp of sheet.companions) {
-    if (!comp.form || comp.form.hp.current === 0 || (comp.summonedBy && !comp.summonedBy.out)) continue;
+    if (!comp.form || comp.away || comp.form.hp.current === 0 || (comp.summonedBy && !comp.summonedBy.out)) continue;
     if (comp.turn === "own") out.push({ name: comp.name, ...(comp.initiative !== undefined ? { initiative: comp.initiative } : {}) });
     else you.with.push(comp.turn === "after" ? `${comp.name} (right after)` : comp.name);
   }
@@ -468,9 +474,15 @@ export function CompanionPanel({
   onSummon,
   onRollInitiative,
   onBack,
+  onClose,
+  onAddEffect,
 }: {
   /** Back to this panel (from an action's details). */
   onBack?: () => void;
+  /** Close it (back to where it was opened from). */
+  onClose?: () => void;
+  /** Put a condition, spell or other effect on it. */
+  onAddEffect?: () => void;
   /** Its own initiative, rolled (d20 + its Dexterity). */
   onRollInitiative: () => void;
   /** Out only while its action's timer runs (Hound of Ill Omen): use that action. */
@@ -535,9 +547,38 @@ export function CompanionPanel({
 
   const dead = f.hp.current === 0;
   const slots = sheet.spellSlots.filter((s) => s.total - s.used > 0);
+  const back = onClose && (
+    <button className="link back-link" onClick={onClose}>
+      ‹ Back
+    </button>
+  );
+  const dismiss = (
+    <DismissCompanion
+      comp={comp}
+      onPick={(how) => {
+        act("dismissCompanion", { companion: comp.id, how }, how === "away" ? `${comp.name} is dismissed until you summon it again.` : `${comp.name} is dismissed for good.`);
+        if (how === "total") onClose?.();
+      }}
+    />
+  );
+
+  if (comp.away)
+    return (
+      <>
+        {back}
+        <p className="note">
+          {comp.name} is away: dismissed until you summon it again. It keeps its {f.hp.current} of {f.hpMax.total} hit points.
+        </p>
+        <button className="big primary wide" onClick={() => act("dismissCompanion", { companion: comp.id, how: "back" }, `${comp.name} is back.`)}>
+          Summon {comp.name} again
+        </button>
+        {dismiss}
+      </>
+    );
 
   return (
     <>
+      {back}
       <p className="row-sub">
         {f.size} {f.type}, {comp.custom ? `${comp.custom.kind || "companion"} of yours${comp.custom.bond?.active ? `, your ${comp.custom.bond.name}` : ""}` : `from ${comp.source}`}
       </p>
@@ -630,6 +671,43 @@ export function CompanionPanel({
       )}
       {comp.states.length > 0 && <p className="note">Until {comp.turn === "own" ? "its" : "your"} next turn starts. Tap a tag to end it early (a readied action was taken, or it was lost).</p>}
 
+      <div className="switches effects" aria-label={`Effects on ${comp.name}`}>
+        {comp.effects.map((e) => (
+          <button
+            key={e.id}
+            className="chip other"
+            onClick={() =>
+              open(
+                `${e.name} on ${comp.name}`,
+                <CompanionEffectPanel comp={comp} e={e} act={act} {...(onBack ? { onBack } : {})} />,
+              )
+            }
+          >
+            {e.name}
+            {e.choice ? ` (${e.choice})` : ""}
+            {e.rounds !== undefined ? ` · ${e.rounds}` : ""}
+            {e.concentration ? " ◆" : ""}
+          </button>
+        ))}
+        {onAddEffect && (
+          <button className="chip add" onClick={onAddEffect}>
+            + Effect
+          </button>
+        )}
+      </div>
+      {f.defenses.resist.length + f.defenses.immune.length + f.defenses.vulnerable.length > 0 && (
+        <p className="note">
+          {[
+            f.defenses.resist.length ? `Resists ${f.defenses.resist.join(", ")}` : "",
+            f.defenses.immune.length ? `Immune to ${f.defenses.immune.join(", ")}` : "",
+            f.defenses.vulnerable.length ? `Vulnerable to ${f.defenses.vulnerable.join(", ")}` : "",
+          ]
+            .filter(Boolean)
+            .join(". ")}
+          .
+        </p>
+      )}
+
       <CompanionActions comp={comp} sheet={sheet} open={open} openRoll={openRoll} act={act} onBack={onBack} />
 
       <h2 className="sub-head">Attacks</h2>
@@ -712,6 +790,78 @@ export function CompanionPanel({
       )}
         </>
       )}
+      {dismiss}
+    </>
+  );
+}
+
+/** Dismiss: until you summon it again, or for good. Asks which. */
+function DismissCompanion({ comp, onPick }: { comp: CompanionResult; onPick: (how: "away" | "total") => void }) {
+  const [asking, setAsking] = useState(false);
+  if (!asking)
+    return (
+      <button className="big wide" style={{ marginTop: 12 }} onClick={() => setAsking(true)}>
+        Dismiss {comp.name}
+      </button>
+    );
+  return (
+    <div className="group" style={{ marginTop: 12 }}>
+      <p className="note" style={{ padding: "8px 12px 0" }}>
+        Dismiss {comp.name}:
+      </p>
+      {!comp.away && (
+        <button className="row" onClick={() => onPick("away")}>
+          <div className="row-main">
+            <div className="row-title">Until I summon it again</div>
+            <div className="row-sub">It leaves the fight and keeps its hit points; bring it back from here.</div>
+          </div>
+        </button>
+      )}
+      <button className="row" onClick={() => onPick("total")}>
+        <div className="row-main">
+          <div className="row-title danger-text">Total Dismiss</div>
+          <div className="row-sub">{comp.custom ? "It's deleted from your companions (Undo in the toast brings it back)." : "It's gone: summon or choose it again to have it back."}</div>
+        </div>
+      </button>
+      <button className="link" onClick={() => setAsking(false)}>
+        Keep it
+      </button>
+    </div>
+  );
+}
+
+/** One effect on a companion: its rounds, and ending it. */
+function CompanionEffectPanel({ comp, e, act, onBack }: { comp: CompanionResult; e: CompanionResult["effects"][number]; act: Act; onBack?: () => void }) {
+  const set = (rounds: number | null, note: string) => act("companionEffect", { companion: comp.id, effect: e.effect, add: false, instance: e.id, rounds }, note);
+  return (
+    <>
+      {onBack && (
+        <button className="link back-link" onClick={onBack}>
+          ‹ Back to {comp.name}
+        </button>
+      )}
+      <p className="note">
+        {e.rounds !== undefined ? `${e.rounds} ${e.rounds === 1 ? "round" : "rounds"} left: counts down at the start of ${comp.turn === "own" ? "its" : "your"} turn.` : "No timer."}
+        {e.concentration ? " Ends with your concentration." : ""}
+      </p>
+      <div className="big-actions">
+        <button className="big" onClick={() => set(Math.max(0, (e.rounds ?? 1) - 1), "One round less.")}>
+          One round less
+        </button>
+        <button className="big" onClick={() => set((e.rounds ?? 0) + 1, "One round more.")}>
+          One round more
+        </button>
+      </div>
+      <button
+        className="big wide damage"
+        style={{ marginTop: 12 }}
+        onClick={() => {
+          act("companionEffect", { companion: comp.id, effect: e.effect, add: false, instance: e.id }, `${e.name} ends on ${comp.name}.`);
+          onBack?.();
+        }}
+      >
+        End {e.name}
+      </button>
     </>
   );
 }

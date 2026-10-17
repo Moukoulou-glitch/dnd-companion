@@ -422,6 +422,26 @@ export const OPERATION_PAYLOADS = {
   companionAction: z.object({ companion: z.string(), action: z.string(), choice: z.string().optional() }).strict(),
   /** Takes a companion's tag away (the readied action was used, or it ended early). */
   endCompanionState: z.object({ companion: z.string(), id: z.string() }).strict(),
+  /**
+   * Send a companion away: "away" until you summon it again (it keeps its hit points), "back" when you do,
+   * or "total": gone (one you made is deleted; a feature's companion has to be summoned or chosen anew).
+   */
+  dismissCompanion: z.object({ companion: z.string(), how: z.enum(["away", "back", "total"]) }).strict(),
+  /** A condition, spell or other effect on a companion (Bless, Poisoned), with rounds when timed; or one ending, or its rounds changed. */
+  companionEffect: z
+    .object({
+      companion: z.string(),
+      effect: DefId,
+      add: z.boolean(),
+      rounds: z.number().int().min(0).nullable().optional(),
+      choice: z.string().optional(),
+      slotLevel: z.number().int().min(1).max(9).optional(),
+      /** Your spell you concentrate on: it ends with your concentration. */
+      concentration: z.boolean().optional(),
+      /** Removing or changing: which one. */
+      instance: z.string().optional(),
+    })
+    .strict(),
   reviveCompanion: z.object({ companion: z.string(), level: z.number().int().min(1).max(9), pact: z.boolean().default(false) }).strict(),
   /** Summon a companion that's summoned (the drake): free with its resource, or with a slot (`level`); picks its form; all its hit points. */
   summonCompanion: z.object({ companion: z.string(), form: z.string(), level: z.number().int().min(1).max(9).optional(), pact: z.boolean().default(false) }).strict(),
@@ -501,6 +521,8 @@ export const Operation = z.discriminatedUnion("type", [
   OperationBase.extend({ type: z.literal("forgetSpell"), payload: OPERATION_PAYLOADS.forgetSpell }),
   OperationBase.extend({ type: z.literal("companionAction"), payload: OPERATION_PAYLOADS.companionAction }),
   OperationBase.extend({ type: z.literal("endCompanionState"), payload: OPERATION_PAYLOADS.endCompanionState }),
+  OperationBase.extend({ type: z.literal("dismissCompanion"), payload: OPERATION_PAYLOADS.dismissCompanion }),
+  OperationBase.extend({ type: z.literal("companionEffect"), payload: OPERATION_PAYLOADS.companionEffect }),
   OperationBase.extend({ type: z.literal("passTime"), payload: OPERATION_PAYLOADS.passTime }),
   OperationBase.extend({ type: z.literal("startTimed"), payload: OPERATION_PAYLOADS.startTimed }),
   OperationBase.extend({ type: z.literal("finishTimed"), payload: OPERATION_PAYLOADS.finishTimed }),

@@ -265,6 +265,7 @@ export function SpellPanel({
   casterSide,
   casterDamage,
   onCast,
+  companions,
   initialCast,
   onPrepare,
   onRollAttack,
@@ -282,7 +283,9 @@ export function SpellPanel({
   casterSide?: boolean;
   /** That tag adds damage to your attacks (Hex), so the note can say so. */
   casterDamage?: boolean;
-  onCast: (level: number, using: "slot" | "pact" | "free" | "ritual" | "none" | "extra" | "scroll" | "points", selfEffect: boolean, castingTime?: string) => void;
+  onCast: (level: number, using: "slot" | "pact" | "free" | "ritual" | "none" | "extra" | "scroll" | "points", selfEffect: boolean, castingTime?: string, onCompanions?: string[]) => void;
+  /** Your companions here now: its effect can go on them too (Bless on your wolf). */
+  companions?: { id: string; name: string }[];
   /** Opens already cast at this level (after a turn warning was confirmed). */
   initialCast?: number | undefined;
   onPrepare: (prepared: boolean) => void;
@@ -291,6 +294,7 @@ export function SpellPanel({
 }) {
   const [cast, setCast] = useState<number | null>(initialCast ?? null);
   const [onMe, setOnMe] = useState(selfDefault ?? (hasSelfEffect && /self/i.test(sp.range)));
+  const [onComps, setOnComps] = useState<string[]>([]);
   // "1 action or 8 hours" (Plant Growth): which one.
   const times = sp.castingTime.split(/\s+or\s+/i).filter(Boolean);
   const [time, setTime] = useState(times[0]!);
@@ -320,7 +324,7 @@ export function SpellPanel({
   ];
 
   const doCast = (level: number, using: "slot" | "pact" | "free" | "ritual" | "none" | "extra" | "scroll" | "points") => {
-    onCast(level, using, casterSide ? true : onMe, times.length > 1 ? time : undefined);
+    onCast(level, using, casterSide ? true : onMe, times.length > 1 ? time : undefined, casterSide ? [] : onComps);
     setCast(level);
   };
 
@@ -372,6 +376,21 @@ export function SpellPanel({
                 <div className="row-sub">For spells you cast on yourself</div>
               </div>
             </label>
+          )}
+          {hasSelfEffect && !casterSide && !readying && (companions?.length ?? 0) > 0 && (
+            <div className="switches" aria-label="Put its effect on a companion" style={{ padding: "4px 0 8px" }}>
+              <span className="row-sub" style={{ marginRight: 6 }}>
+                On a companion too:
+              </span>
+              {companions!.map((cp) => {
+                const on = onComps.includes(cp.id);
+                return (
+                  <button key={cp.id} className={`chip${on ? " on" : ""}`} aria-pressed={on} onClick={() => setOnComps(on ? onComps.filter((x) => x !== cp.id) : [...onComps, cp.id])}>
+                    {cp.name}
+                  </button>
+                );
+              })}
+            </div>
           )}
           <div className="cast-options">
             {sp.level === 0 && (

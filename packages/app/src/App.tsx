@@ -141,6 +141,8 @@ export function App() {
   const s = useCharacters();
   // Panels opened earlier read the latest state through this ref, never a stale copy.
   const live = useRef(s);
+  /** Companions the spell being cast also goes on (picked on the spell's panel), used when it's cast. */
+  const castOnCompanions = useRef<string[]>([]);
   const growJoin = useRef(0);
   live.current = s;
   // 3D dice follow the class this character has the most levels in.
@@ -1481,7 +1483,7 @@ export function App() {
     if (appRolls()) {
       const who: { label: string; set: (r: number) => void }[] = [];
       for (const comp of live.current.sheet?.companions ?? [])
-        if (comp.turn === "own" && comp.form && comp.form.hp.current > 0 && !(comp.summonedBy && !comp.summonedBy.out)) who.push({ label: comp.name, set: (r) => setCompanionInit(comp.id, r) });
+        if (comp.turn === "own" && comp.form && !comp.away && comp.form.hp.current > 0 && !(comp.summonedBy && !comp.summonedBy.out)) who.push({ label: comp.name, set: (r) => setCompanionInit(comp.id, r) });
       const groups = new Map<string, NonNullable<typeof live.current.character>["summons"]>();
       for (const m of live.current.character?.summons ?? []) if (m.hp > 0) groups.set(m.group, [...(groups.get(m.group) ?? []), m]);
       for (const [group, ms] of groups) {
@@ -1557,7 +1559,10 @@ export function App() {
           sheet={live.current.sheet!}
           level={level}
           pact={pact}
-          onCast={(sp) => castFlow(sp, level, pact ? "pact" : "slot", selfByDefault(sp))}
+          onCast={(sp) => {
+            castOnCompanions.current = [];
+            castFlow(sp, level, pact ? "pact" : "slot", selfByDefault(sp));
+          }}
           onJustSpend={() => {
             live.current.act("spendSlot", { level, pact }, pact ? "Pact slot spent." : `Level ${level} slot spent.`);
             close();
@@ -1626,8 +1631,8 @@ export function App() {
   const openCompanionHp = (id: string) =>
     open("Companion's hit points", () => (
       <HpPad
-        onDamage={(amount) => {
-          live.current.act("damage", { amount, companion: id }, `Companion took ${amount} damage.`);
+        onDamage={(amount, type) => {
+          live.current.act("damage", { amount, companion: id, ...(type ? { damageType: type } : {}) }, `Companion took ${amount}${type ? ` ${type}` : ""} damage.`);
           openCompanion(id);
         }}
         onHeal={(amount) => {
@@ -1682,6 +1687,24 @@ export function App() {
           }
           openHp={() => openCompanionHp(id)}
           onBack={() => openCompanion(id)}
+          onClose={close}
+          onAddEffect={() =>
+            open(`Effect on ${comp.name}`, () => (
+              <AddEffectPanel
+                registry={registry}
+                act={live.current.act}
+                close={() => openCompanion(id)}
+                onPick={(d, choice) => {
+                  live.current.act(
+                    "companionEffect",
+                    { companion: id, effect: d.id, add: true, ...(d.rounds ? { rounds: d.rounds } : d.minutes ? { rounds: d.minutes * 10 } : {}), ...(choice ? { choice } : {}) },
+                    `${d.name} on ${comp.name}.`,
+                  );
+                  openCompanion(id);
+                }}
+              />
+            ))
+          }
           onRollInitiative={() => rollCompanionInit(id)}
           {...(comp.custom ? { onEdit: () => openCompanionBuilder(comp.custom!.id) } : {})}
           {...(comp.summonedBy
@@ -2345,6 +2368,27 @@ export function App() {
                 `${sp.name} cast${castingTime ? ` (${castingTime})` : ""}${choice ? `: ${ABILITY_NAMES[choice as keyof typeof ABILITY_NAMES] ?? choice}` : ""}.`,
               );
               flashForSpell(sp.id, level);
+              // Its effect on companions too (Bless on your wolf), for as long as it lasts; with your concentration.
+              const onComps = castOnCompanions.current;
+              castOnCompanions.current = [];
+              const compEff = onComps.length ? effReg().find(sp.id.replace(/^spell:/, "effect:"), "effect") : undefined;
+              if (compEff)
+                for (const cid of onComps) {
+                  const cname = live.current.sheet?.companions.find((x) => x.id === cid)?.name ?? "your companion";
+                  live.current.act(
+                    "companionEffect",
+                    {
+                      companion: cid,
+                      effect: compEff.id,
+                      add: true,
+                      ...(compEff.rounds ? { rounds: compEff.rounds } : compEff.minutes ? { rounds: compEff.minutes * 10 } : {}),
+                      ...(compEff.upcast && level >= compEff.upcast.baseLevel ? { slotLevel: level } : {}),
+                      ...(sp.concentration ? { concentration: true } : {}),
+                      ...(choice ? { choice } : {}),
+                    },
+                    `${compEff.name} on ${cname}.`,
+                  );
+                }
               // Polymorph, True Polymorph or Shapechange on yourself: which creature? (Its effect is found when you pick.)
               const eff = selfEffect ? effReg().find(sp.id.replace(/^spell:/, "effect:"), "effect") : undefined;
               if (eff?.transform) {
@@ -2431,7 +2475,11 @@ export function App() {
           casterDamage={!!effReg().find(sp.id.replace(/^spell:/, "effect:"), "effect")?.modifiers.some((m) => m.selector.startsWith("roll.damage"))}
           initialCast={castAt}
           readying={readying}
-          onCast={(level, using, selfEffect, castingTime) => castFlow(sp, level, using, selfEffect, readying, asReaction ? WAR_CASTER_TIME : castingTime)}
+          companions={(live.current.sheet?.companions ?? []).filter((c) => c.form && !c.away && c.form.hp.current > 0 && !(c.summonedBy && !c.summonedBy.out)).map((c) => ({ id: c.id, name: c.name }))}
+          onCast={(level, using, selfEffect, castingTime, onCompanions) => {
+            castOnCompanions.current = onCompanions ?? [];
+            castFlow(sp, level, using, selfEffect, readying, asReaction ? WAR_CASTER_TIME : castingTime);
+          }}
           onPrepare={(prepared) => live.current.act("setPrepared", { spell: sp.id, list: sp.list.id, prepared }, `${sp.name} ${prepared ? "prepared" : "unprepared"}.`)}
           onRollAttack={(level) => roller(level, false)}
           onRollDamage={(level) => roller(level, true)}

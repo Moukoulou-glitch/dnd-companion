@@ -25,7 +25,7 @@ import { customActionDc, customFeatureId, withCustom } from "./custom.js";
 import { maneuverGrant } from "./maneuvers.js";
 import type { ContentRegistry } from "./registry.js";
 import { activeFeatures, collectSources, type Source } from "./sources.js";
-import { companionOwnerResist, customCompanionId, deriveCompanion, deriveCustomCompanion, withCreatureRiders, type CompanionResult } from "./companions.js";
+import { companionOwnerResist, customCompanionId, deriveCompanion, deriveCustomCompanion, withCompanionState, withCreatureRiders, type CompanionResult } from "./companions.js";
 import { spellSlots } from "./spellSlots.js";
 import { materialNeed } from "./materials.js";
 import { deriveShape, wildShapeLimits, type ShapeResult, type WildShapeLimits } from "./shapes.js";
@@ -1675,7 +1675,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
           // One an action summons (Hound of Ill Omen) is only out while that action's timer runs.
           const out = !d.summonedBy || c.effects.some((e) => e.companion === d.id);
           const state = c.companions[d.id];
-          const r = deriveCompanion(d, s.label, out ? state : state && { ...state, form: undefined }, ctxFor(s), spellcasting);
+          const r = withCompanionState(deriveCompanion(d, s.label, out ? state : state && { ...state, form: undefined }, ctxFor(s), spellcasting), state, reg, ctxFor(s));
           if (d.summonedBy) r.summonedBy = { action: d.summonedBy, out };
           return { ...r, command: d.command ?? { economy: "bonus" as const, attackInstead: true } };
         }),
@@ -1683,9 +1683,14 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       // Companions the player made (Companion Builder).
       // Ranger's Companion bonds one of them while the feature is in use.
       ...(c.customCompanions ?? []).map((cc) =>
-        withCreatureRiders(
-          deriveCustomCompanion(cc, c.companions[customCompanionId(cc.id)], ctx, cc.bond === "rangers-companion" && sources.some((s) => s.id === "feature:rangers-companion")),
-          cc.from ? reg.find(cc.from, "creature") : undefined,
+        withCompanionState(
+          withCreatureRiders(
+            deriveCustomCompanion(cc, c.companions[customCompanionId(cc.id)], ctx, cc.bond === "rangers-companion" && sources.some((s) => s.id === "feature:rangers-companion")),
+            cc.from ? reg.find(cc.from, "creature") : undefined,
+          ),
+          c.companions[customCompanionId(cc.id)],
+          reg,
+          ctx,
         ),
       ),
     ],

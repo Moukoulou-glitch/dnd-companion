@@ -35,6 +35,8 @@ function endConcentration(c: Character, notes: string[], why: string) {
   notes.push(`${why} Concentration on ${c.concentration.name} ended.`);
   delete c.concentration;
   c.effects = c.effects.filter((e) => !e.concentration);
+  // Your spell on a companion (Bless, Haste) ends with it.
+  for (const st of Object.values(c.companions)) if (st.effects?.some((e) => e.concentration)) st.effects = st.effects.filter((e) => !e.concentration);
   const conjured = c.summons.filter((s) => s.concentration);
   if (conjured.length) {
     c.summons = c.summons.filter((s) => !s.concentration);
@@ -107,6 +109,16 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
     for (const e of gone) if (e.companion && c.companions[e.companion]) c.companions[e.companion]!.states = [];
     const off = new Set(gone.flatMap((e) => e.toggles ?? []));
     if (off.size) c.toggles = c.toggles.filter((t) => !off.has(t));
+  };
+
+  /** A companion's timed effects count down at the start of its turn (yours, for one that acts with you). */
+  const countDownCompanion = (id: string) => {
+    const st = c.companions[id];
+    if (!st?.effects?.length) return;
+    const left = st.effects.map((e) => (e.rounds !== undefined ? { ...e, rounds: e.rounds - 1 } : e));
+    const gone = left.filter((e) => e.rounds !== undefined && e.rounds <= 0);
+    st.effects = left.filter((e) => !(e.rounds !== undefined && e.rounds <= 0));
+    if (gone.length) notes.push(`Ended on ${sheet.companions.find((x) => x.id === id)?.name ?? "it"}: ${gone.map((e) => reg.find(e.effect, "effect")?.name ?? e.effect).join(", ")}.`);
   };
 
   /** Companions' Dodge and Ready end at the start of their next turn (yours, for one that acts with you). */
@@ -214,6 +226,24 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       if (op.payload.companion) {
         const t = companionTarget(op.payload.companion);
         if (!t) break;
+        // What it resists or is immune to (effects on it: Stoneskin, Protection from Energy).
+        const dfs = t.comp.form?.defenses;
+        if (damageType && dfs) {
+          const type = damageType.toLowerCase();
+          if (dfs.immune.includes(type)) {
+            notes.push(`${t.comp.name} is immune to ${type}: no damage.`);
+            amount = 0;
+          } else {
+            if (dfs.resist.includes(type)) {
+              notes.push(`${t.comp.name} resists ${type}: ${Math.floor(amount / 2)} instead of ${amount}.`);
+              amount = Math.floor(amount / 2);
+            }
+            if (dfs.vulnerable.includes(type)) {
+              notes.push(`${t.comp.name} is vulnerable to ${type}: ${amount * 2}.`);
+              amount *= 2;
+            }
+          }
+        }
         const absorbed = Math.min(t.state.hp.temp, amount);
         t.state.hp.temp -= absorbed;
         t.state.hp.current = Math.max(0, t.state.hp.current - (amount - absorbed));
@@ -604,6 +634,7 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
           notes.push(`${name}: ${st.states.map((x) => x.name).join(", ")} ended.`);
           st.states = [];
         }
+        if (comp?.turn === "own") countDownCompanion(op.payload.companion);
         break;
       }
       const u = (st.used ??= { ...NO_TURN_USED });
@@ -1644,8 +1675,12 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       endTurnStartEffects(c.effects.filter((e) => e.untilTurnStart), "your turn has started");
       // A companion with a turn of its own (it rolled initiative) keeps its Dodge until its own turn starts.
       clearCompanionStates((_, id) => !c.combat || sheet.companions.find((x) => x.id === id)?.turn !== "own");
-      // Companions that act on your turn or right after it get their turn back with yours.
-      for (const comp of sheet.companions) if (comp.turn !== "own" && c.companions[comp.id]?.used) delete c.companions[comp.id]!.used;
+      // Companions that act on your turn or right after it get their turn back with yours, and their effects count down.
+      for (const comp of sheet.companions) {
+        if (comp.turn === "own" && c.combat) continue;
+        if (c.companions[comp.id]?.used) delete c.companions[comp.id]!.used;
+        if (c.combat) countDownCompanion(comp.id);
+      }
       const round = !prev ? 1 : prev.hadTurn && !prev.myTurn ? prev.round + 1 : prev.round;
       if (prev?.myTurn) notes.push("Your turn had already started: everything is back for a fresh turn.");
       c.combat = CombatState.parse({ round, myTurn: true, hadTurn: true, ...(prev?.initiative !== undefined ? { initiative: prev.initiative } : {}) });
@@ -1739,6 +1774,83 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         // A new Dodge or Ready replaces the old one.
         state.states = [...(state.states ?? []).filter((x) => !x.name.startsWith(a.name)), { id: op.id, name, ...(c.combat ? {} : { outOfCombat: true }) }];
       }
+      break;
+    }
+
+    case "dismissCompanion": {
+      const { companion, how } = op.payload;
+      const comp = sheet.companions.find((x) => x.id === companion);
+      if (!comp) {
+        notes.push(`No companion "${companion}".`);
+        break;
+      }
+      if (how === "total") {
+        if (comp.custom) {
+          c.customCompanions = c.customCompanions.filter((x) => x.id !== comp.custom!.id);
+          delete c.companions[companion];
+          notes.push(`${comp.name} is gone for good (deleted).`);
+        } else {
+          c.companions[companion] = { states: [] };
+          // One a timed action brought out (Hound of Ill Omen): its timer goes too.
+          removeEffects(c.effects.filter((e) => e.companion === companion));
+          notes.push(`${comp.name} is gone: summon or choose it again to have it back.`);
+        }
+        break;
+      }
+      const st = (c.companions[companion] ??= { states: [] });
+      if (how === "away") {
+        st.away = true;
+        st.states = [];
+        delete st.used;
+        delete st.initiative;
+        notes.push(`${comp.name} is away until you summon it again (it keeps its hit points).`);
+      } else {
+        if (!st.away) notes.push(`${comp.name} wasn't away.`);
+        delete st.away;
+        if (c.combat && comp.turn === "own") notes.push(`Roll ${comp.name}'s initiative.`);
+      }
+      break;
+    }
+
+    case "companionEffect": {
+      const { companion, add } = op.payload;
+      const comp = sheet.companions.find((x) => x.id === companion);
+      if (!comp) {
+        notes.push(`No companion "${companion}".`);
+        break;
+      }
+      const st = (c.companions[companion] ??= { states: [] });
+      const effect = reg.effectId(op.payload.effect);
+      const def = reg.find(effect, "effect");
+      if (add) {
+        st.effects = [
+          ...(st.effects ?? []),
+          {
+            id: op.id,
+            effect,
+            ...(op.payload.rounds ? { rounds: op.payload.rounds } : {}),
+            ...(op.payload.choice ? { choice: op.payload.choice } : {}),
+            ...(op.payload.slotLevel ? { slotLevel: op.payload.slotLevel } : {}),
+            ...(op.payload.concentration ? { concentration: true } : {}),
+          },
+        ];
+        if (def?.category === "condition" && comp.form && /^(prone|grappled|restrained|paralyzed|petrified|stunned|unconscious)$/i.test(def.name) && comp.form.speeds.fly && !/hover/i.test(comp.form.speed))
+          notes.push(`If ${comp.name} is flying, it falls (it can't hover).`);
+        break;
+      }
+      const target = (st.effects ?? []).find((e) => (op.payload.instance ? e.id === op.payload.instance : e.effect === effect));
+      if (!target) {
+        notes.push("That effect isn't on it.");
+        break;
+      }
+      if (op.payload.rounds !== undefined) {
+        // Its rounds changed (null: no timer); 0 ends it.
+        if (op.payload.rounds === null) delete target.rounds;
+        else target.rounds = op.payload.rounds;
+        if (target.rounds !== 0) break;
+      }
+      st.effects = (st.effects ?? []).filter((e) => e !== target);
+      notes.push(`${def?.name ?? "It"} ends on ${comp.name}.`);
       break;
     }
 

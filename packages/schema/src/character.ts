@@ -414,6 +414,23 @@ export const CompanionState = z
     states: z
       .array(z.object({ id: z.string(), name: z.string(), outOfCombat: z.boolean().optional() }).strict())
       .default([]),
+    /** Dismissed until you summon it again (it keeps its hit points). */
+    away: z.boolean().optional(),
+    /** Conditions, spells and other effects on it (Bless, Poisoned), with rounds when timed. */
+    effects: z
+      .array(
+        z
+          .object({
+            id: z.string(),
+            effect: DefId,
+            rounds: z.number().int().min(0).optional(),
+            choice: z.string().optional(),
+            slotLevel: z.number().int().min(1).max(9).optional(),
+            concentration: z.boolean().optional(),
+          })
+          .strict(),
+      )
+      .optional(),
   })
   .strict();
 export type CompanionState = z.infer<typeof CompanionState>;

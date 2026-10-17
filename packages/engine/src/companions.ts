@@ -2,7 +2,8 @@ import { ABILITIES, ABILITY_NAMES, type Ability, type CompanionDef, type Compani
 import type { Breakdown, Part, RollBreakdown } from "./breakdown.js";
 import { evalExpr, type ExprContext } from "./expr.js";
 import type { SpellcastingResult, WeaponAttack } from "./derive.js";
-import { attackRiders } from "./shapes.js";
+import { applyEffectMods, attackRiders, effectMods } from "./shapes.js";
+import type { ContentRegistry } from "./registry.js";
 
 /** A companion with every number worked out for its current form. */
 export interface CompanionResult {
@@ -32,6 +33,10 @@ export interface CompanionResult {
   };
   /** Out only while the timer of this action runs (Hound of Ill Omen); `out`: it's here now. */
   summonedBy?: { action: string; out: boolean };
+  /** Dismissed until you summon it again: not in the fight, keeps its hit points. */
+  away?: boolean;
+  /** Conditions, spells and effects on it (Bless, Poisoned): their names, rounds left when timed. */
+  effects: { id: string; effect: string; name: string; rounds?: number; choice?: string; concentration?: boolean }[];
   /** Summoned with an action: free once per `resource`, or with a slot of `slotMin`+ (the drake). */
   summon?: { resource: string; slotMin: number; note: string };
   /** What commanding it costs you, when it can be commanded (Primal Companion: bonus action; Ranger's Companion: action). */
@@ -58,6 +63,8 @@ export interface CompanionResult {
     attacks: (WeaponAttack & { note?: string })[];
     /** Save DC for its effects (the owner's spell save DC), if it uses one. */
     saveDc?: number;
+    /** Damage it resists, is immune or vulnerable to (from effects on it: Stoneskin, Protection from Energy). */
+    defenses: { resist: string[]; immune: string[]; vulnerable: string[] };
   };
 }
 
@@ -99,6 +106,7 @@ export function deriveCompanion(
     source,
     forms: def.forms.map((f) => ({ id: f.id, name: f.name })),
     states: (state?.states ?? []).map((x) => ({ id: x.id, name: x.name })),
+    effects: [],
     turn: def.turn ?? "own",
     used: { ...NO_TURN_USED, ...state?.used },
   };
@@ -178,6 +186,7 @@ export function deriveCompanion(
     abilities,
     traits,
     attacks,
+    defenses: { resist: [], immune: [], vulnerable: [] },
   };
   if (f.senses) r.form.senses = f.senses;
   if (f.languages) r.form.languages = f.languages;
@@ -334,5 +343,82 @@ export function withCreatureRiders(r: CompanionResult, creature: CreatureDef | u
     if (!action) continue;
     for (const d of attackRiders(a.name, action.text)) if (!a.damage.bonus.dice.some((x) => x.label === d.label)) a.damage.bonus.dice.push(d);
   }
+  return r;
+}
+
+/**
+ * A companion with what's on it: dismissed or not, and the effects on it
+ * applied to its numbers (Bless on its attacks and saves, Poisoned's
+ * disadvantage, Haste's AC and speed, Aid's hit points, resistances).
+ */
+export function withCompanionState(r: CompanionResult, state: CompanionState | undefined, reg: ContentRegistry, ctx: ExprContext): CompanionResult {
+  if (state?.away) r.away = true;
+  const effects = state?.effects ?? [];
+  r.effects = effects.map((e) => ({
+    id: e.id,
+    effect: e.effect,
+    name: reg.find(e.effect, "effect")?.name ?? e.effect.replace(/^effect:/, ""),
+    ...(e.rounds !== undefined ? { rounds: e.rounds } : {}),
+    ...(e.choice ? { choice: e.choice } : {}),
+    ...(e.concentration ? { concentration: true } : {}),
+  }));
+  const f = r.form;
+  if (!f || !effects.length) return r;
+  const mods = Object.fromEntries(ABILITIES.map((ab) => [ab, f.abilities[ab].modifier])) as Record<Ability, number>;
+  const all = effectMods(reg, effects, { pb: ctx.pb, mods, level: ctx.level, classLevels: ctx.classLevels });
+  for (const ab of ABILITIES) {
+    f.abilities[ab] = { ...f.abilities[ab], check: applyEffectMods(f.abilities[ab].check, all, [`roll.check.${ab}`]), save: applyEffectMods(f.abilities[ab].save, all, [`roll.save.${ab}`]) };
+  }
+  f.attacks = f.attacks.map((a) => {
+    const kind = a.mode === "melee" ? "melee" : "ranged";
+    return { ...a, attack: applyEffectMods(a.attack, all, [`roll.attack.weapon.${kind}`]), damage: { ...a.damage, bonus: applyEffectMods(a.damage.bonus, all, [`roll.damage.weapon.${kind}`]) } };
+  });
+  const flatOf = (m: (typeof all)[number]) => {
+    if (m.mod.value === undefined) return 0;
+    try {
+      return evalExpr(m.mod.value, m.ctx).reduce((n, t) => n + (t.kind === "flat" ? t.value : 0), 0);
+    } catch {
+      return 0;
+    }
+  };
+  const acParts = [...f.ac.parts];
+  let acFloor = 0;
+  let floorLabel = "";
+  const hpParts = [...f.hpMax.parts];
+  const multipliers: number[] = [];
+  let cap: number | undefined;
+  let walkAdd = 0;
+  for (const m of all) {
+    const { selector, op } = m.mod;
+    if (m.mod.mode === "suggested" || m.mod.when?.text) continue;
+    if (selector === "stat.ac" && op === "add") acParts.push({ label: m.label, value: flatOf(m) });
+    if (selector === "stat.ac" && op === "acBase" && flatOf(m) > acFloor) {
+      acFloor = flatOf(m);
+      floorLabel = m.label;
+    }
+    if (selector === "stat.hp.max" && op === "add") hpParts.push({ label: m.label, value: flatOf(m) });
+    if (selector === "stat.speed.walk" && op === "add") walkAdd += flatOf(m);
+    if ((selector === "stat.speed.walk" || selector === "stat.speed.*") && op === "multiply") multipliers.push(flatOf(m) || 1);
+    if ((selector === "stat.speed.walk" || selector === "stat.speed.*") && op === "set") cap = Math.min(cap ?? Infinity, flatOf(m));
+    const d = /^defense\.(resist|immune|vulnerable)\.(.+)$/.exec(selector);
+    if (d && !f.defenses[d[1] as "resist"].includes(d[2]!)) f.defenses[d[1] as "resist"].push(d[2]!);
+  }
+  const acTotal = acParts.reduce((n, p) => n + p.value, 0);
+  f.ac = acFloor > acTotal ? { total: acFloor, parts: [{ label: `${floorLabel}: AC can't be less than ${acFloor}`, value: acFloor }] } : { total: acTotal, parts: acParts };
+  const hpMax = hpParts.reduce((n, p) => n + p.value, 0);
+  if (hpMax !== f.hpMax.total) {
+    // Aid: the maximum goes up (the current stays as tracked; full when it's never been hurt).
+    f.hpMax = { total: hpMax, parts: hpParts };
+    if (state?.hp === undefined) f.hp = { ...f.hp, current: hpMax };
+    else f.hp = { ...f.hp, current: Math.min(hpMax, f.hp.current) };
+  }
+  f.speeds = Object.fromEntries(
+    Object.entries(f.speeds).map(([k, v]) => {
+      let n = k === "walk" ? v + walkAdd : v;
+      for (const x of multipliers) n = Math.floor(n * x);
+      if (cap !== undefined) n = Math.min(n, cap);
+      return [k, n];
+    }),
+  );
   return r;
 }

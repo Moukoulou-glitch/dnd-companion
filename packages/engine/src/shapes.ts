@@ -484,19 +484,69 @@ type SummonMember = Character["summons"][number];
 
 const selectorMatches = (selector: string, key: string) => selector === key || (selector.endsWith(".*") && (key === selector.slice(0, -2) || key.startsWith(selector.slice(0, -1))));
 
-/** Every modifier from the effects on a summoned creature, with their context. */
-function memberMods(reg: ContentRegistry, m: SummonMember, d: CreatureDef) {
-  const mods = Object.fromEntries(ABILITIES.map((a) => [a, Math.floor(((d.abilities[a] ?? 10) - 10) / 2)])) as Record<Ability, number>;
-  const out: { label: string; mod: CreatureDef["traits"] extends unknown ? NonNullable<ReturnType<typeof reg.find<"effect">>>["modifiers"][number] : never; ctx: ExprContext }[] = [];
-  for (const e of m.effects ?? []) {
+/** One modifier from an effect on a creature, with the context its numbers are worked out in. */
+export interface EffectMod {
+  label: string;
+  mod: Modifier;
+  ctx: ExprContext;
+}
+
+/** Every modifier from effects on a creature (a summon, a companion): `{choice}` filled in, at the slot level it was cast with. */
+export function effectMods(reg: ContentRegistry, effects: { effect: string; choice?: string | undefined; slotLevel?: number | undefined }[], ctx: Omit<ExprContext, "slotLevel">): EffectMod[] {
+  const out: EffectMod[] = [];
+  for (const e of effects) {
     const def = reg.find(e.effect, "effect");
     if (!def) continue;
-    const ctx: ExprContext = { pb: pbForCr(d.cr), mods, level: Math.max(1, Math.ceil(d.cr)), classLevels: {}, slotLevel: e.slotLevel ?? def.upcast?.baseLevel ?? 1 };
+    const c: ExprContext = { ...ctx, slotLevel: e.slotLevel ?? def.upcast?.baseLevel ?? 1 };
     for (const mod of def.modifiers) {
       const value = typeof mod.value === "string" ? mod.value.replace(/\{choice\}/g, e.choice ?? "d6") : mod.value;
-      out.push({ label: mod.label ?? def.name, mod: { ...mod, ...(value !== undefined ? { value } : {}) }, ctx });
+      // Protection from Energy: the chosen type goes into what it changes ("defense.resist.{choice}").
+      const selector = mod.selector.includes("{choice}") ? mod.selector.replace(/\{choice\}/g, (e.choice ?? "").toLowerCase()) : mod.selector;
+      out.push({ label: mod.label ?? def.name, mod: { ...mod, selector, ...(value !== undefined ? { value } : {}) }, ctx: c });
     }
   }
+  return out;
+}
+
+/** Every modifier from the effects on a summoned creature, with their context. */
+function memberMods(reg: ContentRegistry, m: SummonMember, d: CreatureDef): EffectMod[] {
+  const mods = Object.fromEntries(ABILITIES.map((a) => [a, Math.floor(((d.abilities[a] ?? 10) - 10) / 2)])) as Record<Ability, number>;
+  return effectMods(reg, m.effects ?? [], { pb: pbForCr(d.cr), mods, level: Math.max(1, Math.ceil(d.cr)), classLevels: {} });
+}
+
+/**
+ * A roll with the effects on a creature applied: bonuses and dice (Bless),
+ * advantage or disadvantage (Poisoned), automatic failures (Paralyzed), and
+ * options to tick when the effect only sometimes applies.
+ */
+export function applyEffectMods(r: RollBreakdown, all: EffectMod[], keys: string[]): RollBreakdown {
+  const out: RollBreakdown = { ...r, parts: [...r.parts], dice: [...r.dice], advantage: [...r.advantage], disadvantage: [...r.disadvantage], suggestions: [...r.suggestions] };
+  for (const a of all) {
+    if (!keys.some((k) => selectorMatches(a.mod.selector, k))) continue;
+    const { mod } = a;
+    if (mod.op === "autoFail") {
+      out.autoFail = [...(out.autoFail ?? []), a.label];
+      continue;
+    }
+    if (!["add", "advantage", "disadvantage"].includes(mod.op)) continue;
+    const terms = mod.value !== undefined ? safeTerms(mod.value, a.ctx) : [];
+    if (mod.mode === "suggested" || mod.when?.text || mod.when?.toggle) {
+      const apply: { flat: number; dice: string[]; mode?: "advantage" | "disadvantage" } = { flat: 0, dice: [] };
+      if (mod.op === "advantage" || mod.op === "disadvantage") apply.mode = mod.op;
+      for (const t of terms) t.kind === "dice" ? apply.dice.push(t.dice) : (apply.flat += t.value);
+      const effect = mod.op !== "add" ? mod.op : terms.map((t) => (t.kind === "dice" ? signedDice(t.dice) : signedN(t.value))).join(" ");
+      out.suggestions.push({ label: a.label, effect, ...(mod.when?.text ? { reason: mod.when.text } : {}), apply });
+      continue;
+    }
+    if (mod.op === "advantage") out.advantage.push(a.label);
+    else if (mod.op === "disadvantage") out.disadvantage.push(a.label);
+    else
+      for (const t of terms) {
+        if (t.kind === "dice") out.dice.push({ label: a.label, dice: t.dice });
+        else out.parts.push({ label: a.label, value: t.value });
+      }
+  }
+  out.total = out.parts.reduce((sum, p) => sum + p.value, 0);
   return out;
 }
 
@@ -531,36 +581,7 @@ export function summonBlock(reg: ContentRegistry, m: SummonMember): ShapeResult 
   const b = creatureBlock(reg, m.creature, m.hp);
   if (!d || !b) return b;
   const all = memberMods(reg, m, d);
-  const applyTo = (r: RollBreakdown, keys: string[]): RollBreakdown => {
-    const out: RollBreakdown = { ...r, parts: [...r.parts], dice: [...r.dice], advantage: [...r.advantage], disadvantage: [...r.disadvantage], suggestions: [...r.suggestions] };
-    for (const a of all) {
-      if (!keys.some((k) => selectorMatches(a.mod.selector, k))) continue;
-      const { mod } = a;
-      if (mod.op === "autoFail") {
-        out.autoFail = [...(out.autoFail ?? []), a.label];
-        continue;
-      }
-      if (!["add", "advantage", "disadvantage"].includes(mod.op)) continue;
-      const terms = mod.value !== undefined ? safeTerms(mod.value, a.ctx) : [];
-      if (mod.mode === "suggested" || mod.when?.text || mod.when?.toggle) {
-        const apply: { flat: number; dice: string[]; mode?: "advantage" | "disadvantage" } = { flat: 0, dice: [] };
-        if (mod.op === "advantage" || mod.op === "disadvantage") apply.mode = mod.op;
-        for (const t of terms) t.kind === "dice" ? apply.dice.push(t.dice) : (apply.flat += t.value);
-        const effect = mod.op !== "add" ? mod.op : terms.map((t) => (t.kind === "dice" ? signedDice(t.dice) : signedN(t.value))).join(" ");
-        out.suggestions.push({ label: a.label, effect, ...(mod.when?.text ? { reason: mod.when.text } : {}), apply });
-        continue;
-      }
-      if (mod.op === "advantage") out.advantage.push(a.label);
-      else if (mod.op === "disadvantage") out.disadvantage.push(a.label);
-      else
-        for (const t of terms) {
-          if (t.kind === "dice") out.dice.push({ label: a.label, dice: t.dice });
-          else out.parts.push({ label: a.label, value: t.value });
-        }
-    }
-    out.total = out.parts.reduce((s, p) => s + p.value, 0);
-    return out;
-  };
+  const applyTo = (r: RollBreakdown, keys: string[]): RollBreakdown => applyEffectMods(r, all, keys);
   const SKILL_AB: Record<string, Ability> = {
     athletics: "str", acrobatics: "dex", sleightOfHand: "dex", stealth: "dex", arcana: "int", history: "int", investigation: "int", nature: "int", religion: "int",
     animalHandling: "wis", insight: "wis", medicine: "wis", perception: "wis", survival: "wis", deception: "cha", intimidation: "cha", performance: "cha", persuasion: "cha",
