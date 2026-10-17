@@ -63,8 +63,10 @@ export interface CompanionResult {
     attacks: (WeaponAttack & { note?: string })[];
     /** Save DC for its effects (the owner's spell save DC), if it uses one. */
     saveDc?: number;
-    /** Damage it resists, is immune or vulnerable to (from effects on it: Stoneskin, Protection from Energy). */
+    /** Damage it resists, is immune or vulnerable to (its own: a drake's essence; and from effects on it: Protection from Energy). */
     defenses: { resist: string[]; immune: string[]; vulnerable: string[] };
+    /** Damage it rolls without an attack (Infused Strikes), with the part of its turn it uses. */
+    rolls: { name: string; dice: string; damageType: string; economy: "action" | "bonus" | "reaction" | "free"; note?: string }[];
   };
 }
 
@@ -186,7 +188,8 @@ export function deriveCompanion(
     abilities,
     traits,
     attacks,
-    defenses: { resist: [], immune: [], vulnerable: [] },
+    defenses: { resist: [...(f.resist ?? [])], immune: [...(f.immune ?? [])], vulnerable: [...(f.vulnerable ?? [])] },
+    rolls: (f.rolls ?? []).map((x) => ({ name: x.name, dice: x.dice, damageType: x.damageType, economy: x.economy, ...(x.note ? { note: x.note } : {}) })),
   };
   if (f.senses) r.form.senses = f.senses;
   if (f.languages) r.form.languages = f.languages;
@@ -338,6 +341,8 @@ export function companionFromCreature(d: CreatureDef): Omit<CustomCompanion, "id
  */
 export function withCreatureRiders(r: CompanionResult, creature: CreatureDef | undefined): CompanionResult {
   if (!creature || !r.form) return r;
+  // Its damage resistances, immunities and vulnerabilities (an Imp: fire and poison immune).
+  for (const k of ["resist", "immune", "vulnerable"] as const) for (const x of creature[k] ?? []) if (!r.form.defenses[k].includes(x)) r.form.defenses[k].push(x);
   for (const a of r.form.attacks) {
     const action = creature.actions.find((x) => x.name === a.name && x.attack);
     if (!action) continue;

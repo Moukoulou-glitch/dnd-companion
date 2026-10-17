@@ -540,7 +540,8 @@ export function CompanionPanel({
   sheet: DerivedSheet;
   act: Act;
   open: (title: string, body: ReactNode) => void;
-  openRoll: (title: string, base: RollBreakdown, attack?: WeaponAttack) => void;
+  /** `uses`: a damage roll of its own, and the part of its turn it takes (Infused Strikes: its reaction). */
+  openRoll: (title: string, base: RollBreakdown, attack?: WeaponAttack, uses?: "action" | "bonus" | "reaction" | "free") => void;
   openHp: () => void;
   onCommand: () => void;
   onAttackInstead: () => void;
@@ -755,6 +756,41 @@ export function CompanionPanel({
       )}
 
       <CompanionActions comp={comp} sheet={sheet} open={open} openRoll={openRoll} act={act} onBack={onBack} />
+
+      {f.rolls.length > 0 && (
+        <>
+          <h2 className="sub-head">Its rolls</h2>
+          <div className="group">
+            {f.rolls.map((x) => {
+              const empty = { total: 0, parts: [], dice: [], advantage: [], disadvantage: [], suggestions: [] };
+              const a: WeaponAttack = {
+                attackId: `companion:${comp.id}:${x.name}`,
+                name: x.name,
+                mode: "melee",
+                action: "attack",
+                ability: "str",
+                proficient: false,
+                attack: empty,
+                damage: { dice: x.dice, type: x.damageType, bonus: empty, onCrit: [], critExtraDice: [] },
+                properties: [],
+              };
+              const used = x.economy !== "free" && x.economy !== "action" && comp.used[x.economy];
+              return (
+                <button key={x.name} className="row" onClick={() => openRoll(`${comp.name}: ${x.name}`, empty, a, x.economy)}>
+                  <div className="row-main">
+                    <div className="row-title">{x.name}</div>
+                    <div className="row-sub">
+                      {x.dice} {x.damageType} · {x.economy === "reaction" ? "its reaction" : x.economy === "bonus" ? "its bonus action" : x.economy === "action" ? "its action" : "no action"}
+                      {used ? " (already used this turn)" : ""}
+                    </div>
+                    {x.note && <div className="row-sub">{x.note}</div>}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </>
+      )}
 
       <h2 className="sub-head">Attacks</h2>
       <div className="group">

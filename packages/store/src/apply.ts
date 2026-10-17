@@ -226,23 +226,12 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       if (op.payload.companion) {
         const t = companionTarget(op.payload.companion);
         if (!t) break;
-        // What it resists or is immune to (effects on it: Stoneskin, Protection from Energy).
+        // What it resists or is immune to: its own (a drake's essence, an Imp's poison) and from effects on it (Protection from Energy).
         const dfs = t.comp.form?.defenses;
         if (damageType && dfs) {
-          const type = damageType.toLowerCase();
-          if (dfs.immune.includes(type)) {
-            notes.push(`${t.comp.name} is immune to ${type}: no damage.`);
-            amount = 0;
-          } else {
-            if (dfs.resist.includes(type)) {
-              notes.push(`${t.comp.name} resists ${type}: ${Math.floor(amount / 2)} instead of ${amount}.`);
-              amount = Math.floor(amount / 2);
-            }
-            if (dfs.vulnerable.includes(type)) {
-              notes.push(`${t.comp.name} is vulnerable to ${type}: ${amount * 2}.`);
-              amount *= 2;
-            }
-          }
+          const after = damageAfterDefenses(amount, damageType, dfs, { ...(op.payload.magical ? { magical: true } : {}) });
+          for (const n of after.notes) notes.push(`${t.comp.name}: ${n}`);
+          amount = after.amount;
         }
         const absorbed = Math.min(t.state.hp.temp, amount);
         t.state.hp.temp -= absorbed;

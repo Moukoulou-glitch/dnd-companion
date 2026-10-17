@@ -1687,12 +1687,19 @@ export function App() {
           sheet={live.current.sheet!}
           act={live.current.act}
           open={open}
-          openRoll={(t, b, a) =>
+          openRoll={(t, b, a, uses) =>
             openRoll(t, b, a, {
               notMine: true,
               back: { label: `Back to ${comp.name}`, to: () => openCompanion(id) },
-              // An attack roll uses its Attack action (one of its attacks): marked on its turn.
-              ...(a ? { onCommit: () => live.current.act("companionEconomy", { companion: id, kind: "attack", used: true }, `${comp.name} attacks.`) } : {}),
+              // An attack roll uses its Attack action (one of its attacks); a roll of its own (Infused Strikes) the part of its turn it says.
+              ...(uses
+                ? {
+                    damageOnly: true,
+                    ...(uses !== "free" ? { onCommit: () => live.current.act("companionEconomy", { companion: id, kind: uses, used: true }, `${comp.name}'s ${uses === "bonus" ? "bonus action" : uses} used.`) } : {}),
+                  }
+                : a
+                  ? { onCommit: () => live.current.act("companionEconomy", { companion: id, kind: "attack", used: true }, `${comp.name} attacks.`) }
+                  : {}),
             })
           }
           openHp={() => openCompanionHp(id)}

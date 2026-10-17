@@ -73,7 +73,7 @@ describe("8f: effects on a companion", () => {
     expect(comp(l)!.form!.defenses.resist).toEqual(["fire"]);
     const notes = l.record("damage", { amount: 9, companion: H, damageType: "fire" });
     expect(comp(l)!.form!.hp.current).toBe(9);
-    expect(notes.join(" ")).toMatch(/resists fire: 4 instead of 9/);
+    expect(notes.join(" ")).toMatch(/Horse: Resists fire: 4 damage/);
   });
   it("timed: counts down at the start of its own turn in combat, and ends at 0", () => {
     const l = owner();

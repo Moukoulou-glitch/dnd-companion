@@ -1810,6 +1810,18 @@
                       }
                     ]
                   }
+                ],
+                "immune": [
+                  "acid"
+                ],
+                "rolls": [
+                  {
+                    "name": "Infused Strikes",
+                    "dice": "1d6",
+                    "damageType": "acid",
+                    "economy": "reaction",
+                    "note": "When another creature it can see within 30 ft hits a target with a weapon attack: that target takes an extra 1d6 acid damage."
+                  }
                 ]
               },
               {
@@ -1907,6 +1919,18 @@
                         "damageType": "cold"
                       }
                     ]
+                  }
+                ],
+                "immune": [
+                  "cold"
+                ],
+                "rolls": [
+                  {
+                    "name": "Infused Strikes",
+                    "dice": "1d6",
+                    "damageType": "cold",
+                    "economy": "reaction",
+                    "note": "When another creature it can see within 30 ft hits a target with a weapon attack: that target takes an extra 1d6 cold damage."
                   }
                 ]
               },
@@ -2006,6 +2030,18 @@
                       }
                     ]
                   }
+                ],
+                "immune": [
+                  "fire"
+                ],
+                "rolls": [
+                  {
+                    "name": "Infused Strikes",
+                    "dice": "1d6",
+                    "damageType": "fire",
+                    "economy": "reaction",
+                    "note": "When another creature it can see within 30 ft hits a target with a weapon attack: that target takes an extra 1d6 fire damage."
+                  }
                 ]
               },
               {
@@ -2104,6 +2140,18 @@
                       }
                     ]
                   }
+                ],
+                "immune": [
+                  "lightning"
+                ],
+                "rolls": [
+                  {
+                    "name": "Infused Strikes",
+                    "dice": "1d6",
+                    "damageType": "lightning",
+                    "economy": "reaction",
+                    "note": "When another creature it can see within 30 ft hits a target with a weapon attack: that target takes an extra 1d6 lightning damage."
+                  }
                 ]
               },
               {
@@ -2201,6 +2249,18 @@
                         "damageType": "poison"
                       }
                     ]
+                  }
+                ],
+                "immune": [
+                  "poison"
+                ],
+                "rolls": [
+                  {
+                    "name": "Infused Strikes",
+                    "dice": "1d6",
+                    "damageType": "poison",
+                    "economy": "reaction",
+                    "note": "When another creature it can see within 30 ft hits a target with a weapon attack: that target takes an extra 1d6 poison damage."
                   }
                 ]
               }

@@ -408,6 +408,24 @@ export const CompanionForm = z
     languages: z.string().optional(),
     traits: z.array(z.object({ name: z.string(), summary: z.string() }).strict()).default([]),
     attacks: z.array(CompanionAttack).default([]),
+    /** Damage it's immune to, resists or is vulnerable to (a drake: its essence). */
+    immune: z.array(DamageType).optional(),
+    resist: z.array(DamageType).optional(),
+    vulnerable: z.array(DamageType).optional(),
+    /** Damage it rolls without an attack roll, with the part of its turn it uses (Infused Strikes: a reaction, 1d6 of its essence). */
+    rolls: z
+      .array(
+        z
+          .object({
+            name: z.string(),
+            dice: z.string(),
+            damageType: DamageType,
+            economy: z.enum(["action", "bonus", "reaction", "free"]),
+            note: z.string().optional(),
+          })
+          .strict(),
+      )
+      .optional(),
     /**
      * What it gains as the owner's class levels rise (the Drakewarden's drake:
      * Medium and winged at 7th, Large at 15th). Each step that's reached applies,
