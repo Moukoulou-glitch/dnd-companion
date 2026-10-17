@@ -225,6 +225,8 @@ export const OPERATION_PAYLOADS = {
       rounds: z.number().int().min(1).optional(),
       /** Ends at the next short rest (any rest) or long rest. */
       untilRest: z.enum(["short", "long"]).optional(),
+      /** Ends when your next turn starts (Defensive Flourish's AC). */
+      untilTurnStart: z.boolean().optional(),
       level: z.number().int().min(1).optional(),
       from: z.string().optional(),
     })

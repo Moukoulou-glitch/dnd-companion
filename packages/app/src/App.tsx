@@ -20,6 +20,7 @@ import { FxLayer, playFx } from "./fx/FxLayer";
 import { DiceStrip } from "./dice/DiceStrip";
 import { DiceSettings } from "./dice/DiceSettings";
 import { ownFeatureOf } from "./ownFeature";
+import { flourishAfter } from "./flourish";
 import { d20s, rollOrThrow } from "./dice/quick";
 import { useDiceMode } from "./dice3dSetting";
 import { useFeedback } from "./dice/feedback";
@@ -651,6 +652,10 @@ export function App() {
         onRolled={(r) => {
           live.current.addRoll(r);
           opts.onTotal?.(r.total);
+          // Blade Flourish: its AC, its second creature or its push.
+          const fl = opts.notMine ? undefined : flourishAfter(r);
+          if (fl?.ac !== undefined) live.current.act("addEffect", { instanceId: crypto.randomUUID(), effect: "other:defensive-flourish", choice: String(fl.ac), untilTurnStart: true }, fl.note);
+          else if (fl) live.current.setToast({ id: Date.now(), text: fl.note, canUndo: false });
         }}
       />
       {opts.back && (

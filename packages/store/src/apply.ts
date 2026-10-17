@@ -1453,6 +1453,10 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       if (op.payload.castLevel) entry.castLevel = op.payload.castLevel;
       const untilRest = op.payload.untilRest ?? def?.untilRest;
       if (untilRest) entry.untilRest = untilRest;
+      if (op.payload.untilTurnStart) {
+        entry.untilTurnStart = true;
+        if (!c.combat) entry.outOfCombat = true;
+      }
       if (def && def.category !== "condition") combineSame(entry, def.name);
       c.effects.push(entry);
       if (def?.choice && !entry.choice) notes.push(`${def.name}: choose the ${def.choice.label.toLowerCase()} on its card.`);

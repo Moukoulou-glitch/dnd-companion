@@ -530,7 +530,7 @@
       "kind": "feature",
       "id": "feature:college-of-swords-blade-flourish",
       "name": "Blade Flourish",
-      "summary": "When you take the Attack action, your walking speed rises by 10 ft that turn. Once per turn on a weapon hit, spend a Bardic Inspiration for a flourish: Defensive (die to damage and to AC until your next turn), Slashing (die to the target and another creature within 5 ft), or Mobile (die to damage and push the target 5 + die ft).",
+      "summary": "When you take the Attack action, your walking speed rises by 10 ft until the end of the turn. Once per turn on a weapon hit, spend a Bardic Inspiration for a flourish (a tick-box on the damage roll): Defensive (the die to damage and to your AC until your next turn), Slashing (the die to the target and to another creature within 5 ft of you), or Mobile (the die to damage and push the target 5 ft + the die).",
       "source": {
         "pack": "table-2014",
         "book": "XGtE",
@@ -560,6 +560,65 @@
         }
       },
       "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.damage.weapon.*",
+            "op": "add",
+            "value": "scale.die",
+            "mode": "suggested",
+            "label": "Defensive Flourish",
+            "group": "flourish",
+            "oncePerTurn": true,
+            "spends": {
+              "resource": "bardic-inspiration",
+              "amount": 1
+            },
+            "when": {
+              "text": "once per turn, on a weapon hit during the Attack action: the die is added to the damage and to your AC until the start of your next turn; spends a Bardic Inspiration"
+            }
+          },
+          {
+            "selector": "roll.damage.weapon.*",
+            "op": "add",
+            "value": "scale.die",
+            "mode": "suggested",
+            "label": "Slashing Flourish",
+            "group": "flourish",
+            "oncePerTurn": true,
+            "spends": {
+              "resource": "bardic-inspiration",
+              "amount": 1
+            },
+            "when": {
+              "text": "once per turn, on a weapon hit during the Attack action: the die is added to the damage, and another creature of your choice within 5 ft of you takes the same amount; spends a Bardic Inspiration"
+            }
+          },
+          {
+            "selector": "roll.damage.weapon.*",
+            "op": "add",
+            "value": "scale.die",
+            "mode": "suggested",
+            "label": "Mobile Flourish",
+            "group": "flourish",
+            "oncePerTurn": true,
+            "spends": {
+              "resource": "bardic-inspiration",
+              "amount": 1
+            },
+            "when": {
+              "text": "once per turn, on a weapon hit during the Attack action: the die is added to the damage, and you can push the target 5 ft + the die away; your reaction can then take you up to your walking speed to a space within 5 ft of it; spends a Bardic Inspiration"
+            }
+          },
+          {
+            "selector": "stat.speed.walk",
+            "op": "add",
+            "value": 10,
+            "label": "Blade Flourish",
+            "when": {
+              "attackAction": true
+            }
+          }
+        ],
         "actions": [
           {
             "id": "blade-flourish",
@@ -580,7 +639,7 @@
                 "Mobile Flourish"
               ]
             },
-            "note": "Once per turn, on a weapon hit during the Attack action."
+            "note": "Once per turn, on a weapon hit during the Attack action. The flourishes are also tick-boxes on your weapon damage roll, with the die added there."
           }
         ]
       }
@@ -610,6 +669,44 @@
         "page": 15
       },
       "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.damage.weapon.*",
+            "op": "add",
+            "value": "1d6",
+            "mode": "suggested",
+            "label": "Defensive Flourish (Master's Flourish d6)",
+            "group": "flourish",
+            "oncePerTurn": true,
+            "when": {
+              "text": "once per turn, on a weapon hit during the Attack action: the d6 is added to the damage and to your AC until the start of your next turn; a d6 instead of a Bardic Inspiration"
+            }
+          },
+          {
+            "selector": "roll.damage.weapon.*",
+            "op": "add",
+            "value": "1d6",
+            "mode": "suggested",
+            "label": "Slashing Flourish (Master's Flourish d6)",
+            "group": "flourish",
+            "oncePerTurn": true,
+            "when": {
+              "text": "once per turn, on a weapon hit during the Attack action: the d6 is added to the damage, and another creature of your choice within 5 ft of you takes the same amount; a d6 instead of a Bardic Inspiration"
+            }
+          },
+          {
+            "selector": "roll.damage.weapon.*",
+            "op": "add",
+            "value": "1d6",
+            "mode": "suggested",
+            "label": "Mobile Flourish (Master's Flourish d6)",
+            "group": "flourish",
+            "oncePerTurn": true,
+            "when": {
+              "text": "once per turn, on a weapon hit during the Attack action: the d6 is added to the damage, and you can push the target 5 ft + the d6 away; your reaction can then take you up to your walking speed to a space within 5 ft of it; a d6 instead of a Bardic Inspiration"
+            }
+          }
+        ],
         "actions": [
           {
             "id": "masters-flourish",
@@ -627,7 +724,7 @@
                 "Mobile Flourish"
               ]
             },
-            "note": "A flourish using a d6 instead of a Bardic Inspiration (still once per turn)."
+            "note": "A flourish using a d6 instead of a Bardic Inspiration (still once per turn). The flourishes are also tick-boxes on your weapon damage roll, with the die added there."
           }
         ]
       }

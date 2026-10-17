@@ -626,6 +626,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       if (abilities[ab as Ability].score.total < (min ?? 0)) return "fail";
     }
     if (when.toggle && !c.toggles.includes(when.toggle)) return "fail";
+    if (when.attackAction && !(c.combat && c.combat.attacks > 0)) return "fail";
     if (when.text || when.hands) return "unknown";
     return "pass";
   };

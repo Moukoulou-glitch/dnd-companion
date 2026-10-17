@@ -3144,6 +3144,27 @@
           "Storm"
         ]
       }
+    },
+    {
+      "kind": "effect",
+      "id": "other:defensive-flourish",
+      "name": "Defensive Flourish",
+      "category": "other",
+      "summary": "The flourish's die added to your AC until the start of your next turn.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 15
+      },
+      "selfOnly": true,
+      "modifiers": [
+        {
+          "selector": "stat.ac",
+          "op": "add",
+          "value": "{choice}",
+          "label": "Defensive Flourish"
+        }
+      ]
     }
   ]
 }
