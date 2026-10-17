@@ -164,11 +164,32 @@ export type Proficiency = z.infer<typeof Proficiency>;
 export const ResetRule = z.enum(["short", "long", "dawn", "manual"]);
 export type ResetRule = z.infer<typeof ResetRule>;
 
+/**
+ * How a feature's dice look when 3D dice are on: a preset's name ("psionic",
+ * "martial", "shadow", "divine", "vital"…) or a look of its own. Looks only:
+ * it never changes what's rolled.
+ */
+export const DiceThemeSpec = z.union([
+  z.string(),
+  z
+    .object({
+      preset: z.string().optional(),
+      color: z.string().regex(/^#[0-9a-fA-F]{6}$/).optional(),
+      material: z.string().optional(),
+      impact: z.string().optional(),
+      particles: z.string().optional(),
+      glow: z.union([z.literal(0), z.literal(1), z.literal(2)]).optional(),
+    })
+    .strict(),
+]);
+
 /** A countable pool: Rage, Favored Foe, Fey Step, a custom "Shadow Charges". */
 export const ResourceDef = z
   .object({
     id: z.string(),
     name: z.string(),
+    /** Its dice's look (3D dice): every option that spends it rolls in this theme. */
+    diceTheme: DiceThemeSpec.optional(),
     max: ValueExpr,
     reset: ResetRule,
     /** For die-based pools (Psionic Energy, Hit Dice). */
@@ -270,6 +291,8 @@ export const ActionDef = z
   .object({
     id: z.string(),
     name: z.string(),
+    /** Its dice's look (3D dice), when it rolls any. */
+    diceTheme: DiceThemeSpec.optional(),
     /** Only from this level: the character's, or with `levelOf`, that class's (Drow Magic's Darkness: 5th; Shadow Magic's Darkness: sorcerer 3rd). */
     minLevel: z.number().int().min(1).max(20).optional(),
     levelOf: DefId.optional(),

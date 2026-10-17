@@ -85,7 +85,11 @@ export function registerDiceTheme(key: string, theme: DiceTheme): void {
   FEATURE_THEMES.set(key, theme);
 }
 export function featureTheme(key: string): DiceTheme | undefined {
-  return FEATURE_THEMES.get(key);
+  const exact = FEATURE_THEMES.get(key);
+  if (exact) return exact;
+  // "resource:psionic-energy*" covers "resource:psionic-energy-dice".
+  for (const [k, t] of FEATURE_THEMES) if (k.endsWith("*") && key.startsWith(k.slice(0, -1))) return t;
+  return undefined;
 }
 
 /** What a die is for: its group's label (a damage type or a bonus's name) and the feature or spell rolling it. */
@@ -93,6 +97,8 @@ export interface ThemeContext {
   label?: string | undefined;
   /** "feature:…", "spell:…", "item:…" or a homebrew id. */
   source?: string | undefined;
+  /** More keys to look up, first match wins ("resource:superiority-dice", "name:Sneak Attack"). */
+  keys?: string[] | undefined;
 }
 
 /** The player's choices on this device. */
@@ -104,6 +110,8 @@ export interface DicePrefs {
   damageThemes: boolean;
   /** Feature and spell dice in their own theme (on by default). */
   featureThemes: boolean;
+  /** Raging: your own dice take Rage's theme (a feature theme). */
+  raging?: boolean;
 }
 
 /**
@@ -116,12 +124,19 @@ export interface DicePrefs {
  * 5. the classic default.
  */
 export function resolveTheme(ctx: ThemeContext, prefs: DicePrefs): DiceTheme {
-  if (prefs.featureThemes && ctx.source) {
-    const f = featureTheme(ctx.source);
-    if (f) return f;
+  if (prefs.featureThemes) {
+    for (const key of [...(ctx.keys ?? []), ...(ctx.source ? [ctx.source] : [])]) {
+      const f = featureTheme(key);
+      if (f) return f;
+    }
   }
   const type = ctx.label?.toLowerCase();
   if (prefs.damageThemes && type && DAMAGE_THEMES[type]) return DAMAGE_THEMES[type]!;
+  // Your own dice while raging.
+  if (prefs.featureThemes && prefs.raging) {
+    const r = featureTheme("state:raging");
+    if (r) return r;
+  }
   if (prefs.picked) return { ...DEFAULT_THEME, id: "picked", label: "Your colour", color: prefs.picked };
   const main = mainClass(prefs.classes);
   return (main && CLASS_THEMES[main]) || DEFAULT_THEME;
@@ -138,6 +153,8 @@ export interface DieLook {
   impact?: string;
   particles?: string;
   glow?: 0 | 1 | 2;
+  /** A short vibration as it lands (only when the player turned dice vibration on). */
+  haptic?: number[];
 }
 
 export function lookOf(theme: DiceTheme, label?: string): DieLook {
@@ -149,5 +166,6 @@ export function lookOf(theme: DiceTheme, label?: string): DieLook {
     ...(theme.impact ? { impact: theme.impact } : {}),
     ...(theme.particles ? { particles: theme.particles } : {}),
     ...(theme.glow ? { glow: theme.glow } : {}),
+    ...(theme.haptic ? { haptic: theme.haptic } : {}),
   };
 }

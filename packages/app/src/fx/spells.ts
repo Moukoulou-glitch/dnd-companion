@@ -147,4 +147,14 @@ Object.assign(SPELL_FX, {
 // Shocking Grasp: lightning crackles over your hand where you touch (its damage then plays the lightning look).
 SPELL_FX["spell:shocking-grasp"] = { family: "lightning", cast: { look: "sfx-shock", ms: 600, at: "tap", buzz: [15, 25, 15], particles: 6 } };
 
+// Spell accents on their damage (7c), built from the looks above; the dice themselves take the damage type's theme.
+Object.assign(SPELL_FX, {
+  // Fireball: an expanding ember burst where you tapped, a controlled explosion.
+  "spell:fireball": { family: "nature", resolve: { look: "sfx-fireball", ms: 900, at: "tap", buzz: [40, 30, 20], particles: 10 } },
+  // Lightning Bolt: a bright arc straight across, brief.
+  "spell:lightning-bolt": { family: "lightning", resolve: { look: "sfx-lbolt", ms: 520, at: "across", buzz: [15, 25, 15] } },
+  // Tidal Wave: the water's flood, washing across.
+  "spell:tidal-wave": { family: "water", cast: water("sfx-water-flood"), resolve: water("sfx-water-flood") },
+} satisfies Record<string, SpellFxDef>);
+
 export const spellFxOf = (spell: string | undefined): SpellFxDef | undefined => (spell ? SPELL_FX[spell] : undefined);

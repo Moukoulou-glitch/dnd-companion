@@ -160,4 +160,7 @@ The effects are decoration only. Each one follows a confirmed change or result a
 - **In the air:** up to 12 of the main type's particles (embers, snow, smoke, vapour, droplets, dust, runes, arcs, glints, motes, light, rings); none in Reduced or with reduced motion.
 - **Natural 20 on a d20:** radiant flames around its value, "Natural 20" written on it, a golden flare across the screen. **Natural 1:** the value goes to ash ("Natural 1"), the screen dims a moment. Never called a rules success or failure.
 - The dice draw in their own worker: these effects are drawn over them, not on a particular die.
+- **Feature themes (7c):** presets in src/dice/featureThemes.ts (vital, psionic, martial, shadow, mercy-heal, mercy-harm, divine, rage, inspiration, death), matched by `name:<source>` (the name the dice come from in a roll), `resource:<id>` (the resource an option spends; a trailing * matches the start) or `state:raging`. Content can name one with `diceTheme` on an action or resource (a preset's name, or `{ preset?, color?, material?, impact?, particles?, glow? }`).
+- **Spell accents:** Fireball (an ember burst), Lightning Bolt (an arc across), Tidal Wave (the flood), on their damage; other spells keep their damage type's look.
+- **Sound and vibration:** a short knock as dice land (made in the browser, pitch by material) and each theme's buzz; both off until turned on in the dice settings; at most one per frame.
 

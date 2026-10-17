@@ -107,7 +107,7 @@ export function createThrower(getBox: () => Promise<Box>, opts: { container?: ()
       skipNow = undefined;
       throw e;
     }
-    const mode = (opts.modeOf ?? diceMode)();
+    const mode = options?.quick ? "fast" : (opts.modeOf ?? diceMode)();
     const strong = !!options?.strong;
     if (hideTimer) clearTimeout(hideTimer);
     opts.container?.()?.classList.add("on");

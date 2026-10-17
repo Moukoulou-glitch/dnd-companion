@@ -18,13 +18,15 @@ export const canThrow = (sides: number) => THROWN_SIDES.includes(sides);
 /** How a throw is made: a critical hit's stronger throw. */
 export interface ThrowOptions {
   strong?: boolean;
+  /** Settle fast whatever the motion setting (death saves: nothing to wait for). */
+  quick?: boolean;
 }
 
 /** Throws dice of these sides (in these looks, when given), in this order, and returns their faces in the same order. */
 export type Thrower = (sides: number[], looks?: (DieLook | undefined)[], options?: ThrowOptions) => Promise<number[]>;
 
-/** A die's look from its group: the term's label (a damage type, or none) and its sides. */
-export type DieLookOf = (label: string | undefined, sides: number) => DieLook | undefined;
+/** A die's look from its group: the term's label (a damage type, or none), its sides, and what it comes from in the roll ("Sneak Attack"). */
+export type DieLookOf = (label: string | undefined, sides: number, source?: string) => DieLook | undefined;
 
 /**
  * Plays a roll with thrown faces. First rolls come from the first throw, in
@@ -34,8 +36,10 @@ export type DieLookOf = (label: string | undefined, sides: number) => DieLook | 
  */
 export async function rollThrown(c: Composed, toss: Thrower, appRng: Rng = secureRng, colourOf?: DieLookOf, options?: ThrowOptions): Promise<ComposedRoll & { thrown: number }> {
   // Each die's group, in the order the dice are rolled (term by term), for its colour.
-  const groups: { sides: number; label: string | undefined }[] = [];
-  for (const t of c.terms) if (t.kind === "dice") for (let i = 0; i < t.count; i++) groups.push({ sides: t.sides, label: t.label });
+  const groups: { sides: number; label: string | undefined; source: string | undefined }[] = [];
+  c.terms.forEach((t, ti) => {
+    if (t.kind === "dice") for (let i = 0; i < t.count; i++) groups.push({ sides: t.sides, label: t.label, source: c.sources[ti] });
+  });
   // Which first rolls the roll needs: a dry run that never asks for a reroll.
   const first: number[] = [];
   const firstColours: (DieLook | undefined)[] = [];
@@ -45,7 +49,7 @@ export async function rollThrown(c: Composed, toss: Thrower, appRng: Rng = secur
     const group = groups[g++];
     if (canThrow(sides)) {
       first.push(sides);
-      firstColours.push(colourOf && group?.sides === sides ? colourOf(group.label, sides) : undefined);
+      firstColours.push(colourOf && group?.sides === sides ? colourOf(group.label, sides, group.source) : undefined);
     }
     return sides;
   });

@@ -1,6 +1,8 @@
 import { useState } from "react";
 import type { DerivedSheet, ResourceResult, SpellResult } from "@dnd/engine";
 
+import { facesOrRoll } from "../dice/quick";
+
 function rollDie(sides: number): number {
   const buf = new Uint32Array(1);
   crypto.getRandomValues(buf);
@@ -57,7 +59,12 @@ export function Confirm({
 }
 
 /** Tap the die you rolled, or let the app roll it. */
-export function DieEntry({ sides, onDone, label }: { sides: number; onDone: (n: number) => void; label?: string }) {
+/**
+ * Tap the face your die shows, or let the app roll it (3D dice when they're on, in `theme`'s look:
+ * the resource it spends, the feature it's for).
+ */
+export function DieEntry({ sides, onDone, label, theme }: { sides: number; onDone: (n: number) => void; label?: string; theme?: { source?: string; keys?: string[]; quick?: boolean } }) {
+  const [rolling, setRolling] = useState(false);
   return (
     <>
       <p className="note">{label ?? `Tap what your d${sides} shows, or let the app roll.`}</p>
@@ -68,8 +75,19 @@ export function DieEntry({ sides, onDone, label }: { sides: number; onDone: (n: 
           </button>
         ))}
       </div>
-      <button className="big wide" style={{ marginTop: 10 }} onClick={() => onDone(rollDie(sides))}>
-        Roll for me
+      <button
+        className="big wide"
+        style={{ marginTop: 10 }}
+        disabled={rolling}
+        onClick={() => {
+          setRolling(true);
+          void facesOrRoll(1, sides, true, theme).then(([v]) => {
+            setRolling(false);
+            onDone(v ?? rollDie(sides));
+          });
+        }}
+      >
+        {rolling ? "Rolling…" : "Roll for me"}
       </button>
     </>
   );
@@ -81,7 +99,7 @@ export function SpendDiePanel({ r, onRolled, onJustSpend }: { r: ResourceResult;
   return (
     <>
       <p className="sub-head">Roll your {r.name.replace(/ dice$/i, "")} die ({r.die})</p>
-      <DieEntry sides={sides} onDone={onRolled} />
+      <DieEntry sides={sides} onDone={onRolled} theme={{ source: r.name, keys: [`resource:${r.id}`] }} />
       <button className="link" onClick={onJustSpend}>
         Just spend it, no roll
       </button>
@@ -105,10 +123,10 @@ export function PoolRollPanel({ r, onDone }: { r: ResourceResult; onDone: (value
         Roll {count} d{sides} and keep them: before any attack, save or check by you or a creature you can see, replace its d20 with one of these. Once per turn.
       </p>
       {values.length > 0 && <p className="sub-head">So far: {values.join(", ")}</p>}
-      <DieEntry sides={sides} onDone={add} label={`Die ${values.length + 1} of ${count}: tap what it shows, or let the app roll.`} />
+      <DieEntry sides={sides} onDone={add} label={`Die ${values.length + 1} of ${count}: tap what it shows, or let the app roll.`} theme={{ source: r.name, keys: [`resource:${r.id}`] }} />
       <button
         className="link"
-        onClick={() => onDone([...values, ...Array.from({ length: count - values.length }, () => rollDie(sides))])}
+        onClick={() => void facesOrRoll(count - values.length, sides, true, { source: r.name, keys: [`resource:${r.id}`] }).then((rest) => onDone([...values, ...rest]))}
       >
         Roll all of them for me
       </button>

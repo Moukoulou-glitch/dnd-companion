@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { rollThrown } from "../dice3d";
 import { NoWebGLError, SkipError, skipThrow, throwDice } from "../diceBox";
 import { myDieLook } from "../dice/mine";
+import { currentDiceState, resourceNow } from "../diceColours";
 import type { ThrowOptions } from "../dice3d";
 import { useDice3d } from "../dice3dSetting";
 import {
@@ -170,6 +171,12 @@ function Options({
                 <div className="row-main">
                   <div className="row-title">{s.label}</div>
                   {s.reason && <div className="row-sub">{s.reason}</div>}
+                  {s.spends && resourceNow(s.spends.resource) && (
+                    <div className="row-sub">
+                      {resourceNow(s.spends.resource)!.name}
+                      {resourceNow(s.spends.resource)!.die ? ` (${resourceNow(s.spends.resource)!.die})` : ""}: {resourceNow(s.spends.resource)!.remaining} of {resourceNow(s.spends.resource)!.max} left
+                    </div>
+                  )}
                   {/* The maneuver used on the roll carrying on to its damage (Feinting Attack) is the same one, not a second. */}
                   {s.group && usedGroups.includes(s.group) && !carried.includes(s.label) && <div className="row-sub danger-text">Already used one on this attack's roll: one {s.group} per attack.</div>}
                 </div>
@@ -402,6 +409,14 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
     };
   }, []);
   /**
+   * A die's theme keys beyond its source's name: the resource its option spends (every maneuver
+   * spends a superiority die), and the feature or spell this whole roll is for.
+   */
+  const keysFor = (source: string | undefined): string[] => {
+    const opt = [...base.suggestions, ...(damageBase?.suggestions ?? [])].find((x) => x.label === source);
+    return [...(opt?.spends ? [`resource:${opt.spends.resource}`] : []), ...(diceSource ? [diceSource] : [])];
+  };
+  /**
    * Throws the dice for `c`, then `done` with the roll. Skipped, or the 3D dice can't be drawn or fail:
    * the app rolls instead and says so. The result is never held up by the dice.
    */
@@ -410,7 +425,9 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
     setThrowNote(undefined);
     let r: ComposedRoll | undefined;
     try {
-      r = await rollThrown(c, throwDice, undefined, (label) => myDieLook(label, diceSource), options);
+      // Raging: your dice are thrown with Rage's force.
+      const opts = currentDiceState().raging && !options?.strong ? { ...options, strong: true } : options;
+      r = await rollThrown(c, throwDice, undefined, (label, _sides, source) => myDieLook(label, source, keysFor(source)), opts);
     } catch (e) {
       if (alive.current)
         setThrowNote(

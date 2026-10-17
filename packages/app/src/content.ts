@@ -2,6 +2,7 @@ import { bookPack, ContentRegistry, type BookReport } from "@dnd/engine";
 import { Character } from "@dnd/schema";
 // SRD first, then the table's pack; checked against the schema when the app is built (see vite.config.ts).
 import packs from "virtual:content-packs";
+import { registerContentThemes } from "./dice/featureThemes";
 
 // Content and reference characters are bundled into the app, so it works offline.
 const fixtureFiles = import.meta.glob("../../../content/fixtures/*.json", { eager: true, import: "default" });
@@ -12,6 +13,8 @@ function buildRegistry(): ContentRegistry {
 }
 
 export const registry = buildRegistry();
+// Dice themes named in the content (an action's or resource's `diceTheme`): looks only.
+registerContentThemes(registry);
 
 /** What the book files on this device added, once they're loaded. */
 export let bookReport: BookReport | undefined;
@@ -25,6 +28,7 @@ export function addBooks(files: { name: string; text: string }[]): BookReport | 
   if (!files.length) return undefined;
   const { pack, report } = bookPack(files, buildRegistry());
   registry.add(pack);
+  registerContentThemes(registry);
   bookReport = report;
   return report;
 }

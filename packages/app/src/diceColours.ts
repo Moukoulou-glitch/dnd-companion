@@ -119,3 +119,17 @@ export function myDiceColour(): string {
 
 /** The classes the dice follow now (the character on screen). */
 export const currentDiceClasses = () => current;
+
+// The character's state the dice follow (raging: Rage's dice theme).
+let state: { raging: boolean } = { raging: false };
+export function setDiceState(s: { raging: boolean }) {
+  state = s;
+}
+export const currentDiceState = () => state;
+
+// The character's resources now (for "3 of 4 left" next to an option that spends one).
+let resources: { id: string; name: string; remaining: number; max: number; die?: string }[] = [];
+export function setDiceResources(r: { id: string; name: string; remaining: number; max: number; die?: string }[]) {
+  resources = r;
+}
+export const resourceNow = (id: string) => resources.find((r) => r.id === id);

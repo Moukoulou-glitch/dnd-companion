@@ -1,9 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { DICE_EVENT, type DiceEvent } from "../diceBox";
 import type { DiceMode } from "../dice3dSetting";
+import { buzz, knock } from "./feedback";
 
 interface StripDie {
   sides: number;
+  material?: string;
+  haptic?: number[];
   color?: string;
   label?: string;
   impact?: string;
@@ -55,6 +58,11 @@ export function DiceStrip() {
     const landed = pending.current;
     pending.current = [];
     if (!landed.length) return;
+    // One knock and one buzz for the dice landing in this frame (when the player has them on).
+    const first = diceRef.current?.[landed[0]!.index];
+    const nat20 = landed.some((l) => l.value === 20 && dice20.current.has(l.index));
+    knock(first?.material, nat20);
+    buzz(nat20 ? [30, 60, 30, 60, 90] : first?.haptic);
     setDice((cur) => {
       if (!cur) return cur;
       const next = cur.slice();
@@ -70,6 +78,9 @@ export function DiceStrip() {
       flashTimer.current = setTimeout(() => setFlash(null), nat === "nat20" ? 1400 : 1100);
     }
   };
+  /** The dice of the current throw (for sound and vibration, read outside renders). */
+  const diceRef = useRef<StripDie[] | null>(null);
+  diceRef.current = dice;
   /** Which dice of the current throw are d20s (for the natural 20 and 1 flash). */
   const dice20 = useRef(new Set<number>());
   useEffect(() => {
@@ -90,6 +101,8 @@ export function DiceStrip() {
             ...(x.look?.label ? { label: x.look.label } : {}),
             ...(x.look?.impact ? { impact: x.look.impact } : {}),
             ...(x.look?.particles ? { particles: x.look.particles } : {}),
+            ...(x.look?.theme ? { material: x.look.theme } : {}),
+            ...(x.look?.haptic ? { haptic: x.look.haptic } : {}),
           })),
         );
       } else if (d.type === "die") {

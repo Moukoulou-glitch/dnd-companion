@@ -101,7 +101,8 @@ describe("Spell phases and unarmed strikes", () => {
     // Moonbeam: a pulse both right after casting and on later turns.
     expect(rollFx(dmg({ spell: "spell:moonbeam" }))).toEqual([{ kind: "spell", spell: "spell:moonbeam", phase: "resolve" }]);
     expect(rollFx(dmg({ spell: "spell:moonbeam", again: true }))).toEqual([{ kind: "spell", spell: "spell:moonbeam", phase: "again" }]);
-    expect(rollFx(dmg({ spell: "spell:fireball" }))).toEqual([]);
+    // A spell with no look of its own (Fireball has one now: its ember burst).
+    expect(rollFx(dmg({ spell: "spell:magic-missile" }))).toEqual([]);
   });
 
   it("the ongoing loop follows the engine's concentration and nothing else", () => {

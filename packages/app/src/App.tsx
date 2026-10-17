@@ -20,6 +20,7 @@ import { FxLayer, playFx } from "./fx/FxLayer";
 import { DiceStrip } from "./dice/DiceStrip";
 import { d20s, rollOrThrow } from "./dice/quick";
 import { useDiceMode } from "./dice3dSetting";
+import { useFeedback } from "./dice/feedback";
 import { ProficienciesPanel } from "./components/Proficiencies";
 import { EconomyMenu } from "./components/EconomyMenu";
 import type { EconomyKind } from "./components/Combat";
@@ -53,7 +54,7 @@ import { zeroHpOptions } from "@dnd/store";
 
 /** What was chosen before damage that drops you to 0 is recorded. */
 type ZeroHpChoice = { relentless?: true; grave?: { saved: boolean; total?: number; crit?: boolean } };
-import { CLASS_DICE_COLOURS, classDiceColour, mainClass, setDiceClasses, usePickedDiceColour } from "./diceColours";
+import { CLASS_DICE_COLOURS, classDiceColour, mainClass, setDiceClasses, setDiceResources, setDiceState, usePickedDiceColour } from "./diceColours";
 import { Choose, Confirm, PoolRollPanel, SlotSpendPanel, SpendDiePanel } from "./components/Prompts";
 import { BottomSheet, BreakdownLines } from "./components/Sheet";
 import { SheetTab } from "./components/SheetTab";
@@ -142,6 +143,8 @@ export function App() {
   live.current = s;
   // 3D dice follow the class this character has the most levels in.
   setDiceClasses(s.character?.classes ?? []);
+  setDiceState({ raging: !!s.character?.toggles.includes("raging") });
+  setDiceResources(s.sheet?.resources ?? []);
   const [tab, setTab] = useState<Tab>("play");
   // The backup reminder on Play: only when there are changes no backup has, and the last one is old.
   const [, setSnoozed] = useState(0);
@@ -495,7 +498,7 @@ export function App() {
             </button>
           ))}
         </div>
-        <button className="big" style={{ width: "100%", marginTop: 10 }} onClick={() => decide(rollDie(20))}>
+        <button className="big" style={{ width: "100%", marginTop: 10 }} onClick={() => void rollOrThrow("1d20", true, undefined, { source: "Death saving throw", quick: true }).then((r) => decide(r.total))}>
           Roll for me
         </button>
       </>,
@@ -519,7 +522,7 @@ export function App() {
             </button>
           ))}
         </div>
-        <button className="big" style={{ width: "100%", marginTop: 10 }} onClick={() => spend(rollDie(sides))}>
+        <button className="big" style={{ width: "100%", marginTop: 10 }} onClick={() => void rollOrThrow(`1d${sides}`, true, undefined, { source: "Hit Die" }).then((r) => spend(r.total))}>
           Roll for me
         </button>
       </>,
@@ -2819,6 +2822,8 @@ function ConcentrationPanel({
 function DiceColourSetting({ classes }: { classes: { class: string; level: number }[] }) {
   const [picked, setPicked] = usePickedDiceColour();
   const [mode, setMode] = useDiceMode();
+  const [sound, setSound] = useFeedback("sound");
+  const [vibrate, setVibrate] = useFeedback("vibrate");
   const main = mainClass(classes);
   const cls = main ? CLASS_DICE_COLOURS[main] : undefined;
   const followColour = classDiceColour(classes);
@@ -2862,6 +2867,20 @@ function DiceColourSetting({ classes }: { classes: { class: string; level: numbe
           </button>
         ))}
       </div>
+      <label className="row check">
+        <input type="checkbox" checked={sound} onChange={() => setSound(!sound)} />
+        <div className="row-main">
+          <div className="row-title">Dice sounds</div>
+          <div className="row-sub">A short knock as each die lands. Off unless you turn it on.</div>
+        </div>
+      </label>
+      <label className="row check">
+        <input type="checkbox" checked={vibrate} onChange={() => setVibrate(!vibrate)} />
+        <div className="row-main">
+          <div className="row-title">Vibrate with dice</div>
+          <div className="row-sub">A short buzz as dice land (phones that can). Off unless you turn it on.</div>
+        </div>
+      </label>
     </div>
   );
 }

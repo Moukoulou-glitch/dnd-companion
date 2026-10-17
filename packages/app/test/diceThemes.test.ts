@@ -32,7 +32,7 @@ describe("Dice themes: data, resolved in a fixed order", () => {
     expect(resolveTheme({ label: "fire", source: "feature:test-surge" }, prefs()).id).toBe("test-surge");
     expect(resolveTheme({ label: "fire", source: "feature:test-surge" }, prefs({ featureThemes: false })).id).toBe("damage-fire");
     expect(resolveTheme({ source: "feature:unknown" }, prefs()).id).toBe("class-wizard");
-    expect(lookOf(DAMAGE_THEMES.fire!, "fire")).toEqual({ theme: "tc-fire", color: DAMAGE_THEMES.fire!.color, id: "damage-fire", label: "fire", impact: "flare", particles: "embers", glow: 2 });
+    expect(lookOf(DAMAGE_THEMES.fire!, "fire")).toEqual({ theme: "tc-fire", color: DAMAGE_THEMES.fire!.color, id: "damage-fire", label: "fire", impact: "flare", particles: "embers", glow: 2, haptic: [18] });
   });
 });
 
