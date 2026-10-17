@@ -41,8 +41,11 @@ describe("The existing low-HP blink is kept as it was", () => {
 
   it("the blink rule is still in the stylesheet and no frame-colour rule touches animation", () => {
     const css = readFileSync(fileURLToPath(new URL("../src/styles.css", import.meta.url)), "utf8");
-    expect(css).toMatch(/\.hp\.critical\s*\{\s*animation:\s*hp-critical 1\.1s ease-in-out infinite;/);
-    expect(css).toMatch(/@keyframes hp-critical/);
+    // 8a: the blink is a glow layer whose opacity alone is animated (no repaint every frame).
+    expect(css).toMatch(/\.hp\.critical::after\s*\{[^}]*animation:\s*hp-critical 1\.1s ease-in-out infinite;/);
+    const keyframes = css.slice(css.indexOf("@keyframes hp-critical"), css.indexOf("}\n}", css.indexOf("@keyframes hp-critical")));
+    expect(keyframes).toMatch(/opacity/);
+    expect(keyframes).not.toMatch(/box-shadow|background/);
     // The frame rules (not the bar's fill, below) never touch the box's animation or background.
     const tierRules = (css.match(/\.hp(?:-frame)?\.tier-[a-z]+[^{]*\{[^}]*\}/g) ?? []).filter((r) => !/hp-bar|mini-bar/.test(r.split("{")[0]!));
     expect(tierRules.length).toBeGreaterThan(0);
