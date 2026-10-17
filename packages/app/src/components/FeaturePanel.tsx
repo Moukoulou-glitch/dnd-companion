@@ -41,7 +41,7 @@ export function FeaturePanel({
   const [points, setPoints] = useState("");
   // Healing Hands and the like: on someone else unless ticked.
   const [onMe, setOnMe] = useState(false);
-  const me = a.others ? onMe : undefined;
+  const me = a.others || a.gives ? onMe : undefined;
   const none = a.cost && a.cost.remaining < a.cost.amount;
 
   const [throwing, setThrowing] = useState(false);
@@ -106,6 +106,18 @@ export function FeaturePanel({
           Uses {a.cost.amount} {a.cost.name}: {a.cost.remaining} left.
           {none ? " None left; you can still use it if your DM allows." : ""}
         </p>
+      )}
+      {a.gives && !a.others && (
+        <>
+          <label className="row check" style={{ padding: "8px 0" }}>
+            <input type="checkbox" checked={onMe} onChange={() => setOnMe(!onMe)} />
+            <div className="row-main">
+              <div className="row-title">Put its effect on me</div>
+              <div className="row-sub">Unticked: it goes to the creature you give it to (they track it on their sheet).</div>
+            </div>
+          </label>
+          {onMe && a.gives.selfWarning && <p className="over-banner">{a.gives.selfWarning}</p>}
+        </>
       )}
       {a.others && (
         <label className="row check" style={{ padding: "8px 0" }}>

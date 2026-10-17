@@ -1210,6 +1210,11 @@ export function App() {
                 },
                 () => {
                   live.current.act("useAction", payload, label);
+                  // Its effect on you (Bardic Inspiration on yourself, if your table allows it): the die it gives.
+                  if (current.gives && onMe) {
+                    const die = current.cost ? live.current.sheet?.resources.find((r) => r.id === current.cost!.resource)?.die : undefined;
+                    live.current.act("addEffect", { instanceId: crypto.randomUUID(), effect: current.gives.effect, ...(die ? { choice: die } : {}) }, `${current.name} on you${die ? ` (${die})` : ""}.`);
+                  }
                   flashForFeature(current.id);
                   // Hound of Ill Omen: straight to the companion it brought out.
                   if (current.summons) return openCompanion(current.summons.companion);

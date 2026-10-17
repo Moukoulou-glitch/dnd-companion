@@ -449,7 +449,11 @@
             "cost": {
               "resource": "bardic-inspiration"
             },
-            "note": "Give a creature within 60 ft that can hear you one Bardic Inspiration die (d6; d8 at 5th, d10 at 10th, d12 at 15th) for 10 minutes. They add it to + Effect → Bardic Inspiration."
+            "note": "Give a creature within 60 ft that can hear you one Bardic Inspiration die (d6; d8 at 5th, d10 at 10th, d12 at 15th) for 10 minutes. They add it to + Effect → Bardic Inspiration.",
+            "gives": {
+              "effect": "other:bardic-inspiration",
+              "selfWarning": "By the rules Bardic Inspiration goes to one creature other than you. It's tracked on you anyway, if your table allows it."
+            }
           }
         ]
       }

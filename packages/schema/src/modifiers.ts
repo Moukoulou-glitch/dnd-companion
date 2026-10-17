@@ -310,6 +310,11 @@ export const ActionDef = z
     heal: ValueExpr.optional(),
     /** The healing can go to another creature (Healing Hands: touch a creature): asks whether it's on you. */
     others: z.boolean().optional(),
+    /**
+     * The effect it gives the creature it's used on (Bardic Inspiration: its die, from the resource spent).
+     * "Put its effect on me" tracks it on you; `selfWarning` when the rules give it to someone else.
+     */
+    gives: z.object({ effect: DefId, selfWarning: z.string().optional() }).strict().optional(),
     /** Dice rolled when used, with what the number means (Spirit Shield: damage prevented). */
     roll: z.object({ dice: ValueExpr, label: z.string() }).strict().optional(),
     /**
