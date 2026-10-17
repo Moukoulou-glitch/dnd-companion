@@ -3345,3 +3345,16 @@ button.mpip {
 .turn-order > span:not(:last-child)::after { content: "›"; margin-left: 12px; opacity: 0.6; }
 .turn-order .you { color: var(--text); font-weight: 700; }
 .turn-order small { font-weight: 400; color: var(--muted); }
+
+/* ── 3D dice: the result strip (each die's value as it settles, by group, in its theme's colour) ── */
+.dice-strip { position: fixed; top: calc(84px + env(safe-area-inset-top, 0px)); left: 50%; transform: translateX(-50%); z-index: 57; max-width: calc(100vw - 24px); display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 12px; padding: 6px 10px; border-radius: 12px; background: rgba(12, 16, 26, 0.82); box-shadow: 0 2px 12px rgba(0, 0, 0, 0.5); pointer-events: none; transition: opacity 300ms ease-out; }
+.dice-strip-group { display: inline-flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.dice-strip-group > small { color: var(--muted); margin-right: 2px; text-transform: capitalize; }
+.dice-strip b { min-width: 28px; height: 28px; padding: 0 4px; display: inline-flex; align-items: center; justify-content: center; border-radius: 7px; background: var(--die, #c8902e); color: #fff; font-size: 0.95rem; font-variant-numeric: tabular-nums; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8); opacity: 0.45; }
+.dice-strip b.landed { opacity: 1; animation: dice-land 260ms ease-out; }
+.dice-strip.reduced b.landed, .dice-strip.fast b.landed { animation: none; }
+/* A big roll: smaller chips, so the strip stays a strip */
+.dice-strip.many b { min-width: 22px; height: 22px; font-size: 0.8rem; border-radius: 5px; }
+.dice-strip.many { gap: 4px 8px; }
+@keyframes dice-land { 0% { transform: scale(1.35); } 100% { transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) { .dice-strip b.landed { animation: none; } }

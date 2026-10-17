@@ -38,3 +38,48 @@ export function useDice3d(): [boolean, (on: boolean) => void] {
   }, []);
   return [on, setDice3d];
 }
+
+/**
+ * How the 3D dice move, on this device:
+ * - full: the whole throw and its effects;
+ * - reduced: the dice still roll, with calmer effects and no shadows (the start when the device asks for reduced motion);
+ * - fast: heavier, quicker dice that settle in about a second.
+ * The result is the same in every mode: only the motion changes.
+ */
+export type DiceMode = "full" | "reduced" | "fast";
+const MODE_KEY = "dnd-dice-mode";
+const MODE_EVENT = "dnd-dice-mode";
+let modeMemory: DiceMode | undefined;
+
+const prefersReduced = () => typeof window !== "undefined" && !!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+
+export function diceMode(): DiceMode {
+  if (modeMemory) return modeMemory;
+  try {
+    const v = localStorage.getItem(MODE_KEY);
+    if (v === "full" || v === "reduced" || v === "fast") return v;
+  } catch {
+    // no storage: the default below
+  }
+  return prefersReduced() ? "reduced" : "full";
+}
+
+export function setDiceMode(mode: DiceMode) {
+  modeMemory = mode;
+  try {
+    localStorage.setItem(MODE_KEY, mode);
+  } catch {
+    // Storage not available: it lasts for this visit only.
+  }
+  window.dispatchEvent(new Event(MODE_EVENT));
+}
+
+export function useDiceMode(): [DiceMode, (m: DiceMode) => void] {
+  const [m, setM] = useState(diceMode);
+  useEffect(() => {
+    const h = () => setM(diceMode());
+    window.addEventListener(MODE_EVENT, h);
+    return () => window.removeEventListener(MODE_EVENT, h);
+  }, []);
+  return [m, setDiceMode];
+}

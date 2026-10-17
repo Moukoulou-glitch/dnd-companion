@@ -116,3 +116,6 @@ export function setDiceClasses(classes: { class: string; level: number }[]) {
 export function myDiceColour(): string {
   return pickedDiceColour() ?? classDiceColour(current);
 }
+
+/** The classes the dice follow now (the character on screen). */
+export const currentDiceClasses = () => current;

@@ -3,18 +3,20 @@ import { composeD20, composeDamage, type Composed } from "@dnd/dice";
 import { rollThrown, type Thrower } from "../src/dice3d.js";
 import { CLASS_DICE_COLOURS, DAMAGE_DICE_COLOURS, DEFAULT_DICE_COLOUR, classDiceColour, dieColour, mainClass, myDiceColour, setDiceClasses, setPickedDiceColour } from "../src/diceColours.js";
 import { parseFormula } from "@dnd/dice";
+import { lookOf, resolveTheme } from "../src/dice/themes.js";
 
 /** A thrower that remembers the sides and colours of each throw. */
 const tosser = (...throws: number[][]) => {
   const asked: { sides: number[]; colours?: (string | undefined)[] }[] = [];
   const toss: Thrower = async (sides, colours) => {
-    asked.push(colours ? { sides, colours } : { sides });
+    asked.push(colours ? { sides, colours: colours.map((l) => l?.color) } : { sides });
     return throws.shift() ?? sides.map(() => 1);
   };
   return { toss, asked };
 };
 const WIZARD = CLASS_DICE_COLOURS["class:wizard"]!.colour;
-const colourOf = (label: string | undefined) => dieColour(label, WIZARD);
+// A die's look as the app makes it (theme resolution), for a wizard who picked no colour.
+const colourOf = (label: string | undefined) => lookOf(resolveTheme({ label }, { picked: null, classes: [{ class: "class:wizard", level: 5 }], damageThemes: true, featureThemes: true }), label);
 const base = { total: 0, parts: [], dice: [], advantage: [], disadvantage: [], suggestions: [] };
 
 describe("3D dice colours", () => {

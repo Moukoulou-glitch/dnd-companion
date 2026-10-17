@@ -17,6 +17,9 @@ import { DcBig, Reminders } from "./components/DcBig";
 import { DistributePanel } from "./components/Distribute";
 import { RageVeins, greyLevel, useFlourishes } from "./components/Fx";
 import { FxLayer, playFx } from "./fx/FxLayer";
+import { DiceStrip } from "./dice/DiceStrip";
+import { d20s, rollOrThrow } from "./dice/quick";
+import { useDiceMode } from "./dice3dSetting";
 import { ProficienciesPanel } from "./components/Proficiencies";
 import { EconomyMenu } from "./components/EconomyMenu";
 import type { EconomyKind } from "./components/Combat";
@@ -901,19 +904,27 @@ export function App() {
     ));
 
   /** A companion's own initiative: d20 + its Dexterity. */
-  const rollCompanionInit = (id: string) => {
+  /** Whether this character's rolls are made by the app (so 3D dice can be thrown for them, when they're on). */
+  const appRolls = () => live.current.character?.settings.physicalDice === false;
+  const setCompanionInit = (id: string, r: number) => {
     const cur = live.current.sheet?.companions.find((x) => x.id === id);
     const dex = cur?.form?.abilities.dex.modifier ?? 0;
-    const r = rollDice("1d20").total;
     live.current.act("companionInitiative", { companion: id, value: r + dex }, `${cur?.name ?? "Companion"}: initiative ${r} ${dex >= 0 ? "+" : "−"} ${Math.abs(dex)} = ${r + dex}.`);
   };
+  const rollCompanionInit = (id: string) => {
+    const name = live.current.sheet?.companions.find((x) => x.id === id)?.name;
+    void rollOrThrow("1d20", appRolls(), name).then((r) => setCompanionInit(id, r.total));
+  };
 
-  const rollSummonInit = (group: string, id?: string) => {
+  const setSummonInit = (group: string, r: number, id?: string) => {
     const m = live.current.character?.summons.find((s) => s.group === group && (!id || s.id === id));
     const d = m ? registry.find(m.creature, "creature") : undefined;
     const dex = d ? Math.floor(((d.abilities.dex ?? 10) - 10) / 2) : 0;
-    const r = rollDice("1d20").total;
     live.current.act("summonInitiative", { group, ...(id ? { id } : {}), value: r + dex }, `Initiative ${r} ${dex >= 0 ? "+" : "−"} ${Math.abs(dex)} = ${r + dex}.`);
+  };
+  const rollSummonInit = (group: string, id?: string) => {
+    const m = live.current.character?.summons.find((s) => s.group === group && (!id || s.id === id));
+    void rollOrThrow("1d20", appRolls(), m?.name ?? (m ? registry.find(m.creature, "creature")?.name : undefined)).then((r) => setSummonInit(group, r.total, id));
   };
 
   const openSummonHp = (id: string, fromMember = false) =>
@@ -1016,8 +1027,8 @@ export function App() {
             })
           }
           onHealSlot={(level, pact) =>
-            guard({ name: "Combat Wild Shape healing", economy: "bonus" }, () => {
-              const healed = rollDice(`${level}d8`).total;
+            guard({ name: "Combat Wild Shape healing", economy: "bonus" }, async () => {
+              const healed = (await rollOrThrow(`${level}d8`, appRolls(), "healing")).total;
               live.current.act("spendSlot", { level, pact: !!pact }, pact ? "Pact slot spent." : `Level ${level} slot spent.`);
               if (live.current.character?.combat) live.current.act("useEconomy", { kind: "bonus", amount: 1 }, "Bonus action used.");
               live.current.act("heal", { amount: healed }, `Combat Wild Shape: ${level}d8 = ${healed} HP.`);
@@ -1458,17 +1469,21 @@ export function App() {
     s.act("startCombat", {}, "Combat started.");
     // The app rolls the dice: companions and summoned creatures with their own initiative roll now too.
     // With your own dice, theirs wait for you (the turn order shows "?").
-    if (live.current.character?.settings.physicalDice === false) {
+    // One throw for all of them (3D when it's on), each die labelled with whose it is.
+    if (appRolls()) {
+      const who: { label: string; set: (r: number) => void }[] = [];
       for (const comp of live.current.sheet?.companions ?? [])
-        if (comp.turn === "own" && comp.form && comp.form.hp.current > 0 && !(comp.summonedBy && !comp.summonedBy.out)) rollCompanionInit(comp.id);
+        if (comp.turn === "own" && comp.form && comp.form.hp.current > 0 && !(comp.summonedBy && !comp.summonedBy.out)) who.push({ label: comp.name, set: (r) => setCompanionInit(comp.id, r) });
       const groups = new Map<string, NonNullable<typeof live.current.character>["summons"]>();
       for (const m of live.current.character?.summons ?? []) if (m.hp > 0) groups.set(m.group, [...(groups.get(m.group) ?? []), m]);
       for (const [group, ms] of groups) {
         const how = registry.list("summon").find((x) => x.spell === ms[0]!.spell)?.initiative;
+        const name = (m: (typeof ms)[number]) => m.name ?? registry.find(m.creature, "creature")?.name ?? "Summoned";
         if (how === "yours") continue;
-        if (how === "own") for (const m of ms) rollSummonInit(group, m.id);
-        else rollSummonInit(group);
+        if (how === "own") for (const m of ms) who.push({ label: name(m), set: (r) => setSummonInit(group, r, m.id) });
+        else who.push({ label: name(ms[0]!), set: (r) => setSummonInit(group, r) });
       }
+      if (who.length) void d20s(who.map((w) => w.label), true).then((faces) => faces.forEach((f, i) => who[i]!.set(f)));
     }
     rollInitiative();
   };
@@ -2504,6 +2519,7 @@ export function App() {
     <div className="app">
       <RageVeins show={rageAt} />
       <FxLayer school={spellSchool} character={c} />
+      <DiceStrip />
       {grey > 0 && <div className="grey-veil" aria-hidden="true" style={{ backdropFilter: `grayscale(${grey})`, WebkitBackdropFilter: `grayscale(${grey})` }} />}
       <header className="strip">
         <button className="who" onClick={openRoster} aria-label={`${c.name}. Switch character`}>
@@ -2802,6 +2818,7 @@ function ConcentrationPanel({
  */
 function DiceColourSetting({ classes }: { classes: { class: string; level: number }[] }) {
   const [picked, setPicked] = usePickedDiceColour();
+  const [mode, setMode] = useDiceMode();
   const main = mainClass(classes);
   const cls = main ? CLASS_DICE_COLOURS[main] : undefined;
   const followColour = classDiceColour(classes);
@@ -2830,6 +2847,21 @@ function DiceColourSetting({ classes }: { classes: { class: string; level: numbe
         </div>
         <input type="color" aria-label="Pick a dice colour" value={picked ?? followColour} onChange={(e) => setPicked(e.target.value)} />
       </label>
+      <div className="row">
+        <div className="row-main">
+          <div className="row-title">3D dice motion</div>
+          <div className="row-sub">
+            {mode === "full" ? "The whole throw and its effects." : mode === "reduced" ? "Calmer: no shadows, quieter effects." : "Heavier dice that settle in about a second."} The result is the same; you can always skip a throw. This device only.
+          </div>
+        </div>
+      </div>
+      <div className="segmented small" role="radiogroup" aria-label="3D dice motion" style={{ margin: "0 12px 12px" }}>
+        {(["full", "reduced", "fast"] as const).map((m) => (
+          <button key={m} role="radio" aria-checked={mode === m} onClick={() => setMode(m)}>
+            {m === "full" ? "Full" : m === "reduced" ? "Reduced" : "Fast"}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

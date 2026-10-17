@@ -164,3 +164,9 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 - With your own dice, companions' and summoned creatures' initiatives wait for you (the turn order shows "?"); the app rolls them only when it rolls your dice.
 - A companion with its own initiative gets its turn back when you swipe "new turn" on it; the app doesn't step through the turn order for you.
 - A mount you control moves on your turn: set your own mount to "On my turn" in the Companion Builder. Find Steed (a summon) already shares your turn.
+
+## 3D dice
+
+- The dice library draws in its own worker: effects can't follow a single die or fire on a bounce (the result strip and screen effects are drawn over it). Themes change a die's colour and material, not its shape.
+- Skip lets the app roll at once (the dice in the air don't count); Fast makes the dice heavier, so they settle in about a second.
+- On this sandbox's software graphics, a throw takes about 3–6 s; a phone's GPU should be faster, but it hasn't been measured on a phone yet.

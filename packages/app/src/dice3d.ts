@@ -1,4 +1,5 @@
 import { rollComposed, secureRng, type Composed, type ComposedRoll, type Rng } from "@dnd/dice";
+import type { DieLook } from "./dice/themes";
 
 /**
  * 3D dice: the faces the thrown dice land on are the roll. The app's dice
@@ -14,11 +15,16 @@ import { rollComposed, secureRng, type Composed, type ComposedRoll, type Rng } f
 export const THROWN_SIDES = [4, 6, 8, 10, 12, 20];
 export const canThrow = (sides: number) => THROWN_SIDES.includes(sides);
 
-/** Throws dice of these sides (in these colours, when given), in this order, and returns their faces in the same order. */
-export type Thrower = (sides: number[], colours?: (string | undefined)[]) => Promise<number[]>;
+/** How a throw is made: a critical hit's stronger throw. */
+export interface ThrowOptions {
+  strong?: boolean;
+}
 
-/** A die's colour from its group: the term's label (a damage type, or none) and its sides. */
-export type DieColour = (label: string | undefined, sides: number) => string | undefined;
+/** Throws dice of these sides (in these looks, when given), in this order, and returns their faces in the same order. */
+export type Thrower = (sides: number[], looks?: (DieLook | undefined)[], options?: ThrowOptions) => Promise<number[]>;
+
+/** A die's look from its group: the term's label (a damage type, or none) and its sides. */
+export type DieLookOf = (label: string | undefined, sides: number) => DieLook | undefined;
 
 /**
  * Plays a roll with thrown faces. First rolls come from the first throw, in
@@ -26,13 +32,13 @@ export type DieColour = (label: string | undefined, sides: number) => string | u
  * a second throw for all of them at once; they never chain, so there are at
  * most two throws. Dice the 3D set doesn't have are rolled by the app.
  */
-export async function rollThrown(c: Composed, toss: Thrower, appRng: Rng = secureRng, colourOf?: DieColour): Promise<ComposedRoll & { thrown: number }> {
+export async function rollThrown(c: Composed, toss: Thrower, appRng: Rng = secureRng, colourOf?: DieLookOf, options?: ThrowOptions): Promise<ComposedRoll & { thrown: number }> {
   // Each die's group, in the order the dice are rolled (term by term), for its colour.
   const groups: { sides: number; label: string | undefined }[] = [];
   for (const t of c.terms) if (t.kind === "dice") for (let i = 0; i < t.count; i++) groups.push({ sides: t.sides, label: t.label });
   // Which first rolls the roll needs: a dry run that never asks for a reroll.
   const first: number[] = [];
-  const firstColours: (string | undefined)[] = [];
+  const firstColours: (DieLook | undefined)[] = [];
   let g = 0;
   rollComposed(c, undefined, (sides, reroll) => {
     if (reroll) return sides;
@@ -43,7 +49,7 @@ export async function rollThrown(c: Composed, toss: Thrower, appRng: Rng = secur
     }
     return sides;
   });
-  const firstFaces = first.length ? check(first, await (colourOf ? toss(first, firstColours) : toss(first))) : [];
+  const firstFaces = first.length ? check(first, await (colourOf ? toss(first, firstColours, options) : options ? toss(first, undefined, options) : toss(first))) : [];
   // The app's dice (no 3D model) keep their value between runs.
   const own: number[] = [];
   const play = (rerollFaces: number[] | undefined, wanted: number[]) => {

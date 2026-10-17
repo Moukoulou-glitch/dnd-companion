@@ -1,8 +1,9 @@
 import { RichText } from "./Conditions";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { rollThrown } from "../dice3d";
-import { throwDice } from "../diceBox";
-import { dieColour, myDiceColour } from "../diceColours";
+import { NoWebGLError, SkipError, skipThrow, throwDice } from "../diceBox";
+import { myDieLook } from "../dice/mine";
+import type { ThrowOptions } from "../dice3d";
 import { useDice3d } from "../dice3dSetting";
 import {
   composeD20,
@@ -82,6 +83,8 @@ interface Props {
   afterRoll?: { label: string; sub?: string; warn?: boolean; group?: string; run: () => { value: number; detail: string } | undefined }[];
   /** Closes the roll (after a miss with no more attacks). */
   onDone?: () => void;
+  /** The feature, spell or item rolling these dice ("feature:second-wind"), for its own dice theme. */
+  diceSource?: string;
 }
 
 /**
@@ -299,7 +302,7 @@ export function ResultView({ r }: { r: RollRecord }) {
   );
 }
 
-export function Composer({ title, base: baseIn, attack, physical, onPhysicalChange, onRolled, onResolved, damageOnly, healing, onHealSelf, dc, dcLabel, reaction, onSpend, onCheck, notes, header, typeChoices, portent, onOptionsUsed, optionInfo, onCommit, repeat, onDamageOptions, afterRoll, onDone }: Props) {
+export function Composer({ title, base: baseIn, attack, physical, onPhysicalChange, onRolled, onResolved, damageOnly, healing, onHealSelf, dc, dcLabel, reaction, onSpend, onCheck, notes, header, typeChoices, portent, onOptionsUsed, optionInfo, onCommit, repeat, onDamageOptions, afterRoll, onDone, diceSource }: Props) {
   const [typePick, setTypePick] = useState<{ via: number; type: string } | null>(null);
   // A smite used on an earlier hit (Extra Attack's first attack, or this one rolled again) is gone: it can't be ticked again.
   const [usedUp, setUsedUp] = useState<UsedUp[]>([]);
@@ -398,15 +401,25 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
       alive.current = false;
     };
   }, []);
-  /** Throws the dice for `c`, then `done` with the roll; if the 3D dice fail, the app rolls instead and says so. */
-  const throwThen = async (c: Composed, done: (r: ComposedRoll, thrown: boolean) => void) => {
+  /**
+   * Throws the dice for `c`, then `done` with the roll. Skipped, or the 3D dice can't be drawn or fail:
+   * the app rolls instead and says so. The result is never held up by the dice.
+   */
+  const throwThen = async (c: Composed, done: (r: ComposedRoll, thrown: boolean) => void, options?: ThrowOptions) => {
     setThrowing(true);
     setThrowNote(undefined);
     let r: ComposedRoll | undefined;
     try {
-      r = await rollThrown(c, throwDice, undefined, (label) => dieColour(label, myDiceColour()));
-    } catch {
-      if (alive.current) setThrowNote("The 3D dice didn't work this time, so the app rolled.");
+      r = await rollThrown(c, throwDice, undefined, (label) => myDieLook(label, diceSource), options);
+    } catch (e) {
+      if (alive.current)
+        setThrowNote(
+          e instanceof SkipError
+            ? "Skipped: the app rolled."
+            : e instanceof NoWebGLError
+              ? "3D dice can't be drawn on this device, so the app rolled."
+              : "The 3D dice didn't work this time, so the app rolled.",
+        );
     }
     // Closed while the dice were in the air: nothing was rolled.
     if (!alive.current) return;
@@ -565,6 +578,11 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
         ) : (
           <button className="big primary wide" disabled={throwing} onClick={() => (throwing3d ? throwThen(d20, (r, t) => rollD20(undefined, d20, r, t)) : rollD20())}>
             {throwing ? "Throwing…" : throwing3d ? "Throw the dice" : "Roll"}
+          </button>
+        )}
+        {throwing && (
+          <button className="link" onClick={skipThrow}>
+            Skip: let the app roll
           </button>
         )}
         {attack && (
@@ -777,8 +795,13 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
             </button>
           )
         ) : (
-          <button className="big primary wide" disabled={throwing} onClick={() => (throwing3d ? throwThen(damage, (r, t) => rollDamage(undefined, r, t)) : rollDamage())}>
+          <button className="big primary wide" disabled={throwing} onClick={() => (throwing3d ? throwThen(damage, (r, t) => rollDamage(undefined, r, t), stage.crit ? { strong: true } : undefined) : rollDamage())}>
             {throwing ? "Throwing…" : throwing3d ? (healing ? "Throw the healing dice" : "Throw the damage dice") : healing ? "Roll healing" : "Roll damage"}
+          </button>
+        )}
+        {throwing && (
+          <button className="link" onClick={skipThrow}>
+            Skip: let the app roll
           </button>
         )}
       </>

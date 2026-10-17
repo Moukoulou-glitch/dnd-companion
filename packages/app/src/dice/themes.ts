@@ -1,0 +1,108 @@
+import { CLASS_DICE_COLOURS, DAMAGE_DICE_COLOURS, DEFAULT_DICE_COLOUR, mainClass } from "../diceColours";
+
+/**
+ * Dice themes: how a die looks, as data. Nothing here rolls or decides a
+ * result; the dice engine does that, and the renderer only reads a theme.
+ *
+ * A theme names a material family (a dice-box theme folder in
+ * public/dice-box/assets/themes) and a tint, and the effects that go with it.
+ * The effects are names of reusable presets (fx/dice), never code per theme,
+ * so a new feature, spell, magic item or homebrew theme is one more entry.
+ */
+export interface DiceTheme {
+  id: string;
+  label: string;
+  /** dice-box theme folder (material, pattern and number layout). */
+  material: string;
+  /** Tint, dark or saturated enough for the white numbers. */
+  color: string;
+  /** How much the die seems lit from within: 0 none, 1 a little, 2 strong (drawn by the effect layer). */
+  glow: 0 | 1 | 2;
+  /** Effect presets by moment, all optional. */
+  trail?: string;
+  particles?: string;
+  impact?: string;
+  reveal?: string;
+  /** Short sound and vibration, only when the player has them on. */
+  sound?: string;
+  haptic?: number[];
+}
+
+const base = (id: string, label: string, color: string): DiceTheme => ({ id, label, material: "default", color, glow: 0 });
+
+export const DEFAULT_THEME: DiceTheme = base("default", "Classic", DEFAULT_DICE_COLOUR);
+
+/** One per class: the colour your dice follow (the class with the most levels). */
+export const CLASS_THEMES: Record<string, DiceTheme> = Object.fromEntries(
+  Object.entries(CLASS_DICE_COLOURS).map(([id, c]) => [id, base(`class-${id.replace(/^class:/, "")}`, c.name, c.colour)]),
+);
+
+/** One per damage type (and healing): the dice of that part of a roll. */
+export const DAMAGE_THEMES: Record<string, DiceTheme> = Object.fromEntries(
+  Object.entries(DAMAGE_DICE_COLOURS).map(([type, colour]) => [type, base(`damage-${type}`, type.replace(/^./, (x) => x.toUpperCase()), colour)]),
+);
+
+/**
+ * Themes of features, spells and items, by the id they're asked for with
+ * ("feature:second-wind", "spell:fireball", or any homebrew id). Empty until
+ * themes are added; `registerDiceTheme` adds one without touching the renderer.
+ */
+const FEATURE_THEMES = new Map<string, DiceTheme>();
+export function registerDiceTheme(key: string, theme: DiceTheme): void {
+  FEATURE_THEMES.set(key, theme);
+}
+export function featureTheme(key: string): DiceTheme | undefined {
+  return FEATURE_THEMES.get(key);
+}
+
+/** What a die is for: its group's label (a damage type or a bonus's name) and the feature or spell rolling it. */
+export interface ThemeContext {
+  label?: string | undefined;
+  /** "feature:…", "spell:…", "item:…" or a homebrew id. */
+  source?: string | undefined;
+}
+
+/** The player's choices on this device. */
+export interface DicePrefs {
+  /** A colour of their own for their dice (wins over the class's). */
+  picked: string | null;
+  classes: { class: string; level: number }[];
+  /** Damage dice in their type's theme (on by default). */
+  damageThemes: boolean;
+  /** Feature and spell dice in their own theme (on by default). */
+  featureThemes: boolean;
+}
+
+/**
+ * The theme of one die, in this order:
+ * 1. the feature's or spell's own theme (when it has one and they're on);
+ * 2. its damage type's theme (when they're on);
+ * 3. the player's own colour, if they picked one;
+ * 4. the theme of their class with the most levels (the first one listed on a
+ *    tie, from the character's class data: never from the page on screen);
+ * 5. the classic default.
+ */
+export function resolveTheme(ctx: ThemeContext, prefs: DicePrefs): DiceTheme {
+  if (prefs.featureThemes && ctx.source) {
+    const f = featureTheme(ctx.source);
+    if (f) return f;
+  }
+  const type = ctx.label?.toLowerCase();
+  if (prefs.damageThemes && type && DAMAGE_THEMES[type]) return DAMAGE_THEMES[type]!;
+  if (prefs.picked) return { ...DEFAULT_THEME, id: "picked", label: "Your colour", color: prefs.picked };
+  const main = mainClass(prefs.classes);
+  return (main && CLASS_THEMES[main]) || DEFAULT_THEME;
+}
+
+/** What the renderer is handed for one die: its material, tint and theme id; and its group, for the reveal. */
+export interface DieLook {
+  theme: string;
+  color: string;
+  id: string;
+  /** The group it belongs to (a damage type or a bonus's name), shown with its value. */
+  label?: string;
+}
+
+export function lookOf(theme: DiceTheme, label?: string): DieLook {
+  return { theme: theme.material, color: theme.color, id: theme.id, ...(label ? { label } : {}) };
+}
