@@ -1,12 +1,20 @@
 import { currentDiceClasses, currentDiceState, pickedDiceColour } from "../diceColours";
 import { registerFeatureThemes } from "./featureThemes";
+import { damageThemesOn, featureThemesOn, ownMaterial } from "./prefs";
 import { lookOf, resolveTheme, type DicePrefs, type DieLook } from "./themes";
 
 registerFeatureThemes();
 
 /** This device's dice choices now: the picked colour, the character's classes and state, themes on. */
 export function myDicePrefs(): DicePrefs {
-  return { picked: pickedDiceColour(), classes: currentDiceClasses(), damageThemes: true, featureThemes: true, raging: currentDiceState().raging };
+  return {
+    picked: pickedDiceColour(),
+    classes: currentDiceClasses(),
+    damageThemes: damageThemesOn(),
+    featureThemes: featureThemesOn(),
+    raging: currentDiceState().raging,
+    ownMaterial: ownMaterial(),
+  };
 }
 
 /**

@@ -171,5 +171,6 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 - Skip lets the app roll at once (the dice in the air don't count); Fast makes the dice heavier, so they settle in about a second.
 - On this sandbox's software graphics, a throw takes about 3–6 s; a phone's GPU should be faster, but it hasn't been measured on a phone yet.
 - Still rolled by the app (no 3D dice): Precision Attack's die added after the attack roll, and Recharge rolls (they happen on their own at the start of a turn). Metamagic rolls no dice of its own (Empowered Spell's rerolls aren't modelled), so it has no dice theme.
+- Dice settings are per device, not per character or synced: a second phone starts from the defaults. Your own dice take a material from a short list (no editor for new ones); a homebrew material needs a theme folder added to the app.
 - A custom action made in the app can't pick a dice theme yet (content and homebrew packs can, with `diceTheme`).
 

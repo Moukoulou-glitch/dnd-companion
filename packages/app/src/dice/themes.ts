@@ -112,6 +112,8 @@ export interface DicePrefs {
   featureThemes: boolean;
   /** Raging: your own dice take Rage's theme (a feature theme). */
   raging?: boolean;
+  /** The material of the player's own dice (a theme folder; the classic one when not set). */
+  ownMaterial?: string;
 }
 
 /**
@@ -137,9 +139,12 @@ export function resolveTheme(ctx: ThemeContext, prefs: DicePrefs): DiceTheme {
     const r = featureTheme("state:raging");
     if (r) return r;
   }
-  if (prefs.picked) return { ...DEFAULT_THEME, id: "picked", label: "Your colour", color: prefs.picked };
+  // Your own dice: your colour (picked, or your class's), in the material you chose.
+  const material = prefs.ownMaterial ? { material: prefs.ownMaterial } : {};
+  if (prefs.picked) return { ...DEFAULT_THEME, id: "picked", label: "Your colour", color: prefs.picked, ...material };
   const main = mainClass(prefs.classes);
-  return (main && CLASS_THEMES[main]) || DEFAULT_THEME;
+  const own = (main && CLASS_THEMES[main]) || DEFAULT_THEME;
+  return prefs.ownMaterial && prefs.ownMaterial !== own.material ? { ...own, ...material } : own;
 }
 
 /** What the renderer is handed for one die: its material, tint and theme id; its group, for the reveal; its effects. */

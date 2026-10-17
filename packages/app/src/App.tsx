@@ -18,6 +18,7 @@ import { DistributePanel } from "./components/Distribute";
 import { RageVeins, greyLevel, useFlourishes } from "./components/Fx";
 import { FxLayer, playFx } from "./fx/FxLayer";
 import { DiceStrip } from "./dice/DiceStrip";
+import { DiceSettings } from "./dice/DiceSettings";
 import { d20s, rollOrThrow } from "./dice/quick";
 import { useDiceMode } from "./dice3dSetting";
 import { useFeedback } from "./dice/feedback";
@@ -2505,7 +2506,7 @@ export function App() {
           Book text{bookReport ? " (loaded)" : ""}
         </button>
         <FlashSetting />
-        <DiceColourSetting classes={live.current.character?.classes ?? []} />
+        <DiceSettings classes={live.current.character?.classes ?? []} />
         {live.current.deleted.length > 0 && (
           <button className="big" style={{ width: "100%", marginTop: 12 }} onClick={openDeleted}>
             Deleted characters ({live.current.deleted.length})
@@ -2819,72 +2820,6 @@ function ConcentrationPanel({
  * levels in), or one you pick, which wins until you switch back. Damage dice
  * always take their damage type's colour.
  */
-function DiceColourSetting({ classes }: { classes: { class: string; level: number }[] }) {
-  const [picked, setPicked] = usePickedDiceColour();
-  const [mode, setMode] = useDiceMode();
-  const [sound, setSound] = useFeedback("sound");
-  const [vibrate, setVibrate] = useFeedback("vibrate");
-  const main = mainClass(classes);
-  const cls = main ? CLASS_DICE_COLOURS[main] : undefined;
-  const followColour = classDiceColour(classes);
-  return (
-    <div className="group" style={{ marginTop: 12 }}>
-      <div className="row">
-        <div className="row-main">
-          <div className="row-title">3D dice colour</div>
-          <div className="row-sub">Your d20 and dice without a damage type. Damage dice take their type's colour (fire orange, cold blue…). This device only.</div>
-        </div>
-        <span className="dice-swatch" style={{ background: picked ?? followColour }} aria-hidden="true" />
-      </div>
-      <label className="row check">
-        <input type="radio" name="dice-colour" checked={!picked} onChange={() => setPicked(null)} />
-        <div className="row-main">
-          <div className="row-title">Follow my class</div>
-          <div className="row-sub">{cls ? `${cls.name}, the class with the most levels` : "The class with the most levels"}</div>
-        </div>
-        <span className="dice-swatch" style={{ background: followColour }} aria-hidden="true" />
-      </label>
-      <label className="row check">
-        <input type="radio" name="dice-colour" checked={!!picked} onChange={() => setPicked(picked ?? followColour)} />
-        <div className="row-main">
-          <div className="row-title">My own colour</div>
-          <div className="row-sub">Wins until you switch back to following your class.</div>
-        </div>
-        <input type="color" aria-label="Pick a dice colour" value={picked ?? followColour} onChange={(e) => setPicked(e.target.value)} />
-      </label>
-      <div className="row">
-        <div className="row-main">
-          <div className="row-title">3D dice motion</div>
-          <div className="row-sub">
-            {mode === "full" ? "The whole throw and its effects." : mode === "reduced" ? "Calmer: no shadows, quieter effects." : "Heavier dice that settle in about a second."} The result is the same; you can always skip a throw. This device only.
-          </div>
-        </div>
-      </div>
-      <div className="segmented small" role="radiogroup" aria-label="3D dice motion" style={{ margin: "0 12px 12px" }}>
-        {(["full", "reduced", "fast"] as const).map((m) => (
-          <button key={m} role="radio" aria-checked={mode === m} onClick={() => setMode(m)}>
-            {m === "full" ? "Full" : m === "reduced" ? "Reduced" : "Fast"}
-          </button>
-        ))}
-      </div>
-      <label className="row check">
-        <input type="checkbox" checked={sound} onChange={() => setSound(!sound)} />
-        <div className="row-main">
-          <div className="row-title">Dice sounds</div>
-          <div className="row-sub">A short knock as each die lands. Off unless you turn it on.</div>
-        </div>
-      </label>
-      <label className="row check">
-        <input type="checkbox" checked={vibrate} onChange={() => setVibrate(!vibrate)} />
-        <div className="row-main">
-          <div className="row-title">Vibrate with dice</div>
-          <div className="row-sub">A short buzz as dice land (phones that can). Off unless you turn it on.</div>
-        </div>
-      </label>
-    </div>
-  );
-}
-
 const hoursText = (m: number) => (m >= 60 ? `${+(m / 60).toFixed(1)} hour${m === 60 ? "" : "s"}` : `${m} minute${m === 1 ? "" : "s"}`);
 
 /** A casting that takes time: how long, before anything is spent; cast it now (the time passes) or start it and finish later. */
