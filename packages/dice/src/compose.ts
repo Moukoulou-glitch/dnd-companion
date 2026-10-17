@@ -8,7 +8,7 @@ import { critFormula, roll, scriptedRng, secureRng, type Rng, type RollResult } 
 export interface ComposerBase {
   total: number;
   parts: { label: string; value: number }[];
-  dice: { label: string; dice: string; damageType?: string }[];
+  dice: { label: string; dice: string; damageType?: string; save?: { dc: number; ability: string; half: boolean } }[];
   advantage: string[];
   disadvantage: string[];
   suggestions: {
@@ -64,6 +64,8 @@ export interface Composed {
   /** Why the d20 mode is what it is, e.g. ["Steady Aim"] vs ["Poisoned"]. */
   advantageFrom: string[];
   disadvantageFrom: string[];
+  /** Damage parts the target saves against (by their source label): a poison sting's DC 11 Constitution save, half on a success. */
+  saves?: { source: string; dc: number; ability: string; half: boolean }[];
 }
 
 /** Adds every term of a dice expression ("3d4+3"); dice terms get the damage type as their label. */
@@ -128,7 +130,10 @@ export function composeDamage(
   const swap = base.suggestions.find((x) => choices.enabled.includes(x.label) && x.apply.weaponDice);
   pushDice(out, swap?.apply.weaponDice ?? weaponDice, swap ? `${label} (${swap.label})` : label, damageType || undefined);
   for (const p of base.parts) pushFlat(out, p.value, p.label);
-  for (const d of base.dice) pushDice(out, d.dice, d.label, d.damageType ?? damageType);
+  for (const d of base.dice) {
+    pushDice(out, d.dice, d.label, d.damageType ?? damageType);
+    if (d.save) (out.saves ??= []).push({ source: d.label, ...d.save });
+  }
   for (const s of base.suggestions.filter((x) => choices.enabled.includes(x.label))) {
     pushFlat(out, s.apply.flat, s.label);
     for (const d of s.apply.dice) pushDice(out, d, s.label, s.apply.damageType ?? damageType);

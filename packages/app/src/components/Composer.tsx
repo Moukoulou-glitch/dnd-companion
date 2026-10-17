@@ -278,6 +278,8 @@ function TotalEntry({ prompt, onDone }: { prompt: string; onDone: (n: number) =>
   );
 }
 
+const ABILITY_WORD: Record<string, string> = { str: "Strength", dex: "Dexterity", con: "Constitution", int: "Intelligence", wis: "Wisdom", cha: "Charisma" };
+
 export function ResultView({ r }: { r: RollRecord }) {
   return (
     <>
@@ -295,6 +297,15 @@ export function ResultView({ r }: { r: RollRecord }) {
         {r.physical && <small>From your dice</small>}
         {r.thrown && <small>From the 3D dice</small>}
       </div>
+      {(r.saves ?? []).map((sv) => (
+        <p className="note save-rider" key={sv.label}>
+          {sv.total < 0
+            ? `DC ${sv.dc} ${ABILITY_WORD[sv.ability] ?? sv.ability} save for the ${sv.type ?? "extra"} damage: on a success it takes ${sv.half ? "half of it" : "none of it"}.`
+            : `DC ${sv.dc} ${ABILITY_WORD[sv.ability] ?? sv.ability} save for the ${`${sv.total} ${sv.type ?? ""}`.trim()}: on a success it takes ${
+                sv.half ? `${Math.floor(sv.total / 2)} instead (${r.total - sv.total + Math.floor(sv.total / 2)} in all)` : `none of it (${r.total - sv.total} in all)`
+              }.`}
+        </p>
+      ))}
       <ul className="lines">
         {r.lines.map((l, i) => (
           <li key={i}>

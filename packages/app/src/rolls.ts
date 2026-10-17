@@ -24,6 +24,8 @@ export interface RollRecord {
   lines: { source: string; detail: string; total: number }[];
   /** Damage only: total per damage type. */
   byType?: Record<string, number>;
+  /** Damage only: parts the target saves against (a poison sting): their total (-1: typed in as one total), the save, and what a success leaves. */
+  saves?: { label: string; type?: string; total: number; dc: number; ability: string; half: boolean }[];
   /** Damage only: the first damage type in it (the weapon's or the spell's), kept even when you entered your own dice's total. */
   mainType?: string;
 }
@@ -65,6 +67,12 @@ export function recordOf(title: string, kind: RollRecord["kind"], r: ComposedRol
     // Typed in as one total from your own dice: by type only when the roll has a single type.
     const types = new Set(r.result.terms.filter((t) => t.term.kind === "dice").map((t) => t.term.label ?? r.result.terms[0]?.term.label ?? "damage"));
     if (types.size === 1) rec.byType = { [[...types][0]!]: rec.total };
+  }
+  if (kind === "damage" && r.composed.saves?.length) {
+    rec.saves = r.composed.saves.map((sv) => {
+      const terms = r.result.terms.filter((_, i) => r.composed.sources[i] === sv.source);
+      return { label: sv.source, ...(terms[0]?.term.kind === "dice" && terms[0].term.label ? { type: terms[0].term.label } : {}), total: physicalTotal === undefined ? terms.reduce((n, t) => n + t.total, 0) : -1, dc: sv.dc, ability: sv.ability, half: sv.half };
+    });
   }
   return rec;
 }

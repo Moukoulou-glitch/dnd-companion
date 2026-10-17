@@ -10,6 +10,16 @@ export interface DicePart {
   dice: string;
   /** For damage dice of their own type, e.g. Flame Tongue's fire. */
   damageType?: string;
+  /** Only on a failed save (a creature's poison sting): the DC, the ability, and whether a success still takes half. */
+  save?: SaveRider;
+}
+
+/** A part of the damage the target can save against. */
+export interface SaveRider {
+  dc: number;
+  ability: string;
+  /** Half on a successful save; otherwise none. */
+  half: boolean;
 }
 
 /** A modifier the engine offers as a toggle instead of applying it. */

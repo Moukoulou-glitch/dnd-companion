@@ -25,7 +25,7 @@ import { customActionDc, customFeatureId, withCustom } from "./custom.js";
 import { maneuverGrant } from "./maneuvers.js";
 import type { ContentRegistry } from "./registry.js";
 import { activeFeatures, collectSources, type Source } from "./sources.js";
-import { companionOwnerResist, customCompanionId, deriveCompanion, deriveCustomCompanion, type CompanionResult } from "./companions.js";
+import { companionOwnerResist, customCompanionId, deriveCompanion, deriveCustomCompanion, withCreatureRiders, type CompanionResult } from "./companions.js";
 import { spellSlots } from "./spellSlots.js";
 import { materialNeed } from "./materials.js";
 import { deriveShape, wildShapeLimits, type ShapeResult, type WildShapeLimits } from "./shapes.js";
@@ -1683,7 +1683,10 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       // Companions the player made (Companion Builder).
       // Ranger's Companion bonds one of them while the feature is in use.
       ...(c.customCompanions ?? []).map((cc) =>
-        deriveCustomCompanion(cc, c.companions[customCompanionId(cc.id)], ctx, cc.bond === "rangers-companion" && sources.some((s) => s.id === "feature:rangers-companion")),
+        withCreatureRiders(
+          deriveCustomCompanion(cc, c.companions[customCompanionId(cc.id)], ctx, cc.bond === "rangers-companion" && sources.some((s) => s.id === "feature:rangers-companion")),
+          cc.from ? reg.find(cc.from, "creature") : undefined,
+        ),
       ),
     ],
     rules,

@@ -26,3 +26,20 @@ describe("8a: damage totals by type on every damage roll", () => {
     expect(recordOf("x", "damage", rollComposed(c, [4, 4]), 12).byType).toBeUndefined();
   });
 });
+
+describe("8d: a part the target saves against", () => {
+  const sting = { total: 3, parts: [{ label: "Bonus", value: 3 }], dice: [{ label: "Sting: poison (DC 11 Constitution save)", dice: "3d6", damageType: "poison", save: { dc: 11, ability: "con", half: true } }], advantage: [], disadvantage: [], suggestions: [] };
+  it("rolled with the hit, by type, with what a success leaves", () => {
+    const c = composeDamage("1d4", "piercing", sting);
+    const rec = recordOf("Sting damage", "damage", rollComposed(c, undefined, scriptedRng([2, 4, 3, 3])));
+    expect(rec.byType).toEqual({ piercing: 5, poison: 10 });
+    expect(rec.saves).toEqual([{ label: "Sting: poison (DC 11 Constitution save)", type: "poison", total: 10, dc: 11, ability: "con", half: true }]);
+  });
+  it("a critical hit doubles its dice too", async () => {
+    const { withCrit } = await import("@dnd/dice");
+    const c = withCrit(composeDamage("1d4", "piercing", sting));
+    expect(c.saves?.length).toBe(1);
+    const rec = recordOf("Sting damage", "damage", rollComposed(c, undefined, scriptedRng([1, 1, 1, 1, 1, 1, 1, 1])));
+    expect(rec.saves![0]!.total).toBe(6);
+  });
+});

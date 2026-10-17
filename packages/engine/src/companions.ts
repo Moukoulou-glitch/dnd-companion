@@ -2,6 +2,7 @@ import { ABILITIES, ABILITY_NAMES, type Ability, type CompanionDef, type Compani
 import type { Breakdown, Part, RollBreakdown } from "./breakdown.js";
 import { evalExpr, type ExprContext } from "./expr.js";
 import type { SpellcastingResult, WeaponAttack } from "./derive.js";
+import { attackRiders } from "./shapes.js";
 
 /** A companion with every number worked out for its current form. */
 export interface CompanionResult {
@@ -318,4 +319,20 @@ export function companionFromCreature(d: CreatureDef): Omit<CustomCompanion, "id
   if (senses) out.senses = senses;
   if (d.languages) out.languages = d.languages;
   return out;
+}
+
+/**
+ * A companion started from a creature (an Imp, a Riding Horse): its attacks keep
+ * the damage the stat block adds besides the first ("plus 3 (1d6) fire damage",
+ * a poison sting's save), read from the creature, so companions made before
+ * this get it too. An attack renamed in the builder is left as it is.
+ */
+export function withCreatureRiders(r: CompanionResult, creature: CreatureDef | undefined): CompanionResult {
+  if (!creature || !r.form) return r;
+  for (const a of r.form.attacks) {
+    const action = creature.actions.find((x) => x.name === a.name && x.attack);
+    if (!action) continue;
+    for (const d of attackRiders(a.name, action.text)) if (!a.damage.bonus.dice.some((x) => x.label === d.label)) a.damage.bonus.dice.push(d);
+  }
+  return r;
 }

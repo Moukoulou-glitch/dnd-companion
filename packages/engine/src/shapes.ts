@@ -1,5 +1,5 @@
 import { ABILITIES, ABILITY_NAMES, SKILLS, SKILL_NAMES, type Ability, type Character, type CreatureDef, type Modifier, type Skill, type SpellDef } from "@dnd/schema";
-import type { Part, RollBreakdown } from "./breakdown.js";
+import type { DicePart, Part, RollBreakdown } from "./breakdown.js";
 import type { ContentRegistry } from "./registry.js";
 import { evalExpr, type ExprContext } from "./expr.js";
 import { signed as signedN, signedDice } from "./breakdown.js";
@@ -117,14 +117,38 @@ export interface ShapeResult {
 const DMG = "acid|bludgeoning|cold|fire|force|lightning|necrotic|piercing|poison|psychic|radiant|slashing|thunder";
 
 /**
+ * The damage a creature's attack deals besides its first: "plus 7 (2d6) fire
+ * damage" (always), and damage the target saves against ("must make a DC 11
+ * Constitution saving throw, taking 10 (3d6) poison damage on a failed save,
+ * or half as much damage on a successful one"; "must succeed on a DC 11
+ * Constitution saving throw or take 10 (3d6) poison damage": none on a success).
+ * Damage that comes later (a disease, a wound at the start of its turns) isn't.
+ */
+export function attackRiders(name: string, text: string): DicePart[] {
+  const out: DicePart[] = [];
+  const hit = text.slice(Math.max(0, text.indexOf("Hit:")));
+  const DICE = "(\\d+d\\d+(?:\\s*[+-]\\s*\\d+)?)";
+  for (const m of hit.matchAll(new RegExp(`plus \\d+ \\(${DICE}\\) (${DMG}) damage`, "gi")))
+    out.push({ label: `${name}: ${m[2]!.toLowerCase()}`, dice: m[1]!.replace(/\s/g, ""), damageType: m[2]!.toLowerCase() });
+  const half = new RegExp(`DC (\\d+) (Strength|Dexterity|Constitution|Intelligence|Wisdom|Charisma) saving throw, taking \\d+ \\(${DICE}\\) (${DMG}) damage on a failed save(, or half as much damage on a successful one)?`, "i").exec(hit);
+  const none = new RegExp(`succeed on a DC (\\d+) (Strength|Dexterity|Constitution|Intelligence|Wisdom|Charisma) saving throw or take \\d+ \\(${DICE}\\) (${DMG}) damage`, "i").exec(hit);
+  const m = half ?? none;
+  if (m) {
+    const type = m[4]!.toLowerCase();
+    const ab = m[2]!.slice(0, 3).toLowerCase();
+    out.push({ label: `${name}: ${type} (DC ${m[1]} ${m[2]} save)`, dice: m[3]!.replace(/\s/g, ""), damageType: type, save: { dc: Number(m[1]), ability: ab, half: !!(half && half[5]) } });
+  }
+  return out;
+}
+
+/**
  * Extra damage an attack always deals ("plus 7 (2d6) poison damage") is
  * rolled with it; a trait that adds dice to one of the creature's attacks
  * (the boar's Charge: +2d6 after moving 20 ft) is offered to turn on.
  */
 function riderBonus(d: CreatureDef, a: { name: string; text: string }, flat: number): RollBreakdown {
   const r = flatRoll(flat ? [{ label: `${d.name}'s damage bonus`, value: flat }] : []);
-  const plus = new RegExp(`plus \\d+ \\((\\d+d\\d+(?:\\s*[+-]\\s*\\d+)?)\\) (${DMG}) damage`, "gi");
-  for (const m of a.text.matchAll(plus)) r.dice.push({ label: `${a.name}: extra ${m[2]!.toLowerCase()}`, dice: m[1]!.replace(/\s/g, ""), damageType: m[2]!.toLowerCase() });
+  r.dice.push(...attackRiders(a.name, a.text));
   const attackWord = a.name.toLowerCase().replace(/s$/, "");
   for (const t of d.traits) {
     const m = new RegExp(`extra \\d+ \\((\\d+d\\d+)\\)(?: (${DMG}))? damage`, "i").exec(t.text);
