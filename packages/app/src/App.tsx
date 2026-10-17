@@ -581,6 +581,8 @@ export function App() {
       onOptionsUsed?: (labels: string[]) => void;
       /** Made as a reaction (Riposte, Brace start ticked). */
       reaction?: boolean;
+      /** A roll for a companion or a summoned creature: your own after-the-roll options (Precision Attack, Focused Aim) aren't offered. */
+      notMine?: boolean;
     } = {},
   ) => {
     // Each roll is a fresh composer: the next one (a strike after Hand of Healing) never inherits the last one's dice.
@@ -611,7 +613,7 @@ export function App() {
               },
             }
           : {})}
-        {...(attack && !opts.damageOnly ? { afterRoll: afterRollFor(), onDone: opts.back ? opts.back.to : close } : {})}
+        {...(attack && !opts.damageOnly ? { ...(opts.notMine ? {} : { afterRoll: afterRollFor() }), onDone: opts.back ? opts.back.to : close } : {})}
         base={rollBase}
         {...(opts.header ? { header: opts.header() } : {})}
         {...(opts.damageOnly ? { damageOnly: true } : {})}
@@ -808,6 +810,7 @@ export function App() {
     const m = live.current.character?.summons.find((x) => x.id === id);
     const name = m ? m.name ?? registry.find(m.creature, "creature")?.name ?? "it" : "it";
     return {
+      notMine: true,
       back: { label: `Back to ${name}`, to: () => openSummonMember(id) },
       onOptionsUsed: (labels: string[]) => {
         const cur = live.current.character?.summons.find((x) => x.id === id);
@@ -1669,8 +1672,16 @@ export function App() {
           sheet={live.current.sheet!}
           act={live.current.act}
           open={open}
-          openRoll={openRoll}
+          openRoll={(t, b, a) =>
+            openRoll(t, b, a, {
+              notMine: true,
+              back: { label: `Back to ${comp.name}`, to: () => openCompanion(id) },
+              // An attack roll uses its Attack action (one of its attacks): marked on its turn.
+              ...(a ? { onCommit: () => live.current.act("companionEconomy", { companion: id, kind: "attack", used: true }, `${comp.name} attacks.`) } : {}),
+            })
+          }
           openHp={() => openCompanionHp(id)}
+          onBack={() => openCompanion(id)}
           onRollInitiative={() => rollCompanionInit(id)}
           {...(comp.custom ? { onEdit: () => openCompanionBuilder(comp.custom!.id) } : {})}
           {...(comp.summonedBy

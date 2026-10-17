@@ -109,10 +109,10 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
     if (off.size) c.toggles = c.toggles.filter((t) => !off.has(t));
   };
 
-  /** Companions' Dodge and Ready end with yours. */
-  const clearCompanionStates = (which: (x: { outOfCombat?: boolean | undefined }) => boolean) => {
+  /** Companions' Dodge and Ready end at the start of their next turn (yours, for one that acts with you). */
+  const clearCompanionStates = (which: (x: { outOfCombat?: boolean | undefined }, companion: string) => boolean) => {
     for (const [id, st] of Object.entries(c.companions)) {
-      const gone = (st.states ?? []).filter(which);
+      const gone = (st.states ?? []).filter((x) => which(x, id));
       if (!gone.length) continue;
       st.states = st.states.filter((x) => !gone.includes(x));
       const name = sheet.companions.find((x) => x.id === id)?.name ?? "Companion";
@@ -599,6 +599,11 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       const name = comp?.name ?? "It";
       if (op.payload.newTurn) {
         st.used = { ...NO_TURN_USED };
+        // Its Dodge or Ready lasted until the start of its next turn: this one.
+        if (st.states?.length) {
+          notes.push(`${name}: ${st.states.map((x) => x.name).join(", ")} ended.`);
+          st.states = [];
+        }
         break;
       }
       const u = (st.used ??= { ...NO_TURN_USED });
@@ -1637,7 +1642,8 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
     case "startTurn": {
       const prev = c.combat;
       endTurnStartEffects(c.effects.filter((e) => e.untilTurnStart), "your turn has started");
-      clearCompanionStates(() => true);
+      // A companion with a turn of its own (it rolled initiative) keeps its Dodge until its own turn starts.
+      clearCompanionStates((_, id) => !c.combat || sheet.companions.find((x) => x.id === id)?.turn !== "own");
       // Companions that act on your turn or right after it get their turn back with yours.
       for (const comp of sheet.companions) if (comp.turn !== "own" && c.companions[comp.id]?.used) delete c.companions[comp.id]!.used;
       const round = !prev ? 1 : prev.hadTurn && !prev.myTurn ? prev.round + 1 : prev.round;
@@ -1713,6 +1719,21 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         break;
       }
       const name = choice ? `${a.name}: ${choice}` : a.name;
+      // It takes the action on its turn: its action, bonus action, reaction, or one of its attacks (Grapple, Shove).
+      const kind = a.asAttack ? "attack" : a.economy === "free" ? undefined : a.economy;
+      if (kind) {
+        const st = (c.companions[companion] ??= { states: [] });
+        const u = (st.used ??= { ...NO_TURN_USED });
+        if (kind === "attack") {
+          if (u.attacks === 0) u.action = true;
+          u.attacks += 1;
+        } else {
+          if (u[kind]) notes.push(`${comp.name}'s ${kind === "bonus" ? "bonus action" : kind} is already used this turn. Used anyway.`);
+          u[kind] = true;
+        }
+        // Dash: its speeds double this turn.
+        if (a.id === "common-dash") u.dashes += 1;
+      }
       if (a.untilTurnStart) {
         const state = (c.companions[companion] ??= { states: [] });
         // A new Dodge or Ready replaces the old one.

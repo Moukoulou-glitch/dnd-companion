@@ -467,7 +467,10 @@ export function CompanionPanel({
   onEdit,
   onSummon,
   onRollInitiative,
+  onBack,
 }: {
+  /** Back to this panel (from an action's details). */
+  onBack?: () => void;
   /** Its own initiative, rolled (d20 + its Dexterity). */
   onRollInitiative: () => void;
   /** Out only while its action's timer runs (Hound of Ill Omen): use that action. */
@@ -625,9 +628,9 @@ export function CompanionPanel({
           ))}
         </div>
       )}
-      {comp.states.length > 0 && <p className="note">Until your next turn starts. Tap a tag to end it early (a readied action was taken, or it was lost).</p>}
+      {comp.states.length > 0 && <p className="note">Until {comp.turn === "own" ? "its" : "your"} next turn starts. Tap a tag to end it early (a readied action was taken, or it was lost).</p>}
 
-      <CompanionActions comp={comp} sheet={sheet} open={open} openRoll={openRoll} act={act} />
+      <CompanionActions comp={comp} sheet={sheet} open={open} openRoll={openRoll} act={act} onBack={onBack} />
 
       <h2 className="sub-head">Attacks</h2>
       <div className="group">
@@ -726,21 +729,34 @@ function CompanionActions({
   open,
   openRoll,
   act,
+  onBack,
 }: {
   comp: CompanionResult;
   sheet: DerivedSheet;
   open: (title: string, body: ReactNode) => void;
   openRoll: (title: string, base: RollBreakdown, attack?: WeaponAttack) => void;
   act: Act;
+  /** Back to the companion's panel. */
+  onBack?: (() => void) | undefined;
 }) {
   const f = comp.form!;
-  const take = (a: (typeof list)[number], choice?: string) =>
-    act("companionAction", { companion: comp.id, action: a.id, ...(choice ? { choice } : {}) }, `${comp.name}: ${choice ? `${a.name}: ${choice}` : a.name}${a.untilTurnStart ? ", until your next turn starts" : ""}.`);
+  const until = comp.turn === "own" ? ", until its next turn starts" : ", until your next turn starts";
+  // Taking it uses its action (or bonus action, reaction, one of its attacks), marked on its turn.
+  const take = (a: (typeof list)[number], choice?: string, stay = false) => {
+    act("companionAction", { companion: comp.id, action: a.id, ...(choice ? { choice } : {}) }, `${comp.name}: ${choice ? `${a.name}: ${choice}` : a.name}${a.untilTurnStart ? until : ""}.`);
+    if (!stay) onBack?.();
+  };
+  const uses = (a: (typeof list)[number]) => (a.asAttack ? "one of its attacks" : a.economy === "bonus" ? "its bonus action" : a.economy === "reaction" ? "its reaction" : "its action");
   const list = sheet.actions.filter((a) => a.common && !NOT_FOR_COMPANIONS.test(a.id));
   const show = (a: (typeof list)[number]) =>
     open(
       `${comp.name}: ${a.name}`,
       <>
+        {onBack && (
+          <button className="link back-link" onClick={onBack}>
+            ‹ Back to {comp.name}
+          </button>
+        )}
         <p className="row-sub">{a.economy === "bonus" ? "Bonus action" : a.economy === "reaction" ? "Reaction" : a.economy === "free" ? "No action" : "Action"}, on its turn</p>
         {a.note && (
           <p>
@@ -752,7 +768,15 @@ function CompanionActions({
           if (!ab) return null;
           const base = f.abilities[ab].check;
           return (
-            <button key={sk} className="big primary wide" style={{ marginBottom: 8 }} onClick={() => openRoll(`${comp.name}: ${a.name} (${SKILL_NAMES[sk as Skill]})`, base)}>
+            <button
+              key={sk}
+              className="big primary wide"
+              style={{ marginBottom: 8 }}
+              onClick={() => {
+                take(a, undefined, true);
+                openRoll(`${comp.name}: ${a.name} (${SKILL_NAMES[sk as Skill]})`, base);
+              }}
+            >
               Roll {SKILL_NAMES[sk as Skill]}
               <span className="sub">
                 {ABILITY_NAMES[ab]} check {signed(base.total)}
@@ -764,7 +788,15 @@ function CompanionActions({
         {a.untilTurnStart && !a.choose && (
           <button className="big primary wide" style={{ marginBottom: 8 }} onClick={() => take(a)}>
             {comp.name} takes {a.name}
-            <span className="sub">a tag until your next turn starts</span>
+            <span className="sub">
+              {uses(a)}; a tag{until}
+            </span>
+          </button>
+        )}
+        {!a.untilTurnStart && !a.choose && !a.check && a.economy !== "free" && (
+          <button className="big primary wide" style={{ marginBottom: 8 }} onClick={() => take(a)}>
+            {comp.name} takes {a.name}
+            <span className="sub">{a.id === "common-dash" ? `${uses(a)}; its speeds double this turn` : uses(a)}</span>
           </button>
         )}
         {a.choose && (
