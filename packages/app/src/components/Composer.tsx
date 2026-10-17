@@ -284,7 +284,7 @@ export function ResultView({ r }: { r: RollRecord }) {
         <b>{r.total}</b>
         {r.crit && <span>Critical</span>}
         {r.fumble && <span>Natural 1</span>}
-        {r.byType && Object.keys(r.byType).length > 1 && (
+        {r.byType && Object.keys(r.byType).some((t) => t !== "damage") && (
           <small>
             {Object.entries(r.byType)
               .map(([type, n]) => `${n} ${type}`)

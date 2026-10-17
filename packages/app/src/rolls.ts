@@ -61,6 +61,10 @@ export function recordOf(title: string, kind: RollRecord["kind"], r: ComposedRol
       byType[type] = (byType[type] ?? 0) + t.total;
     }
     rec.byType = byType;
+  } else if (kind === "damage") {
+    // Typed in as one total from your own dice: by type only when the roll has a single type.
+    const types = new Set(r.result.terms.filter((t) => t.term.kind === "dice").map((t) => t.term.label ?? r.result.terms[0]?.term.label ?? "damage"));
+    if (types.size === 1) rec.byType = { [[...types][0]!]: rec.total };
   }
   return rec;
 }

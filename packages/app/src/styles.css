@@ -2698,20 +2698,36 @@ button.mpip {
   transition: backdrop-filter 1.2s ease, -webkit-backdrop-filter 1.2s ease;
 }
 
-/* 10% of hit points or less (but still up): the box blinks red. */
+/* 10% of hit points or less (but still up): the box blinks red. Only the opacity of a glow layer
+   is animated, so the browser does it without repainting (it used to keep the phone ~10% busy). */
 .hp.critical {
+  position: relative;
+  isolation: isolate;
+}
+.hp.critical::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: -1;
+  background: rgba(224, 80, 92, 0.45);
+  box-shadow: 0 0 18px 4px rgba(224, 80, 92, 0.85);
+  opacity: 0;
+  will-change: opacity;
   animation: hp-critical 1.1s ease-in-out infinite;
 }
 @keyframes hp-critical {
   0%,
   100% {
-    box-shadow: 0 0 0 0 rgba(224, 80, 92, 0);
-    background: var(--hp-soft);
+    opacity: 0;
   }
   50% {
-    box-shadow: 0 0 18px 4px rgba(224, 80, 92, 0.85);
-    background: rgba(224, 80, 92, 0.45);
+    opacity: 1;
   }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hp.critical::after { animation: none; opacity: 0.6; }
 }
 
 /* Channel Divinity: the feature's name glows gold for half a second. */

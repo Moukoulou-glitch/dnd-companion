@@ -142,5 +142,7 @@ Remaining plan (each a sub-phase, stop after each): 2a crits (done) · 2b Relent
   - 8c versatile weapons: one or two hands (versatileDice exists in the engine, never used in the app); GWF applies when two-handed/versatile held in two hands, to every damage die of the attack incl. smite/maneuvers (Giorgos's ruling).
   - 8d creature attack riders: 61 SRD attacks with "plus N (XdY) type damage" and 14 with save-for-damage riders are ignored (Imp's sting: DC 11 Con, 3d6 poison, half on success).
   - 8e companion turns: attacks and common actions don't spend the companion's action; Dodge (until its next turn) isn't cleared on its new turn; Precision Attack (afterRoll) is offered on companion/summon rolls.
-  - 8f companion panel: Back button, Dismiss, effects on companions.
+  - 8f companion panel: Back button; Dismiss asks "Until I summon it again" or "Total Dismiss" (Giorgos); effects on companions: conditions plus spells and effects you cast on them (Giorgos).
+  - 8g levels above 20: warn that it's beyond the rules, but allow it (warn, never block).
+- 8a (Oct 17): ResultView shows byType whenever it has a real type (was only >1 type); rolls.ts: a typed-in total keeps byType when the roll has one type. Critical-HP pulse: was box-shadow+background keyframes on .hp (repaint every frame: Astra at 8/104 busy 486 ms per 5 s idle); now an ::after glow layer animating opacity only (32 ms per 5 s); reduced motion: steady glow. Tests: app/test/byType.test.ts.
 - Login (Cloudflare Access) after round 8.
