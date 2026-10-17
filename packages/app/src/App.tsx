@@ -19,6 +19,7 @@ import { RageVeins, greyLevel, useFlourishes } from "./components/Fx";
 import { FxLayer, playFx } from "./fx/FxLayer";
 import { DiceStrip } from "./dice/DiceStrip";
 import { DiceSettings } from "./dice/DiceSettings";
+import { ownFeatureOf } from "./ownFeature";
 import { d20s, rollOrThrow } from "./dice/quick";
 import { useDiceMode } from "./dice3dSetting";
 import { useFeedback } from "./dice/feedback";
@@ -1528,6 +1529,10 @@ export function App() {
         });
         return;
       }
+      // A resource that is one rolling feature's own uses (Second Wind, Healing Hands, Form of Dread):
+      // spending it is using that feature, with its roll and its healing, as from the Actions page.
+      const own = ownFeatureOf(live.current.sheet?.actions ?? [], r.id);
+      if (own) return openFeature(own);
       if (!r.die) return void s.act("spendResource", { resource: r.id }, `${r.name} used.`);
       open(r.name, () => (
         <SpendDiePanel
