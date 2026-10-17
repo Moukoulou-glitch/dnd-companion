@@ -2695,7 +2695,7 @@ export function App() {
           {tab === "sheet" && (
             <button className="big primary" onClick={openLevelUp}>
               Level up
-              <span className="sub">to level {sheet.level + 1}</span>
+              <span className="sub">{sheet.level >= 20 ? `to level ${sheet.level + 1}: beyond the rules` : `to level ${sheet.level + 1}`}</span>
             </button>
           )}
         </div>

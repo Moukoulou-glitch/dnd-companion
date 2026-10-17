@@ -12,7 +12,8 @@ export const ClassLevel = z
   .object({
     class: DefId,
     subclass: DefId.optional(),
-    level: z.number().int().min(1).max(20),
+    /** Up to 20 by the rules; more only when the table allows it (the app warns). */
+    level: z.number().int().min(1).max(40),
     /**
      * Hit points rolled at each level after the first, in order. Missing
      * entries use the fixed average (half the die + 1).

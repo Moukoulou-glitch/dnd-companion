@@ -1976,10 +1976,8 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         c.classes.push({ class: cls, level: 1, ...(hpRoll !== undefined ? { hpRolls: [hpRoll] } : {}) });
       } else {
         const cl = c.classes[idx]!;
-        if (cl.level >= 20) {
-          notes.push(`${def.name} is already level 20.`);
-          break;
-        }
+        // Beyond the rules: warned on the level-up screen, done when the player goes ahead.
+        if (cl.level >= 20) notes.push(`${def.name} ${cl.level + 1}: the class table stops at 20, so it brings no new features.`);
         const counted = idx === 0 ? cl.level - 1 : cl.level;
         if (hpRoll !== undefined || cl.hpRolls?.length) {
           const rolls = [...(cl.hpRolls ?? [])];
@@ -1990,7 +1988,7 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         cl.level += 1;
       }
       const total = c.classes.reduce((n, x) => n + x.level, 0);
-      if (total > 20) notes.push(`Character level ${total}: above 20.`);
+      if (total > 20) notes.push(`Character level ${total}: beyond the rules, which stop at 20.`);
       const gain = derive(c, reg).hpMax.total - maxHp;
       if (c.hp.current > 0) c.hp.current += Math.max(0, gain);
       notes.push(`${def.name} ${gains.newLevel}: ${gain >= 0 ? "+" : ""}${gain} HP maximum.`);

@@ -995,9 +995,18 @@ export function LevelUpPanel({
     return onLevel(cls, Math.max(1, Math.min(gains.hitDie, Number(mine))));
   };
 
+  // Beyond the rules (they stop at character level 20, and at 20 in a class): a warning, and it still goes ahead if you say so.
+  const beyond = total + 1 > 20 || gains.newLevel > 20;
   return (
     <>
       <p className="note">Character level {total} → {total + 1}.</p>
+      {beyond && (
+        <p className="over-banner" role="alert">
+          {total + 1 > 20 ? `Character level ${total + 1}: the rules stop at 20.` : ""}
+          {gains.newLevel > 20 ? ` ${gains.className} ${gains.newLevel}: the class table stops at 20, so this level brings no new features.` : ""}{" "}
+          You can still level up if your DM allows it.
+        </p>
+      )}
       <p className="sub-head">Which class?</p>
       <div className="group">
         {character.classes.map((x) => {
@@ -1079,7 +1088,7 @@ export function LevelUpPanel({
         </label>
       )}
       <button className="big primary wide" style={{ marginTop: 14 }} disabled={hp === "mine" && !mine} onClick={go}>
-        Level up to {gains.className} {gains.newLevel}
+        {beyond ? "Level up anyway" : "Level up"} to {gains.className} {gains.newLevel}
       </button>
 
       <details className="beyond" style={{ marginTop: 18 }}>
