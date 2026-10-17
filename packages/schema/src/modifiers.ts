@@ -54,6 +54,8 @@ export const Condition = z
     conscious: z.boolean().optional(),
     /** Only while you aren't incapacitated (Aura of Alacrity). */
     notIncapacitated: z.boolean().optional(),
+    /** Only with the weapon held in one hand, or in two (Dueling, Great Weapon Fighting): the roll knows, the sheet doesn't. */
+    hands: z.enum(["one", "two"]).optional(),
     /** Human-readable condition the engine cannot verify. */
     text: z.string().optional(),
   })

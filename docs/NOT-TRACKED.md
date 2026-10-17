@@ -172,7 +172,7 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 - On this sandbox's software graphics, a throw takes about 3–6 s; a phone's GPU should be faster, but it hasn't been measured on a phone yet.
 - Still rolled by the app (no 3D dice): Precision Attack's die added after the attack roll, and Recharge rolls (they happen on their own at the start of a turn). Metamagic rolls no dice of its own (Empowered Spell's rerolls aren't modelled), so it has no dice theme.
 - Dice settings are per device, not per character or synced: a second phone starts from the defaults. Your own dice take a material from a short list (no editor for new ones); a homebrew material needs a theme folder added to the app.
-- Great Weapon Fighting is a tick-box on damage: the app doesn't know whether the weapon is held in two hands, so you tick it when it applies. Ticked, it rerolls every damage die of the attack showing 1 or 2 (the rule's "a damage die for an attack"), including dice added by options like a smite.
+- One hand or two is chosen on the roll (the app doesn't track what's in each hand); the choice is remembered per weapon on this device. Great Weapon Fighting follows it and rerolls every damage die of the attack showing 1 or 2, smite and maneuver dice included (table ruling). Dueling's "no other weapons" isn't checked.
 - Dice performance has only been measured on a computer's software graphics, where throws render slowly; a real phone run is still needed. The app keeps the main thread about 9% busy while idle, dice or not (not yet looked into).
 - A custom action made in the app can't pick a dice theme yet (content and homebrew packs can, with `diceTheme`).
 

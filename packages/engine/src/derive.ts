@@ -626,7 +626,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       if (abilities[ab as Ability].score.total < (min ?? 0)) return "fail";
     }
     if (when.toggle && !c.toggles.includes(when.toggle)) return "fail";
-    if (when.text) return "unknown";
+    if (when.text || when.hands) return "unknown";
     return "pass";
   };
 
@@ -720,6 +720,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
         const v = flatOf(a);
         const s: Suggestion = { label: labelOf(a), effect: `reroll ${v === 1 ? "1s" : `1–${v}`} once`, apply: { flat: 0, dice: [], rerollAtOrBelow: v } };
         if (mod.when?.text) s.reason = mod.when.text;
+        if (mod.when?.hands) s.hands = mod.when.hands;
         if (mod.preset) s.preset = mod.preset;
         suggestions.push(s);
         continue;
@@ -740,6 +741,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
         const s: Suggestion = { label: labelOf(a), effect: describeEffect(a), apply };
         if (mod.when?.text) s.reason = mod.when.text.replace(/\{spelldc\}/g, spellDcText);
         if (mod.oncePerTurn) s.oncePerTurn = true;
+        if (mod.when?.hands) s.hands = mod.when.hands;
         if (mod.spends) s.spends = mod.spends;
         if (mod.group) s.group = mod.group;
         if (mod.preset) s.preset = mod.preset;
@@ -1004,7 +1006,8 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
         properties: w.properties,
       };
       if (o.itemInstanceId) entry.itemInstanceId = o.itemInstanceId;
-      if (w.versatileDamage && !thrown) entry.damage.versatileDice = w.versatileDamage;
+      // Two hands only for the main attack: an off-hand or thrown attack holds it in one.
+      if (w.versatileDamage && !thrown && !o.offHand) entry.damage.versatileDice = w.versatileDamage;
       if (w.range && mode !== "melee") entry.range = w.range;
       if (o.offHand) entry.offHand = true;
       if (o.requires) entry.requires = o.requires;

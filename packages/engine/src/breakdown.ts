@@ -23,6 +23,8 @@ export interface Suggestion {
   apply: { flat: number; dice: string[]; damageType?: string; mode?: "advantage" | "disadvantage"; weaponDice?: string; critAt?: number; rerollAtOrBelow?: number };
   /** Once per turn (Sneak Attack). */
   oncePerTurn?: boolean;
+  /** Only with the weapon in one hand, or in two (Dueling, Great Weapon Fighting). */
+  hands?: "one" | "two";
   /** Ticking it spends this when the roll is made (a superiority die). */
   spends?: { resource: string; amount: number };
   /** Only one of a group per roll. */

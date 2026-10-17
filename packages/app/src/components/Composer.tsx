@@ -24,6 +24,7 @@ import { signed, type WeaponAttack } from "@dnd/engine";
 import { recordOf, type RollRecord } from "../rolls";
 import { usedUpBy, withoutUsedUp, type UsedUp } from "../oneTime";
 import { damageFor } from "../crit";
+import { defaultHands, forHands, handsOf, isVersatile, rememberHands, weaponDiceFor, type Hands } from "../hands";
 
 interface Props {
   title: string;
@@ -349,7 +350,10 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
 
   const d20 = useMemo(() => composeD20(base, choices), [base, choices]);
 
-  const damageBase = useMemo(() => (attack ? withoutUsedUp(attack.damage.bonus, usedUp) : undefined), [attack, usedUp]);
+  // One hand or two: a versatile weapon's choice (its bigger die with two hands); options that need one or the other follow it.
+  const [chosenHands, setChosenHands] = useState<Hands>(() => (attack && isVersatile(attack) ? defaultHands(attack.attackId, attack.damage.bonus) : "one"));
+  const hands: Hands = attack ? handsOf(attack, chosenHands) : "one";
+  const damageBase = useMemo(() => (attack ? forHands(withoutUsedUp(attack.damage.bonus, usedUp), hands) : undefined), [attack, usedUp, hands]);
   // Smites: the slot picked decides the dice (Divine Smite with a 3rd-level slot: 4d8).
   const [slotPick, setSlotPick] = useState<Record<string, { key: string; extra: boolean }>>({});
   const smites = Object.entries(optionInfo ?? {}).filter(([label, info]) => info.slots && damageChoices.enabled.includes(label));
@@ -365,10 +369,11 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
         return p.key ? { ...sg, apply: { ...sg.apply, dice: [slots.dice(p.key, p.extra)] } } : sg;
       }),
     };
-    const c = composeDamage(attack.damage.dice, typePick?.type ?? attack.damage.type, bonus, damageChoices, attack.attackId.startsWith("spell:") ? attack.name : attack.attackId.startsWith("trait:") ? `${attack.name.replace(/^.*?: /, "")}${attack.damage.type ? ` (${attack.damage.type})` : ""}` : "Weapon");
+    const twoHanded = isVersatile(attack) && hands === "two";
+    const c = composeDamage(weaponDiceFor(attack, chosenHands), typePick?.type ?? attack.damage.type, bonus, damageChoices, attack.attackId.startsWith("spell:") ? attack.name : attack.attackId.startsWith("trait:") ? `${attack.name.replace(/^.*?: /, "")}${attack.damage.type ? ` (${attack.damage.type})` : ""}` : twoHanded ? "Weapon, two hands" : "Weapon");
     return damageFor(c, attack, stage.crit);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [attack, damageBase, stage, damageChoices, slotPick, optionInfo, typePick]);
+  }, [attack, damageBase, stage, damageChoices, slotPick, optionInfo, typePick, chosenHands, hands]);
 
   const [attackMode, setAttackMode] = useState<string | undefined>();
 
@@ -500,6 +505,26 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
     setStage(next);
   };
 
+  const pickHands = (h: Hands) => {
+    if (!attack) return;
+    setChosenHands(h);
+    rememberHands(attack.attackId, h);
+    // Options that no longer fit are unticked; ones that now fit and start ticked (Great Weapon Fighting) are ticked.
+    const now = forHands(withoutUsedUp(attack.damage.bonus, usedUp), handsOf(attack, h)).suggestions;
+    setDamageChoices((dc) => ({
+      ...dc,
+      enabled: [...dc.enabled.filter((l) => now.some((x) => x.label === l) || !attack.damage.bonus.suggestions.some((x) => x.label === l)), ...now.filter((x) => presetOn(x) && x.hands && !dc.enabled.includes(x.label)).map((x) => x.label)],
+    }));
+  };
+  const handsSwitch = attack && isVersatile(attack) && (
+    <div className="segmented small" role="radiogroup" aria-label="One hand or two">
+      {(["one", "two"] as const).map((h) => (
+        <button key={h} role="radio" aria-checked={chosenHands === h} onClick={() => pickHands(h)}>
+          {h === "one" ? `One hand · ${attack.damage.dice}` : `Two hands · ${attack.damage.versatileDice}`}
+        </button>
+      ))}
+    </div>
+  );
   const diceSwitch = (
     <div className="segmented small three" role="radiogroup" aria-label="Who rolls">
       <button role="radio" aria-checked={physical} onClick={() => onPhysicalChange(true)}>
@@ -543,6 +568,7 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
         )}
         {which}
         {diceSwitch}
+        {handsSwitch}
         {base.autoFail && base.autoFail.length > 0 && (
           <p className="warn">
             Fails automatically ({base.autoFail.join(", ")}). Roll anyway only if your DM rules otherwise.
@@ -717,6 +743,7 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
       <>
         {which}
         {diceSwitch}
+        {handsSwitch}
         {/* Hit or critical hit, changeable here too (after "Skip to damage", or a crit the d20 didn't show: a paralysed target). */}
         {!damageOnly && !healing && (
           <div className="segmented small" role="radiogroup" aria-label="Hit or critical hit">

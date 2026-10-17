@@ -21,6 +21,8 @@ export interface ComposerBase {
     spends?: { resource: string; amount: number };
     /** One of a group per roll. */
     group?: string;
+    /** Only with the weapon in one hand, or in two (Dueling, Great Weapon Fighting). */
+    hands?: "one" | "two";
     /** Starts ticked. */
     preset?: "always" | "reaction";
     /** Ticking it uses up this effect (a smite). */

@@ -9,7 +9,9 @@ type OpenRoll = (title: string, base: RollBreakdown, attack?: WeaponAttack) => v
 export function damageText(a: WeaponAttack): string {
   const extra = a.damage.bonus.dice.map((d) => ` ${signedDice(d.dice)}${d.damageType ? ` ${d.damageType}` : ""}`).join("");
   const bonus = a.damage.bonus.total ? signed(a.damage.bonus.total) : "";
-  return `${a.damage.dice}${bonus} ${a.damage.type}${extra}`;
+  // A versatile weapon: both dice ("1d8/1d10"), the second with two hands.
+  const dice = a.damage.versatileDice ? `${a.damage.dice}/${a.damage.versatileDice}` : a.damage.dice;
+  return `${dice}${bonus} ${a.damage.type}${extra}`;
 }
 
 export function AttackRow({ a, openAttack }: { a: WeaponAttack; openAttack: (a: WeaponAttack) => void }) {

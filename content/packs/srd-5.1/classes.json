@@ -1814,6 +1814,7 @@
             "mode": "suggested",
             "label": "Dueling",
             "when": {
+              "hands": "one",
               "text": "one-handed melee weapon and no other weapon"
             }
           }
@@ -1840,7 +1841,9 @@
             "value": 2,
             "mode": "suggested",
             "label": "Great Weapon Fighting",
+            "preset": "always",
             "when": {
+              "hands": "two",
               "text": "two-handed or versatile weapon held in two hands"
             }
           }
