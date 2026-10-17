@@ -2528,6 +2528,21 @@
                 "Dash",
                 "Disengage"
               ]
+            },
+            "untilTurnStart": true,
+            "toggles": [
+              "step-of-the-wind"
+            ]
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "stat.jump.*",
+            "op": "multiply",
+            "value": 2,
+            "label": "Step of the Wind",
+            "when": {
+              "toggle": "step-of-the-wind"
             }
           }
         ]
@@ -8133,7 +8148,17 @@
       },
       "text": [
         "Starting at 7th level, you can add half your proficiency bonus (round up) to any Strength, Dexterity, or Constitution check you make that doesn't already use your proficiency bonus. In addition, when you make a running long jump, the distance you can cover increases by a number of feet equal to your Strength modifier."
-      ]
+      ],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.jump.long.running",
+            "op": "add",
+            "value": "mod.str",
+            "label": "Remarkable Athlete"
+          }
+        ]
+      }
     },
     {
       "kind": "feature",
@@ -9082,7 +9107,17 @@
       "text": [
         "When you choose this archetype at 3rd level, you gain the ability to climb faster than normal; climbing no longer costs you extra movement.",
         "In addition, when you make a running jump, the distance you cover increases by a number of feet equal to your Dexterity modifier."
-      ]
+      ],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.jump.long.running",
+            "op": "add",
+            "value": "mod.dex",
+            "label": "Second-Story Work"
+          }
+        ]
+      }
     },
     {
       "kind": "feature",

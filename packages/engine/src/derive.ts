@@ -308,6 +308,20 @@ export interface DerivedSheet {
   ac: Breakdown;
   initiative: RollBreakdown;
   speed: Breakdown;
+  /**
+   * How far you can jump (PHB p. 182): long jump up to your Strength score in
+   * feet with a run-up, high jump 3 + your Strength modifier; standing, half.
+   * Features, spells and items change them (Jump ×3, Step of the Wind ×2,
+   * Remarkable Athlete). Each foot costs a foot of movement.
+   */
+  jump: {
+    long: { running: Breakdown; standing: Breakdown };
+    high: { running: Breakdown; standing: Breakdown };
+    /** Feet of movement on foot before a running jump (10; Athlete: 5). */
+    runUp: number;
+    /** Dice you can add when you jump (Bestial Soul: d10). */
+    dice: { label: string; dice: string }[];
+  };
   /** How the proficiency bonus adds up (level, and changes by hand). */
   proficiencyBreakdown: Breakdown;
   /** Fly, swim and climb speeds the character has now. */
@@ -887,6 +901,30 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
 
   // Initiative is a Dexterity check, so check bonuses apply too.
   const initiative = roll(["roll.initiative", "roll.check.dex"], [abilityPart("dex")]);
+
+  // Jumping (PHB p. 182). Selectors: stat.jump.* (both jumps, both ways: Athlete, Peerless Athlete, and the
+  // multipliers: Jump, Step of the Wind, Boots of Striding and Springing), stat.jump.long.* / stat.jump.high.*,
+  // and the running ones only (stat.jump.long.running: Remarkable Athlete, Second-Story Work).
+  const jumpOf = (key: string, base: Part[]): Breakdown => {
+    const b = statWith(key, base);
+    return b.total < 0 ? { total: 0, parts: [...b.parts, { label: "Not less than 0", value: -b.total }] } : b;
+  };
+  const strScore = abilities.str.score.total;
+  const highBase = 3 + mods.str;
+  const runUpSet = modsFor(["stat.jump.runup"]).filter((a) => a.mod.op === "set" && conditionState(a.mod.when) === "pass");
+  const bestial = (c.choices["feature:path-of-the-beast-bestial-soul"]?.trait ?? []).includes("Jumping") && sources.some((s) => s.id === "feature:path-of-the-beast-bestial-soul");
+  const jump: DerivedSheet["jump"] = {
+    long: {
+      running: jumpOf("stat.jump.long.running", [{ label: "Strength score", value: strScore }]),
+      standing: jumpOf("stat.jump.long.standing", [{ label: "Half your Strength score (standing)", value: Math.floor(strScore / 2) }]),
+    },
+    high: {
+      running: jumpOf("stat.jump.high.running", [{ label: "3 + Strength modifier", value: Math.max(0, highBase) }]),
+      standing: jumpOf("stat.jump.high.standing", [{ label: "Half of 3 + Strength modifier (standing)", value: Math.floor(Math.max(0, highBase) / 2) }]),
+    },
+    runUp: runUpSet.length ? Math.min(...runUpSet.map((a) => flatOf(a))) : 10,
+    dice: bestial ? [{ label: "Bestial Soul (Jumping)", dice: "1d10" }] : [],
+  };
 
   // Speed.
   const race = reg.get(c.race, "race");
@@ -1590,6 +1628,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     ac,
     initiative,
     speed,
+    jump,
     speeds: otherSpeeds(speed),
     hpMax,
     hitDice,

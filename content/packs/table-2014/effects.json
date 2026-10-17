@@ -2180,7 +2180,14 @@
         "book": "PHB",
         "page": 254
       },
-      "modifiers": [],
+      "modifiers": [
+        {
+          "selector": "stat.jump.*",
+          "op": "multiply",
+          "value": 3,
+          "label": "Jump"
+        }
+      ],
       "reminders": [
         "Jump distance ×3."
       ],

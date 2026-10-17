@@ -177,7 +177,13 @@ export function MovePanel({
   onDash: (economy: "action" | "bonus") => void;
 }) {
   const cb = character.combat;
-  if (!cb) return <p className="note">Not in combat.</p>;
+  if (!cb)
+    return (
+      <>
+        <p className="note">Not in combat.</p>
+        <JumpSection sheet={sheet} />
+      </>
+    );
   const speed = sheet.speed.total;
   const allowed = speed * (1 + cb.dashes);
   const left = cb.speedZero ? -cb.moved : allowed - cb.moved;
@@ -219,7 +225,47 @@ export function MovePanel({
         </p>
       )}
       <p className="note">Standing up from prone costs half your speed. Difficult terrain costs double.</p>
+      <JumpSection sheet={sheet} left={Math.max(0, left)} />
     </>
+  );
+}
+
+/** How a jump's number is made: "Strength score 16, Jump ×3". */
+const jumpParts = (b: DerivedSheet["jump"]["long"]["running"]) => b.parts.map((p) => (/\(×\d+\)$/.test(p.label) ? p.label.replace(/^(.*) \((×\d+)\)$/, "$1 $2") : `${p.label} ${p.value}`)).join(", ");
+
+/** Long and high jump (PHB p. 182), with what changes them, and what each foot costs. */
+function JumpSection({ sheet, left }: { sheet: DerivedSheet; left?: number }) {
+  const j = sheet.jump;
+  const row = (title: string, run: DerivedSheet["jump"]["long"]["running"], stand: DerivedSheet["jump"]["long"]["running"], unit: string) => (
+    <div className="row">
+      <div className="row-main">
+        <div className="row-title">
+          {title}: {run.total} ft
+          <span className="row-sub"> · standing {stand.total} ft</span>
+        </div>
+        <div className="row-sub">
+          {unit} {jumpParts(run)}
+        </div>
+      </div>
+    </div>
+  );
+  const max = Math.max(j.long.running.total, j.high.running.total);
+  return (
+    <section style={{ marginTop: 12 }}>
+      <h2 className="sub-head">Jumping</h2>
+      <div className="group">
+        {row("Long jump", j.long.running, j.long.standing, "With a run-up:")}
+        {row("High jump", j.high.running, j.high.standing, "With a run-up:")}
+      </div>
+      <p className="note">
+        A running jump needs {j.runUp} ft on foot right before it; standing, half the distance. Each foot you clear costs a foot of movement
+        {left !== undefined ? `: you have ${left} ft left${left < max ? `, so that's as far as you can jump now` : ""}` : ""}.
+        {j.dice.length ? ` ${j.dice.map((d) => `${d.label}: add ${d.dice} to the distance when you jump.`).join(" ")}` : ""}
+      </p>
+      <p className="note">
+        Long jump over a low obstacle (no taller than a quarter of the jump): DC 10 Strength (Athletics) to clear it, at your DM's option. Landing in difficult terrain: DC 10 Dexterity (Acrobatics) or you land prone. High jump: you can reach up to the jump's height plus one and a half times your own height; your DM may let you try a Strength (Athletics) check to jump higher.
+      </p>
+    </section>
   );
 }
 

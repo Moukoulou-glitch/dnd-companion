@@ -746,6 +746,58 @@
         "rarity": "legendary"
       },
       "requiresAttunement": false
+    },
+    {
+      "kind": "item",
+      "id": "item:boots-of-striding-and-springing",
+      "name": "Boots of Striding and Springing",
+      "summary": "While you wear them, your walking speed is at least 30 ft (armor or carried weight don't slow you), and you jump three times as far, though no farther than your remaining movement.",
+      "source": {
+        "pack": "table-2014",
+        "book": "DMG",
+        "page": 156
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.jump.*",
+            "op": "multiply",
+            "value": 3,
+            "label": "Boots of Striding and Springing"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:ring-of-jumping",
+      "name": "Ring of Jumping",
+      "summary": "While you wear it, you can cast jump on yourself at will as a bonus action.",
+      "source": {
+        "pack": "table-2014",
+        "book": "DMG",
+        "page": 191
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:jump",
+            "name": "Jump",
+            "casting": "at will, on yourself, as a bonus action",
+            "atWill": true
+          }
+        ]
+      }
     }
   ]
 }

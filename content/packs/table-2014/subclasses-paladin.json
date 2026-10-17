@@ -1910,6 +1910,15 @@
               "toggle": "peerless-athlete"
             },
             "label": "Peerless Athlete"
+          },
+          {
+            "selector": "stat.jump.*",
+            "op": "add",
+            "value": 10,
+            "label": "Peerless Athlete",
+            "when": {
+              "toggle": "peerless-athlete"
+            }
           }
         ]
       }

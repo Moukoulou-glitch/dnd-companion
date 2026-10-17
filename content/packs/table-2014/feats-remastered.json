@@ -184,6 +184,20 @@
             "kind": "skillOrExpertise",
             "target": "athletics"
           }
+        ],
+        "modifiers": [
+          {
+            "selector": "stat.jump.*",
+            "op": "add",
+            "value": "pb",
+            "label": "Athlete"
+          },
+          {
+            "selector": "stat.jump.runup",
+            "op": "set",
+            "value": 5,
+            "label": "Athlete"
+          }
         ]
       },
       "choices": [
