@@ -90,6 +90,8 @@ export const EffectInstance = z
     readied: z.object({ spell: z.string(), list: z.string(), level: z.number().int().min(0).max(9) }).strict().optional(),
     /** For leveled effects (Exhaustion). */
     level: z.number().int().min(1).optional(),
+    /** How many are left of what it counts (Mirror Image: duplicates). */
+    count: z.number().int().min(0).optional(),
     /** Who or what applied it, e.g. "Cleric's Bless". */
     from: z.string().optional(),
     /** Ends when this character's own concentration ends (a spell they cast on themselves). */

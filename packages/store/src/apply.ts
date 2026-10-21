@@ -1438,6 +1438,7 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       if (r !== undefined) entry.rounds = r;
       if (minutes !== undefined) entry.minutes = minutes;
       if (def?.levels) entry.level = Math.min(def.levels.length, level ?? 1);
+      if (def?.counter) entry.count = def.counter.start;
       if (from) entry.from = from;
       if (op.payload.choice) entry.choice = op.payload.choice;
       if (op.payload.castLevel) entry.castLevel = op.payload.castLevel;
@@ -1472,7 +1473,23 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
     case "updateEffect": {
       const e = c.effects.find((x) => x.id === op.payload.instanceId);
       if (!e) break;
-      const { rounds, minutes, level, choice, castLevel } = op.payload;
+      const { rounds, minutes, level, choice, castLevel, count } = op.payload;
+      if (count !== undefined) {
+        const def = reg.find(reg.effectId(e.effect), "effect");
+        const k = def?.counter;
+        if (k) {
+          const n = Math.min(k.start, count);
+          const before = e.count ?? k.start;
+          e.count = n;
+          const word = k.label.toLowerCase();
+          if (n === 0 && k.endsAtZero) {
+            c.effects = c.effects.filter((x) => x.id !== e.id);
+            notes.push(`The last of the ${word} is gone: ${def.name} ends.`);
+            break;
+          }
+          notes.push(n < before ? `${def.name}: ${n} ${word} left.` : `${def.name}: back to ${n} ${word}.`);
+        }
+      }
       if (rounds === null) delete e.rounds;
       else if (rounds !== undefined) e.rounds = rounds;
       if (minutes === null) delete e.minutes;

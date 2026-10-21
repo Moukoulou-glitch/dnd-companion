@@ -281,6 +281,8 @@ export interface EffectResult {
   release?: { spell?: { id: string; list: string; level: number } };
   /** Lasts until your next turn starts (Dodge, Ready): one round, no countdown to adjust. */
   untilTurnStart?: boolean;
+  /** What it counts (Mirror Image's duplicates): how many are left, the d20 needed now and their AC. */
+  counter?: { label: string; left: number; start: number; need?: number; ac?: number; endsAtZero: boolean };
 }
 
 export interface ResourceResult {
@@ -1561,6 +1563,14 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     }
     if (def?.upcast) r.upcast = { baseLevel: def.upcast.baseLevel, castLevel: e.castLevel ?? def.upcast.baseLevel };
     if (def?.levelNotes) r.levelNotes = def.levelNotes;
+    if (def?.counter) {
+      const k = def.counter;
+      const left = Math.max(0, Math.min(k.start, e.count ?? k.start));
+      r.counter = { label: k.label, left, start: k.start, endsAtZero: !!k.endsAtZero };
+      const need = left > 0 ? k.need?.[Math.min(left, k.need.length) - 1] : undefined;
+      if (need !== undefined) r.counter.need = need;
+      if (k.ac) r.counter.ac = k.ac.base + (k.ac.ability ? abilities[k.ac.ability].modifier : 0);
+    }
     if (def?.endsOn) r.endsOn = def.endsOn;
     if (e.untilTurnStart) r.untilTurnStart = true;
     if (e.untilTurnStart && e.custom?.name.startsWith("Ready")) r.release = e.readied ? { spell: { id: e.readied.spell, list: e.readied.list, level: e.readied.level } } : {};

@@ -332,6 +332,22 @@ export const EffectDef = z
     transform: z.enum(["beast", "creature", "shapechange"]).optional(),
     /** An effect that follows when it ends, lasting until after your next turn (Haste's lethargy). */
     afterEffect: DefId.optional(),
+    /**
+     * Something it has a number of, counted down on its card (Mirror Image: 3
+     * duplicates). `need[n-1]`: what a d20 must roll with n left (Mirror Image:
+     * 11, 8, 6); `ac`: their AC, `base` + an ability modifier; `endsAtZero`: the
+     * effect ends with the last one.
+     */
+    counter: z
+      .object({
+        label: z.string(),
+        start: z.number().int().min(1),
+        need: z.array(z.number().int().min(1).max(20)).optional(),
+        ac: z.object({ base: z.number().int(), ability: z.enum(["str", "dex", "con", "int", "wis", "cha"]).optional() }).strict().optional(),
+        endsAtZero: z.boolean().optional(),
+      })
+      .strict()
+      .optional(),
   })
   .strict();
 export type EffectDef = z.infer<typeof EffectDef>;

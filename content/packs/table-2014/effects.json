@@ -2393,10 +2393,18 @@
       },
       "modifiers": [],
       "reminders": [
-        "Attacked: d20 — 6+ (3 left), 8+ (2 left), 11+ (1 left) hits a duplicate instead; a hit destroys it."
+        "Attacked: d20 — 6+ (3 left), 8+ (2 left), 11+ (1 left) hits a duplicate instead; a hit destroys it.",
+        "Doesn't work against a creature that can't see, relies on other senses (blindsight), or sees through illusions (truesight)."
       ],
       "rounds": 10,
-      "selfOnly": true
+      "selfOnly": true,
+      "counter": {
+        "label": "Duplicates",
+        "start": 3,
+        "need": [11, 8, 6],
+        "ac": { "base": 10, "ability": "dex" },
+        "endsAtZero": true
+      }
     },
     {
       "kind": "effect",

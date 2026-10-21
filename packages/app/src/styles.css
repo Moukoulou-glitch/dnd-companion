@@ -3469,3 +3469,47 @@ button.mpip {
   margin: 6px 0 0;
   font-size: 1.05em;
 }
+
+/* An effect's counter (Mirror Image's duplicates). */
+.counter-box {
+  margin: 10px 0;
+  padding: 4px 12px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--panel-raised);
+}
+.counter-left {
+  font-size: 1.4em;
+  font-weight: 700;
+  color: var(--gold);
+}
+.counter-box .pips {
+  display: flex;
+  justify-content: flex-start;
+  gap: 8px;
+  margin: 4px 0 10px;
+}
+.counter-box .pip {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px dashed var(--muted);
+  background: transparent;
+  opacity: 0.5;
+}
+.counter-box .pip.on {
+  border-style: solid;
+  border-color: var(--teal);
+  background: var(--teal-soft);
+  opacity: 1;
+}
+.counter-roll {
+  margin: 0 0 10px;
+}
+.counter-roll strong {
+  font-size: 1.4em;
+  color: var(--gold);
+}
+.counter-roll.yes strong {
+  color: var(--teal);
+}

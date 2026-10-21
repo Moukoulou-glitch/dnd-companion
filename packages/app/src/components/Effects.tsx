@@ -1,6 +1,8 @@
 import { ChangesEditor, changeValid, changesToModifiers, describeChanges, emptyChange, type ChangeDraft } from "./ChangesEditor";
 import { RichText } from "./Conditions";
-import { Fragment, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
+import { facesOrRoll } from "../dice/quick";
+import { skipThrow } from "../diceBox";
 import type { ContentRegistry, EffectResult } from "@dnd/engine";
 import { ABILITY_NAMES, type Ability, type EffectDef, type Modifier, type OperationType } from "@dnd/schema";
 import { formatMinutes } from "../time";
@@ -10,6 +12,7 @@ type Act = (type: OperationType, payload: unknown, label: string) => void;
 export function effectChipLabel(e: EffectResult, hideTime = false): string {
   let s = e.name;
   if (e.level !== undefined) s += ` ${e.level}`;
+  if (e.counter) s += ` ×${e.counter.left}`;
   if (e.choice?.value) s += `: ${ABILITY_NAMES[e.choice.value as Ability] ? optionName(e.choice.value).slice(0, 3) : e.choice.value}`;
   if (e.upcast && e.upcast.castLevel > e.upcast.baseLevel) s += ` (lvl ${e.upcast.castLevel})`;
   if (hideTime) return s;
@@ -128,6 +131,7 @@ export function EffectPanel({ e, act, close, onRelease }: { e: EffectResult; act
         </>
       )}
       {e.concentration && <p className="note">Needs the caster's concentration. Remove it if they lose concentration.</p>}
+      {e.counter && <CounterSection e={e} counter={e.counter} act={act} close={close} />}
       {e.choice && (
         <>
           <p className="sub-head">{e.choice.label}{e.choice.value ? "" : ": choose one"}</p>
@@ -422,5 +426,93 @@ export function AddEffectPanel({
         </>
       )}
     </>
+  );
+}
+
+/**
+ * What an effect counts (Mirror Image's duplicates): how many are left, the
+ * d20 to roll when you're attacked, and − / + to count them by hand.
+ */
+function CounterSection({ e, counter, act, close }: { e: EffectResult; counter: NonNullable<EffectResult["counter"]>; act: Act; close: () => void }) {
+  const [d20, setD20] = useState<number | null>(null);
+  const [throwing, setThrowing] = useState(false);
+  const alive = useRef(true);
+  const inAir = useRef(false);
+  useEffect(() => {
+    alive.current = true;
+    return () => {
+      alive.current = false;
+      if (inAir.current) skipThrow();
+    };
+  }, []);
+  const word = counter.label.toLowerCase();
+  const one = word.replace(/s$/, "");
+  const set = (n: number) => {
+    setD20(null);
+    act("updateEffect", { instanceId: e.instanceId, count: n }, n < counter.left ? `${e.name}: a ${one} destroyed, ${n} left.` : `${e.name}: ${n} ${word}.`);
+    if (n === 0 && counter.endsAtZero) close();
+  };
+  const roll = async () => {
+    setD20(null);
+    setThrowing(true);
+    inAir.current = true;
+    try {
+      const [v] = await facesOrRoll(1, 20, true, { source: e.name });
+      if (alive.current && v) setD20(v);
+    } finally {
+      inAir.current = false;
+      if (alive.current) setThrowing(false);
+    }
+  };
+  const hitsDuplicate = d20 !== null && counter.need !== undefined && d20 >= counter.need;
+  return (
+    <div className="counter-box">
+      <div className="row">
+        <div className="row-main">
+          <div className="row-title">{counter.label} left</div>
+          {counter.need !== undefined && counter.left > 0 && (
+            <div className="row-sub">
+              Attacked? Roll a d20: {counter.need} or higher and the attack targets a {one} instead{counter.ac !== undefined ? ` (AC ${counter.ac})` : ""}.
+            </div>
+          )}
+        </div>
+        <div className="stepper">
+          <button aria-label={`One ${one} fewer`} disabled={counter.left <= 0} onClick={() => set(counter.left - 1)}>
+            −
+          </button>
+          <span className="counter-left">{counter.left}</span>
+          <button aria-label={`One ${one} more`} disabled={counter.left >= counter.start} onClick={() => set(counter.left + 1)}>
+            +
+          </button>
+        </div>
+      </div>
+      <div className="pips" aria-hidden="true">
+        {Array.from({ length: counter.start }, (_, i) => (
+          <span key={i} className={i < counter.left ? "pip on" : "pip"} />
+        ))}
+      </div>
+      {counter.need !== undefined && counter.left > 0 && (
+        <>
+          {d20 !== null && (
+            <p className={`counter-roll ${hitsDuplicate ? "yes" : "no"}`} role="status">
+              <strong>{d20}</strong>{" "}
+              {hitsDuplicate
+                ? `— the attack targets a ${one}${counter.ac !== undefined ? ` (AC ${counter.ac})` : ""}. If it hits, the ${one} is destroyed.`
+                : `— under ${counter.need}: the attack targets you as normal.`}
+            </p>
+          )}
+          <div className="big-actions">
+            <button className="big" disabled={throwing} onClick={() => void roll()}>
+              {throwing ? "Rolling…" : d20 === null ? "I'm attacked: roll d20" : "Roll again"}
+            </button>
+            {hitsDuplicate && (
+              <button className="big primary" onClick={() => set(counter.left - 1)}>
+                It hit: destroy a {one}
+              </button>
+            )}
+          </div>
+        </>
+      )}
+    </div>
   );
 }

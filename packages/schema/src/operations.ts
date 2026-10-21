@@ -240,6 +240,8 @@ export const OPERATION_PAYLOADS = {
       level: z.number().int().min(1).optional(),
       choice: z.string().optional(),
       castLevel: z.number().int().min(1).max(9).optional(),
+      /** How many are left of what it counts (Mirror Image's duplicates). */
+      count: z.number().int().min(0).optional(),
     })
     .strict(),
   /** Time passes outside combat: long effects and concentration count down. Rests do this too. */
