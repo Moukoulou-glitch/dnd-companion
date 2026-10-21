@@ -1200,10 +1200,13 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       spellDefs.set(`${list}|${g.spell}`, { def: reg.has(g.spell) ? reg.get(g.spell, "spell") : undefined, list, prepared: true, granted });
     }
     // Spells picked through a feature's spell choices (Magic Initiate, Fey Touched).
-    if (ownList && reg.has(s.id)) {
-      const d = reg.get(s.id, s.id.startsWith("feat:") ? "feat" : "feature") as { choices?: { id: string; kind: string; resource?: string }[] };
+    if (reg.has(s.id) && /^(feature|feat):/.test(s.id)) {
+      const d = reg.get(s.id, s.id.startsWith("feat:") ? "feat" : "feature") as { choices?: { id: string; kind: string; resource?: string; list?: string }[] };
       for (const ch of d.choices ?? []) {
         if (ch.kind !== "spell") continue;
+        // Cast with the feature's own spellcasting, or the one the choice names (Mystic Arcanum: warlock).
+        const listOf = ch.list ?? ownList;
+        if (!listOf) continue;
         for (const id of s.choices[ch.id] ?? []) {
           const def = reg.has(id) ? reg.get(id, "spell") : undefined;
           const granted: GrantedSpellRef = {};
@@ -1213,7 +1216,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
             const res = resources.find((r) => r.id === ch.resource);
             if (res) res.name = `${res.name.split(":")[0]}: ${def.name}`;
           }
-          spellDefs.set(`${ownList}|${id}`, { def, list: ownList, prepared: true, granted });
+          spellDefs.set(`${listOf}|${id}`, { def, list: listOf, prepared: true, granted });
         }
       }
     }

@@ -1,6 +1,159 @@
 {
   "definitions": [
     {
+      "kind": "feature",
+      "id": "feature:mystic-arcanum-6th-level",
+      "name": "Mystic Arcanum (6th level)",
+      "summary": "Pick one 6th-level warlock spell as an arcanum: you can cast it once without a spell slot, and again after a long rest.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 108
+      },
+      "choices": [
+        {
+          "id": "spell",
+          "label": "Arcanum: a 6th-level warlock spell",
+          "kind": "spell",
+          "count": 1,
+          "resource": "mystic-arcanum-6",
+          "list": "warlock",
+          "spells": {
+            "classes": [
+              "warlock"
+            ],
+            "level": 6
+          }
+        }
+      ],
+      "grant": {
+        "resources": [
+          {
+            "id": "mystic-arcanum-6",
+            "name": "Mystic Arcanum (6th)",
+            "max": 1,
+            "reset": "long"
+          }
+        ]
+      },
+      "text": [
+        "At 11th level, your patron bestows upon you a magical secret called an arcanum. Choose one 6th- level spell from the warlock spell list as this arcanum.",
+        "You can cast your arcanum spell once without expending a spell slot. You must finish a long rest before you can do so again.",
+        "At higher levels, you gain more warlock spells of your choice that can be cast in this way: one 7th- level spell at 13th level, one 8th-level spell at 15th level, and one 9th-level spell at 17th level. You regain all uses of your Mystic Arcanum when you finish a long rest."
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:mystic-arcanum-7th-level",
+      "name": "Mystic Arcanum (7th level)",
+      "summary": "Pick one 7th-level warlock spell as an arcanum: you can cast it once without a spell slot, and again after a long rest.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 108
+      },
+      "choices": [
+        {
+          "id": "spell",
+          "label": "Arcanum: a 7th-level warlock spell",
+          "kind": "spell",
+          "count": 1,
+          "resource": "mystic-arcanum-7",
+          "list": "warlock",
+          "spells": {
+            "classes": [
+              "warlock"
+            ],
+            "level": 7
+          }
+        }
+      ],
+      "grant": {
+        "resources": [
+          {
+            "id": "mystic-arcanum-7",
+            "name": "Mystic Arcanum (7th)",
+            "max": 1,
+            "reset": "long"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:mystic-arcanum-8th-level",
+      "name": "Mystic Arcanum (8th level)",
+      "summary": "Pick one 8th-level warlock spell as an arcanum: you can cast it once without a spell slot, and again after a long rest.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 108
+      },
+      "choices": [
+        {
+          "id": "spell",
+          "label": "Arcanum: a 8th-level warlock spell",
+          "kind": "spell",
+          "count": 1,
+          "resource": "mystic-arcanum-8",
+          "list": "warlock",
+          "spells": {
+            "classes": [
+              "warlock"
+            ],
+            "level": 8
+          }
+        }
+      ],
+      "grant": {
+        "resources": [
+          {
+            "id": "mystic-arcanum-8",
+            "name": "Mystic Arcanum (8th)",
+            "max": 1,
+            "reset": "long"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:mystic-arcanum-9th-level",
+      "name": "Mystic Arcanum (9th level)",
+      "summary": "Pick one 9th-level warlock spell as an arcanum: you can cast it once without a spell slot, and again after a long rest.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 108
+      },
+      "choices": [
+        {
+          "id": "spell",
+          "label": "Arcanum: a 9th-level warlock spell",
+          "kind": "spell",
+          "count": 1,
+          "resource": "mystic-arcanum-9",
+          "list": "warlock",
+          "spells": {
+            "classes": [
+              "warlock"
+            ],
+            "level": 9
+          }
+        }
+      ],
+      "grant": {
+        "resources": [
+          {
+            "id": "mystic-arcanum-9",
+            "name": "Mystic Arcanum (9th)",
+            "max": 1,
+            "reset": "long"
+          }
+        ]
+      }
+    },
+    {
       "kind": "subclass",
       "id": "subclass:the-archfey",
       "name": "The Archfey",
