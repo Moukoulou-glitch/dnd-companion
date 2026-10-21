@@ -460,7 +460,7 @@ export function creatureBlock(reg: ContentRegistry, creature: string, hp?: numbe
 }
 
 /** What a summoning spell offers at a slot level: the creatures, and how many of which CR. */
-export function summonOptions(reg: ContentRegistry, summon: string, slot: number, caster: { attack: number; dc: number } = { attack: 0, dc: 10 }): { creatures: CreatureDef[]; tiers: { maxCr: number; count: number }[]; count?: number } | undefined {
+export function summonOptions(reg: ContentRegistry, summon: string, slot: number, caster: { attack: number; dc: number } = { attack: 0, dc: 10 }): { creatures: CreatureDef[]; tiers: { maxCr: number; count: number }[]; count?: number; maxCr?: number } | undefined {
   const s = reg.find(summon, "summon");
   if (!s) return undefined;
   // A spirit (Summon Beast): one, its variant picked, built at this level with your spell attack and DC.
@@ -475,7 +475,8 @@ export function summonOptions(reg: ContentRegistry, summon: string, slot: number
   };
   const mult = pickCount(s.multiplier) ?? 1;
   const tiers = (s.tiers ?? []).map((t) => ({ maxCr: t.maxCr, count: t.count * mult }));
-  const maxCr = s.crBySlot ? slot : tiers.length ? Math.max(...tiers.map((t) => t.maxCr)) : Infinity;
+  const bySlot = pickCount(s.maxCr);
+  const maxCr = bySlot ?? (s.crBySlot ? slot : tiers.length ? Math.max(...tiers.map((t) => t.maxCr)) : Infinity);
   const creatures = s.creatures
     ? s.creatures.map((id) => reg.find(id, "creature")).filter((d): d is CreatureDef => !!d)
     : reg
@@ -483,7 +484,7 @@ export function summonOptions(reg: ContentRegistry, summon: string, slot: number
         .filter((d) => (s.type ?? []).includes(d.type) && d.cr <= maxCr)
         .sort((a, b) => b.cr - a.cr || a.name.localeCompare(b.name));
   const count = pickCount(s.count);
-  return { creatures, tiers, ...(count ? { count } : {}) };
+  return { creatures, tiers, ...(count ? { count } : {}), ...(bySlot !== undefined ? { maxCr: bySlot } : {}) };
 }
 
 type SummonMember = Character["summons"][number];

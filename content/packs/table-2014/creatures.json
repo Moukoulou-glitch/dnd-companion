@@ -1,0 +1,633 @@
+{
+  "definitions": [
+    {
+      "kind": "creature",
+      "id": "creature:barlgura",
+      "name": "Barlgura",
+      "source": {
+        "pack": "table-2014",
+        "book": "MM"
+      },
+      "size": "Large",
+      "type": "fiend",
+      "alignment": "chaotic evil",
+      "ac": 15,
+      "hp": 68,
+      "hitDice": "8d10+24",
+      "speed": {
+        "walk": 40,
+        "climb": 40
+      },
+      "abilities": {
+        "str": 18,
+        "dex": 15,
+        "con": 16,
+        "int": 7,
+        "wis": 14,
+        "cha": 9
+      },
+      "cr": 5,
+      "traits": [
+        {
+          "name": "Innate Spellcasting",
+          "text": "Its innate spellcasting ability is Wisdom (spell save DC 13); no material components.\n2/day each: disguise self, invisibility (self only)\n1/day each: entangle, phantasmal force"
+        },
+        {
+          "name": "Reckless",
+          "text": "At the start of its turn it can take advantage on its melee weapon attacks this turn; attacks against it then have advantage until its next turn starts."
+        },
+        {
+          "name": "Running Leap",
+          "text": "With a running start: long jump up to 40 ft, high jump up to 20 ft."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Multiattack",
+          "text": "It makes three attacks: one with its bite and two with its fists."
+        },
+        {
+          "name": "Bite",
+          "text": "Melee Weapon Attack: +7 to hit, reach 5 ft., one target. Hit: 11 (2d6 + 4) piercing damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 7,
+            "reach": "5 ft.",
+            "damage": "2d6",
+            "damageBonus": 4,
+            "damageType": "piercing"
+          }
+        },
+        {
+          "name": "Fist",
+          "text": "Melee Weapon Attack: +7 to hit, reach 5 ft., one target. Hit: 9 (1d10 + 4) bludgeoning damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 7,
+            "reach": "5 ft.",
+            "damage": "1d10",
+            "damageBonus": 4,
+            "damageType": "bludgeoning"
+          }
+        }
+      ],
+      "acNote": "natural armor",
+      "saves": {
+        "dex": 5,
+        "con": 6
+      },
+      "skills": {
+        "perception": 5,
+        "stealth": 5
+      },
+      "senses": {
+        "blindsight": 30,
+        "darkvision": 120,
+        "passive_perception": 15
+      },
+      "languages": "Abyssal, telepathy 120 ft.",
+      "resist": [
+        "cold",
+        "fire",
+        "lightning"
+      ],
+      "immune": [
+        "poison"
+      ],
+      "conditionImmune": [
+        "poisoned"
+      ]
+    },
+    {
+      "kind": "creature",
+      "id": "creature:chasme",
+      "name": "Chasme",
+      "source": {
+        "pack": "table-2014",
+        "book": "MM"
+      },
+      "size": "Large",
+      "type": "fiend",
+      "alignment": "chaotic evil",
+      "ac": 15,
+      "hp": 84,
+      "hitDice": "13d10+13",
+      "speed": {
+        "walk": 20,
+        "fly": 60
+      },
+      "abilities": {
+        "str": 15,
+        "dex": 15,
+        "con": 12,
+        "int": 11,
+        "wis": 14,
+        "cha": 10
+      },
+      "cr": 6,
+      "traits": [
+        {
+          "name": "Drone",
+          "text": "A creature other than a demon that starts its turn within 30 ft and can hear it makes a DC 12 Constitution save or falls unconscious for 10 minutes (ends if it takes damage or is splashed with holy water); a success or the end of it makes it immune for 24 hours."
+        },
+        {
+          "name": "Magic Resistance",
+          "text": "Advantage on saving throws against spells and other magical effects."
+        },
+        {
+          "name": "Spider Climb",
+          "text": "It climbs difficult surfaces, upside down on ceilings too, without a check."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Proboscis",
+          "text": "Melee Weapon Attack: +5 to hit, reach 5 ft., one creature. Hit: 16 (4d6 + 2) piercing damage plus 24 (7d6) necrotic damage; the target's hit point maximum drops by the necrotic damage taken until it finishes a long rest (or greater restoration), and it dies if that brings it to 0.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 5,
+            "reach": "5 ft.",
+            "damage": "4d6",
+            "damageBonus": 2,
+            "damageType": "piercing"
+          }
+        }
+      ],
+      "acNote": "natural armor",
+      "saves": {
+        "dex": 5,
+        "wis": 5
+      },
+      "skills": {
+        "perception": 5
+      },
+      "senses": {
+        "blindsight": 10,
+        "darkvision": 120,
+        "passive_perception": 15
+      },
+      "languages": "Abyssal, telepathy 120 ft.",
+      "resist": [
+        "cold",
+        "fire",
+        "lightning"
+      ],
+      "immune": [
+        "poison"
+      ],
+      "conditionImmune": [
+        "poisoned"
+      ]
+    },
+    {
+      "kind": "creature",
+      "id": "creature:goristro",
+      "name": "Goristro",
+      "source": {
+        "pack": "table-2014",
+        "book": "MM"
+      },
+      "size": "Huge",
+      "type": "fiend",
+      "alignment": "chaotic evil",
+      "ac": 19,
+      "hp": 310,
+      "hitDice": "23d12+161",
+      "speed": {
+        "walk": 40
+      },
+      "abilities": {
+        "str": 25,
+        "dex": 11,
+        "con": 25,
+        "int": 6,
+        "wis": 13,
+        "cha": 14
+      },
+      "cr": 17,
+      "traits": [
+        {
+          "name": "Charge",
+          "text": "Moving at least 15 ft straight at a target and then hitting it with its gore on the same turn: an extra 38 (7d10) piercing damage, and a creature makes a DC 21 Strength save or is pushed up to 20 ft and knocked prone."
+        },
+        {
+          "name": "Labyrinthine Recall",
+          "text": "It remembers perfectly any path it has travelled."
+        },
+        {
+          "name": "Magic Resistance",
+          "text": "Advantage on saving throws against spells and other magical effects."
+        },
+        {
+          "name": "Siege Monster",
+          "text": "Double damage to objects and structures."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Multiattack",
+          "text": "It makes three attacks: two with its fists and one with its hoof."
+        },
+        {
+          "name": "Fist",
+          "text": "Melee Weapon Attack: +13 to hit, reach 10 ft., one target. Hit: 20 (3d8 + 7) bludgeoning damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 13,
+            "reach": "10 ft.",
+            "damage": "3d8",
+            "damageBonus": 7,
+            "damageType": "bludgeoning"
+          }
+        },
+        {
+          "name": "Hoof",
+          "text": "Melee Weapon Attack: +13 to hit, reach 5 ft., one target. Hit: 23 (3d10 + 7) bludgeoning damage; a creature makes a DC 21 Strength save or is knocked prone.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 13,
+            "reach": "5 ft.",
+            "damage": "3d10",
+            "damageBonus": 7,
+            "damageType": "bludgeoning"
+          }
+        },
+        {
+          "name": "Gore",
+          "text": "Melee Weapon Attack: +13 to hit, reach 10 ft., one target. Hit: 45 (7d10 + 7) piercing damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 13,
+            "reach": "10 ft.",
+            "damage": "7d10",
+            "damageBonus": 7,
+            "damageType": "piercing"
+          }
+        }
+      ],
+      "acNote": "natural armor",
+      "saves": {
+        "str": 13,
+        "dex": 6,
+        "con": 13,
+        "wis": 7
+      },
+      "skills": {
+        "perception": 7
+      },
+      "senses": {
+        "darkvision": 120,
+        "passive_perception": 17
+      },
+      "languages": "Abyssal",
+      "resist": [
+        "cold",
+        "fire",
+        "lightning",
+        "bludgeoning, piercing, and slashing from nonmagical attacks"
+      ],
+      "immune": [
+        "poison"
+      ],
+      "conditionImmune": [
+        "poisoned"
+      ]
+    },
+    {
+      "kind": "creature",
+      "id": "creature:manes",
+      "name": "Manes",
+      "source": {
+        "pack": "table-2014",
+        "book": "MM"
+      },
+      "size": "Small",
+      "type": "fiend",
+      "alignment": "chaotic evil",
+      "ac": 9,
+      "hp": 9,
+      "hitDice": "2d6+2",
+      "speed": {
+        "walk": 20
+      },
+      "abilities": {
+        "str": 10,
+        "dex": 9,
+        "con": 13,
+        "int": 3,
+        "wis": 8,
+        "cha": 4
+      },
+      "cr": 0.125,
+      "traits": [],
+      "actions": [
+        {
+          "name": "Claws",
+          "text": "Melee Weapon Attack: +2 to hit, reach 5 ft., one target. Hit: 5 (2d4) slashing damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 2,
+            "reach": "5 ft.",
+            "damage": "2d4",
+            "damageBonus": 0,
+            "damageType": "slashing"
+          }
+        }
+      ],
+      "acNote": "natural armor",
+      "senses": {
+        "darkvision": 60,
+        "passive_perception": 9
+      },
+      "languages": "understands Abyssal but can't speak",
+      "resist": [
+        "cold",
+        "fire",
+        "lightning"
+      ],
+      "immune": [
+        "poison"
+      ],
+      "conditionImmune": [
+        "charmed",
+        "frightened",
+        "poisoned"
+      ]
+    },
+    {
+      "kind": "creature",
+      "id": "creature:shadow-demon",
+      "name": "Shadow Demon",
+      "source": {
+        "pack": "table-2014",
+        "book": "MM"
+      },
+      "size": "Medium",
+      "type": "fiend",
+      "alignment": "chaotic evil",
+      "ac": 13,
+      "hp": 66,
+      "hitDice": "12d8+12",
+      "speed": {
+        "walk": 30,
+        "fly": 30
+      },
+      "abilities": {
+        "str": 1,
+        "dex": 17,
+        "con": 12,
+        "int": 14,
+        "wis": 13,
+        "cha": 14
+      },
+      "cr": 4,
+      "traits": [
+        {
+          "name": "Incorporeal Movement",
+          "text": "It moves through creatures and objects as difficult terrain; ending its turn inside an object deals it 5 (1d10) force damage."
+        },
+        {
+          "name": "Light Sensitivity",
+          "text": "In bright light: disadvantage on attack rolls and on sight-based Wisdom (Perception) checks."
+        },
+        {
+          "name": "Shadow Stealth",
+          "text": "In dim light or darkness it can Hide as a bonus action."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Claws",
+          "text": "Melee Weapon Attack: +5 to hit, reach 5 ft., one creature. Hit: 10 (2d6 + 3) psychic damage; with advantage on the attack roll, 17 (4d6 + 3) psychic damage instead.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 5,
+            "reach": "5 ft.",
+            "damage": "2d6",
+            "damageBonus": 3,
+            "damageType": "psychic"
+          }
+        }
+      ],
+      "saves": {
+        "dex": 5,
+        "cha": 4
+      },
+      "skills": {
+        "stealth": 7
+      },
+      "senses": {
+        "darkvision": 120,
+        "passive_perception": 11
+      },
+      "languages": "Abyssal, telepathy 120 ft.",
+      "vulnerable": [
+        "radiant"
+      ],
+      "resist": [
+        "acid",
+        "fire",
+        "necrotic",
+        "thunder",
+        "bludgeoning, piercing, and slashing from nonmagical attacks"
+      ],
+      "immune": [
+        "cold",
+        "lightning",
+        "poison"
+      ],
+      "conditionImmune": [
+        "exhaustion",
+        "grappled",
+        "paralyzed",
+        "petrified",
+        "poisoned",
+        "prone",
+        "restrained"
+      ]
+    },
+    {
+      "kind": "creature",
+      "id": "creature:yochlol",
+      "name": "Yochlol",
+      "source": {
+        "pack": "table-2014",
+        "book": "MM"
+      },
+      "size": "Medium",
+      "type": "fiend",
+      "alignment": "chaotic evil",
+      "ac": 15,
+      "hp": 136,
+      "hitDice": "16d8+64",
+      "speed": {
+        "walk": 30,
+        "climb": 30
+      },
+      "abilities": {
+        "str": 15,
+        "dex": 14,
+        "con": 18,
+        "int": 13,
+        "wis": 15,
+        "cha": 15
+      },
+      "cr": 10,
+      "traits": [
+        {
+          "name": "Shapechanger",
+          "text": "As an action it takes the form of a female drow or a giant spider, or returns to its own; its statistics stay the same, its gear doesn't change, and it reverts when it dies."
+        },
+        {
+          "name": "Innate Spellcasting",
+          "text": "Its innate spellcasting ability is Charisma (spell save DC 14); no material components.\nAt will: detect thoughts, web\n1/day: dominate person"
+        },
+        {
+          "name": "Magic Resistance",
+          "text": "Advantage on saving throws against spells and other magical effects."
+        },
+        {
+          "name": "Spider Climb",
+          "text": "It climbs difficult surfaces, upside down on ceilings too, without a check."
+        },
+        {
+          "name": "Web Walker",
+          "text": "Webbing doesn't restrict its movement."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Multiattack",
+          "text": "It makes two melee attacks."
+        },
+        {
+          "name": "Slam (Bite in Spider Form)",
+          "text": "Melee Weapon Attack: +6 to hit, reach 5 ft., one target. Hit: 5 (1d6 + 2) bludgeoning damage plus 21 (6d6) poison damage (piercing instead of bludgeoning in spider form; reach 10 ft in demon form).",
+          "attack": {
+            "kind": "melee",
+            "toHit": 6,
+            "reach": "5 ft.",
+            "damage": "1d6",
+            "damageBonus": 2,
+            "damageType": "bludgeoning"
+          }
+        },
+        {
+          "name": "Mist Form",
+          "text": "It turns into toxic mist with its gear, or back. As mist it is incapacitated, can't speak, flies 30 ft (hover), passes through any gap that isn't airtight, has advantage on Strength, Dexterity and Constitution saves and is immune to nonmagical damage; it can stop in a creature's space, and that creature makes a DC 14 Constitution save each time it starts its turn there or is poisoned (and incapacitated) until its next turn starts."
+        }
+      ],
+      "acNote": "natural armor",
+      "saves": {
+        "dex": 6,
+        "int": 5,
+        "wis": 6,
+        "cha": 6
+      },
+      "skills": {
+        "deception": 10,
+        "insight": 6
+      },
+      "senses": {
+        "darkvision": 120,
+        "passive_perception": 12
+      },
+      "languages": "Abyssal, Elvish, Undercommon",
+      "resist": [
+        "cold",
+        "fire",
+        "lightning",
+        "bludgeoning, piercing, and slashing from nonmagical attacks"
+      ],
+      "immune": [
+        "poison"
+      ],
+      "conditionImmune": [
+        "poisoned"
+      ]
+    },
+    {
+      "kind": "creature",
+      "id": "creature:peryton",
+      "name": "Peryton",
+      "source": {
+        "pack": "table-2014",
+        "book": "MM"
+      },
+      "size": "Medium",
+      "type": "monstrosity",
+      "alignment": "chaotic evil",
+      "ac": 13,
+      "hp": 33,
+      "hitDice": "6d8+6",
+      "speed": {
+        "walk": 20,
+        "fly": 60
+      },
+      "abilities": {
+        "str": 16,
+        "dex": 12,
+        "con": 13,
+        "int": 9,
+        "wis": 12,
+        "cha": 10
+      },
+      "cr": 2,
+      "traits": [
+        {
+          "name": "Dive Attack",
+          "text": "Flying, diving at least 30 ft straight at a target and then hitting it with a melee weapon attack: an extra 9 (2d8) damage."
+        },
+        {
+          "name": "Flyby",
+          "text": "Flying out of an enemy's reach doesn't provoke opportunity attacks."
+        },
+        {
+          "name": "Keen Sight and Smell",
+          "text": "Advantage on Wisdom (Perception) checks that rely on sight or smell."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Multiattack",
+          "text": "It makes two attacks: one with its gore and one with its talons."
+        },
+        {
+          "name": "Gore",
+          "text": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 7 (1d8 + 3) piercing damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 5,
+            "reach": "5 ft.",
+            "damage": "1d8",
+            "damageBonus": 3,
+            "damageType": "piercing"
+          }
+        },
+        {
+          "name": "Talons",
+          "text": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 8 (2d4 + 3) piercing damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 5,
+            "reach": "5 ft.",
+            "damage": "2d4",
+            "damageBonus": 3,
+            "damageType": "piercing"
+          }
+        }
+      ],
+      "acNote": "natural armor",
+      "skills": {
+        "perception": 5
+      },
+      "senses": {
+        "passive_perception": 15
+      },
+      "languages": "understands Common and Elvish but can't speak",
+      "resist": [
+        "bludgeoning, piercing, and slashing from nonmagical attacks"
+      ]
+    }
+  ]
+}

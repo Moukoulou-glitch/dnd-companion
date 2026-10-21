@@ -23,7 +23,7 @@ export function SummonPicker({ reg, summon, slot, caster, onSummon }: { reg: Con
   if (!def || !opts) return <p className="note">Nothing to summon.</p>;
   const t = opts.tiers[tier];
   const limit = t ? t.count : opts.count ?? 1;
-  const maxCr = t?.maxCr ?? (def.crBySlot ? slot : Infinity);
+  const maxCr = t?.maxCr ?? opts.maxCr ?? (def.crBySlot ? slot : Infinity);
   const total = Object.values(counts).reduce((a, b) => a + b, 0);
   const list = opts.creatures.filter((d) => d.cr <= maxCr || counts[d.id]).filter((d) => d.name.toLowerCase().includes(q.trim().toLowerCase()));
   const set = (d: CreatureDef, n: number) => setCounts({ ...counts, [d.id]: Math.max(0, n) });

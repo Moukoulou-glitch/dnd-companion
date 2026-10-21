@@ -1624,13 +1624,14 @@
         "creature:pegasus",
         "creature:dire-wolf",
         "creature:rhinoceros",
-        "creature:saber-toothed-tiger"
+        "creature:saber-toothed-tiger",
+        "creature:peryton"
       ],
       "count": {
         "4": 1
       },
       "initiative": "yours",
-      "note": "A loyal steed in the form you choose (a peryton too, if your DM has its stat block): celestial, fey or fiend (your choice), Intelligence 6 or more. You share self-targeted spells with it while riding. It fights as an independent creature."
+      "note": "A loyal steed in the form you choose: celestial, fey or fiend (your choice), Intelligence 6 or more. You share self-targeted spells with it while riding. It fights as an independent creature."
     },
     {
       "kind": "summon",
@@ -1654,6 +1655,120 @@
       "initiative": "own",
       "concentration": true,
       "note": "One celestial of CR 4 or lower (CR 5 or lower with a 9th-level slot; your DM may allow it here). It's friendly to you and your companions, rolls its own initiative and obeys your verbal commands."
+    },
+    {
+      "kind": "summon",
+      "id": "summon:summon-lesser-demons",
+      "name": "Summon Lesser Demons",
+      "spell": "spell:summon-lesser-demons",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 166
+      },
+      "creatures": [
+        "creature:manes",
+        "creature:dretch",
+        "creature:quasit"
+      ],
+      "tiers": [
+        {
+          "maxCr": 1,
+          "count": 2
+        },
+        {
+          "maxCr": 0.5,
+          "count": 4
+        },
+        {
+          "maxCr": 0.25,
+          "count": 8
+        }
+      ],
+      "multiplier": {
+        "6": 2,
+        "8": 3
+      },
+      "initiative": "shared",
+      "concentration": true,
+      "note": "Roll a d6 for how many (1–2: two of CR 1; 3–4: four of CR 1/2; 5–6: eight of CR 1/4); the DM picks the demons. They're hostile to every creature, attack the nearest non-demons, and act together on their own initiative. A circle of blood around you keeps them out. Twice as many with a 6th-level slot, three times with an 8th."
+    },
+    {
+      "kind": "summon",
+      "id": "summon:summon-greater-demon",
+      "name": "Summon Greater Demon",
+      "spell": "spell:summon-greater-demon",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 166
+      },
+      "creatures": [
+        "creature:manes",
+        "creature:dretch",
+        "creature:quasit",
+        "creature:shadow-demon",
+        "creature:barlgura",
+        "creature:chasme",
+        "creature:vrock",
+        "creature:hezrou",
+        "creature:glabrezu",
+        "creature:yochlol",
+        "creature:nalfeshnee",
+        "creature:marilith",
+        "creature:goristro",
+        "creature:balor"
+      ],
+      "maxCr": {
+        "4": 5,
+        "5": 6,
+        "6": 7,
+        "7": 8,
+        "8": 9,
+        "9": 10
+      },
+      "count": {
+        "4": 1
+      },
+      "initiative": "own",
+      "concentration": true,
+      "note": "One demon of CR 5 or lower (+1 per slot level above 4th). It rolls its own initiative and obeys your verbal commands; at the end of each of its turns it makes a Charisma save, and on a success it's free (hostile to you for the rest of the spell). Knowing its true name gives it disadvantage."
+    },
+    {
+      "kind": "summon",
+      "id": "summon:infernal-calling",
+      "name": "Infernal Calling",
+      "spell": "spell:infernal-calling",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 159
+      },
+      "creatures": [
+        "creature:lemure",
+        "creature:imp",
+        "creature:bearded-devil",
+        "creature:barbed-devil",
+        "creature:chain-devil",
+        "creature:bone-devil",
+        "creature:horned-devil",
+        "creature:erinyes",
+        "creature:ice-devil",
+        "creature:pit-fiend"
+      ],
+      "maxCr": {
+        "5": 6,
+        "6": 7,
+        "7": 8,
+        "8": 9,
+        "9": 10
+      },
+      "count": {
+        "5": 1
+      },
+      "initiative": "own",
+      "concentration": true,
+      "note": "One devil of CR 6 or lower (+1 per slot level above 5th). It's unfriendly, acts on its own initiative and isn't obliged to obey you; with its talisman you can command it. When the spell ends it returns to the Nine Hells."
     }
   ]
 }

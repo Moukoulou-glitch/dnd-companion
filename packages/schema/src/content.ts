@@ -516,6 +516,8 @@ export const SummonDef = z
     tiers: z.array(z.object({ maxCr: z.number(), count: z.number().int().min(1) }).strict()).optional(),
     /** Conjure Elemental: CR up to the slot level. */
     crBySlot: z.boolean().optional(),
+    /** The highest CR by slot level (Summon Greater Demon: CR 5 at 4th, 6 at 5th...). */
+    maxCr: z.record(z.string(), z.number()).optional(),
     /** How many by slot level ("3": 1, "4": 3...); `multiplier` scales tier counts (Conjure Animals at 5th: ×2). */
     count: z.record(z.string(), z.number().int().min(1)).optional(),
     multiplier: z.record(z.string(), z.number().int().min(1)).optional(),
