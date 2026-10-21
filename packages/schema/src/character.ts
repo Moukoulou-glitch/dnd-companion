@@ -108,6 +108,8 @@ export const SpellInstance = z
     list: z.string(),
     /** For prepared casters (wizard, cleric...): on today's prepared list. */
     prepared: z.boolean().default(false),
+    /** A wizard's spell prepared without being in the spellbook (beyond the rules: the app warned). */
+    notInBook: z.boolean().optional(),
   })
   .strict();
 export type SpellInstance = z.infer<typeof SpellInstance>;

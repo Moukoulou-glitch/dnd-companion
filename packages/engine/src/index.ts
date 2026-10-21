@@ -8,7 +8,7 @@ export * from "./books/index.js";
 export * from "./companions.js";
 export * from "./turn.js";
 export * from "./build.js";
-export { copyCost, materialNeed } from "./materials.js";
+export { backupCost, copyCost, materialNeed, type CopyCost } from "./materials.js";
 export { attackRiders, attackVariants, damageAfterDefenses, defenseCovers, type DamageSource, summonBlock, summonHpBonus, creatureBlock, creatureCasting, creatureSpellRoll, creatureSpells, deriveShape, type CreatureSpellGroup, type CreatureSpells, multiattackCount, shapeIssues, shapeKindOf, summonOptions, traitDice, wildShapeLimits, type ShapeKind, type ShapeResult, type WildShapeLimits } from "./shapes.js";
 export * from "./dcs.js";
 export * from "./tags.js";

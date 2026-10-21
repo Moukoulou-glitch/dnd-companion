@@ -3513,3 +3513,11 @@ button.mpip {
 .counter-roll.yes strong {
   color: var(--teal);
 }
+
+/* The whole spellbook view: what a backup copy costs. */
+.group.backup {
+  margin: 0 0 12px;
+}
+.book-checks .copy-ask {
+  margin: 4px 0 8px;
+}

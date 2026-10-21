@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
-import { buildItems, shapeKindOf, customCompanionId, customItemId, customSpellId, withCustom, castingEconomy, castingMinutes, creatureSpellRoll, formatBonus, summonBlock, materialNeed, maxSpellLevel, newCharacter, spellListOf, signed, turnWarnings, type TurnIntent, type RollBreakdown } from "@dnd/engine";
+import { backupCost, copyCost, buildItems, shapeKindOf, customCompanionId, customItemId, customSpellId, withCustom, castingEconomy, castingMinutes, creatureSpellRoll, formatBonus, summonBlock, materialNeed, maxSpellLevel, newCharacter, spellListOf, signed, turnWarnings, type TurnIntent, type RollBreakdown } from "@dnd/engine";
 import { ABILITY_NAMES, SKILL_NAMES, type Character, type Skill } from "@dnd/schema";
 import { roll as rollDice, type ComposerBase } from "@dnd/dice";
 import { ShapePanel, TextList, TransformPanel } from "./components/Shapes";
 import { SummonGroupPanel, SummonMemberPanel, SummonPicker, SummonSpellPanel, type SpellSource } from "./components/Summons";
 import type { ShapeKind } from "@dnd/engine";
+import { BookChecks, formatCopyTime } from "./components/CopySpell";
 import type { ActionResult, EffectResult, SpellResult, WeaponAttack } from "@dnd/engine";
 import { ActionsTab } from "./components/ActionsTab";
 import { CompanionPanel, MovePanel } from "./components/Combat";
@@ -1964,6 +1965,34 @@ export function App() {
     });
   };
 
+  /** A backup of the whole spellbook (PHB p. 114): 1 hour and 10 gp per spell level, paid from the spellbook fund. */
+  const backupNode = () => {
+    if (!wizardListId || !c.classes.some((k) => k.class === "class:wizard")) return undefined;
+    const b = backupCost(c, registry, wizardListId);
+    if (!b.spells) return undefined;
+    return (
+      <div className="group backup">
+        <div className="row">
+          <div className="row-main">
+            <div className="row-title">A backup spellbook</div>
+            <div className="row-sub">
+              {b.spells} spell{b.spells === 1 ? "" : "s"}: {b.gp} gp and {formatCopyTime(b.minutes)} (1 hour and 10 gp per spell level). Spellbook materials: {c.spellbookFunds} gp.
+            </div>
+          </div>
+          <button
+            className="tag"
+            onClick={() =>
+              s.act("setSpellbookFunds", { gp: Math.max(0, c.spellbookFunds - b.gp) }, c.spellbookFunds < b.gp ? `Backup copied: ${b.gp} gp, the fund had ${c.spellbookFunds} gp; now 0.` : `Backup copied: ${b.gp} gp from the spellbook fund.`)
+            }
+          >
+            Pay {b.gp} gp
+          </button>
+        </div>
+      </div>
+    );
+  };
+  /** The wizard's spellbook list, if there is one. */
+  const wizardListId = registry.find("class:wizard", "class")?.spellcasting?.id;
   /** The casting classes, for the Spells tab's views. */
   const classLists: ClassList[] = c.classes.flatMap((cl) => {
     const def = registry.find(cl.class, "class");
@@ -1974,8 +2003,52 @@ export function App() {
     return [{ id: sc.id, className: def.name, kind, maxLevel: maxSpellLevel(def, cl.level), classes: list.classes, listName: list.name, extra: list.extra }];
   });
 
-  /** A spell the character doesn't have: just its details. */
-  const openSpellInfo = (id: string) => {
+  /**
+   * A wizard's spell on the wizard list: "Copy into the spellbook" (with what
+   * it costs) and "Prepared today" (warned, never blocked, if it isn't in the book).
+   * Once it's on the sheet, its own panel opens.
+   */
+  const bookChecksFor = (id: string, list: string) => {
+    const ch = live.current.character;
+    const d = registry.find(id, "spell");
+    if (!ch || !d || d.level === 0) return undefined;
+    const sp = live.current.sheet?.spells.find((x) => x.id === id && x.list.id === list);
+    if (sp && (sp.fromFeature || sp.ready === "always")) return undefined;
+    const reopen = () => {
+      const now = live.current.sheet?.spells.find((x) => x.id === id && x.list.id === list);
+      if (now) openSpell(now);
+      else openSpellInfo(id, list);
+    };
+    return (
+      <BookChecks
+        name={d.name}
+        inBook={!!sp && !sp.notInBook}
+        prepared={sp?.ready === "prepared"}
+        cost={copyCost(ch, registry, id)}
+        fund={ch.spellbookFunds}
+        onCopy={(gp) => {
+          live.current.act("learnSpell", { spell: id, list, ...(gp ? { cost: gp } : {}) }, `${d.name} copied into your spellbook.`);
+          if (!sp) reopen();
+        }}
+        onUncopy={() => {
+          const keep = sp?.ready === "prepared";
+          live.current.act("forgetSpell", { spell: id, list, ...(keep ? { keepPrepared: true } : {}) }, keep ? `${d.name} out of your spellbook, still prepared.` : `${d.name} taken out of your spellbook.`);
+          if (!keep) reopen();
+        }}
+        onPrepare={(prepared) => {
+          if (!sp) {
+            live.current.act("learnSpell", { spell: id, list, notInBook: true, prepared: true }, `${d.name} prepared, not in your spellbook.`);
+            return reopen();
+          }
+          live.current.act("setPrepared", { spell: id, list, prepared }, `${d.name} ${prepared ? "prepared" : "unprepared"}.`);
+          if (!prepared && sp.notInBook) reopen();
+        }}
+      />
+    );
+  };
+
+  /** A spell the character doesn't have: just its details (and, on the wizard list, copy it or prepare it). */
+  const openSpellInfo = (id: string, list?: string) => {
     const d = registry.find(id, "spell");
     if (!d) return;
     open(d.name, () => (
@@ -1983,6 +2056,7 @@ export function App() {
         <p className="row-sub">
           {d.level === 0 ? `${d.school} cantrip` : `Level ${d.level} ${d.school.toLowerCase()}`} · {d.castingTime} · {d.range} · {d.duration}
         </p>
+        {list && bookChecksFor(id, list)}
         <BookText text={d.text} summary={d.summary} source={[d.source.book, d.source.page ? `p. ${d.source.page}` : ""].filter(Boolean).join(" ") || d.source.pack} />
       </>
     ));
@@ -2501,6 +2575,7 @@ export function App() {
             castFlow(sp, level, using, selfEffect, readying, asReaction ? WAR_CASTER_TIME : castingTime);
           }}
           onPrepare={(prepared) => live.current.act("setPrepared", { spell: sp.id, list: sp.list.id, prepared }, `${sp.name} ${prepared ? "prepared" : "unprepared"}.`)}
+          bookChecks={wizardListId && sp.list.id === wizardListId ? bookChecksFor(sp.id, sp.list.id) : undefined}
           onRollAttack={(level) => roller(level, false)}
           onRollDamage={(level) => roller(level, true)}
         />
@@ -2789,7 +2864,7 @@ export function App() {
             : {})}
         />
       )}
-      {tab === "spells" && <SpellsTab sheet={sheet} openSpell={openSpell} classLists={classLists} reg={registry} openSpellInfo={openSpellInfo} customSpells={c.customSpells} openCustomSpell={openCustomSpell} />}
+      {tab === "spells" && <SpellsTab sheet={sheet} openSpell={openSpell} classLists={classLists} reg={registry} openSpellInfo={openSpellInfo} customSpells={c.customSpells} openCustomSpell={openCustomSpell} backup={backupNode()} />}
       {tab === "sheet" && <SheetTab
           sheet={sheet}
           character={c}

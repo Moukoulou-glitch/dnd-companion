@@ -139,7 +139,7 @@ describe("material components and the spellbook", () => {
   it("copying into a spellbook costs 50 gp a level, half for the school's savant", async () => {
     const { copyCost } = await import("@dnd/engine");
     const wiz = newWizard();
-    expect(copyCost(wiz, reg, "spell:fireball")).toEqual({ gp: 150 });
+    expect(copyCost(wiz, reg, "spell:fireball")).toEqual({ gp: 150, minutes: 360 });
     wiz.classes[0] = { ...wiz.classes[0]!, level: 2, subclass: "subclass:evocation" };
     expect(copyCost(wiz, reg, "spell:fireball")?.gp).toBe(75);
     expect(copyCost(wiz, reg, "spell:fire-bolt")).toBeUndefined();

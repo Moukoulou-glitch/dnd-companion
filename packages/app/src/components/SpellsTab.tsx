@@ -1,5 +1,5 @@
 import { RichText, TextBlocks } from "./Conditions";
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { ABILITY_NAMES } from "@dnd/schema";
 import { signed, type ContentRegistry, type DerivedSheet, type SpellResult, type WeaponAttack } from "@dnd/engine";
 
@@ -72,12 +72,15 @@ export function SpellsTab({
   openSpellInfo,
   customSpells = [],
   openCustomSpell,
+  backup,
 }: {
   sheet: DerivedSheet;
   openSpell: (sp: SpellResult) => void;
   classLists: ClassList[];
   reg: ContentRegistry;
-  openSpellInfo: (id: string) => void;
+  openSpellInfo: (id: string, list?: string) => void;
+  /** The whole spellbook view: what a backup copy costs, and paying for it. */
+  backup?: ReactNode;
   /** Spells the player wrote, to change or delete. */
   customSpells?: { id: string; name: string }[];
   openCustomSpell?: (id?: string) => void;
@@ -97,7 +100,7 @@ export function SpellsTab({
 
   const rows: ListRow[] = useMemo(() => {
     if (current === "ready") return sheet.spells.filter((s) => s.ready !== "not prepared").map((sp) => ({ sp }));
-    if (current === "book") return sheet.spells.filter((s) => s.list.id === wizard?.id).map((sp) => ({ sp }));
+    if (current === "book") return sheet.spells.filter((s) => s.list.id === wizard?.id && !s.notInBook).map((sp) => ({ sp }));
     if (!listOf) return [];
     const mine = new Map(sheet.spells.filter((s) => s.list.id === listOf.id).map((s) => [s.id, s]));
     // A prepared caster's whole list is already on the sheet; known casters and wizards see the rest for reference.
@@ -175,6 +178,7 @@ export function SpellsTab({
         <input className="search" type="search" placeholder={`Search ${views.find((v) => v.id === current)?.label.toLowerCase() ?? "spells"}`} value={q} onChange={(e) => setQ(e.target.value)} aria-label="Search spells" />
       )}
       {needle && !shownRows.length && <p className="note">No spell matches “{q.trim()}”.</p>}
+      {current === "book" && backup}
       {listOf && listOf.kind !== "prepared" && (
         <p className="note">
           Every {multi ? listOf.classes.join(" and ") : listOf.className.toLowerCase()} spell up to level {listOf.maxLevel}, for reference. Yours are bright.
@@ -202,6 +206,7 @@ export function SpellsTab({
                       {listOf?.extra?.includes(r.sp.id) && !(reg.find(r.sp.id, "spell")?.classes ?? []).some((x) => listOf.classes.includes(x)) && <span className="tag">Tasha's</span>}
                       {sheet.concentration?.spell === r.sp.id && <span className="tag conc">concentrating</span>}
                       {r.sp.ready === "prepared" && <span className="tag adv">prepared</span>}
+                      {r.sp.notInBook && <span className="tag dis">not in your spellbook</span>}
                       {r.sp.fromFeature && <span className="tag">{r.sp.fromFeature}</span>}
                       {r.sp.cast.extra && (
                         <span className="tag" title="Cast without a slot since your last short rest and since your last long rest">
@@ -212,7 +217,7 @@ export function SpellsTab({
                     <span className="num spell-num">{r.sp.attack ? signed(r.sp.attack.total) : r.sp.save ? `DC ${r.sp.save.dc} ${r.sp.save.ability.toUpperCase()}` : ""}</span>
                   </button>
                 ) : (
-                  <button className="row dim" key={`info-${r.info!.id}`} onClick={() => openSpellInfo(r.info!.id)}>
+                  <button className="row dim" key={`info-${r.info!.id}`} onClick={() => openSpellInfo(r.info!.id, listOf?.kind === "wizard" ? listOf.id : undefined)}>
                     <div className="row-main">
                       <div className="row-title">{r.info!.name}</div>
                       <div className="row-sub">
@@ -271,7 +276,10 @@ export function SpellPanel({
   onRollAttack,
   onRollDamage,
   readying,
+  bookChecks,
 }: {
+  /** A wizard's spell: "Copy into the spellbook" and "Prepared today", in place of the plain tick-box. */
+  bookChecks?: ReactNode;
   /** Casting it with the Ready action: held, released later with the reaction. */
   readying?: boolean;
   sp: SpellResult;
@@ -490,14 +498,14 @@ export function SpellPanel({
         </>
       )}
 
-      {sp.ready !== "always" && (
+      {bookChecks ?? (sp.ready !== "always" && (
         <label className="row check" style={{ padding: "8px 0" }}>
           <input type="checkbox" checked={sp.ready === "prepared"} onChange={() => onPrepare(sp.ready !== "prepared")} />
           <div className="row-main">
             <div className="row-title">Prepared today</div>
           </div>
         </label>
-      )}
+      ))}
 
       <div className="spell-text">
         {sp.placeholder ? (

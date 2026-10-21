@@ -418,10 +418,16 @@ export const OPERATION_PAYLOADS = {
   setCustomBackground: z.object({ name: z.string().max(60).optional(), languages: z.number().int().min(0).max(2).optional(), featureName: z.string().max(80).optional(), featureText: z.string().max(2000).optional() }).strict(),
   /** Add a spell to a class list (known spells, a wizard's spellbook, cantrips), or take it away. */
   /** `cost`: gold taken from the spellbook fund for copying it (wizard). */
-  learnSpell: z.object({ spell: z.string(), list: z.string(), cost: z.number().min(0).optional() }).strict(),
+  /**
+   * A spell onto a list. A wizard's: `cost` gp from the spellbook fund for copying it in;
+   * `notInBook` + `prepared`: prepared today without being in the spellbook (the app warns, never blocks).
+   * Learning a spell that is there as notInBook copies it into the book.
+   */
+  learnSpell: z.object({ spell: z.string(), list: z.string(), cost: z.number().min(0).optional(), notInBook: z.boolean().optional(), prepared: z.boolean().optional() }).strict(),
   /** A wizard copies a scroll's spell into the spellbook (DMG p. 200): the Arcana check passed or not, the scroll is gone either way. */
   copyScroll: z.object({ instanceId: z.string(), success: z.boolean() }).strict(),
-  forgetSpell: z.object({ spell: z.string(), list: z.string() }).strict(),
+  /** Off the list. `keepPrepared`: a wizard's spell leaves the spellbook but stays prepared today. */
+  forgetSpell: z.object({ spell: z.string(), list: z.string(), keepPrepared: z.boolean().optional() }).strict(),
   /** A companion takes one of the actions anyone can take; Dodge and Ready show as tags until your next turn starts. */
   companionAction: z.object({ companion: z.string(), action: z.string(), choice: z.string().optional() }).strict(),
   /** Takes a companion's tag away (the readied action was used, or it ended early). */

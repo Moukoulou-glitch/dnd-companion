@@ -240,7 +240,8 @@ export function buildItems(c: Character, reg: ContentRegistry): BuildItem[] {
     }
     const sc = def.spellcasting;
     if (!sc || cl.level < (def.spellcastingFromLevel ?? 1)) return;
-    const mine = c.spells.filter((x) => x.list === sc.id);
+    // Spells prepared without being in the spellbook aren't in it.
+    const mine = c.spells.filter((x) => x.list === sc.id && !x.notInBook);
     const levelOf = (id: string) => reg.find(id, "spell")?.level ?? 1;
     const cantrips = mine.filter((x) => levelOf(x.spell) === 0).map((x) => x.spell);
     const leveled = mine.filter((x) => levelOf(x.spell) > 0).map((x) => x.spell);

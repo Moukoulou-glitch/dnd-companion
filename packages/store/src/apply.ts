@@ -1404,6 +1404,11 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         inst = { spell, list, prepared: false };
         c.spells.push(inst);
       }
+      // Unprepared, a spell that was never in the spellbook leaves the sheet.
+      if (!prepared && inst.notInBook) {
+        c.spells = c.spells.filter((x) => x !== inst);
+        break;
+      }
       inst.prepared = prepared;
       const sc = sheet.spellcasting.find((x) => x.id === list);
       if (prepared && sc?.prepared && sc.prepared.count + 1 > sc.prepared.max) {
@@ -2121,11 +2126,26 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
 
     case "learnSpell": {
       const { spell, list } = op.payload;
-      if (c.spells.some((x) => x.spell === spell && x.list === list)) {
+      const there = c.spells.find((x) => x.spell === spell && x.list === list);
+      const name = reg.find(spell, "spell")?.name ?? "The spell";
+      if (op.payload.notInBook) {
+        // Prepared today without being in the spellbook: beyond the rules, so say so and do it.
+        if (there) {
+          there.prepared = true;
+          break;
+        }
+        c.spells.push({ spell, list, prepared: true, notInBook: true });
+        notes.push(`${name} prepared without being in your spellbook: normally a wizard prepares only from the spellbook.`);
+        const sc = sheet.spellcasting.find((x) => x.id === list);
+        if (sc?.prepared && sc.prepared.count + 1 > sc.prepared.max) notes.push(`${sc.prepared.count + 1} spells prepared; ${sc.label} can prepare ${sc.prepared.max}.`);
+        break;
+      }
+      if (there && !there.notInBook) {
         notes.push("Already on that list.");
         break;
       }
-      c.spells.push({ spell, list, prepared: false });
+      if (there) delete there.notInBook;
+      else c.spells.push({ spell, list, prepared: !!op.payload.prepared });
       const cost = op.payload.cost;
       if (cost) {
         if (cost > c.spellbookFunds) notes.push(`Copying costs ${cost} gp and the spellbook fund has ${c.spellbookFunds} gp. Added anyway.`);
@@ -2164,7 +2184,13 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
     }
 
     case "forgetSpell": {
-      c.spells = c.spells.filter((x) => !(x.spell === op.payload.spell && x.list === op.payload.list));
+      const inst = c.spells.find((x) => x.spell === op.payload.spell && x.list === op.payload.list);
+      if (inst && op.payload.keepPrepared && inst.prepared) {
+        inst.notInBook = true;
+        notes.push(`${reg.find(inst.spell, "spell")?.name ?? "The spell"} is out of your spellbook but stays prepared today: normally a wizard prepares only from the spellbook.`);
+        break;
+      }
+      c.spells = c.spells.filter((x) => x !== inst);
       break;
     }
 

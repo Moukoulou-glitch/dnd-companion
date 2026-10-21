@@ -96,6 +96,8 @@ export interface SpellcastingResult {
 
 /** A spell this character can cast, with every number already worked out. */
 export interface SpellResult {
+  /** A wizard's spell prepared today without being in the spellbook. */
+  notInBook?: boolean;
   id: string;
   name: string;
   level: number;
@@ -1168,10 +1170,10 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
   }
 
   // Spells: class lists from the character, plus spells features grant or let the player pick.
-  const spellDefs = new Map<string, { def: ReturnType<typeof reg.get<"spell">> | undefined; list: string; prepared: boolean; granted?: GrantedSpellRef }>();
+  const spellDefs = new Map<string, { def: ReturnType<typeof reg.get<"spell">> | undefined; list: string; prepared: boolean; granted?: GrantedSpellRef; notInBook?: boolean }>();
   type GrantedSpellRef = { resource?: string; from?: string; atWill?: boolean; extra?: string; scroll?: { instanceId: string; level: number }; pointCost?: { resource: string; amount: number } };
   for (const inst of c.spells) {
-    spellDefs.set(`${inst.list}|${inst.spell}`, { def: reg.has(inst.spell) ? reg.get(inst.spell, "spell") : undefined, list: inst.list, prepared: inst.prepared });
+    spellDefs.set(`${inst.list}|${inst.spell}`, { def: reg.has(inst.spell) ? reg.get(inst.spell, "spell") : undefined, list: inst.list, prepared: inst.prepared, ...(inst.notInBook ? { notInBook: true } : {}) });
     if (!reg.has(inst.spell)) warnings.push(`Spell "${inst.spell}" isn't in any content pack.`);
   }
   // Tasha's expanded lists that are on (Additional Druid Spells): their spells count as on the class list.
@@ -1296,7 +1298,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
   };
 
   const spells: SpellResult[] = [];
-  for (const { def, list, prepared, granted } of spellDefs.values()) {
+  for (const { def, list, prepared, granted, notInBook } of spellDefs.values()) {
     if (!def) continue;
     const sc = spellcasting.find((x) => x.id === list);
     const listLabel = sc?.label ?? list;
@@ -1325,6 +1327,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       cast: granted?.atWill ? { slotLevels: [], atWill: true } : { slotLevels: list === pactList && def.level > 5 ? [] : castLevels.filter((l) => l > 0) },
     };
     if (def.material) r.material = def.material;
+    if (notInBook && !granted) r.notInBook = true;
     if (def.summary) r.summary = def.summary;
     if (def.singleTarget) r.singleTarget = true;
     if (granted?.from && granted.from !== listLabel) r.fromFeature = granted.from;

@@ -142,6 +142,7 @@ npm run build -w @dnd/app   # the PWA, as published
 | 53 · Mystic Arcanum (8m) | Done: at warlock 11th, 13th, 15th and 17th level the Choices ask for a 6th-, 7th-, 8th- and 9th-level warlock spell; each is cast from its own use ("Free use"), shown on the Play page as "Mystic Arcanum (6th): Eyebite" and back after a long rest |
 | 54 · Durable's Hit Die shown (8n) | Done: when Durable soaks damage, the Hit Die is thrown (3D dice when on) and the panel shows what it rolled, + Constitution, the minimum of 3, and the damage left, before you tap "Take N damage"; the log line carries the same working |
 | 55 · Mirror Image duplicates (8o) | Done: the effect counts its duplicates (chip "Mirror Image ×3"); its card shows them left, the d20 needed now (6/8/11) and their AC (10 + Dex), throws the d20 when you're attacked, "It hit: destroy a duplicate", − / + by hand, and the spell ends with the last one |
+| 56 · Wizard spellbook (8p) | Done: a wizard's spell (on the Wizard spell list or in the book) has "Copy into the spellbook" (2 hours and 50 gp per level; the school's Savant halves both; the Wizardly Quill makes it 2 minutes per level; pay from the fund or add it free) and "Prepared today" (prepared without being in the book: warned, never blocked, tagged "not in your spellbook"); Whole spellbook shows what a backup costs (1 hour and 10 gp per level) with "Pay" |
 
 ### Shortcuts to revisit
 

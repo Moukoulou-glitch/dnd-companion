@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { CopyAsk } from "./CopySpell";
 import { roll } from "@dnd/dice";
 import {
   POINT_BUY_BUDGET,
@@ -870,9 +871,8 @@ function SpellsEditor({ item, reg, act, c, note }: { item: BuildItem; reg: Conte
   if (copying)
     return (
       <CopyAsk
-          c={c}
-          reg={reg}
-          spell={copying.spell}
+          cost={copyCost(c, reg, copying.spell)!}
+          fund={c.spellbookFunds}
           label={copying.label}
           onDone={(cost) => {
             act("learnSpell", { spell: copying.spell, list: item.list, ...(cost ? { cost } : {}) }, `${copying.label} copied into your spellbook.`);
@@ -926,42 +926,6 @@ function SpellsEditor({ item, reg, act, c, note }: { item: BuildItem; reg: Conte
         })}
       </div>
     </>
-  );
-}
-
-/**
- * Copying a spell into the spellbook (PHB p. 114): 50 gp per level in
- * materials and fine inks, half for your school with its Savant feature.
- * Spells a new wizard level gives are free, so paying is the player's call.
- */
-function CopyAsk({ c, reg, spell, label, onDone, onCancel }: { c: Character; reg: ContentRegistry; spell: string; label: string; onDone: (cost?: number) => void; onCancel: () => void }) {
-  const cost = copyCost(c, reg, spell)!;
-  const fund = c.spellbookFunds;
-  const ref = useRef<HTMLDivElement>(null);
-  // Bring the question into view by scrolling the sheet only (scrollIntoView also scrolled the page, leaving it blank).
-  useEffect(() => {
-    const sheet = ref.current?.closest(".sheet");
-    if (sheet) sheet.scrollTop = 0;
-  }, []);
-  return (
-    <div className="copy-ask" role="dialog" aria-label={`Copy ${label}`} ref={ref}>
-      <p className="question">Pay for copying {label}?</p>
-      <p className="note">
-        {cost.gp} gp in materials and fine inks{cost.savant ? ` (${cost.savant})` : ""}. Your spellbook materials: {fund} gp
-        {fund < cost.gp ? ", not enough: it goes to 0 gp if you pay" : ""}. Spells you gain from a new wizard level are free.
-      </p>
-      <div className="choose-list">
-        <button className="big wide" onClick={onCancel}>
-          Cancel
-        </button>
-        <button className="big wide" onClick={() => onDone()}>
-          Add it free
-        </button>
-        <button className="big primary wide" onClick={() => onDone(cost.gp)}>
-          Pay {cost.gp} gp and add it
-        </button>
-      </div>
-    </div>
   );
 }
 
