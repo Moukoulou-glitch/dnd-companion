@@ -932,7 +932,8 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       c.hitDiceUsed[die] = used + 1;
       const con = sheet.abilities.con.modifier;
       if (op.payload.reduce) {
-        notes.push(`Durable: Hit Die ${die} spent, damage reduced by ${Math.max(3, roll + con)}.`);
+        const raw = roll + con;
+        notes.push(`Durable: Hit Die ${die} rolled ${roll}, ${con >= 0 ? "+" : "−"} ${Math.abs(con)} Constitution = ${raw}${raw < 3 ? ", minimum 3" : ""}: damage reduced by ${Math.max(3, raw)}.`);
         break;
       }
       // Durable: a Hit Die heals at least twice your Constitution modifier (minimum 2).

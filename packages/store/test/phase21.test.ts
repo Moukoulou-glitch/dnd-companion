@@ -23,10 +23,11 @@ describe("Durable, exhaustion and instant death", () => {
     // Con 16 (human and Durable +1 each): +3; 1 + 3 = 4, Durable makes it 6.
     expect(l.character.hp.current).toBe(before + 6);
     const notes = l.record("spendHitDie", { die: "d10", roll: 6, reduce: true });
-    expect(notes.join(" ")).toMatch(/reduced by 9/);
+    expect(notes.join(" ")).toMatch(/d10 rolled 6, \+ 3 Constitution = 9: damage reduced by 9/);
     expect(l.character.hp.current).toBe(before + 6);
     l.record("rest", { kind: "long" });
     expect(l.character.hitDiceUsed.d10 ?? 0).toBe(0);
+    expect(l.record("spendHitDie", { die: "d10", roll: 1, reduce: true }).join(" ")).toMatch(/rolled 1, \+ 3 Constitution = 4: damage reduced by 4/);
   });
   it("a long rest takes one level of Exhaustion away", () => {
     const l = log();

@@ -441,9 +441,9 @@ export function App() {
         physical={live.current.character?.settings.physicalDice ?? true}
         onSkip={() => takeDamage(amount, type, magical, fromSpell)}
         onSpend={(die, roll, reduce) => {
-          live.current.act("spendHitDie", { die, roll, reduce: true }, `Durable: ${die} spent, ${reduce} less damage.`);
-          if (live.current.character?.combat) live.current.act("useEconomy", { kind: "reaction" }, "Reaction used.");
           const left = Math.max(0, amount - reduce);
+          live.current.act("spendHitDie", { die, roll, reduce: true }, `Durable: ${die} rolled ${roll}, ${reduce} less damage, ${left} left.`);
+          if (live.current.character?.combat) live.current.act("useEconomy", { kind: "reaction" }, "Reaction used.");
           if (left > 0) takeDamage(left, type, magical, fromSpell);
           else close();
         }}
