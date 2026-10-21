@@ -1976,7 +1976,7 @@ export function App() {
           <div className="row-main">
             <div className="row-title">A backup spellbook</div>
             <div className="row-sub">
-              {b.spells} spell{b.spells === 1 ? "" : "s"}: {b.gp} gp and {formatCopyTime(b.minutes)} (1 hour and 10 gp per spell level). Spellbook materials: {c.spellbookFunds} gp.
+              {b.spells} spell{b.spells === 1 ? "" : "s"}: {b.gp} gp and {formatCopyTime(b.minutes)} (1 hour and 10 gp per spell level{b.savant ? `; ${b.savant}` : ""}{b.quill ? `; ${b.quill}: 2 minutes per level` : ""}). Spellbook materials: {c.spellbookFunds} gp.
             </div>
           </div>
           <button

@@ -23,15 +23,15 @@ export interface CopyCost {
 }
 
 /**
- * Copying a spell into the spellbook (PHB p. 114): 2 hours and 50 gp per
- * spell level; your school's Savant feature halves both; the Wizardly Quill
- * (Order of Scribes) makes it 2 minutes per level, the gold unchanged.
+ * One spell into a book at `gpPerLevel` and `minutesPerLevel`: your school's
+ * Savant feature halves both; the Wizardly Quill (Order of Scribes) makes it 2
+ * minutes per level, the gold unchanged. Table ruling: both apply to backups too.
  */
-export function copyCost(c: Character, reg: ContentRegistry, spellId: string): CopyCost | undefined {
+function spellCopy(c: Character, reg: ContentRegistry, spellId: string, gpPerLevel: number, minutesPerLevel: number): CopyCost | undefined {
   const sp = reg.find(spellId, "spell");
   if (!sp || sp.level === 0) return undefined;
-  let gp = 50 * sp.level;
-  let minutes = 120 * sp.level;
+  let gp = gpPerLevel * sp.level;
+  let minutes = minutesPerLevel * sp.level;
   const out: CopyCost = { gp, minutes };
   const wiz = c.classes.find((x) => x.class === "class:wizard");
   const sub = wiz?.subclass ? reg.find(wiz.subclass, "subclass") : undefined;
@@ -56,16 +56,26 @@ export function copyCost(c: Character, reg: ContentRegistry, spellId: string): C
   return out;
 }
 
-/** A backup of the spellbook (PHB p. 114): 1 hour and 10 gp per level of each spell in it. */
-export function backupCost(c: Character, reg: ContentRegistry, list = "wizard"): { gp: number; minutes: number; spells: number } {
-  let levels = 0;
-  let spells = 0;
+/** Copying a spell into the spellbook (PHB p. 114): 2 hours and 50 gp per spell level, before the Savant and the Quill. */
+export function copyCost(c: Character, reg: ContentRegistry, spellId: string): CopyCost | undefined {
+  return spellCopy(c, reg, spellId, 50, 120);
+}
+
+/**
+ * A backup of the spellbook (PHB p. 114): 1 hour and 10 gp per level of each
+ * spell in it, with the Savant and the Quill applied spell by spell.
+ */
+export function backupCost(c: Character, reg: ContentRegistry, list = "wizard"): { gp: number; minutes: number; spells: number; savant?: string; quill?: string } {
+  const out: { gp: number; minutes: number; spells: number; savant?: string; quill?: string } = { gp: 0, minutes: 0, spells: 0 };
   for (const x of c.spells) {
     if (x.list !== list || x.notInBook) continue;
-    const lvl = reg.find(x.spell, "spell")?.level ?? 0;
-    if (lvl < 1) continue;
-    levels += lvl;
-    spells += 1;
+    const one = spellCopy(c, reg, x.spell, 10, 60);
+    if (!one) continue;
+    out.gp += one.gp;
+    out.minutes += one.minutes;
+    out.spells += 1;
+    if (one.savant) out.savant = one.savant;
+    if (one.quill) out.quill = one.quill;
   }
-  return { gp: 10 * levels, minutes: 60 * levels, spells };
+  return out;
 }

@@ -55,4 +55,16 @@ describe("Wizard spellbook: copy, prepare, and what it costs", () => {
     l.record("learnSpell", { spell: "spell:shield", list: "wizard", notInBook: true, prepared: true });
     expect(backupCost(l.character, reg)).toEqual({ gp: 40, minutes: 240, spells: 2 });
   });
+  it("table ruling: the Savant halves a backup of its school's spells, and the Quill makes it 2 minutes per level", () => {
+    // Evoker: Fireball (evocation, 3rd) is half, Sleep (enchantment, 1st) isn't.
+    const ev = log(3, "subclass:evocation");
+    ev.record("learnSpell", { spell: "spell:sleep", list: "wizard" });
+    ev.record("learnSpell", { spell: "spell:fireball", list: "wizard" });
+    expect(backupCost(ev.character, reg)).toMatchObject({ gp: 10 + 15, minutes: 60 + 90, spells: 2 });
+    expect(backupCost(ev.character, reg).savant).toBeTruthy();
+    const scribe = log(3, "subclass:order-of-scribes");
+    scribe.record("learnSpell", { spell: "spell:sleep", list: "wizard" });
+    scribe.record("learnSpell", { spell: "spell:fireball", list: "wizard" });
+    expect(backupCost(scribe.character, reg)).toMatchObject({ gp: 40, minutes: 2 + 6, spells: 2, quill: "Wizardly Quill" });
+  });
 });
