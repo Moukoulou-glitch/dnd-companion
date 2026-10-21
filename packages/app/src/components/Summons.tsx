@@ -14,9 +14,9 @@ const roundsText = (r: number) => (r < 10 ? `${r} rd` : r < 600 ? `${Math.round(
 const crText = (n: number) => (n === 0.125 ? "1/8" : n === 0.25 ? "1/4" : n === 0.5 ? "1/2" : String(n));
 
 /** After casting a summoning spell: which creatures, and how many (warned past the limit, never blocked). */
-export function SummonPicker({ reg, summon, slot, onSummon }: { reg: ContentRegistry; summon: string; slot: number; onSummon: (creatures: { creature: string; count: number }[]) => void }) {
+export function SummonPicker({ reg, summon, slot, caster, onSummon }: { reg: ContentRegistry; summon: string; slot: number; caster?: { attack: number; dc: number }; onSummon: (creatures: { creature: string; count: number }[]) => void }) {
   const def = reg.find(summon, "summon");
-  const opts = useMemo(() => summonOptions(reg, summon, slot), [reg, summon, slot]);
+  const opts = useMemo(() => summonOptions(reg, summon, slot, caster), [reg, summon, slot, caster]);
   const [tier, setTier] = useState(0);
   const [counts, setCounts] = useState<Record<string, number>>({});
   const [q, setQ] = useState("");
@@ -27,6 +27,30 @@ export function SummonPicker({ reg, summon, slot, onSummon }: { reg: ContentRegi
   const total = Object.values(counts).reduce((a, b) => a + b, 0);
   const list = opts.creatures.filter((d) => d.cr <= maxCr || counts[d.id]).filter((d) => d.name.toLowerCase().includes(q.trim().toLowerCase()));
   const set = (d: CreatureDef, n: number) => setCounts({ ...counts, [d.id]: Math.max(0, n) });
+  // A spirit (Summon Beast): pick its variant, built at this level with your spell attack and DC.
+  if (def.spirit)
+    return (
+      <>
+        {def.note && <p className="note">{def.note}</p>}
+        <p className="note">
+          At level {Math.max(slot, def.spirit.minLevel)}
+          {caster ? `: its attacks use your spell attack (${signed(caster.attack)}), its effects your save DC ${caster.dc}` : ""}. Which one?
+        </p>
+        <div className="group">
+          {opts.creatures.map((d) => (
+            <button className="row" key={d.id} onClick={() => onSummon([{ creature: d.id, count: 1 }])}>
+              <div className="row-main">
+                <div className="row-title">{d.name}</div>
+                <div className="row-sub">
+                  AC {d.ac} · {d.hp} HP · {Object.entries(d.speed).filter(([k, v]) => k !== "hover" && v).map(([k, v]) => (k === "walk" ? `${v} ft` : `${k} ${v} ft`)).join(", ")}
+                  {d.actions.filter((a) => a.attack).length ? ` · ${d.actions.filter((a) => a.attack).map((a) => a.name).join(", ")}` : ""}
+                </div>
+              </div>
+            </button>
+          ))}
+        </div>
+      </>
+    );
   return (
     <>
       {def.note && <p className="note">{def.note}</p>}

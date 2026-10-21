@@ -14,3 +14,4 @@ export * from "./dcs.js";
 export * from "./tags.js";
 export * from "./custom.js";
 export * from "./expanded.js";
+export { SPIRIT_PREFIX, parseSpiritId, spiritCreature, spiritId } from "./spirits.js";

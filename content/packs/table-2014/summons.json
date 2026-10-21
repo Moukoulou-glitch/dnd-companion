@@ -294,6 +294,1366 @@
       "initiative": "shared",
       "concentration": true,
       "note": "Up to ten centipedes, three spiders, five wasps or one scorpion, grown from ordinary insects. They obey your verbal commands and act on your turn."
+    },
+    {
+      "kind": "summon",
+      "id": "summon:summon-beast",
+      "name": "Summon Beast",
+      "spell": "spell:summon-beast",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 109
+      },
+      "count": {
+        "1": 1
+      },
+      "initiative": "yours",
+      "concentration": true,
+      "spirit": {
+        "name": "Bestial Spirit",
+        "size": "Small",
+        "type": "beast",
+        "minLevel": 2,
+        "variants": [
+          {
+            "id": "air",
+            "name": "Air",
+            "hp": 20
+          },
+          {
+            "id": "land",
+            "name": "Land",
+            "hp": 30
+          },
+          {
+            "id": "water",
+            "name": "Water",
+            "hp": 30
+          }
+        ],
+        "ac": {
+          "base": 11
+        },
+        "hp": {
+          "base": 30,
+          "perLevel": 5
+        },
+        "speed": [
+          {
+            "walk": 30
+          },
+          {
+            "climb": 30,
+            "variants": [
+              "land"
+            ]
+          },
+          {
+            "fly": 60,
+            "variants": [
+              "air"
+            ]
+          },
+          {
+            "swim": 30,
+            "variants": [
+              "water"
+            ]
+          }
+        ],
+        "abilities": {
+          "str": 18,
+          "dex": 11,
+          "con": 16,
+          "int": 4,
+          "wis": 14,
+          "cha": 5
+        },
+        "senses": {
+          "darkvision": 60
+        },
+        "languages": "understands the languages you speak",
+        "traits": [
+          {
+            "name": "Flyby",
+            "text": "Flying out of an enemy's reach doesn't provoke opportunity attacks.",
+            "variants": [
+              "air"
+            ]
+          },
+          {
+            "name": "Pack Tactics",
+            "text": "Advantage on an attack against a creature when one of its allies, not incapacitated, is within 5 ft of that creature.",
+            "variants": [
+              "land",
+              "water"
+            ]
+          },
+          {
+            "name": "Water Breathing",
+            "text": "It breathes only underwater.",
+            "variants": [
+              "water"
+            ]
+          }
+        ],
+        "actions": [
+          {
+            "name": "Multiattack",
+            "text": "It makes {multi} attacks (half the spell's level)."
+          },
+          {
+            "name": "Maul",
+            "attack": {
+              "kind": "melee",
+              "damage": "1d8",
+              "damageBonus": 4,
+              "damageType": "piercing"
+            }
+          }
+        ]
+      },
+      "note": "One spirit, the variant you pick. It shares your initiative and takes its turn right after yours, obeying your verbal commands (no action from you); without commands it Dodges and avoids danger. Gone at 0 hit points or when your concentration ends (1 hour)."
+    },
+    {
+      "kind": "summon",
+      "id": "summon:summon-fey",
+      "name": "Summon Fey",
+      "spell": "spell:summon-fey",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 110
+      },
+      "count": {
+        "1": 1
+      },
+      "initiative": "yours",
+      "concentration": true,
+      "spirit": {
+        "name": "Fey Spirit",
+        "size": "Small",
+        "type": "fey",
+        "minLevel": 3,
+        "variants": [
+          {
+            "id": "fuming",
+            "name": "Fuming"
+          },
+          {
+            "id": "mirthful",
+            "name": "Mirthful"
+          },
+          {
+            "id": "tricksy",
+            "name": "Tricksy"
+          }
+        ],
+        "ac": {
+          "base": 12
+        },
+        "hp": {
+          "base": 30,
+          "perLevel": 10
+        },
+        "speed": [
+          {
+            "walk": 40
+          }
+        ],
+        "abilities": {
+          "str": 13,
+          "dex": 16,
+          "con": 14,
+          "int": 14,
+          "wis": 11,
+          "cha": 16
+        },
+        "senses": {
+          "darkvision": 60
+        },
+        "languages": "Sylvan, understands the languages you speak",
+        "conditionImmune": [
+          "charmed"
+        ],
+        "actions": [
+          {
+            "name": "Multiattack",
+            "text": "It makes {multi} attacks (half the spell's level)."
+          },
+          {
+            "name": "Shortsword",
+            "text": "plus 3 (1d6) force damage.",
+            "attack": {
+              "kind": "melee",
+              "damage": "1d6",
+              "damageBonus": 3,
+              "damageType": "piercing"
+            }
+          }
+        ],
+        "bonusActions": [
+          {
+            "name": "Fey Step (Fuming)",
+            "text": "It teleports up to 30 ft to a space it can see, then has advantage on its next attack roll this turn.",
+            "variants": [
+              "fuming"
+            ]
+          },
+          {
+            "name": "Fey Step (Mirthful)",
+            "text": "It teleports up to 30 ft to a space it can see; then one creature it can see within 10 ft makes a DC {dc} Wisdom save or is charmed by you and the spirit for 1 minute or until it takes damage.",
+            "variants": [
+              "mirthful"
+            ]
+          },
+          {
+            "name": "Fey Step (Tricksy)",
+            "text": "It teleports up to 30 ft to a space it can see, then fills a 5-ft cube within 5 ft of it with magical darkness until the end of its next turn.",
+            "variants": [
+              "tricksy"
+            ]
+          }
+        ]
+      },
+      "note": "One spirit, the variant you pick. It shares your initiative and takes its turn right after yours, obeying your verbal commands (no action from you); without commands it Dodges and avoids danger. Gone at 0 hit points or when your concentration ends (1 hour)."
+    },
+    {
+      "kind": "summon",
+      "id": "summon:summon-shadowspawn",
+      "name": "Summon Shadowspawn",
+      "spell": "spell:summon-shadowspawn",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 114
+      },
+      "count": {
+        "1": 1
+      },
+      "initiative": "yours",
+      "concentration": true,
+      "spirit": {
+        "name": "Shadow Spirit",
+        "size": "Medium",
+        "type": "monstrosity",
+        "minLevel": 3,
+        "variants": [
+          {
+            "id": "fury",
+            "name": "Fury"
+          },
+          {
+            "id": "despair",
+            "name": "Despair"
+          },
+          {
+            "id": "fear",
+            "name": "Fear"
+          }
+        ],
+        "ac": {
+          "base": 11
+        },
+        "hp": {
+          "base": 35,
+          "perLevel": 15
+        },
+        "speed": [
+          {
+            "walk": 40
+          }
+        ],
+        "abilities": {
+          "str": 13,
+          "dex": 16,
+          "con": 15,
+          "int": 4,
+          "wis": 10,
+          "cha": 16
+        },
+        "senses": {
+          "darkvision": 120
+        },
+        "languages": "understands the languages you speak",
+        "resist": [
+          {
+            "type": "necrotic"
+          }
+        ],
+        "conditionImmune": [
+          "frightened"
+        ],
+        "traits": [
+          {
+            "name": "Terror Frenzy",
+            "text": "Advantage on attack rolls against frightened creatures.",
+            "variants": [
+              "fury"
+            ]
+          },
+          {
+            "name": "Weight of Sorrow",
+            "text": "A creature other than you that starts its turn within 5 ft of it has its speed reduced by 20 ft until the start of its next turn.",
+            "variants": [
+              "despair"
+            ]
+          }
+        ],
+        "actions": [
+          {
+            "name": "Multiattack",
+            "text": "It makes {multi} attacks (half the spell's level)."
+          },
+          {
+            "name": "Chilling Rend",
+            "attack": {
+              "kind": "melee",
+              "damage": "1d12",
+              "damageBonus": 3,
+              "damageType": "cold"
+            }
+          },
+          {
+            "name": "Dreadful Scream (1/day)",
+            "text": "Each creature within 30 ft makes a DC {dc} Wisdom save or is frightened for 1 minute (it repeats the save at the end of each of its turns)."
+          }
+        ],
+        "bonusActions": [
+          {
+            "name": "Shadow Stealth",
+            "text": "In dim light or darkness, it takes the Hide action.",
+            "variants": [
+              "fear"
+            ]
+          }
+        ]
+      },
+      "note": "One spirit, the variant you pick. It shares your initiative and takes its turn right after yours, obeying your verbal commands (no action from you); without commands it Dodges and avoids danger. Gone at 0 hit points or when your concentration ends (1 hour)."
+    },
+    {
+      "kind": "summon",
+      "id": "summon:summon-undead",
+      "name": "Summon Undead",
+      "spell": "spell:summon-undead",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 114
+      },
+      "count": {
+        "1": 1
+      },
+      "initiative": "yours",
+      "concentration": true,
+      "spirit": {
+        "name": "Undead Spirit",
+        "size": "Medium",
+        "type": "undead",
+        "minLevel": 3,
+        "variants": [
+          {
+            "id": "ghostly",
+            "name": "Ghostly",
+            "hp": 30
+          },
+          {
+            "id": "putrid",
+            "name": "Putrid",
+            "hp": 30
+          },
+          {
+            "id": "skeletal",
+            "name": "Skeletal",
+            "hp": 20
+          }
+        ],
+        "ac": {
+          "base": 11
+        },
+        "hp": {
+          "base": 30,
+          "perLevel": 10
+        },
+        "speed": [
+          {
+            "walk": 30
+          },
+          {
+            "fly": 40,
+            "hover": true,
+            "variants": [
+              "ghostly"
+            ]
+          }
+        ],
+        "abilities": {
+          "str": 12,
+          "dex": 16,
+          "con": 15,
+          "int": 4,
+          "wis": 10,
+          "cha": 9
+        },
+        "senses": {
+          "darkvision": 60
+        },
+        "languages": "understands the languages you speak",
+        "immune": [
+          {
+            "type": "necrotic"
+          },
+          {
+            "type": "poison"
+          }
+        ],
+        "conditionImmune": [
+          "exhaustion",
+          "frightened",
+          "paralyzed",
+          "poisoned"
+        ],
+        "traits": [
+          {
+            "name": "Festering Aura",
+            "text": "A creature other than you that starts its turn within 5 ft of it makes a DC {dc} Constitution save or is poisoned until the start of its next turn.",
+            "variants": [
+              "putrid"
+            ]
+          },
+          {
+            "name": "Incorporeal Passage",
+            "text": "It moves through creatures and objects as difficult terrain; ending its turn inside an object shunts it out, taking 1d10 force damage per 5 ft moved.",
+            "variants": [
+              "ghostly"
+            ]
+          }
+        ],
+        "actions": [
+          {
+            "name": "Multiattack",
+            "text": "It makes {multi} attacks (half the spell's level)."
+          },
+          {
+            "name": "Deathly Touch",
+            "text": "The creature makes a DC {dc} Wisdom save or is frightened of the spirit until the end of its next turn.",
+            "attack": {
+              "kind": "melee",
+              "damage": "1d8",
+              "damageBonus": 3,
+              "damageType": "necrotic"
+            },
+            "variants": [
+              "ghostly"
+            ]
+          },
+          {
+            "name": "Grave Bolt",
+            "attack": {
+              "kind": "ranged",
+              "reach": "range 150 ft.",
+              "damage": "2d4",
+              "damageBonus": 3,
+              "damageType": "necrotic"
+            },
+            "variants": [
+              "skeletal"
+            ]
+          },
+          {
+            "name": "Rotting Claw",
+            "text": "If the target is poisoned, it makes a DC {dc} Constitution save or is paralyzed until the end of its next turn.",
+            "attack": {
+              "kind": "melee",
+              "damage": "1d6",
+              "damageBonus": 3,
+              "damageType": "slashing"
+            },
+            "variants": [
+              "putrid"
+            ]
+          }
+        ]
+      },
+      "note": "One spirit, the variant you pick. It shares your initiative and takes its turn right after yours, obeying your verbal commands (no action from you); without commands it Dodges and avoids danger. Gone at 0 hit points or when your concentration ends (1 hour)."
+    },
+    {
+      "kind": "summon",
+      "id": "summon:summon-aberration",
+      "name": "Summon Aberration",
+      "spell": "spell:summon-aberration",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 109
+      },
+      "count": {
+        "1": 1
+      },
+      "initiative": "yours",
+      "concentration": true,
+      "spirit": {
+        "name": "Aberrant Spirit",
+        "size": "Medium",
+        "type": "aberration",
+        "minLevel": 4,
+        "variants": [
+          {
+            "id": "beholderkin",
+            "name": "Beholderkin"
+          },
+          {
+            "id": "slaad",
+            "name": "Slaad"
+          },
+          {
+            "id": "star-spawn",
+            "name": "Star Spawn"
+          }
+        ],
+        "ac": {
+          "base": 11
+        },
+        "hp": {
+          "base": 40,
+          "perLevel": 10
+        },
+        "speed": [
+          {
+            "walk": 30
+          },
+          {
+            "fly": 30,
+            "hover": true,
+            "variants": [
+              "beholderkin"
+            ]
+          }
+        ],
+        "abilities": {
+          "str": 16,
+          "dex": 10,
+          "con": 15,
+          "int": 16,
+          "wis": 10,
+          "cha": 6
+        },
+        "senses": {
+          "darkvision": 60
+        },
+        "languages": "Deep Speech, understands the languages you speak",
+        "immune": [
+          {
+            "type": "psychic"
+          }
+        ],
+        "traits": [
+          {
+            "name": "Regeneration",
+            "text": "It regains 5 hit points at the start of its turn if it has at least 1.",
+            "variants": [
+              "slaad"
+            ]
+          },
+          {
+            "name": "Whispering Aura",
+            "text": "At the start of each of its turns, unless incapacitated, each creature within 5 ft makes a DC {dc} Wisdom save or takes 2d6 psychic damage.",
+            "variants": [
+              "star-spawn"
+            ]
+          }
+        ],
+        "actions": [
+          {
+            "name": "Multiattack",
+            "text": "It makes {multi} attacks (half the spell's level)."
+          },
+          {
+            "name": "Eye Ray",
+            "attack": {
+              "kind": "ranged",
+              "reach": "range 150 ft.",
+              "damage": "1d8",
+              "damageBonus": 3,
+              "damageType": "psychic"
+            },
+            "variants": [
+              "beholderkin"
+            ]
+          },
+          {
+            "name": "Claws",
+            "text": "A creature hit can't regain hit points until the start of the spirit's next turn.",
+            "attack": {
+              "kind": "melee",
+              "damage": "1d10",
+              "damageBonus": 3,
+              "damageType": "slashing"
+            },
+            "variants": [
+              "slaad"
+            ]
+          },
+          {
+            "name": "Psychic Slam",
+            "attack": {
+              "kind": "melee",
+              "damage": "1d8",
+              "damageBonus": 3,
+              "damageType": "psychic"
+            },
+            "variants": [
+              "star-spawn"
+            ]
+          }
+        ]
+      },
+      "note": "One spirit, the variant you pick. It shares your initiative and takes its turn right after yours, obeying your verbal commands (no action from you); without commands it Dodges and avoids danger. Gone at 0 hit points or when your concentration ends (1 hour)."
+    },
+    {
+      "kind": "summon",
+      "id": "summon:summon-construct",
+      "name": "Summon Construct",
+      "spell": "spell:summon-construct",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 111
+      },
+      "count": {
+        "1": 1
+      },
+      "initiative": "yours",
+      "concentration": true,
+      "spirit": {
+        "name": "Construct Spirit",
+        "size": "Medium",
+        "type": "construct",
+        "minLevel": 4,
+        "variants": [
+          {
+            "id": "clay",
+            "name": "Clay"
+          },
+          {
+            "id": "metal",
+            "name": "Metal"
+          },
+          {
+            "id": "stone",
+            "name": "Stone"
+          }
+        ],
+        "ac": {
+          "base": 13
+        },
+        "hp": {
+          "base": 40,
+          "perLevel": 15
+        },
+        "speed": [
+          {
+            "walk": 30
+          }
+        ],
+        "abilities": {
+          "str": 18,
+          "dex": 10,
+          "con": 18,
+          "int": 14,
+          "wis": 11,
+          "cha": 5
+        },
+        "senses": {
+          "darkvision": 60
+        },
+        "languages": "understands the languages you speak",
+        "resist": [
+          {
+            "type": "poison"
+          }
+        ],
+        "conditionImmune": [
+          "charmed",
+          "exhaustion",
+          "frightened",
+          "incapacitated",
+          "paralyzed",
+          "petrified",
+          "poisoned"
+        ],
+        "traits": [
+          {
+            "name": "Heated Body",
+            "text": "A creature that touches it or hits it with a melee attack while within 5 ft takes 1d10 fire damage.",
+            "variants": [
+              "metal"
+            ]
+          },
+          {
+            "name": "Stony Lethargy",
+            "text": "When a creature it can see starts its turn within 10 ft, it can force a DC {dc} Wisdom save: on a failure, no reactions and half speed until the start of that creature's next turn.",
+            "variants": [
+              "stone"
+            ]
+          }
+        ],
+        "actions": [
+          {
+            "name": "Multiattack",
+            "text": "It makes {multi} attacks (half the spell's level)."
+          },
+          {
+            "name": "Slam",
+            "attack": {
+              "kind": "melee",
+              "damage": "1d8",
+              "damageBonus": 4,
+              "damageType": "bludgeoning"
+            }
+          }
+        ],
+        "reactions": [
+          {
+            "name": "Berserk Lashing",
+            "text": "When it takes damage, it slams a random creature within 5 ft; with none in reach, it moves up to half its speed toward an enemy it can see, without provoking opportunity attacks.",
+            "variants": [
+              "clay"
+            ]
+          }
+        ]
+      },
+      "note": "One spirit, the variant you pick. It shares your initiative and takes its turn right after yours, obeying your verbal commands (no action from you); without commands it Dodges and avoids danger. Gone at 0 hit points or when your concentration ends (1 hour)."
+    },
+    {
+      "kind": "summon",
+      "id": "summon:summon-elemental",
+      "name": "Summon Elemental",
+      "spell": "spell:summon-elemental",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 113
+      },
+      "count": {
+        "1": 1
+      },
+      "initiative": "yours",
+      "concentration": true,
+      "spirit": {
+        "name": "Elemental Spirit",
+        "size": "Medium",
+        "type": "elemental",
+        "minLevel": 4,
+        "variants": [
+          {
+            "id": "air",
+            "name": "Air"
+          },
+          {
+            "id": "earth",
+            "name": "Earth"
+          },
+          {
+            "id": "fire",
+            "name": "Fire"
+          },
+          {
+            "id": "water",
+            "name": "Water"
+          }
+        ],
+        "ac": {
+          "base": 11
+        },
+        "hp": {
+          "base": 50,
+          "perLevel": 10
+        },
+        "speed": [
+          {
+            "walk": 40
+          },
+          {
+            "burrow": 40,
+            "variants": [
+              "earth"
+            ]
+          },
+          {
+            "fly": 40,
+            "hover": true,
+            "variants": [
+              "air"
+            ]
+          },
+          {
+            "swim": 40,
+            "variants": [
+              "water"
+            ]
+          }
+        ],
+        "abilities": {
+          "str": 18,
+          "dex": 15,
+          "con": 17,
+          "int": 4,
+          "wis": 10,
+          "cha": 16
+        },
+        "senses": {
+          "darkvision": 60
+        },
+        "languages": "Primordial, understands the languages you speak",
+        "resist": [
+          {
+            "type": "lightning",
+            "variants": [
+              "air"
+            ]
+          },
+          {
+            "type": "thunder",
+            "variants": [
+              "air"
+            ]
+          },
+          {
+            "type": "piercing",
+            "variants": [
+              "earth"
+            ]
+          },
+          {
+            "type": "slashing",
+            "variants": [
+              "earth"
+            ]
+          },
+          {
+            "type": "acid",
+            "variants": [
+              "water"
+            ]
+          }
+        ],
+        "immune": [
+          {
+            "type": "poison"
+          },
+          {
+            "type": "fire",
+            "variants": [
+              "fire"
+            ]
+          }
+        ],
+        "conditionImmune": [
+          "exhaustion",
+          "paralyzed",
+          "petrified",
+          "poisoned",
+          "unconscious"
+        ],
+        "traits": [
+          {
+            "name": "Amorphous Form",
+            "text": "It can move through a space as narrow as 1 inch without squeezing.",
+            "variants": [
+              "air",
+              "fire",
+              "water"
+            ]
+          }
+        ],
+        "actions": [
+          {
+            "name": "Multiattack",
+            "text": "It makes {multi} attacks (half the spell's level)."
+          },
+          {
+            "name": "Slam",
+            "attack": {
+              "kind": "melee",
+              "damage": "1d10",
+              "damageBonus": 4,
+              "damageType": "bludgeoning",
+              "damageTypeFor": {
+                "fire": "fire"
+              }
+            }
+          }
+        ]
+      },
+      "note": "One spirit, the variant you pick. It shares your initiative and takes its turn right after yours, obeying your verbal commands (no action from you); without commands it Dodges and avoids danger. Gone at 0 hit points or when your concentration ends (1 hour)."
+    },
+    {
+      "kind": "summon",
+      "id": "summon:summon-celestial",
+      "name": "Summon Celestial",
+      "spell": "spell:summon-celestial",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 110
+      },
+      "count": {
+        "1": 1
+      },
+      "initiative": "yours",
+      "concentration": true,
+      "spirit": {
+        "name": "Celestial Spirit",
+        "size": "Large",
+        "type": "celestial",
+        "minLevel": 5,
+        "variants": [
+          {
+            "id": "avenger",
+            "name": "Avenger"
+          },
+          {
+            "id": "defender",
+            "name": "Defender",
+            "acBonus": 2
+          }
+        ],
+        "ac": {
+          "base": 11
+        },
+        "hp": {
+          "base": 40,
+          "perLevel": 10
+        },
+        "speed": [
+          {
+            "walk": 30,
+            "fly": 40
+          }
+        ],
+        "abilities": {
+          "str": 16,
+          "dex": 14,
+          "con": 16,
+          "int": 10,
+          "wis": 14,
+          "cha": 16
+        },
+        "senses": {
+          "darkvision": 60
+        },
+        "languages": "Celestial, understands the languages you speak",
+        "resist": [
+          {
+            "type": "radiant"
+          }
+        ],
+        "conditionImmune": [
+          "charmed",
+          "frightened"
+        ],
+        "actions": [
+          {
+            "name": "Multiattack",
+            "text": "It makes {multi} attacks (half the spell's level)."
+          },
+          {
+            "name": "Radiant Bow",
+            "attack": {
+              "kind": "ranged",
+              "reach": "range 150/600 ft.",
+              "damage": "2d6",
+              "damageBonus": 2,
+              "damageType": "radiant"
+            },
+            "variants": [
+              "avenger"
+            ]
+          },
+          {
+            "name": "Radiant Mace",
+            "text": "The spirit or another creature it can see within 10 ft of the target gains 1d10 temporary hit points.",
+            "attack": {
+              "kind": "melee",
+              "damage": "1d10",
+              "damageBonus": 3,
+              "damageType": "radiant"
+            },
+            "variants": [
+              "defender"
+            ]
+          },
+          {
+            "name": "Healing Touch (1/day)",
+            "text": "Another creature it touches regains 2d8 + {level} hit points."
+          }
+        ]
+      },
+      "note": "One spirit, the variant you pick. It shares your initiative and takes its turn right after yours, obeying your verbal commands (no action from you); without commands it Dodges and avoids danger. Gone at 0 hit points or when your concentration ends (1 hour)."
+    },
+    {
+      "kind": "summon",
+      "id": "summon:summon-fiend",
+      "name": "Summon Fiend",
+      "spell": "spell:summon-fiend",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 112
+      },
+      "count": {
+        "1": 1
+      },
+      "initiative": "yours",
+      "concentration": true,
+      "spirit": {
+        "name": "Fiendish Spirit",
+        "size": "Large",
+        "type": "fiend",
+        "minLevel": 6,
+        "variants": [
+          {
+            "id": "demon",
+            "name": "Demon",
+            "hp": 50
+          },
+          {
+            "id": "devil",
+            "name": "Devil",
+            "hp": 40
+          },
+          {
+            "id": "yugoloth",
+            "name": "Yugoloth",
+            "hp": 60
+          }
+        ],
+        "ac": {
+          "base": 12
+        },
+        "hp": {
+          "base": 50,
+          "perLevel": 15
+        },
+        "speed": [
+          {
+            "walk": 40
+          },
+          {
+            "climb": 40,
+            "variants": [
+              "demon"
+            ]
+          },
+          {
+            "fly": 60,
+            "variants": [
+              "devil"
+            ]
+          }
+        ],
+        "abilities": {
+          "str": 13,
+          "dex": 16,
+          "con": 15,
+          "int": 10,
+          "wis": 10,
+          "cha": 16
+        },
+        "senses": {
+          "darkvision": 60
+        },
+        "languages": "Abyssal, Infernal, telepathy 60 ft.",
+        "resist": [
+          {
+            "type": "fire"
+          }
+        ],
+        "immune": [
+          {
+            "type": "poison"
+          }
+        ],
+        "conditionImmune": [
+          "poisoned"
+        ],
+        "traits": [
+          {
+            "name": "Magic Resistance",
+            "text": "Advantage on saving throws against spells and other magical effects."
+          },
+          {
+            "name": "Death Throes",
+            "text": "When it drops to 0 hit points or the spell ends, it explodes: each creature within 10 ft makes a DC {dc} Dexterity save, taking 2d10 + {level} fire damage, half on a success.",
+            "variants": [
+              "demon"
+            ]
+          },
+          {
+            "name": "Devil's Sight",
+            "text": "Magical darkness doesn't impede its darkvision.",
+            "variants": [
+              "devil"
+            ]
+          }
+        ],
+        "actions": [
+          {
+            "name": "Multiattack",
+            "text": "It makes {multi} attacks (half the spell's level)."
+          },
+          {
+            "name": "Bite",
+            "attack": {
+              "kind": "melee",
+              "damage": "1d12",
+              "damageBonus": 3,
+              "damageType": "necrotic"
+            },
+            "variants": [
+              "demon"
+            ]
+          },
+          {
+            "name": "Claws",
+            "text": "Right after the attack, hit or miss, it can teleport up to 30 ft to a space it can see.",
+            "attack": {
+              "kind": "melee",
+              "damage": "1d8",
+              "damageBonus": 3,
+              "damageType": "slashing"
+            },
+            "variants": [
+              "yugoloth"
+            ]
+          },
+          {
+            "name": "Hurl Flame",
+            "text": "A flammable object hit that isn't worn or carried catches fire.",
+            "attack": {
+              "kind": "ranged",
+              "reach": "range 150 ft.",
+              "damage": "2d6",
+              "damageBonus": 3,
+              "damageType": "fire"
+            },
+            "variants": [
+              "devil"
+            ]
+          }
+        ]
+      },
+      "note": "One spirit, the variant you pick. It shares your initiative and takes its turn right after yours, obeying your verbal commands (no action from you); without commands it Dodges and avoids danger. Gone at 0 hit points or when your concentration ends (1 hour)."
+    },
+    {
+      "kind": "summon",
+      "id": "summon:summon-draconic-spirit",
+      "name": "Summon Draconic Spirit",
+      "spell": "spell:summon-draconic-spirit",
+      "source": {
+        "pack": "table-2014",
+        "book": "FTD",
+        "page": 21
+      },
+      "count": {
+        "1": 1
+      },
+      "initiative": "yours",
+      "concentration": true,
+      "spirit": {
+        "name": "Draconic Spirit",
+        "size": "Large",
+        "type": "dragon",
+        "minLevel": 5,
+        "variants": [
+          {
+            "id": "chromatic",
+            "name": "Chromatic"
+          },
+          {
+            "id": "gem",
+            "name": "Gem"
+          },
+          {
+            "id": "metallic",
+            "name": "Metallic"
+          }
+        ],
+        "ac": {
+          "base": 14
+        },
+        "hp": {
+          "base": 50,
+          "perLevel": 10
+        },
+        "speed": [
+          {
+            "walk": 30,
+            "fly": 60,
+            "swim": 30
+          }
+        ],
+        "abilities": {
+          "str": 19,
+          "dex": 14,
+          "con": 17,
+          "int": 10,
+          "wis": 14,
+          "cha": 14
+        },
+        "senses": {
+          "blindsight": 30,
+          "darkvision": 60
+        },
+        "languages": "Draconic, understands the languages you speak",
+        "resist": [
+          {
+            "type": "acid",
+            "variants": [
+              "chromatic",
+              "metallic"
+            ]
+          },
+          {
+            "type": "cold",
+            "variants": [
+              "chromatic",
+              "metallic"
+            ]
+          },
+          {
+            "type": "fire",
+            "variants": [
+              "chromatic",
+              "metallic"
+            ]
+          },
+          {
+            "type": "lightning",
+            "variants": [
+              "chromatic",
+              "metallic"
+            ]
+          },
+          {
+            "type": "poison",
+            "variants": [
+              "chromatic",
+              "metallic"
+            ]
+          },
+          {
+            "type": "force",
+            "variants": [
+              "gem"
+            ]
+          },
+          {
+            "type": "necrotic",
+            "variants": [
+              "gem"
+            ]
+          },
+          {
+            "type": "psychic",
+            "variants": [
+              "gem"
+            ]
+          },
+          {
+            "type": "radiant",
+            "variants": [
+              "gem"
+            ]
+          },
+          {
+            "type": "thunder",
+            "variants": [
+              "gem"
+            ]
+          }
+        ],
+        "conditionImmune": [
+          "charmed",
+          "frightened",
+          "poisoned"
+        ],
+        "traits": [
+          {
+            "name": "Shared Resistances",
+            "text": "When you summon it, pick one of its damage resistances: you have it too until the spell ends."
+          }
+        ],
+        "actions": [
+          {
+            "name": "Multiattack",
+            "text": "It makes {multi} Rend attacks (half the spell's level) and uses Breath Weapon."
+          },
+          {
+            "name": "Rend",
+            "attack": {
+              "kind": "melee",
+              "reach": "reach 10 ft.",
+              "damage": "1d6",
+              "damageBonus": 4,
+              "damageType": "piercing"
+            }
+          },
+          {
+            "name": "Breath Weapon",
+            "text": "A 30-ft cone: each creature makes a DC {dc} Dexterity save, taking 2d6 damage of a type it resists (your choice), half on a success."
+          }
+        ]
+      },
+      "note": "One spirit, the variant you pick. It shares your initiative and takes its turn right after yours, obeying your verbal commands (no action from you); without commands it Dodges and avoids danger. Gone at 0 hit points or when your concentration ends (1 hour)."
+    },
+    {
+      "kind": "summon",
+      "id": "summon:find-greater-steed",
+      "name": "Find Greater Steed",
+      "spell": "spell:find-greater-steed",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 156
+      },
+      "creatures": [
+        "creature:griffon",
+        "creature:pegasus",
+        "creature:dire-wolf",
+        "creature:rhinoceros",
+        "creature:saber-toothed-tiger"
+      ],
+      "count": {
+        "4": 1
+      },
+      "initiative": "yours",
+      "note": "A loyal steed in the form you choose (a peryton too, if your DM has its stat block): celestial, fey or fiend (your choice), Intelligence 6 or more. You share self-targeted spells with it while riding. It fights as an independent creature."
+    },
+    {
+      "kind": "summon",
+      "id": "summon:conjure-celestial",
+      "name": "Conjure Celestial",
+      "spell": "spell:conjure-celestial",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 225
+      },
+      "type": [
+        "celestial"
+      ],
+      "tiers": [
+        {
+          "maxCr": 4,
+          "count": 1
+        }
+      ],
+      "initiative": "own",
+      "concentration": true,
+      "note": "One celestial of CR 4 or lower (CR 5 or lower with a 9th-level slot; your DM may allow it here). It's friendly to you and your companions, rolls its own initiative and obeys your verbal commands."
     }
   ]
 }

@@ -903,12 +903,13 @@ export function App() {
     });
 
   /** After casting a summoning spell: pick the creatures. */
-  const openSummon = (summonId: string, slot: number) =>
+  const openSummon = (summonId: string, slot: number, caster?: { attack: number; dc: number }) =>
     open(registry.find(summonId, "summon")?.name ?? "Summon", () => (
       <SummonPicker
         reg={registry}
         summon={summonId}
         slot={slot}
+        {...(caster ? { caster } : {})}
         onSummon={(creatures) => {
           const def = registry.find(summonId, "summon")!;
           const group = crypto.randomUUID().slice(0, 8);
@@ -2416,7 +2417,9 @@ export function App() {
               const sum = registry.list("summon").find((x) => x.spell === sp.id);
               if (sum) {
                 transformed = true;
-                openSummon(sum.id, level);
+                // A spirit's attacks use your spell attack and DC (the spellcasting this spell is cast with).
+                const sc = live.current.sheet?.spellcasting.find((x) => x.id === sp.list.id) ?? live.current.sheet?.spellcasting[0];
+                openSummon(sum.id, level, sc ? { attack: sc.attack.total, dc: sc.saveDc.total } : undefined);
               }
               // Sending: the message, then it's saved in your notes.
               if (sp.id === "spell:sending") {

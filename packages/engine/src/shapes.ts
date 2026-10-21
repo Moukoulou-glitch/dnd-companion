@@ -1,6 +1,7 @@
 import { ABILITIES, ABILITY_NAMES, SKILLS, SKILL_NAMES, type Ability, type Character, type CreatureDef, type Modifier, type Skill, type SpellDef } from "@dnd/schema";
 import type { DicePart, Part, RollBreakdown } from "./breakdown.js";
 import type { ContentRegistry } from "./registry.js";
+import { spiritId } from "./spirits.js";
 import { evalExpr, type ExprContext } from "./expr.js";
 import { signed as signedN, signedDice } from "./breakdown.js";
 import type { WeaponAttack } from "./derive.js";
@@ -459,9 +460,14 @@ export function creatureBlock(reg: ContentRegistry, creature: string, hp?: numbe
 }
 
 /** What a summoning spell offers at a slot level: the creatures, and how many of which CR. */
-export function summonOptions(reg: ContentRegistry, summon: string, slot: number): { creatures: CreatureDef[]; tiers: { maxCr: number; count: number }[]; count?: number } | undefined {
+export function summonOptions(reg: ContentRegistry, summon: string, slot: number, caster: { attack: number; dc: number } = { attack: 0, dc: 10 }): { creatures: CreatureDef[]; tiers: { maxCr: number; count: number }[]; count?: number } | undefined {
   const s = reg.find(summon, "summon");
   if (!s) return undefined;
+  // A spirit (Summon Beast): one, its variant picked, built at this level with your spell attack and DC.
+  if (s.spirit) {
+    const creatures = s.spirit.variants.map((v) => reg.find(spiritId(s.id, v.id, Math.max(slot, s.spirit!.minLevel), caster.attack, caster.dc), "creature")).filter((d): d is CreatureDef => !!d);
+    return { creatures, tiers: [], count: 1 };
+  }
   const pickCount = (table?: Record<string, number>) => {
     if (!table) return undefined;
     const keys = Object.keys(table).map(Number).filter((k) => k <= slot).sort((a, b) => b - a);

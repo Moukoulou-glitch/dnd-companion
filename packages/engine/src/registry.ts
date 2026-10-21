@@ -1,5 +1,6 @@
 import type { ContentPack, Definition } from "@dnd/schema";
 import { ContentPack as ContentPackSchema } from "@dnd/schema";
+import { SPIRIT_PREFIX, parseSpiritId, spiritCreature } from "./spirits.js";
 
 type ByKind<K extends Definition["kind"]> = Extract<Definition, { kind: K }>;
 type ClassDef = ByKind<"class">;
@@ -75,8 +76,21 @@ export class ContentRegistry {
 
   /** The definition if it exists and is of this kind; never throws. */
   find<K extends Definition["kind"]>(id: string, kind: K): ByKind<K> | undefined {
-    const d = this.defs.get(id);
+    const d = this.defs.get(id) ?? (kind === "creature" ? this.spirit(id) : undefined);
     return d && d.kind === kind ? (d as ByKind<K>) : undefined;
+  }
+
+  /** A summoned spirit's stat block, built from its summon at the level and variant in its id (Summon Beast). */
+  private spirits = new Map<string, Definition>();
+  private spirit(id: string): Definition | undefined {
+    if (!id.startsWith(SPIRIT_PREFIX)) return undefined;
+    const hit = this.spirits.get(id);
+    if (hit) return hit;
+    const p = parseSpiritId(id);
+    const s = p ? this.defs.get(p.summon) : undefined;
+    const d = p && s?.kind === "summon" ? spiritCreature(s, p.variant, p.level, p.attack, p.dc) : undefined;
+    if (d) this.spirits.set(id, d);
+    return d;
   }
 
   /**

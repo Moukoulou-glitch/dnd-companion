@@ -439,6 +439,67 @@ export const CreatureDef = z
   .strict();
 export type CreatureDef = z.infer<typeof CreatureDef>;
 
+/** Which variants a part of a spirit's stat block belongs to (all when absent). */
+const ForVariants = { variants: z.array(z.string()).optional() };
+const SpiritSpeed = z.object({ walk: z.number().int().optional(), swim: z.number().int().optional(), fly: z.number().int().optional(), climb: z.number().int().optional(), burrow: z.number().int().optional(), hover: z.boolean().optional() }).strict();
+
+/**
+ * A creature whose stat block grows with the level of the spell that summons it
+ * (Summon Beast's Bestial Spirit, Summon Aberration's Aberrant Spirit), in our own
+ * words. You pick a variant when you cast it (air, land or water). Its attacks use
+ * your spell attack modifier; "{dc}" in its texts is your spell save DC and
+ * "{level}" the spell's level. AC is `ac.base` + the spell's level; hit points
+ * `hp.base` (or the variant's) + `hp.perLevel` for each level above `minLevel`;
+ * its Multiattack makes half the spell's level (rounded down) attacks.
+ */
+export const SpiritTemplate = z
+  .object({
+    name: z.string(),
+    size: z.string(),
+    type: z.string(),
+    minLevel: z.number().int().min(1).max(9),
+    variants: z.array(z.object({ id: z.string(), name: z.string(), hp: z.number().int().optional(), acBonus: z.number().int().optional() }).strict()).min(1),
+    ac: z.object({ base: z.number().int() }).strict(),
+    hp: z.object({ base: z.number().int(), perLevel: z.number().int() }).strict(),
+    speed: z.array(SpiritSpeed.extend(ForVariants)).min(1),
+    abilities: z.record(Ability, z.number().int().min(1).max(30)),
+    senses: z.record(z.string(), z.number().int()).optional(),
+    languages: z.string().optional(),
+    resist: z.array(z.object({ type: z.string(), ...ForVariants }).strict()).optional(),
+    immune: z.array(z.object({ type: z.string(), ...ForVariants }).strict()).optional(),
+    conditionImmune: z.array(z.string()).optional(),
+    traits: z.array(z.object({ name: z.string(), text: z.string(), ...ForVariants }).strict()).default([]),
+    /** "{multi}" in a Multiattack's text is the number of attacks (half the spell's level). */
+    actions: z
+      .array(
+        z
+          .object({
+            name: z.string(),
+            text: z.string().default(""),
+            ...ForVariants,
+            attack: z
+              .object({
+                kind: z.enum(["melee", "ranged"]),
+                reach: z.string().optional(),
+                damage: z.string(),
+                /** The flat part before the spell's level is added. */
+                damageBonus: z.number().int(),
+                damageType: DamageType,
+                /** A different type for some variants (the fire elemental's Slam). */
+                damageTypeFor: z.record(z.string(), DamageType).optional(),
+              })
+              .strict()
+              .optional(),
+          })
+          .strict(),
+      )
+      .default([]),
+    bonusActions: z.array(z.object({ name: z.string(), text: z.string(), ...ForVariants }).strict()).optional(),
+    reactions: z.array(z.object({ name: z.string(), text: z.string(), ...ForVariants }).strict()).optional(),
+  })
+  .strict();
+export type SpiritTemplate = z.infer<typeof SpiritTemplate>;
+
 /**
  * What a spell that summons, creates or animates creatures lets you pick, and
  * how many: listed creatures (Find Familiar), or any of a type up to a CR in
@@ -462,6 +523,8 @@ export const SummonDef = z
     initiative: z.enum(["own", "shared", "yours"]).default("shared"),
     /** Gone when your concentration ends. */
     concentration: z.boolean().optional(),
+    /** A spirit whose stat block grows with the spell's level (Summon Beast): built when cast. */
+    spirit: SpiritTemplate.optional(),
     note: z.string().optional(),
   })
   .strict();
