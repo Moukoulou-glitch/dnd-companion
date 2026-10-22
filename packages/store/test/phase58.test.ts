@@ -51,3 +51,13 @@ describe("9d fixes", () => {
     expect(l.record("useAction", { action: "ftd-breath-red", rolled: 5 }).join(" ")).toMatch(/attack 3 of 2/);
   });
 });
+
+describe("9e fix: your spell on a summoned creature ends with your concentration", () => {
+  it("Bless on an animated zombie goes when concentration ends; an effect without concentration stays", () => {
+    const l = make("race:human", 5, {}, { summons: [{ id: "z1", creature: "creature:zombie", hp: 22, spell: "spell:animate-dead", group: "g1" }], concentration: { spell: "spell:bless", name: "Bless" } });
+    l.record("summonEffect", { id: "z1", effect: "effect:bless", add: true, rounds: 10, concentration: true });
+    l.record("summonEffect", { id: "z1", effect: "condition:prone", add: true });
+    l.record("endConcentration", {});
+    expect(l.character.summons[0]!.effects!.map((e) => e.effect)).toEqual(["condition:prone"]);
+  });
+});

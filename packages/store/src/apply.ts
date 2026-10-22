@@ -40,6 +40,8 @@ function endConcentration(c: Character, notes: string[], why: string) {
   c.effects = c.effects.filter((e) => !e.concentration);
   // Your spell on a companion (Bless, Haste) ends with it.
   for (const st of Object.values(c.companions)) if (st.effects?.some((e) => e.concentration)) st.effects = st.effects.filter((e) => !e.concentration);
+  // And on a summoned creature that stays (Bless on your conjured wolf held by another spell).
+  for (const s of c.summons) if (s.effects?.some((e) => e.concentration)) s.effects = s.effects.filter((e) => !e.concentration);
   const conjured = c.summons.filter((s) => s.concentration);
   if (conjured.length) {
     c.summons = c.summons.filter((s) => !s.concentration);
@@ -762,6 +764,7 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
           ...(op.payload.rounds ? { rounds: op.payload.rounds } : {}),
           ...(op.payload.choice ? { choice: op.payload.choice } : {}),
           ...(op.payload.slotLevel ? { slotLevel: op.payload.slotLevel } : {}),
+          ...(op.payload.concentration ? { concentration: true } : {}),
         };
         x.effects = [...(x.effects ?? []), inst];
         const gain = hpGain(op.payload.slotLevel);

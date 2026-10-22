@@ -2527,6 +2527,7 @@ export function App() {
                           add: true,
                           ...(compEff.rounds ? { rounds: compEff.rounds } : compEff.minutes ? { rounds: compEff.minutes * 10 } : {}),
                           ...(compEff.upcast && level >= compEff.upcast.baseLevel ? { slotLevel: level } : {}),
+                          ...(sp.concentration ? { concentration: true } : {}),
                           ...(choice ? { choice } : {}),
                         },
                         `${compEff.name} on ${m.name ?? registry.find(m.creature, "creature")?.name ?? "your creature"}.`,

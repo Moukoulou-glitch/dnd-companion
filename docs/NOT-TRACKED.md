@@ -192,5 +192,5 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 ## Healing and effects on others (round 9)
 
 - Who a spell can target is known for the common healing and helping spells (SPELL_TARGETS); for the rest the app offers every creature without a warning. Warnings never block.
-- A spell's effect on a summoned creature lasts its rounds; it doesn't end with your concentration on its own (end it from the creature's card). Companions' effects do follow your concentration.
+- A spell's effect on a companion or a summoned creature ends with your concentration (a creature summoned by a concentration spell goes with it anyway).
 - Features that heal or help others (Healing Hands, Lay on Hands, Bardic Inspiration) and potions on companions come in 9f.

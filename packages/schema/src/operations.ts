@@ -154,6 +154,8 @@ export const OPERATION_PAYLOADS = {
       rounds: z.number().int().min(1).optional(),
       choice: z.string().optional(),
       slotLevel: z.number().int().min(1).max(9).optional(),
+      /** Your spell, held with your concentration: it ends when that does. */
+      concentration: z.boolean().optional(),
       /** Removing: which one, when it has the same effect twice. */
       instance: z.string().optional(),
     })

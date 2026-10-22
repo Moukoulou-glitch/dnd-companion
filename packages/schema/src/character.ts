@@ -643,7 +643,19 @@ export const Character = z
               .optional(),
             /** Conditions and spells on it (Bless, Frightened), with rounds when timed. */
             effects: z
-              .array(z.object({ id: z.string(), effect: DefId, rounds: z.number().int().min(0).optional(), choice: z.string().optional(), slotLevel: z.number().int().min(1).max(9).optional() }).strict())
+              .array(
+                z
+                  .object({
+                    id: z.string(),
+                    effect: DefId,
+                    rounds: z.number().int().min(0).optional(),
+                    choice: z.string().optional(),
+                    slotLevel: z.number().int().min(1).max(9).optional(),
+                    /** Your spell on it (Bless): it ends with your concentration. */
+                    concentration: z.boolean().optional(),
+                  })
+                  .strict(),
+              )
               .optional(),
             /** A spell it is concentrating on itself. */
             concentrating: z.string().optional(),
