@@ -1812,6 +1812,10 @@
             "Stone Rune": "feature:rune-knight-stone-rune",
             "Hill Rune (7th)": "feature:rune-knight-hill-rune",
             "Storm Rune (7th)": "feature:rune-knight-storm-rune"
+          },
+          "optionLevels": {
+            "Hill Rune (7th)": 7,
+            "Storm Rune (7th)": 7
           }
         }
       ],
@@ -2266,12 +2270,18 @@
           {
             "selector": "roll.check.skill.sleightOfHand",
             "op": "advantage",
-            "label": "Cloud Rune"
+            "label": "Cloud Rune",
+            "when": {
+              "toggleOff": "rune-cloud-off"
+            }
           },
           {
             "selector": "roll.check.skill.deception",
             "op": "advantage",
-            "label": "Cloud Rune"
+            "label": "Cloud Rune",
+            "when": {
+              "toggleOff": "rune-cloud-off"
+            }
           }
         ],
         "actions": [
@@ -2325,7 +2335,10 @@
           {
             "selector": "rule.toolExpertise",
             "op": "allow",
-            "label": "Fire Rune"
+            "label": "Fire Rune",
+            "when": {
+              "toggleOff": "rune-fire-off"
+            }
           },
           {
             "selector": "roll.damage.weapon.*",
@@ -2339,7 +2352,8 @@
               "amount": 1
             },
             "when": {
-              "text": "invoke it on a hit: Strength save ({dc:con}) or restrained by fiery shackles for 1 minute"
+              "text": "invoke it on a hit: Strength save ({dc:con}) or restrained by fiery shackles for 1 minute",
+              "toggleOff": "rune-fire-off"
             }
           }
         ],
@@ -2395,12 +2409,18 @@
           {
             "selector": "roll.check.skill.animalHandling",
             "op": "advantage",
-            "label": "Frost Rune"
+            "label": "Frost Rune",
+            "when": {
+              "toggleOff": "rune-frost-off"
+            }
           },
           {
             "selector": "roll.check.skill.intimidation",
             "op": "advantage",
-            "label": "Frost Rune"
+            "label": "Frost Rune",
+            "when": {
+              "toggleOff": "rune-frost-off"
+            }
           },
           {
             "selector": "roll.check.str",
@@ -2408,7 +2428,8 @@
             "value": 2,
             "label": "Frost Rune",
             "when": {
-              "toggle": "frost-rune"
+              "toggle": "frost-rune",
+              "toggleOff": "rune-frost-off"
             }
           },
           {
@@ -2417,7 +2438,8 @@
             "value": 2,
             "label": "Frost Rune",
             "when": {
-              "toggle": "frost-rune"
+              "toggle": "frost-rune",
+              "toggleOff": "rune-frost-off"
             }
           },
           {
@@ -2426,7 +2448,8 @@
             "value": 2,
             "label": "Frost Rune",
             "when": {
-              "toggle": "frost-rune"
+              "toggle": "frost-rune",
+              "toggleOff": "rune-frost-off"
             }
           },
           {
@@ -2435,7 +2458,8 @@
             "value": 2,
             "label": "Frost Rune",
             "when": {
-              "toggle": "frost-rune"
+              "toggle": "frost-rune",
+              "toggleOff": "rune-frost-off"
             }
           }
         ],
@@ -2496,13 +2520,19 @@
           {
             "selector": "roll.check.skill.insight",
             "op": "advantage",
-            "label": "Stone Rune"
+            "label": "Stone Rune",
+            "when": {
+              "toggleOff": "rune-stone-off"
+            }
           },
           {
             "selector": "sense.darkvision",
             "op": "grantSense",
             "value": 120,
-            "label": "Stone Rune"
+            "label": "Stone Rune",
+            "when": {
+              "toggleOff": "rune-stone-off"
+            }
           }
         ],
         "actions": [
@@ -2559,20 +2589,25 @@
             "mode": "suggested",
             "label": "Hill Rune",
             "when": {
-              "text": "against being poisoned"
+              "text": "against being poisoned",
+              "toggleOff": "rune-hill-off"
             }
           },
           {
             "selector": "defense.resist.poison",
             "op": "resist",
-            "label": "Hill Rune"
+            "label": "Hill Rune",
+            "when": {
+              "toggleOff": "rune-hill-off"
+            }
           },
           {
             "selector": "defense.resist.bludgeoning",
             "op": "resist",
             "label": "Hill Rune",
             "when": {
-              "toggle": "hill-rune"
+              "toggle": "hill-rune",
+              "toggleOff": "rune-hill-off"
             }
           },
           {
@@ -2580,7 +2615,8 @@
             "op": "resist",
             "label": "Hill Rune",
             "when": {
-              "toggle": "hill-rune"
+              "toggle": "hill-rune",
+              "toggleOff": "rune-hill-off"
             }
           },
           {
@@ -2588,7 +2624,8 @@
             "op": "resist",
             "label": "Hill Rune",
             "when": {
-              "toggle": "hill-rune"
+              "toggle": "hill-rune",
+              "toggleOff": "rune-hill-off"
             }
           }
         ],
@@ -2649,7 +2686,10 @@
           {
             "selector": "roll.check.skill.arcana",
             "op": "advantage",
-            "label": "Storm Rune"
+            "label": "Storm Rune",
+            "when": {
+              "toggleOff": "rune-storm-off"
+            }
           }
         ],
         "actions": [

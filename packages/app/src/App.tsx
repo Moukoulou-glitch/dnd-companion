@@ -1853,6 +1853,29 @@ export function App() {
   const openToggle = (name: string) => {
     const t = sheet.toggles.find((x) => x.name === name);
     if (!t) return;
+    // On until you switch it off (a rune you know): its text, and off or back on.
+    if (t.inverted)
+      return open(t.label, () => {
+        const cur = live.current.sheet;
+        const on = cur?.toggles.find((x) => x.name === name)?.on ?? true;
+        const feature = cur?.features.find((f) => f.name === t.label);
+        return (
+          <>
+            <p className="note">{on ? "Active: its benefits apply." : "Switched off: its benefits don't apply (the object isn't with you, or the rune isn't inscribed today)."}</p>
+            {feature && <BookText text={feature.text} summary={feature.summary} />}
+            <button
+              className={`big wide${on ? " damage" : " primary"}`}
+              style={{ marginTop: 12 }}
+              onClick={() => {
+                live.current.act("toggle", { name, on: on }, `${t.label} ${on ? "off" : "on"}.`);
+                close();
+              }}
+            >
+              {on ? "Switch it off" : "Switch it back on"}
+            </button>
+          </>
+        );
+      });
     open(t.label, () => {
       const cur = live.current.sheet;
       const on = cur?.toggles.find((x) => x.name === name)?.on ?? false;

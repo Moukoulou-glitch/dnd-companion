@@ -198,5 +198,5 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 
 ## Rune Knight (round 10)
 
-- Runes count as inscribed and carried: the app doesn't track which object holds a rune. Hill and Storm runes can be picked before 7th level (the list says 7th).
+- Each rune you know is a tag on Play, on by default; switch it off when its object isn't with you (its benefits and its damage invoke stop; its reaction and bonus-action buttons stay). Hill and Storm before fighter 7th: warned, kept.
 - The Fire Rune's shackles: the target's save and its restraint are the DM's; the 2d6 at the start of its turns is a button to roll. Cloud and Stone are reactions with their text (and Stone's DC); Storm's advantage or disadvantage is given by you, applied by the DM.

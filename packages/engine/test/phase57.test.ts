@@ -67,3 +67,32 @@ describe("10b: Rune Knight runes, always-on and invoked", () => {
     expect(runes(7, ["Hill Rune (7th)"], ["hill-rune"]).defenses.resist).toContain("slashing");
   });
 });
+
+describe("10b fixes: runes as tags (on until switched off); Hill and Storm before 7th warned", () => {
+  const k = (level: number, picks: string[], toggles: string[] = []) =>
+    derive(
+      Character.parse({
+        id: "k", schemaVersion: 1, ruleset: "5e-2014", name: "K", abilities: { str: 16, dex: 12, con: 14, int: 10, wis: 10, cha: 8 }, race: "race:human",
+        classes: [{ class: "class:fighter", level, subclass: "subclass:rune-knight" }], hp: { current: 30, temp: 0 },
+        choices: { "feature:rune-knight-rune-carver": { runes: picks } }, toggles,
+      }),
+      reg,
+    );
+  it("each rune is a tag, on by default; switched off, its benefits stop", () => {
+    const on = k(3, ["Fire Rune", "Stone Rune"]);
+    expect(on.toggles.filter((t) => t.inverted).map((t) => [t.label, t.on])).toEqual([
+      ["Fire Rune", true],
+      ["Stone Rune", true],
+    ]);
+    const off = k(3, ["Fire Rune", "Stone Rune"], ["rune-fire-off"]);
+    expect(off.tools.find((t) => t.name === "Smith's tools")?.proficiency).toBe(1);
+    expect(off.toggles.find((t) => t.name === "rune-fire-off")?.on).toBe(false);
+    expect(off.senses.darkvision).toBe(120);
+  });
+  it("Hill or Storm before fighter 7th: a warning, the rune kept", () => {
+    const s = k(3, ["Hill Rune (7th)", "Storm Rune (7th)"]);
+    expect(s.warnings.filter((w) => /needs Fighter level 7/.test(w))).toHaveLength(2);
+    expect(s.defenses.resist).toContain("poison");
+    expect(k(7, ["Hill Rune (7th)"]).warnings.some((w) => /needs Fighter level 7/.test(w))).toBe(false);
+  });
+});

@@ -378,7 +378,8 @@ export interface DerivedSheet {
   /** Where each sense's range comes from, best first (race 60, Goggles of Night +60 → 120). */
   senseSources: Record<string, { label: string; value: number }[]>;
   /** On/off states some active feature reads (Rage, Mage Armor, a lit Flame Tongue), for the UI to offer as switches. */
-  toggles: { name: string; label: string; on: boolean; reminders?: string[] }[];
+  /** `inverted`: on by default; switching it off sets the state `name` (a rune you know: "rune-fire-off"). */
+  toggles: { name: string; label: string; on: boolean; reminders?: string[]; inverted?: boolean }[];
   /** Features that are on by themselves (Aura of Protection), with what they do; off while unconscious and so on. */
   featureTags: FeatureTag[];
   /** Race traits, background, class and subclass features, feats and table rules, in sheet order, with their text when loaded. */
@@ -673,6 +674,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       if (abilities[ab as Ability].score.total < (min ?? 0)) return "fail";
     }
     if (when.toggle && !c.toggles.includes(when.toggle)) return "fail";
+    if (when.toggleOff && c.toggles.includes(when.toggleOff)) return "fail";
     if (when.attackAction && !(c.combat && c.combat.attacks > 0)) return "fail";
     if (when.text || when.hands) return "unknown";
     return "pass";
@@ -1674,11 +1676,34 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     return r;
   });
 
+  // An option picked before its level (Rune Carver's Hill Rune before fighter 7th): warned, kept.
+  for (const cl of c.classes) {
+    const def = reg.find(cl.class, "class");
+    const sub = cl.subclass ? reg.find(cl.subclass, "subclass") : undefined;
+    for (const ref of [...(def?.features ?? []), ...(sub?.features ?? [])]) {
+      if (ref.level > cl.level) continue;
+      const fd = reg.find(ref.feature, "feature");
+      for (const ch of fd?.choices ?? []) {
+        if (!ch.optionLevels) continue;
+        for (const v of c.choices[fd!.id]?.[ch.id] ?? []) {
+          const need = ch.optionLevels[v];
+          if (need && cl.level < need) warnings.push(`${v.replace(/\s*\(\d+(st|nd|rd|th)\)$/, "")} needs ${def?.name ?? "class"} level ${need}; you're level ${cl.level}. Kept, beyond the rules.`);
+        }
+      }
+    }
+  }
+
   const toggles: DerivedSheet["toggles"] = [];
   // Switched-on features with reminders show as switches even without a modifier (Twilight Sanctuary).
   for (const a of actions)
     for (const name of a.toggles)
       if (TOGGLE_REMINDERS[name] && !toggles.some((t) => t.name === name)) toggles.push({ name, label: TOGGLE_LABELS[name] ?? a.name, on: c.toggles.includes(name), reminders: TOGGLE_REMINDERS[name]!.map(fillTag) });
+  // Things that are on until you switch them off (the runes you know).
+  for (const s of sources)
+    for (const m of s.grant.modifiers ?? []) {
+      const off = m.when?.toggleOff;
+      if (off && !toggles.some((t) => t.name === off)) toggles.push({ name: off, label: s.label, on: !c.toggles.includes(off), inverted: true });
+    }
   for (const a of active) {
     const name = a.mod.when?.toggle;
     if (!name || toggles.some((t) => t.name === name)) continue;

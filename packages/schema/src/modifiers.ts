@@ -50,6 +50,8 @@ export const Condition = z
     minScore: z.record(Ability, z.number().int()).optional(),
     /** A named on/off state on the character, e.g. "raging", "sharpshooter". */
     toggle: z.string().optional(),
+    /** On unless the player switches this state on (a rune you know: "rune-fire-off" when its object isn't with you). */
+    toggleOff: z.string().optional(),
     /** Only while you're conscious (Aura of Protection). */
     conscious: z.boolean().optional(),
     /** Only while you aren't incapacitated (Aura of Alacrity). */
@@ -573,6 +575,8 @@ export const ChoiceDef = z
       .optional(),
     /** Feature choices: any feature a background gives (a custom background borrows one). */
     featuresOf: z.literal("background").optional(),
+    /** Option choices: the class level a value needs (Rune Carver's Hill Rune: 7); picked earlier, the app warns. */
+    optionLevels: z.record(z.string(), z.number().int().min(1).max(20)).optional(),
     /** Option choices: the feature each picked value brings with it (Rune Carver: "Fire Rune" → the Fire Rune's passive and invoke). */
     grants: z.record(z.string(), DefId).optional(),
     /** No upper limit: `count` is where it starts and more can be added (a ritual book grows as you copy spells). */
