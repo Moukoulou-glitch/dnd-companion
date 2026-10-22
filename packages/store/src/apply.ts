@@ -2283,7 +2283,14 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
     }
 
     case "setOptionalFeature": {
-      const { feature, on, also } = op.payload;
+      const { feature, on, also, both } = op.payload;
+      if (both !== undefined) {
+        const keep = new Set(c.optionalBoth ?? []);
+        if (both) keep.add(feature);
+        else keep.delete(feature);
+        c.optionalBoth = [...keep];
+        if (both) notes.push(`${reg.find(feature, "feature")?.name ?? "It"} and the feature it replaces, both: beyond the rules.`);
+      }
       const off = new Set(c.optionalOff ?? []);
       for (const f of [feature, ...(also ?? [])]) {
         if (on) off.delete(f);

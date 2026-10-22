@@ -3521,3 +3521,8 @@ button.mpip {
 .book-checks .copy-ask {
   margin: 4px 0 8px;
 }
+
+/* A choice under another (Keep Divine Strike too). */
+.row.check.sub-check {
+  padding-left: 28px;
+}

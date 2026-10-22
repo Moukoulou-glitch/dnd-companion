@@ -719,6 +719,8 @@ export const Character = z
     profRemoved: z.array(z.object({ kind: z.enum(["save", "skill", "expertise", "armor", "weapon", "tool", "language"]), target: z.string(), reason: z.string().max(250).optional() }).strict()).default([]),
     /** Tasha's optional class features this character doesn't use (feature ids). */
     optionalOff: z.array(z.string()).default([]),
+    /** Tasha's optional features kept together with what they replace (beyond the rules: Blessed Strikes and Divine Strike). */
+    optionalBoth: z.array(z.string()).default([]),
     /** Spells the table gave beyond the rules, cast without a slot: how many times since the last short and the last long rest ("list|spell"). */
     extraCasts: z.record(z.string(), z.object({ short: z.number().int().min(0), long: z.number().int().min(0) }).strict()).default({}),
   })

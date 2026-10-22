@@ -81,6 +81,16 @@
           "5": "2d8",
           "11": "3d8",
           "17": "4d8"
+        },
+        "label": "Target unhurt",
+        "alt": {
+          "label": "Target missing hit points",
+          "atCharacterLevel": {
+            "1": "1d12",
+            "5": "2d12",
+            "11": "3d12",
+            "17": "4d12"
+          }
         }
       },
       "singleTarget": true

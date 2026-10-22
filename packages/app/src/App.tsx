@@ -2256,7 +2256,7 @@ export function App() {
 
   /** Attack or damage for a spell at a slot level; beams and portent come along. */
   /** `again`: a later use while it lasts (from the concentration chip), for the spell's effects. */
-  const rollSpell = (sp: SpellResult, level: number, damageOnly: boolean, again = false) => {
+  const rollSpell = (sp: SpellResult, level: number, damageOnly: boolean, again = false, alt = false) => {
     const beams = sp.beams?.byLevel[sp.level === 0 ? 0 : level];
     const notes = beams && beams > 1 ? [`${beams} ${sp.beams!.what}, each its own attack: they can hit the same target or different ones. The app takes you through them one by one.`] : [];
     const portent = portentFor();
@@ -2264,7 +2264,7 @@ export function App() {
       <Composer
         title={sp.name}
         base={sp.attack ?? live.current.sheet!.saves.con}
-        attack={spellAsAttack(sp, level)}
+        attack={spellAsAttack(sp, level, alt)}
         damageOnly={damageOnly}
         notes={notes}
         typeChoices={(sp.typeChoices ?? []).flatMap((tc) => {
@@ -2279,7 +2279,7 @@ export function App() {
             },
           ];
         })}
-        optionInfo={optionInfoFor(spellAsAttack(sp, level))}
+        optionInfo={optionInfoFor(spellAsAttack(sp, level, alt))}
         onOptionsUsed={recordOptions}
         {...(beams && beams > 1 ? { repeat: { count: beams, what: sp.beams!.what } } : {})}
         {...(portent && !damageOnly ? { portent } : {})}
@@ -2553,7 +2553,7 @@ export function App() {
   const openSpell = (first: SpellResult, castAt?: number, readying = false, asReaction = false) =>
     open(first.name, () => {
       const sp = live.current.sheet?.spells.find((x) => x.id === first.id && x.list.id === first.list.id) ?? first;
-      const roller = (level: number, damageOnly: boolean) => rollSpell(sp, level, damageOnly);
+      const roller = (level: number, damageOnly: boolean, alt = false) => rollSpell(sp, level, damageOnly, false, alt);
       const extra = live.current.sheet?.extras.find((x) => x.kind === "spell" && x.value === sp.id);
       return (
         <>
@@ -2577,7 +2577,7 @@ export function App() {
           onPrepare={(prepared) => live.current.act("setPrepared", { spell: sp.id, list: sp.list.id, prepared }, `${sp.name} ${prepared ? "prepared" : "unprepared"}.`)}
           bookChecks={wizardListId && sp.list.id === wizardListId ? bookChecksFor(sp.id, sp.list.id) : undefined}
           onRollAttack={(level) => roller(level, false)}
-          onRollDamage={(level) => roller(level, true)}
+          onRollDamage={(level, alt) => roller(level, true, alt)}
         />
         </>
       );
@@ -2878,6 +2878,7 @@ export function App() {
           openDefenses={() => open("Defenses", () => (live.current.character && live.current.sheet ? <DefensesPanel c={live.current.character} sheet={live.current.sheet} reg={registry} act={live.current.act} /> : null))}
           openProficiencies={() => open("Proficiencies", () => (live.current.sheet ? <ProficienciesPanel sheet={live.current.sheet} act={live.current.act} /> : null))}
           onOptional={(id, on) => live.current.act("setOptionalFeature", { feature: id, on }, `${registry.find(id, "feature")?.name ?? id} ${on ? "on" : "off"}.`)}
+          onOptionalBoth={(id, both) => live.current.act("setOptionalFeature", { feature: id, on: true, both }, both ? `${registry.find(id, "feature")?.name ?? id}: both kept.` : `${registry.find(id, "feature")?.name ?? id} only.`)}
           onOptionalAll={(ids, on) => live.current.act("setOptionalFeature", { feature: ids[0], on, also: ids.slice(1) }, `Tasha's optional features ${on ? "on" : "off"}.`)}
           openPb={() => open("Proficiency bonus", () => (live.current.character && live.current.sheet ? <PbPanel character={live.current.character} sheet={live.current.sheet} act={live.current.act} /> : null))}
           openAdjust={(k) => open(k === "save" ? "Saving throws: bonus or penalty" : k === "skill" ? "Skills: bonus or penalty" : "Passive senses: bonus or penalty", () => (live.current.character ? <RollAdjustPanel kind={k} c={live.current.character} act={live.current.act} /> : null))} />}

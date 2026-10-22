@@ -17,9 +17,9 @@ function withParts<T extends { dice: { label: string; dice: string; damageType?:
 }
 
 /** A spell shaped like a weapon attack, so the roll composer can roll its attack and damage. */
-export function spellAsAttack(sp: SpellResult, level: number): WeaponAttack & { saveNote?: string } {
+export function spellAsAttack(sp: SpellResult, level: number, alt = false): WeaponAttack & { saveNote?: string } {
   const key = sp.level === 0 ? 0 : level;
-  const dice = sp.damage?.byLevel[key] ?? sp.heal?.byLevel[key] ?? "0";
+  const dice = (alt ? sp.damage?.alt?.byLevel[key] : undefined) ?? sp.damage?.byLevel[key] ?? sp.heal?.byLevel[key] ?? "0";
   const emptyRoll = { total: 0, parts: [], dice: [], advantage: [], disadvantage: [], suggestions: [] };
   const a: WeaponAttack & { saveNote?: string } = {
     attackId: sp.id,
@@ -298,7 +298,8 @@ export function SpellPanel({
   initialCast?: number | undefined;
   onPrepare: (prepared: boolean) => void;
   onRollAttack: (level: number) => void;
-  onRollDamage: (level: number) => void;
+  /** alt: the spell's other dice (Toll the Dead on a hurt target). */
+  onRollDamage: (level: number, alt?: boolean) => void;
 }) {
   const [cast, setCast] = useState<number | null>(initialCast ?? null);
   const [onMe, setOnMe] = useState(selfDefault ?? (hasSelfEffect && /self/i.test(sp.range)));
@@ -486,10 +487,22 @@ export function SpellPanel({
                 Roll attack
               </button>
             )}
-            {(sp.damage || sp.heal) && !sp.attack && (
+            {(sp.damage || sp.heal) && !sp.attack && !sp.damage?.alt && (
               <button className="big primary" onClick={() => onRollDamage(cast)}>
                 {sp.heal ? "Roll healing" : "Roll damage"}
               </button>
+            )}
+            {sp.damage?.alt && !sp.attack && (
+              <>
+                <button className="big primary" onClick={() => onRollDamage(cast)}>
+                  Roll {sp.damage.byLevel[sp.level === 0 ? 0 : cast]}
+                  <span className="sub">{sp.damage.label ?? "Damage"}</span>
+                </button>
+                <button className="big primary" onClick={() => onRollDamage(cast, true)}>
+                  Roll {sp.damage.alt.byLevel[sp.level === 0 ? 0 : cast]}
+                  <span className="sub">{sp.damage.alt.label}</span>
+                </button>
+              </>
             )}
           </div>
           <button className="link" onClick={() => setCast(null)}>

@@ -383,7 +383,8 @@ export function levelGains(c: Character, reg: ContentRegistry, classId: string):
   const newLevel = (cl?.level ?? 0) + 1;
   const sub = cl?.subclass ? reg.find(cl.subclass, "subclass") : undefined;
   // What the new level brings, with Tasha's choices applied (Roving instead of a third favored terrain).
-  const refs = [...activeFeatures(def.features, newLevel, c.optionalOff), ...(sub ? activeFeatures(sub.features, newLevel, c.optionalOff) : [])].filter((f) => f.level === newLevel);
+  const pool = [...def.features, ...(sub?.features ?? [])];
+  const refs = [...activeFeatures(def.features, newLevel, c.optionalOff, pool, c.optionalBoth), ...(sub ? activeFeatures(sub.features, newLevel, c.optionalOff, pool, c.optionalBoth) : [])].filter((f) => f.level === newLevel);
   const features = refs.map((r) => {
     const f = reg.find(r.feature, "feature");
     return { id: r.feature, name: f?.name ?? r.feature, ...(f?.summary ? { summary: f.summary } : {}) };

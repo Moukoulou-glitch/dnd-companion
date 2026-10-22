@@ -81,7 +81,21 @@
         },
         {
           "level": 8,
-          "feature": "feature:cleric-blessed-strikes"
+          "feature": "feature:cleric-blessed-strikes",
+          "replaces": [
+            "feature:divine-strike",
+            "feature:nature-domain-divine-strike",
+            "feature:tempest-domain-divine-strike",
+            "feature:trickery-domain-divine-strike",
+            "feature:war-domain-divine-strike",
+            "feature:forge-domain-divine-strike",
+            "feature:order-domain-divine-strike",
+            "feature:twilight-domain-divine-strike",
+            "feature:knowledge-domain-potent-spellcasting",
+            "feature:light-domain-potent-spellcasting",
+            "feature:grave-domain-potent-spellcasting",
+            "feature:peace-domain-potent-spellcasting"
+          ]
         }
       ]
     },
@@ -394,7 +408,7 @@
       "grant": {
         "modifiers": [
           {
-            "selector": "roll.damage.spell",
+            "selector": "roll.damage.spell.cantrip",
             "op": "add",
             "value": "mod.wis",
             "mode": "suggested",
@@ -738,7 +752,7 @@
       "grant": {
         "modifiers": [
           {
-            "selector": "roll.damage.spell",
+            "selector": "roll.damage.spell.cantrip",
             "op": "add",
             "value": "mod.wis",
             "mode": "suggested",
@@ -2902,7 +2916,7 @@
       "grant": {
         "modifiers": [
           {
-            "selector": "roll.damage.spell",
+            "selector": "roll.damage.spell.cantrip",
             "op": "add",
             "value": "mod.wis",
             "mode": "suggested",
@@ -3641,7 +3655,7 @@
       "grant": {
         "modifiers": [
           {
-            "selector": "roll.damage.spell",
+            "selector": "roll.damage.spell.cantrip",
             "op": "add",
             "value": "mod.wis",
             "mode": "suggested",
@@ -4216,6 +4230,34 @@
         "pack": "table-2014",
         "book": "TCoE",
         "page": 31
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.damage.weapon.*",
+            "op": "add",
+            "value": "1d8",
+            "damageType": "radiant",
+            "mode": "suggested",
+            "oncePerTurn": true,
+            "label": "Blessed Strikes",
+            "when": {
+              "text": "once per turn, until the start of your next turn"
+            }
+          },
+          {
+            "selector": "roll.damage.spell.cantrip",
+            "op": "add",
+            "value": "1d8",
+            "damageType": "radiant",
+            "mode": "suggested",
+            "oncePerTurn": true,
+            "label": "Blessed Strikes",
+            "when": {
+              "text": "once per turn, until the start of your next turn"
+            }
+          }
+        ]
       }
     }
   ]

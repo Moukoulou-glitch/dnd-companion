@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import { formatBonus, signed, type DerivedSheet, type RollBreakdown } from "@dnd/engine";
 import { shortSave } from "./DcBig";
 import { ABILITIES, ABILITY_NAMES, SKILLS, SKILL_NAMES, type Ability, type Character, type Skill } from "@dnd/schema";
@@ -48,6 +49,7 @@ export function SheetTab({
   openDefenses,
   onOptional,
   onOptionalAll,
+  onOptionalBoth,
   openProficiencies,
 }: {
   sheet: DerivedSheet;
@@ -69,6 +71,8 @@ export function SheetTab({
   /** Turn a Tasha's optional class feature on or off. */
   onOptional: (id: string, on: boolean) => void;
   onOptionalAll: (ids: string[], on: boolean) => void;
+  /** Keep what an optional feature replaces too (beyond the rules). */
+  onOptionalBoth: (id: string, both: boolean) => void;
   /** Take away (or give back) a proficiency by the table's ruling. */
   openProficiencies: () => void;
 }) {
@@ -228,17 +232,33 @@ export function SheetTab({
           )}
           <div className="group">
             {sheet.optionalFeatures.map((f) => (
-              <label className="row check" key={f.id}>
-                <input type="checkbox" checked={f.on} onChange={() => onOptional(f.id, !f.on)} />
-                <div className="row-main">
-                  <div className="row-title">{f.name}</div>
-                  <div className="row-sub">
-                    {f.className} {f.level}
-                    {f.instead ? ` · instead of ${f.instead.join(", ")}` : ""}
-                    {f.summary ? ` · ${f.summary}` : ""}
+              <Fragment key={f.id}>
+                <label className="row check">
+                  <input type="checkbox" checked={f.on} onChange={() => onOptional(f.id, !f.on)} />
+                  <div className="row-main">
+                    <div className="row-title">{f.name}</div>
+                    <div className="row-sub">
+                      {f.className} {f.level}
+                      {f.instead ? ` · instead of ${f.instead.join(", ")}` : ""}
+                      {f.summary ? ` · ${f.summary}` : ""}
+                    </div>
                   </div>
-                </div>
-              </label>
+                </label>
+                {f.on && f.instead && (
+                  <label className="row check sub-check">
+                    <input type="checkbox" checked={f.both} onChange={() => onOptionalBoth(f.id, !f.both)} />
+                    <div className="row-main">
+                      <div className="row-title">Keep {f.instead.join(" and ")} too</div>
+                      <div className="row-sub">{f.both ? `Beyond the rules: ${f.name} replaces ${f.instead.join(" and ")}. Both are on.` : `Normally you have one or the other.`}</div>
+                    </div>
+                  </label>
+                )}
+                {f.on && f.both && (
+                  <p className="warn" role="alert">
+                    {f.name} normally replaces {f.instead?.join(" and ")}: you have both. Keep it only if your DM agrees.
+                  </p>
+                )}
+              </Fragment>
             ))}
           </div>
           <p className="note">On unless your table doesn't use them. Turning one off takes it (and what it gives) off the sheet, and brings back the feature it stood in for; its picks are kept.</p>

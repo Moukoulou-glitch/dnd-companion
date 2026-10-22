@@ -78,12 +78,11 @@ export function collectSources(c: Character, baseReg: ContentRegistry, duplicate
     out.push({ id: def.id, label: def.name, grant, choices: choicesFor(def.id) });
 
     // Tasha's optional class features the player turned off stay off; one that's on leaves out what it replaces.
-    activeFeatures(def.features, cl.level, c.optionalOff).forEach((f) => pushFeature(f.feature));
+    const subDef = cl.subclass ? reg.get(cl.subclass, "subclass") : undefined;
+    const pool = [...def.features, ...(subDef?.features ?? [])];
+    activeFeatures(def.features, cl.level, c.optionalOff, pool, c.optionalBoth).forEach((f) => pushFeature(f.feature));
 
-    if (cl.subclass) {
-      const sub = reg.get(cl.subclass, "subclass");
-      activeFeatures(sub.features, cl.level, c.optionalOff).forEach((f) => pushFeature(f.feature));
-    }
+    if (subDef) activeFeatures(subDef.features, cl.level, c.optionalOff, pool, c.optionalBoth).forEach((f) => pushFeature(f.feature));
   });
 
   for (const feat of c.feats) {
@@ -196,8 +195,16 @@ export function collectSources(c: Character, baseReg: ContentRegistry, duplicate
  * replaces (Favored Foe: Favored Enemy and its improvements). Turning the
  * optional one off brings the replaced ones back.
  */
-export function activeFeatures<F extends { level: number; feature: string; optional?: boolean | undefined; replaces?: string[] | undefined }>(features: F[], level: number, off: string[] | undefined): F[] {
+export function activeFeatures<F extends { level: number; feature: string; optional?: boolean | undefined; replaces?: string[] | undefined }>(
+  features: F[],
+  level: number,
+  off: string[] | undefined,
+  /** The class's and subclass's features together: a class option can replace a subclass feature (Blessed Strikes: Divine Strike). */
+  pool: F[] = features,
+  /** Optional features whose replaced features are kept too (beyond the rules: the player chose both). */
+  both: string[] = [],
+): F[] {
   const isOff = (f: F) => !!f.optional && !!off?.includes(f.feature);
-  const replaced = new Set(features.filter((f) => f.optional && f.level <= level && !isOff(f)).flatMap((f) => f.replaces ?? []));
+  const replaced = new Set(pool.filter((f) => f.optional && f.level <= level && !isOff(f) && !both.includes(f.feature)).flatMap((f) => f.replaces ?? []));
   return features.filter((f) => f.level <= level && !isOff(f) && !replaced.has(f.feature));
 }

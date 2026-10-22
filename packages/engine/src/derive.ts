@@ -134,7 +134,7 @@ export interface SpellResult {
   save?: { ability: Ability; dc: number; onSuccess: "half" | "none" | "other" };
   /** Damage or healing dice by the slot level it's cast at (cantrips: key 0). */
   /** `also`: more damage of other types in the same hit (Ice Storm's cold), each rolled as its own dice. */
-  damage?: { type?: string; byLevel: Record<number, string>; also?: { type: string; byLevel: Record<number, string> }[] };
+  damage?: { type?: string; byLevel: Record<number, string>; also?: { type: string; byLevel: Record<number, string> }[]; label?: string; alt?: { label: string; byLevel: Record<number, string> } };
   heal?: { byLevel: Record<number, string> };
   damageBonus?: RollBreakdown;
   /** How it can be cast right now. */
@@ -343,7 +343,8 @@ export interface DerivedSheet {
   effects: EffectResult[];
   spellcasting: SpellcastingResult[];
   /** Tasha's optional class features within the character's levels, and whether each is in use. */
-  optionalFeatures: { id: string; name: string; className: string; level: number; summary?: string; instead?: string[]; on: boolean }[];
+  /** `both`: on, and what it stands in for is kept too (beyond the rules). */
+  optionalFeatures: { id: string; name: string; className: string; level: number; summary?: string; instead?: string[]; on: boolean; both: boolean }[];
   /**
    * Each class with optional features, for one switch that takes them all on
    * or off: `ids` are every level's (so later levels follow the choice).
@@ -1355,6 +1356,13 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     if (def.damage) {
       const byLevel = levelsFor(def.damage.atSlot ?? def.damage.atCharacterLevel, !def.damage.atSlot);
       if (byLevel) r.damage = def.damage.type ? { type: def.damage.type, byLevel } : { byLevel };
+      // Other dice in another situation (Toll the Dead's d12s): its own roll button.
+      const alt = def.damage.alt;
+      const altLevels = alt && levelsFor(alt.atSlot ?? alt.atCharacterLevel, !alt.atSlot);
+      if (r.damage && alt && altLevels) {
+        r.damage.alt = { label: alt.label, byLevel: altLevels };
+        if (def.damage.label) r.damage.label = def.damage.label;
+      }
       // Further parts never take the spellcasting modifier: only the spell's main damage says "+ MOD".
       const also = (def.damage.also ?? []).flatMap((p) => {
         const t = p.atSlot ?? p.atCharacterLevel;
@@ -1366,7 +1374,8 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       });
       if (r.damage && also.length) r.damage.also = also;
       // Spell-specific modifiers too (Agonizing Blast: "roll.damage.spell.eldritch-blast").
-      r.damageBonus = roll(["roll.damage.spell", `roll.damage.spell.${def.id.replace(/^spell:/, "")}`], []);
+      // Cantrips too: "roll.damage.spell.cantrip" (Blessed Strikes, Potent Spellcasting).
+      r.damageBonus = roll(["roll.damage.spell", `roll.damage.spell.${def.id.replace(/^spell:/, "")}`, ...(def.level === 0 ? ["roll.damage.spell.cantrip"] : [])], []);
       // Elemental Adept (remastered): dice of the chosen type count as at least your proficiency bonus.
       const adeptTypes = sources.filter((x) => x.id === "feat:elemental-adept").flatMap((x) => x.choices.type ?? []);
       if (adeptTypes.length && def.damage?.type && adeptTypes.includes(def.damage.type)) r.damageBonus.minDie = { value: pb, types: adeptTypes, label: "Elemental Adept" };
@@ -1662,8 +1671,10 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
           const fd = reg.find(f.feature, "feature");
           if (!fd) return [];
           // What it stands in for, by name ("instead of Favored Enemy").
-          const instead = [...new Set((f.replaces ?? []).map((id) => (reg.find(id, "feature")?.name ?? id).replace(/\s*\(.*\)$/, "")))];
-          return [{ id: fd.id, name: fd.name, className: d!.name, level: f.level, ...(fd.summary ? { summary: fd.summary } : {}), ...(instead.length ? { instead } : {}), on: !c.optionalOff?.includes(fd.id) }];
+          // Only what this character has: Blessed Strikes stands in for this domain's Divine Strike, not every domain's.
+          const mine = new Set([...(d?.features ?? []), ...(sub?.features ?? [])].map((x) => x.feature));
+          const instead = [...new Set((f.replaces ?? []).filter((id) => mine.has(id)).map((id) => (reg.find(id, "feature")?.name ?? id).replace(/\s*\(.*\)$/, "")))];
+          return [{ id: fd.id, name: fd.name, className: d!.name, level: f.level, ...(fd.summary ? { summary: fd.summary } : {}), ...(instead.length ? { instead } : {}), on: !c.optionalOff?.includes(fd.id), both: !!c.optionalBoth?.includes(fd.id) }];
         });
     }),
     optionalClasses: c.classes.flatMap((cl) => {
@@ -1833,9 +1844,10 @@ export function featureOrigins(c: Character, reg: ContentRegistry, sources: Sour
   for (const cl of c.classes) {
     const def = reg.find(cl.class, "class");
     if (!def) continue;
-    for (const f of activeFeatures(def.features, cl.level, c.optionalOff)) if (!out.has(f.feature)) out.set(f.feature, `${def.name} ${f.level}`);
     const sub = cl.subclass ? reg.find(cl.subclass, "subclass") : undefined;
-    if (sub) for (const f of activeFeatures(sub.features, cl.level, c.optionalOff)) if (!out.has(f.feature)) out.set(f.feature, `${sub.name} (${def.name} ${f.level})`);
+    const pool = [...def.features, ...(sub?.features ?? [])];
+    for (const f of activeFeatures(def.features, cl.level, c.optionalOff, pool, c.optionalBoth)) if (!out.has(f.feature)) out.set(f.feature, `${def.name} ${f.level}`);
+    if (sub) for (const f of activeFeatures(sub.features, cl.level, c.optionalOff, pool, c.optionalBoth)) if (!out.has(f.feature)) out.set(f.feature, `${sub.name} (${def.name} ${f.level})`);
   }
   for (const ft of c.feats) {
     const def = reg.find(ft.feat, "feat");

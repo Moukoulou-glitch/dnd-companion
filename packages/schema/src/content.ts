@@ -388,6 +388,10 @@ export const SpellDef = z
          * bludgeoning). Each part is rolled as its own dice of its own type.
          */
         also: z.array(z.object({ type: z.string(), atSlot: DiceTable.optional(), atCharacterLevel: DiceTable.optional() }).strict()).optional(),
+        /** What the main dice are for, when there's an alternative (Toll the Dead: "Target unhurt"). */
+        label: z.string().optional(),
+        /** Other dice in another situation (Toll the Dead: d12s if the target is missing hit points): a second roll button. */
+        alt: z.object({ label: z.string(), atSlot: DiceTable.optional(), atCharacterLevel: DiceTable.optional() }).strict().optional(),
       })
       .strict()
       .optional(),
