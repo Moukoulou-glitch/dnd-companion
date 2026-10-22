@@ -2471,11 +2471,18 @@ export function App() {
     const back = sp.heal?.selfIfOthers?.[key];
     const selfBack = back?.length ? { label: back.map((b) => b.label).join(", "), value: back.reduce((n, b) => n + b.value, 0) } : undefined;
     return {
-      targets: all.map((t) => ({ id: t.id, name: t.name, sub: `${t.hp} / ${t.max} HP${t.kind === "me" ? "" : ` · ${t.type}`}`, warnings: targetWarnings(t, rule, sp.name) })),
+      targets: [
+        ...all.map((t) => ({ id: t.id, name: t.name, sub: `${t.hp} / ${t.max} HP${t.kind === "me" ? "" : ` · ${t.type}`}`, warnings: targetWarnings(t, rule, sp.name) })),
+        // A party member or anyone the app doesn't track: they add it on their own sheet (Blessed Healer still counts it).
+        { id: "other", name: "Someone else", sub: "A party member: they add it on their own sheet", warnings: [] as string[] },
+      ],
       max: rule?.max ?? 1,
       ...(selfBack ? { selfBack } : {}),
       onHeal: (ids: string[], n: number) => {
         for (const id of ids) {
+          if (id === "other") {
+            continue;
+          }
           const t = all.find((x) => x.id === id);
           if (!t) continue;
           if (t.kind === "me") live.current.act("heal", { amount: n }, `${sp.name}: healed ${n}.`);
@@ -2485,7 +2492,8 @@ export function App() {
             if (now) live.current.act("summonHp", { id: now.id, hp: Math.min(t.max, now.hp + n) }, `${sp.name}: ${t.name} healed ${Math.min(n, t.max - now.hp)}.`);
           }
         }
-        if (selfBack && ids.some((id) => id !== "me")) live.current.act("heal", { amount: selfBack.value }, `${selfBack.label}: you regain ${selfBack.value}.`);
+        if (selfBack && ids.some((id) => id !== "me"))
+          live.current.act("heal", { amount: selfBack.value }, `${ids.includes("other") ? `${sp.name}: ${n} to someone else. ` : ""}${selfBack.label}: you regain ${selfBack.value}.`);
         close();
       },
     };
