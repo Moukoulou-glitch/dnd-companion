@@ -49,6 +49,9 @@ export function recordOf(title: string, kind: RollRecord["kind"], r: ComposedRol
     physical: r.physical,
     lines,
   };
+  // Dice taken away (Diminution) brought it under the minimum: a line for the difference, so the lines still add up.
+  const floorUp = r.result.floored !== undefined ? r.result.total - r.result.terms.reduce((n, t) => n + t.total, 0) : 0;
+  if (floorUp > 0) rec.lines.push({ source: `At least ${r.result.floored} damage`, detail: "", total: floorUp });
   if (kind === "d20" && r.result.natural !== undefined) rec.natural = r.result.natural;
   if (kind === "damage") {
     const first = r.result.terms[0]?.term.label;
@@ -62,6 +65,7 @@ export function recordOf(title: string, kind: RollRecord["kind"], r: ComposedRol
       const type = t.term.kind === "dice" ? t.term.label ?? weaponType : weaponType;
       byType[type] = (byType[type] ?? 0) + t.total;
     }
+    if (floorUp > 0) byType[weaponType] = (byType[weaponType] ?? 0) + floorUp;
     rec.byType = byType;
   } else if (kind === "damage") {
     // Typed in as one total from your own dice: by type only when the roll has a single type.

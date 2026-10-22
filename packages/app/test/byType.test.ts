@@ -43,3 +43,21 @@ describe("8d: a part the target saves against", () => {
     expect(rec.saves![0]!.total).toBe(6);
   });
 });
+
+describe("10c fix: Diminution takes 1d4 off, never below 1", () => {
+  it("a negative die is subtracted; the total stays at least 1 with a line for the difference", async () => {
+    const { composeDamage, rollComposed } = await import("@dnd/dice");
+    const { recordOf } = await import("../src/rolls.js");
+    const base = { total: 0, parts: [], dice: [{ label: "Potion of Diminution", dice: "-1d4" }], advantage: [], disadvantage: [], suggestions: [] };
+    const c = composeDamage("1d4", "slashing", base as never);
+    expect(c.minTotal).toBe(1);
+    // Weapon 1, minus 4: floored to 1.
+    const rolled = rollComposed(c, [1, 4]);
+    expect(rolled.result.total).toBe(1);
+    const rec = recordOf("Dagger damage", "damage", rolled);
+    expect(rec.lines.map((l) => l.total).reduce((a, b) => a + b, 0)).toBe(1);
+    expect(rec.byType).toEqual({ slashing: 1 });
+    // Weapon 4, minus 1: 3.
+    expect(rollComposed(c, [4, 1]).result.total).toBe(3);
+  });
+});

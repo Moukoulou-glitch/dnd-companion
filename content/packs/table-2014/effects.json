@@ -3292,8 +3292,9 @@
         },
         {
           "selector": "roll.damage.weapon.*",
-          "op": "note",
-          "label": "Diminution: subtract 1d4 from the damage (minimum 1)"
+          "op": "add",
+          "value": "-1d4",
+          "label": "Potion of Diminution"
         }
       ],
       "reminders": [

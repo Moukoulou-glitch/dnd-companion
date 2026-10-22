@@ -66,6 +66,8 @@ export interface Composed {
   disadvantageFrom: string[];
   /** Damage parts the target saves against (by their source label): a poison sting's DC 11 Constitution save, half on a success. */
   saves?: { source: string; dc: number; ability: string; half: boolean }[];
+  /** The total can't go below this (dice taken away, Diminution's -1d4: at least 1 damage). */
+  minTotal?: number;
 }
 
 /** Adds every term of a dice expression ("3d4+3"); dice terms get the damage type as their label. */
@@ -139,6 +141,8 @@ export function composeDamage(
     for (const d of s.apply.dice) pushDice(out, d, s.label, s.apply.damageType ?? damageType);
   }
   pushFlat(out, choices.extra, "Added by hand");
+  // Dice taken away (Potion of Diminution: 1d4 less): the damage stays at least 1.
+  if (out.terms.some((t) => t.kind === "dice" && t.sign < 0)) out.minTotal = 1;
   // Great Weapon Fighting: each damage die of the attack showing this or lower is rolled once more, and the new roll counts.
   const reroll = Math.max(0, ...base.suggestions.filter((x) => choices.enabled.includes(x.label)).map((x) => x.apply.rerollAtOrBelow ?? 0));
   if (reroll > 0) out.terms = out.terms.map((t) => (t.kind === "dice" && t.sign > 0 ? { ...t, rerollAtOrBelow: Math.max(t.rerollAtOrBelow ?? 0, reroll) } : t));
@@ -171,6 +175,10 @@ export interface ComposedRoll {
 /** Rolls digitally (secure random) unless dice values from real dice are given. */
 export function rollComposed(c: Composed, physical?: number[], rng: Rng = secureRng): ComposedRoll {
   const result = roll(c.terms, physical ? scriptedRng(physical) : rng);
+  if (c.minTotal !== undefined && result.total < c.minTotal) {
+    result.total = c.minTotal;
+    result.floored = c.minTotal;
+  }
   return { composed: c, result, physical: !!physical };
 }
 
@@ -179,7 +187,8 @@ export function rollComposed(c: Composed, physical?: number[], rng: Rng = secure
  * table. This adds the flat modifiers to that total.
  */
 export function physicalDamageTotal(c: Composed, diceTotal: number): number {
-  return c.terms.reduce((sum, t) => sum + (t.kind === "flat" ? t.sign * t.value : 0), diceTotal);
+  const total = c.terms.reduce((sum, t) => sum + (t.kind === "flat" ? t.sign * t.value : 0), diceTotal);
+  return c.minTotal !== undefined ? Math.max(c.minTotal, total) : total;
 }
 
 /** How many d20s the player rolls for this roll (1, or 2 with advantage or disadvantage). */
@@ -191,11 +200,11 @@ export function d20Count(c: Composed): number {
 /** Number of dice of each size to roll, for the physical damage prompt: "2d8 + 4d6". */
 export function diceToRoll(c: Composed): string {
   const counts = new Map<number, number>();
-  for (const t of c.terms) if (t.kind === "dice") counts.set(t.sides, (counts.get(t.sides) ?? 0) + t.count);
-  return [...counts.entries()]
-    .sort((a, b) => b[0] - a[0])
-    .map(([sides, n]) => `${n}d${sides}`)
-    .join(" + ");
+  const minus = new Map<number, number>();
+  for (const t of c.terms) if (t.kind === "dice") (t.sign < 0 ? minus : counts).set(t.sides, ((t.sign < 0 ? minus : counts).get(t.sides) ?? 0) + t.count);
+  const list = (m: Map<number, number>) => [...m.entries()].sort((a, b) => b[0] - a[0]).map(([sides, n]) => `${n}d${sides}`);
+  // Dice taken away (Diminution): "1d8 − 1d4", the total typed with the small die subtracted.
+  return [list(counts).join(" + "), ...list(minus).map((d) => `− ${d}`)].filter(Boolean).join(" ");
 }
 
 /** What the sources say the d20 is, before the player's own override. */

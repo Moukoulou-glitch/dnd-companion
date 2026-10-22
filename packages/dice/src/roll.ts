@@ -60,6 +60,8 @@ export interface RollResult {
   formula: string;
   terms: TermResult[];
   total: number;
+  /** Raised to this minimum (at least 1 damage when dice were taken away). */
+  floored?: number;
   /** For d20 rolls: the natural d20 that counted. */
   natural?: number;
   crit: boolean;
