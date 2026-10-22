@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
-import { backupCost, copyCost, buildItems, shapeKindOf, customCompanionId, customItemId, customSpellId, withCustom, castingEconomy, castingMinutes, creatureSpellRoll, formatBonus, summonBlock, materialNeed, maxSpellLevel, newCharacter, spellListOf, signed, turnWarnings, type TurnIntent, type RollBreakdown } from "@dnd/engine";
+import { SPELL_TARGETS, friendlyTargets, targetWarnings, backupCost, copyCost, buildItems, shapeKindOf, customCompanionId, customItemId, customSpellId, withCustom, castingEconomy, castingMinutes, creatureSpellRoll, formatBonus, summonBlock, materialNeed, maxSpellLevel, newCharacter, spellListOf, signed, turnWarnings, type TurnIntent, type RollBreakdown } from "@dnd/engine";
 import { ABILITY_NAMES, SKILL_NAMES, type Character, type Skill } from "@dnd/schema";
 import { roll as rollDice, type ComposerBase } from "@dnd/dice";
 import { ShapePanel, TextList, TransformPanel } from "./components/Shapes";
@@ -2275,6 +2275,39 @@ export function App() {
 
   /** Attack or damage for a spell at a slot level; beams and portent come along. */
   /** `again`: a later use while it lasts (from the concentration chip), for the spell's effects. */
+  /**
+   * Who a healing spell can go to (you, companions out now, summoned creatures), with what its rules warn about,
+   * and how it's applied: each one healed by the roll; you regain Blessed Healer's when someone else is.
+   */
+  const healTargetsFor = (sp: SpellResult, level: number) => {
+    const ch = live.current.character!;
+    const sh = live.current.sheet!;
+    const key = sp.level === 0 ? 0 : level;
+    const rule = SPELL_TARGETS[sp.id];
+    const all = friendlyTargets(ch, sh, registry);
+    const back = sp.heal?.selfIfOthers?.[key];
+    const selfBack = back?.length ? { label: back.map((b) => b.label).join(", "), value: back.reduce((n, b) => n + b.value, 0) } : undefined;
+    return {
+      targets: all.map((t) => ({ id: t.id, name: t.name, sub: `${t.hp} / ${t.max} HP${t.kind === "me" ? "" : ` · ${t.type}`}`, warnings: targetWarnings(t, rule, sp.name) })),
+      max: rule?.max ?? 1,
+      ...(selfBack ? { selfBack } : {}),
+      onHeal: (ids: string[], n: number) => {
+        for (const id of ids) {
+          const t = all.find((x) => x.id === id);
+          if (!t) continue;
+          if (t.kind === "me") live.current.act("heal", { amount: n }, `${sp.name}: healed ${n}.`);
+          else if (t.kind === "companion") live.current.act("heal", { amount: n, companion: t.id }, `${sp.name}: ${t.name} healed ${n}.`);
+          else {
+            const now = live.current.character?.summons.find((m) => `summon:${m.id}` === t.id);
+            if (now) live.current.act("summonHp", { id: now.id, hp: Math.min(t.max, now.hp + n) }, `${sp.name}: ${t.name} healed ${Math.min(n, t.max - now.hp)}.`);
+          }
+        }
+        if (selfBack && ids.some((id) => id !== "me")) live.current.act("heal", { amount: selfBack.value }, `${selfBack.label}: you regain ${selfBack.value}.`);
+        close();
+      },
+    };
+  };
+
   const rollSpell = (sp: SpellResult, level: number, damageOnly: boolean, again = false, alt = false) => {
     const beams = sp.beams?.byLevel[sp.level === 0 ? 0 : level];
     const notes = beams && beams > 1 ? [`${beams} ${sp.beams!.what}, each its own attack: they can hit the same target or different ones. The app takes you through them one by one.`] : [];
@@ -2303,10 +2336,7 @@ export function App() {
         {...(beams && beams > 1 ? { repeat: { count: beams, what: sp.beams!.what } } : {})}
         {...(portent && !damageOnly ? { portent } : {})}
         healing={!!sp.heal && !sp.damage}
-        onHealSelf={(n) => {
-          live.current.act("heal", { amount: n }, `Healed ${n}.`);
-          close();
-        }}
+        {...(sp.heal && !sp.damage ? { healTargets: healTargetsFor(sp, level) } : {})}
         physical={live.current.character?.settings.physicalDice ?? true}
         onPhysicalChange={setPhysicalDice}
         onRolled={(r) => live.current.addRoll({ ...r, spell: sp.id, ...(again ? { again: true } : {}) })}
@@ -2485,6 +2515,24 @@ export function App() {
               const compEff = onComps.length ? effReg().find(sp.id.replace(/^spell:/, "effect:"), "effect") : undefined;
               if (compEff)
                 for (const cid of onComps) {
+                  // A summoned creature (Bless on your conjured wolf): its own effects, until they run out.
+                  if (cid.startsWith("summon:")) {
+                    const m = live.current.character?.summons.find((x) => `summon:${x.id}` === cid);
+                    if (m)
+                      live.current.act(
+                        "summonEffect",
+                        {
+                          id: m.id,
+                          effect: compEff.id,
+                          add: true,
+                          ...(compEff.rounds ? { rounds: compEff.rounds } : compEff.minutes ? { rounds: compEff.minutes * 10 } : {}),
+                          ...(compEff.upcast && level >= compEff.upcast.baseLevel ? { slotLevel: level } : {}),
+                          ...(choice ? { choice } : {}),
+                        },
+                        `${compEff.name} on ${m.name ?? registry.find(m.creature, "creature")?.name ?? "your creature"}.`,
+                      );
+                    continue;
+                  }
                   const cname = live.current.sheet?.companions.find((x) => x.id === cid)?.name ?? "your companion";
                   live.current.act(
                     "companionEffect",
@@ -2588,7 +2636,9 @@ export function App() {
           casterDamage={!!effReg().find(sp.id.replace(/^spell:/, "effect:"), "effect")?.modifiers.some((m) => m.selector.startsWith("roll.damage"))}
           initialCast={castAt}
           readying={readying}
-          companions={(live.current.sheet?.companions ?? []).filter((c) => c.form && !c.away && c.form.hp.current > 0 && !(c.summonedBy && !c.summonedBy.out)).map((c) => ({ id: c.id, name: c.name }))}
+          companions={friendlyTargets(live.current.character!, live.current.sheet!, registry)
+            .filter((t) => t.kind !== "me" && t.hp > 0)
+            .map((t) => ({ id: t.id, name: t.name, warnings: targetWarnings(t, SPELL_TARGETS[sp.id], sp.name) }))}
           onCast={(level, using, selfEffect, castingTime, onCompanions) => {
             castOnCompanions.current = onCompanions ?? [];
             castFlow(sp, level, using, selfEffect, readying, asReaction ? WAR_CASTER_TIME : castingTime);

@@ -135,7 +135,11 @@ export interface SpellResult {
   /** Damage or healing dice by the slot level it's cast at (cantrips: key 0). */
   /** `also`: more damage of other types in the same hit (Ice Storm's cold), each rolled as its own dice. */
   damage?: { type?: string; byLevel: Record<number, string>; also?: { type: string; byLevel: Record<number, string> }[]; label?: string; alt?: { label: string; byLevel: Record<number, string> } };
-  heal?: { byLevel: Record<number, string> };
+  /**
+   * Healing dice by slot level; `bonus`: flat healing added to each creature at that level (Disciple of Life: 2 + the spell's level);
+   * `selfIfOthers`: what you regain when it heals someone else (Blessed Healer).
+   */
+  heal?: { byLevel: Record<number, string>; bonus?: Record<number, { label: string; value: number }[]>; selfIfOthers?: Record<number, { label: string; value: number }[]> };
   damageBonus?: RollBreakdown;
   /** How it can be cast right now. */
   /** Can be cast at just one creature (for War Caster). */
@@ -1394,7 +1398,25 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       const adeptTypes = sources.filter((x) => x.id === "feat:elemental-adept").flatMap((x) => x.choices.type ?? []);
       if (adeptTypes.length && def.damage?.type && adeptTypes.includes(def.damage.type)) r.damageBonus.minDie = { value: pb, types: adeptTypes, label: "Elemental Adept" };
     }
-    if (def.heal) r.heal = { byLevel: levelsFor(def.heal.atSlot)! };
+    if (def.heal) {
+      r.heal = { byLevel: levelsFor(def.heal.atSlot)! };
+      // "roll.heal.spell" (Disciple of Life) and "roll.heal.spell.selfIfOthers" (Blessed Healer): worked out at each slot level, leveled spells only.
+      if (def.level > 0) {
+        const perLevel = (selector: string) => {
+          const out: Record<number, { label: string; value: number }[]> = {};
+          for (const s of sources)
+            for (const m of s.grant.modifiers ?? []) {
+              if (m.selector !== selector || m.op !== "add" || m.value === undefined) continue;
+              for (const l of Object.keys(r.heal!.byLevel).map(Number)) (out[l] ??= []).push({ label: m.label ?? s.label, value: evalFlat(m.value, { ...ctxFor(s), slotLevel: l }) });
+            }
+          return Object.keys(out).length ? out : undefined;
+        };
+        const bonus = perLevel("roll.heal.spell");
+        if (bonus) r.heal.bonus = bonus;
+        const back = perLevel("roll.heal.spell.selfIfOthers");
+        if (back) r.heal.selfIfOthers = back;
+      }
+    }
     const typeChoices = r.damage ? damageTypeChoices(def, r.damage.type, list) : [];
     if (typeChoices.length) r.typeChoices = typeChoices;
     if (!granted?.atWill && slots.pact && def.level > 0 && def.level <= slots.pact.level) {

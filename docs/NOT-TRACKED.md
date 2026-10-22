@@ -188,3 +188,9 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 - Fizban's Platinum Shield on you adds half cover (+2 AC and Dexterity saves) and the resistances; evasion is a reminder. Moving it to someone else is ending it on you.
 - Dragonborn (Fizban's): the breath weapon counts as one attack of the Attack action (the app warns past your number of attacks). Metallic Breath Weapon: pick Enervating or Repulsion when used; the targets' saves are the DM's.
 - Gift of the Chromatic Dragon: Chromatic Infusion's +1d4 of the picked type is ticked on weapon damage for its minute (untick it for a weapon you didn't touch). Gift of the Gem Dragon: Telekinetic Reprisal's DC uses the ability the feat raised.
+
+## Healing and effects on others (round 9)
+
+- Who a spell can target is known for the common healing and helping spells (SPELL_TARGETS); for the rest the app offers every creature without a warning. Warnings never block.
+- A spell's effect on a summoned creature lasts its rounds; it doesn't end with your concentration on its own (end it from the creature's card). Companions' effects do follow your concentration.
+- Features that heal or help others (Healing Hands, Lay on Hands, Bardic Inspiration) and potions on companions come in 9f.

@@ -16,6 +16,13 @@ function withParts<T extends { dice: { label: string; dice: string; damageType?:
   return parts.length ? { ...bonus, dice: [...bonus.dice, ...parts] } : bonus;
 }
 
+/** Healing added to each creature at this slot level (Disciple of Life: 2 + the spell's level), as fixed parts of the roll. */
+function withHealBonus<T extends { total: number; parts: { label: string; value: number }[] }>(sp: SpellResult, key: number, bonus: T): T {
+  const extra = sp.damage ? undefined : sp.heal?.bonus?.[key];
+  if (!extra?.length) return bonus;
+  return { ...bonus, parts: [...bonus.parts, ...extra], total: bonus.total + extra.reduce((n, x) => n + x.value, 0) };
+}
+
 /** A spell shaped like a weapon attack, so the roll composer can roll its attack and damage. */
 export function spellAsAttack(sp: SpellResult, level: number, alt = false): WeaponAttack & { saveNote?: string } {
   const key = sp.level === 0 ? 0 : level;
@@ -29,7 +36,7 @@ export function spellAsAttack(sp: SpellResult, level: number, alt = false): Weap
     ability: "int",
     proficient: true,
     attack: sp.attack ?? emptyRoll,
-    damage: { dice, type: sp.damage?.type ?? (sp.heal ? "healing" : ""), bonus: withParts(sp, key, sp.damageBonus ?? emptyRoll), onCrit: [], critExtraDice: [] },
+    damage: { dice, type: sp.damage?.type ?? (sp.heal ? "healing" : ""), bonus: withHealBonus(sp, key, withParts(sp, key, sp.damageBonus ?? emptyRoll)), onCrit: [], critExtraDice: [] },
     properties: [],
   };
   if (sp.save) {
@@ -293,7 +300,7 @@ export function SpellPanel({
   casterDamage?: boolean;
   onCast: (level: number, using: "slot" | "pact" | "free" | "ritual" | "none" | "extra" | "scroll" | "points", selfEffect: boolean, castingTime?: string, onCompanions?: string[]) => void;
   /** Your companions here now: its effect can go on them too (Bless on your wolf). */
-  companions?: { id: string; name: string }[];
+  companions?: { id: string; name: string; warnings?: string[] }[];
   /** Opens already cast at this level (after a turn warning was confirmed). */
   initialCast?: number | undefined;
   onPrepare: (prepared: boolean) => void;
@@ -399,6 +406,14 @@ export function SpellPanel({
                   </button>
                 );
               })}
+              {companions!
+                .filter((cp) => onComps.includes(cp.id))
+                .flatMap((cp) => cp.warnings ?? [])
+                .map((w) => (
+                  <p className="warn" role="alert" key={w} style={{ margin: "6px 0 0", width: "100%" }}>
+                    {w}
+                  </p>
+                ))}
             </div>
           )}
           <div className="cast-options">

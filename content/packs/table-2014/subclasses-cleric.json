@@ -4259,6 +4259,52 @@
           }
         ]
       }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:disciple-of-life",
+      "name": "Disciple of Life",
+      "summary": "Also starting at 1st level, your healing spells are more effective.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "Also starting at 1st level, your healing spells are more effective. Whenever you use a spell of 1st level or higher to restore hit points to a creature, the creature regains additional hit points equal to 2 + the spell's level."
+      ],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.heal.spell",
+            "op": "add",
+            "value": "2 + slotLevel",
+            "label": "Disciple of Life"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:blessed-healer",
+      "name": "Blessed Healer",
+      "summary": "Beginning at 6th level, the healing spells you cast on others heal you as well.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "Beginning at 6th level, the healing spells you cast on others heal you as well. When you cast a spell of 1st level or higher that restores hit points to a creature other than you, you regain hit points equal to 2 + the spell's level."
+      ],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.heal.spell.selfIfOthers",
+            "op": "add",
+            "value": "2 + slotLevel",
+            "label": "Blessed Healer"
+          }
+        ]
+      }
     }
   ]
 }

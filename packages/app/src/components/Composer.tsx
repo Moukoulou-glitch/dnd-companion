@@ -1,4 +1,5 @@
 import { RichText } from "./Conditions";
+import { HealTargets, type HealTarget } from "./HealTargets";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { rollThrown } from "../dice3d";
 import { NoWebGLError, SkipError, skipThrow, throwDice } from "../diceBox";
@@ -42,6 +43,8 @@ interface Props {
   /** The roll heals rather than damages: the result offers "Heal myself". */
   healing?: boolean;
   onHealSelf?: (amount: number) => void;
+  /** Who the healing can go to (you, companions, summoned creatures): replaces "Heal myself" with a choice. */
+  healTargets?: { targets: HealTarget[]; max: number; selfBack?: { label: string; value: number }; onHeal: (ids: string[], amount: number) => void };
   /** A DC the d20 roll must meet (concentration checks). */
   dc?: number;
   /** What the roll is against the DC ("Constitution saving throw"). */
@@ -321,7 +324,7 @@ export function ResultView({ r }: { r: RollRecord }) {
   );
 }
 
-export function Composer({ title, base: baseIn, attack, physical, onPhysicalChange, onRolled, onResolved, damageOnly, healing, onHealSelf, dc, dcLabel, reaction, onSpend, onCheck, notes, header, typeChoices, portent, onOptionsUsed, optionInfo, onCommit, repeat, onDamageOptions, afterRoll, onDone, diceSource }: Props) {
+export function Composer({ title, base: baseIn, attack, physical, onPhysicalChange, onRolled, onResolved, damageOnly, healing, onHealSelf, healTargets, dc, dcLabel, reaction, onSpend, onCheck, notes, header, typeChoices, portent, onOptionsUsed, optionInfo, onCommit, repeat, onDamageOptions, afterRoll, onDone, diceSource }: Props) {
   const [typePick, setTypePick] = useState<{ via: number; type: string } | null>(null);
   // A smite used on an earlier hit (Extra Attack's first attack, or this one rolled again) is gone: it can't be ticked again.
   const [usedUp, setUsedUp] = useState<UsedUp[]>([]);
@@ -873,7 +876,10 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
       <>
         <ResultView r={stage.record} />
         {throwNote && <p className="note">{throwNote}</p>}
-        {healing && onHealSelf && (
+        {healing && healTargets && (
+          <HealTargets targets={healTargets.targets} max={healTargets.max} amount={stage.record.total} selfBack={healTargets.selfBack} onHeal={(ids) => healTargets.onHeal(ids, stage.record.total)} />
+        )}
+        {healing && onHealSelf && !healTargets && (
           <button className="big heal wide" onClick={() => onHealSelf(stage.record.total)}>
             Heal myself {stage.record.total}
           </button>
