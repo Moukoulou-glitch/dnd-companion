@@ -96,3 +96,28 @@ describe("10b fixes: runes as tags (on until switched off); Hill and Storm befor
     expect(k(7, ["Hill Rune (7th)"]).warnings.some((w) => /needs Fighter level 7/.test(w))).toBe(false);
   });
 });
+
+describe("10d: Jack of All Trades and the tool guide", () => {
+  it("a bard 2 adds half proficiency (rounded down) to checks without proficiency: skills, tools, initiative", async () => {
+    const s = derive(
+      Character.parse({ id: "b", schemaVersion: 1, ruleset: "5e-2014", name: "B", abilities: { str: 8, dex: 14, con: 12, int: 10, wis: 10, cha: 16 }, race: "race:human", classes: [{ class: "class:bard", level: 2 }], hp: { current: 12, temp: 0 } }),
+      reg,
+    );
+    const jack = (parts: { label: string; value: number }[]) => parts.find((p) => p.label === "Jack of All Trades")?.value;
+    expect(jack(s.skills.athletics.parts)).toBe(1);
+    expect(jack(s.initiative.parts)).toBe(1);
+    expect(jack(s.anyTool.str.parts)).toBe(1);
+    // Proficient checks get the full bonus, not Jack's.
+    const lute = s.tools.find((t) => /lute|instrument/i.test(t.name));
+    if (lute) expect(jack(lute.checks.cha.parts)).toBeUndefined();
+    const fighter = knight();
+    expect(jack(fighter.skills.athletics.parts)).toBeUndefined();
+  });
+  it("the guide knows tools by name, instruments and gaming sets as families", async () => {
+    const { toolGuide } = await import("../src/toolGuide.js");
+    expect(toolGuide("Smith's tools")?.activities.map((a) => a.dc)).toEqual([10, 15, 15]);
+    expect(toolGuide("Lute")?.kind).toBe("Musical instrument");
+    expect(toolGuide("Playing card set")?.kind).toBe("Gaming set");
+    expect(toolGuide("Thieves' tools")?.activities[0]?.dc).toBe("varies");
+  });
+});

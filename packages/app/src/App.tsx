@@ -36,6 +36,7 @@ import { RollAdjustPanel } from "./components/RollAdjust";
 import { DurablePanel } from "./components/Durable";
 import { StablePanel } from "./components/Stable";
 import { ItemUsePanel } from "./components/ItemUse";
+import { ToolCheck } from "./components/ToolCheck";
 import { DefensesPanel } from "./components/Defenses";
 import { IdentityPanel } from "./components/PlayTab";
 import { HealerPanel } from "./components/Healer";
@@ -2129,29 +2130,14 @@ export function App() {
       },
     });
 
-  /** A tool or instrument check: which ability (the DM says which fits), then the roll. */
+  /** A tool or instrument check: what it's good for, which ability (the DM says which fits), then the roll. */
   const openTool = (name?: string) =>
     open(name ?? "Another tool or instrument", () => {
       const sh = live.current.sheet;
       if (!sh) return null;
       const t = name ? sh.tools.find((x) => x.name === name) : undefined;
       const checks = t?.checks ?? sh.anyTool;
-      return (
-        <>
-          <p className="note">
-            Which ability? The check's ability depends on what you do with it (Strength to force a lock with the tools, Intelligence to recall lore, Charisma to perform).
-            {t ? (t.proficiency === 2 ? ` Your proficiency bonus is doubled (${t.doubledBy}).` : " You add your proficiency bonus.") : " Without proficiency: no proficiency bonus."}
-          </p>
-          <div className="choice-grid">
-            {ABILITIES.map((ab) => (
-              <button key={ab} className="big" onClick={() => openRoll(`${name ?? "Tool"} (${ABILITY_NAMES[ab]})`, checks[ab])}>
-                {ABILITY_NAMES[ab]}
-                <span className="sub">{signed(checks[ab].total)}</span>
-              </button>
-            ))}
-          </div>
-        </>
-      );
+      return <ToolCheck name={name} proficiency={t?.proficiency ?? 0} doubledBy={t?.doubledBy} checks={checks} onRoll={(title, ab) => openRoll(title, checks[ab])} />;
     });
 
   const openBooks = () => open("Book text", <BooksPanel report={bookReport} />);

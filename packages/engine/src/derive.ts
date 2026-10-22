@@ -888,6 +888,10 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     saves[ab] = { ...roll([`roll.save.${ab}`], base), proficient };
   }
 
+  // Jack of All Trades (bard 2nd): half the proficiency bonus, rounded down, on ability checks without proficiency.
+  const jack = sources.find((s) => s.id === "feature:jack-of-all-trades");
+  const jackPart = (): Part[] => (jack ? [{ label: "Jack of All Trades", value: Math.floor(pb / 2) }] : []);
+
   // Skills.
   const skills = {} as Record<Skill, SkillResult>;
   for (const sk of SKILLS) {
@@ -896,7 +900,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     if (profs.expertise.has(sk) && !profs.skill.has(sk)) {
       warnings.push(`${SKILL_NAMES[sk]}: expertise without proficiency.`);
     }
-    const base = [abilityPart(ab), ...(proficiency > 0 ? [pbPart(proficiency)] : []), ...handParts("skill.all", "all skills"), ...handParts(`skill.${sk}`, "this skill")];
+    const base = [abilityPart(ab), ...(proficiency > 0 ? [pbPart(proficiency)] : jackPart()), ...handParts("skill.all", "all skills"), ...handParts(`skill.${sk}`, "this skill")];
     skills[sk] = { ...roll([`roll.check.skill.${sk}`, `roll.check.${ab}`], base), ability: ab, proficiency };
   }
 
@@ -907,7 +911,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     Object.fromEntries(
       ABILITIES.map((ab) => [
         ab,
-        roll([`roll.check.${ab}`, "roll.check.tool", ...(name ? [`roll.check.tool.${toolSlug(name)}`] : [])], [abilityPart(ab), ...(proficiency > 0 ? [pbPart(proficiency)] : [])]),
+        roll([`roll.check.${ab}`, "roll.check.tool", ...(name ? [`roll.check.tool.${toolSlug(name)}`] : [])], [abilityPart(ab), ...(proficiency > 0 ? [pbPart(proficiency)] : jackPart())]),
       ]),
     ) as Record<Ability, RollBreakdown>;
   const tools: ToolResult[] = [...profs.tool].sort((a, b) => a.localeCompare(b)).map((name) => {
@@ -965,7 +969,8 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
   const ac = sum(acParts);
 
   // Initiative is a Dexterity check, so check bonuses apply too.
-  const initiative = roll(["roll.initiative", "roll.check.dex"], [abilityPart("dex")]);
+  // Initiative is a Dexterity check: Jack of All Trades counts.
+  const initiative = roll(["roll.initiative", "roll.check.dex"], [abilityPart("dex"), ...jackPart()]);
 
   // Jumping (PHB p. 182). Selectors: stat.jump.* (both jumps, both ways: Athlete, Peerless Athlete, and the
   // multipliers: Jump, Step of the Wind, Boots of Striding and Springing), stat.jump.long.* / stat.jump.high.*,
