@@ -121,3 +121,18 @@ describe("10d: Jack of All Trades and the tool guide", () => {
     expect(toolGuide("Thieves' tools")?.activities[0]?.dc).toBe("varies");
   });
 });
+
+describe("Remarkable Athlete: half proficiency, rounded up, on Str/Dex/Con checks without proficiency", () => {
+  it("a champion 7 gets +2 (PB 3) on Athletics if not proficient, initiative and Str tool checks; not on Wisdom or proficient skills", () => {
+    const s = derive(
+      Character.parse({ id: "c", schemaVersion: 1, ruleset: "5e-2014", name: "C", abilities: { str: 16, dex: 12, con: 14, int: 10, wis: 10, cha: 8 }, race: "race:human", classes: [{ class: "class:fighter", level: 7, subclass: "subclass:champion" }], hp: { current: 60, temp: 0 } }),
+      reg,
+    );
+    const ra = (parts: { label: string; value: number }[]) => parts.find((p) => p.label === "Remarkable Athlete")?.value;
+    expect(ra(s.skills.acrobatics.parts)).toBe(2);
+    expect(ra(s.initiative.parts)).toBe(2);
+    expect(ra(s.anyTool.con.parts)).toBe(2);
+    expect(ra(s.skills.perception.parts)).toBeUndefined();
+    expect(ra(s.anyTool.int.parts)).toBeUndefined();
+  });
+});
