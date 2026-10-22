@@ -2198,6 +2198,28 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       break;
     }
 
+    case "useItem": {
+      const inst = c.inventory.find((i) => i.id === op.payload.instanceId);
+      if (!inst) {
+        notes.push("That item is no longer in the inventory.");
+        break;
+      }
+      const def = reg.find(inst.item, "item");
+      const use = def?.use;
+      const name = inst.name ?? def?.name ?? "The item";
+      if (!use) {
+        notes.push(`${name} has nothing to use.`);
+        break;
+      }
+      if (use.consumed) {
+        inst.quantity -= 1;
+        if (inst.quantity <= 0) c.inventory = c.inventory.filter((i) => i !== inst);
+        notes.push(`${name} ${op.payload.given ? "given" : "used"}: ${Math.max(0, inst.quantity)} left.`);
+      }
+      spendTurn(use.economy);
+      break;
+    }
+
     case "learnSpell": {
       const { spell, list } = op.payload;
       const there = c.spells.find((x) => x.spell === spell && x.list === list);

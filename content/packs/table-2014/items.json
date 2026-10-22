@@ -798,6 +798,118 @@
           }
         ]
       }
+    },
+    {
+      "kind": "item",
+      "id": "item:potion-of-healing",
+      "name": "Potion of Healing",
+      "summary": "Drink it, or give it to another creature (an action either way): 2d4 + 2 hit points.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "consumable",
+      "weight": 0.5,
+      "magic": {
+        "rarity": "common"
+      },
+      "text": [
+        "You regain 2d4 + 2 hit points when you drink this potion. The potion's red liquid glimmers when agitated."
+      ],
+      "use": {
+        "economy": "action",
+        "heal": {
+          "dice": "2d4",
+          "bonus": 2
+        },
+        "consumed": true,
+        "note": "Drinking it or giving it to another creature takes an action."
+      },
+      "cost": {
+        "amount": 50,
+        "unit": "gp"
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:potion-of-greater-healing",
+      "name": "Potion of Greater Healing",
+      "summary": "Drink it, or give it to another creature (an action either way): 4d4 + 4 hit points.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "consumable",
+      "weight": 0.5,
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "text": [
+        "You regain 4d4 + 4 hit points when you drink this potion. The potion's red liquid glimmers when agitated."
+      ],
+      "use": {
+        "economy": "action",
+        "heal": {
+          "dice": "4d4",
+          "bonus": 4
+        },
+        "consumed": true,
+        "note": "Drinking it or giving it to another creature takes an action."
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:potion-of-superior-healing",
+      "name": "Potion of Superior Healing",
+      "summary": "Drink it, or give it to another creature (an action either way): 8d4 + 8 hit points.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "consumable",
+      "weight": 0.5,
+      "magic": {
+        "rarity": "rare"
+      },
+      "text": [
+        "You regain 8d4 + 8 hit points when you drink this potion. The potion's red liquid glimmers when agitated."
+      ],
+      "use": {
+        "economy": "action",
+        "heal": {
+          "dice": "8d4",
+          "bonus": 8
+        },
+        "consumed": true,
+        "note": "Drinking it or giving it to another creature takes an action."
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:potion-of-supreme-healing",
+      "name": "Potion of Supreme Healing",
+      "summary": "Drink it, or give it to another creature (an action either way): 10d4 + 20 hit points.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "consumable",
+      "weight": 0.5,
+      "magic": {
+        "rarity": "very rare"
+      },
+      "text": [
+        "You regain 10d4 + 20 hit points when you drink this potion. The potion's red liquid glimmers when agitated."
+      ],
+      "use": {
+        "economy": "action",
+        "heal": {
+          "dice": "10d4",
+          "bonus": 20
+        },
+        "consumed": true,
+        "note": "Drinking it or giving it to another creature takes an action."
+      }
     }
   ]
 }

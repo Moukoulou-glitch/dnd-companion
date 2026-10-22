@@ -426,6 +426,8 @@ export const OPERATION_PAYLOADS = {
    * `notInBook` + `prepared`: prepared today without being in the spellbook (the app warns, never blocks).
    * Learning a spell that is there as notInBook copies it into the book.
    */
+  /** An item used up (a potion): one fewer, and the part of the turn it takes. `given`: given to another creature. */
+  useItem: z.object({ instanceId: z.string(), given: z.boolean().optional() }).strict(),
   learnSpell: z.object({ spell: z.string(), list: z.string(), cost: z.number().min(0).optional(), notInBook: z.boolean().optional(), prepared: z.boolean().optional() }).strict(),
   /** A wizard copies a scroll's spell into the spellbook (DMG p. 200): the Arcana check passed or not, the scroll is gone either way. */
   copyScroll: z.object({ instanceId: z.string(), success: z.boolean() }).strict(),
@@ -535,6 +537,7 @@ export const Operation = z.discriminatedUnion("type", [
   OperationBase.extend({ type: z.literal("setAbilities"), payload: OPERATION_PAYLOADS.setAbilities }),
   OperationBase.extend({ type: z.literal("chooseAsi"), payload: OPERATION_PAYLOADS.chooseAsi }),
   OperationBase.extend({ type: z.literal("setDetails"), payload: OPERATION_PAYLOADS.setDetails }),
+  OperationBase.extend({ type: z.literal("useItem"), payload: OPERATION_PAYLOADS.useItem }),
   OperationBase.extend({ type: z.literal("learnSpell"), payload: OPERATION_PAYLOADS.learnSpell }),
   OperationBase.extend({ type: z.literal("forgetSpell"), payload: OPERATION_PAYLOADS.forgetSpell }),
   OperationBase.extend({ type: z.literal("companionAction"), payload: OPERATION_PAYLOADS.companionAction }),

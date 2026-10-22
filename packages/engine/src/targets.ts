@@ -66,6 +66,13 @@ export const SPELL_TARGETS: Record<string, TargetRule> = {
   "spell:fizbans-platinum-shield": {},
 };
 
+/** Features' actions, by action id. */
+export const ACTION_TARGETS: Record<string, TargetRule> = {
+  "bardic-inspiration": { hear: true, notSelf: true },
+  "lay-on-hands": { notTypes: LIVING },
+  "healing-hands": {},
+};
+
 /** Someone a spell or feature can be used on: you, a companion, a summoned creature. */
 export interface FriendlyTarget {
   /** "me", the companion's id, or "summon:<id>". */

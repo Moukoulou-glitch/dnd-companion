@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
-import { SPELL_TARGETS, friendlyTargets, targetWarnings, backupCost, copyCost, buildItems, shapeKindOf, customCompanionId, customItemId, customSpellId, withCustom, castingEconomy, castingMinutes, creatureSpellRoll, formatBonus, summonBlock, materialNeed, maxSpellLevel, newCharacter, spellListOf, signed, turnWarnings, type TurnIntent, type RollBreakdown } from "@dnd/engine";
+import { ACTION_TARGETS, SPELL_TARGETS, friendlyTargets, targetWarnings, backupCost, copyCost, buildItems, shapeKindOf, customCompanionId, customItemId, customSpellId, withCustom, castingEconomy, castingMinutes, creatureSpellRoll, formatBonus, summonBlock, materialNeed, maxSpellLevel, newCharacter, spellListOf, signed, turnWarnings, type TurnIntent, type RollBreakdown } from "@dnd/engine";
 import { ABILITY_NAMES, SKILL_NAMES, type Character, type Skill } from "@dnd/schema";
 import { roll as rollDice, type ComposerBase } from "@dnd/dice";
 import { ShapePanel, TextList, TransformPanel } from "./components/Shapes";
@@ -1197,7 +1197,8 @@ export function App() {
                 }),
               }
             : {})}
-          onUse={(rolled, free, check, choice, spend, onMe) => {
+          {...(current.others || current.gives || current.spendAmount?.heals ? { targets: featureTargets(current) } : {})}
+          onUse={(rolled, free, check, choice, spend, onMe, target) => {
             // Readying a spell: pick it, then cast it now and hold it.
             if (choice === "Cast a Spell" && current.choose) return openReadySpell();
             if (a.id === "preserve-life") return openPreserveLife(!!free);
@@ -1232,9 +1233,15 @@ export function App() {
                 () => {
                   live.current.act("useAction", payload, label);
                   // Its effect on you (Bardic Inspiration on yourself, if your table allows it): the die it gives.
+                  const die = current.gives && current.cost ? live.current.sheet?.resources.find((r) => r.id === current.cost!.resource)?.die : undefined;
                   if (current.gives && onMe) {
-                    const die = current.cost ? live.current.sheet?.resources.find((r) => r.id === current.cost!.resource)?.die : undefined;
                     live.current.act("addEffect", { instanceId: crypto.randomUUID(), effect: current.gives.effect, ...(die ? { choice: die } : {}) }, `${current.name} on you${die ? ` (${die})` : ""}.`);
+                  }
+                  // On a companion or a summoned creature: its effect, or its healing.
+                  if (target && target !== "me" && target !== "other") {
+                    const healed = spend?.amount ?? (current.heal && rolled !== undefined ? rolled : undefined);
+                    if (current.gives) giveEffectTo(target, current.gives.effect, die, current.name);
+                    if (healed !== undefined && (current.heal || current.spendAmount?.heals)) healTarget(target, healed, current.name);
                   }
                   flashForFeature(current.id);
                   // Hound of Ill Omen: straight to the companion it brought out.
@@ -1338,6 +1345,7 @@ export function App() {
           {...(scrollSpell ? { onRead: () => openSpell(scrollSpell) } : {})}
           {...(copyable(inst) ? { onCopy: () => openCopyScroll(inst.id) } : {})}
           onCustomSpell={() => openCustomSpell(undefined, () => openItem(inst.id))}
+          {...(itemDef(effReg(), inst.item).use ? { onUse: () => openItemUse(inst.id) } : {})}
         />
       );
     });
@@ -2275,6 +2283,93 @@ export function App() {
 
   /** Attack or damage for a spell at a slot level; beams and portent come along. */
   /** `again`: a later use while it lasts (from the concentration chip), for the spell's effects. */
+  /**
+   * Using up an item (a potion): its healing rolled (3D dice or yours), then who drinks it: you, a companion,
+   * a summoned creature, or someone the app doesn't track. One fewer in the inventory either way.
+   */
+  const openItemUse = (instanceId: string) => {
+    const inst = live.current.character?.inventory.find((i) => i.id === instanceId);
+    if (!inst) return;
+    const def = itemDef(effReg(), inst.item);
+    const use = def.use;
+    if (!use?.heal) {
+      live.current.act("useItem", { instanceId }, `${def.name} used.`);
+      return close();
+    }
+    const name = inst.name ?? def.name;
+    const emptyRoll = { total: 0, parts: [], dice: [], advantage: [], disadvantage: [], suggestions: [] };
+    const attack: WeaponAttack = {
+      attackId: def.id,
+      name,
+      mode: "ranged",
+      action: "attack",
+      ability: "con",
+      proficient: false,
+      attack: emptyRoll,
+      damage: { dice: use.heal.dice, type: "healing", bonus: { ...emptyRoll, total: use.heal.bonus, parts: use.heal.bonus ? [{ label: name, value: use.heal.bonus }] : [] }, onCrit: [], critExtraDice: [] },
+      properties: [],
+    };
+    const all = friendlyTargets(live.current.character!, live.current.sheet!, registry);
+    open(name, () => (
+      <Composer
+        title={name}
+        base={live.current.sheet!.saves.con}
+        attack={attack}
+        damageOnly
+        healing
+        healTargets={{
+          targets: [
+            ...all.map((t) => ({ id: t.id, name: t.name, sub: `${t.hp} / ${t.max} HP${t.kind === "me" ? "" : ` · ${t.type}`}`, warnings: t.hp === 0 && t.kind !== "me" ? targetWarnings(t, {}, name) : [] })),
+            { id: "other", name: "Someone else", sub: "They track it on their own sheet", warnings: [] },
+          ],
+          max: 1,
+          onHeal: (ids, n) => {
+            const id = ids[0] ?? "me";
+            live.current.act("useItem", { instanceId, ...(id !== "me" ? { given: true } : {}) }, id === "me" ? `${name}: drunk.` : id === "other" ? `${name}: given, ${n} hit points to that creature.` : `${name}: given.`);
+            if (id !== "other") healTarget(id, n, name);
+            close();
+          },
+        }}
+        physical={live.current.character?.settings.physicalDice ?? true}
+        onPhysicalChange={setPhysicalDice}
+        onRolled={(r) => live.current.addRoll(r)}
+      />
+    ));
+  };
+
+  /** Who a feature can go to: you, companions, summoned creatures, or someone the app doesn't track. */
+  const featureTargets = (a: ActionResult) => {
+    const rule = ACTION_TARGETS[a.id];
+    const all = friendlyTargets(live.current.character!, live.current.sheet!, registry);
+    return [
+      ...all.map((t) => ({ id: t.id, name: t.name, sub: `${t.hp} / ${t.max} HP${t.kind === "me" ? "" : ` · ${t.type}`}`, warnings: targetWarnings(t, rule, a.name) })),
+      { id: "other", name: "Someone else", sub: "They track it on their own sheet", warnings: [] as string[] },
+    ];
+  };
+  /** Hit points to a companion or a summoned creature (capped at its maximum). */
+  const healTarget = (id: string, n: number, what: string) => {
+    const t = friendlyTargets(live.current.character!, live.current.sheet!, registry).find((x) => x.id === id);
+    if (!t) return;
+    if (t.kind === "me") live.current.act("heal", { amount: n }, `${what}: healed ${n}.`);
+    else if (t.kind === "companion") live.current.act("heal", { amount: n, companion: t.id }, `${what}: ${t.name} healed ${n}.`);
+    else {
+      const m = live.current.character?.summons.find((x) => `summon:${x.id}` === id);
+      if (m) live.current.act("summonHp", { id: m.id, hp: Math.min(t.max, m.hp + n) }, `${what}: ${t.name} healed ${Math.min(n, t.max - m.hp)}.`);
+    }
+  };
+  /** An effect a feature gives (Bardic Inspiration's die) on a companion or a summoned creature. */
+  const giveEffectTo = (id: string, effect: string, choice: string | undefined, what: string) => {
+    const eff = effReg().find(effect, "effect");
+    const rounds = eff?.rounds ?? (eff?.minutes ? eff.minutes * 10 : undefined);
+    if (id.startsWith("summon:")) {
+      const m = live.current.character?.summons.find((x) => `summon:${x.id}` === id);
+      if (m) live.current.act("summonEffect", { id: m.id, effect, add: true, ...(rounds ? { rounds } : {}), ...(choice ? { choice } : {}) }, `${what} on ${m.name ?? registry.find(m.creature, "creature")?.name ?? "your creature"}${choice ? ` (${choice})` : ""}.`);
+      return;
+    }
+    const name = live.current.sheet?.companions.find((x) => x.id === id)?.name ?? "your companion";
+    live.current.act("companionEffect", { companion: id, effect, add: true, ...(rounds ? { rounds } : {}), ...(choice ? { choice } : {}) }, `${what} on ${name}${choice ? ` (${choice})` : ""}.`);
+  };
+
   /**
    * Who a healing spell can go to (you, companions out now, summoned creatures), with what its rules warn about,
    * and how it's applied: each one healed by the roll; you regain Blessed Healer's when someone else is.

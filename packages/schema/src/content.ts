@@ -265,6 +265,19 @@ export const ItemDef = z
     tags: z.array(z.string()).optional(),
     /** What a pack holds (Explorer's Pack): unpacked into these items at character creation. */
     contents: z.array(EquipCount).optional(),
+    /**
+     * Used up from the inventory (a potion): drunk, or given to another creature, with the part of the turn it takes.
+     * `heal`: the hit points it restores (Potion of Healing: 2d4 + 2).
+     */
+    use: z
+      .object({
+        economy: z.enum(["action", "bonus"]),
+        heal: z.object({ dice: z.string(), bonus: z.number().int().default(0) }).strict().optional(),
+        consumed: z.boolean().default(true),
+        note: z.string().optional(),
+      })
+      .strict()
+      .optional(),
   })
   .strict();
 export type ItemDef = z.infer<typeof ItemDef>;

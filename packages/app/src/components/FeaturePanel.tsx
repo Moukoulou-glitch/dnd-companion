@@ -26,13 +26,19 @@ export function FeaturePanel({
   physical,
   onUse,
   checks,
+  targets,
 }: {
+  /**
+   * Who it can go to, when it heals or gives something (Healing Hands, Lay on Hands, Bardic Inspiration):
+   * you, your companions, your summoned creatures, or someone the app doesn't track ("other"). Warnings never block.
+   */
+  targets?: { id: string; name: string; sub?: string; warnings: string[] }[];
   a: ActionResult;
   text?: string[] | undefined;
   physical: boolean;
   /** The third argument: the skill to roll right after (Hide: stealth). */
   /** onMe: for an action that can heal someone else (Healing Hands), whether it was on you. */
-  onUse: (rolled?: number, free?: boolean, check?: string, choice?: string, spend?: { amount: number; healSelf: boolean }, onMe?: boolean) => void;
+  onUse: (rolled?: number, free?: boolean, check?: string, choice?: string, spend?: { amount: number; healSelf: boolean }, onMe?: boolean, target?: string) => void;
   /** Skills it can roll, with their names and bonuses. */
   checks?: { skill: string; name: string; bonus: string }[];
 }) {
@@ -41,7 +47,13 @@ export function FeaturePanel({
   const [points, setPoints] = useState("");
   // Healing Hands and the like: on someone else unless ticked.
   const [onMe, setOnMe] = useState(false);
-  const me = a.others || a.gives ? onMe : undefined;
+  // Who it goes to, when the app knows the candidates: you, a companion, a summoned creature, or someone else.
+  const pickable = !!targets?.length && (!!a.others || !!a.gives || !!a.spendAmount?.heals);
+  const [target, setTarget] = useState(a.spendAmount?.heals ? "me" : "other");
+  const me = pickable ? target === "me" : a.others || a.gives ? onMe : undefined;
+  const useWith = (rolled?: number, free?: boolean, check?: string, choice?: string, spend?: { amount: number; healSelf: boolean }, onMeArg?: boolean) =>
+    onUse(rolled, free, check, choice, spend, onMeArg, pickable ? target : undefined);
+  const targetName = targets?.find((t) => t.id === target)?.name ?? "them";
   const none = a.cost && a.cost.remaining < a.cost.amount;
 
   const [throwing, setThrowing] = useState(false);
@@ -56,8 +68,8 @@ export function FeaturePanel({
     };
   }, []);
   const useNow = async (free = false) => {
-    if (!amount) return onUse(undefined, free, undefined, undefined, undefined, me);
-    if (physical) return onUse(Number(entry) + amount.flat, free, undefined, undefined, undefined, me);
+    if (!amount) return useWith(undefined, free, undefined, undefined, undefined, me);
+    if (physical) return useWith(Number(entry) + amount.flat, free, undefined, undefined, undefined, me);
     // The app rolls for this character: 3D dice when they're on (in the feature's own look: Second Wind's), else the app's roll.
     setThrowing(true);
     inAir.current = true;
@@ -74,7 +86,7 @@ export function FeaturePanel({
       }
       inAir.current = false;
       if (!alive.current) return;
-      return onUse(Math.max(0, total), free, undefined, undefined, undefined, me);
+      return useWith(Math.max(0, total), free, undefined, undefined, undefined, me);
     } finally {
       inAir.current = false;
       if (alive.current) setThrowing(false);
@@ -107,7 +119,29 @@ export function FeaturePanel({
           {none ? " None left; you can still use it if your DM allows." : ""}
         </p>
       )}
-      {a.gives && !a.others && (
+      {pickable && (
+        <>
+          <p className="sub-head">{a.gives ? "Give it to" : "On whom?"}</p>
+          <div className="group">
+            {targets!.map((t) => (
+              <label className="row check" key={t.id}>
+                <input type="radio" name="feature-target" checked={target === t.id} onChange={() => setTarget(t.id)} />
+                <div className="row-main">
+                  <div className="row-title">{t.id === "me" ? `Me (${t.name})` : t.name}</div>
+                  {t.sub && <div className="row-sub">{t.sub}</div>}
+                  {t.warnings.map((w) => (
+                    <div className="row-sub danger-text" key={w}>
+                      {w}
+                    </div>
+                  ))}
+                </div>
+              </label>
+            ))}
+          </div>
+          {target === "me" && a.gives?.selfWarning && <p className="over-banner">{a.gives.selfWarning}</p>}
+        </>
+      )}
+      {!pickable && a.gives && !a.others && (
         <>
           <label className="row check" style={{ padding: "8px 0" }}>
             <input type="checkbox" checked={onMe} onChange={() => setOnMe(!onMe)} />
@@ -119,7 +153,7 @@ export function FeaturePanel({
           {onMe && a.gives.selfWarning && <p className="over-banner">{a.gives.selfWarning}</p>}
         </>
       )}
-      {a.others && (
+      {!pickable && a.others && (
         <label className="row check" style={{ padding: "8px 0" }}>
           <input type="checkbox" checked={onMe} onChange={() => setOnMe(!onMe)} />
           <div className="row-main">
@@ -150,23 +184,29 @@ export function FeaturePanel({
             </span>
             <input inputMode="numeric" pattern="[0-9]*" value={points} onChange={(e) => setPoints(e.target.value.replace(/\D/g, "").slice(0, 3))} />
           </label>
+          {pickable && a.spendAmount.heals ? (
+            <button className="big primary wide" disabled={!Number(points)} onClick={() => useWith(undefined, false, undefined, undefined, { amount: Number(points), healSelf: target === "me" })}>
+              Heal {target === "me" ? "me" : targetName} {points || ""}
+            </button>
+          ) : (
           <div className="big-actions">
             {a.spendAmount.heals && (
-              <button className="big primary" disabled={!Number(points)} onClick={() => onUse(undefined, false, undefined, undefined, { amount: Number(points), healSelf: true })}>
+              <button className="big primary" disabled={!Number(points)} onClick={() => useWith(undefined, false, undefined, undefined, { amount: Number(points), healSelf: true })}>
                 Heal myself
               </button>
             )}
-            <button className="big" disabled={!Number(points)} onClick={() => onUse(undefined, false, undefined, undefined, { amount: Number(points), healSelf: false })}>
+            <button className="big" disabled={!Number(points)} onClick={() => useWith(undefined, false, undefined, undefined, { amount: Number(points), healSelf: false })}>
               {a.spendAmount.heals ? "Someone else" : `Spend ${points || ""}`}
             </button>
           </div>
+          )}
         </>
       ) : a.choose ? (
         <>
           <p className="sub-head">{a.choose.label}</p>
           <div className="choice-grid">
             {a.choose.options.map((o) => (
-              <button key={o} className="big" onClick={() => onUse(undefined, false, undefined, o)}>
+              <button key={o} className="big" onClick={() => useWith(undefined, false, undefined, o)}>
                 {o}
               </button>
             ))}
@@ -175,7 +215,7 @@ export function FeaturePanel({
       ) : checks && checks.length > 0 ? (
         <>
           {checks.map((ch) => (
-            <button key={ch.skill} className="big wide primary" style={{ marginBottom: 8 }} onClick={() => onUse(undefined, false, ch.skill)}>
+            <button key={ch.skill} className="big wide primary" style={{ marginBottom: 8 }} onClick={() => useWith(undefined, false, ch.skill)}>
               {a.name}: roll {ch.name}
               <span className="sub">
                 {ch.bonus}
@@ -184,7 +224,7 @@ export function FeaturePanel({
               </span>
             </button>
           ))}
-          <button className="link" onClick={() => onUse()}>
+          <button className="link" onClick={() => useWith()}>
             Use it without rolling here
           </button>
         </>

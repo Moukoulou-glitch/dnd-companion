@@ -125,9 +125,12 @@ export function ItemPanel({
   onCustomSpell,
   custom,
   onEditCustom,
+  onUse,
 }: {
   inst: Inst;
   def: ItemDef;
+  /** Something to use up (a potion): drink it or give it, its roll and who it goes to. */
+  onUse?: () => void;
   /** One of your own items: what it says and what the sheet applies, and a way to change it. */
   custom?: CustomItem;
   onEditCustom?: () => void;
@@ -185,6 +188,12 @@ export function ItemPanel({
         </details>
       )}
       {inst.name && inst.name !== def.name && <p className="row-sub">{def.name}</p>}
+      {def.use && onUse && (
+        <button className="big primary wide" style={{ marginBottom: 10 }} disabled={inst.quantity < 1} onClick={onUse}>
+          {def.use.heal ? `Drink or give: ${def.use.heal.dice}${def.use.heal.bonus ? ` + ${def.use.heal.bonus}` : ""} hit points` : `Use ${name}`}
+          {def.use.note && <span className="sub">{def.use.note}</span>}
+        </button>
+      )}
       {isScroll(def) && <ScrollSpell inst={inst} def={def} act={act} spells={spells} {...(onRead ? { onRead } : {})} {...(onCopy ? { onCopy } : {})} onCustom={onCustomSpell ?? (() => {})} />}
       <div className="group">
         <div className="row">

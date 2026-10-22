@@ -15,4 +15,4 @@ export * from "./tags.js";
 export * from "./custom.js";
 export * from "./expanded.js";
 export { SPIRIT_PREFIX, parseSpiritId, spiritCreature, spiritId } from "./spirits.js";
-export { SPELL_TARGETS, friendlyTargets, targetWarnings, type FriendlyTarget, type TargetRule } from "./targets.js";
+export { ACTION_TARGETS, SPELL_TARGETS, friendlyTargets, targetWarnings, type FriendlyTarget, type TargetRule } from "./targets.js";

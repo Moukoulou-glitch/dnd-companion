@@ -193,4 +193,5 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 
 - Who a spell can target is known for the common healing and helping spells (SPELL_TARGETS); for the rest the app offers every creature without a warning. Warnings never block.
 - A spell's effect on a companion or a summoned creature ends with your concentration (a creature summoned by a concentration spell goes with it anyway).
-- Features that heal or help others (Healing Hands, Lay on Hands, Bardic Inspiration) and potions on companions come in 9f.
+- Features: Healing Hands, Lay on Hands and Bardic Inspiration pick who they go to. Lay on Hands spends the points you type even when the creature needs fewer (its HP is capped at its maximum). Curing a disease or poison with Lay on Hands is spent as points only.
+- Potions: only the four healing potions use up and heal; other potions are items with their text. "Someone else" isn't tracked (the potion is gone from your inventory).

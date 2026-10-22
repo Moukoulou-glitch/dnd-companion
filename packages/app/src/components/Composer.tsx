@@ -384,7 +384,7 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
       }),
     };
     const twoHanded = isVersatile(attack) && hands === "two";
-    const c = composeDamage(weaponDiceFor(attack, chosenHands), typePick?.type ?? attack.damage.type, bonus, damageChoices, attack.attackId.startsWith("spell:") ? attack.name : attack.attackId.startsWith("trait:") ? `${attack.name.replace(/^.*?: /, "")}${attack.damage.type ? ` (${attack.damage.type})` : ""}` : twoHanded ? "Weapon, two hands" : "Weapon");
+    const c = composeDamage(weaponDiceFor(attack, chosenHands), typePick?.type ?? attack.damage.type, bonus, damageChoices, attack.attackId.startsWith("spell:") || attack.attackId.startsWith("item:") || attack.damage.type === "healing" ? attack.name : attack.attackId.startsWith("trait:") ? `${attack.name.replace(/^.*?: /, "")}${attack.damage.type ? ` (${attack.damage.type})` : ""}` : twoHanded ? "Weapon, two hands" : "Weapon");
     return damageFor(c, attack, stage.crit);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [attack, damageBase, stage, damageChoices, slotPick, optionInfo, typePick, chosenHands, hands]);
