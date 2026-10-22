@@ -1184,7 +1184,28 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
           c.resourcesUsed["harness-divine-power"] = (c.resourcesUsed["harness-divine-power"] ?? 0) + 1;
         }
       }
-      if (a.duration) {
+      // Its effect on you, with the pick as the effect's choice (Chromatic Infusion: fire); used again, it replaces the last one.
+      if (a.selfEffect) {
+        const def = reg.find(reg.effectId(a.selfEffect), "effect");
+        if (def) {
+          removeEffects(c.effects.filter((e) => e.effect === def.id));
+          const entry: Character["effects"][number] = { id: `${op.id}-effect`, effect: def.id, from: a.source };
+          if (op.payload.choice) entry.choice = op.payload.choice;
+          const d = a.duration;
+          if (d?.rounds) entry.rounds = d.rounds;
+          else if (d?.minutes) entry.minutes = d.minutes;
+          else if (def.rounds) entry.rounds = def.rounds;
+          else if (def.minutes) entry.minutes = def.minutes;
+          c.effects.push(entry);
+          notes.push(`${def.name}${entry.choice ? `: ${entry.choice}` : ""}.`);
+        }
+      }
+      // A roll with a table (Nathair's Mischief's surge): what the face means.
+      if (a.roll?.table && op.payload.rolled !== undefined) {
+        const line = a.roll.table[op.payload.rolled - 1];
+        if (line) notes.push(`${a.roll.label} ${op.payload.rolled}: ${line}`);
+      }
+      if (a.duration && !a.selfEffect) {
         const rolledN = op.payload.rolled;
         const d = a.duration;
         const entry: Character["effects"][number] = { id: `${op.id}-timer`, effect: "custom", custom: { name: a.name, modifiers: [] }, from: a.source };

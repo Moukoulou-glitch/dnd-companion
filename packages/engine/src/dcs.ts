@@ -9,7 +9,7 @@ export interface DcSpec {
   /** What the save is ("Constitution", "Strength or Dexterity"). */
   save: string;
   /** "spell:<class>" for that class's spell save DC ("spell:*": the best one), the abilities whose best modifier is added, or a fixed number. */
-  by: `spell:${string}` | Ability[] | number;
+  by: `spell:${string}` | Ability[] | number | { choice: string };
   /** The DC's own name: "Ki save DC", "Maneuver save DC". */
   name: string;
 }
@@ -91,11 +91,12 @@ export const FEATURE_DCS: Record<string, DcSpec> = {
   "feature:ftd-metallic-ancestry-gold": { save: "Dexterity", by: ["con"], name: "Breath Weapon DC" },
   "feature:ftd-metallic-ancestry-silver": { save: "Dexterity", by: ["con"], name: "Breath Weapon DC" },
   "feature:ftd-metallic-breath-weapon": { save: "Constitution (Enervating) or Strength (Repulsion)", by: ["con"], name: "Breath Weapon DC" },
-  // Gift of the Gem Dragon: 8 + proficiency + the ability the feat raised (the best of the three is shown).
-  "feat:gift-of-the-gem-dragon": { save: "Strength", by: ["int", "wis", "cha"], name: "Telekinetic Reprisal DC" },
+  // Gift of the Gem Dragon: 8 + proficiency + the ability the feat raised (its "ability" choice).
+  "feat:gift-of-the-gem-dragon": { save: "Strength", by: { choice: "ability" }, name: "Telekinetic Reprisal DC" },
 };
 
 /** Actions (by id) that take the DC of a feature. */
 export const ACTION_DCS: Record<string, DcSpec> = {
+  "nathairs-mischief-surge": { save: "Wisdom or Dexterity (as the surge says)", by: "spell:*", name: "Spell save DC" },
   maneuver: FEATURE_DCS["feature:battle-master-combat-superiority"]!,
 };

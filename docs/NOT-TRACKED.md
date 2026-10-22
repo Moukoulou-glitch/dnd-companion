@@ -184,7 +184,7 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 ## Fizban's Treasury of Dragons (round 9)
 
 - The seven spells carry their mechanics and class lists; their full text, the races' and feats' text and the 85 bestiary creatures come from your own book files (Characters → Book text), loaded on your device only.
-- Nathair's Mischief: roll the d4 yourself each turn; the surge's saves and effects are in its summary. Ashardalon's Stride's fire damage and Draconic Transformation's breath are rolled from the spell or the effect's button; who they hit is yours to apply.
+- Nathair's Mischief: its card has a Mischievous Surge button (the d4 and what it means); pressing it at the start of each turn is up to you, the card reminds you. Ashardalon's Stride's fire damage and Draconic Transformation's breath are rolled from the spell or the effect's button; who they hit is yours to apply.
 - Fizban's Platinum Shield on you adds half cover (+2 AC and Dexterity saves) and the resistances; evasion is a reminder. Moving it to someone else is ending it on you.
-- Dragonborn (Fizban's): the breath weapon replaces one attack of the Attack action (the app doesn't count attacks for it). Metallic Breath Weapon: pick Enervating or Repulsion when used; the targets' saves are the DM's.
-- Gift of the Chromatic Dragon: the +1d4 from Chromatic Infusion is offered on weapon damage while it's on, labelled with "the chosen type" (the type picked isn't carried into the roll). Gift of the Gem Dragon: Telekinetic Reprisal's DC uses the best of Intelligence, Wisdom and Charisma, which is the raised one unless another is higher.
+- Dragonborn (Fizban's): the breath weapon counts as one attack of the Attack action (the app warns past your number of attacks). Metallic Breath Weapon: pick Enervating or Repulsion when used; the targets' saves are the DM's.
+- Gift of the Chromatic Dragon: Chromatic Infusion's +1d4 of the picked type is ticked on weapon damage for its minute (untick it for a weapon you didn't touch). Gift of the Gem Dragon: Telekinetic Reprisal's DC uses the ability the feat raised.

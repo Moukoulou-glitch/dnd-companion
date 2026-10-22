@@ -176,8 +176,10 @@ export interface ActionResult {
   /** The feature or feat this comes from, for showing its text. */
   featureId?: string;
   /** Dice rolled when used and what the number means (Spirit Shield: damage prevented). */
-  roll?: Amount & { label: string };
+  roll?: Amount & { label: string; table?: string[] };
   duration?: { rounds?: number; minutes?: number; fromRoll?: "rounds" | "minutes" | "hours" };
+  /** The effect it puts on you, the pick as its choice (Chromatic Infusion). */
+  selfEffect?: string;
   notAfterMoving?: boolean;
   stopsMovement?: boolean;
   restores?: { resource: string; amount: number };
@@ -1144,10 +1146,15 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     return a ? customActionDc(a) : undefined;
   };
   /** A feature's DC: a class's spell save DC, or 8 + proficiency + the best of some abilities. */
-  const dcOf = (spec: DcSpec | undefined): FeatureDc | undefined => {
+  const dcOf = (spec: DcSpec | undefined, featureId?: string): FeatureDc | undefined => {
     if (!spec) return undefined;
     let breakdown: Breakdown | undefined;
-    if (typeof spec.by === "number") breakdown = sum([{ label: "Set by hand", value: spec.by }]);
+    if (typeof spec.by === "object" && !Array.isArray(spec.by)) {
+      // The ability picked on the feature or feat (Gift of the Gem Dragon: the one it raised).
+      const picked = sources.find((s) => s.id === featureId)?.choices[spec.by.choice]?.[0] as Ability | undefined;
+      if (!picked || !(picked in mods)) return undefined;
+      breakdown = sum([{ label: "Base", value: 8 }, pbPart(), abilityPart(picked)]);
+    } else if (typeof spec.by === "number") breakdown = sum([{ label: "Set by hand", value: spec.by }]);
     else if (typeof spec.by === "string") {
       const cls = spec.by.slice(6);
       breakdown = cls === "*" ? [...spellcasting].sort((a, b) => b.saveDc.total - a.saveDc.total)[0]?.saveDc : spellcasting.find((x) => x.id === cls)?.saveDc;
@@ -1449,7 +1456,8 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     for (const a of s.grant.actions ?? []) {
       const entry: ActionResult = { id: a.id, name: a.name, economy: a.economy, source: s.label, toggles: a.toggles };
       if (/^(feature|feat|race|background):/.test(s.id)) entry.featureId = s.id;
-      if (a.roll) entry.roll = { ...amountOf(a.roll.dice, s), label: a.roll.label };
+      if (a.roll) entry.roll = { ...amountOf(a.roll.dice, s), label: a.roll.label, ...(a.roll.table ? { table: a.roll.table } : {}) };
+      if (a.selfEffect) entry.selfEffect = a.selfEffect;
       if (a.duration) entry.duration = a.duration;
       else if (!a.untilTurnStart && !NO_TIMER.has(a.id)) {
         // "for 1 minute", "Lasts 8 hours": a timer tag when it's used, read from the note (or the feature's summary when it has one action).
@@ -1514,7 +1522,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
         entry.choose = { label: options.length ? `Which slot comes back? (up to level ${top})` : `No expended slot of level ${top} or lower`, options: options.length ? options : ["Nothing to restore"] };
         if (harness && harness.remaining <= 0) entry.note = `${entry.note ?? ""} No Harness Divine Power uses left until a long rest.`.trim();
       }
-      const dc = dcOf(ACTION_DCS[a.id] ?? (entry.featureId ? FEATURE_DCS[entry.featureId] ?? customDc(entry.featureId) : undefined));
+      const dc = dcOf(ACTION_DCS[a.id] ?? (entry.featureId ? FEATURE_DCS[entry.featureId] ?? customDc(entry.featureId) : undefined), entry.featureId);
       if (dc) entry.dc = dc;
       actions.push(entry);
     }
@@ -1710,7 +1718,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       ...(() => {
         const origins = featureOrigins(c, reg, sources);
         return featureEntries(sources, reg).map((f) => {
-          const dc = dcOf(FEATURE_DCS[f.id] ?? customDc(f.id));
+          const dc = dcOf(FEATURE_DCS[f.id] ?? customDc(f.id), f.id);
           const origin = origins.get(f.id);
           return { ...f, ...(dc ? { dc } : {}), ...(origin ? { origin } : {}) };
         });

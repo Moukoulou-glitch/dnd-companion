@@ -129,6 +129,8 @@ export const Modifier = z
     /** Overrides the source name in breakdowns, e.g. "Archery". */
     label: z.string().optional(),
     damageType: DamageType.optional(),
+    /** In an effect with a choice: the damage type is what was chosen (Chromatic Infusion: fire). */
+    damageTypeFromChoice: z.boolean().optional(),
     /** Usable once per turn (Sneak Attack): the roll warns if it was already used this turn. */
     oncePerTurn: z.boolean().optional(),
     /** grantSpeed (fly): it can hover. */
@@ -316,7 +318,17 @@ export const ActionDef = z
      */
     gives: z.object({ effect: DefId, selfWarning: z.string().optional() }).strict().optional(),
     /** Dice rolled when used, with what the number means (Spirit Shield: damage prevented). */
-    roll: z.object({ dice: ValueExpr, label: z.string() }).strict().optional(),
+    roll: z
+      .object({
+        dice: ValueExpr,
+        label: z.string(),
+        /** What each face means (Nathair's Mischief's d4 surge): the result shown is table[roll - 1]. */
+        table: z.array(z.string()).optional(),
+      })
+      .strict()
+      .optional(),
+    /** An effect it puts on you, with the pick from `choose` as the effect's choice and `duration` as its time (Chromatic Infusion: the damage type). */
+    selfEffect: DefId.optional(),
     /**
      * Starts a timer named after the action (Rage: 10 rounds). Its toggles
      * switch off when it runs out. `fromRoll` turns the rolled number into the

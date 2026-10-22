@@ -268,6 +268,43 @@
     },
     {
       "kind": "effect",
+      "id": "effect:nathairs-mischief",
+      "name": "Nathair's Mischief",
+      "category": "spell",
+      "source": {
+        "pack": "table-2014",
+        "book": "FTD",
+        "page": 21
+      },
+      "summary": "Your 20-ft cube of mischief: roll the surge when you cast it and at the start of each of your turns (you can move the cube 10 ft before rolling).",
+      "selfOnly": true,
+      "concentration": true,
+      "rounds": 10,
+      "modifiers": [],
+      "actions": [
+        {
+          "id": "nathairs-mischief-surge",
+          "name": "Mischievous Surge",
+          "economy": "free",
+          "roll": {
+            "dice": "1d4",
+            "label": "Mischievous Surge",
+            "table": [
+              "the scent of apple pie: each creature in the cube makes a Wisdom save or is charmed by you until the start of your next turn.",
+              "spraying bouquets: each creature in the cube makes a Dexterity save or is blinded until the start of your next turn.",
+              "giggles: each creature in the cube makes a Wisdom save or, until the start of your next turn, is incapacitated and uses all its movement to move in a random direction.",
+              "hovering molasses: the cube is difficult terrain until the start of your next turn."
+            ]
+          },
+          "note": "When you cast it and at the start of each of your turns: you can move the cube up to 10 ft, then roll."
+        }
+      ],
+      "reminders": [
+        "At the start of each of your turns: move the cube up to 10 ft if you like, then roll the surge (the button on this card)."
+      ]
+    },
+    {
+      "kind": "effect",
       "id": "effect:ashardalons-stride",
       "name": "Ashardalon's Stride",
       "category": "spell",
@@ -1843,9 +1880,7 @@
             "cost": {
               "resource": "gift-chromatic-infusion"
             },
-            "toggles": [
-              "chromatic-infusion"
-            ],
+            "selfEffect": "other:chromatic-infusion",
             "duration": {
               "rounds": 10
             },
@@ -1870,20 +1905,46 @@
             },
             "note": "When you take acid, cold, fire, lightning or poison damage: resistance to that instance."
           }
-        ],
-        "modifiers": [
-          {
-            "selector": "roll.damage.weapon.*",
-            "op": "add",
-            "value": "1d4",
-            "mode": "suggested",
-            "label": "Chromatic Infusion (the chosen type)",
-            "when": {
-              "toggle": "chromatic-infusion"
-            }
-          }
         ]
       }
+    },
+    {
+      "kind": "effect",
+      "id": "other:chromatic-infusion",
+      "name": "Chromatic Infusion",
+      "category": "other",
+      "source": {
+        "pack": "table-2014",
+        "book": "FTD",
+        "page": 29
+      },
+      "selfOnly": true,
+      "rounds": 10,
+      "summary": "The weapon you touched deals an extra 1d4 of the chosen type on a hit, for 1 minute.",
+      "choice": {
+        "label": "Damage type",
+        "options": [
+          "acid",
+          "cold",
+          "fire",
+          "lightning",
+          "poison"
+        ]
+      },
+      "modifiers": [
+        {
+          "selector": "roll.damage.weapon.*",
+          "op": "add",
+          "value": "1d4",
+          "mode": "suggested",
+          "preset": "always",
+          "damageTypeFromChoice": true,
+          "label": "Chromatic Infusion",
+          "when": {
+            "text": "the weapon you infused"
+          }
+        }
+      ]
     },
     {
       "kind": "feat",

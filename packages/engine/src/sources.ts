@@ -158,6 +158,8 @@ export function collectSources(c: Character, baseReg: ContentRegistry, duplicate
     const modifiers = effectModifiers(def, level).flatMap((m) => {
       const v = (m as { value?: unknown }).value;
       const inValue = typeof v === "string" && v.includes("{choice}");
+      // Chromatic Infusion: the chosen type is the damage's type.
+      if (m.damageTypeFromChoice) return inst?.choice ? [{ ...m, damageType: inst.choice.toLowerCase() } as typeof m] : [];
       if (!m.selector.includes("{choice}") && !inValue) return [m];
       if (!inst?.choice) return [];
       return [{ ...m, selector: m.selector.replace("{choice}", inst.choice), ...(inValue ? { value: (v as string).replace("{choice}", inst.choice) } : {}) } as typeof m];
