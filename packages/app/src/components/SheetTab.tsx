@@ -42,6 +42,7 @@ export function SheetTab({
   openRoll,
   openTrait,
   openSkill,
+  openTool,
   openAddExtra,
   openExtra,
   openAdjust,
@@ -60,6 +61,8 @@ export function SheetTab({
   openRoll: OpenRoll;
   openTrait: (id: string) => void;
   openSkill: (s: Skill) => void;
+  /** A tool or instrument check (undefined: one you aren't proficient with); the ability is picked each time. */
+  openTool: (name?: string) => void;
   openAddExtra: () => void;
   openExtra: (id: string) => void;
   /** Bonuses and penalties by hand on saves, skills or passive senses. */
@@ -142,6 +145,30 @@ export function SheetTab({
           ))}
         </div>
         <p className="note">○ not proficient, ● proficient, ◆ expertise</p>
+      </section>
+
+      <section>
+        <h2>Tools and instruments</h2>
+        <div className="group">
+          {sheet.tools.map((t) => (
+            <button className="row" key={t.name} onClick={() => openTool(t.name)}>
+              <span className="prof" aria-hidden="true">
+                {t.proficiency === 2 ? "◆" : "●"}
+              </span>
+              <div className="row-main">
+                <div className="row-title">{t.name}</div>
+                <div className="row-sub">{t.proficiency === 2 ? `Proficiency bonus doubled (${t.doubledBy})` : "Proficient"} · pick the ability when you roll</div>
+              </div>
+            </button>
+          ))}
+          <button className="row" onClick={() => openTool()}>
+            <span className="prof" aria-hidden="true">○</span>
+            <div className="row-main">
+              <div className="row-title">Another tool or instrument</div>
+              <div className="row-sub">Without proficiency</div>
+            </div>
+          </button>
+        </div>
       </section>
 
       <section>

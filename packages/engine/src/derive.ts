@@ -43,6 +43,16 @@ export interface SaveResult extends RollBreakdown {
   proficient: boolean;
 }
 
+/** A tool or instrument check: the player picks the ability each time (Smith's tools with Strength, a lute with Charisma). */
+export interface ToolResult {
+  name: string;
+  /** 0 not proficient, 1 proficient, 2 doubled (expertise, the Fire Rune). */
+  proficiency: 0 | 1 | 2;
+  /** Why it's doubled. */
+  doubledBy?: string;
+  checks: Record<Ability, RollBreakdown>;
+}
+
 export interface SkillResult extends RollBreakdown {
   ability: Ability;
   /** 0 none, 1 proficient, 2 expertise. */
@@ -314,6 +324,9 @@ export interface DerivedSheet {
   abilities: Record<Ability, AbilityResult>;
   saves: Record<Ability, SaveResult>;
   skills: Record<Skill, SkillResult>;
+  /** Tools and instruments you're proficient with, and `anyTool` for one you aren't (no proficiency bonus). */
+  tools: ToolResult[];
+  anyTool: Record<Ability, RollBreakdown>;
   passives: { perception: Breakdown; investigation: Breakdown; insight: Breakdown };
   ac: Breakdown;
   initiative: RollBreakdown;
@@ -871,6 +884,25 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     const base = [abilityPart(ab), ...(proficiency > 0 ? [pbPart(proficiency)] : []), ...handParts("skill.all", "all skills"), ...handParts(`skill.${sk}`, "this skill")];
     skills[sk] = { ...roll([`roll.check.skill.${sk}`, `roll.check.${ab}`], base), ability: ab, proficiency };
   }
+
+  // Tools and instruments: any ability, the player's pick. Expertise in a tool, or "rule.toolExpertise" (Fire Rune), doubles the bonus.
+  const toolSlug = (n: string) => n.toLowerCase().replace(/['’]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  const toolDoubler = modsFor(["rule.toolExpertise"]).find((m) => m.mod.op === "allow" && conditionState(m.mod.when) === "pass");
+  const toolChecks = (name: string | undefined, proficiency: 0 | 1 | 2) =>
+    Object.fromEntries(
+      ABILITIES.map((ab) => [
+        ab,
+        roll([`roll.check.${ab}`, "roll.check.tool", ...(name ? [`roll.check.tool.${toolSlug(name)}`] : [])], [abilityPart(ab), ...(proficiency > 0 ? [pbPart(proficiency)] : [])]),
+      ]),
+    ) as Record<Ability, RollBreakdown>;
+  const tools: ToolResult[] = [...profs.tool].sort((a, b) => a.localeCompare(b)).map((name) => {
+    const expert = [...profs.expertise].some((e) => toolSlug(e) === toolSlug(name));
+    const proficiency: 1 | 2 = expert || toolDoubler ? 2 : 1;
+    const r: ToolResult = { name, proficiency, checks: toolChecks(name, proficiency) };
+    if (proficiency === 2) r.doubledBy = expert ? "Expertise" : labelOf(toolDoubler!);
+    return r;
+  });
+  const anyTool = toolChecks(undefined, 0);
 
   const passive = (sk: Skill): Breakdown => {
     const s = skills[sk];
@@ -1686,6 +1718,8 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     abilities,
     saves,
     skills,
+    tools,
+    anyTool,
     passives: { perception: passive("perception"), investigation: passive("investigation"), insight: passive("insight") },
     ac,
     initiative,

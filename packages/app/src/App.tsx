@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { ACTION_TARGETS, SPELL_TARGETS, friendlyTargets, targetWarnings, backupCost, copyCost, buildItems, shapeKindOf, customCompanionId, customItemId, customSpellId, withCustom, castingEconomy, castingMinutes, creatureSpellRoll, formatBonus, summonBlock, materialNeed, maxSpellLevel, newCharacter, spellListOf, signed, turnWarnings, type TurnIntent, type RollBreakdown } from "@dnd/engine";
-import { ABILITY_NAMES, SKILL_NAMES, type Character, type Skill } from "@dnd/schema";
+import { ABILITIES, ABILITY_NAMES, SKILL_NAMES, type Character, type Skill } from "@dnd/schema";
 import { roll as rollDice, type ComposerBase } from "@dnd/dice";
 import { ShapePanel, TextList, TransformPanel } from "./components/Shapes";
 import { SummonGroupPanel, SummonMemberPanel, SummonPicker, SummonSpellPanel, type SpellSource } from "./components/Summons";
@@ -2104,6 +2104,31 @@ export function App() {
       },
     });
 
+  /** A tool or instrument check: which ability (the DM says which fits), then the roll. */
+  const openTool = (name?: string) =>
+    open(name ?? "Another tool or instrument", () => {
+      const sh = live.current.sheet;
+      if (!sh) return null;
+      const t = name ? sh.tools.find((x) => x.name === name) : undefined;
+      const checks = t?.checks ?? sh.anyTool;
+      return (
+        <>
+          <p className="note">
+            Which ability? The check's ability depends on what you do with it (Strength to force a lock with the tools, Intelligence to recall lore, Charisma to perform).
+            {t ? (t.proficiency === 2 ? ` Your proficiency bonus is doubled (${t.doubledBy}).` : " You add your proficiency bonus.") : " Without proficiency: no proficiency bonus."}
+          </p>
+          <div className="choice-grid">
+            {ABILITIES.map((ab) => (
+              <button key={ab} className="big" onClick={() => openRoll(`${name ?? "Tool"} (${ABILITY_NAMES[ab]})`, checks[ab])}>
+                {ABILITY_NAMES[ab]}
+                <span className="sub">{signed(checks[ab].total)}</span>
+              </button>
+            ))}
+          </div>
+        </>
+      );
+    });
+
   const openBooks = () => open("Book text", <BooksPanel report={bookReport} />);
 
   /** Everything left to choose for this character, and what's chosen. */
@@ -3041,7 +3066,7 @@ export function App() {
             )
           }
           open={open}
-          openRoll={openRoll} openTrait={openTrait} openSkill={openSkill} openAddExtra={openAddExtra} openExtra={openExtra}
+          openRoll={openRoll} openTrait={openTrait} openSkill={openSkill} openTool={openTool} openAddExtra={openAddExtra} openExtra={openExtra}
           openDefenses={() => open("Defenses", () => (live.current.character && live.current.sheet ? <DefensesPanel c={live.current.character} sheet={live.current.sheet} reg={registry} act={live.current.act} /> : null))}
           openProficiencies={() => open("Proficiencies", () => (live.current.sheet ? <ProficienciesPanel sheet={live.current.sheet} act={live.current.act} /> : null))}
           onOptional={(id, on) => live.current.act("setOptionalFeature", { feature: id, on }, `${registry.find(id, "feature")?.name ?? id} ${on ? "on" : "off"}.`)}
