@@ -3669,6 +3669,35 @@
         "Your gear melds into the new form or falls to the ground (your choice).",
         "You can't use the dragon's Change Shape, legendary actions or lair actions."
       ]
+    },
+    {
+      "kind": "effect",
+      "id": "effect:spiritual-weapon",
+      "name": "Spiritual Weapon",
+      "category": "spell",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "summary": "A floating spectral weapon for 1 minute. As a bonus action on each of your turns, move it up to 20 ft and attack a creature within 5 ft of it (spell attack; force damage).",
+      "selfOnly": true,
+      "rounds": 10,
+      "upcast": {
+        "baseLevel": 2
+      },
+      "modifiers": [],
+      "actions": [
+        {
+          "id": "spiritual-weapon-attack",
+          "name": "Spiritual Weapon: attack",
+          "economy": "bonus",
+          "rollsSpell": "spell:spiritual-weapon",
+          "note": "Move it up to 20 ft and attack a creature within 5 ft of it."
+        }
+      ],
+      "reminders": [
+        "Bonus action on your turn: move it up to 20 ft and repeat the attack."
+      ]
     }
   ]
 }

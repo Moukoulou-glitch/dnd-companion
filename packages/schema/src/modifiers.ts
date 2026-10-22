@@ -331,6 +331,8 @@ export const ActionDef = z
       })
       .strict()
       .optional(),
+    /** Rolls this spell's attack and damage, at the level the effect was cast with (Spiritual Weapon's later attacks). */
+    rollsSpell: DefId.optional(),
     /** An effect it puts on you, with the pick from `choose` as the effect's choice and `duration` as its time (Chromatic Infusion: the damage type). */
     selfEffect: DefId.optional(),
     /**

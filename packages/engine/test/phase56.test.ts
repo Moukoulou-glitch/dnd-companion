@@ -35,3 +35,13 @@ describe("9e: healing on others, Disciple of Life, Blessed Healer, who can be ta
     expect(targetWarnings({ ...t, kind: "me" }, { notSelf: true }, "Bardic Inspiration")[0]).toMatch(/someone other than you/);
   });
 });
+
+describe("Spiritual Weapon's later attacks; Spirit Guardians' damage type", () => {
+  it("while Spiritual Weapon lasts: a bonus-action attack that rolls the spell, tied to its effect", () => {
+    const s = derive(cleric(5, { spells: [{ spell: "spell:spiritual-weapon", list: "cleric", prepared: true }, { spell: "spell:spirit-guardians", list: "cleric", prepared: true }], effects: [{ id: "sw", effect: "effect:spiritual-weapon", rounds: 10, castLevel: 4 }] }), reg);
+    const a = s.actions.find((x) => x.id === "spiritual-weapon-attack")!;
+    expect(a).toMatchObject({ economy: "bonus", rollsSpell: "spell:spiritual-weapon", effectInstanceId: "sw" });
+    expect(s.spells.find((x) => x.id === "spell:spiritual-weapon")!.damage!.byLevel[4]).toMatch(/^2d8/);
+    expect(s.spells.find((x) => x.id === "spell:spirit-guardians")!.typeChoices).toEqual([{ kind: "spell", label: "the spell's choice", options: ["radiant", "necrotic"] }]);
+  });
+});

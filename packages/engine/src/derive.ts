@@ -194,6 +194,10 @@ export interface ActionResult {
   duration?: { rounds?: number; minutes?: number; fromRoll?: "rounds" | "minutes" | "hours" };
   /** The effect it puts on you, the pick as its choice (Chromatic Infusion). */
   selfEffect?: string;
+  /** Rolls this spell's attack and damage (Spiritual Weapon), at the level of the effect it comes from. */
+  rollsSpell?: string;
+  /** The effect it comes from, when it does (Spiritual Weapon's effect). */
+  effectInstanceId?: string;
   notAfterMoving?: boolean;
   stopsMovement?: boolean;
   restores?: { resource: string; amount: number };
@@ -1351,6 +1355,9 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
   }
   const damageTypeChoices = (def: { id: string; text: string[]; summary?: string; level: number }, type: string | undefined, list: string): NonNullable<SpellResult["typeChoices"]> => {
     const out: NonNullable<SpellResult["typeChoices"]> = [];
+    // Listed by the content (Spirit Guardians: radiant or necrotic, picked on each roll).
+    const listed = (reg.find(def.id, "spell") as { damage?: { typeOptions?: string[] } } | undefined)?.damage?.typeOptions;
+    if (listed?.length) return [{ kind: "spell", label: "the spell's choice", options: listed }];
     // The spell's own choice: a list of three or more damage types joined with "or", where the caster chooses.
     const T = DAMAGE_TYPES.join("|");
     const re = new RegExp(`\\b((?:${T})(?:(?:,\\s+(?:or\\s+)?|\\s+or\\s+)(?:${T})){2,})\\b`, "i");
@@ -1541,6 +1548,8 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       if (/^(feature|feat|race|background):/.test(s.id)) entry.featureId = s.id;
       if (a.roll) entry.roll = { ...amountOf(a.roll.dice, s), label: a.roll.label, ...(a.roll.table ? { table: a.roll.table } : {}) };
       if (a.selfEffect) entry.selfEffect = a.selfEffect;
+      if (a.rollsSpell) entry.rollsSpell = a.rollsSpell;
+      if (s.effectInstanceId) entry.effectInstanceId = s.effectInstanceId;
       if (a.duration) entry.duration = a.duration;
       else if (!a.untilTurnStart && !NO_TIMER.has(a.id)) {
         // "for 1 minute", "Lasts 8 hours": a timer tag when it's used, read from the note (or the feature's summary when it has one action).

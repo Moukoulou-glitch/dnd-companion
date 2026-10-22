@@ -1178,7 +1178,20 @@ export function App() {
     ));
   };
 
+  /** An effect's spell attack (Spiritual Weapon): your bonus action, then the spell's attack and damage at the level it was cast with. */
+  const rollEffectSpell = (a: ActionResult) => {
+    const sp = live.current.sheet?.spells.find((x) => x.id === a.rollsSpell);
+    if (!sp) return;
+    const inst = live.current.character?.effects.find((e) => e.id === a.effectInstanceId);
+    const level = inst?.castLevel ?? sp.level;
+    guard({ name: a.name, economy: a.economy, actionId: a.id }, () => {
+      if (live.current.character?.combat) live.current.act("useAction", { action: a.id }, `${a.name}.`);
+      rollSpell(sp, level, false);
+    });
+  };
+
   const openFeature = (a: ActionResult) => {
+    if (a.rollsSpell) return rollEffectSpell(a);
     if (a.id === "wild-shape") return openTransform("wildshape");
     if (a.id === "deflect-missiles" || a.id === "slow-fall") return openReduce(a);
     // A free cast (Haunted: Invisibility) opens the spell itself, where the free use casts it.
@@ -2256,7 +2269,19 @@ export function App() {
               else close();
             })
         : undefined;
-      return <EffectPanel e={current} act={live.current.act} close={close} {...(release ? { onRelease: release } : {})} />;
+      // Its spell's attack (Spiritual Weapon): straight from the tag.
+      const attackAction = live.current.sheet?.actions.find((x) => x.rollsSpell && x.effectInstanceId === current.instanceId);
+      return (
+        <>
+          {attackAction && (
+            <button className="big primary wide" style={{ marginBottom: 10 }} onClick={() => rollEffectSpell(attackAction)}>
+              {attackAction.name}
+              <span className="sub">{attackAction.economy === "bonus" ? "your bonus action" : attackAction.economy}: roll the attack and damage</span>
+            </button>
+          )}
+          <EffectPanel e={current} act={live.current.act} close={close} {...(release ? { onRelease: release } : {})} />
+        </>
+      );
     });
 
   const openAddEffect = () =>
