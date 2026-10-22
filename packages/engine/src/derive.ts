@@ -530,9 +530,21 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       const now = parts.reduce((t, p) => t + p.value, 0);
       if (adj.setTo > now) parts.push({ label: `Becomes ${adj.setTo}${adj.setNote ? ` (${adj.setNote})` : ""}`, value: adj.setTo - now });
     }
+    // An effect that sets the score while it lasts (Potion of Giant Strength): the highest one, if it's higher.
+    let setMin: { label: string; value: number } | undefined;
+    for (const s of sources)
+      for (const m of s.grant.modifiers ?? []) {
+        if (m.op !== "setMin" || m.selector !== `stat.ability.${ab}` || m.value === undefined) continue;
+        const v = Number(typeof m.value === "string" ? m.value : m.value);
+        if (Number.isFinite(v) && (!setMin || v > setMin.value)) setMin = { label: m.label ?? s.label, value: v };
+      }
+    if (setMin) {
+      const now = parts.reduce((t, p) => t + p.value, 0);
+      if (setMin.value > now) parts.push({ label: `Becomes ${setMin.value} (${setMin.label})`, value: setMin.value - now });
+    }
     const score = sum(parts);
     if (score.total <= 0) warnings.push(`${ABILITY_NAMES[ab]} is ${score.total}: at 0 the character dies (Strength drain) or worse. Check with your DM.`);
-    if (score.total > max && adj?.setTo === undefined && !asiOver) warnings.push(`${ABILITY_NAMES[ab]} is ${score.total}, above ${max === 20 ? "the usual maximum of 20" : `its maximum of ${max}`}.`);
+    if (score.total > max && adj?.setTo === undefined && !setMin && !asiOver) warnings.push(`${ABILITY_NAMES[ab]} is ${score.total}, above ${max === 20 ? "the usual maximum of 20" : `its maximum of ${max}`}.`);
     abilities[ab] = { score, modifier: Math.floor((score.total - 10) / 2), max, ...(asiOver ? { asiOver } : {}) };
   }
   const mods = Object.fromEntries(ABILITIES.map((a) => [a, abilities[a].modifier])) as Record<Ability, number>;

@@ -82,7 +82,10 @@ export function TransformPanel({
   character,
   onPick,
   maxCr,
+  only,
 }: {
+  /** Only creatures whose names match (Potion of Dragon's Majesty: an adult dragon); no level or CR limit then. */
+  only?: string;
   /** A lower limit than the caster's level (Shapechanger: a beast of CR 1 or lower). */
   maxCr?: number;
   kind: ShapeKind;
@@ -100,10 +103,10 @@ export function TransformPanel({
     const elementals = new Set(["creature:air-elemental", "creature:earth-elemental", "creature:fire-elemental", "creature:water-elemental"]);
     return reg
       .list("creature")
-      .filter((d) => kind === "truepolymorph" || kind === "shapechange" || d.type === "beast" || (kind === "wildshape" && elementals.has(d.id)))
-      .map((d) => ({ d, issues: shapeIssues(d, kind, limits, polyMax), elemental: elementals.has(d.id) }))
+      .filter((d) => (only ? new RegExp(only, "i").test(d.name) : kind === "truepolymorph" || kind === "shapechange" || d.type === "beast" || (kind === "wildshape" && elementals.has(d.id))))
+      .map((d) => ({ d, issues: only ? [] : shapeIssues(d, kind, limits, polyMax), elemental: elementals.has(d.id) }))
       .sort((a, b) => a.d.cr - b.d.cr || a.d.name.localeCompare(b.d.name));
-  }, [reg, kind, limits, polyMax]);
+  }, [reg, kind, limits, polyMax, only]);
   const shown = list.filter((x) => `${x.d.name} ${x.d.type}`.toLowerCase().includes(q.trim().toLowerCase()));
   const ok = shown.filter((x) => !x.issues.length);
   const beyond = shown.filter((x) => x.issues.length);

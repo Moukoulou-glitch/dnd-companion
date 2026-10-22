@@ -273,6 +273,19 @@ export const ItemDef = z
       .object({
         economy: z.enum(["action", "bonus"]),
         heal: z.object({ dice: z.string(), bonus: z.number().int().default(0) }).strict().optional(),
+        /** Damage to whoever drinks it (Potion of Poison: 3d6 poison). */
+        damage: z.object({ dice: z.string(), type: z.string() }).strict().optional(),
+        /** The effect it puts on whoever drinks it (Potion of Flying), for the effect's own time unless `hours` is rolled. */
+        effect: DefId.optional(),
+        /** The effect's choice: fixed by the potion (Hill Giant Strength: "21"), or picked when used from `options` (Resistance: the damage type). */
+        choice: z.string().optional(),
+        options: z.object({ label: z.string(), values: z.array(z.string()).min(1) }).strict().optional(),
+        /** Its time in hours, rolled when used (Growth: 1d4). */
+        hours: z.string().optional(),
+        /** Effects it ends on the drinker (Vitality: exhaustion and poisoned). */
+        removes: z.array(DefId).optional(),
+        /** Drinking it changes your form (Dragon's Majesty): the creatures whose names match `match`; the form lasts as long as `effect`. */
+        transform: z.object({ match: z.string(), label: z.string() }).strict().optional(),
         consumed: z.boolean().default(true),
         note: z.string().optional(),
       })

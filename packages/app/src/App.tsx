@@ -35,6 +35,7 @@ import { CompanionBuilder } from "./components/CompanionBuilder";
 import { RollAdjustPanel } from "./components/RollAdjust";
 import { DurablePanel } from "./components/Durable";
 import { StablePanel } from "./components/Stable";
+import { ItemUsePanel } from "./components/ItemUse";
 import { DefensesPanel } from "./components/Defenses";
 import { IdentityPanel } from "./components/PlayTab";
 import { HealerPanel } from "./components/Healer";
@@ -738,7 +739,7 @@ export function App() {
    * from "+ Effect"), or the effect a spell just put on you (`forEffect`): looked up when you pick, once the
    * cast is in the character.
    */
-  const openTransform = (kind: ShapeKind, via: { effectId?: string; addEffect?: string; forEffect?: string; maxCr?: number } = {}) =>
+  const openTransform = (kind: ShapeKind, via: { effectId?: string; addEffect?: string; forEffect?: string; maxCr?: number; only?: string } = {}) =>
     open(kind === "wildshape" ? "Wild Shape" : kind === "truepolymorph" ? "True Polymorph" : kind === "shapechange" ? "Shapechange" : "Polymorph", () =>
       live.current.sheet && live.current.character ? (
         <TransformPanel
@@ -747,6 +748,7 @@ export function App() {
           reg={registry}
           character={live.current.character}
           {...(via.maxCr !== undefined ? { maxCr: via.maxCr } : {})}
+          {...(via.only ? { only: via.only } : {})}
           onPick={(k, d, uses) =>
             guard(
               {
@@ -2340,10 +2342,8 @@ export function App() {
     if (!inst) return;
     const def = itemDef(effReg(), inst.item);
     const use = def.use;
-    if (!use?.heal) {
-      live.current.act("useItem", { instanceId }, `${def.name} used.`);
-      return close();
-    }
+    if (!use) return;
+    if (!use.heal) return openPotionEffect(instanceId);
     const name = inst.name ?? def.name;
     const emptyRoll = { total: 0, parts: [], dice: [], advantage: [], disadvantage: [], suggestions: [] };
     const attack: WeaponAttack = {
@@ -2381,6 +2381,60 @@ export function App() {
         physical={live.current.character?.settings.physicalDice ?? true}
         onPhysicalChange={setPhysicalDice}
         onRolled={(r) => live.current.addRoll(r)}
+      />
+    ));
+  };
+
+  /**
+   * A potion without healing dice: who drinks it, a pick if it has one, then its damage (Poison), its effect
+   * for its time (rolled hours: Growth), what it ends (Vitality), or a new form (Dragon's Majesty).
+   */
+  const openPotionEffect = (instanceId: string) => {
+    const inst = live.current.character?.inventory.find((i) => i.id === instanceId);
+    if (!inst) return;
+    const def = itemDef(effReg(), inst.item);
+    const use = def.use!;
+    const name = inst.name ?? def.name;
+    const all = friendlyTargets(live.current.character!, live.current.sheet!, registry);
+    open(name, () => (
+      <ItemUsePanel
+        summary={def.summary}
+        targets={[
+          ...all.map((t) => ({ id: t.id, name: t.name, sub: `${t.hp} / ${t.max} HP${t.kind === "me" ? "" : ` · ${t.type}`}`, warnings: use.transform && t.kind !== "me" ? ["The app changes only your own form; give it and the DM runs theirs."] : [] })),
+          { id: "other", name: "Someone else", sub: "They track it on their own sheet", warnings: [] },
+        ]}
+        options={use.options}
+        onUse={(target, option) => {
+          const t = all.find((x) => x.id === target);
+          const who = target === "me" ? "you" : t?.name ?? "them";
+          live.current.act("useItem", { instanceId, ...(target !== "me" ? { given: true } : {}) }, target === "me" ? `${name}: drunk.` : `${name}: given to ${who}.`);
+          if (!t) return close();
+          const hours = use.hours ? rollDice(use.hours).total : undefined;
+          const minutes = hours !== undefined ? hours * 60 : undefined;
+          const choice = option ?? use.choice;
+          if (use.damage) {
+            const n = rollDice(use.damage.dice).total;
+            if (t.kind === "me") live.current.act("damage", { amount: n, damageType: use.damage.type }, `${name}: ${n} ${use.damage.type} damage to you.`);
+            else if (t.kind === "companion") live.current.act("damage", { amount: n, damageType: use.damage.type, companion: t.id }, `${name}: ${n} ${use.damage.type} damage to ${t.name}.`);
+            else live.current.act("summonHp", { id: t.id.slice(7), damage: n, type: use.damage.type }, `${name}: ${n} ${use.damage.type} damage to ${t.name}.`);
+          }
+          for (const gone of use.removes ?? []) {
+            if (t.kind === "me") for (const e of live.current.character?.effects.filter((x) => x.effect === gone) ?? []) live.current.act("removeEffect", { instanceId: e.id }, `${registry.find(gone, "effect")?.name ?? gone} ends.`);
+            else if (t.kind === "companion") live.current.act("companionEffect", { companion: t.id, effect: gone, add: false }, `${registry.find(gone, "effect")?.name ?? gone} ends on ${t.name}.`);
+            else live.current.act("summonEffect", { id: t.id.slice(7), effect: gone, add: false }, `${registry.find(gone, "effect")?.name ?? gone} ends on ${t.name}.`);
+          }
+          if (use.effect) {
+            const eff = effReg().find(use.effect, "effect");
+            const label = `${eff?.name ?? name}${choice ? ` (${choice})` : ""}${hours !== undefined ? `: ${hours} hour${hours === 1 ? "" : "s"}` : ""}`;
+            const rounds = minutes !== undefined ? minutes * 10 : eff?.rounds ?? (eff?.minutes ? eff.minutes * 10 : undefined);
+            if (t.kind === "me") live.current.act("addEffect", { instanceId: crypto.randomUUID(), effect: use.effect, ...(choice ? { choice } : {}), ...(minutes !== undefined ? { minutes } : {}) }, `${label} on you.`);
+            else if (t.kind === "companion") live.current.act("companionEffect", { companion: t.id, effect: use.effect, add: true, ...(rounds ? { rounds } : {}), ...(choice ? { choice } : {}) }, `${label} on ${t.name}.`);
+            else live.current.act("summonEffect", { id: t.id.slice(7), effect: use.effect, add: true, ...(rounds ? { rounds } : {}), ...(choice ? { choice } : {}) }, `${label} on ${t.name}.`);
+          }
+          // Dragon's Majesty: your new form, tied to the potion's hour.
+          if (use.transform && t.kind === "me" && use.effect) return openTransform("truepolymorph", { forEffect: use.effect, only: use.transform.match });
+          close();
+        }}
       />
     ));
   };

@@ -88,6 +88,8 @@ export const ModifierOp = z.enum([
   "mediumArmorDexCap",
   /** Stats: the value becomes at most `value` (Grappled: speed 0). */
   "set",
+  /** Ability scores: the score becomes at least `value` while it lasts (Potion of Giant Strength: Strength 21). Selector stat.ability.<ability>. */
+  "setMin",
   /** Stats: multiply, rounding down (Exhaustion 2: speed × 0.5; Haste: × 2). */
   "multiply",
   /** Rolls: the roll fails automatically (Paralyzed: Strength and Dexterity saves). */

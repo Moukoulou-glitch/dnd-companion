@@ -2401,8 +2401,15 @@
       "counter": {
         "label": "Duplicates",
         "start": 3,
-        "need": [11, 8, 6],
-        "ac": { "base": 10, "ability": "dex" },
+        "need": [
+          11,
+          8,
+          6
+        ],
+        "ac": {
+          "base": 10,
+          "ability": "dex"
+        },
         "endsAtZero": true
       }
     },
@@ -3199,6 +3206,467 @@
           "value": "{choice}",
           "label": "Defensive Flourish"
         }
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "other:potion-animal-friendship",
+      "name": "Potion of Animal Friendship",
+      "category": "other",
+      "summary": "For 1 hour you can cast Animal Friendship (save DC 13) at will.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "modifiers": [],
+      "minutes": 60,
+      "reminders": [
+        "Animal Friendship at will (DC 13): a beast with Intelligence 3 or lower makes a Wisdom save or is charmed by you for 24 hours."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "other:potion-clairvoyance",
+      "name": "Potion of Clairvoyance",
+      "category": "other",
+      "summary": "You gain the effect of the Clairvoyance spell (no concentration).",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "modifiers": [],
+      "minutes": 10,
+      "reminders": [
+        "An invisible sensor you can see or hear through, at a place you know within 1 mile."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "other:potion-climbing",
+      "name": "Potion of Climbing",
+      "category": "other",
+      "summary": "For 1 hour: a climbing speed equal to your walking speed, and advantage on Strength (Athletics) checks to climb.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "modifiers": [
+        {
+          "selector": "stat.speed.climb",
+          "op": "grantSpeed",
+          "value": "walk",
+          "label": "Potion of Climbing"
+        },
+        {
+          "selector": "roll.check.skill.athletics",
+          "op": "advantage",
+          "mode": "suggested",
+          "label": "Potion of Climbing",
+          "when": {
+            "text": "to climb"
+          }
+        }
+      ],
+      "minutes": 60
+    },
+    {
+      "kind": "effect",
+      "id": "other:potion-diminution",
+      "name": "Potion of Diminution",
+      "category": "other",
+      "summary": "Reduced, as the Reduce option of Enlarge/Reduce (no concentration) for 1d4 hours: half size, disadvantage on Strength checks and saves, and your weapons deal 1d4 less damage.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "modifiers": [
+        {
+          "selector": "roll.check.str",
+          "op": "disadvantage",
+          "label": "Potion of Diminution"
+        },
+        {
+          "selector": "roll.save.str",
+          "op": "disadvantage",
+          "label": "Potion of Diminution"
+        },
+        {
+          "selector": "roll.damage.weapon.*",
+          "op": "note",
+          "label": "Diminution: subtract 1d4 from the damage (minimum 1)"
+        }
+      ],
+      "reminders": [
+        "You're one size smaller; your weapons shrink too and deal 1d4 less damage (minimum 1)."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "other:potion-growth",
+      "name": "Potion of Growth",
+      "category": "other",
+      "summary": "Enlarged, as the Enlarge option of Enlarge/Reduce (no concentration) for 1d4 hours: double size, advantage on Strength checks and saves, and your weapons deal 1d4 extra damage.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "modifiers": [
+        {
+          "selector": "roll.check.str",
+          "op": "advantage",
+          "label": "Potion of Growth"
+        },
+        {
+          "selector": "roll.save.str",
+          "op": "advantage",
+          "label": "Potion of Growth"
+        },
+        {
+          "selector": "roll.damage.weapon.*",
+          "op": "add",
+          "value": "1d4",
+          "label": "Potion of Growth"
+        }
+      ],
+      "reminders": [
+        "You're one size larger (if there's room); your weapons grow too."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "other:potion-flying",
+      "name": "Potion of Flying",
+      "category": "other",
+      "summary": "For 1 hour: a flying speed equal to your walking speed, and you can hover. If you're in the air when it ends, you fall unless you can fly otherwise.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "modifiers": [
+        {
+          "selector": "stat.speed.fly",
+          "op": "grantSpeed",
+          "value": "walk",
+          "hover": true,
+          "label": "Potion of Flying"
+        }
+      ],
+      "minutes": 60
+    },
+    {
+      "kind": "effect",
+      "id": "other:potion-gaseous-form",
+      "name": "Potion of Gaseous Form",
+      "category": "other",
+      "summary": "For 1 hour you're a misty cloud, as the Gaseous Form spell (no concentration). You can end it early as a bonus action.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "modifiers": [
+        {
+          "selector": "stat.speed.fly",
+          "op": "grantSpeed",
+          "value": 10,
+          "hover": true,
+          "label": "Gaseous Form"
+        },
+        {
+          "selector": "roll.save.str",
+          "op": "advantage",
+          "label": "Gaseous Form"
+        },
+        {
+          "selector": "roll.save.dex",
+          "op": "advantage",
+          "label": "Gaseous Form"
+        },
+        {
+          "selector": "roll.save.con",
+          "op": "advantage",
+          "label": "Gaseous Form"
+        }
+      ],
+      "minutes": 60,
+      "reminders": [
+        "Your only movement is a 10-ft flying speed; you can pass through small holes, but liquids are like solid surfaces.",
+        "Resistance to nonmagical damage; you can't talk, manipulate objects, attack or cast spells.",
+        "End it early as a bonus action."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "other:potion-giant-strength",
+      "name": "Potion of Giant Strength",
+      "category": "other",
+      "summary": "For 1 hour your Strength score becomes the potion's (no effect if yours is already that high or higher).",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "modifiers": [
+        {
+          "selector": "stat.ability.str",
+          "op": "setMin",
+          "value": "{choice}",
+          "label": "Potion of Giant Strength"
+        }
+      ],
+      "minutes": 60,
+      "choice": {
+        "label": "Strength",
+        "options": [
+          "21",
+          "23",
+          "25",
+          "27",
+          "29"
+        ]
+      }
+    },
+    {
+      "kind": "effect",
+      "id": "other:potion-heroism",
+      "name": "Potion of Heroism",
+      "category": "other",
+      "summary": "For 1 hour: 10 temporary hit points, and you're under the Bless spell (no concentration).",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "modifiers": [
+        {
+          "selector": "roll.attack.*",
+          "op": "add",
+          "value": "1d4",
+          "label": "Bless (Potion of Heroism)"
+        },
+        {
+          "selector": "roll.save.*",
+          "op": "add",
+          "value": "1d4",
+          "label": "Bless (Potion of Heroism)"
+        }
+      ],
+      "minutes": 60,
+      "tempHpGain": 10
+    },
+    {
+      "kind": "effect",
+      "id": "other:potion-invisibility",
+      "name": "Potion of Invisibility",
+      "category": "other",
+      "summary": "For 1 hour you're invisible, and so is what you wear or carry. It ends early if you attack or cast a spell.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "modifiers": [],
+      "minutes": 60,
+      "includes": [
+        "condition:invisible"
+      ],
+      "endsOn": [
+        "attack",
+        "cast"
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "other:potion-mind-reading",
+      "name": "Potion of Mind Reading",
+      "category": "other",
+      "summary": "For 1 minute you gain the effect of the Detect Thoughts spell (save DC 13, no concentration).",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "modifiers": [],
+      "minutes": 1,
+      "reminders": [
+        "Detect Thoughts (DC 13): sense and read the surface thoughts of creatures within 30 ft; probe deeper with an action."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "other:potion-poison",
+      "name": "Potion of Poison",
+      "category": "other",
+      "summary": "Poisoned by the potion: 3d6 poison damage at the start of each of your turns while poisoned this way; a DC 13 Constitution save at the end of each of your turns ends it.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "modifiers": [],
+      "minutes": 60,
+      "includes": [
+        "condition:poisoned"
+      ],
+      "actions": [
+        {
+          "id": "potion-poison-turn",
+          "name": "Poison: start of your turn",
+          "economy": "free",
+          "roll": {
+            "dice": "3d6",
+            "label": "poison damage to you (while poisoned this way)"
+          },
+          "note": "At the start of each of your turns while poisoned this way. A DC 13 Constitution save at the end of your turn ends it."
+        }
+      ],
+      "reminders": [
+        "At the end of each of your turns: DC 13 Constitution save; on a success, remove this effect."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "other:potion-resistance",
+      "name": "Potion of Resistance",
+      "category": "other",
+      "summary": "For 1 hour you have resistance to the potion's damage type.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "modifiers": [
+        {
+          "selector": "defense.resist.{choice}",
+          "op": "resist",
+          "label": "Potion of Resistance"
+        }
+      ],
+      "minutes": 60,
+      "choice": {
+        "label": "Damage type",
+        "options": [
+          "acid",
+          "cold",
+          "fire",
+          "force",
+          "lightning",
+          "necrotic",
+          "poison",
+          "psychic",
+          "radiant",
+          "thunder"
+        ]
+      }
+    },
+    {
+      "kind": "effect",
+      "id": "other:potion-speed",
+      "name": "Potion of Speed",
+      "category": "other",
+      "summary": "For 1 minute you gain the effect of Haste (no concentration), without the lethargy when it ends.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "modifiers": [
+        {
+          "selector": "stat.ac",
+          "op": "add",
+          "value": 2,
+          "label": "Potion of Speed"
+        },
+        {
+          "selector": "roll.save.dex",
+          "op": "advantage",
+          "label": "Potion of Speed"
+        },
+        {
+          "selector": "stat.speed.*",
+          "op": "multiply",
+          "value": 2,
+          "label": "Potion of Speed"
+        }
+      ],
+      "rounds": 10,
+      "actions": [
+        {
+          "id": "potion-speed-action",
+          "name": "Hasted action (Potion of Speed)",
+          "economy": "free",
+          "limited": true,
+          "note": "One weapon attack (not a full Attack action), Dash, Disengage, Hide or Use an Object.",
+          "choose": {
+            "label": "Use the extra action for",
+            "options": [
+              "Attack (one weapon attack)",
+              "Dash",
+              "Disengage",
+              "Hide",
+              "Use an Object"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "other:potion-water-breathing",
+      "name": "Potion of Water Breathing",
+      "category": "other",
+      "summary": "For 1 hour you can breathe underwater.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "modifiers": [],
+      "minutes": 60,
+      "reminders": [
+        "You breathe underwater."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "other:philter-of-love",
+      "name": "Philter of Love",
+      "category": "other",
+      "summary": "The next creature you see within 10 minutes of drinking it charms you for 1 hour; if it's of a kind you're attracted to, you see it as your true love while charmed.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "modifiers": [],
+      "minutes": 60,
+      "reminders": [
+        "Charmed by the first creature you see within 10 minutes of drinking."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "other:potion-vitality",
+      "name": "Potion of Vitality",
+      "category": "other",
+      "summary": "Your exhaustion is gone and you're cured of diseases and poison; for 24 hours you regain the maximum for every Hit Die you spend.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "modifiers": [],
+      "minutes": 1440,
+      "reminders": [
+        "For 24 hours: every Hit Die you spend heals its maximum."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "other:potion-dragons-majesty",
+      "name": "Potion of Dragon's Majesty",
+      "category": "other",
+      "summary": "For 1 hour you're an adult dragon of the scale's kind: its statistics instead of yours, keeping your languages, personality and memories. No Change Shape, legendary or lair actions.",
+      "source": {
+        "pack": "table-2014",
+        "book": "FTD",
+        "page": 24
+      },
+      "modifiers": [],
+      "minutes": 60,
+      "transform": "creature",
+      "reminders": [
+        "Your gear melds into the new form or falls to the ground (your choice).",
+        "You can't use the dragon's Change Shape, legendary actions or lair actions."
       ]
     }
   ]

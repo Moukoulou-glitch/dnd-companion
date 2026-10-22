@@ -910,6 +910,549 @@
         "consumed": true,
         "note": "Drinking it or giving it to another creature takes an action."
       }
+    },
+    {
+      "kind": "item",
+      "id": "item:potion-of-animal-friendship",
+      "name": "Potion of Animal Friendship",
+      "summary": "Animal Friendship at will (DC 13) for 1 hour.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "consumable",
+      "weight": 0.5,
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "use": {
+        "economy": "action",
+        "consumed": true,
+        "note": "Drinking it or giving it to another creature takes an action.",
+        "effect": "other:potion-animal-friendship"
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:potion-of-clairvoyance",
+      "name": "Potion of Clairvoyance",
+      "summary": "The effect of Clairvoyance.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "consumable",
+      "weight": 0.5,
+      "magic": {
+        "rarity": "rare"
+      },
+      "use": {
+        "economy": "action",
+        "consumed": true,
+        "note": "Drinking it or giving it to another creature takes an action.",
+        "effect": "other:potion-clairvoyance"
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:potion-of-climbing",
+      "name": "Potion of Climbing",
+      "summary": "Climbing speed equal to walking speed, and advantage to climb, for 1 hour.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "consumable",
+      "weight": 0.5,
+      "magic": {
+        "rarity": "common"
+      },
+      "use": {
+        "economy": "action",
+        "consumed": true,
+        "note": "Drinking it or giving it to another creature takes an action.",
+        "effect": "other:potion-climbing"
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:potion-of-diminution",
+      "name": "Potion of Diminution",
+      "summary": "Reduced (as Enlarge/Reduce) for 1d4 hours.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "consumable",
+      "weight": 0.5,
+      "magic": {
+        "rarity": "rare"
+      },
+      "use": {
+        "economy": "action",
+        "consumed": true,
+        "note": "Drinking it or giving it to another creature takes an action.",
+        "effect": "other:potion-diminution",
+        "hours": "1d4"
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:potion-of-growth",
+      "name": "Potion of Growth",
+      "summary": "Enlarged (as Enlarge/Reduce) for 1d4 hours.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "consumable",
+      "weight": 0.5,
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "use": {
+        "economy": "action",
+        "consumed": true,
+        "note": "Drinking it or giving it to another creature takes an action.",
+        "effect": "other:potion-growth",
+        "hours": "1d4"
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:potion-of-flying",
+      "name": "Potion of Flying",
+      "summary": "A flying speed equal to your walking speed, and you can hover, for 1 hour.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "consumable",
+      "weight": 0.5,
+      "magic": {
+        "rarity": "very rare"
+      },
+      "use": {
+        "economy": "action",
+        "consumed": true,
+        "note": "Drinking it or giving it to another creature takes an action.",
+        "effect": "other:potion-flying"
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:potion-of-gaseous-form",
+      "name": "Potion of Gaseous Form",
+      "summary": "Gaseous Form for 1 hour.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "consumable",
+      "weight": 0.5,
+      "magic": {
+        "rarity": "rare"
+      },
+      "use": {
+        "economy": "action",
+        "consumed": true,
+        "note": "Drinking it or giving it to another creature takes an action.",
+        "effect": "other:potion-gaseous-form"
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:potion-of-hill-giant-strength",
+      "name": "Potion of Hill Giant Strength",
+      "summary": "Strength 21 for 1 hour.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "consumable",
+      "weight": 0.5,
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "use": {
+        "economy": "action",
+        "consumed": true,
+        "note": "Drinking it or giving it to another creature takes an action.",
+        "effect": "other:potion-giant-strength",
+        "choice": "21"
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:potion-of-frost-giant-strength",
+      "name": "Potion of Frost Giant Strength",
+      "summary": "Strength 23 for 1 hour.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "consumable",
+      "weight": 0.5,
+      "magic": {
+        "rarity": "rare"
+      },
+      "use": {
+        "economy": "action",
+        "consumed": true,
+        "note": "Drinking it or giving it to another creature takes an action.",
+        "effect": "other:potion-giant-strength",
+        "choice": "23"
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:potion-of-stone-giant-strength",
+      "name": "Potion of Stone Giant Strength",
+      "summary": "Strength 23 for 1 hour.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "consumable",
+      "weight": 0.5,
+      "magic": {
+        "rarity": "rare"
+      },
+      "use": {
+        "economy": "action",
+        "consumed": true,
+        "note": "Drinking it or giving it to another creature takes an action.",
+        "effect": "other:potion-giant-strength",
+        "choice": "23"
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:potion-of-fire-giant-strength",
+      "name": "Potion of Fire Giant Strength",
+      "summary": "Strength 25 for 1 hour.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "consumable",
+      "weight": 0.5,
+      "magic": {
+        "rarity": "rare"
+      },
+      "use": {
+        "economy": "action",
+        "consumed": true,
+        "note": "Drinking it or giving it to another creature takes an action.",
+        "effect": "other:potion-giant-strength",
+        "choice": "25"
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:potion-of-cloud-giant-strength",
+      "name": "Potion of Cloud Giant Strength",
+      "summary": "Strength 27 for 1 hour.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "consumable",
+      "weight": 0.5,
+      "magic": {
+        "rarity": "very rare"
+      },
+      "use": {
+        "economy": "action",
+        "consumed": true,
+        "note": "Drinking it or giving it to another creature takes an action.",
+        "effect": "other:potion-giant-strength",
+        "choice": "27"
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:potion-of-storm-giant-strength",
+      "name": "Potion of Storm Giant Strength",
+      "summary": "Strength 29 for 1 hour.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "consumable",
+      "weight": 0.5,
+      "magic": {
+        "rarity": "legendary"
+      },
+      "use": {
+        "economy": "action",
+        "consumed": true,
+        "note": "Drinking it or giving it to another creature takes an action.",
+        "effect": "other:potion-giant-strength",
+        "choice": "29"
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:potion-of-heroism",
+      "name": "Potion of Heroism",
+      "summary": "10 temporary hit points and Bless for 1 hour.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "consumable",
+      "weight": 0.5,
+      "magic": {
+        "rarity": "rare"
+      },
+      "use": {
+        "economy": "action",
+        "consumed": true,
+        "note": "Drinking it or giving it to another creature takes an action.",
+        "effect": "other:potion-heroism"
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:potion-of-invisibility",
+      "name": "Potion of Invisibility",
+      "summary": "Invisible for 1 hour, until you attack or cast a spell.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "consumable",
+      "weight": 0.5,
+      "magic": {
+        "rarity": "very rare"
+      },
+      "use": {
+        "economy": "action",
+        "consumed": true,
+        "note": "Drinking it or giving it to another creature takes an action.",
+        "effect": "other:potion-invisibility"
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:potion-of-mind-reading",
+      "name": "Potion of Mind Reading",
+      "summary": "Detect Thoughts (DC 13).",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "consumable",
+      "weight": 0.5,
+      "magic": {
+        "rarity": "rare"
+      },
+      "use": {
+        "economy": "action",
+        "consumed": true,
+        "note": "Drinking it or giving it to another creature takes an action.",
+        "effect": "other:potion-mind-reading"
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:potion-of-poison",
+      "name": "Potion of Poison",
+      "summary": "Looks like a Potion of Healing: 3d6 poison damage, then a DC 13 Constitution save or poisoned (3d6 more at the start of each turn until a save at the end of a turn succeeds).",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "consumable",
+      "weight": 0.5,
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "use": {
+        "economy": "action",
+        "consumed": true,
+        "note": "Drinking it or giving it to another creature takes an action.",
+        "damage": {
+          "dice": "3d6",
+          "type": "poison"
+        },
+        "effect": "other:potion-poison"
+      },
+      "cost": {
+        "amount": 100,
+        "unit": "gp"
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:potion-of-resistance",
+      "name": "Potion of Resistance",
+      "summary": "Resistance to one damage type (the potion's) for 1 hour.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "consumable",
+      "weight": 0.5,
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "use": {
+        "economy": "action",
+        "consumed": true,
+        "note": "Drinking it or giving it to another creature takes an action.",
+        "effect": "other:potion-resistance",
+        "options": {
+          "label": "Its damage type",
+          "values": [
+            "acid",
+            "cold",
+            "fire",
+            "force",
+            "lightning",
+            "necrotic",
+            "poison",
+            "psychic",
+            "radiant",
+            "thunder"
+          ]
+        }
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:potion-of-speed",
+      "name": "Potion of Speed",
+      "summary": "Haste for 1 minute, no concentration, no lethargy.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "consumable",
+      "weight": 0.5,
+      "magic": {
+        "rarity": "very rare"
+      },
+      "use": {
+        "economy": "action",
+        "consumed": true,
+        "note": "Drinking it or giving it to another creature takes an action.",
+        "effect": "other:potion-speed"
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:potion-of-water-breathing",
+      "name": "Potion of Water Breathing",
+      "summary": "Breathe underwater for 1 hour.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "consumable",
+      "weight": 0.5,
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "use": {
+        "economy": "action",
+        "consumed": true,
+        "note": "Drinking it or giving it to another creature takes an action.",
+        "effect": "other:potion-water-breathing"
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:philter-of-love",
+      "name": "Philter of Love",
+      "summary": "Charmed by the next creature you see within 10 minutes, for 1 hour.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "consumable",
+      "weight": 0.5,
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "use": {
+        "economy": "action",
+        "consumed": true,
+        "note": "Drinking it or giving it to another creature takes an action.",
+        "effect": "other:philter-of-love"
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:potion-of-longevity",
+      "name": "Potion of Longevity",
+      "summary": "You grow 1d6 + 6 years younger (minimum 13). Each one you've drunk before gives a cumulative 10% chance of aging 9d6 years instead.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "consumable",
+      "weight": 0.5,
+      "magic": {
+        "rarity": "very rare"
+      },
+      "use": {
+        "economy": "action",
+        "consumed": true,
+        "note": "Drinking it takes an action. Roll its effect on your age with your DM."
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:potion-of-vitality",
+      "name": "Potion of Vitality",
+      "summary": "Ends exhaustion, disease and poison; for 24 hours each Hit Die you spend heals its maximum.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "consumable",
+      "weight": 0.5,
+      "magic": {
+        "rarity": "very rare"
+      },
+      "use": {
+        "economy": "action",
+        "consumed": true,
+        "note": "Drinking it or giving it to another creature takes an action.",
+        "effect": "other:potion-vitality",
+        "removes": [
+          "condition:exhaustion",
+          "condition:poisoned"
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:potion-of-dragons-majesty",
+      "name": "Potion of Dragon's Majesty",
+      "summary": "Become an adult dragon of the scale's kind (chromatic, gem or metallic) for 1 hour, keeping your languages, personality and memories.",
+      "source": {
+        "pack": "table-2014",
+        "book": "FTD",
+        "page": 24
+      },
+      "category": "consumable",
+      "weight": 0.5,
+      "magic": {
+        "rarity": "legendary"
+      },
+      "use": {
+        "economy": "action",
+        "consumed": true,
+        "note": "Drinking it or giving it to another creature takes an action.",
+        "effect": "other:potion-dragons-majesty",
+        "transform": {
+          "match": "^Adult .* Dragon$",
+          "label": "Which adult dragon (the scale's kind)?"
+        }
+      }
     }
   ]
 }

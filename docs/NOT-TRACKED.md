@@ -194,7 +194,7 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 - Who a spell can target is known for the common healing and helping spells (SPELL_TARGETS); for the rest the app offers every creature without a warning. Warnings never block.
 - A spell's effect on a companion or a summoned creature ends with your concentration (a creature summoned by a concentration spell goes with it anyway).
 - Features: Healing Hands, Lay on Hands and Bardic Inspiration pick who they go to. Lay on Hands spends the points you type even when the creature needs fewer (its HP is capped at its maximum). Curing a disease or poison with Lay on Hands is spent as points only.
-- Potions: only the four healing potions use up and heal; other potions are items with their text. "Someone else" isn't tracked (the potion is gone from your inventory).
+- Potions: each applies its effect to whoever drinks it; "Someone else" isn't tracked (the potion is gone from your inventory). Diminution's 1d4 less weapon damage is a note on the roll. Gaseous Form's resistance and limits, Water Breathing, Mind Reading, Clairvoyance, Animal Friendship and the Philter are reminders. Longevity: roll its effect on your age with your DM. Dragon's Majesty changes only your own form (given to a companion, the DM runs it); gem dragons appear once your bestiary file is loaded.
 
 ## Rune Knight (round 10)
 
