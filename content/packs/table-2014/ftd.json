@@ -1,0 +1,2011 @@
+{
+  "definitions": [
+    {
+      "kind": "spell",
+      "id": "spell:nathairs-mischief",
+      "name": "Nathair's Mischief",
+      "summary": "A 20-ft cube of fey-and-dragon mischief: roll a d4 when cast and at the start of each of your turns (charmed, blinded, giggling and incapacitated, or difficult terrain until your next turn; saves as the effect says). You can move the cube 10 ft before each roll.",
+      "source": {
+        "pack": "table-2014",
+        "book": "FTD",
+        "page": 21
+      },
+      "level": 2,
+      "school": "Illusion",
+      "castingTime": "1 action",
+      "range": "60 feet",
+      "components": [
+        "S",
+        "M"
+      ],
+      "duration": "Concentration, up to 1 minute",
+      "concentration": true,
+      "ritual": false,
+      "classes": [
+        "bard",
+        "sorcerer",
+        "wizard"
+      ],
+      "text": [],
+      "higherLevels": [],
+      "material": "a piece of crust from an apple pie"
+    },
+    {
+      "kind": "spell",
+      "id": "spell:rimes-binding-ice",
+      "name": "Rime's Binding Ice",
+      "summary": "A 30-ft cone of cold: Constitution save; on a failure cold damage and the creature's speed is 0 for 1 minute (until it or someone next to it uses an action to break the ice); half damage and no ice on a success.",
+      "source": {
+        "pack": "table-2014",
+        "book": "FTD",
+        "page": 22
+      },
+      "level": 2,
+      "school": "Evocation",
+      "castingTime": "1 action",
+      "range": "Self (30-foot cone)",
+      "components": [
+        "S",
+        "M"
+      ],
+      "duration": "Instantaneous",
+      "concentration": false,
+      "ritual": false,
+      "classes": [
+        "sorcerer",
+        "wizard"
+      ],
+      "text": [],
+      "higherLevels": [],
+      "material": "a vial of meltwater",
+      "save": {
+        "ability": "con",
+        "onSuccess": "half"
+      },
+      "damage": {
+        "type": "cold",
+        "atSlot": {
+          "2": "3d8",
+          "3": "4d8",
+          "4": "5d8",
+          "5": "6d8",
+          "6": "7d8",
+          "7": "8d8",
+          "8": "9d8",
+          "9": "10d8"
+        }
+      }
+    },
+    {
+      "kind": "spell",
+      "id": "spell:ashardalons-stride",
+      "name": "Ashardalon's Stride",
+      "summary": "Flames from your feet: +20 ft speed (+5 per slot level above 3rd) and moving doesn't provoke opportunity attacks. A creature or object you move within 5 ft of takes fire damage, once per turn.",
+      "source": {
+        "pack": "table-2014",
+        "book": "FTD",
+        "page": 19
+      },
+      "level": 3,
+      "school": "Transmutation",
+      "castingTime": "1 bonus action",
+      "range": "Self",
+      "components": [
+        "V",
+        "S"
+      ],
+      "duration": "Concentration, up to 1 minute",
+      "concentration": true,
+      "ritual": false,
+      "classes": [
+        "ranger",
+        "sorcerer",
+        "wizard"
+      ],
+      "text": [],
+      "higherLevels": [],
+      "damage": {
+        "type": "fire",
+        "atSlot": {
+          "3": "1d6",
+          "4": "2d6",
+          "5": "3d6",
+          "6": "4d6",
+          "7": "5d6",
+          "8": "6d6",
+          "9": "7d6"
+        }
+      }
+    },
+    {
+      "kind": "spell",
+      "id": "spell:raulothims-psychic-lance",
+      "name": "Raulothim's Psychic Lance",
+      "summary": "A lance of psychic power at a creature you see, or one you name within range: Intelligence save; on a failure psychic damage and incapacitated until the start of your next turn; half and not incapacitated on a success.",
+      "source": {
+        "pack": "table-2014",
+        "book": "FTD",
+        "page": 21
+      },
+      "level": 4,
+      "school": "Enchantment",
+      "castingTime": "1 action",
+      "range": "120 feet",
+      "components": [
+        "V"
+      ],
+      "duration": "Instantaneous",
+      "concentration": false,
+      "ritual": false,
+      "classes": [
+        "bard",
+        "sorcerer",
+        "warlock",
+        "wizard"
+      ],
+      "text": [],
+      "higherLevels": [],
+      "save": {
+        "ability": "int",
+        "onSuccess": "half"
+      },
+      "damage": {
+        "type": "psychic",
+        "atSlot": {
+          "4": "7d6",
+          "5": "8d6",
+          "6": "9d6",
+          "7": "10d6",
+          "8": "11d6",
+          "9": "12d6"
+        }
+      },
+      "singleTarget": true
+    },
+    {
+      "kind": "spell",
+      "id": "spell:summon-draconic-spirit",
+      "name": "Summon Draconic Spirit",
+      "summary": "A draconic spirit (chromatic, gem or metallic) appears and fights beside you; it grows with the slot level. You share one of its damage resistances while the spell lasts.",
+      "source": {
+        "pack": "table-2014",
+        "book": "FTD",
+        "page": 21
+      },
+      "level": 5,
+      "school": "Conjuration",
+      "castingTime": "1 action",
+      "range": "60 feet",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ],
+      "duration": "Concentration, up to 1 hour",
+      "concentration": true,
+      "ritual": false,
+      "classes": [
+        "druid",
+        "sorcerer",
+        "wizard"
+      ],
+      "text": [],
+      "higherLevels": [],
+      "material": "an object with the image of a dragon engraved on it, worth at least 500 gp"
+    },
+    {
+      "kind": "spell",
+      "id": "spell:fizbans-platinum-shield",
+      "name": "Fizban's Platinum Shield",
+      "summary": "A field of silvery light around a creature (you can choose yourself): half cover, resistance to acid, cold, fire, lightning and poison, and evasion against Dexterity saves. A bonus action on later turns moves it to another creature within 60 ft of the field.",
+      "source": {
+        "pack": "table-2014",
+        "book": "FTD",
+        "page": 20
+      },
+      "level": 6,
+      "school": "Abjuration",
+      "castingTime": "1 bonus action",
+      "range": "60 feet",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ],
+      "duration": "Concentration, up to 1 minute",
+      "concentration": true,
+      "ritual": false,
+      "classes": [
+        "sorcerer",
+        "wizard"
+      ],
+      "text": [],
+      "higherLevels": [],
+      "material": "a platinum-plated dragon scale, worth at least 500 gp"
+    },
+    {
+      "kind": "spell",
+      "id": "spell:draconic-transformation",
+      "name": "Draconic Transformation",
+      "summary": "You take on draconic features: blindsight 30 ft, incorporeal wings with a 60-ft flying speed, and a 60-ft cone breath of force (Dexterity save, half on a success) when cast and as a bonus action on later turns.",
+      "source": {
+        "pack": "table-2014",
+        "book": "FTD",
+        "page": 19
+      },
+      "level": 7,
+      "school": "Transmutation",
+      "castingTime": "1 bonus action",
+      "range": "Self",
+      "components": [
+        "V",
+        "S",
+        "M"
+      ],
+      "duration": "Concentration, up to 1 minute",
+      "concentration": true,
+      "ritual": false,
+      "classes": [
+        "druid",
+        "sorcerer",
+        "wizard"
+      ],
+      "text": [],
+      "higherLevels": [],
+      "material": "a statuette of a dragon, worth at least 500 gp",
+      "save": {
+        "ability": "dex",
+        "onSuccess": "half"
+      },
+      "damage": {
+        "type": "force",
+        "atSlot": {
+          "7": "6d8",
+          "8": "6d8",
+          "9": "6d8"
+        }
+      }
+    },
+    {
+      "kind": "effect",
+      "id": "effect:ashardalons-stride",
+      "name": "Ashardalon's Stride",
+      "category": "spell",
+      "source": {
+        "pack": "table-2014",
+        "book": "FTD",
+        "page": 19
+      },
+      "summary": "+20 ft speed (+5 per slot level above 3rd); moving doesn't provoke opportunity attacks; creatures and objects you pass within 5 ft take fire damage once per turn.",
+      "selfOnly": true,
+      "concentration": true,
+      "rounds": 10,
+      "upcast": {
+        "baseLevel": 3
+      },
+      "modifiers": [
+        {
+          "selector": "stat.speed.walk",
+          "op": "add",
+          "value": "5*slotLevel + 5",
+          "label": "Ashardalon's Stride"
+        }
+      ],
+      "reminders": [
+        "Your movement doesn't provoke opportunity attacks.",
+        "Moving within 5 ft of a creature or loose object: it takes the spell's fire damage (once per turn each)."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "effect:fizbans-platinum-shield",
+      "name": "Fizban's Platinum Shield",
+      "category": "spell",
+      "source": {
+        "pack": "table-2014",
+        "book": "FTD",
+        "page": 20
+      },
+      "summary": "Half cover (+2 AC and Dexterity saves), resistance to acid, cold, fire, lightning and poison, and evasion.",
+      "concentration": true,
+      "rounds": 10,
+      "modifiers": [
+        {
+          "selector": "stat.ac",
+          "op": "add",
+          "value": 2,
+          "label": "Half cover (Platinum Shield)"
+        },
+        {
+          "selector": "roll.save.dex",
+          "op": "add",
+          "value": 2,
+          "label": "Half cover (Platinum Shield)"
+        },
+        {
+          "selector": "defense.resist.acid",
+          "op": "resist",
+          "label": "Fizban's Platinum Shield"
+        },
+        {
+          "selector": "defense.resist.cold",
+          "op": "resist",
+          "label": "Fizban's Platinum Shield"
+        },
+        {
+          "selector": "defense.resist.fire",
+          "op": "resist",
+          "label": "Fizban's Platinum Shield"
+        },
+        {
+          "selector": "defense.resist.lightning",
+          "op": "resist",
+          "label": "Fizban's Platinum Shield"
+        },
+        {
+          "selector": "defense.resist.poison",
+          "op": "resist",
+          "label": "Fizban's Platinum Shield"
+        }
+      ],
+      "reminders": [
+        "Evasion: a Dexterity save for half damage does nothing on a success, half on a failure.",
+        "Sheds dim light 5 ft.",
+        "The caster can move it to another creature within 60 ft of the field as a bonus action."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "effect:draconic-transformation",
+      "name": "Draconic Transformation",
+      "category": "spell",
+      "source": {
+        "pack": "table-2014",
+        "book": "FTD",
+        "page": 19
+      },
+      "summary": "Blindsight 30 ft, a 60-ft flying speed, and a force breath (60-ft cone, Dexterity save) as a bonus action on each later turn.",
+      "selfOnly": true,
+      "concentration": true,
+      "rounds": 10,
+      "modifiers": [
+        {
+          "selector": "sense.blindsight",
+          "op": "grantSense",
+          "value": 30,
+          "label": "Draconic Transformation"
+        },
+        {
+          "selector": "stat.speed.fly",
+          "op": "grantSpeed",
+          "value": 60,
+          "label": "Draconic Transformation"
+        }
+      ],
+      "actions": [
+        {
+          "id": "draconic-transformation-breath",
+          "name": "Draconic breath",
+          "economy": "bonus",
+          "roll": {
+            "dice": "6d8",
+            "label": "force damage (60-ft cone, Dexterity save against your spell save DC, half on a success)"
+          },
+          "note": "60-ft cone of force: Dexterity save against your spell save DC, half on a success."
+        }
+      ],
+      "reminders": [
+        "Blindsight 30 ft: you see invisible creatures within it unless they hide from you."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "effect:summon-draconic-spirit",
+      "name": "Shared Resistances",
+      "category": "spell",
+      "source": {
+        "pack": "table-2014",
+        "book": "FTD",
+        "page": 21
+      },
+      "summary": "Resistance to one damage type your draconic spirit resists, chosen when you summon it, while the spell lasts.",
+      "selfOnly": true,
+      "concentration": true,
+      "minutes": 60,
+      "choice": {
+        "label": "Damage type",
+        "options": [
+          "acid",
+          "cold",
+          "fire",
+          "lightning",
+          "poison",
+          "force",
+          "necrotic",
+          "psychic",
+          "radiant",
+          "thunder"
+        ]
+      },
+      "modifiers": [
+        {
+          "selector": "defense.resist.{choice}",
+          "op": "resist",
+          "label": "Shared Resistances"
+        }
+      ],
+      "reminders": [
+        "Chromatic and metallic spirits resist acid, cold, fire, lightning and poison; gem spirits resist force, necrotic, psychic, radiant and thunder."
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:ftd-dragonborn-asi-split",
+      "name": "Ability Scores: +2 and +1",
+      "source": {
+        "pack": "table-2014",
+        "book": "FTD"
+      },
+      "summary": "+2 to one ability score and +1 to a different one.",
+      "choices": [
+        {
+          "id": "plus2",
+          "label": "Ability +2",
+          "kind": "ability",
+          "count": 1
+        },
+        {
+          "id": "plus1",
+          "label": "Ability +1 (a different one)",
+          "kind": "ability",
+          "count": 1
+        }
+      ],
+      "grant": {
+        "abilityChoice": [
+          {
+            "choice": "plus2",
+            "amount": 2
+          },
+          {
+            "choice": "plus1",
+            "amount": 1
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:ftd-dragonborn-asi-three",
+      "name": "Ability Scores: three +1",
+      "source": {
+        "pack": "table-2014",
+        "book": "FTD"
+      },
+      "summary": "+1 to three different ability scores.",
+      "choices": [
+        {
+          "id": "three",
+          "label": "Abilities +1 each",
+          "kind": "ability",
+          "count": 3
+        }
+      ],
+      "grant": {
+        "abilityChoice": {
+          "choice": "three",
+          "amount": 1
+        }
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:ftd-chromatic-ancestry-black",
+      "name": "Chromatic Ancestry (Black)",
+      "source": {
+        "pack": "table-2014",
+        "book": "FTD",
+        "page": 10
+      },
+      "summary": "Black dragon: acid breath weapon and resistance to acid damage.",
+      "scaling": {
+        "dice": {
+          "table": [
+            [
+              1,
+              "1d10"
+            ],
+            [
+              5,
+              "2d10"
+            ],
+            [
+              11,
+              "3d10"
+            ],
+            [
+              17,
+              "4d10"
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.acid",
+            "op": "resist",
+            "label": "Draconic Resistance"
+          },
+          {
+            "selector": "defense.immune.acid",
+            "op": "immune",
+            "label": "Chromatic Warding",
+            "when": {
+              "toggle": "chromatic-warding"
+            }
+          }
+        ],
+        "actions": [
+          {
+            "id": "ftd-breath-black",
+            "name": "Breath Weapon (acid)",
+            "economy": "action",
+            "asAttack": true,
+            "cost": {
+              "resource": "ftd-breath-weapon"
+            },
+            "roll": {
+              "dice": "scale.dice",
+              "label": "acid damage (30-foot line, 5 feet wide, Dexterity save, half on a success)"
+            },
+            "note": "In place of one attack of the Attack action: a 30-foot line, 5 feet wide, Dexterity save (DC 8 + Con + proficiency), acid damage, half on a success."
+          },
+          {
+            "id": "ftd-chromatic-warding-black",
+            "name": "Chromatic Warding (acid)",
+            "economy": "action",
+            "minLevel": 5,
+            "cost": {
+              "resource": "ftd-chromatic-warding"
+            },
+            "toggles": [
+              "chromatic-warding"
+            ],
+            "duration": {
+              "rounds": 10
+            },
+            "note": "For 1 minute you're immune to acid damage."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:ftd-chromatic-ancestry-blue",
+      "name": "Chromatic Ancestry (Blue)",
+      "source": {
+        "pack": "table-2014",
+        "book": "FTD",
+        "page": 10
+      },
+      "summary": "Blue dragon: lightning breath weapon and resistance to lightning damage.",
+      "scaling": {
+        "dice": {
+          "table": [
+            [
+              1,
+              "1d10"
+            ],
+            [
+              5,
+              "2d10"
+            ],
+            [
+              11,
+              "3d10"
+            ],
+            [
+              17,
+              "4d10"
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.lightning",
+            "op": "resist",
+            "label": "Draconic Resistance"
+          },
+          {
+            "selector": "defense.immune.lightning",
+            "op": "immune",
+            "label": "Chromatic Warding",
+            "when": {
+              "toggle": "chromatic-warding"
+            }
+          }
+        ],
+        "actions": [
+          {
+            "id": "ftd-breath-blue",
+            "name": "Breath Weapon (lightning)",
+            "economy": "action",
+            "asAttack": true,
+            "cost": {
+              "resource": "ftd-breath-weapon"
+            },
+            "roll": {
+              "dice": "scale.dice",
+              "label": "lightning damage (30-foot line, 5 feet wide, Dexterity save, half on a success)"
+            },
+            "note": "In place of one attack of the Attack action: a 30-foot line, 5 feet wide, Dexterity save (DC 8 + Con + proficiency), lightning damage, half on a success."
+          },
+          {
+            "id": "ftd-chromatic-warding-blue",
+            "name": "Chromatic Warding (lightning)",
+            "economy": "action",
+            "minLevel": 5,
+            "cost": {
+              "resource": "ftd-chromatic-warding"
+            },
+            "toggles": [
+              "chromatic-warding"
+            ],
+            "duration": {
+              "rounds": 10
+            },
+            "note": "For 1 minute you're immune to lightning damage."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:ftd-chromatic-ancestry-green",
+      "name": "Chromatic Ancestry (Green)",
+      "source": {
+        "pack": "table-2014",
+        "book": "FTD",
+        "page": 10
+      },
+      "summary": "Green dragon: poison breath weapon and resistance to poison damage.",
+      "scaling": {
+        "dice": {
+          "table": [
+            [
+              1,
+              "1d10"
+            ],
+            [
+              5,
+              "2d10"
+            ],
+            [
+              11,
+              "3d10"
+            ],
+            [
+              17,
+              "4d10"
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.poison",
+            "op": "resist",
+            "label": "Draconic Resistance"
+          },
+          {
+            "selector": "defense.immune.poison",
+            "op": "immune",
+            "label": "Chromatic Warding",
+            "when": {
+              "toggle": "chromatic-warding"
+            }
+          }
+        ],
+        "actions": [
+          {
+            "id": "ftd-breath-green",
+            "name": "Breath Weapon (poison)",
+            "economy": "action",
+            "asAttack": true,
+            "cost": {
+              "resource": "ftd-breath-weapon"
+            },
+            "roll": {
+              "dice": "scale.dice",
+              "label": "poison damage (30-foot line, 5 feet wide, Dexterity save, half on a success)"
+            },
+            "note": "In place of one attack of the Attack action: a 30-foot line, 5 feet wide, Dexterity save (DC 8 + Con + proficiency), poison damage, half on a success."
+          },
+          {
+            "id": "ftd-chromatic-warding-green",
+            "name": "Chromatic Warding (poison)",
+            "economy": "action",
+            "minLevel": 5,
+            "cost": {
+              "resource": "ftd-chromatic-warding"
+            },
+            "toggles": [
+              "chromatic-warding"
+            ],
+            "duration": {
+              "rounds": 10
+            },
+            "note": "For 1 minute you're immune to poison damage."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:ftd-chromatic-ancestry-red",
+      "name": "Chromatic Ancestry (Red)",
+      "source": {
+        "pack": "table-2014",
+        "book": "FTD",
+        "page": 10
+      },
+      "summary": "Red dragon: fire breath weapon and resistance to fire damage.",
+      "scaling": {
+        "dice": {
+          "table": [
+            [
+              1,
+              "1d10"
+            ],
+            [
+              5,
+              "2d10"
+            ],
+            [
+              11,
+              "3d10"
+            ],
+            [
+              17,
+              "4d10"
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.fire",
+            "op": "resist",
+            "label": "Draconic Resistance"
+          },
+          {
+            "selector": "defense.immune.fire",
+            "op": "immune",
+            "label": "Chromatic Warding",
+            "when": {
+              "toggle": "chromatic-warding"
+            }
+          }
+        ],
+        "actions": [
+          {
+            "id": "ftd-breath-red",
+            "name": "Breath Weapon (fire)",
+            "economy": "action",
+            "asAttack": true,
+            "cost": {
+              "resource": "ftd-breath-weapon"
+            },
+            "roll": {
+              "dice": "scale.dice",
+              "label": "fire damage (30-foot line, 5 feet wide, Dexterity save, half on a success)"
+            },
+            "note": "In place of one attack of the Attack action: a 30-foot line, 5 feet wide, Dexterity save (DC 8 + Con + proficiency), fire damage, half on a success."
+          },
+          {
+            "id": "ftd-chromatic-warding-red",
+            "name": "Chromatic Warding (fire)",
+            "economy": "action",
+            "minLevel": 5,
+            "cost": {
+              "resource": "ftd-chromatic-warding"
+            },
+            "toggles": [
+              "chromatic-warding"
+            ],
+            "duration": {
+              "rounds": 10
+            },
+            "note": "For 1 minute you're immune to fire damage."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:ftd-chromatic-ancestry-white",
+      "name": "Chromatic Ancestry (White)",
+      "source": {
+        "pack": "table-2014",
+        "book": "FTD",
+        "page": 10
+      },
+      "summary": "White dragon: cold breath weapon and resistance to cold damage.",
+      "scaling": {
+        "dice": {
+          "table": [
+            [
+              1,
+              "1d10"
+            ],
+            [
+              5,
+              "2d10"
+            ],
+            [
+              11,
+              "3d10"
+            ],
+            [
+              17,
+              "4d10"
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.cold",
+            "op": "resist",
+            "label": "Draconic Resistance"
+          },
+          {
+            "selector": "defense.immune.cold",
+            "op": "immune",
+            "label": "Chromatic Warding",
+            "when": {
+              "toggle": "chromatic-warding"
+            }
+          }
+        ],
+        "actions": [
+          {
+            "id": "ftd-breath-white",
+            "name": "Breath Weapon (cold)",
+            "economy": "action",
+            "asAttack": true,
+            "cost": {
+              "resource": "ftd-breath-weapon"
+            },
+            "roll": {
+              "dice": "scale.dice",
+              "label": "cold damage (30-foot line, 5 feet wide, Dexterity save, half on a success)"
+            },
+            "note": "In place of one attack of the Attack action: a 30-foot line, 5 feet wide, Dexterity save (DC 8 + Con + proficiency), cold damage, half on a success."
+          },
+          {
+            "id": "ftd-chromatic-warding-white",
+            "name": "Chromatic Warding (cold)",
+            "economy": "action",
+            "minLevel": 5,
+            "cost": {
+              "resource": "ftd-chromatic-warding"
+            },
+            "toggles": [
+              "chromatic-warding"
+            ],
+            "duration": {
+              "rounds": 10
+            },
+            "note": "For 1 minute you're immune to cold damage."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "race",
+      "id": "race:chromatic-dragonborn",
+      "name": "Chromatic Dragonborn",
+      "group": "Dragonborn",
+      "source": {
+        "pack": "table-2014",
+        "book": "FTD",
+        "page": 10
+      },
+      "summary": "Dragonborn of chromatic ancestry: a 30-foot line, 5 feet wide breath weapon (proficiency bonus times a day), resistance to its damage type, and immunity to it for a minute from 5th level (Chromatic Warding).",
+      "size": "medium",
+      "speed": 30,
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "language",
+            "target": "Common"
+          },
+          {
+            "kind": "language",
+            "target": {
+              "choice": "language"
+            }
+          }
+        ],
+        "resources": [
+          {
+            "id": "ftd-breath-weapon",
+            "name": "Breath Weapon",
+            "max": "pb",
+            "reset": "long"
+          },
+          {
+            "id": "ftd-chromatic-warding",
+            "name": "Chromatic Warding",
+            "max": 1,
+            "reset": "long",
+            "minLevel": 5
+          }
+        ]
+      },
+      "features": [],
+      "choices": [
+        {
+          "id": "asi",
+          "label": "Ability score increase",
+          "kind": "feature",
+          "count": 1,
+          "from": [
+            "feature:ftd-dragonborn-asi-split",
+            "feature:ftd-dragonborn-asi-three"
+          ]
+        },
+        {
+          "id": "ancestry",
+          "label": "Chromatic ancestry",
+          "kind": "feature",
+          "count": 1,
+          "from": [
+            "feature:ftd-chromatic-ancestry-black",
+            "feature:ftd-chromatic-ancestry-blue",
+            "feature:ftd-chromatic-ancestry-green",
+            "feature:ftd-chromatic-ancestry-red",
+            "feature:ftd-chromatic-ancestry-white"
+          ]
+        },
+        {
+          "id": "language",
+          "label": "Language",
+          "kind": "language",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:ftd-gem-ancestry-amethyst",
+      "name": "Gem Ancestry (Amethyst)",
+      "source": {
+        "pack": "table-2014",
+        "book": "FTD",
+        "page": 11
+      },
+      "summary": "Amethyst dragon: force breath weapon and resistance to force damage.",
+      "scaling": {
+        "dice": {
+          "table": [
+            [
+              1,
+              "1d10"
+            ],
+            [
+              5,
+              "2d10"
+            ],
+            [
+              11,
+              "3d10"
+            ],
+            [
+              17,
+              "4d10"
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.force",
+            "op": "resist",
+            "label": "Draconic Resistance"
+          }
+        ],
+        "actions": [
+          {
+            "id": "ftd-breath-amethyst",
+            "name": "Breath Weapon (force)",
+            "economy": "action",
+            "asAttack": true,
+            "cost": {
+              "resource": "ftd-breath-weapon"
+            },
+            "roll": {
+              "dice": "scale.dice",
+              "label": "force damage (15-foot cone, Dexterity save, half on a success)"
+            },
+            "note": "In place of one attack of the Attack action: a 15-foot cone, Dexterity save (DC 8 + Con + proficiency), force damage, half on a success."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:ftd-gem-ancestry-crystal",
+      "name": "Gem Ancestry (Crystal)",
+      "source": {
+        "pack": "table-2014",
+        "book": "FTD",
+        "page": 11
+      },
+      "summary": "Crystal dragon: radiant breath weapon and resistance to radiant damage.",
+      "scaling": {
+        "dice": {
+          "table": [
+            [
+              1,
+              "1d10"
+            ],
+            [
+              5,
+              "2d10"
+            ],
+            [
+              11,
+              "3d10"
+            ],
+            [
+              17,
+              "4d10"
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.radiant",
+            "op": "resist",
+            "label": "Draconic Resistance"
+          }
+        ],
+        "actions": [
+          {
+            "id": "ftd-breath-crystal",
+            "name": "Breath Weapon (radiant)",
+            "economy": "action",
+            "asAttack": true,
+            "cost": {
+              "resource": "ftd-breath-weapon"
+            },
+            "roll": {
+              "dice": "scale.dice",
+              "label": "radiant damage (15-foot cone, Dexterity save, half on a success)"
+            },
+            "note": "In place of one attack of the Attack action: a 15-foot cone, Dexterity save (DC 8 + Con + proficiency), radiant damage, half on a success."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:ftd-gem-ancestry-emerald",
+      "name": "Gem Ancestry (Emerald)",
+      "source": {
+        "pack": "table-2014",
+        "book": "FTD",
+        "page": 11
+      },
+      "summary": "Emerald dragon: psychic breath weapon and resistance to psychic damage.",
+      "scaling": {
+        "dice": {
+          "table": [
+            [
+              1,
+              "1d10"
+            ],
+            [
+              5,
+              "2d10"
+            ],
+            [
+              11,
+              "3d10"
+            ],
+            [
+              17,
+              "4d10"
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.psychic",
+            "op": "resist",
+            "label": "Draconic Resistance"
+          }
+        ],
+        "actions": [
+          {
+            "id": "ftd-breath-emerald",
+            "name": "Breath Weapon (psychic)",
+            "economy": "action",
+            "asAttack": true,
+            "cost": {
+              "resource": "ftd-breath-weapon"
+            },
+            "roll": {
+              "dice": "scale.dice",
+              "label": "psychic damage (15-foot cone, Dexterity save, half on a success)"
+            },
+            "note": "In place of one attack of the Attack action: a 15-foot cone, Dexterity save (DC 8 + Con + proficiency), psychic damage, half on a success."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:ftd-gem-ancestry-sapphire",
+      "name": "Gem Ancestry (Sapphire)",
+      "source": {
+        "pack": "table-2014",
+        "book": "FTD",
+        "page": 11
+      },
+      "summary": "Sapphire dragon: thunder breath weapon and resistance to thunder damage.",
+      "scaling": {
+        "dice": {
+          "table": [
+            [
+              1,
+              "1d10"
+            ],
+            [
+              5,
+              "2d10"
+            ],
+            [
+              11,
+              "3d10"
+            ],
+            [
+              17,
+              "4d10"
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.thunder",
+            "op": "resist",
+            "label": "Draconic Resistance"
+          }
+        ],
+        "actions": [
+          {
+            "id": "ftd-breath-sapphire",
+            "name": "Breath Weapon (thunder)",
+            "economy": "action",
+            "asAttack": true,
+            "cost": {
+              "resource": "ftd-breath-weapon"
+            },
+            "roll": {
+              "dice": "scale.dice",
+              "label": "thunder damage (15-foot cone, Dexterity save, half on a success)"
+            },
+            "note": "In place of one attack of the Attack action: a 15-foot cone, Dexterity save (DC 8 + Con + proficiency), thunder damage, half on a success."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:ftd-gem-ancestry-topaz",
+      "name": "Gem Ancestry (Topaz)",
+      "source": {
+        "pack": "table-2014",
+        "book": "FTD",
+        "page": 11
+      },
+      "summary": "Topaz dragon: necrotic breath weapon and resistance to necrotic damage.",
+      "scaling": {
+        "dice": {
+          "table": [
+            [
+              1,
+              "1d10"
+            ],
+            [
+              5,
+              "2d10"
+            ],
+            [
+              11,
+              "3d10"
+            ],
+            [
+              17,
+              "4d10"
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.necrotic",
+            "op": "resist",
+            "label": "Draconic Resistance"
+          }
+        ],
+        "actions": [
+          {
+            "id": "ftd-breath-topaz",
+            "name": "Breath Weapon (necrotic)",
+            "economy": "action",
+            "asAttack": true,
+            "cost": {
+              "resource": "ftd-breath-weapon"
+            },
+            "roll": {
+              "dice": "scale.dice",
+              "label": "necrotic damage (15-foot cone, Dexterity save, half on a success)"
+            },
+            "note": "In place of one attack of the Attack action: a 15-foot cone, Dexterity save (DC 8 + Con + proficiency), necrotic damage, half on a success."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:ftd-gem-psionic-mind",
+      "name": "Psionic Mind",
+      "source": {
+        "pack": "table-2014",
+        "book": "FTD",
+        "page": 11
+      },
+      "summary": "Telepathic messages to any creature you can see within 30 ft; it needs to understand at least one language, not yours."
+    },
+    {
+      "kind": "feature",
+      "id": "feature:ftd-gem-flight",
+      "name": "Gem Flight",
+      "source": {
+        "pack": "table-2014",
+        "book": "FTD",
+        "page": 11
+      },
+      "summary": "From 5th level: a bonus action gives you spectral wings for 1 minute, a flying speed equal to your walking speed, and you can hover. Once per long rest.",
+      "grant": {
+        "resources": [
+          {
+            "id": "ftd-gem-flight",
+            "name": "Gem Flight",
+            "max": 1,
+            "reset": "long",
+            "minLevel": 5
+          }
+        ],
+        "actions": [
+          {
+            "id": "ftd-gem-flight",
+            "name": "Gem Flight",
+            "economy": "bonus",
+            "minLevel": 5,
+            "cost": {
+              "resource": "ftd-gem-flight"
+            },
+            "toggles": [
+              "gem-flight"
+            ],
+            "duration": {
+              "rounds": 10
+            },
+            "note": "Spectral wings for 1 minute: fly at your walking speed, and hover."
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "stat.speed.fly",
+            "op": "grantSpeed",
+            "value": "walk",
+            "hover": true,
+            "label": "Gem Flight",
+            "when": {
+              "toggle": "gem-flight"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "race",
+      "id": "race:gem-dragonborn",
+      "name": "Gem Dragonborn",
+      "group": "Dragonborn",
+      "source": {
+        "pack": "table-2014",
+        "book": "FTD",
+        "page": 11
+      },
+      "summary": "Dragonborn of gem ancestry: a 15-foot cone breath weapon (proficiency bonus times a day), resistance to its damage type, telepathy, and spectral wings from 5th level.",
+      "size": "medium",
+      "speed": 30,
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "language",
+            "target": "Common"
+          },
+          {
+            "kind": "language",
+            "target": {
+              "choice": "language"
+            }
+          }
+        ],
+        "resources": [
+          {
+            "id": "ftd-breath-weapon",
+            "name": "Breath Weapon",
+            "max": "pb",
+            "reset": "long"
+          }
+        ]
+      },
+      "features": [
+        "feature:ftd-gem-psionic-mind",
+        "feature:ftd-gem-flight"
+      ],
+      "choices": [
+        {
+          "id": "asi",
+          "label": "Ability score increase",
+          "kind": "feature",
+          "count": 1,
+          "from": [
+            "feature:ftd-dragonborn-asi-split",
+            "feature:ftd-dragonborn-asi-three"
+          ]
+        },
+        {
+          "id": "ancestry",
+          "label": "Gem ancestry",
+          "kind": "feature",
+          "count": 1,
+          "from": [
+            "feature:ftd-gem-ancestry-amethyst",
+            "feature:ftd-gem-ancestry-crystal",
+            "feature:ftd-gem-ancestry-emerald",
+            "feature:ftd-gem-ancestry-sapphire",
+            "feature:ftd-gem-ancestry-topaz"
+          ]
+        },
+        {
+          "id": "language",
+          "label": "Language",
+          "kind": "language",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:ftd-metallic-ancestry-brass",
+      "name": "Metallic Ancestry (Brass)",
+      "source": {
+        "pack": "table-2014",
+        "book": "FTD",
+        "page": 12
+      },
+      "summary": "Brass dragon: fire breath weapon and resistance to fire damage.",
+      "scaling": {
+        "dice": {
+          "table": [
+            [
+              1,
+              "1d10"
+            ],
+            [
+              5,
+              "2d10"
+            ],
+            [
+              11,
+              "3d10"
+            ],
+            [
+              17,
+              "4d10"
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.fire",
+            "op": "resist",
+            "label": "Draconic Resistance"
+          }
+        ],
+        "actions": [
+          {
+            "id": "ftd-breath-brass",
+            "name": "Breath Weapon (fire)",
+            "economy": "action",
+            "asAttack": true,
+            "cost": {
+              "resource": "ftd-breath-weapon"
+            },
+            "roll": {
+              "dice": "scale.dice",
+              "label": "fire damage (15-foot cone, Dexterity save, half on a success)"
+            },
+            "note": "In place of one attack of the Attack action: a 15-foot cone, Dexterity save (DC 8 + Con + proficiency), fire damage, half on a success."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:ftd-metallic-ancestry-bronze",
+      "name": "Metallic Ancestry (Bronze)",
+      "source": {
+        "pack": "table-2014",
+        "book": "FTD",
+        "page": 12
+      },
+      "summary": "Bronze dragon: lightning breath weapon and resistance to lightning damage.",
+      "scaling": {
+        "dice": {
+          "table": [
+            [
+              1,
+              "1d10"
+            ],
+            [
+              5,
+              "2d10"
+            ],
+            [
+              11,
+              "3d10"
+            ],
+            [
+              17,
+              "4d10"
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.lightning",
+            "op": "resist",
+            "label": "Draconic Resistance"
+          }
+        ],
+        "actions": [
+          {
+            "id": "ftd-breath-bronze",
+            "name": "Breath Weapon (lightning)",
+            "economy": "action",
+            "asAttack": true,
+            "cost": {
+              "resource": "ftd-breath-weapon"
+            },
+            "roll": {
+              "dice": "scale.dice",
+              "label": "lightning damage (15-foot cone, Dexterity save, half on a success)"
+            },
+            "note": "In place of one attack of the Attack action: a 15-foot cone, Dexterity save (DC 8 + Con + proficiency), lightning damage, half on a success."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:ftd-metallic-ancestry-copper",
+      "name": "Metallic Ancestry (Copper)",
+      "source": {
+        "pack": "table-2014",
+        "book": "FTD",
+        "page": 12
+      },
+      "summary": "Copper dragon: acid breath weapon and resistance to acid damage.",
+      "scaling": {
+        "dice": {
+          "table": [
+            [
+              1,
+              "1d10"
+            ],
+            [
+              5,
+              "2d10"
+            ],
+            [
+              11,
+              "3d10"
+            ],
+            [
+              17,
+              "4d10"
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.acid",
+            "op": "resist",
+            "label": "Draconic Resistance"
+          }
+        ],
+        "actions": [
+          {
+            "id": "ftd-breath-copper",
+            "name": "Breath Weapon (acid)",
+            "economy": "action",
+            "asAttack": true,
+            "cost": {
+              "resource": "ftd-breath-weapon"
+            },
+            "roll": {
+              "dice": "scale.dice",
+              "label": "acid damage (15-foot cone, Dexterity save, half on a success)"
+            },
+            "note": "In place of one attack of the Attack action: a 15-foot cone, Dexterity save (DC 8 + Con + proficiency), acid damage, half on a success."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:ftd-metallic-ancestry-gold",
+      "name": "Metallic Ancestry (Gold)",
+      "source": {
+        "pack": "table-2014",
+        "book": "FTD",
+        "page": 12
+      },
+      "summary": "Gold dragon: fire breath weapon and resistance to fire damage.",
+      "scaling": {
+        "dice": {
+          "table": [
+            [
+              1,
+              "1d10"
+            ],
+            [
+              5,
+              "2d10"
+            ],
+            [
+              11,
+              "3d10"
+            ],
+            [
+              17,
+              "4d10"
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.fire",
+            "op": "resist",
+            "label": "Draconic Resistance"
+          }
+        ],
+        "actions": [
+          {
+            "id": "ftd-breath-gold",
+            "name": "Breath Weapon (fire)",
+            "economy": "action",
+            "asAttack": true,
+            "cost": {
+              "resource": "ftd-breath-weapon"
+            },
+            "roll": {
+              "dice": "scale.dice",
+              "label": "fire damage (15-foot cone, Dexterity save, half on a success)"
+            },
+            "note": "In place of one attack of the Attack action: a 15-foot cone, Dexterity save (DC 8 + Con + proficiency), fire damage, half on a success."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:ftd-metallic-ancestry-silver",
+      "name": "Metallic Ancestry (Silver)",
+      "source": {
+        "pack": "table-2014",
+        "book": "FTD",
+        "page": 12
+      },
+      "summary": "Silver dragon: cold breath weapon and resistance to cold damage.",
+      "scaling": {
+        "dice": {
+          "table": [
+            [
+              1,
+              "1d10"
+            ],
+            [
+              5,
+              "2d10"
+            ],
+            [
+              11,
+              "3d10"
+            ],
+            [
+              17,
+              "4d10"
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.cold",
+            "op": "resist",
+            "label": "Draconic Resistance"
+          }
+        ],
+        "actions": [
+          {
+            "id": "ftd-breath-silver",
+            "name": "Breath Weapon (cold)",
+            "economy": "action",
+            "asAttack": true,
+            "cost": {
+              "resource": "ftd-breath-weapon"
+            },
+            "roll": {
+              "dice": "scale.dice",
+              "label": "cold damage (15-foot cone, Dexterity save, half on a success)"
+            },
+            "note": "In place of one attack of the Attack action: a 15-foot cone, Dexterity save (DC 8 + Con + proficiency), cold damage, half on a success."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:ftd-metallic-breath-weapon",
+      "name": "Metallic Breath Weapon",
+      "source": {
+        "pack": "table-2014",
+        "book": "FTD",
+        "page": 12
+      },
+      "summary": "From 5th level, once per long rest, in place of one attack: a 15-ft cone, either Enervating (Constitution save or incapacitated until the start of your next turn) or Repulsion (Strength save or pushed 20 ft and knocked prone).",
+      "grant": {
+        "resources": [
+          {
+            "id": "ftd-metallic-breath",
+            "name": "Metallic Breath Weapon",
+            "max": 1,
+            "reset": "long",
+            "minLevel": 5
+          }
+        ],
+        "actions": [
+          {
+            "id": "ftd-metallic-breath",
+            "name": "Metallic Breath Weapon",
+            "economy": "action",
+            "asAttack": true,
+            "minLevel": 5,
+            "cost": {
+              "resource": "ftd-metallic-breath"
+            },
+            "choose": {
+              "label": "Which breath",
+              "options": [
+                "Enervating (Constitution save or incapacitated until the start of your next turn)",
+                "Repulsion (Strength save or pushed 20 ft and knocked prone)"
+              ]
+            },
+            "note": "In place of one attack: a 15-ft cone, save DC 8 + Con + proficiency."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "race",
+      "id": "race:metallic-dragonborn",
+      "name": "Metallic Dragonborn",
+      "group": "Dragonborn",
+      "source": {
+        "pack": "table-2014",
+        "book": "FTD",
+        "page": 12
+      },
+      "summary": "Dragonborn of metallic ancestry: a 15-foot cone breath weapon (proficiency bonus times a day), resistance to its damage type, and a second, metallic breath from 5th level.",
+      "size": "medium",
+      "speed": 30,
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "language",
+            "target": "Common"
+          },
+          {
+            "kind": "language",
+            "target": {
+              "choice": "language"
+            }
+          }
+        ],
+        "resources": [
+          {
+            "id": "ftd-breath-weapon",
+            "name": "Breath Weapon",
+            "max": "pb",
+            "reset": "long"
+          }
+        ]
+      },
+      "features": [
+        "feature:ftd-metallic-breath-weapon"
+      ],
+      "choices": [
+        {
+          "id": "asi",
+          "label": "Ability score increase",
+          "kind": "feature",
+          "count": 1,
+          "from": [
+            "feature:ftd-dragonborn-asi-split",
+            "feature:ftd-dragonborn-asi-three"
+          ]
+        },
+        {
+          "id": "ancestry",
+          "label": "Metallic ancestry",
+          "kind": "feature",
+          "count": 1,
+          "from": [
+            "feature:ftd-metallic-ancestry-brass",
+            "feature:ftd-metallic-ancestry-bronze",
+            "feature:ftd-metallic-ancestry-copper",
+            "feature:ftd-metallic-ancestry-gold",
+            "feature:ftd-metallic-ancestry-silver"
+          ]
+        },
+        {
+          "id": "language",
+          "label": "Language",
+          "kind": "language",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "kind": "feat",
+      "id": "feat:gift-of-the-chromatic-dragon",
+      "name": "Gift of the Chromatic Dragon",
+      "source": {
+        "pack": "table-2014",
+        "book": "FTD",
+        "page": 29
+      },
+      "features": [],
+      "summary": "Chromatic Infusion: once per long rest, a bonus action makes a weapon deal +1d4 acid, cold, fire, lightning or poison for 1 minute. Reactive Resistance: when you take one of those damage types, your reaction gives resistance to it (proficiency bonus times per long rest).",
+      "grant": {
+        "resources": [
+          {
+            "id": "gift-chromatic-infusion",
+            "name": "Chromatic Infusion",
+            "max": 1,
+            "reset": "long"
+          },
+          {
+            "id": "gift-reactive-resistance",
+            "name": "Reactive Resistance",
+            "max": "pb",
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "gift-chromatic-infusion",
+            "name": "Chromatic Infusion",
+            "economy": "bonus",
+            "cost": {
+              "resource": "gift-chromatic-infusion"
+            },
+            "toggles": [
+              "chromatic-infusion"
+            ],
+            "duration": {
+              "rounds": 10
+            },
+            "choose": {
+              "label": "Damage type",
+              "options": [
+                "acid",
+                "cold",
+                "fire",
+                "lightning",
+                "poison"
+              ]
+            },
+            "note": "Touch a simple or martial weapon: +1d4 of the chosen type on its hits for 1 minute."
+          },
+          {
+            "id": "gift-reactive-resistance",
+            "name": "Reactive Resistance",
+            "economy": "reaction",
+            "cost": {
+              "resource": "gift-reactive-resistance"
+            },
+            "note": "When you take acid, cold, fire, lightning or poison damage: resistance to that instance."
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.damage.weapon.*",
+            "op": "add",
+            "value": "1d4",
+            "mode": "suggested",
+            "label": "Chromatic Infusion (the chosen type)",
+            "when": {
+              "toggle": "chromatic-infusion"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feat",
+      "id": "feat:gift-of-the-gem-dragon",
+      "name": "Gift of the Gem Dragon",
+      "source": {
+        "pack": "table-2014",
+        "book": "FTD",
+        "page": 29
+      },
+      "features": [],
+      "summary": "+1 to Intelligence, Wisdom or Charisma. Telekinetic Reprisal: when a creature within 10 ft damages you, your reaction forces a Strength save (DC 8 + proficiency + that ability's modifier): 2d8 force and pushed 10 ft, or half and not pushed (proficiency bonus times per long rest).",
+      "choices": [
+        {
+          "id": "ability",
+          "label": "Ability +1",
+          "kind": "ability",
+          "count": 1,
+          "from": [
+            "int",
+            "wis",
+            "cha"
+          ]
+        }
+      ],
+      "grant": {
+        "abilityChoice": {
+          "choice": "ability",
+          "amount": 1
+        },
+        "resources": [
+          {
+            "id": "gift-telekinetic-reprisal",
+            "name": "Telekinetic Reprisal",
+            "max": "pb",
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "gift-telekinetic-reprisal",
+            "name": "Telekinetic Reprisal",
+            "economy": "reaction",
+            "cost": {
+              "resource": "gift-telekinetic-reprisal"
+            },
+            "roll": {
+              "dice": "2d8",
+              "label": "force damage (Strength save; pushed 10 ft on a failure, half and not pushed on a success)"
+            },
+            "note": "When a creature within 10 ft of you damages you: it makes a Strength save."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feat",
+      "id": "feat:gift-of-the-metallic-dragon",
+      "name": "Gift of the Metallic Dragon",
+      "source": {
+        "pack": "table-2014",
+        "book": "FTD",
+        "page": 29
+      },
+      "features": [],
+      "summary": "Draconic Healing: you learn Cure Wounds, free once per long rest (or with your slots), cast with Intelligence, Wisdom or Charisma. Protective Wings: when you or a creature within 5 ft is hit, your reaction adds your proficiency bonus to its AC against that attack (proficiency bonus times per long rest).",
+      "choices": [
+        {
+          "id": "ability",
+          "label": "Spellcasting ability",
+          "kind": "ability",
+          "count": 1,
+          "from": [
+            "int",
+            "wis",
+            "cha"
+          ]
+        }
+      ],
+      "grant": {
+        "spellcasting": {
+          "id": "gift-of-the-metallic-dragon",
+          "label": "Gift of the Metallic Dragon",
+          "ability": {
+            "choice": "ability"
+          },
+          "progression": "none"
+        },
+        "resources": [
+          {
+            "id": "gift-draconic-healing",
+            "name": "Draconic Healing: Cure Wounds",
+            "max": 1,
+            "reset": "long"
+          },
+          {
+            "id": "gift-protective-wings",
+            "name": "Protective Wings",
+            "max": "pb",
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "gift-protective-wings",
+            "name": "Protective Wings",
+            "economy": "reaction",
+            "cost": {
+              "resource": "gift-protective-wings"
+            },
+            "note": "You or a creature within 5 ft is hit by an attack roll: +your proficiency bonus to its AC against that attack."
+          }
+        ],
+        "spells": [
+          {
+            "spell": "spell:cure-wounds",
+            "name": "Cure Wounds",
+            "casting": "Free once per long rest, or with a slot",
+            "resource": "gift-draconic-healing"
+          }
+        ]
+      }
+    }
+  ]
+}

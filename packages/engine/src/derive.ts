@@ -459,18 +459,25 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
   }
 
   // Ability scores: base, fixed bonuses, then bonuses to abilities the player picked.
-  const chosenBonus = (s: Source, ab: Ability): number => {
+  const choicesOf = (s: Source) => {
     const ch = s.grant.abilityChoice;
-    if (!ch) return 0;
-    const picked = s.choices[ch.choice] ?? [];
-    return picked.includes(ab) ? ch.amount : 0;
+    return !ch ? [] : Array.isArray(ch) ? ch : [ch];
   };
+  const chosenBonus = (s: Source, ab: Ability): number => choicesOf(s).reduce((n, ch) => n + ((s.choices[ch.choice] ?? []).includes(ab) ? ch.amount : 0), 0);
   for (const s of sources) {
-    const ch = s.grant.abilityChoice;
-    const def = ch && reg.has(s.id) ? (reg.find(s.id, "race") ?? reg.find(s.id, "feat") ?? reg.find(s.id, "feature")) : undefined;
-    const newOnly = (def as { choices?: { id: string; newOnly?: boolean }[] } | undefined)?.choices?.find((x) => x.id === ch?.choice)?.newOnly;
-    if (newOnly && !c.builtInApp) continue;
-    if (ch && !(s.choices[ch.choice]?.length)) warnings.push(`${s.label}: choice "${ch.choice}" has not been made.`);
+    const list = choicesOf(s);
+    if (!list.length) continue;
+    const def = reg.has(s.id) ? (reg.find(s.id, "race") ?? reg.find(s.id, "feat") ?? reg.find(s.id, "feature")) : undefined;
+    for (const ch of list) {
+      const newOnly = (def as { choices?: { id: string; newOnly?: boolean }[] } | undefined)?.choices?.find((x) => x.id === ch.choice)?.newOnly;
+      if (newOnly && !c.builtInApp) continue;
+      if (!(s.choices[ch.choice]?.length)) warnings.push(`${s.label}: choice "${ch.choice}" has not been made.`);
+    }
+    // +2 to one and +1 to another: the same ability twice is beyond the rules (warned, kept).
+    if (list.length > 1) {
+      const picks = list.flatMap((ch) => s.choices[ch.choice] ?? []);
+      if (new Set(picks).size < picks.length) warnings.push(`${s.label}: the same ability picked twice; the rule asks for different ones.`);
+    }
   }
   const abilities = {} as Record<Ability, AbilityResult>;
   for (const ab of ABILITIES) {
@@ -520,7 +527,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     if (cached) return cached;
     const scale: Record<string, ValueExpr> = {};
     for (const [name, sc] of Object.entries(s.scaling)) {
-      const lvl = classLevels[sc.class] ?? 0;
+      const lvl = sc.class ? (classLevels[sc.class] ?? 0) : ctx.level;
       const row = [...sc.table].sort((a, b) => a[0] - b[0]).filter(([at]) => at <= lvl).at(-1);
       scale[name] = row ? row[1] : 0;
     }

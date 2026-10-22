@@ -36,7 +36,8 @@ const base = {
  */
 export const Scaling = z
   .object({
-    class: DefId,
+    /** The class whose level picks the row; left out: the character's level (a race's breath weapon). */
+    class: DefId.optional(),
     table: z.array(z.tuple([z.number().int().min(1).max(20), z.union([z.number(), z.string()])])).min(1),
   })
   .strict();

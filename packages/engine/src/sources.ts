@@ -59,6 +59,8 @@ export function collectSources(c: Character, baseReg: ContentRegistry, duplicate
   const race = reg.get(c.race, "race");
   out.push({ id: race.id, label: race.name, grant: race.grant ?? {}, choices: choicesFor(race.id) });
   race.features.forEach(pushFeature);
+  // Picks a race makes among features (Fizban's dragonborn: ancestry, how the ability scores go up).
+  pushChosenFeatures(race.id, race.choices);
 
   if (c.background) {
     const bg = reg.get(c.background, "background");

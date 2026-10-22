@@ -488,7 +488,10 @@ export const Grant = z
   .object({
     abilityBonuses: z.record(Ability, z.number()).optional(),
     /** +amount to each ability the player picked for `choice` (Athlete: +1 to STR or DEX). */
-    abilityChoice: z.object({ choice: z.string(), amount: z.number().int() }).strict().optional(),
+    /** Bonuses to abilities the player picks; several (Fizban's dragonborn: +2 to one, +1 to another). */
+    abilityChoice: z
+      .union([z.object({ choice: z.string(), amount: z.number().int() }).strict(), z.array(z.object({ choice: z.string(), amount: z.number().int() }).strict()).min(1)])
+      .optional(),
     attacks: z.array(AttackDef).optional(),
     actions: z.array(ActionDef).optional(),
     modifiers: z.array(Modifier).optional(),

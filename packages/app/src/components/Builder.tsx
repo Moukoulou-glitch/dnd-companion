@@ -388,7 +388,8 @@ export function NewCharacterPanel({ reg, onCreate }: { reg: ContentRegistry; onC
   const [scores, setScores] = useState<Record<Ability, number>>({ str: 15, dex: 14, con: 13, int: 12, wis: 10, cha: 8 });
 
   // Races with subraces show as "Dwarf: Hill Dwarf"; the table's own races come with them.
-  const races = useMemo(() => reg.list("race").sort((a, b) => (a.group ?? a.name).localeCompare(b.group ?? b.name) || a.name.localeCompare(b.name)), [reg]);
+  // In a family the base race comes first (Dragonborn, then Chromatic, Gem, Metallic).
+  const races = useMemo(() => reg.list("race").sort((a, b) => (a.group ?? a.name).localeCompare(b.group ?? b.name) || (a.group ? 1 : 0) - (b.group ? 1 : 0) || a.name.localeCompare(b.name)), [reg]);
   // A race named like a family (Human, with Variant Human) goes in that family's box.
   const raceFamilies = useMemo(() => new Set(races.flatMap((r) => (r.group ? [r.group] : []))), [races]);
   const classes = useMemo(() => reg.list("class"), [reg]);

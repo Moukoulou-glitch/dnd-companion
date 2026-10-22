@@ -74,6 +74,25 @@ export const FEATURE_DCS: Record<string, DcSpec> = {
   "feature:path-of-the-storm-herald-storm-aura": { save: "Dexterity (Sea)", by: ["con"], name: "Storm Aura save DC" },
   // Races
   "feature:trait-breath-weapon": { save: "Dexterity or Constitution (by your ancestry)", by: ["con"], name: "Breath Weapon DC" },
+  // Fizban's dragonborn: each ancestry's breath weapon (Dexterity), and the metallic one's second breath.
+  "feature:ftd-chromatic-ancestry-black": { save: "Dexterity", by: ["con"], name: "Breath Weapon DC" },
+  "feature:ftd-chromatic-ancestry-blue": { save: "Dexterity", by: ["con"], name: "Breath Weapon DC" },
+  "feature:ftd-chromatic-ancestry-green": { save: "Dexterity", by: ["con"], name: "Breath Weapon DC" },
+  "feature:ftd-chromatic-ancestry-red": { save: "Dexterity", by: ["con"], name: "Breath Weapon DC" },
+  "feature:ftd-chromatic-ancestry-white": { save: "Dexterity", by: ["con"], name: "Breath Weapon DC" },
+  "feature:ftd-gem-ancestry-amethyst": { save: "Dexterity", by: ["con"], name: "Breath Weapon DC" },
+  "feature:ftd-gem-ancestry-crystal": { save: "Dexterity", by: ["con"], name: "Breath Weapon DC" },
+  "feature:ftd-gem-ancestry-emerald": { save: "Dexterity", by: ["con"], name: "Breath Weapon DC" },
+  "feature:ftd-gem-ancestry-sapphire": { save: "Dexterity", by: ["con"], name: "Breath Weapon DC" },
+  "feature:ftd-gem-ancestry-topaz": { save: "Dexterity", by: ["con"], name: "Breath Weapon DC" },
+  "feature:ftd-metallic-ancestry-brass": { save: "Dexterity", by: ["con"], name: "Breath Weapon DC" },
+  "feature:ftd-metallic-ancestry-bronze": { save: "Dexterity", by: ["con"], name: "Breath Weapon DC" },
+  "feature:ftd-metallic-ancestry-copper": { save: "Dexterity", by: ["con"], name: "Breath Weapon DC" },
+  "feature:ftd-metallic-ancestry-gold": { save: "Dexterity", by: ["con"], name: "Breath Weapon DC" },
+  "feature:ftd-metallic-ancestry-silver": { save: "Dexterity", by: ["con"], name: "Breath Weapon DC" },
+  "feature:ftd-metallic-breath-weapon": { save: "Constitution (Enervating) or Strength (Repulsion)", by: ["con"], name: "Breath Weapon DC" },
+  // Gift of the Gem Dragon: 8 + proficiency + the ability the feat raised (the best of the three is shown).
+  "feat:gift-of-the-gem-dragon": { save: "Strength", by: ["int", "wis", "cha"], name: "Telekinetic Reprisal DC" },
 };
 
 /** Actions (by id) that take the DC of a feature. */
