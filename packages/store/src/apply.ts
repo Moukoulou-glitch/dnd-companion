@@ -20,7 +20,10 @@ const evalFlatSafe = (v: ValueExpr, ctx: Parameters<typeof evalFlat>[1]): number
 /** A follow-up the app should open: a concentration save (yours, or a summoned creature's when `summon` is set). */
 /** A question for the player: a concentration save, or news of instant death (`reason`). */
 /** `grave`: Strength of the Grave could save you from this drop to 0 (DC in `dc`); asked before damage is recorded. */
-export type Prompt = { kind: "concentration" | "dead" | "grave"; dc: number; spell: string; summon?: string; reason?: string };
+export type Prompt = { kind: "concentration" | "dead" | "grave" | "stable"; dc: number; spell: string; summon?: string; reason?: string };
+
+/** The effect a stable character at 0 HP carries: its minutes count down to 1 HP. */
+export const STABLE_EFFECT = "other:stable";
 
 /** What changed, in words the UI can show as a toast or reminder. */
 export interface ApplyResult {
@@ -196,6 +199,25 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
   };
 
   /** Time passes: long effects and concentration count down; anything reaching 0 ends. */
+  /**
+   * Stable at 0 HP (PHB p. 197): no more death saves, and they're cleared. With `hours` (the 1d4 rolled),
+   * the effect counts down; when it runs out the character regains 1 HP.
+   */
+  const stabilize = (how: string, hours?: number) => {
+    c.deathSaves = { successes: 0, failures: 0 };
+    const was = c.effects.find((e) => e.effect === STABLE_EFFECT);
+    c.effects = c.effects.filter((e) => e.effect !== STABLE_EFFECT);
+    const entry: Character["effects"][number] = { id: was?.id ?? "stable", effect: STABLE_EFFECT, from: how };
+    if (hours !== undefined) entry.minutes = hours * 60;
+    c.effects.push(entry);
+    notes.push(hours !== undefined ? `Stable (${how}): unconscious, 1 HP in ${hours} hour${hours === 1 ? "" : "s"} unless healed sooner.` : `Stable (${how}): no more death saves. Roll 1d4 for the hours until you regain 1 HP.`);
+  };
+  const endStable = (why: string) => {
+    if (!c.effects.some((e) => e.effect === STABLE_EFFECT)) return;
+    c.effects = c.effects.filter((e) => e.effect !== STABLE_EFFECT);
+    notes.push(why);
+  };
+
   const passMinutes = (minutes: number) => {
     // The in-world clock moves too, unless the player keeps it by hand.
     if (c.story.calendar.followRests) c.story.calendar.minutes += minutes;
@@ -209,7 +231,14 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         if (e.rounds === 0) ended.push(e);
       }
     }
-    if (ended.length) notes.push(`Ended: ${ended.map(effectName).join(", ")}.`);
+    // Stable long enough: 1 HP, awake.
+    if (ended.some((e) => e.effect === STABLE_EFFECT) && c.hp.current === 0) {
+      c.hp.current = 1;
+      c.deathSaves = { successes: 0, failures: 0 };
+      notes.push("Stable long enough: you regain 1 HP and wake up.");
+    }
+    const shown = ended.filter((e) => e.effect !== STABLE_EFFECT);
+    if (shown.length) notes.push(`Ended: ${shown.map(effectName).join(", ")}.`);
     removeEffects(ended);
     const conc = c.concentration;
     if (conc && (conc.minutes !== undefined || conc.rounds !== undefined)) {
@@ -321,6 +350,7 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       damageReminders(tempBefore);
 
       if (wasAtZero && rest > 0) {
+        endStable("Damage while stable: you're no longer stable, and death saves start again.");
         if (rest >= maxHp) {
           notes.push(`${rest} damage at 0 HP is at least your HP maximum (${maxHp}): instant death.`);
           c.deathSaves.failures = 3;
@@ -1938,7 +1968,23 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
     case "setDeathSaves": {
       c.deathSaves = { successes: op.payload.successes, failures: op.payload.failures };
       if (op.payload.failures === 3) notes.push("Three failures: the character dies.");
-      else if (op.payload.successes === 3) notes.push("Three successes: stable at 0 HP.");
+      else if (op.payload.successes === 3) {
+        notes.push("Three successes: stable at 0 HP.");
+        stabilize("three successful death saves");
+        prompts.push({ kind: "stable", dc: 0, spell: "" });
+      }
+      break;
+    }
+
+    case "stabilize": {
+      if (c.hp.current > 0) {
+        notes.push("Not at 0 HP: nothing to stabilize.");
+        break;
+      }
+      const { how, hours } = op.payload;
+      // Rolling the hours for a stable that's already there keeps how it came about.
+      const was = c.effects.find((e) => e.effect === STABLE_EFFECT);
+      stabilize(was && !how ? (was.from ?? "stable") : (how ?? "stable"), hours);
       break;
     }
 
@@ -1960,8 +2006,12 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
           notes.push("Natural 20: back up with 1 HP.");
           break;
       }
-      if (c.deathSaves.successes === 3) notes.push("Three successes: stable at 0 HP.");
       if (c.deathSaves.failures === 3) notes.push("Three failures: the character dies.");
+      else if (c.deathSaves.successes === 3) {
+        notes.push("Three successes: stable at 0 HP.");
+        stabilize("three successful death saves");
+        prompts.push({ kind: "stable", dc: 0, spell: "" });
+      }
       break;
     }
 
@@ -2429,6 +2479,12 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
   // Building at full HP (a Constitution bonus, a race's extra hit points): stay at full.
   if (["setChoice", "setAbilities", "chooseAsi", "setDetails", "setSubclass"].includes(op.type) && input.hp.current >= maxHp) {
     c.hp.current = derive(c, reg).hpMax.total;
+  }
+
+  // Back above 0 HP (healed, or 1 HP from a natural 20): no longer just stable.
+  if (c.hp.current > 0 && c.effects.some((e) => e.effect === STABLE_EFFECT)) {
+    c.effects = c.effects.filter((e) => e.effect !== STABLE_EFFECT);
+    if (op.type !== "passTime" && op.type !== "rest") notes.push("Conscious again: no longer just stable.");
   }
 
   // A lower HP maximum (Exhaustion 4, Aid ending) pulls current HP down with it.

@@ -459,6 +459,11 @@ export const OPERATION_PAYLOADS = {
   deathSave: z.object({ result: z.enum(["success", "failure", "critSuccess", "critFailure"]) }).strict(),
   /** Set the death save marks by hand (tap a mark, or clear them). */
   setDeathSaves: z.object({ successes: z.number().int().min(0).max(3), failures: z.number().int().min(0).max(3) }).strict(),
+  /**
+   * Stable at 0 HP: three successes, a Medicine check, Spare the Dying… (`how`, in words).
+   * `hours`: the 1d4 rolled for when 1 HP comes back; given alone, it sets the hours on the stable already there.
+   */
+  stabilize: z.object({ how: z.string().max(80).optional(), hours: z.number().int().min(1).max(4).optional() }).strict(),
   toggle: z.object({ name: z.string(), on: z.boolean() }).strict(),
   /** Generic edit of a stored value, e.g. path ["abilities","str"]. Validated after applying. */
   setField: z.object({ path: z.array(z.union([z.string(), z.number()])).min(1), value: z.unknown() }).strict(),
@@ -546,6 +551,7 @@ export const Operation = z.discriminatedUnion("type", [
   OperationBase.extend({ type: z.literal("setConcentration"), payload: OPERATION_PAYLOADS.setConcentration }),
   OperationBase.extend({ type: z.literal("deathSave"), payload: OPERATION_PAYLOADS.deathSave }),
   OperationBase.extend({ type: z.literal("setDeathSaves"), payload: OPERATION_PAYLOADS.setDeathSaves }),
+  OperationBase.extend({ type: z.literal("stabilize"), payload: OPERATION_PAYLOADS.stabilize }),
   OperationBase.extend({ type: z.literal("toggle"), payload: OPERATION_PAYLOADS.toggle }),
   OperationBase.extend({ type: z.literal("setField"), payload: OPERATION_PAYLOADS.setField }),
   OperationBase.extend({ type: z.literal("setStory"), payload: OPERATION_PAYLOADS.setStory }),

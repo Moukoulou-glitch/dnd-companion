@@ -128,7 +128,10 @@ export function opFx(type: string, payload: unknown, before: Character, after: C
   if (type === "deathSave" && p.result !== "critSuccess") {
     const ds = (c: Character) => c.deathSaves ?? { successes: 0, failures: 0 };
     const sb = ds(before), sa = ds(after);
-    if (sa.successes > sb.successes) out.push({ kind: "death-save", result: "success", final: sa.successes >= 3 });
+    // The third success makes you stable and clears the saves: that's the final success.
+    const nowStable = !before.effects.some((e) => e.effect === "other:stable") && after.effects.some((e) => e.effect === "other:stable");
+    if (nowStable) out.push({ kind: "death-save", result: "success", final: true });
+    else if (sa.successes > sb.successes) out.push({ kind: "death-save", result: "success", final: sa.successes >= 3 });
     else if (sa.failures > sb.failures) out.push({ kind: "death-save", result: "failure", final: sa.failures >= 3 });
   }
 

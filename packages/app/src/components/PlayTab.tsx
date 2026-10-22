@@ -93,7 +93,7 @@ export function IdentityPanel({ c, act }: { c: Character; act: (type: OperationT
   );
 }
 
-type Act = (type: OperationType, payload: unknown, label: string) => void;
+type Act = (type: OperationType, payload: unknown, label: string) => unknown;
 
 /** Questions the Play tab asks before spending or restoring (handled by the app shell). */
 export interface PlayPrompts {
@@ -171,6 +171,8 @@ export function PlayTab({
   prompts,
   onInitiative,
   openDeathSave,
+  openStable,
+  onDeathSavesMarked,
   openBackground,
   openIdentity,
   openShape,
@@ -211,12 +213,18 @@ export function PlayTab({
   onInitiative: () => void;
   /** A death saving throw: tap the d20 or let the app roll. */
   openDeathSave: () => void;
+  /** At 0 HP: tell the app you're stable (how, then the 1d4 hours). */
+  openStable: (how?: string) => void;
+  /** After marking death saves by hand: the third success asks for the hours. */
+  onDeathSavesMarked: (prompts: unknown) => void;
   /** Choose another background. */
   openBackground: () => void;
   /** Alignment, size and creature type. */
   openIdentity: () => void;
 }) {
   const down = character.hp.current === 0;
+  // Stable at 0 HP: the effect counting down to 1 HP.
+  const stable = down ? character.effects.find((e) => e.effect === "other:stable") : undefined;
   const slotsUsed = (level: number) => character.slotsUsed[String(level)] ?? 0;
 
   return (
@@ -318,8 +326,10 @@ export function PlayTab({
         <div className={`group death-saves${down ? " down" : ""}`}>
           {(["successes", "failures"] as const).map((k) => {
             const n = character.deathSaves[k];
-            const set = (v: number) =>
-              act("setDeathSaves", { ...character.deathSaves, [k]: v }, `${k === "successes" ? "Successes" : "Failures"}: ${v}.`);
+            const set = (v: number) => {
+              const prompts = act("setDeathSaves", { ...character.deathSaves, [k]: v }, `${k === "successes" ? "Successes" : "Failures"}: ${v}.`);
+              if (k === "successes" && v === 3) onDeathSavesMarked(prompts);
+            };
             return (
               <div className="row" key={k}>
                 <div className="row-main">
@@ -347,10 +357,34 @@ export function PlayTab({
               </div>
             </div>
           </div>
+          {stable && (
+            <div className="row stable-row" role="status">
+              <div className="row-main">
+                <div className="row-title">Stable{stable.from ? `: ${stable.from}` : ""}</div>
+                <div className="row-sub">
+                  {stable.minutes !== undefined
+                    ? `Unconscious, no death saves. 1 HP in ${stable.minutes >= 60 ? `${Math.floor(stable.minutes / 60)} h${stable.minutes % 60 ? ` ${stable.minutes % 60} min` : ""}` : `${stable.minutes} min`} unless you're healed sooner; "Time passes" and rests count it down. Damage starts the death saves again.`
+                    : "Unconscious, no death saves. Roll 1d4 for the hours until you regain 1 HP."}
+                </div>
+              </div>
+              {stable.minutes === undefined && (
+                <button className="tag" onClick={() => openStable(stable.from)}>
+                  Roll 1d4
+                </button>
+              )}
+            </div>
+          )}
           <div className="big-actions" style={{ padding: "0 10px 10px" }}>
-            <button className={`big${down ? " primary" : ""}`} onClick={openDeathSave}>
-              Roll a death save
-            </button>
+            {!stable && (
+              <button className={`big${down ? " primary" : ""}`} onClick={openDeathSave}>
+                Roll a death save
+              </button>
+            )}
+            {down && !stable && (
+              <button className="big" onClick={() => openStable()}>
+                I'm stable
+              </button>
+            )}
             {(character.deathSaves.successes > 0 || character.deathSaves.failures > 0) && (
               <button className="big" onClick={() => act("setDeathSaves", { successes: 0, failures: 0 }, "Death saves cleared.")}>
                 Clear

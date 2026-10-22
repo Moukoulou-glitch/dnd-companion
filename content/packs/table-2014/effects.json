@@ -3162,6 +3162,26 @@
     },
     {
       "kind": "effect",
+      "id": "other:stable",
+      "name": "Stable",
+      "category": "other",
+      "summary": "At 0 hit points but stable: you stay unconscious and make no death saving throws. Unless healed, you regain 1 hit point when the time runs out (1d4 hours).",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "selfOnly": true,
+      "modifiers": [],
+      "includes": [
+        "condition:unconscious"
+      ],
+      "reminders": [
+        "Any damage ends it: you start making death saving throws again.",
+        "Any healing wakes you."
+      ]
+    },
+    {
+      "kind": "effect",
       "id": "other:defensive-flourish",
       "name": "Defensive Flourish",
       "category": "other",

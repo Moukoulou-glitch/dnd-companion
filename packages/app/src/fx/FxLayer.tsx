@@ -55,7 +55,8 @@ export function specOf(e: FxEvent): FxSpec {
       return {
         at: "edge",
         ms: e.final ? 800 : 650,
-        look: `fx-death fx-death-${e.result}${e.final ? " fx-death-final" : ""}`,
+        // A first or second success: a breath of pale light rising from below (the third keeps the old look).
+        look: e.result === "success" && !e.final ? "fx-death-hope" : `fx-death fx-death-${e.result}${e.final ? " fx-death-final" : ""}`,
         label: e.final ? (e.result === "success" ? "Stable" : "Third failure") : e.result === "success" ? "Success" : "Failure",
       };
     case "inspiration":

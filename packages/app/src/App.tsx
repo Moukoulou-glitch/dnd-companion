@@ -34,6 +34,7 @@ import { CustomActionForm, CustomItemForm, CustomSpellForm } from "./components/
 import { CompanionBuilder } from "./components/CompanionBuilder";
 import { RollAdjustPanel } from "./components/RollAdjust";
 import { DurablePanel } from "./components/Durable";
+import { StablePanel } from "./components/Stable";
 import { DefensesPanel } from "./components/Defenses";
 import { IdentityPanel } from "./components/PlayTab";
 import { HealerPanel } from "./components/Healer";
@@ -484,14 +485,32 @@ export function App() {
       live.current.character ? <CustomBackgroundWizard c={live.current.character} reg={registry} act={live.current.act} done={close} /> : null,
     );
 
+  /** Stable at 0 HP: how (unless known), then the 1d4 hours until 1 HP. */
+  const openStable = (how?: string) =>
+    open("Stable", () => (
+      <StablePanel
+        how={how}
+        onDone={(h, hours) => {
+          live.current.act("stabilize", { how: h, hours }, `Stable: 1 HP in ${hours} hour${hours === 1 ? "" : "s"}.`);
+          close();
+        }}
+      />
+    ));
+  /** Three successes (rolled or marked): stable, and the hours are rolled right away. */
+  const afterDeathSave = (prompts: unknown) => {
+    if (Array.isArray(prompts) && prompts.some((p: { kind?: string }) => p?.kind === "stable")) openStable("three successful death saves");
+    else close();
+  };
+
   /** A death saving throw: what the d20 shows decides it. */
   const openDeathSave = () => {
     const decide = (n: number) => {
-      if (n === 20) s.act("deathSave", { result: "critSuccess" }, "Death save: natural 20.");
-      else if (n === 1) s.act("deathSave", { result: "critFailure" }, "Death save: natural 1, two failures.");
-      else if (n >= 10) s.act("deathSave", { result: "success" }, `Death save: ${n}, a success.`);
-      else s.act("deathSave", { result: "failure" }, `Death save: ${n}, a failure.`);
-      close();
+      let prompts: unknown;
+      if (n === 20) prompts = s.act("deathSave", { result: "critSuccess" }, "Death save: natural 20.");
+      else if (n === 1) prompts = s.act("deathSave", { result: "critFailure" }, "Death save: natural 1, two failures.");
+      else if (n >= 10) prompts = s.act("deathSave", { result: "success" }, `Death save: ${n}, a success.`);
+      else prompts = s.act("deathSave", { result: "failure" }, `Death save: ${n}, a failure.`);
+      afterDeathSave(prompts);
     };
     open(
       "Death saving throw",
@@ -2809,6 +2828,8 @@ export function App() {
           prompts={prompts}
           onInitiative={rollInitiative}
           openDeathSave={openDeathSave}
+          openStable={openStable}
+          onDeathSavesMarked={afterDeathSave}
           openBackground={openBackground}
           openIdentity={() => open("Who you are", () => (live.current.character ? <IdentityPanel c={live.current.character} act={live.current.act} /> : null))}
           openMove={openMove}

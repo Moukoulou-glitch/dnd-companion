@@ -75,6 +75,18 @@ describe("Effect triggers", () => {
     expect(fx(k, "deathSave", { result: "critSuccess" })).toEqual([{ kind: "heal", amount: 1 }]);
   });
 
+  it("9c: the third success (stable, saves cleared) is still the final one; the first two have their own look", async () => {
+    const l = fighter();
+    l.record("damage", { amount: l.character.hp!.current });
+    fx(l, "deathSave", { result: "success" });
+    fx(l, "deathSave", { result: "success" });
+    expect(fx(l, "deathSave", { result: "success" })).toEqual([{ kind: "death-save", result: "success", final: true }]);
+    const { specOf } = await import("../src/fx/FxLayer.js");
+    expect(specOf({ kind: "death-save", result: "success", final: false }).look).toBe("fx-death-hope");
+    expect(specOf({ kind: "death-save", result: "success", final: true }).look).toBe("fx-death fx-death-success fx-death-final");
+    expect(specOf({ kind: "death-save", result: "failure", final: false }).look).toBe("fx-death fx-death-failure");
+  });
+
   it("Inspiration and level-up only when they change; spells get their real school", () => {
     const l = fighter();
     expect(fx(l, "setInspiration", { count: 1 })).toEqual([{ kind: "inspiration", gained: true }]);
