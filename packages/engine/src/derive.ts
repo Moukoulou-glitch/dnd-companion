@@ -787,7 +787,8 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
         }
         if (mod.damageType) apply.damageType = mod.damageType;
         const s: Suggestion = { label: labelOf(a), effect: describeEffect(a), apply };
-        if (mod.when?.text) s.reason = mod.when.text.replace(/\{spelldc\}/g, spellDcText);
+        // "{spelldc}", and "{dc:con}" for 8 + proficiency + that ability (a rune's save).
+        if (mod.when?.text) s.reason = mod.when.text.replace(/\{spelldc\}/g, spellDcText).replace(/\{dc:(str|dex|con|int|wis|cha)\}/g, (_, ab: Ability) => `DC ${8 + pb + mods[ab]}`);
         if (mod.oncePerTurn) s.oncePerTurn = true;
         if (mod.when?.hands) s.hands = mod.when.hands;
         if (mod.spends) s.spends = mod.spends;

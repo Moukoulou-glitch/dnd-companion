@@ -573,6 +573,8 @@ export const ChoiceDef = z
       .optional(),
     /** Feature choices: any feature a background gives (a custom background borrows one). */
     featuresOf: z.literal("background").optional(),
+    /** Option choices: the feature each picked value brings with it (Rune Carver: "Fire Rune" → the Fire Rune's passive and invoke). */
+    grants: z.record(z.string(), DefId).optional(),
     /** No upper limit: `count` is where it starts and more can be added (a ritual book grows as you copy spells). */
     open: z.boolean().optional(),
     /** Spell choices with a `from` list: other spells it may be swapped for later (Divine affinity: any cleric spell), listed after with a note. */

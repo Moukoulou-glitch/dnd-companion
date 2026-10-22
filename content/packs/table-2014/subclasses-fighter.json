@@ -1761,7 +1761,7 @@
       "kind": "feature",
       "id": "feature:rune-knight-rune-carver",
       "name": "Rune Carver",
-      "summary": "Inscribe runes you know (2, then 3 at 7th, 4 at 10th, 5 at 15th) on gear after a long rest. Each rune gives a passive benefit and can be invoked once per short or long rest (twice from 15th). Save DC 8 + proficiency bonus + Constitution modifier.",
+      "summary": "Inscribe runes you know (2, then 3 at 7th, 4 at 10th, 5 at 15th). Each rune you know gives its own benefit always, and can be invoked once per short or long rest (twice from 15th). Save DC 8 + proficiency bonus + Constitution modifier.",
       "source": {
         "pack": "table-2014",
         "book": "TCoE",
@@ -1804,43 +1804,18 @@
             "Stone Rune",
             "Hill Rune (7th)",
             "Storm Rune (7th)"
-          ]
+          ],
+          "grants": {
+            "Cloud Rune": "feature:rune-knight-cloud-rune",
+            "Fire Rune": "feature:rune-knight-fire-rune",
+            "Frost Rune": "feature:rune-knight-frost-rune",
+            "Stone Rune": "feature:rune-knight-stone-rune",
+            "Hill Rune (7th)": "feature:rune-knight-hill-rune",
+            "Storm Rune (7th)": "feature:rune-knight-storm-rune"
+          }
         }
       ],
-      "grant": {
-        "resources": [
-          {
-            "id": "rune-invocations",
-            "name": "Rune invocations (each rune once; twice from 15th)",
-            "max": "scale.uses",
-            "reset": "short"
-          }
-        ],
-        "actions": [
-          {
-            "id": "invoke-rune",
-            "name": "Invoke a rune",
-            "economy": "free",
-            "toggles": [],
-            "note": "Each rune has its own trigger and action cost. DC 8 + PB + CON.",
-            "cost": {
-              "resource": "rune-invocations",
-              "amount": 1
-            },
-            "choose": {
-              "label": "Rune",
-              "options": [
-                "Cloud Rune",
-                "Fire Rune",
-                "Frost Rune",
-                "Stone Rune",
-                "Hill Rune (7th)",
-                "Storm Rune (7th)"
-              ]
-            }
-          }
-        ]
-      }
+      "grant": {}
     },
     {
       "kind": "feature",
@@ -2251,6 +2226,455 @@
         "pack": "table-2014",
         "book": "TCoE",
         "page": 42
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:rune-knight-cloud-rune",
+      "name": "Cloud Rune",
+      "summary": "Always: advantage on Dexterity (Sleight of Hand) and Charisma (Deception) checks. Invoke (reaction, once per short or long rest): when you or a creature you can see within 30 ft is hit by an attack, the attack hits another creature of your choice within 30 ft of you instead (other than the attacker), using the same roll.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 44
+      },
+      "scaling": {
+        "invokes": {
+          "class": "class:fighter",
+          "table": [
+            [
+              3,
+              1
+            ],
+            [
+              15,
+              2
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "rune-cloud",
+            "name": "Cloud Rune: invoke",
+            "max": "scale.invokes",
+            "reset": "short"
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.check.skill.sleightOfHand",
+            "op": "advantage",
+            "label": "Cloud Rune"
+          },
+          {
+            "selector": "roll.check.skill.deception",
+            "op": "advantage",
+            "label": "Cloud Rune"
+          }
+        ],
+        "actions": [
+          {
+            "id": "rune-cloud",
+            "name": "Cloud Rune: redirect the attack",
+            "economy": "reaction",
+            "cost": {
+              "resource": "rune-cloud"
+            },
+            "note": "You or a creature you see within 30 ft is hit: the attack hits another creature of your choice within 30 ft of you instead (not the attacker), same roll."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:rune-knight-fire-rune",
+      "name": "Fire Rune",
+      "summary": "Always: your proficiency bonus is doubled for ability checks with a tool you're proficient with. Invoke (once per short or long rest): when you hit with a weapon attack, the target takes an extra 2d6 fire damage and makes a Strength save or is restrained by fiery shackles for 1 minute, taking 2d6 fire damage at the start of each of its turns; it repeats the save at the end of each of its turns.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 44
+      },
+      "scaling": {
+        "invokes": {
+          "class": "class:fighter",
+          "table": [
+            [
+              3,
+              1
+            ],
+            [
+              15,
+              2
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "rune-fire",
+            "name": "Fire Rune: invoke",
+            "max": "scale.invokes",
+            "reset": "short"
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "rule.toolExpertise",
+            "op": "allow",
+            "label": "Fire Rune"
+          },
+          {
+            "selector": "roll.damage.weapon.*",
+            "op": "add",
+            "value": "2d6",
+            "damageType": "fire",
+            "mode": "suggested",
+            "label": "Fire Rune",
+            "spends": {
+              "resource": "rune-fire",
+              "amount": 1
+            },
+            "when": {
+              "text": "invoke it on a hit: Strength save ({dc:con}) or restrained by fiery shackles for 1 minute"
+            }
+          }
+        ],
+        "actions": [
+          {
+            "id": "rune-fire-shackles",
+            "name": "Fire Rune: the shackles burn",
+            "economy": "free",
+            "roll": {
+              "dice": "2d6",
+              "label": "fire damage to the shackled creature (at the start of each of its turns)"
+            },
+            "note": "While the shackles hold a creature: 2d6 fire at the start of each of its turns; it repeats the Strength save at the end of each of its turns."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:rune-knight-frost-rune",
+      "name": "Frost Rune",
+      "summary": "Always: advantage on Wisdom (Animal Handling) and Charisma (Intimidation) checks. Invoke (bonus action, once per short or long rest): for 10 minutes, +2 to ability checks and saving throws that use Strength or Constitution.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 44
+      },
+      "scaling": {
+        "invokes": {
+          "class": "class:fighter",
+          "table": [
+            [
+              3,
+              1
+            ],
+            [
+              15,
+              2
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "rune-frost",
+            "name": "Frost Rune: invoke",
+            "max": "scale.invokes",
+            "reset": "short"
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.check.skill.animalHandling",
+            "op": "advantage",
+            "label": "Frost Rune"
+          },
+          {
+            "selector": "roll.check.skill.intimidation",
+            "op": "advantage",
+            "label": "Frost Rune"
+          },
+          {
+            "selector": "roll.check.str",
+            "op": "add",
+            "value": 2,
+            "label": "Frost Rune",
+            "when": {
+              "toggle": "frost-rune"
+            }
+          },
+          {
+            "selector": "roll.check.con",
+            "op": "add",
+            "value": 2,
+            "label": "Frost Rune",
+            "when": {
+              "toggle": "frost-rune"
+            }
+          },
+          {
+            "selector": "roll.save.str",
+            "op": "add",
+            "value": 2,
+            "label": "Frost Rune",
+            "when": {
+              "toggle": "frost-rune"
+            }
+          },
+          {
+            "selector": "roll.save.con",
+            "op": "add",
+            "value": 2,
+            "label": "Frost Rune",
+            "when": {
+              "toggle": "frost-rune"
+            }
+          }
+        ],
+        "actions": [
+          {
+            "id": "rune-frost",
+            "name": "Frost Rune",
+            "economy": "bonus",
+            "cost": {
+              "resource": "rune-frost"
+            },
+            "toggles": [
+              "frost-rune"
+            ],
+            "duration": {
+              "minutes": 10
+            },
+            "note": "For 10 minutes: +2 to Strength and Constitution checks and saves."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:rune-knight-stone-rune",
+      "name": "Stone Rune",
+      "summary": "Always: advantage on Wisdom (Insight) checks and darkvision out to 120 ft. Invoke (reaction, once per short or long rest): when a creature you can see ends its turn within 30 ft of you, it makes a Wisdom save or is charmed by you for 1 minute: incapacitated, speed 0, in a dreamy stupor; it repeats the save at the end of each of its turns.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 44
+      },
+      "scaling": {
+        "invokes": {
+          "class": "class:fighter",
+          "table": [
+            [
+              3,
+              1
+            ],
+            [
+              15,
+              2
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "rune-stone",
+            "name": "Stone Rune: invoke",
+            "max": "scale.invokes",
+            "reset": "short"
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.check.skill.insight",
+            "op": "advantage",
+            "label": "Stone Rune"
+          },
+          {
+            "selector": "sense.darkvision",
+            "op": "grantSense",
+            "value": 120,
+            "label": "Stone Rune"
+          }
+        ],
+        "actions": [
+          {
+            "id": "rune-stone",
+            "name": "Stone Rune: dreamy stupor",
+            "economy": "reaction",
+            "cost": {
+              "resource": "rune-stone"
+            },
+            "note": "A creature you see ends its turn within 30 ft: Wisdom save or charmed for 1 minute (incapacitated, speed 0); it repeats the save at the end of each of its turns."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:rune-knight-hill-rune",
+      "name": "Hill Rune",
+      "summary": "From 7th level. Always: advantage on saving throws against being poisoned, and resistance to poison damage. Invoke (bonus action, once per short or long rest): for 1 minute, resistance to bludgeoning, piercing and slashing damage.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 45
+      },
+      "scaling": {
+        "invokes": {
+          "class": "class:fighter",
+          "table": [
+            [
+              3,
+              1
+            ],
+            [
+              15,
+              2
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "rune-hill",
+            "name": "Hill Rune: invoke",
+            "max": "scale.invokes",
+            "reset": "short"
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.save.*",
+            "op": "advantage",
+            "mode": "suggested",
+            "label": "Hill Rune",
+            "when": {
+              "text": "against being poisoned"
+            }
+          },
+          {
+            "selector": "defense.resist.poison",
+            "op": "resist",
+            "label": "Hill Rune"
+          },
+          {
+            "selector": "defense.resist.bludgeoning",
+            "op": "resist",
+            "label": "Hill Rune",
+            "when": {
+              "toggle": "hill-rune"
+            }
+          },
+          {
+            "selector": "defense.resist.piercing",
+            "op": "resist",
+            "label": "Hill Rune",
+            "when": {
+              "toggle": "hill-rune"
+            }
+          },
+          {
+            "selector": "defense.resist.slashing",
+            "op": "resist",
+            "label": "Hill Rune",
+            "when": {
+              "toggle": "hill-rune"
+            }
+          }
+        ],
+        "actions": [
+          {
+            "id": "rune-hill",
+            "name": "Hill Rune",
+            "economy": "bonus",
+            "cost": {
+              "resource": "rune-hill"
+            },
+            "toggles": [
+              "hill-rune"
+            ],
+            "duration": {
+              "rounds": 10
+            },
+            "note": "For 1 minute: resistance to bludgeoning, piercing and slashing damage."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:rune-knight-storm-rune",
+      "name": "Storm Rune",
+      "summary": "From 7th level. Always: advantage on Intelligence (Arcana) checks, and you can't be surprised while you aren't incapacitated. Invoke (bonus action, once per short or long rest): for 1 minute, while you aren't incapacitated, your reaction gives advantage or disadvantage on an attack roll, ability check or saving throw of a creature you can see within 60 ft.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 45
+      },
+      "scaling": {
+        "invokes": {
+          "class": "class:fighter",
+          "table": [
+            [
+              3,
+              1
+            ],
+            [
+              15,
+              2
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "rune-storm",
+            "name": "Storm Rune: invoke",
+            "max": "scale.invokes",
+            "reset": "short"
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.check.skill.arcana",
+            "op": "advantage",
+            "label": "Storm Rune"
+          }
+        ],
+        "actions": [
+          {
+            "id": "rune-storm",
+            "name": "Storm Rune: prophetic state",
+            "economy": "bonus",
+            "cost": {
+              "resource": "rune-storm"
+            },
+            "toggles": [
+              "storm-rune"
+            ],
+            "duration": {
+              "rounds": 10
+            },
+            "note": "For 1 minute: your reaction gives advantage or disadvantage to a creature you see within 60 ft on an attack, check or save."
+          },
+          {
+            "id": "rune-storm-foresee",
+            "name": "Storm Rune: bend fate",
+            "economy": "reaction",
+            "note": "While the prophetic state lasts (and you aren't incapacitated): advantage or disadvantage on that creature's roll."
+          }
+        ]
       }
     }
   ]

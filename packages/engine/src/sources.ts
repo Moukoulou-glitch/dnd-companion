@@ -36,8 +36,11 @@ export function collectSources(c: Character, baseReg: ContentRegistry, duplicate
   /** Activates the features the player picked for any "feature" choice on a definition. */
   const pushChosenFeatures = (defId: string, choiceDefs: ChoiceDef[] | undefined) => {
     for (const ch of choiceDefs ?? []) {
-      if (ch.kind !== "feature") continue;
-      for (const picked of choicesFor(defId)[ch.id] ?? []) {
+      if (ch.kind !== "feature" && !(ch.kind === "option" && ch.grants)) continue;
+      for (const value of choicesFor(defId)[ch.id] ?? []) {
+        // An option that brings a feature (Rune Carver's "Fire Rune"); a plain option brings nothing.
+        const picked = ch.kind === "option" ? ch.grants?.[value] : value;
+        if (!picked) continue;
         // Already there (Archery from Ranger, picked again for Fighter): it counts once, and the sheet says so.
         if (out.some((s) => s.id === picked)) {
           duplicates?.push({ feature: picked, pickedIn: defId });

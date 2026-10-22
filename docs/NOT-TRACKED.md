@@ -195,3 +195,8 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 - A spell's effect on a companion or a summoned creature ends with your concentration (a creature summoned by a concentration spell goes with it anyway).
 - Features: Healing Hands, Lay on Hands and Bardic Inspiration pick who they go to. Lay on Hands spends the points you type even when the creature needs fewer (its HP is capped at its maximum). Curing a disease or poison with Lay on Hands is spent as points only.
 - Potions: only the four healing potions use up and heal; other potions are items with their text. "Someone else" isn't tracked (the potion is gone from your inventory).
+
+## Rune Knight (round 10)
+
+- Runes count as inscribed and carried: the app doesn't track which object holds a rune. Hill and Storm runes can be picked before 7th level (the list says 7th).
+- The Fire Rune's shackles: the target's save and its restraint are the DM's; the 2d6 at the start of its turns is a button to roll. Cloud and Stone are reactions with their text (and Stone's DC); Storm's advantage or disadvantage is given by you, applied by the DM.

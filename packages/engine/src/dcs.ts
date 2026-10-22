@@ -72,6 +72,9 @@ export const FEATURE_DCS: Record<string, DcSpec> = {
   "feature:intimidating-presence": { save: "Wisdom", by: ["cha"], name: "Save DC" },
   "feature:path-of-wild-magic-wild-surge": { save: "as the surge says", by: ["con"], name: "Wild Magic save DC" },
   "feature:path-of-the-storm-herald-storm-aura": { save: "Dexterity (Sea)", by: ["con"], name: "Storm Aura save DC" },
+  // Rune Knight: each rune's save, 8 + proficiency + Constitution.
+  "feature:rune-knight-fire-rune": { save: "Strength (the shackles)", by: ["con"], name: "Rune save DC" },
+  "feature:rune-knight-stone-rune": { save: "Wisdom", by: ["con"], name: "Rune save DC" },
   // Races
   "feature:trait-breath-weapon": { save: "Dexterity or Constitution (by your ancestry)", by: ["con"], name: "Breath Weapon DC" },
   // Fizban's dragonborn: each ancestry's breath weapon (Dexterity), and the metallic one's second breath.
