@@ -45,6 +45,18 @@ const bonusText = (b: Partial<Record<Ability, number>> | undefined) =>
     .map(([a, n]) => `${ABILITY_NAMES[a as Ability].slice(0, 3)} ${signed(n)}`)
     .join(", ");
 
+/** Items in boxes: a run of items with the same group is one family under its name; an item without a group stands alone. */
+export function pickBlocks<T>(items: T[], group: (item: T) => string | undefined): { name?: string; items: T[] }[] {
+  const blocks: { name?: string; items: T[] }[] = [];
+  for (const it of items) {
+    const g = group(it);
+    const lastBlock = blocks[blocks.length - 1];
+    if (g && lastBlock?.name === g) lastBlock.items.push(it);
+    else blocks.push(g ? { name: g, items: [it] } : { items: [it] });
+  }
+  return blocks;
+}
+
 /** One step's list of things to pick from, as rows. */
 function PickList<T extends { id: string; name: string }>({
   items,
@@ -62,27 +74,38 @@ function PickList<T extends { id: string; name: string }>({
   sub?: (item: T) => ReactNode;
   group?: (item: T) => string | undefined;
 }) {
-  let last: string | undefined;
+  const row = (it: T, nested = false) => (
+    <button key={it.id} className={`row${nested ? " nested" : ""}${unavailable?.(it) && selected !== it.id ? " dim" : ""}`} aria-current={selected === it.id} disabled={!!unavailable?.(it) && selected !== it.id} onClick={() => onPick(it)}>
+      <div className="row-main">
+        <div className="row-title">{it.name}</div>
+        {unavailable?.(it) && selected !== it.id && <div className="row-sub">{unavailable(it)}</div>}
+        {sub && <div className="row-sub">{sub(it)}</div>}
+      </div>
+      {selected === it.id && <span className="tag adv">chosen</span>}
+    </button>
+  );
+  if (!group) return <div className="group">{items.map((it) => row(it))}</div>;
+  // Grouped (races and their subraces): each family is its own box under its name; a race on its own is a box of one.
+  const blocks = pickBlocks(items, group);
   return (
-    <div className="group">
-      {items.map((it) => {
-        const g = group?.(it);
-        const head = g && g !== last ? <div className="pick-group">{g}</div> : null;
-        last = g ?? last;
-        return (
-          <div key={it.id}>
-            {head}
-            <button className={`row${unavailable?.(it) && selected !== it.id ? " dim" : ""}`} aria-current={selected === it.id} disabled={!!unavailable?.(it) && selected !== it.id} onClick={() => onPick(it)}>
-              <div className="row-main">
-                <div className="row-title">{it.name}</div>
-                {unavailable?.(it) && selected !== it.id && <div className="row-sub">{unavailable(it)}</div>}
-                {sub && <div className="row-sub">{sub(it)}</div>}
-              </div>
-              {selected === it.id && <span className="tag adv">chosen</span>}
-            </button>
+    <div className="pick-blocks">
+      {blocks.map((b, i) =>
+        b.name ? (
+          <section className="pick-family" key={`${b.name}-${i}`} aria-label={b.name}>
+            <div className="pick-group">
+              {b.name}
+              <span className="pick-count">
+                {b.items.length} {b.items.length === 1 ? "option" : "options"}
+              </span>
+            </div>
+            <div className="group">{b.items.map((it) => row(it, true))}</div>
+          </section>
+        ) : (
+          <div className="group" key={b.items[0]!.id}>
+            {row(b.items[0]!)}
           </div>
-        );
-      })}
+        ),
+      )}
     </div>
   );
 }
@@ -366,6 +389,8 @@ export function NewCharacterPanel({ reg, onCreate }: { reg: ContentRegistry; onC
 
   // Races with subraces show as "Dwarf: Hill Dwarf"; the table's own races come with them.
   const races = useMemo(() => reg.list("race").sort((a, b) => (a.group ?? a.name).localeCompare(b.group ?? b.name) || a.name.localeCompare(b.name)), [reg]);
+  // A race named like a family (Human, with Variant Human) goes in that family's box.
+  const raceFamilies = useMemo(() => new Set(races.flatMap((r) => (r.group ? [r.group] : []))), [races]);
   const classes = useMemo(() => reg.list("class"), [reg]);
   const backgrounds = useMemo(() => reg.list("background"), [reg]);
   const raceDef = race ? reg.find(race, "race") : undefined;
@@ -415,7 +440,7 @@ export function NewCharacterPanel({ reg, onCreate }: { reg: ContentRegistry; onC
             setRace(r.id);
             next();
           }}
-          group={(r) => r.group}
+          group={(r) => r.group ?? (raceFamilies.has(r.name) ? r.name : undefined)}
           sub={(r) => [r.summary ?? shortText(r.text), bonusText(r.grant?.abilityBonuses), r.choices?.some((c) => c.kind === "ability") ? "+1 to abilities you pick" : ""].filter(Boolean).join(" · ")}
         />
       )}

@@ -1698,6 +1698,36 @@ ol.levels li[data-on="true"] {
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
+/* Races and their subraces: each family its own box, its options set in under the name. */
+.pick-blocks {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.pick-blocks > .group {
+  margin: 0;
+}
+.pick-family {
+  border-left: 3px solid var(--gold);
+  border-radius: var(--radius-m);
+  padding-left: 8px;
+}
+.pick-family .pick-group {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 2px 6px 6px;
+  font-weight: 700;
+}
+.pick-count {
+  color: var(--muted);
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+}
+.pick-family .group {
+  margin: 0;
+}
 .score-select {
   font: inherit;
   font-weight: 700;
