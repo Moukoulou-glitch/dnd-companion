@@ -3804,6 +3804,304 @@
       "reminders": [
         "Bonus action on your turn: move it up to 20 ft and repeat the attack."
       ]
+    },
+    {
+      "kind": "effect",
+      "id": "effect:enlarge-reduce",
+      "name": "Enlarge/Reduce",
+      "category": "spell",
+      "summary": "Enlarged: twice your size, advantage on Strength checks and saves, +1d4 weapon damage. Reduced: half your size, disadvantage on Strength checks and saves, −1d4 weapon damage (at least 1).",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 237
+      },
+      "modifiers": [
+        {
+          "selector": "roll.check.str",
+          "op": "advantage",
+          "label": "Enlarge",
+          "when": {
+            "choice": "Enlarge"
+          }
+        },
+        {
+          "selector": "roll.save.str",
+          "op": "advantage",
+          "label": "Enlarge",
+          "when": {
+            "choice": "Enlarge"
+          }
+        },
+        {
+          "selector": "roll.damage.weapon.*",
+          "op": "add",
+          "value": "1d4",
+          "label": "Enlarge",
+          "when": {
+            "choice": "Enlarge"
+          }
+        },
+        {
+          "selector": "roll.check.str",
+          "op": "disadvantage",
+          "label": "Reduce",
+          "when": {
+            "choice": "Reduce"
+          }
+        },
+        {
+          "selector": "roll.save.str",
+          "op": "disadvantage",
+          "label": "Reduce",
+          "when": {
+            "choice": "Reduce"
+          }
+        },
+        {
+          "selector": "roll.damage.weapon.*",
+          "op": "add",
+          "value": "-1d4",
+          "label": "Reduce",
+          "when": {
+            "choice": "Reduce"
+          }
+        }
+      ],
+      "choice": {
+        "label": "Which?",
+        "options": [
+          "Enlarge",
+          "Reduce"
+        ]
+      },
+      "rounds": 10,
+      "concentration": true,
+      "reminders": [
+        "Your size changes one category (Enlarge: up, Reduce: down), and so do your clothing and weapons; weight is ×8 or ÷8.",
+        "If there isn't room to grow, you grow as much as the space allows."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "effect:beacon-of-hope",
+      "name": "Beacon of Hope",
+      "category": "spell",
+      "summary": "Advantage on Wisdom saves and death saves; healing you receive is the maximum it can be.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 217
+      },
+      "modifiers": [
+        {
+          "selector": "roll.save.wis",
+          "op": "advantage",
+          "label": "Beacon of Hope"
+        }
+      ],
+      "rounds": 10,
+      "concentration": true,
+      "reminders": [
+        "Death saves with advantage: roll two d20s and use the higher (the death save panel says so).",
+        "Any healing you receive is the maximum the dice could give: enter the maximum when someone heals you."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "effect:sanctuary",
+      "name": "Sanctuary",
+      "category": "spell",
+      "summary": "A creature that targets you with an attack or a harmful spell must first make a Wisdom save, or pick another target.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 272
+      },
+      "modifiers": [],
+      "rounds": 10,
+      "endsOn": [
+        "attack",
+        "cast"
+      ],
+      "reminders": [
+        "Area effects (a fireball) still affect you.",
+        "It ends if you make an attack or cast a spell that affects an enemy, or deal damage to another creature."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "effect:feather-fall",
+      "name": "Feather Fall",
+      "category": "spell",
+      "summary": "You fall slowly: 60 ft per round, and you land on your feet with no falling damage.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 239
+      },
+      "modifiers": [],
+      "rounds": 10,
+      "reminders": [
+        "Falling 60 ft per round for 1 minute; land before it ends and you take no falling damage."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "effect:water-walk",
+      "name": "Water Walk",
+      "category": "spell",
+      "summary": "You can move across any liquid surface (water, acid, mud, snow, quicksand, lava) as if it were harmless solid ground.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 287
+      },
+      "modifiers": [],
+      "minutes": 60,
+      "reminders": [
+        "Lava's heat can still hurt you.",
+        "Submerged, you rise to the surface at 60 ft per round."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "effect:water-breathing",
+      "name": "Water Breathing",
+      "category": "spell",
+      "summary": "You can breathe underwater, and you can still breathe normally.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 287
+      },
+      "modifiers": [],
+      "minutes": 1440
+    },
+    {
+      "kind": "effect",
+      "id": "effect:etherealness",
+      "name": "Etherealness",
+      "category": "spell",
+      "summary": "You're on the Border Ethereal: you see and hear the plane you came from (in shades of grey, 60 ft), and you affect and are affected only by creatures on the Ethereal Plane.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 238
+      },
+      "modifiers": [],
+      "minutes": 480,
+      "reminders": [
+        "Move in any direction; going up or down costs extra movement.",
+        "When it ends you return to the plane you left; if that space is occupied you're shunted aside and take force damage (twice the feet moved)."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "effect:wind-walk",
+      "name": "Wind Walk",
+      "category": "spell",
+      "summary": "Cloud form: flying speed 300 ft, resistance to damage from nonmagical weapons; you can't speak, attack or cast spells, or manipulate objects. Changing form takes 1 minute (you're incapacitated meanwhile).",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 288
+      },
+      "modifiers": [
+        {
+          "selector": "stat.speed.fly",
+          "op": "grantSpeed",
+          "value": 300,
+          "label": "Wind Walk",
+          "when": {
+            "choice": "Cloud form"
+          }
+        }
+      ],
+      "minutes": 480,
+      "choice": {
+        "label": "Form",
+        "options": [
+          "Cloud form",
+          "Normal form"
+        ]
+      },
+      "reminders": [
+        "In cloud form you resist bludgeoning, piercing and slashing from nonmagical weapons (yours to apply).",
+        "If you're flying in cloud form when the spell ends, you descend 60 ft per round for 1 minute, then fall."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "effect:animal-shapes",
+      "name": "Animal Shapes",
+      "category": "spell",
+      "summary": "You become a beast of CR 4 or lower, Large or smaller, keeping your Intelligence, Wisdom and Charisma. An action changes you into another form.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 212
+      },
+      "modifiers": [],
+      "minutes": 1440,
+      "concentration": true,
+      "transform": "animal"
+    },
+    {
+      "kind": "effect",
+      "id": "effect:blindness-deafness",
+      "name": "Blindness/Deafness",
+      "category": "spell",
+      "summary": "Blinded or deafened (the caster's pick) for 1 minute; a Constitution save at the end of each of your turns ends it.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 219
+      },
+      "modifiers": [],
+      "rounds": 10,
+      "choice": {
+        "label": "Which?",
+        "options": [
+          "Blinded",
+          "Deafened"
+        ]
+      },
+      "includesByChoice": {
+        "Blinded": [
+          "condition:blinded"
+        ],
+        "Deafened": [
+          "condition:deafened"
+        ]
+      },
+      "reminders": [
+        "At the end of each of your turns, a Constitution save: a success ends it."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "effect:ray-of-enfeeblement",
+      "name": "Ray of Enfeeblement",
+      "category": "spell",
+      "summary": "Your weapon attacks that use Strength deal half damage. A Constitution save at the end of each of your turns ends it.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 271
+      },
+      "modifiers": [
+        {
+          "selector": "roll.damage.weapon.*",
+          "op": "note",
+          "label": "Ray of Enfeeblement: a weapon attack that uses Strength deals half damage (halve the total)."
+        }
+      ],
+      "rounds": 10,
+      "concentration": true,
+      "reminders": [
+        "At the end of each of your turns, a Constitution save: a success ends it."
+      ]
     }
   ]
 }

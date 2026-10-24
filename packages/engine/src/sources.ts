@@ -159,6 +159,13 @@ export function collectSources(c: Character, baseReg: ContentRegistry, duplicate
     // "{choice}" in selectors becomes what was picked (Hex: roll.check.{choice}); without a choice those modifiers wait.
     // "{choice}" in a value too: Bardic Inspiration adds "1{choice}" with the die picked.
     const modifiers = effectModifiers(def, level).flatMap((m) => {
+      // Only for one of the effect's picks (Enlarge/Reduce).
+      if (m.when?.choice !== undefined) {
+        if (m.when.choice !== inst?.choice) return [];
+        const { choice: _picked, ...rest } = m.when;
+        m = { ...m, when: Object.keys(rest).length ? rest : undefined } as typeof m;
+        if (!m.when) delete (m as { when?: unknown }).when;
+      }
       const v = (m as { value?: unknown }).value;
       const inValue = typeof v === "string" && v.includes("{choice}");
       // Chromatic Infusion: the chosen type is the damage's type.
@@ -170,7 +177,7 @@ export function collectSources(c: Character, baseReg: ContentRegistry, duplicate
     const src: Source = { id: def.id, label, grant: { modifiers, ...(def.actions ? { actions: def.actions } : {}) }, choices: {}, effectInstanceId: instanceId };
     if (def.upcast) src.slotLevel = inst?.castLevel ?? def.upcast.baseLevel;
     out.push(src);
-    for (const inc of def.includes) pushEffect(reg.get(inc, "effect"), instanceId, undefined, def.name);
+    for (const inc of [...def.includes, ...((inst?.choice && def.includesByChoice?.[inst.choice]) || [])]) pushEffect(reg.get(inc, "effect"), instanceId, undefined, def.name);
   };
   for (const e of c.effects) {
     if (e.effect === "custom" && e.custom) {

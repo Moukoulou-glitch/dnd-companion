@@ -602,8 +602,13 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         spendTurn(sheet.wildShape?.bonusAction ? "bonus" : "action");
         notes.push(`${d.name}: ${d.hp} HP, AC ${d.ac}.${sheet.wildShape ? ` Up to ${sheet.wildShape.hours} hour${sheet.wildShape.hours === 1 ? "" : "s"}.` : ""}`);
       } else {
-        ownSpell = c.concentration?.spell === (kind === "truepolymorph" ? "spell:true-polymorph" : kind === "shapechange" ? "spell:shapechange" : "spell:polymorph");
-        notes.push(`${kind === "truepolymorph" ? "True Polymorph" : kind === "shapechange" ? "Shapechange" : "Polymorphed"}: ${d.name}, ${d.hp} HP, AC ${d.ac}.`);
+        ownSpell = c.concentration?.spell === (kind === "truepolymorph" ? "spell:true-polymorph" : kind === "shapechange" ? "spell:shapechange" : kind === "animalshapes" ? "spell:animal-shapes" : "spell:polymorph");
+        notes.push(`${kind === "truepolymorph" ? "True Polymorph" : kind === "shapechange" ? "Shapechange" : kind === "animalshapes" ? "Animal Shapes" : "Polymorphed"}: ${d.name}, ${d.hp} HP, AC ${d.ac}.`);
+        // Animal Shapes: a beast of CR 4 or lower, Large or smaller; another form later takes an action.
+        if (kind === "animalshapes") {
+          for (const issue of shapeIssues(d, kind, undefined, 4)) notes.push(`Beyond the rules: ${issue}`);
+          if (c.shape?.kind === "animalshapes") spendTurn("action");
+        }
         if (kind === "shapechange") {
           for (const issue of shapeIssues(d, kind, undefined, sheet.level)) notes.push(`Beyond the rules: ${issue}`);
           // The first form comes with the casting; another one while it lasts takes an action.
@@ -1517,11 +1522,13 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         if (sp.concentration) entry.concentration = true;
         if (op.payload.choice) entry.choice = op.payload.choice;
         c.effects.push(entry);
-      } else if (!selfDef && !sp.concentration && sp.timer && !op.payload.readied) {
-        // A spell that lasts (Alarm, 8 hours) with nothing else to show it: a timer tag, one per casting.
-        const entry: Character["effects"][number] = { id: `${op.id}-timer`, effect: "custom", custom: { name: sp.name, modifiers: [] }, from: "Your spell (timer)" };
-        if (sp.timer.rounds) entry.rounds = sp.timer.rounds;
-        else if (sp.timer.minutes) entry.minutes = sp.timer.minutes;
+      } else if (!sp.concentration && !op.payload.readied && (sp.timer || /until dispelled/i.test(sp.duration))) {
+        // A spell that lasts (Alarm, 8 hours; Sanctuary on a friend; Arcane Lock until dispelled) with nothing else to show it:
+        // a timer tag, one per casting (concentration spells show in the concentration tag).
+        const name = selfDef ? `${sp.name} (on another creature)` : sp.name;
+        const entry: Character["effects"][number] = { id: `${op.id}-timer`, effect: "custom", custom: { name, modifiers: [] }, from: sp.timer ? "Your spell (timer)" : "Your spell (until dispelled)" };
+        if (sp.timer?.rounds) entry.rounds = sp.timer.rounds;
+        else if (sp.timer?.minutes) entry.minutes = sp.timer.minutes;
         c.effects.push(entry);
       }
       break;

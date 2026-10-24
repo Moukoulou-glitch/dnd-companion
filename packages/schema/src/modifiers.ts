@@ -36,6 +36,8 @@ export type Selector = z.infer<typeof Selector>;
  */
 export const Condition = z
   .object({
+    /** Effects only: applies only when the effect's choice is this (Enlarge/Reduce: "Enlarge"). */
+    choice: z.string().optional(),
     /** Not wearing body armor (a shield is allowed). */
     noArmor: z.boolean().optional(),
     /** Wearing body armor (Fighting Style: Defense). */

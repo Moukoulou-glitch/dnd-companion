@@ -238,3 +238,13 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 - Rage Beyond Death: at 0 HP while raging you aren't unconscious; when the rage ends there, the app marks you dead.
 - Starry Form: the constellation is a switch; an older Starry Form in use before this update has no constellation switch (use Change constellation).
 
+## Spell tags (round 11d)
+
+- Spells on someone else: a timer tag reminds you it's running; its effect is theirs to track (they add it from + Effect).
+- Spells that last until dispelled: a tag with no timer; remove it when it ends.
+- Beacon of Hope: healing you receive being the maximum is yours to enter.
+- Sanctuary: casting any spell asks whether it ends it (only spells that affect an enemy do).
+- Wind Walk: changing form takes a minute (pick the form on its tag); the resistance in cloud form is yours to apply.
+- Ray of Enfeeblement: halving the damage of Strength weapon attacks is yours (a note on the damage roll). Its saves, and Blindness/Deafness', are at the end of your turns.
+- Animal Shapes: the beast's size limit and CR are checked (warned, not blocked); casting on others leaves their forms to them.
+

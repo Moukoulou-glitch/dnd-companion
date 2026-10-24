@@ -47,11 +47,11 @@ export function wildShapeLimits(c: Character, featureNames: string[]): WildShape
 }
 
 /** Why a creature is outside the limits (empty when it's fine). Warned about, never blocked. */
-export type ShapeKind = "wildshape" | "polymorph" | "truepolymorph" | "shapechange";
+export type ShapeKind = "wildshape" | "polymorph" | "truepolymorph" | "shapechange" | "animalshapes";
 
 /** The picker for an effect's `transform`: a beast (Polymorph), any creature (True Polymorph), or Shapechange. */
-export function shapeKindOf(transform: "beast" | "creature" | "shapechange"): ShapeKind {
-  return transform === "creature" ? "truepolymorph" : transform === "shapechange" ? "shapechange" : "polymorph";
+export function shapeKindOf(transform: "beast" | "creature" | "shapechange" | "animal"): ShapeKind {
+  return transform === "creature" ? "truepolymorph" : transform === "shapechange" ? "shapechange" : transform === "animal" ? "animalshapes" : "polymorph";
 }
 
 export function shapeIssues(d: CreatureDef, kind: ShapeKind, limits: WildShapeLimits | undefined, polymorphMax: number): string[] {
@@ -60,6 +60,13 @@ export function shapeIssues(d: CreatureDef, kind: ShapeKind, limits: WildShapeLi
   if (kind === "shapechange") {
     if (d.type === "construct" || d.type === "undead") out.push("Shapechange can't be a construct or an undead.");
     if (d.cr > polymorphMax) out.push(`CR ${crText(d.cr)} is above ${crText(polymorphMax)} (your level).`);
+    return out;
+  }
+  // Animal Shapes: a beast of CR 4 or lower, Large or smaller.
+  if (kind === "animalshapes") {
+    if (d.type !== "beast") out.push("Animal Shapes turns you into a beast.");
+    if (d.cr > 4) out.push(`CR ${crText(d.cr)} is above 4.`);
+    if (/huge|gargantuan/i.test(d.size)) out.push("Larger than Large.");
     return out;
   }
   if (kind === "polymorph" || kind === "truepolymorph") {
@@ -342,7 +349,8 @@ export function deriveShape(
   const d = reg.find(s.creature, "creature");
   if (!d) return undefined;
   // Wild Shape and Shapechange: your Intelligence, Wisdom and Charisma stay, and your proficiencies with them.
-  const wild = s.kind === "wildshape" || s.kind === "shapechange";
+  // Animal Shapes keeps your Intelligence, Wisdom and Charisma too.
+  const wild = s.kind === "wildshape" || s.kind === "shapechange" || s.kind === "animalshapes";
   const abilities = {} as ShapeResult["abilities"];
   for (const a of ABILITIES) {
     const keepMine = wild && (a === "int" || a === "wis" || a === "cha");
@@ -444,7 +452,7 @@ export function deriveShape(
   if (d.acNote) r.acNote = d.acNote;
   if (d.senses && Object.keys(d.senses).length) r.senses = Object.entries(d.senses).map(([k, v]) => `${k} ${v} ft`).join(", ");
   if (d.languages) r.languages = d.languages;
-  if (wild && limits) r.hours = limits.hours;
+  if (s.kind === "wildshape" && limits) r.hours = limits.hours;
   return r;
 }
 

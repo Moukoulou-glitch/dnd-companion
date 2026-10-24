@@ -602,7 +602,7 @@ export const Character = z
      */
     shape: z
       .object({
-        kind: z.enum(["wildshape", "polymorph", "truepolymorph", "shapechange"]),
+        kind: z.enum(["wildshape", "polymorph", "truepolymorph", "shapechange", "animalshapes"]),
         creature: DefId,
         hp: z.number().int().min(0),
         /** The effect (Polymorph, True Polymorph) that holds the form: removing it ends the form, and the form ending removes it. */

@@ -20,7 +20,7 @@ export function ShapeCard({ sheet, onOpen, onTransform }: { sheet: DerivedSheet;
     const pct = Math.round((s.hp.current / s.hp.max) * 100);
     return (
       <section>
-        <h2>{s.kind === "wildshape" ? "Wild Shape" : s.kind === "truepolymorph" ? "True Polymorph" : "Polymorphed"}</h2>
+        <h2>{s.kind === "wildshape" ? "Wild Shape" : s.kind === "truepolymorph" ? "True Polymorph" : s.kind === "animalshapes" ? "Animal Shapes" : "Polymorphed"}</h2>
         <div className="group">
           <button className="row companion shape-card" onClick={onOpen}>
             <div className="row-main">
@@ -137,7 +137,10 @@ export function TransformPanel({
           A creature of CR {crText(polyMax)} or lower (your level), not a construct or an undead. Its body replaces yours; your Intelligence, Wisdom and Charisma, your skills and saves, and your features stay with you.
         </p>
       )}
-      {kind !== "wildshape" && kind !== "shapechange" && (
+      {kind === "animalshapes" && (
+        <p className="note">A beast of CR 4 or lower, Large or smaller. Your Intelligence, Wisdom and Charisma and your alignment stay yours. While the spell lasts, an action changes you into another form.</p>
+      )}
+      {kind !== "wildshape" && kind !== "shapechange" && kind !== "animalshapes" && (
         <>
           <p className="note">
             {kind === "truepolymorph" ? "What type of creature? Its statistics, mind included, replace yours." : "Which beast? Its statistics, mind included, replace yours."}{" "}
@@ -254,7 +257,7 @@ export function ShapePanel({
           Change back
           <span className="sub">{s.kind === "wildshape" ? "bonus action" : "the spell ends"}</span>
         </button>
-        {s.kind === "shapechange" && onAnotherForm && (
+        {(s.kind === "shapechange" || s.kind === "animalshapes") && onAnotherForm && (
           <button className="big" onClick={onAnotherForm}>
             Another form
             <span className="sub">action</span>

@@ -673,7 +673,11 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     onYou.add(id);
     for (const inc of reg.find(id, "effect")?.includes ?? []) addCond(inc);
   };
-  for (const e of c.effects) addCond(e.effect);
+  for (const e of c.effects) {
+    addCond(e.effect);
+    // Blindness/Deafness: the condition picked.
+    if (e.choice) for (const inc of reg.find(reg.effectId(e.effect), "effect")?.includesByChoice?.[e.choice] ?? []) addCond(inc);
+  }
   // Rage Beyond Death: at 0 hit points while raging you keep fighting.
   const beyondDeath = c.toggles.includes("raging") && sources.some((s) => s.id === "feature:path-of-the-zealot-rage-beyond-death");
   const unconscious = onYou.has("condition:unconscious") || (c.hp.current <= 0 && !c.shape && !beyondDeath);
@@ -1727,7 +1731,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       if (!e.custom) warnings.push(`Effect "${e.effect}" isn't in the content pack.`);
     } else {
       const reminders = [...def.reminders];
-      for (const inc of def.includes) reminders.push(...reg.get(inc, "effect").reminders);
+      for (const inc of [...def.includes, ...((e.choice && def.includesByChoice?.[e.choice]) || [])]) reminders.push(...reg.get(inc, "effect").reminders);
       r = { ...base, id: def.id, name: def.name, category: def.category, concentration: def.concentration, reminders };
       if (def.summary) r.summary = def.summary;
       if (def.levels) {
@@ -1769,7 +1773,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
           walk(inc.includes);
         }
       };
-      walk(def.includes);
+      walk([...def.includes, ...((e.choice && def.includesByChoice?.[e.choice]) || [])]);
     }
     return r;
   });

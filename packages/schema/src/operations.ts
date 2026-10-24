@@ -56,7 +56,7 @@ export const OPERATION_PAYLOADS = {
   restoreHitDie: z.object({ die: z.string() }).strict(),
   /** Wild Shape (spends uses: 2 for an elemental) or Polymorph into a creature. */
   transform: z
-    .object({ kind: z.enum(["wildshape", "polymorph", "truepolymorph", "shapechange"]), creature: DefId, uses: z.number().int().min(0).max(2).default(1), effect: z.string().optional() })
+    .object({ kind: z.enum(["wildshape", "polymorph", "truepolymorph", "shapechange", "animalshapes"]), creature: DefId, uses: z.number().int().min(0).max(2).default(1), effect: z.string().optional() })
     .strict(),
   /** Creatures from a summoning spell. */
   summon: z

@@ -560,6 +560,9 @@ export function App() {
       "Death saving throw",
       <>
         <p className="note">Tap what your d20 shows, or let the app roll. 10 or higher succeeds; 1 counts as two failures; 20 brings you back with 1 HP.</p>
+        {live.current.character?.effects.some((e) => e.effect === "effect:beacon-of-hope") && (
+          <p className="note">Beacon of Hope: advantage. Roll two d20s and tap the higher one; the app rolls two for you.</p>
+        )}
         <div className="keys d20" style={{ marginTop: 10 }}>
           {Array.from({ length: 20 }, (_, i) => (
             <button key={i} className="key" onClick={() => decide(i + 1)}>
@@ -567,7 +570,9 @@ export function App() {
             </button>
           ))}
         </div>
-        <button className="big" style={{ width: "100%", marginTop: 10 }} onClick={() => void rollOrThrow("1d20", true, undefined, { source: "Death saving throw", quick: true }).then((r) => decide(r.total))}>
+        <button className="big" style={{ width: "100%", marginTop: 10 }} onClick={() =>
+            void rollOrThrow(live.current.character?.effects.some((e) => e.effect === "effect:beacon-of-hope") ? "2d20kh1" : "1d20", true, undefined, { source: "Death saving throw", quick: true }).then((r) => decide(r.total))
+          }>
           Roll for me
         </button>
       </>,
@@ -791,7 +796,7 @@ export function App() {
    * cast is in the character.
    */
   const openTransform = (kind: ShapeKind, via: { effectId?: string; addEffect?: string; forEffect?: string; maxCr?: number; only?: string } = {}) =>
-    open(kind === "wildshape" ? "Wild Shape" : kind === "truepolymorph" ? "True Polymorph" : kind === "shapechange" ? "Shapechange" : "Polymorph", () =>
+    open(kind === "wildshape" ? "Wild Shape" : kind === "truepolymorph" ? "True Polymorph" : kind === "shapechange" ? "Shapechange" : kind === "animalshapes" ? "Animal Shapes" : "Polymorph", () =>
       live.current.sheet && live.current.character ? (
         <TransformPanel
           kind={kind}
@@ -803,9 +808,9 @@ export function App() {
           onPick={(k, d, uses) =>
             guard(
               {
-                name: k === "wildshape" ? "Wild Shape" : k === "shapechange" ? "Shapechange" : "Polymorph",
+                name: k === "wildshape" ? "Wild Shape" : k === "shapechange" ? "Shapechange" : k === "animalshapes" ? "Animal Shapes" : "Polymorph",
                 // Shapechange: the first form comes with the casting; another one later takes an action.
-                economy: k === "wildshape" ? (live.current.sheet?.wildShape?.bonusAction ? "bonus" : "action") : k === "shapechange" && live.current.character?.shape?.kind === "shapechange" ? "action" : "free",
+                economy: k === "wildshape" ? (live.current.sheet?.wildShape?.bonusAction ? "bonus" : "action") : (k === "shapechange" || k === "animalshapes") && live.current.character?.shape?.kind === k ? "action" : "free",
               },
               () => {
                 // From "+ Effect": the effect goes on first, and the form is tied to it.
@@ -1106,7 +1111,7 @@ export function App() {
           normalHp={{ current: cur.character.hp.current, max: cur.sheet.hpMax.total }}
           onAnotherForm={() => {
             const effectId = live.current.character?.shape?.effect;
-            openTransform("shapechange", effectId ? { effectId } : {});
+            openTransform(s.kind === "animalshapes" ? "animalshapes" : "shapechange", effectId ? { effectId } : {});
           }}
           onRevert={() =>
             guard({ name: "Change back", economy: s.kind === "wildshape" ? "bonus" : "free" }, () => {

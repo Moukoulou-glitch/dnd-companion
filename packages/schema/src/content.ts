@@ -349,6 +349,8 @@ export const EffectDef = z
     levels: z.array(z.array(Modifier)).optional(),
     /** Other conditions this one includes (Paralyzed includes Incapacitated). */
     includes: z.array(DefId).default([]),
+    /** Conditions it includes by its choice (Blindness/Deafness: "Blinded" → blinded). */
+    includesByChoice: z.record(z.string(), z.array(DefId)).optional(),
     /** Reminders for what the app can't apply itself, e.g. "Attacks against you have advantage". */
     reminders: z.array(z.string()).default([]),
     /** Actions you can take while it's on (Haste: the extra action). */
@@ -356,7 +358,7 @@ export const EffectDef = z
     /** Said when it ends (Haste: the wave of lethargy). */
     endNote: z.string().optional(),
     /** Turns you into a creature (Polymorph: a beast; True Polymorph: any creature): the app asks which. */
-    transform: z.enum(["beast", "creature", "shapechange"]).optional(),
+    transform: z.enum(["beast", "creature", "shapechange", "animal"]).optional(),
     /** An effect that follows when it ends, lasting until after your next turn (Haste's lethargy). */
     afterEffect: DefId.optional(),
     /**
