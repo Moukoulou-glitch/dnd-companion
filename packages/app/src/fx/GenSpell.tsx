@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
 import type { GenLook, School } from "./generated";
+import { SIG_HIT, Signature } from "./Signature";
 
 /**
  * The drawing of a generated spell effect (fx/generated.ts). Plain HTML and SVG
@@ -26,8 +27,10 @@ export function GenSpell({ g, x, y, skip }: { g: GenLook; x: number; y: number; 
     ["--sig" as string]: `${SIGIL[t]}px`,
   } as CSSProperties;
   const parts = g.particles;
+  // A signature spell's own piece replaces the generic shape (on its cast, and on its damage when it has a look for that).
+  const sig = g.sig && (cast || SIG_HIT.has(g.sig)) ? Signature({ g, x, y }) : undefined;
   return (
-    <div className={`gs gs-t${t} gs-s-${g.shape} gs-${g.school} gs-${cast ? "cast" : "hit"}${g.up ? " gs-up" : ""}${skip ? " gs-skip" : ""}`} style={style}>
+    <div className={`gs gs-t${t} gs-s-${g.shape} gs-${g.school} gs-${cast ? "cast" : "hit"}${g.up ? " gs-up" : ""}${skip ? " gs-skip" : ""}${g.sig ? ` gsig-${g.sig}` : ""}`} style={style}>
       {t >= 3 && <span className="gs-dim" />}
       {t >= 2 && <span className="gs-vig" />}
       {t >= 3 && <span className="gs-rays" />}
@@ -38,9 +41,10 @@ export function GenSpell({ g, x, y, skip }: { g: GenLook; x: number; y: number; 
           ))}
         </span>
       )}
+      {sig?.screen}
       <span className="gs-at">
-        {cast && <Sigil school={g.school} rings={g.rings} tier={t} />}
-        <ShapePiece g={g} />
+        {cast && !g.noSigil && <Sigil school={g.school} rings={g.rings} tier={t} />}
+        {sig ? sig.at : <ShapePiece g={g} />}
         {Array.from({ length: parts }, (_, i) => (
           <span
             key={i}
