@@ -233,6 +233,9 @@ export function App() {
   const effReg = () => (live.current.character ? withCustom(registry, live.current.character) : registry);
   /** Set while a scroll's check has just passed, so casting goes on without asking again. */
   const scrollChecked = useRef(false);
+  /** Each cast counts up (Empowered Evocation: once per casting); the spell and how often it was added this casting. */
+  const castSeq = useRef(0);
+  const empowered = useRef<{ seq: number; spell: string; used: number }>({ seq: -1, spell: "", used: 0 });
   if (!s.ready) return null;
   if (s.error && !s.character) return <p style={{ padding: 16 }}>{s.error}</p>;
   if (!s.character || !s.sheet) return <Welcome create={s.create} readImport={s.readImport} deleted={s.deleted} restore={s.restore} purge={s.purge} />;
@@ -2586,7 +2589,77 @@ export function App() {
     };
   };
 
-  const rollSpell = (sp: SpellResult, level: number, damageOnly: boolean, again = false, alt = false) => {
+  /**
+   * Warnings on a spell's options: Overchannel (its backlash this time, a non-wizard spell, above 5th level) and
+   * Empowered Evocation (a non-wizard spell, already added this casting).
+   */
+  const spellOptionInfo = (sp: SpellResult, level: number): Record<string, OptionInfo> => {
+    const info: Record<string, OptionInfo> = {};
+    const labels = sp.damageBonus?.suggestions.map((x) => x.label) ?? [];
+    const notWizard = sp.list.id !== "wizard" ? `${sp.name} is cast as a ${sp.list.label} spell: it works with wizard spells.` : "";
+    if (labels.includes("Overchannel")) {
+      const oc = live.current.sheet?.resources.find((r) => r.id === "overchannel");
+      const used = oc?.used ?? 0;
+      const w = [
+        used > 0 ? `Use ${used + 1} since your long rest: right after the spell you take ${(used + 1) * level}d12 necrotic (${used + 1}d12 per spell level), ignoring resistance and immunity.` : "",
+        level > 5 ? `Cast at level ${level}: Overchannel works on spells of 1st to 5th level.` : "",
+        notWizard,
+      ].filter(Boolean);
+      if (w.length) info.Overchannel = { warning: w.join(" ") };
+    }
+    if (labels.includes("Empowered Evocation")) {
+      const e = empowered.current;
+      const again = e.seq === castSeq.current && e.spell === sp.id && e.used > 0;
+      const w = [again ? `Already added to one damage roll of this casting of ${sp.name}: it adds to one roll per casting (one ray of Scorching Ray, one of a spell's damage rolls).` : "", notWizard].filter(Boolean);
+      if (w.length) info["Empowered Evocation"] = { warning: `${w.join(" ")} Keep it only if your DM allows.` };
+    }
+    return info;
+  };
+
+  /** Overchannel's backlash: rolled here (or from your dice), then taken only if you say so. */
+  const openOverchannelBacklash = (spell: string, level: number, perLevel: number) => {
+    const n = perLevel * level;
+    const take = (total: number) =>
+      open("Overchannel", () => (
+        <Confirm
+          question={`Overchannel: ${total} necrotic damage (${n}d12) for ${spell}. Take it?`}
+          detail="It ignores resistance and immunity. Temporary hit points still take it first."
+          no="Don't take it"
+          yes={`Take ${total}`}
+          onNo={close}
+          onYes={() => takeDamage(total)}
+        />
+      ));
+    // On top of the spell's roll, which stays underneath.
+    push(
+      `Overchannel: ${n}d12 necrotic`,
+      <>
+        <p className="note">
+          You've overchanneled before since your long rest: {perLevel}d12 per spell level, {n}d12 at level {level}. Roll it, or type the total of your dice.
+        </p>
+        <TotalPad onDone={take} />
+        <button className="big primary wide" style={{ marginTop: 10 }} onClick={() => void rollOrThrow(`${n}d12`, true, undefined, { source: "Overchannel" }).then((r) => take(r.total))}>
+          Roll for me
+        </button>
+      </>,
+    );
+  };
+
+  const rollSpell = (spIn: SpellResult, level: number, damageOnly: boolean, again = false, alt = false) => {
+    // Magic Missile rolls once for all its darts: Empowered Evocation's bonus goes on every dart (one per slot level + 2).
+    const darts = level + 2;
+    const sp: SpellResult =
+      spIn.id === "spell:magic-missile" && spIn.damageBonus?.suggestions.some((x) => x.label === "Empowered Evocation")
+        ? {
+            ...spIn,
+            damageBonus: {
+              ...spIn.damageBonus,
+              suggestions: spIn.damageBonus.suggestions.map((x) =>
+                x.label === "Empowered Evocation" ? { ...x, apply: { ...x.apply, flat: x.apply.flat * darts }, effect: `+${x.apply.flat * darts}`, reason: `Magic Missile's one roll covers all ${darts} darts: +${x.apply.flat} on each` } : x,
+              ),
+            },
+          }
+        : spIn;
     const beams = sp.beams?.byLevel[sp.level === 0 ? 0 : level];
     const notes = beams && beams > 1 ? [`${beams} ${sp.beams!.what}, each its own attack: they can hit the same target or different ones. The app takes you through them one by one.`] : [];
     const portent = portentFor();
@@ -2609,8 +2682,26 @@ export function App() {
             },
           ];
         })}
-        optionInfo={optionInfoFor(spellAsAttack(sp, level, alt))}
+        optionInfo={{ ...optionInfoFor(spellAsAttack(sp, level, alt)), ...spellOptionInfo(sp, level) }}
         onOptionsUsed={recordOptions}
+        onDamageOptions={(labels) => {
+          // Empowered Evocation: counted per casting.
+          if (!labels.includes("Empowered Evocation")) return;
+          const e = empowered.current;
+          empowered.current = e.seq === castSeq.current && e.spell === sp.id ? { ...e, used: e.used + 1 } : { seq: castSeq.current, spell: sp.id, used: 1 };
+        }}
+        onSpend={(used) => {
+          for (const u of used) {
+            if (!u.spends) continue;
+            const r = live.current.sheet?.resources.find((x) => x.id === u.spends!.resource);
+            live.current.act("spendResource", { resource: u.spends.resource, amount: u.spends.amount }, `${u.label}: ${r?.name ?? "use"} spent.`);
+            // Overchannel after its free use: roll the backlash and ask before it's taken.
+            if (u.spends.resource === "overchannel" && r && r.used > 0) {
+              const perLevel = r.used + 1;
+              setTimeout(() => openOverchannelBacklash(sp.name, level, perLevel), 1200);
+            }
+          }
+        }}
         {...(beams && beams > 1 ? { repeat: { count: beams, what: sp.beams!.what } } : {})}
         {...(portent && !damageOnly ? { portent } : {})}
         healing={!!sp.heal && !sp.damage}
@@ -2781,6 +2872,7 @@ export function App() {
           guard(
             { name: sp.name, economy: using === "ritual" ? "free" : castingEconomy(castingTime ?? sp.castingTime), spell: { level: sp.level, concentration: sp.concentration } },
             () => {
+              castSeq.current += 1;
               live.current.act(
                 "castSpell",
                 { spell: sp.id, list: sp.list.id, level, using, selfEffect, ...comp, ...(choice ? { choice } : {}), ...(castingTime ? { castingTime } : {}) },
@@ -3534,5 +3626,19 @@ function HitDieEntry({ sides, con, songSides, onSpend, onRoll }: { sides: number
         Roll for me
       </button>
     </>
+  );
+}
+
+/** A typed total (your own dice): digits and OK. */
+function TotalPad({ onDone }: { onDone: (n: number) => void }) {
+  const [v, setV] = useState("");
+  return (
+    <label className="entry">
+      <span>Total of your dice</span>
+      <input inputMode="numeric" pattern="[0-9]*" value={v} onChange={(e) => setV(e.target.value.replace(/\D/g, "").slice(0, 3))} />
+      <button className="big" disabled={!v} onClick={() => onDone(Number(v))}>
+        OK
+      </button>
+    </label>
   );
 }

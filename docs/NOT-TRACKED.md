@@ -226,8 +226,8 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 ## Damage and attack options (round 11c)
 
 - Frenzy: switch it on when you rage (Actions → Frenzy); its bonus-action attack is rolled from your weapons. The exhaustion comes when Rage switches off or its timer ends.
-- Overchannel: the backlash is named on the tick-box and noted when spent; enter it as damage without a type (nothing reduces it). The app doesn't check that the spell is a wizard spell.
-- Empowered Evocation: offered on every evocation spell's damage; once per spell is yours to keep.
+- Overchannel: ticking it warns with this time's backlash; after the roll the app rolls the necrotic damage (or takes your dice's total) and asks before taking it (no type, so nothing reduces it; temporary HP still go first). A spell not cast as a wizard spell, or above 5th level, is warned about.
+- Empowered Evocation: a second use in the same casting (another Scorching Ray ray, rolling the damage again) is warned about; Magic Missile's bonus is multiplied by its darts (its one roll covers them all). A spell not cast as a wizard spell is warned about. A spell with two damage rolls is rolled as one here, so the bonus counts once.
 - Potent Cantrip, Magic Arrow, Primal Strike, Order's Wrath: notes on the rolls (magical damage isn't sent anywhere by the app).
 - Combat Inspiration: the AC use is a reminder on the Valor die's tag.
 - Rapid Strike: whether you had advantage is yours to say.

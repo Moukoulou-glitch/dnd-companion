@@ -1640,7 +1640,7 @@
             "mode": "suggested",
             "label": "Empowered Evocation",
             "when": {
-              "text": "one damage roll of a wizard evocation spell"
+              "text": "one damage roll per casting of a wizard evocation spell (one ray of Scorching Ray; Magic Missile: every dart)"
             }
           }
         ]
