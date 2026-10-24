@@ -3578,3 +3578,73 @@ button.big.beacon { background: linear-gradient(120deg, #1f9d6b, #c9a227); color
 /* A cursed item's tag */
 .switch.aura.curse { border-color: #8a2d4a; color: #f0a4bb; background: rgba(120, 20, 50, 0.25); }
 .over-banner.curse p { margin: 0 0 8px; }
+
+/* ── Spirit Guardians: a ring of spectral guardians around your hit points ─────────
+   Three looks by alignment (good, neutral, evil). Transforms and opacity only, no filters;
+   still under reduced motion; paused in the background. */
+.sg-ring { position: absolute; width: 0; height: 0; transform: translate(-50%, -50%) scaleY(0.6); --r: 88px; }
+.sg-rotor, .sg-arm, .sg-fig { position: absolute; left: 0; top: 0; }
+.sg-arm { transform: rotate(var(--a)) translateX(var(--r)) rotate(calc(-1 * var(--a))); }
+.sg-fig { width: 26px; height: 28px; margin: -14px 0 0 -13px; transform: scaleY(1.667); }
+.sg-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.sg-glow { position: absolute; left: 50%; top: 50%; width: 34px; height: 34px; margin: -17px 0 0 -17px; border-radius: 50%; }
+/* Good: radiant winged sentinels, gold and ivory, turning together */
+.sg-good .body { fill: rgba(255, 246, 220, 0.9); }
+.sg-good .wing { fill: rgba(243, 210, 122, 0.75); }
+.sg-good .halo { fill: none; stroke: #f3d27a; stroke-width: 1.4; }
+.sg-good .sg-glow { background: radial-gradient(circle, rgba(255, 220, 130, 0.45), rgba(255, 220, 130, 0) 70%); }
+/* Neutral: misty masked watchers, pale blue and grey, slow and gently bobbing */
+.sg-neutral .body { fill: rgba(200, 216, 236, 0.55); }
+.sg-neutral .mask { fill: rgba(240, 246, 252, 0.9); }
+.sg-neutral .sg-glow { background: radial-gradient(circle, rgba(190, 215, 240, 0.35), rgba(190, 215, 240, 0) 70%); }
+/* Evil: tattered wraiths, dark violet edged in crimson, stalking unevenly */
+.sg-evil .body { fill: rgba(40, 14, 52, 0.85); stroke: rgba(179, 38, 59, 0.85); stroke-width: 1; }
+.sg-evil .eye { fill: #ff4d6a; }
+.sg-evil .sg-glow { background: radial-gradient(circle, rgba(150, 30, 70, 0.4), rgba(150, 30, 70, 0) 70%); }
+
+/* While you concentrate: the quiet orbit (it fades in after the cast's gathering) */
+.sfx-ongoing-sg { position: absolute; inset: 0; animation: sg-appear 700ms ease-out 900ms both; }
+.sfx-ongoing-sg .sg-ring { display: block; left: var(--x); top: var(--y); opacity: 0.5; translate: 0 0; transition: translate 380ms ease-out; }
+.sfx-ongoing-sg.drift .sg-ring { translate: 10px 0; }
+.sfx-ongoing-sg.ending .sg-ring { scale: 1.25; opacity: 0; transition: scale 420ms ease-in, opacity 420ms ease-in; }
+.sfx-ongoing-sg.sfx-sg-good .sg-rotor { animation: sg-turn 16s linear infinite; }
+.sfx-ongoing-sg.sfx-sg-good .sg-fig { animation: sg-unturn 16s linear infinite; }
+.sfx-ongoing-sg.sfx-sg-neutral .sg-rotor { animation: sg-turn 22s linear infinite; }
+.sfx-ongoing-sg.sfx-sg-neutral .sg-fig { animation: sg-unturn 22s linear infinite; }
+.sfx-ongoing-sg.sfx-sg-neutral .sg-svg { animation: sg-bob 3.4s ease-in-out infinite; animation-delay: calc(var(--i) * -0.7s); }
+.sfx-ongoing-sg.sfx-sg-evil .sg-rotor { animation: sg-stalk 12s ease-in-out infinite; }
+.sfx-ongoing-sg.sfx-sg-evil .sg-fig { animation: sg-unstalk 12s ease-in-out infinite; }
+@keyframes sg-appear { from { opacity: 0; } to { opacity: 1; } }
+@keyframes sg-turn { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes sg-unturn { from { transform: rotate(0deg) scaleY(1.667); } to { transform: rotate(-360deg) scaleY(1.667); } }
+@keyframes sg-stalk { 0% { transform: rotate(0deg); } 30% { transform: rotate(150deg); } 45% { transform: rotate(165deg); } 75% { transform: rotate(320deg); } 100% { transform: rotate(360deg); } }
+@keyframes sg-unstalk { 0% { transform: rotate(0deg) scaleY(1.667); } 30% { transform: rotate(-150deg) scaleY(1.667); } 45% { transform: rotate(-165deg) scaleY(1.667); } 75% { transform: rotate(-320deg) scaleY(1.667); } 100% { transform: rotate(-360deg) scaleY(1.667); } }
+@keyframes sg-bob { 0%, 100% { translate: 0 0; } 50% { translate: 0 -4px; } }
+
+/* The cast: the guardians gather from far out into their ring, then hand over to the orbit */
+.fx.sfx-sg .sg-ring { animation: sg-gather var(--fx-ms) cubic-bezier(0.2, 0.7, 0.3, 1) forwards; }
+.fx.sfx-sg .sg-rotor { animation: sg-turn 2.2s linear infinite; }
+.fx.sfx-sg .sg-fig { animation: sg-unturn 2.2s linear infinite; }
+.fx.sfx-sg-evil.sfx-sg .sg-rotor { animation-duration: 1.6s; }
+.fx.sfx-sg-evil.sfx-sg .sg-fig { animation-duration: 1.6s; }
+.fx.sfx-sg .fx-core { width: 200px; height: 120px; animation: fx-pop var(--fx-ms) ease-out forwards; }
+.fx.sfx-sg-good .fx-core { background: radial-gradient(ellipse, rgba(255, 236, 180, 0.4), rgba(255, 220, 130, 0) 70%); }
+.fx.sfx-sg-neutral .fx-core { background: radial-gradient(ellipse, rgba(210, 225, 240, 0.32), rgba(210, 225, 240, 0) 70%); }
+.fx.sfx-sg-evil .fx-core { background: radial-gradient(ellipse, rgba(80, 10, 50, 0.45), rgba(80, 10, 50, 0) 70%); }
+@keyframes sg-gather { 0% { opacity: 0; scale: 2.4; } 35% { opacity: 1; scale: 1; } 80% { opacity: 1; scale: 1; } 100% { opacity: 0; scale: 1; } }
+
+/* Their strike on a damage roll: they lunge out together, then fade back into the orbit */
+.fx.sfx-sg-strike .sg-ring { animation: sg-lunge var(--fx-ms) cubic-bezier(0.3, 0.8, 0.4, 1) forwards; }
+.fx.sfx-sg-strike.sfx-sg-evil .sg-ring { animation-timing-function: cubic-bezier(0.6, 0, 0.9, 0.4); }
+.fx.sfx-sg-strike .fx-ring { width: 120px; height: 120px; animation: fx-ripple var(--fx-ms) ease-out forwards; }
+.fx.sfx-sg-strike.sfx-sg-good .fx-ring { border-color: rgba(255, 220, 130, 0.85); }
+.fx.sfx-sg-strike.sfx-sg-neutral .fx-ring { border-color: rgba(205, 222, 240, 0.7); }
+.fx.sfx-sg-strike.sfx-sg-evil .fx-ring { border-color: rgba(179, 38, 59, 0.8); }
+@keyframes sg-lunge { 0% { opacity: 0.9; scale: 1; } 40% { opacity: 1; scale: 1.55; } 100% { opacity: 0; scale: 1.1; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .sg-rotor, .sg-fig, .sg-svg { animation: none !important; }
+  .sg-fig { transform: scaleY(1.667) !important; }
+  .fx.sfx-sg .sg-ring, .fx.sfx-sg-strike .sg-ring { animation: fx-static var(--fx-ms) ease-out forwards !important; scale: 1 !important; }
+  .sfx-ongoing-sg.drift .sg-ring { translate: 0 0; }
+}

@@ -20,7 +20,7 @@ export type SpellPhase = "cast" | "again" | "resolve";
 export function phaseLook(spell: string, phase: SpellPhase, mode?: string): PhaseLook | undefined {
   const d = SPELL_FX[spell];
   if (!d) return undefined;
-  if (phase === "cast" && mode) return d.modes?.[mode.toLowerCase()]?.cast ?? d.cast;
+  if (mode) return d.modes?.[mode.toLowerCase()]?.[phase] ?? d[phase];
   return d[phase];
 }
 
@@ -29,7 +29,7 @@ export interface PhaseLook {
   look: string;
   ms: number;
   /** Where: where you tapped, the top of the screen down to the tap, across the whole width, or up from the ground (the bottom) to the tap. */
-  at: "tap" | "sky" | "across" | "edge" | "ground";
+  at: "tap" | "sky" | "across" | "edge" | "ground" | "hp" | "result";
   /** navigator.vibrate pattern, when the phone has it. */
   buzz?: number[];
   /** Flying pieces (thorns, grit). */
@@ -37,7 +37,7 @@ export interface PhaseLook {
 }
 
 export interface SpellFxDef {
-  family: "moonlight" | "lightning" | "wind" | "water" | "ice" | "weather" | "charm" | "nature";
+  family: "moonlight" | "lightning" | "wind" | "water" | "ice" | "weather" | "charm" | "nature" | "guardians";
   cast?: PhaseLook;
   again?: PhaseLook;
   resolve?: PhaseLook;
@@ -48,7 +48,22 @@ export interface SpellFxDef {
    * choice, lower case: "flood", "rain"). No mode picked, or one not listed:
    * the neutral cast and ongoing above, never a guess.
    */
-  modes?: Record<string, { cast?: PhaseLook; ongoing?: string }>;
+  modes?: Record<string, { cast?: PhaseLook; again?: PhaseLook; resolve?: PhaseLook; ongoing?: string }>;
+  /** The mode is the caster's alignment, by its good/neutral/evil part (Spirit Guardians); never a game rule. */
+  byAlignment?: boolean;
+  /** Its damage also plays the damage type's look (the type the player picked: radiant or necrotic). */
+  withDamageType?: boolean;
+}
+
+/**
+ * The good/neutral/evil part of an alignment ("LG", "NE", "Neutral good"); not set, Unaligned or
+ * anything else: neutral. Only for looks.
+ */
+export function alignmentSide(a: string | undefined): "good" | "neutral" | "evil" {
+  const s = (a ?? "").trim();
+  if (/^[LNC]G$/i.test(s) || /\bgood$/i.test(s)) return "good";
+  if (/^[LNC]E$/i.test(s) || /\bevil$/i.test(s)) return "evil";
+  return "neutral";
 }
 
 const moonPulse: PhaseLook = { look: "sfx-moon-pulse", ms: 450, at: "tap" };
@@ -156,5 +171,21 @@ Object.assign(SPELL_FX, {
   // Tidal Wave: the water's flood, washing across.
   "spell:tidal-wave": { family: "water", cast: water("sfx-water-flood"), resolve: water("sfx-water-flood") },
 } satisfies Record<string, SpellFxDef>);
+
+// Spirit Guardians: spectral guardians gather into a ring around your hit points and circle it while you
+// concentrate. Their look follows your alignment's good/neutral/evil part (radiant winged sentinels, misty
+// masked watchers, or tattered wraiths); each damage roll sends them lunging out, and the damage type's own
+// look (radiant or necrotic, as picked) plays with it. Nothing here touches the spell's rules.
+const sg = (side: string): { cast: PhaseLook; again: PhaseLook; resolve: PhaseLook; ongoing: string } => {
+  const strike: PhaseLook = { look: `sfx-sg-strike sfx-sg-${side}`, ms: 900, at: "hp", buzz: side === "evil" ? [25, 20, 25] : [18] };
+  return { cast: { look: `sfx-sg sfx-sg-${side}`, ms: 1500, at: "hp", buzz: [12, 30, 12] }, again: strike, resolve: strike, ongoing: `sfx-ongoing-sg sfx-sg-${side}` };
+};
+SPELL_FX["spell:spirit-guardians"] = {
+  family: "guardians",
+  byAlignment: true,
+  withDamageType: true,
+  ...sg("neutral"),
+  modes: { good: sg("good"), neutral: sg("neutral"), evil: sg("evil") },
+};
 
 export const spellFxOf = (spell: string | undefined): SpellFxDef | undefined => (spell ? SPELL_FX[spell] : undefined);

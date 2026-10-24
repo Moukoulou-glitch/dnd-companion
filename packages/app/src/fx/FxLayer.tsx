@@ -189,6 +189,8 @@ export function FxLayer({ school, character }: { school: (spell: string) => stri
   const next = useRef(1);
   const schoolRef = useRef(school);
   schoolRef.current = school;
+  const characterRef = useRef(character);
+  characterRef.current = character;
 
   useEffect(() => {
     const onDown = (e: PointerEvent) => (tap.current = { x: e.clientX, y: e.clientY });
@@ -211,7 +213,7 @@ export function FxLayer({ school, character }: { school: (spell: string) => stri
       const { type, payload, before, after } = (e as CustomEvent<{ type: string; payload: unknown; before: Character; after: Character }>).detail;
       play(opFx(type, payload, before, after, (s) => schoolRef.current(s)));
     };
-    const onRoll = (e: Event) => play(rollFx((e as CustomEvent<RollRecord>).detail));
+    const onRoll = (e: Event) => play(rollFx((e as CustomEvent<RollRecord>).detail, characterRef.current));
     const onFx = (e: Event) => play([(e as CustomEvent<FxEvent>).detail]);
     document.addEventListener("pointerdown", onDown, true);
     window.addEventListener("dnd-op", onOp);
@@ -329,6 +331,7 @@ export function FxLayer({ school, character }: { school: (spell: string) => stri
           <div key={id} className={`fx fx-at ${spec.look}`} style={{ left: x, top: y, ["--fx-ms" as string]: `${spec.ms}ms`, ...(spec.dmg ? { ["--fx-c" as string]: spec.dmg.rgb } : {}) }}>
             <span className="fx-core" />
             <span className="fx-ring" />
+            {spec.look.includes("sfx-sg") && <GuardianRing side={sideOf(spec.look)} count={6} />}
             {spec.look.startsWith("fx-cast") && (
               <svg className="fx-circle" viewBox="-50 -50 100 100">
                 <circle r="40" />
@@ -431,6 +434,110 @@ export function FxLayer({ school, character }: { school: (spell: string) => stri
  */
 const FORM_KEYS = Object.keys(FORM_FX);
 
+/** Which of the three Spirit Guardians looks a class list asks for. */
+const sideOf = (look: string): "good" | "neutral" | "evil" => (look.includes("sfx-sg-good") ? "good" : look.includes("sfx-sg-evil") ? "evil" : "neutral");
+
+/**
+ * One spectral guardian, drawn small: a winged sentinel with a halo (good), a hooded watcher with a pale
+ * mask (neutral), or a tattered wraith with burning eyes (evil). Plain SVG shapes, no filters.
+ */
+function GuardianFigure({ side }: { side: "good" | "neutral" | "evil" }) {
+  if (side === "good")
+    return (
+      <svg className="sg-svg" viewBox="-20 -24 40 44">
+        <ellipse className="halo" cx="0" cy="-17" rx="6" ry="2" />
+        <path className="wing" d="M-3,-6 C-12,-14 -19,-8 -18,2 C-14,-2 -9,-2 -4,2 Z" />
+        <path className="wing" d="M3,-6 C12,-14 19,-8 18,2 C14,-2 9,-2 4,2 Z" />
+        <path className="body" d="M0,-14 C4,-14 5,-9 5,-6 L7,16 L-7,16 L-5,-6 C-5,-9 -4,-14 0,-14 Z" />
+      </svg>
+    );
+  if (side === "evil")
+    return (
+      <svg className="sg-svg" viewBox="-20 -24 40 44">
+        <path className="body" d="M0,-18 C9,-18 11,-8 10,0 L12,8 L7,6 L8,16 L3,10 L0,18 L-3,10 L-8,16 L-7,6 L-12,8 L-10,0 C-11,-8 -9,-18 0,-18 Z" />
+        <circle className="eye" cx="-3.5" cy="-8" r="1.6" />
+        <circle className="eye" cx="3.5" cy="-8" r="1.6" />
+      </svg>
+    );
+  return (
+    <svg className="sg-svg" viewBox="-20 -24 40 44">
+      <path className="body" d="M0,-18 C8,-18 10,-10 9,-4 L11,16 L-11,16 L-9,-4 C-10,-10 -8,-18 0,-18 Z" />
+      <ellipse className="mask" cx="0" cy="-8" rx="4.5" ry="5.5" />
+    </svg>
+  );
+}
+
+/** Guardians in a ring: each on its own arm of the orbit, kept upright as the ring turns. */
+function GuardianRing({ side, count }: { side: "good" | "neutral" | "evil"; count: number }) {
+  return (
+    <span className={`sg-ring sg-${side}`} style={{ ["--n" as string]: String(count) }}>
+      <span className="sg-rotor">
+        {Array.from({ length: count }, (_, i) => (
+          <span key={i} className="sg-arm" style={{ ["--a" as string]: `${(360 / count) * i}deg`, ["--i" as string]: String(i) }}>
+            <span className="sg-fig">
+              <span className="sg-glow" />
+              <GuardianFigure side={side} />
+            </span>
+          </span>
+        ))}
+      </span>
+    </span>
+  );
+}
+
+/**
+ * Spirit Guardians while you concentrate: the ring around your hit points (the status strip at the top
+ * stays put, so it's measured when it changes size, not every frame). A step you record makes it drift.
+ */
+function GuardianOrbit({ look, ending, paused }: { look: string; ending: boolean; paused: boolean }) {
+  const [at, setAt] = useState<{ x: number; y: number } | undefined>();
+  const [drift, setDrift] = useState(false);
+  useEffect(() => {
+    const measure = () => {
+      const el = document.querySelector(".vitals .hp");
+      if (!el) return setAt(undefined);
+      const r = el.getBoundingClientRect();
+      setAt({ x: r.left + r.width / 2, y: r.top + r.height / 2 });
+    };
+    measure();
+    const el = document.querySelector(".vitals .hp");
+    const ro = typeof ResizeObserver !== "undefined" && el ? new ResizeObserver(measure) : undefined;
+    if (ro && el) ro.observe(el);
+    window.addEventListener("resize", measure);
+    // The strip can move when the page underneath scrolls on some phones: measure again, at most once a frame.
+    let pending = 0;
+    const onScroll = () => {
+      if (pending) return;
+      pending = requestAnimationFrame(() => {
+        pending = 0;
+        measure();
+      });
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    const onOp = (e: Event) => {
+      const { type, payload } = (e as CustomEvent<{ type: string; payload: { kind?: string; amount?: number } }>).detail;
+      if (type === "useEconomy" && payload?.kind === "move" && (payload.amount ?? 0) > 0) {
+        setDrift(true);
+        setTimeout(() => setDrift(false), 750);
+      }
+    };
+    window.addEventListener("dnd-op", onOp);
+    return () => {
+      ro?.disconnect();
+      window.removeEventListener("resize", measure);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("dnd-op", onOp);
+      if (pending) cancelAnimationFrame(pending);
+    };
+  }, []);
+  if (!at) return null;
+  return (
+    <div className={`sfx-ongoing ${look}${ending ? " ending" : ""}${paused ? " paused" : ""}${drift ? " drift" : ""}`} style={{ ["--x" as string]: `${at.x}px`, ["--y" as string]: `${at.y}px` }}>
+      <GuardianRing side={sideOf(look)} count={5} />
+    </div>
+  );
+}
+
 function Ongoing({ look }: { look: string | undefined }) {
   const [shown, setShown] = useState<{ look: string; ending: boolean } | undefined>(look ? { look, ending: false } : undefined);
   const [hidden, setHidden] = useState(typeof document !== "undefined" && document.hidden);
@@ -446,6 +553,7 @@ function Ongoing({ look }: { look: string | undefined }) {
     return () => clearTimeout(t);
   }, [look]);
   if (!shown) return null;
+  if (shown.look.includes("sfx-ongoing-sg")) return <GuardianOrbit look={shown.look} ending={shown.ending} paused={hidden} />;
   return (
     <div className={`sfx-ongoing ${shown.look}${shown.ending ? " ending" : ""}${hidden ? " paused" : ""}`}>
       {Array.from({ length: 5 }, (_, i) => (

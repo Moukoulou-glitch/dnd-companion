@@ -1,7 +1,7 @@
 import type { Character } from "@dnd/schema";
 import type { RollRecord } from "../rolls";
 import { CHARMED, DAMAGE_FX, FORM_FX, damageKey } from "./looks";
-import { spellFxOf, type SpellPhase } from "./spells";
+import { alignmentSide, spellFxOf, type SpellPhase } from "./spells";
 
 /**
  * Which flourish a confirmed change or roll earns. Pure: it only compares the
@@ -46,7 +46,7 @@ export type FxEvent =
   | { kind: "sending"; words: string[] };
 
 /** A saved roll: crit and natural 1 on attack rolls only; Sneak Attack when its dice are in the damage. */
-export function rollFx(r: RollRecord): FxEvent[] {
+export function rollFx(r: RollRecord, c?: Character): FxEvent[] {
   if (r.kind === "d20") {
     if (!r.attack) return [];
     const reckless: FxEvent[] = r.options?.includes(RECKLESS) ? [{ kind: "reckless", hit: false }] : [];
@@ -58,7 +58,14 @@ export function rollFx(r: RollRecord): FxEvent[] {
   const out: FxEvent[] = r.lines.some((l) => /sneak attack/i.test(l.source) && l.detail !== "") ? [{ kind: "sneak" }] : [];
   // A spell's damage: right after casting it resolves; from the concentration chip it's a later use.
   const phase: SpellPhase = r.again ? "again" : "resolve";
-  if (r.spell && spellFxOf(r.spell)?.[phase]) out.push({ kind: "spell", spell: r.spell, phase });
+  const sdef = spellFxOf(r.spell);
+  if (r.spell && sdef?.[phase]) {
+    const mode = sdef.byAlignment ? alignmentSide(c?.alignment) : undefined;
+    out.push({ kind: "spell", spell: r.spell, phase, ...(mode ? { mode } : {}) });
+    // The damage type the player picked (Spirit Guardians: radiant or necrotic) plays too.
+    const type = sdef.withDamageType ? mainType(r) : undefined;
+    if (type) out.push({ kind: "damage-type", type });
+  }
   // The damage type's look, only when nothing else plays on this roll (a spell's own look or Sneak Attack say more).
   if (!out.length) {
     const type = mainType(r);
@@ -132,7 +139,8 @@ export function opFx(type: string, payload: unknown, before: Character, after: C
     // The mode picked when casting (Control Water: Whirlpool), or the casting time picked (Plant Growth: 8 hours);
     // a mode the effects don't know is left out, so the neutral look plays.
     const picked = [cast.choice, cast.castingTime].find((m): m is string => typeof m === "string" && !!def?.modes?.[m.toLowerCase()]);
-    const mode = picked?.toLowerCase();
+    // Spirit Guardians: by the caster's alignment.
+    const mode = def?.byAlignment ? alignmentSide(after.alignment) : picked?.toLowerCase();
     if (def?.cast) out.push({ kind: "spell", spell: cast.spell, phase: "cast", ...(mode ? { mode } : {}) });
     else {
       const s = school?.(cast.spell)?.toLowerCase();
@@ -191,7 +199,7 @@ export function ongoingFx(c: Character | undefined): { spell: string; look: stri
   const def = spellFxOf(spell);
   if (!spell || !def) return undefined;
   // The mode picked for it, from its effect's choice (Control Weather: Rain).
-  const choice = c?.effects.find((e) => e.effect === spell.replace(/^spell:/, "effect:"))?.choice?.toLowerCase();
+  const choice = def.byAlignment ? alignmentSide(c?.alignment) : c?.effects.find((e) => e.effect === spell.replace(/^spell:/, "effect:"))?.choice?.toLowerCase();
   const look = (choice && def.modes?.[choice]?.ongoing) || def.ongoing;
   return look ? { spell, look } : undefined;
 }
