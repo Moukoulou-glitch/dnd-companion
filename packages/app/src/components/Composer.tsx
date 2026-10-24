@@ -1,6 +1,6 @@
 import { RichText } from "./Conditions";
 import { HealTargets, type HealTarget } from "./HealTargets";
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { rollThrown } from "../dice3d";
 import { NoWebGLError, SkipError, skipThrow, throwDice } from "../diceBox";
 import { myDieLook } from "../dice/mine";
@@ -89,6 +89,8 @@ interface Props {
   afterRoll?: { label: string; sub?: string; warn?: boolean; group?: string; run: () => { value: number; detail: string } | undefined }[];
   /** Closes the roll (after a miss with no more attacks). */
   onDone?: () => void;
+  /** Shown right after the d20 is rolled, with the options that were ticked (ammunition: count one shot?). */
+  afterD20?: (enabled: string[]) => ReactNode;
   /** The feature, spell or item rolling these dice ("feature:second-wind"), for its own dice theme. */
   diceSource?: string;
 }
@@ -349,7 +351,7 @@ export function ResultView({ r }: { r: RollRecord }) {
   );
 }
 
-export function Composer({ title, base: baseIn, attack, physical, onPhysicalChange, onRolled, onResolved, damageOnly, healing, onHealSelf, healTargets, dc, dcLabel, reaction, onSpend, onCheck, notes, header, typeChoices, portent, onOptionsUsed, optionInfo, onCommit, repeat, onDamageOptions, afterRoll, onDone, diceSource }: Props) {
+export function Composer({ title, base: baseIn, attack, physical, onPhysicalChange, onRolled, onResolved, damageOnly, healing, onHealSelf, healTargets, dc, dcLabel, reaction, onSpend, onCheck, notes, header, typeChoices, portent, onOptionsUsed, optionInfo, onCommit, repeat, onDamageOptions, afterRoll, onDone, diceSource, afterD20 }: Props) {
   const [typePick, setTypePick] = useState<{ via: number; type: string } | null>(null);
   // A smite used on an earlier hit (Extra Attack's first attack, or this one rolled again) is gone: it can't be ticked again.
   const [usedUp, setUsedUp] = useState<UsedUp[]>([]);
@@ -718,6 +720,8 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
       <>
         <ResultView r={r} />
         {throwNote && <p className="note">{throwNote}</p>}
+        {/* Asked after the attack roll (one piece of ammunition shot?): once per attack. */}
+        {afterD20 && <Fragment key={`after-${nth}`}>{afterD20(choices.enabled)}</Fragment>}
         {dc !== undefined && (
           <p className={r.total >= dc ? "pass" : "warn"}>
             {r.total >= dc ? `Success against DC ${dc}.` : `Failed against DC ${dc}.`}

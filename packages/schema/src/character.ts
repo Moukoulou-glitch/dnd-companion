@@ -272,8 +272,26 @@ export const CustomItem = z
   .object({
     id: z.string(),
     name: z.string().min(1).max(80),
-    /** Only the kinds that need no weapon or armor numbers. */
-    category: z.enum(["gear", "tool", "consumable", "wondrous", "focus"]).default("gear"),
+    /** Kinds; a weapon has its numbers in `weapon`, ammunition the weapons it's for in `ammoFor`. */
+    category: z.enum(["gear", "tool", "consumable", "wondrous", "focus", "weapon", "ammunition"]).default("gear"),
+    /** A weapon: started from an existing weapon (`base`) or made up, with its properties (PHB p. 146). */
+    weapon: z
+      .object({
+        base: DefId.optional(),
+        category: z.enum(["simple", "martial"]).default("simple"),
+        kind: z.enum(["melee", "ranged"]).default("melee"),
+        damage: z.string().max(20).default("1d6"),
+        damageType: DamageType.default("bludgeoning"),
+        versatileDamage: z.string().max(20).optional(),
+        properties: z.array(z.enum(["ammunition", "finesse", "heavy", "light", "loading", "reach", "special", "thrown", "two-handed", "versatile"])).default([]),
+        range: z.tuple([z.number().int().min(0), z.number().int().min(0)]).optional(),
+      })
+      .strict()
+      .optional(),
+    /** Ammunition: the weapons it's shot from (weapon ids, "item:longbow"). */
+    ammoFor: z.array(z.string()).optional(),
+    /** +1, +2 or +3 to attack and damage (a magic weapon or ammunition). */
+    bonus: z.number().int().min(0).max(3).optional(),
     description: z.string().max(6000).default(""),
     weight: z.number().min(0).max(100000).optional(),
     value: z.object({ amount: z.number().min(0), unit: z.enum(["cp", "sp", "ep", "gp", "pp"]) }).strict().optional(),
@@ -703,6 +721,8 @@ export const Character = z
     settings: z
       .object({
         physicalDice: z.boolean().default(true),
+        /** Ask after each attack with a weapon that needs ammunition whether to count one used. */
+        trackAmmo: z.boolean().optional(),
         /** Encumbrance rule the player picked: the standard carrying capacity, the variant, or none (not tracked). */
         encumbrance: z.enum(["standard", "variant"]).optional(),
       })
@@ -732,6 +752,8 @@ export const Character = z
     customActions: z.array(CustomAction).default([]),
     customSpells: z.array(CustomSpell).default([]),
     customItems: z.array(CustomItem).default([]),
+    /** Ammunition spent since the last fight ended (inventory instance → how many), half of it recoverable. */
+    ammoSpent: z.record(z.string(), z.number().int().min(0)).optional(),
     customCompanions: z.array(CustomCompanion).default([]),
     /** Proficiencies the table took away (a DM ruling), whatever gives them: kind, target, why. */
     profRemoved: z.array(z.object({ kind: z.enum(["save", "skill", "expertise", "armor", "weapon", "tool", "language"]), target: z.string(), reason: z.string().max(250).optional() }).strict()).default([]),

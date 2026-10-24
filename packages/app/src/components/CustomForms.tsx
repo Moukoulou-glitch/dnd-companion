@@ -536,14 +536,146 @@ export const ITEM_TYPES: [CustomItem["category"], string][] = [
   ["consumable", "Consumable"],
   ["wondrous", "Wondrous item"],
   ["focus", "Spellcasting focus"],
+  ["weapon", "Weapon"],
+  ["ammunition", "Ammunition"],
 ];
+
+/** Weapon properties (PHB p. 146), in our own short words. */
+const WEAPON_PROPERTIES: [NonNullable<CustomItem["weapon"]>["properties"][number], string, string][] = [
+  ["ammunition", "Ammunition", "Shoots ammunition (the app can count it); half can be picked up after a fight."],
+  ["finesse", "Finesse", "Strength or Dexterity, whichever is better, for attack and damage."],
+  ["heavy", "Heavy", "Small creatures have disadvantage with it."],
+  ["light", "Light", "Good for fighting with a weapon in each hand."],
+  ["loading", "Loading", "One shot per action, bonus action or reaction, however many attacks you have."],
+  ["reach", "Reach", "Reaches 5 ft further."],
+  ["special", "Special", "Has its own rule (write it in the description)."],
+  ["thrown", "Thrown", "Can be thrown for a ranged attack, with the same ability as in melee."],
+  ["two-handed", "Two-handed", "Needs both hands to attack with."],
+  ["versatile", "Versatile", "One or two hands; the second damage is for two."],
+];
+
+const DEFAULT_WEAPON: NonNullable<CustomItem["weapon"]> = { category: "simple", kind: "melee", damage: "1d6", damageType: "bludgeoning", properties: [] };
+
+/** A weapon of your own: an existing weapon to start from, its numbers, and its properties. */
+function WeaponFields({ reg, it, set }: { reg?: ContentRegistry; it: CustomItem; set: (p: Partial<CustomItem>) => void }) {
+  const w = it.weapon ?? DEFAULT_WEAPON;
+  const put = (p: Partial<NonNullable<CustomItem["weapon"]>>) => set({ weapon: { ...w, ...p } });
+  const weapons = (reg?.list("item") ?? []).filter((d) => d.weapon && !d.magic && d.source.pack !== "custom").sort((a, b) => a.name.localeCompare(b.name));
+  const from = (id: string) => {
+    const d = weapons.find((x) => x.id === id);
+    if (!d?.weapon) return put({ base: undefined });
+    const b = d.weapon;
+    set({
+      weapon: {
+        base: d.id,
+        category: b.category,
+        kind: b.kind,
+        damage: b.damage,
+        damageType: b.damageType,
+        properties: b.properties,
+        ...(b.versatileDamage ? { versatileDamage: b.versatileDamage } : {}),
+        ...(b.range ? { range: b.range } : {}),
+      },
+      ...(it.weight === undefined && d.weight !== undefined ? { weight: d.weight } : {}),
+    });
+  };
+  const has = (p: string) => w.properties.includes(p as never);
+  const toggle = (p: NonNullable<CustomItem["weapon"]>["properties"][number]) => put({ properties: has(p) ? w.properties.filter((x) => x !== p) : [...w.properties, p] });
+  return (
+    <section className="form-group">
+      <h2 className="sub-head">The weapon</h2>
+      <Field label="Start from a weapon (optional)" hint="Its numbers and properties are filled in; change any of them">
+        <Select label="Weapon type" value={w.base ?? ""} onChange={from} options={[["", "None: made up"], ...weapons.map((d): [string, string] => [d.id, d.name])]} />
+      </Field>
+      <div className="group">
+        <div className="row">
+          <div className="row-main row-title">Simple or martial</div>
+          <Select label="Weapon category" value={w.category} onChange={(v) => put({ category: v as "simple" | "martial" })} options={[["simple", "Simple"], ["martial", "Martial"]]} />
+        </div>
+        <div className="row">
+          <div className="row-main row-title">Melee or ranged</div>
+          <Select label="Melee or ranged" value={w.kind} onChange={(v) => put({ kind: v as "melee" | "ranged" })} options={[["melee", "Melee"], ["ranged", "Ranged"]]} />
+        </div>
+        <div className="row">
+          <div className="row-main row-title">Damage</div>
+          <input className="search narrow" value={w.damage} maxLength={20} onChange={(e) => put({ damage: e.target.value.replace(/\s+/g, "") })} aria-label="Damage dice" />
+          <Select label="Damage type" value={w.damageType} onChange={(v) => put({ damageType: v as typeof w.damageType })} options={DAMAGE_TYPES.map((d): [string, string] => [d, d])} />
+        </div>
+        <div className="row">
+          <div className="row-main row-title">Magic bonus</div>
+          <Select label="Magic bonus" value={String(it.bonus ?? 0)} onChange={(v) => set({ bonus: Number(v) || undefined })} options={[["0", "None"], ["1", "+1"], ["2", "+2"], ["3", "+3"]]} />
+        </div>
+      </div>
+      <p className="sub-head">Properties</p>
+      <div className="group">
+        {WEAPON_PROPERTIES.map(([id, name, what]) => (
+          <label className="row check" key={id}>
+            <input type="checkbox" checked={has(id)} onChange={() => toggle(id)} />
+            <div className="row-main">
+              <div className="row-title">{name}</div>
+              <div className="row-sub">{what}</div>
+            </div>
+          </label>
+        ))}
+      </div>
+      {has("versatile") && (
+        <div className="row">
+          <div className="row-main row-title">Two-handed damage</div>
+          <input className="search narrow" value={w.versatileDamage ?? ""} placeholder="1d10" maxLength={20} onChange={(e) => put({ versatileDamage: e.target.value.replace(/\s+/g, "") || undefined })} aria-label="Versatile damage dice" />
+        </div>
+      )}
+      {(w.kind === "ranged" || has("thrown")) && (
+        <div className="row">
+          <div className="row-main">
+            <div className="row-title">Range (ft)</div>
+            <div className="row-sub">Normal, then long: beyond the normal range the attack has disadvantage.</div>
+          </div>
+          <input className="search narrow" inputMode="numeric" value={w.range?.[0] ?? ""} placeholder="80" onChange={(e) => put({ range: [Number(e.target.value.replace(/\D/g, "")) || 0, w.range?.[1] ?? 0] })} aria-label="Normal range" />
+          <input className="search narrow" inputMode="numeric" value={w.range?.[1] ?? ""} placeholder="320" onChange={(e) => put({ range: [w.range?.[0] ?? 0, Number(e.target.value.replace(/\D/g, "")) || 0] })} aria-label="Long range" />
+        </div>
+      )}
+    </section>
+  );
+}
+
+/** Ammunition of your own: the weapons it's shot from, and its magic bonus. */
+function AmmoFields({ reg, it, set }: { reg?: ContentRegistry; it: CustomItem; set: (p: Partial<CustomItem>) => void }) {
+  // By weapon group, so a magic longbow or your own bow made from a longbow shoots it too.
+  const groups = new Map<string, string>();
+  for (const d of reg?.list("item") ?? []) {
+    if (!d.weapon?.properties.includes("ammunition")) continue;
+    const g = d.weapon.group.toLowerCase();
+    if (!groups.has(g) || !d.magic) groups.set(g, d.magic ? g : d.name);
+  }
+  const shooters = [...groups.entries()].map(([id, name]) => ({ id, name })).sort((a, b) => a.name.localeCompare(b.name));
+  const picked = it.ammoFor ?? [];
+  return (
+    <section className="form-group">
+      <h2 className="sub-head">Shot from</h2>
+      <div className="group">
+        {shooters.map((d) => (
+          <label className="row check" key={d.id}>
+            <input type="checkbox" checked={picked.includes(d.id)} onChange={() => set({ ammoFor: picked.includes(d.id) ? picked.filter((x) => x !== d.id) : [...picked, d.id] })} />
+            <div className="row-main row-title">{d.name}</div>
+          </label>
+        ))}
+        <div className="row">
+          <div className="row-main row-title">Magic bonus</div>
+          <Select label="Magic bonus" value={String(it.bonus ?? 0)} onChange={(v) => set({ bonus: Number(v) || undefined })} options={[["0", "None"], ["1", "+1"], ["2", "+2"], ["3", "+3"]]} />
+        </div>
+      </div>
+      {!picked.length && <p className="note">Pick at least one weapon, or the app can't offer it on any attack.</p>}
+      <p className="note">Its changes below (an extra 1d6 fire, say) go on the attack it's shot with, not on everything.</p>
+    </section>
+  );
+}
 
 /**
  * An item of your own: what it is and what it says (only shown), and, if you
  * want, changes the sheet applies while it's equipped (and attuned, if it needs
  * attunement), like a magic item's. Without changes it changes nothing.
  */
-export function CustomItemForm({ act, editing, done }: { act: Act; editing?: CustomItem; done: (deleted?: boolean) => void }) {
+export function CustomItemForm({ act, editing, done, reg }: { act: Act; editing?: CustomItem; done: (deleted?: boolean) => void; reg?: ContentRegistry }) {
   const [it, setIt] = useState<CustomItem>(editing ?? { id: newId(), name: "", category: "gear", description: "", requiresAttunement: false, modifiers: [], source: "" });
   const set = (p: Partial<CustomItem>) => setIt({ ...it, ...p });
   const [quantity, setQuantity] = useState(1);
@@ -562,8 +694,10 @@ export function CustomItemForm({ act, editing, done }: { act: Act; editing?: Cus
         <input className="search" value={it.name} maxLength={80} placeholder="Grandmother's locket" onChange={(e) => set({ name: e.target.value })} aria-label="Item name" />
       </Field>
       <Field label="Type">
-        <Select label="Item type" value={it.category} onChange={(x) => set({ category: x as CustomItem["category"] })} options={ITEM_TYPES} />
+        <Select label="Item type" value={it.category} onChange={(x) => set({ category: x as CustomItem["category"], ...(x === "weapon" && !it.weapon ? { weapon: DEFAULT_WEAPON } : {}) })} options={ITEM_TYPES} />
       </Field>
+      {it.category === "weapon" && <WeaponFields reg={reg} it={it} set={set} />}
+      {it.category === "ammunition" && <AmmoFields reg={reg} it={it} set={set} />}
       <div className="group">
         {!editing && <NumberStep label="How many" value={quantity} min={1} max={9999} onChange={setQuantity} />}
         <div className="row">
@@ -625,7 +759,7 @@ export function CustomItemForm({ act, editing, done }: { act: Act; editing?: Cus
           className="big primary"
           disabled={!it.name.trim() || bad(w) || bad(v)}
           onClick={() => {
-            const { weight: _w, value: _v, ...rest } = it;
+            const { weight: _w, value: _v, weapon: _wp, ammoFor: _af, ...rest } = it;
             const item: CustomItem = {
               ...rest,
               name: it.name.trim(),
@@ -634,7 +768,10 @@ export function CustomItemForm({ act, editing, done }: { act: Act; editing?: Cus
               modifiers: changesToModifiers(changes, it.name.trim()),
               ...(w !== undefined ? { weight: w } : {}),
               ...(v !== undefined ? { value: { amount: v, unit } } : {}),
+              ...(it.category === "weapon" && it.weapon ? { weapon: it.weapon } : {}),
+              ...(it.category === "ammunition" && it.ammoFor?.length ? { ammoFor: it.ammoFor } : {}),
             };
+            if (it.category !== "weapon" && it.category !== "ammunition") delete item.bonus;
             act("setCustomItem", editing ? { item } : { item, instanceId: crypto.randomUUID(), quantity }, editing ? `${item.name} changed.` : `${item.name} added.`);
             done();
           }}

@@ -256,3 +256,11 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 - Beacon of Hope: someone else healing you is entered by hand (enter their maximum); the dice on screen still tumble, and each one counts as its highest face.
 - Guardian of Faith: after each creature's save, tap "Failed the save" or "Saved"; the damage left counts down and the guardian vanishes at 60. Who is hostile and comes within 10 ft is yours to say.
 
+## Ammunition and weapons (round 11e-2)
+
+- Ammunition is counted only when "Track my ammunition" is ticked, and only when you say yes after an attack roll (a re-roll of the same attack asks again).
+- Picking it up after a fight: half is offered; any number can be recorded.
+- Using a weapon that needs ammunition as a melee weapon (an improvised weapon) isn't tracked.
+- Long range: tick it when the target is beyond the normal range; the app doesn't know distances. Loading and Reach are notes.
+- Silvered ammunition is noted on the roll; the DM decides what it overcomes.
+

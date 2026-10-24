@@ -19,6 +19,7 @@ import {
 } from "@dnd/schema";
 import { sum, signed, signedDice, type Breakdown, type DicePart, type Part, type RollBreakdown, type Suggestion } from "./breakdown.js";
 import { evalExpr, evalFlat, type ExprContext } from "./expr.js";
+type ExprTerm = ReturnType<typeof evalExpr>[number];
 import { ACTION_DCS, FEATURE_DCS, type DcSpec } from "./dcs.js";
 import { FEATURE_TAGS, TOGGLE_LABELS, TOGGLE_REMINDERS } from "./tags.js";
 import { customActionDc, customFeatureId, withCustom } from "./custom.js";
@@ -89,6 +90,25 @@ export interface WeaponAttack {
   requires?: { attack: string; text: string };
   /** Shown with the attack (Shillelagh on a weapon that isn't a club or quarterstaff). */
   note?: string;
+  /** A weapon that needs ammunition: the kinds you carry for it (empty: none). */
+  ammo?: { instanceId: string; name: string; quantity: number }[];
+}
+
+/**
+ * Which ammunition a weapon shoots: what the ammunition says it's for (item ids or weapon groups), or,
+ * when it doesn't say, by its name: arrows for bows, bolts for crossbows, bullets for slings, needles for blowguns.
+ */
+function ammoFor(weaponId: string, group: string | undefined): (ammo: { id: string; name: string; ammoFor?: string[] }) => boolean {
+  const g = (group ?? weaponId).toLowerCase();
+  return (a) => {
+    if (a.ammoFor?.length) return a.ammoFor.some((x) => x === weaponId || x.toLowerCase() === g);
+    const n = `${a.id} ${a.name}`.toLowerCase();
+    if (/arrow/.test(n)) return /bow/.test(g) && !/crossbow/.test(g);
+    if (/bolt/.test(n)) return /crossbow/.test(g);
+    if (/bullet/.test(n)) return /sling/.test(g);
+    if (/needle/.test(n)) return /blowgun/.test(g);
+    return false;
+  };
 }
 
 /** Spell scroll save DC and attack bonus by the scroll's level (DMG p. 200). */
@@ -1246,6 +1266,53 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       if (w.range && mode !== "melee") entry.range = w.range;
       if (o.offHand) entry.offHand = true;
       if (o.requires) entry.requires = o.requires;
+      // Weapon properties (PHB p. 146) the app can show: Heavy for a Small creature, long range, Loading, Reach.
+      const small = (c.size ?? reg.find(c.race, "race")?.size ?? "medium").toLowerCase();
+      if (w.properties.includes("heavy") && (small === "small" || small === "tiny")) entry.attack.disadvantage.push("Heavy weapon, Small creature");
+      if (entry.range && entry.range[1] > entry.range[0])
+        entry.attack.suggestions.push({ label: "Long range", effect: "disadvantage", reason: `beyond ${entry.range[0]} ft, up to ${entry.range[1]} ft`, apply: { flat: 0, dice: [], mode: "disadvantage" } });
+      const notes: string[] = [];
+      if (w.properties.includes("loading") && !sources.some((s) => s.id === "feat:crossbow-expert")) notes.push("Loading: one shot per action, bonus action or reaction");
+      if (w.properties.includes("reach") && mode === "melee") notes.push("Reach: 10 ft");
+      if (notes.length) entry.attack.notes = [...(entry.attack.notes ?? []), ...notes];
+      // A weapon that shoots ammunition: each kind you carry for it is an option on the roll (one at a time), with its
+      // bonus (+1 arrows) and its own changes; with ammunition tracked the first starts ticked, and the app asks after the roll.
+      if (w.properties.includes("ammunition") && mode === "ranged") {
+        const weaponId = o.attackId;
+        const group = "group" in w ? (w as { group?: string }).group : undefined;
+        const kinds = ammoFor(weaponId, group);
+        entry.ammo = [];
+        let first = true;
+        for (const inst of c.inventory) {
+          const ad = reg.find(inst.item, "item");
+          if (!ad || ad.category !== "ammunition" || inst.quantity < 1 || !kinds(ad)) continue;
+          const name = inst.name ?? ad.name;
+          const bonus = ad.magic?.bonus ?? 0;
+          const of = (sel: RegExp) => (ad.grant?.modifiers ?? []).filter((m) => m.op === "add" && sel.test(m.selector) && m.value !== undefined);
+          const terms = (ms: Modifier[]) => ms.flatMap((m) => evalExpr(m.value!, ctxFor({ id: ad.id, label: name, grant: {}, choices: {} })));
+          const atkTerms = terms(of(/^roll\.attack/));
+          const dmgTerms = terms(of(/^roll\.damage/));
+          const flat = (ts: ExprTerm[]) => ts.reduce((n, t) => n + (t.kind === "flat" ? t.value : 0), 0);
+          const dice = (ts: ExprTerm[]) => ts.flatMap((t) => (t.kind === "dice" ? [t.dice] : []));
+          entry.ammo.push({ instanceId: inst.id, name, quantity: inst.quantity });
+          const atkFlat = bonus + flat(atkTerms);
+          const dmgFlat = bonus + flat(dmgTerms);
+          // Only worth a tick-box when it changes the roll, or when the app tracks what's shot.
+          if (!c.settings.trackAmmo && !atkFlat && !dmgFlat && !dice(atkTerms).length && !dice(dmgTerms).length) continue;
+          const sg = (f: number, ds: string[]): Suggestion => ({
+            label: name,
+            effect: [f ? signed(f) : "", ...ds].filter(Boolean).join(", ") || `${inst.quantity} left`,
+            reason: `ammunition, one kind per shot${/silver/i.test(name) ? "; silvered" : ""}${f || ds.length ? `; ${inst.quantity} left` : ""}`,
+            apply: { flat: f, dice: ds },
+            group: "ammunition",
+            ammo: inst.id,
+            ...(first && c.settings.trackAmmo ? { preset: "always" as const } : {}),
+          });
+          entry.attack.suggestions.push(sg(atkFlat, dice(atkTerms)));
+          entry.damage.bonus.suggestions.push(sg(dmgFlat, dice(dmgTerms)));
+          first = false;
+        }
+      }
       if (shillelagh && !thrown) {
         const sh = shillelagh;
         const sg = (flat: number, weaponDice?: string) => ({

@@ -159,7 +159,7 @@ export function customDefinitions(c: Character, reg: ContentRegistry): Definitio
     ...(c.customActions ?? []).map((a) => customActionFeature(a, c, reg)),
     ...(c.customSpells ?? []).map(customSpellDef),
     ...(c.customSpells ?? []).flatMap((s) => (customSpellEffect(s) ? [customSpellEffect(s)!] : [])),
-    ...(c.customItems ?? []).map(customItemDef),
+    ...(c.customItems ?? []).map((i) => customItemDef(i, reg)),
   ];
 }
 
@@ -194,7 +194,7 @@ export function customSpellEffect(s: CustomSpell): EffectDef | undefined {
  * modifiers become the item's grant, which the sheet applies while it's
  * equipped (and attuned, if it needs attunement), like any magic item's.
  */
-export function customItemDef(i: CustomItem): ItemDef {
+export function customItemDef(i: CustomItem, reg?: ContentRegistry): ItemDef {
   const text = i.description.split(/\n{2,}/).map((x) => x.trim()).filter(Boolean);
   const def: ItemDef = {
     kind: "item",
@@ -208,6 +208,27 @@ export function customItemDef(i: CustomItem): ItemDef {
   if (i.weight !== undefined) def.weight = i.weight;
   if (i.value) def.cost = { amount: i.value.amount, unit: i.value.unit };
   if (i.modifiers.length) def.grant = { modifiers: i.modifiers.map((m) => ({ ...m, label: m.label ?? i.name })) } as ItemDef["grant"];
+  // A weapon: its own numbers, over the weapon it started from (its group, so proficiency follows it).
+  if (i.category === "weapon" && i.weapon) {
+    const base = i.weapon.base ? reg?.find(i.weapon.base, "item")?.weapon : undefined;
+    const w = i.weapon;
+    def.weapon = {
+      category: w.category,
+      kind: w.kind,
+      group: base?.group ?? i.name.toLowerCase(),
+      damage: w.damage,
+      damageType: w.damageType,
+      properties: w.properties,
+      ...(w.versatileDamage ? { versatileDamage: w.versatileDamage } : {}),
+      ...(w.range ? { range: w.range } : base?.range ? { range: base.range } : {}),
+    };
+    if (i.weight === undefined && i.weapon.base) {
+      const bw = reg?.find(i.weapon.base, "item")?.weight;
+      if (bw !== undefined) def.weight = bw;
+    }
+  }
+  if (i.category === "ammunition" && i.ammoFor?.length) def.ammoFor = i.ammoFor;
+  if (i.bonus) def.magic = { bonus: i.bonus };
   return def;
 }
 

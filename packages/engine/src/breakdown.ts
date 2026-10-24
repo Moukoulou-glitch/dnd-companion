@@ -43,6 +43,8 @@ export interface Suggestion {
   preset?: "always" | "reaction";
   /** Ticking it uses up this effect (a smite: gone once its damage is rolled). */
   endsEffect?: string;
+  /** Ammunition: the inventory instance shot. */
+  ammo?: string;
 }
 
 /** A computed number and every source that contributed to it. */

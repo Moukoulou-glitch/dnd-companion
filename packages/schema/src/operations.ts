@@ -434,6 +434,10 @@ export const OPERATION_PAYLOADS = {
    */
   /** An item used up (a potion): one fewer, and the part of the turn it takes. `given`: given to another creature. */
   useItem: z.object({ instanceId: z.string(), given: z.boolean().optional() }).strict(),
+  /** One piece of ammunition shot (the quantity goes down; counted as spent until the fight ends). */
+  useAmmo: z.object({ instanceId: z.string(), amount: z.number().int().min(1).default(1) }).strict(),
+  /** Spent ammunition picked up after a fight (half of it, by the rules; any number is recorded). */
+  recoverAmmo: z.object({ items: z.array(z.object({ instanceId: z.string(), amount: z.number().int().min(0) }).strict()) }).strict(),
   learnSpell: z.object({ spell: z.string(), list: z.string(), cost: z.number().min(0).optional(), notInBook: z.boolean().optional(), prepared: z.boolean().optional() }).strict(),
   /** A wizard copies a scroll's spell into the spellbook (DMG p. 200): the Arcana check passed or not, the scroll is gone either way. */
   copyScroll: z.object({ instanceId: z.string(), success: z.boolean() }).strict(),
@@ -544,6 +548,8 @@ export const Operation = z.discriminatedUnion("type", [
   OperationBase.extend({ type: z.literal("chooseAsi"), payload: OPERATION_PAYLOADS.chooseAsi }),
   OperationBase.extend({ type: z.literal("setDetails"), payload: OPERATION_PAYLOADS.setDetails }),
   OperationBase.extend({ type: z.literal("useItem"), payload: OPERATION_PAYLOADS.useItem }),
+  OperationBase.extend({ type: z.literal("useAmmo"), payload: OPERATION_PAYLOADS.useAmmo }),
+  OperationBase.extend({ type: z.literal("recoverAmmo"), payload: OPERATION_PAYLOADS.recoverAmmo }),
   OperationBase.extend({ type: z.literal("learnSpell"), payload: OPERATION_PAYLOADS.learnSpell }),
   OperationBase.extend({ type: z.literal("forgetSpell"), payload: OPERATION_PAYLOADS.forgetSpell }),
   OperationBase.extend({ type: z.literal("companionAction"), payload: OPERATION_PAYLOADS.companionAction }),

@@ -20,7 +20,7 @@ const evalFlatSafe = (v: ValueExpr, ctx: Parameters<typeof evalFlat>[1]): number
 /** A follow-up the app should open: a concentration save (yours, or a summoned creature's when `summon` is set). */
 /** A question for the player: a concentration save, or news of instant death (`reason`). */
 /** `grave`: Strength of the Grave could save you from this drop to 0 (DC in `dc`); asked before damage is recorded. */
-export type Prompt = { kind: "concentration" | "dead" | "grave" | "rage" | "stable"; dc: number; spell: string; summon?: string; reason?: string };
+export type Prompt = { kind: "concentration" | "dead" | "grave" | "rage" | "stable" | "ammo"; dc: number; spell: string; summon?: string; reason?: string };
 
 /** The effect a stable character at 0 HP carries: its minutes count down to 1 HP. */
 export const STABLE_EFFECT = "other:stable";
@@ -1868,8 +1868,43 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       break;
     }
 
+    case "useAmmo": {
+      const inst = c.inventory.find((i) => i.id === op.payload.instanceId);
+      if (!inst) {
+        notes.push("That ammunition isn't in the inventory.");
+        break;
+      }
+      const name = inst.name ?? reg.find(inst.item, "item")?.name ?? "Ammunition";
+      const n = Math.min(inst.quantity, op.payload.amount);
+      if (n < op.payload.amount) notes.push(`${name}: none left to shoot. Counted anyway.`);
+      inst.quantity -= n;
+      c.ammoSpent = { ...(c.ammoSpent ?? {}), [inst.id]: (c.ammoSpent?.[inst.id] ?? 0) + op.payload.amount };
+      notes.push(`${name}: ${inst.quantity} left.`);
+      break;
+    }
+
+    case "recoverAmmo": {
+      for (const { instanceId, amount } of op.payload.items) {
+        const inst = c.inventory.find((i) => i.id === instanceId);
+        if (!inst || amount <= 0) continue;
+        const spent = c.ammoSpent?.[instanceId] ?? 0;
+        inst.quantity += amount;
+        const name = inst.name ?? reg.find(inst.item, "item")?.name ?? "Ammunition";
+        notes.push(`${name}: ${amount} picked up, ${inst.quantity} now.`);
+        if (spent && amount > Math.floor(spent / 2)) notes.push(`That's more than half of the ${spent} shot. Kept, beyond the rules.`);
+      }
+      delete c.ammoSpent;
+      break;
+    }
+
     case "endCombat": {
       if (!c.combat) notes.push("Not in combat.");
+      // Ammunition shot in the fight: half can be found again.
+      const spent = Object.entries(c.ammoSpent ?? {}).filter(([id, n]) => n > 0 && c.inventory.some((i) => i.id === id));
+      if (spent.length) {
+        notes.push(`Ammunition shot: ${spent.map(([id, n]) => `${n} ${c.inventory.find((i) => i.id === id)?.name ?? reg.find(c.inventory.find((i) => i.id === id)!.item, "item")?.name}`).join(", ")}. Half of it can be recovered.`);
+        prompts.push({ kind: "ammo", dc: 0, spell: "" });
+      }
       delete c.combat;
       for (const st of Object.values(c.companions)) {
         delete st.initiative;

@@ -247,6 +247,8 @@ export const ItemDef = z
     weight: z.number().optional(),
     weapon: WeaponStats.optional(),
     armor: ArmorStats.optional(),
+    /** Ammunition: the weapons it's shot from, by item id or weapon group ("item:longbow", "longbow"); left out, it's worked out from its name. */
+    ammoFor: z.array(z.string()).optional(),
     /** Shield AC bonus. */
     shieldBonus: z.number().int().optional(),
     magic: z

@@ -437,6 +437,23 @@ export function InventoryTab({
       )}
       {character.classes.some((x) => x.class === "class:wizard") && <SpellbookFund gp={character.spellbookFunds} act={act} />}
       <Encumbrance character={character} sheet={sheet} act={act} itemsWeight={weight} />
+      <section>
+        <h2>Ammunition</h2>
+        <div className="group">
+          <label className="row check">
+            <input
+              type="checkbox"
+              checked={!!character.settings.trackAmmo}
+              onChange={() => act("setField", { path: ["settings", "trackAmmo"], value: character.settings.trackAmmo ? undefined : true }, character.settings.trackAmmo ? "Ammunition not tracked." : "Ammunition tracked: the app asks after each shot.")}
+            />
+            <div className="row-main">
+              <div className="row-title">Track my ammunition</div>
+              <div className="row-sub">After each attack roll with a bow, crossbow, sling or other weapon that needs it, the app asks whether to count one shot. Unticked, it never asks.</div>
+            </div>
+          </label>
+        </div>
+        <AmmoRecover character={character} registry={registry} act={act} />
+      </section>
       <button className="big wide" onClick={openAdd}>
         Add an item
       </button>
@@ -495,5 +512,45 @@ function Encumbrance({ character, sheet, act, itemsWeight }: { character: Charac
       {state && <p className={e.state === "fine" ? "note" : "over-banner"}>{state}.</p>}
       {e.note && <p className="note">{e.note}</p>}
     </section>
+  );
+}
+
+/** Ammunition shot since the last fight: half of it can be found again (PHB p. 146). Any number can be recorded. */
+export function AmmoRecover({ character, registry, act, done }: { character: Character; registry: ContentRegistry; act: (type: OperationType, payload: unknown, label: string) => void; done?: () => void }) {
+  const spent = Object.entries(character.ammoSpent ?? {}).flatMap(([id, n]) => {
+    const inst = character.inventory.find((i) => i.id === id);
+    return inst && n > 0 ? [{ id, n, name: inst.name ?? itemDef(registry, inst.item).name }] : [];
+  });
+  const [pick, setPick] = useState<Record<string, number>>(() => Object.fromEntries(spent.map((x) => [x.id, Math.floor(x.n / 2)])));
+  if (!spent.length) return null;
+  return (
+    <div className="ammo-recover">
+      <p className="sub-head">Shot since the last fight: pick up half</p>
+      <div className="group">
+        {spent.map((x) => (
+          <NumberStep key={x.id} label={x.name} sub={`${x.n} shot; half is ${Math.floor(x.n / 2)}`} value={pick[x.id] ?? 0} min={0} max={x.n} onChange={(v) => setPick({ ...pick, [x.id]: v })} />
+        ))}
+      </div>
+      <div className="big-actions">
+        <button
+          className="big primary"
+          onClick={() => {
+            act("recoverAmmo", { items: spent.map((x) => ({ instanceId: x.id, amount: pick[x.id] ?? 0 })) }, "Ammunition picked up.");
+            done?.();
+          }}
+        >
+          Pick them up
+        </button>
+        <button
+          className="big"
+          onClick={() => {
+            act("recoverAmmo", { items: [] }, "None picked up.");
+            done?.();
+          }}
+        >
+          None found
+        </button>
+      </div>
+    </div>
   );
 }

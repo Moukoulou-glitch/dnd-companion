@@ -133,7 +133,8 @@ export function collectSources(c: Character, baseReg: ContentRegistry, duplicate
 
   for (const inst of c.inventory) {
     const def = reg.get(inst.item, "item");
-    if (!def.grant || !inst.equipped) continue;
+    // Ammunition's changes go on the roll it's picked for, never on everything.
+    if (!def.grant || !inst.equipped || def.category === "ammunition") continue;
     if (def.requiresAttunement && !inst.attuned) continue;
     out.push({
       id: def.id,

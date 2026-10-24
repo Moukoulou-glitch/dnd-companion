@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { ACTION_TARGETS, SPELL_TARGETS, friendlyTargets, targetWarnings, backupCost, copyCost, buildItems, shapeKindOf, customCompanionId, customItemId, customSpellId, withCustom, castingEconomy, castingMinutes, creatureSpellRoll, formatBonus, summonBlock, materialNeed, maxSpellLevel, newCharacter, spellListOf, signed, turnWarnings, type TurnIntent, type RollBreakdown } from "@dnd/engine";
-import { ABILITIES, ABILITY_NAMES, SKILL_NAMES, type Character, type Skill } from "@dnd/schema";
+import { ABILITIES, ABILITY_NAMES, SKILL_NAMES, type Character, type OperationType, type Skill } from "@dnd/schema";
 import { roll as rollDice, type ComposerBase } from "@dnd/dice";
 import { ShapePanel, TextList, TransformPanel } from "./components/Shapes";
 import { SummonGroupPanel, SummonMemberPanel, SummonPicker, SummonSpellPanel, type SpellSource } from "./components/Summons";
@@ -47,7 +47,7 @@ import { PbPanel, AbilityAdjustPanel, MaxHpPanel, SummonMaxHp } from "./componen
 import { DamageReducePanel } from "./components/Monk";
 import { BackgroundPicker } from "./components/BackgroundPicker";
 import { AddExtraPanel, ExtraEditor, ExtraInline, skillExtra } from "./components/Extras";
-import { AddItemPanel, CoinPanel, InventoryTab, ItemPanel, itemDef } from "./components/InventoryTab";
+import { AddItemPanel, AmmoRecover, CoinPanel, InventoryTab, ItemPanel, itemDef } from "./components/InventoryTab";
 import { bookReport, registry } from "./content";
 import { BookText, BooksPanel } from "./components/BookText";
 import { SendingPanel, sendingNote } from "./components/Sending";
@@ -210,6 +210,24 @@ export function App() {
     };
     window.addEventListener("dnd-op", h);
     return () => window.removeEventListener("dnd-op", h);
+  }, []);
+
+  // A fight over with ammunition shot: offer to pick half of it up.
+  useEffect(() => {
+    const h = (e: Event) => {
+      const d = (e as CustomEvent<{ type: string; after: Character }>).detail;
+      if (d.type !== "endCombat" || !Object.values(d.after.ammoSpent ?? {}).some((n) => n > 0)) return;
+      setTimeout(
+        () =>
+          open("Ammunition", () =>
+            live.current.character ? <AmmoRecover character={live.current.character} registry={registry} act={live.current.act} done={close} /> : null,
+          ),
+        0,
+      );
+    };
+    window.addEventListener("dnd-op", h);
+    return () => window.removeEventListener("dnd-op", h);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // The phone buzzes when the character drops below half, to 0, or dies.
@@ -508,7 +526,7 @@ export function App() {
   /** An item of your own: new (it goes into the inventory), or one to change. */
   const openCustomItem = (id?: string, after?: () => void) => {
     const editing = id ? live.current.character?.customItems.find((x) => x.id === id) : undefined;
-    open(editing ? `Change ${editing.name}` : "Your own item", () => <CustomItemForm act={live.current.act} {...(editing ? { editing } : {})} done={(deleted) => (after && !deleted ? after() : close())} />);
+    open(editing ? `Change ${editing.name}` : "Your own item", () => <CustomItemForm act={live.current.act} reg={effReg()} {...(editing ? { editing } : {})} done={(deleted) => (after && !deleted ? after() : close())} />);
   };
   /** A spell of your own, cast with one of your spell lists. */
   const openCustomSpell = (id?: string, after?: () => void) => {
@@ -712,6 +730,7 @@ export function App() {
             }
           : {})}
         {...(attack && !opts.damageOnly ? { ...(opts.notMine ? {} : { afterRoll: afterRollFor() }), onDone: opts.back ? opts.back.to : close } : {})}
+        {...(atk?.ammo && live.current.character?.settings.trackAmmo && !opts.notMine ? { afterD20: (enabled: string[]) => <AmmoAsk attack={atk} enabled={enabled} act={live.current.act} /> } : {})}
         base={rollBase}
         {...(opts.header ? { header: opts.header() } : {})}
         {...(opts.damageOnly ? { damageOnly: true } : {})}
@@ -3689,5 +3708,38 @@ function TotalPad({ onDone }: { onDone: (n: number) => void }) {
         OK
       </button>
     </label>
+  );
+}
+
+/**
+ * After an attack with a weapon that shoots ammunition (when it's tracked): count one shot? Always asked, never assumed.
+ * With several kinds, the one ticked on the roll; with none, a warning.
+ */
+function AmmoAsk({ attack, enabled, act }: { attack: WeaponAttack; enabled: string[]; act: (type: OperationType, payload: unknown, label: string) => unknown }) {
+  const [answered, setAnswered] = useState<"yes" | "no" | null>(null);
+  const kinds = attack.ammo ?? [];
+  const picked = attack.attack.suggestions.find((s) => s.ammo && enabled.includes(s.label));
+  const inst = picked ? kinds.find((k) => k.instanceId === picked.ammo) : kinds.length === 1 ? kinds[0] : undefined;
+  if (!kinds.length) return <p className="warn">No ammunition for the {attack.name} in your inventory.</p>;
+  if (!inst) return <p className="warn">Which ammunition? Tick it on the roll to count it.</p>;
+  if (answered) return <p className="note">{answered === "yes" ? `One ${inst.name.replace(/s$/, "")} counted.` : "Not counted."}</p>;
+  return (
+    <div className="ammo-ask">
+      <p className="sub-head small">Count one {inst.name.replace(/s$/, "").toLowerCase()} shot? ({inst.quantity} left)</p>
+      <div className="big-actions">
+        <button
+          className="big primary"
+          onClick={() => {
+            act("useAmmo", { instanceId: inst.instanceId }, `${inst.name}: one shot.`);
+            setAnswered("yes");
+          }}
+        >
+          Yes, count it
+        </button>
+        <button className="big" onClick={() => setAnswered("no")}>
+          No
+        </button>
+      </div>
+    </div>
   );
 }
