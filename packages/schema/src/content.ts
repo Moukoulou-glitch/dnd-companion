@@ -247,6 +247,15 @@ export const ItemDef = z
     weight: z.number().optional(),
     weapon: WeaponStats.optional(),
     armor: ArmorStats.optional(),
+    /**
+     * Charges (Chime of Opening: 10; Horn of Silent Alarm: 4, 1d4 back at dawn): `regain` is dice, a number or "all";
+     * `onEmpty` is what happens when the last one is used.
+     */
+    charges: z.object({ max: z.number().int().min(1), regain: z.string().optional(), onEmpty: z.string().optional() }).strict().optional(),
+    /** A curse (Demon Armor): what it does, our own words; it holds while you're attuned (or have it, for an item without attunement). */
+    curse: z.object({ text: z.string(), name: z.string().optional() }).strict().optional(),
+    /** Once, when you attune to it (an artifact's 4d10 psychic damage): damage to roll and take, or a note. */
+    onAttune: z.array(z.object({ damage: z.object({ dice: z.string(), type: z.string() }).strict().optional(), note: z.string().optional() }).strict()).optional(),
     /** Ammunition: the weapons it's shot from, by item id or weapon group ("item:longbow", "longbow"); left out, it's worked out from its name. */
     ammoFor: z.array(z.string()).optional(),
     /** Shield AC bonus. */

@@ -90,6 +90,10 @@ export const FEATURE_TAGS: Record<string, FeatureTagDef> = {
     needs: "notIncapacitated",
     reminders: ["You can't be blinded, deafened, frightened or poisoned.", "A critical hit against you counts as a normal hit: take the damage without the extra dice."],
   },
+  "item:amulet-of-proof": {
+    name: "Amulet of Proof against Detection and Location",
+    reminders: ["Divination magic can't find you: you can't be targeted by it or seen through magical scrying sensors."],
+  },
   "feature:twilight-domain-eyes-of-night": {
     name: "Eyes of Night",
     reminders: ["You see in dim light and darkness out to 300 ft (darkvision).", "Action: share it for 1 hour with up to {wis} willing creatures within 10 ft; once per long rest, or again for a spell slot."],

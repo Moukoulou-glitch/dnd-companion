@@ -1,3 +1,4 @@
+import { ARTIFACT_TABLES, artifactProperty } from "./artifacts.js";
 import { ABILITY_NAMES, type Ability, type Character, type CustomAction, type CustomItem, type CustomSpell, type Definition, type EffectDef, type FeatureDef, type ItemDef, type Modifier, type SpellDef } from "@dnd/schema";
 import { ContentRegistry } from "./registry.js";
 import type { DcSpec } from "./dcs.js";
@@ -228,7 +229,36 @@ export function customItemDef(i: CustomItem, reg?: ContentRegistry): ItemDef {
     }
   }
   if (i.category === "ammunition" && i.ammoFor?.length) def.ammoFor = i.ammoFor;
-  if (i.bonus) def.magic = { bonus: i.bonus };
+  if (i.bonus || i.rarity) def.magic = { ...(i.bonus ? { bonus: i.bonus } : {}), ...(i.rarity ? { rarity: i.rarity } : {}) };
+  if (i.curse?.trim()) def.curse = { text: i.curse.trim() };
+  if (i.charges) def.charges = { max: i.charges.max, ...(i.charges.regain ? { regain: i.charges.regain } : {}) };
+  // An artifact's properties: what the app can apply joins its grant (while attuned); every one is listed in its text.
+  if (i.rarity === "artifact" && i.artifact?.length) {
+    def.requiresAttunement = true;
+    const g: NonNullable<ItemDef["grant"]> = { ...(def.grant ?? {}) };
+    const lines: string[] = [];
+    for (const a of i.artifact) {
+      const p = artifactProperty(a.table, a.roll);
+      if (!p) continue;
+      const tableName = ARTIFACT_TABLES.find((t) => t.id === a.table)?.name ?? a.table;
+      lines.push(`**${tableName} (${a.roll === 100 ? "00" : String(a.roll).padStart(2, "0")}).** ${p.text}${a.pick ? ` (${a.pick.replace(/^spell:/, "").replace(/-/g, " ")})` : p.pick ? " (not picked yet)" : ""}`);
+      const add = p.grant?.(a.pick, i.name);
+      if (add) {
+        if (add.modifiers) g.modifiers = [...(g.modifiers ?? []), ...add.modifiers];
+        if (add.proficiencies) g.proficiencies = [...(g.proficiencies ?? []), ...add.proficiencies];
+        if (add.resources) g.resources = [...(g.resources ?? []), ...add.resources];
+        if (add.actions) g.actions = [...(g.actions ?? []), ...add.actions];
+        if (add.spells) g.spells = [...(g.spells ?? []), ...add.spells.map((s) => ({ ...s, name: reg?.find(s.spell, "spell")?.name ?? s.name }))];
+        if (add.abilityBonuses) {
+          g.abilityBonuses = { ...(g.abilityBonuses ?? {}) };
+          for (const [ab, n] of Object.entries(add.abilityBonuses)) g.abilityBonuses[ab as keyof typeof g.abilityBonuses] = (g.abilityBonuses[ab as keyof typeof g.abilityBonuses] ?? 0) + (n ?? 0);
+        }
+      }
+      if (p.onAttune) def.onAttune = [...(def.onAttune ?? []), p.onAttune];
+    }
+    def.grant = g;
+    def.text = [...(def.text ?? []), "**Artifact properties.**", ...lines];
+  }
   return def;
 }
 

@@ -1101,6 +1101,11 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         }
       }
       if (restored.length) notes.push(`Restored: ${restored.join(", ")}.`);
+      // Items that get charges back at dawn: rolled on the item.
+      if (kind === "long") {
+        const dawn = c.inventory.filter((i) => (i.chargesUsed ?? 0) > 0 && reg.find(i.item, "item")?.charges?.regain);
+        if (dawn.length) notes.push(`At dawn, charges come back: ${dawn.map((i) => `${i.name ?? reg.find(i.item, "item")!.name} (${reg.find(i.item, "item")!.charges!.regain})`).join(", ")}; roll it on the item.`);
+      }
       break;
     }
 
@@ -1355,6 +1360,10 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
     }
 
     case "removeItem": {
+      const gone = c.inventory.find((i) => i.id === op.payload.instanceId);
+      const gd = gone ? reg.find(gone.item, "item") : undefined;
+      if (gone && gd?.curse && !gone.curseLifted && (gd.requiresAttunement ? gone.attuned : gone.equipped))
+        notes.push(`${gone.name ?? gd.name} is cursed: you can't part with it until the curse is lifted. Removed anyway, beyond the rules.`);
       c.inventory = c.inventory.filter((i) => i.id !== op.payload.instanceId);
       break;
     }
@@ -1367,6 +1376,17 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         break;
       }
       const def = reg.get(inst.item, "item");
+      // A cursed item can't be let go of until the curse is lifted: warned, never blocked.
+      const cursed = (x: typeof inst) => {
+        const d = reg.find(x.item, "item");
+        return !!d?.curse && !x.curseLifted && (d.requiresAttunement ? x.attuned : x.equipped);
+      };
+      if (cursed(inst) && (equipped === false || attuned === false || (quantity !== undefined && quantity < inst.quantity)))
+        notes.push(`${inst.name ?? def.name} is cursed: you can't let it go until Remove Curse (or similar magic) ends the curse. Done anyway, beyond the rules.`);
+      if (equipped && (def.category === "armor" || def.category === "shield"))
+        for (const other of c.inventory)
+          if (other !== inst && other.equipped && cursed(other) && reg.get(other.item, "item").category === def.category)
+            notes.push(`${other.name ?? reg.get(other.item, "item").name} is cursed: you can't take it off until the curse is lifted. Done anyway, beyond the rules.`);
       if (quantity !== undefined) inst.quantity = quantity;
       if (name !== undefined) inst.name = name || undefined;
       if (scroll === null) delete inst.scroll;
@@ -1865,6 +1885,38 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         c.hp.current = Math.min(maxHp, before + amount);
         notes.push(`Survivor: ${c.hp.current - before} hit points back (5 + Constitution).`);
       }
+      break;
+    }
+
+    case "useCharge": {
+      const inst = c.inventory.find((i) => i.id === op.payload.instanceId);
+      const def = inst ? reg.find(inst.item, "item") : undefined;
+      if (!inst || !def?.charges) {
+        notes.push("That item has no charges.");
+        break;
+      }
+      const max = def.charges.max;
+      const used = inst.chargesUsed ?? 0;
+      const name = inst.name ?? def.name;
+      if (op.payload.amount > 0 && used + op.payload.amount > max) notes.push(`${name}: no charges left. Used anyway.`);
+      const next = Math.max(0, Math.min(max, used + op.payload.amount));
+      if (next) inst.chargesUsed = next;
+      else delete inst.chargesUsed;
+      notes.push(`${name}: ${max - next} of ${max} charges left.`);
+      if (next >= max && op.payload.amount > 0 && def.charges.onEmpty) notes.push(def.charges.onEmpty);
+      break;
+    }
+
+    case "liftCurse": {
+      const inst = c.inventory.find((i) => i.id === op.payload.instanceId);
+      const def = inst ? reg.find(inst.item, "item") : undefined;
+      if (!inst || !def?.curse) {
+        notes.push("That item has no curse.");
+        break;
+      }
+      inst.curseLifted = true;
+      if (inst.attuned) inst.attuned = false;
+      notes.push(`${inst.name ?? def.name}: the curse is lifted and your attunement ends; you can take it off.`);
       break;
     }
 

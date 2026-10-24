@@ -42,6 +42,10 @@ export const ItemInstance = z
     /** Display name override, e.g. a named heirloom. */
     name: z.string().optional(),
     notes: z.string().optional(),
+    /** Charges used (a wand, a chime). */
+    chargesUsed: z.number().int().min(0).optional(),
+    /** Its curse was lifted (Remove Curse): the curse no longer holds for this one. */
+    curseLifted: z.boolean().optional(),
     /** A spell scroll: the spell written on it, and the level it's written at (default: from the item's name, or the spell's own). */
     scroll: z.object({ spell: DefId, level: z.number().int().min(0).max(9).optional() }).strict().optional(),
   })
@@ -292,6 +296,15 @@ export const CustomItem = z
     ammoFor: z.array(z.string()).optional(),
     /** +1, +2 or +3 to attack and damage (a magic weapon or ammunition). */
     bonus: z.number().int().min(0).max(3).optional(),
+    rarity: z.enum(["common", "uncommon", "rare", "very rare", "legendary", "artifact"]).optional(),
+    /** Its curse, in the player's words: shown as a tag while it holds. */
+    curse: z.string().max(4000).optional(),
+    charges: z.object({ max: z.number().int().min(1).max(999), regain: z.string().max(20).optional() }).strict().optional(),
+    /** An artifact's properties: which table, the d100 roll, and the DM's pick when it asks for one (a skill, a damage type, a spell). */
+    artifact: z
+      .array(z.object({ table: z.enum(["minor-good", "major-good", "minor-bad", "major-bad"]), roll: z.number().int().min(1).max(100), pick: z.string().max(80).optional() }).strict())
+      .max(12)
+      .optional(),
     description: z.string().max(6000).default(""),
     weight: z.number().min(0).max(100000).optional(),
     value: z.object({ amount: z.number().min(0), unit: z.enum(["cp", "sp", "ep", "gp", "pp"]) }).strict().optional(),

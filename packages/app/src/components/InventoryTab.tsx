@@ -1,6 +1,7 @@
 import { NumberStep } from "./Adjust";
 import { RichText, TextBlocks } from "./Conditions";
 import { useEffect, useMemo, useState } from "react";
+import { rollOrThrow } from "../dice/quick";
 import { isCustomItemId, type ContentRegistry, type DerivedSheet } from "@dnd/engine";
 import type { Character, CustomItem, ItemDef, OperationType } from "@dnd/schema";
 import { describeChanges } from "./ChangesEditor";
@@ -148,6 +149,8 @@ export function ItemPanel({
   const canEquip = !!custom || ["weapon", "armor", "shield", "wondrous", "focus"].includes(def.category);
   const applied = custom ? describeChanges(custom.modifiers) : [];
   const live = custom && inst.equipped && (!custom.requiresAttunement || inst.attuned);
+  // An artifact that does something when you attune (psychic damage, a madness): shown right after.
+  const [attuning, setAttuning] = useState(false);
   return (
     <>
       {custom && (
@@ -194,6 +197,8 @@ export function ItemPanel({
           {def.use.note && <span className="sub">{def.use.note}</span>}
         </button>
       )}
+      {def.curse && <CurseBox inst={inst} def={def} act={act} />}
+      {def.charges && <ChargesBox inst={inst} def={def} act={act} />}
       {isScroll(def) && <ScrollSpell inst={inst} def={def} act={act} spells={spells} {...(onRead ? { onRead } : {})} {...(onCopy ? { onCopy } : {})} onCustom={onCustomSpell ?? (() => {})} />}
       <div className="group">
         <div className="row">
@@ -218,9 +223,17 @@ export function ItemPanel({
             </div>
           </label>
         )}
-        {def.requiresAttunement && (
+        {attuning && def.onAttune && <OnAttune name={name} items={def.onAttune} act={act} done={() => setAttuning(false)} />}
+      {def.requiresAttunement && (
           <label className="row check">
-            <input type="checkbox" checked={inst.attuned} onChange={() => act("setItem", { instanceId: inst.id, attuned: !inst.attuned }, `${name} ${inst.attuned ? "no longer attuned" : "attuned"}.`)} />
+            <input
+              type="checkbox"
+              checked={inst.attuned}
+              onChange={() => {
+                act("setItem", { instanceId: inst.id, attuned: !inst.attuned }, `${name} ${inst.attuned ? "no longer attuned" : "attuned"}.`);
+                if (!inst.attuned && def.onAttune?.length) setAttuning(true);
+              }}
+            />
             <div className="row-main">
               <div className="row-title">Attuned</div>
               <div className="row-sub">Its magic works only while attuned and equipped.</div>
@@ -551,6 +564,106 @@ export function AmmoRecover({ character, registry, act, done }: { character: Cha
           None found
         </button>
       </div>
+    </div>
+  );
+}
+
+/** A cursed item: the curse, whether it holds now, and Remove Curse. */
+function CurseBox({ inst, def, act }: { inst: Inst; def: ItemDef; act: Act }) {
+  const holds = !inst.curseLifted && (def.requiresAttunement ? inst.attuned : inst.equipped);
+  const name = displayName(inst, def);
+  return (
+    <div className={holds ? "over-banner curse" : "note"}>
+      <p>
+        <strong>Curse{holds ? "" : inst.curseLifted ? " (lifted)" : def.requiresAttunement ? " (takes hold when you attune)" : " (takes hold when you equip it)"}.</strong> {def.curse!.text}
+      </p>
+      {holds && (
+        <button className="big wide" onClick={() => act("liftCurse", { instanceId: inst.id }, `${name}: Remove Curse.`)}>
+          Remove Curse (or similar magic) was cast on me
+        </button>
+      )}
+    </div>
+  );
+}
+
+/** Charges: how many are left, use one, get one back, and what comes back at dawn. */
+function ChargesBox({ inst, def, act }: { inst: Inst; def: ItemDef; act: Act }) {
+  const ch = def.charges!;
+  const left = ch.max - (inst.chargesUsed ?? 0);
+  const name = displayName(inst, def);
+  const [busy, setBusy] = useState(false);
+  const regain = async () => {
+    if (!ch.regain) return;
+    setBusy(true);
+    try {
+      const n = /^\d+$/.test(ch.regain) ? Number(ch.regain) : ch.regain === "all" ? ch.max : (await rollOrThrow(ch.regain, true, undefined, { source: name })).total;
+      act("useCharge", { instanceId: inst.id, amount: -n }, `${name}: ${n} charge${n === 1 ? "" : "s"} back at dawn.`);
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <div className="group">
+      <div className="row">
+        <div className="row-main">
+          <div className="row-title">Charges</div>
+          <div className="row-sub">
+            {left} of {ch.max} left{ch.regain ? `; ${ch.regain === "all" ? "all" : ch.regain} back at dawn` : "; they don't come back"}
+          </div>
+        </div>
+        <div className="stepper">
+          <button aria-label="Use a charge" onClick={() => act("useCharge", { instanceId: inst.id, amount: 1 }, `${name}: a charge used.`)}>
+            −
+          </button>
+          <span>{left}</span>
+          <button aria-label="One charge back" disabled={left >= ch.max} onClick={() => act("useCharge", { instanceId: inst.id, amount: -1 }, `${name}: a charge back.`)}>
+            +
+          </button>
+        </div>
+      </div>
+      {ch.regain && left < ch.max && (
+        <button className="big wide" disabled={busy} onClick={() => void regain()}>
+          {busy ? "Rolling…" : `Dawn: ${ch.regain === "all" ? "all back" : `roll ${ch.regain} and get them back`}`}
+        </button>
+      )}
+    </div>
+  );
+}
+
+/** What attuning does once (an artifact's psychic damage, a madness): roll and take the damage, or read the note. */
+function OnAttune({ name, items, act, done }: { name: string; items: NonNullable<ItemDef["onAttune"]>; act: Act; done: () => void }) {
+  const [rolled, setRolled] = useState<Record<number, number>>({});
+  return (
+    <div className="over-banner">
+      <p>
+        <strong>Attuning to {name}:</strong>
+      </p>
+      {items.map((x, i) =>
+        x.damage ? (
+          <div key={i} className="big-actions">
+            {rolled[i] === undefined ? (
+              <button className="big" onClick={() => void rollOrThrow(x.damage!.dice, true, undefined, { source: name }).then((r) => setRolled({ ...rolled, [i]: r.total }))}>
+                Roll {x.damage.dice} {x.damage.type}
+              </button>
+            ) : (
+              <button
+                className="big damage"
+                onClick={() => {
+                  act("damage", { amount: rolled[i], damageType: x.damage!.type }, `${name}: ${rolled[i]} ${x.damage!.type} damage on attuning.`);
+                  done();
+                }}
+              >
+                Take {rolled[i]} {x.damage.type}
+              </button>
+            )}
+          </div>
+        ) : (
+          <p key={i}>{x.note}</p>
+        ),
+      )}
+      <button className="link" onClick={done}>
+        Done
+      </button>
     </div>
   );
 }

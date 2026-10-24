@@ -264,3 +264,9 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 - Long range: tick it when the target is beyond the normal range; the app doesn't know distances. Loading and Reach are notes.
 - Silvered ammunition is noted on the roll; the DM decides what it overcomes.
 
+## Charges, curses and artifacts (round 11e-3)
+
+- Charges: use them on the item (or its action); the dawn roll is a button on the item, reminded after a long rest. Items without a charges entry in the content (most book items) are tracked as your own items with charges.
+- Curses: what a curse makes you do (Sword of Vengeance's and Berserker Axe's Wisdom saves, Shield of Missile Attraction drawing attacks) is the DM's; the disadvantages that can be ticked are offered on the rolls. Only the items listed above (and your own items with a curse) have one in the app.
+- Artifacts: properties with no numbers (a smell, a quest, a hostile spirit, the alignment rolled each dawn) are on the item's text. The ability score increase isn't capped at 24 by the app. A cast-from-the-artifact spell is once per dawn; roll the d6 yourself (on a 6, give the use back on its resource).
+

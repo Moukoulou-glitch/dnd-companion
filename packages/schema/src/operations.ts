@@ -434,6 +434,10 @@ export const OPERATION_PAYLOADS = {
    */
   /** An item used up (a potion): one fewer, and the part of the turn it takes. `given`: given to another creature. */
   useItem: z.object({ instanceId: z.string(), given: z.boolean().optional() }).strict(),
+  /** Charges of an item used, or got back (negative: back; Horn of Silent Alarm's 1d4 at dawn). */
+  useCharge: z.object({ instanceId: z.string(), amount: z.number().int().default(1) }).strict(),
+  /** An item's curse lifted (Remove Curse on you): the attunement ends and it can be taken off. */
+  liftCurse: z.object({ instanceId: z.string() }).strict(),
   /** One piece of ammunition shot (the quantity goes down; counted as spent until the fight ends). */
   useAmmo: z.object({ instanceId: z.string(), amount: z.number().int().min(1).default(1) }).strict(),
   /** Spent ammunition picked up after a fight (half of it, by the rules; any number is recorded). */
@@ -549,6 +553,8 @@ export const Operation = z.discriminatedUnion("type", [
   OperationBase.extend({ type: z.literal("setDetails"), payload: OPERATION_PAYLOADS.setDetails }),
   OperationBase.extend({ type: z.literal("useItem"), payload: OPERATION_PAYLOADS.useItem }),
   OperationBase.extend({ type: z.literal("useAmmo"), payload: OPERATION_PAYLOADS.useAmmo }),
+  OperationBase.extend({ type: z.literal("useCharge"), payload: OPERATION_PAYLOADS.useCharge }),
+  OperationBase.extend({ type: z.literal("liftCurse"), payload: OPERATION_PAYLOADS.liftCurse }),
   OperationBase.extend({ type: z.literal("recoverAmmo"), payload: OPERATION_PAYLOADS.recoverAmmo }),
   OperationBase.extend({ type: z.literal("learnSpell"), payload: OPERATION_PAYLOADS.learnSpell }),
   OperationBase.extend({ type: z.literal("forgetSpell"), payload: OPERATION_PAYLOADS.forgetSpell }),

@@ -1966,9 +1966,21 @@ export function App() {
       if (!t) return null;
       return (
         <>
-          <p className={t.active ? "pass" : "warn"}>{t.active ? "Working now." : `Off: ${t.why} It works again when that ends.`}</p>
+          {t.curse ? <p className="warn">You're cursed by {t.curse.item}.</p> : <p className={t.active ? "pass" : "warn"}>{t.active ? "Working now." : `Off: ${t.why} It works again when that ends.`}</p>}
           <Reminders items={t.reminders} />
           {f && <BookText text={f.text} summary={f.summary} source={f.source} />}
+          {t.curse && (
+            <button
+              className="big wide"
+              style={{ marginTop: 12 }}
+              onClick={() => {
+                live.current.act("liftCurse", { instanceId: t.curse!.instanceId }, `${t.curse!.item}: Remove Curse.`);
+                close();
+              }}
+            >
+              Remove Curse (or similar magic) was cast on me
+            </button>
+          )}
         </>
       );
     });
@@ -3260,7 +3272,7 @@ export function App() {
         {sheet.featureTags.length > 0 && (
           <div className="switches" role="group" aria-label="Always-on features">
             {sheet.featureTags.map((t) => (
-              <button key={t.id} className={`switch aura${t.active ? "" : " off"}`} aria-pressed={t.active} onClick={() => openFeatureTag(t.id)}>
+              <button key={t.id} className={`switch aura${t.active ? "" : " off"}${t.curse ? " curse" : ""}`} aria-pressed={t.active} onClick={() => openFeatureTag(t.id)}>
                 {t.name}
                 {t.active ? "" : " (off)"}
               </button>

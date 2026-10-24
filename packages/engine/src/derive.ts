@@ -266,6 +266,8 @@ export interface FeatureTag {
   id: string;
   name: string;
   active: boolean;
+  /** A cursed item's tag: the item it's on. */
+  curse?: { instanceId: string; item: string };
   /** Why it's off right now. */
   why?: string;
   reminders: string[];
@@ -1965,6 +1967,21 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     if (t.whileToggle && !c.toggles.includes(t.whileToggle)) continue;
     const why = t.needs === "conscious" && unconscious ? "You're unconscious." : t.needs === "notIncapacitated" && incapacitated ? "You're incapacitated." : undefined;
     featureTags.push({ id: s.id, name: t.name, active: !why, ...(why ? { why } : {}), reminders: t.reminders.map(fillTag) });
+  }
+  // Curses: while you're attuned to the item (or have it equipped, for one without attunement), until lifted.
+  for (const inst of c.inventory) {
+    const def = reg.find(inst.item, "item");
+    if (!def?.curse || inst.curseLifted) continue;
+    const holds = def.requiresAttunement ? inst.attuned : inst.equipped;
+    if (!holds) continue;
+    const name = inst.name ?? def.name;
+    featureTags.push({
+      id: `curse:${inst.id}`,
+      name: `Curse: ${def.curse.name ?? name}`,
+      active: true,
+      curse: { instanceId: inst.id, item: name },
+      reminders: [def.curse.text, "Only Remove Curse or similar magic ends it; until then you can't willingly let it go (the app warns, it never stops you)."],
+    });
   }
 
   // A resource spent by a feature that rolls a die (Second Wind's d10): that die, and what it does.

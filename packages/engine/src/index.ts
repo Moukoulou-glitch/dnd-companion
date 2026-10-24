@@ -17,3 +17,4 @@ export * from "./expanded.js";
 export { SPIRIT_PREFIX, parseSpiritId, spiritCreature, spiritId } from "./spirits.js";
 export { ACTION_TARGETS, SPELL_TARGETS, friendlyTargets, targetWarnings, type FriendlyTarget, type TargetRule } from "./targets.js";
 export { TOOL_NAMES, toolGuide, type ToolGuide } from "./toolGuide.js";
+export * from "./artifacts.js";

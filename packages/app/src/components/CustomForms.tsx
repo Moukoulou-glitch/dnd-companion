@@ -1,7 +1,7 @@
 import { ChangesEditor, changesToModifiers, emptyChange, modifiersToChanges, type ChangeDraft } from "./ChangesEditor";
 import { useState } from "react";
-import type { ContentRegistry } from "@dnd/engine";
-import { ABILITIES, ABILITY_NAMES, type Ability, type Character, type CustomAction, type CustomItem, type CustomSpell, type OperationType } from "@dnd/schema";
+import { ARTIFACT_PROPERTIES, ARTIFACT_TABLES, artifactProperty, type ContentRegistry } from "@dnd/engine";
+import { ABILITIES, ABILITY_NAMES, SKILL_NAMES, type Ability, type Character, type CustomAction, type CustomItem, type CustomSpell, type OperationType } from "@dnd/schema";
 import { NumberStep } from "./Adjust";
 import { MarkdownHelp } from "./Markdown";
 
@@ -696,6 +696,18 @@ export function CustomItemForm({ act, editing, done, reg }: { act: Act; editing?
       <Field label="Type">
         <Select label="Item type" value={it.category} onChange={(x) => set({ category: x as CustomItem["category"], ...(x === "weapon" && !it.weapon ? { weapon: DEFAULT_WEAPON } : {}) })} options={ITEM_TYPES} />
       </Field>
+      <div className="group">
+        <div className="row">
+          <div className="row-main row-title">Rarity</div>
+          <Select
+            label="Rarity"
+            value={it.rarity ?? ""}
+            onChange={(v) => set({ rarity: (v || undefined) as CustomItem["rarity"], ...(v === "artifact" ? { requiresAttunement: true } : {}) })}
+            options={[["", "Not magic / not set"], ["common", "Common"], ["uncommon", "Uncommon"], ["rare", "Rare"], ["very rare", "Very rare"], ["legendary", "Legendary"], ["artifact", "Artifact"]]}
+          />
+        </div>
+      </div>
+      {it.rarity === "artifact" && <ArtifactFields reg={reg} it={it} set={set} />}
       {it.category === "weapon" && <WeaponFields reg={reg} it={it} set={set} />}
       {it.category === "ammunition" && <AmmoFields reg={reg} it={it} set={set} />}
       <div className="group">
@@ -718,6 +730,24 @@ export function CustomItemForm({ act, editing, done, reg }: { act: Act; editing?
         </label>
       </div>
       {(bad(w) || bad(v)) && <p className="note danger-text">Weight and value are numbers, 0 or more.</p>}
+      <section className="form-group">
+        <h2 className="sub-head">Charges (optional)</h2>
+        <div className="group">
+          <NumberStep label="Charges" sub="0: none" value={it.charges?.max ?? 0} min={0} max={999} onChange={(n) => set({ charges: n ? { max: n, ...(it.charges?.regain ? { regain: it.charges.regain } : {}) } : undefined })} />
+          {it.charges && (
+            <div className="row">
+              <div className="row-main">
+                <div className="row-title">Back at dawn</div>
+                <div className="row-sub">Dice (1d6+1), a number, or "all"; empty: they don't come back</div>
+              </div>
+              <input className="search narrow" value={it.charges.regain ?? ""} maxLength={20} placeholder="1d6+1" onChange={(e) => set({ charges: { max: it.charges!.max, ...(e.target.value.trim() ? { regain: e.target.value.trim() } : {}) } })} aria-label="Charges back at dawn" />
+            </div>
+          )}
+        </div>
+      </section>
+      <Field label="Curse (optional)" hint="What the curse does: shown as a “Curse” tag while it holds (attuned, or equipped when it needs no attunement)">
+        <textarea className="story-text" rows={3} value={it.curse ?? ""} maxLength={4000} onChange={(e) => set({ curse: e.target.value || undefined })} aria-label="Curse" />
+      </Field>
       <Field label="Description (shown, not applied)" hint="What it looks like, what it does, where it came from">
         <textarea className="story-text" rows={6} value={it.description} maxLength={6000} onChange={(e) => set({ description: e.target.value })} aria-label="Item description" />
       </Field>
@@ -781,5 +811,82 @@ export function CustomItemForm({ act, editing, done, reg }: { act: Act; editing?
       </div>
       {editing && confirmDelete && <p className="note">Deleting it takes every one of it out of your inventory.</p>}
     </div>
+  );
+}
+
+/**
+ * An artifact's properties: up to four minor and two major beneficial, and four minor and two major
+ * detrimental (more is warned about). Roll a d100 on a table, or pick one; a property that asks for the
+ * DM's choice (a skill, a damage type, a spell) gets it here. The wording is the app's own.
+ */
+function ArtifactFields({ reg, it, set }: { reg?: ContentRegistry; it: CustomItem; set: (p: Partial<CustomItem>) => void }) {
+  const props = it.artifact ?? [];
+  const put = (next: NonNullable<CustomItem["artifact"]>) => set({ artifact: next.length ? next : undefined });
+  const spellsOf = (level: number) => (reg?.list("spell") ?? []).filter((s) => s.level === level).sort((a, b) => a.name.localeCompare(b.name));
+  const pickOptions = (pick: string): [string, string][] | "text" => {
+    if (pick === "skill") return Object.entries(SKILL_NAMES).map(([k, v]): [string, string] => [k, v]);
+    if (pick === "damage") return DAMAGE_TYPES.map((d): [string, string] => [d, d]);
+    if (pick === "ability") return ABILITIES.map((a): [string, string] => [a, ABILITY_NAMES[a]]);
+    if (pick === "cantrip") return spellsOf(0).map((s): [string, string] => [s.id, s.name]);
+    const lvl = /^spell(\d)$/.exec(pick);
+    if (lvl) return spellsOf(Number(lvl[1])).map((s): [string, string] => [s.id, s.name]);
+    return "text";
+  };
+  return (
+    <section className="form-group">
+      <h2 className="sub-head">Artifact properties</h2>
+      <p className="note">Roll on a table or pick a property. What the app can apply works while you're attuned; the rest is shown on the item.</p>
+      {ARTIFACT_TABLES.map((t) => {
+        const mine = props.map((p, i) => ({ p, i })).filter((x) => x.p.table === t.id);
+        const choices = ARTIFACT_PROPERTIES.filter((p) => p.table === t.id);
+        return (
+          <div key={t.id} className="group">
+            <div className="row">
+              <div className="row-main">
+                <div className="row-title">{t.name}</div>
+                <div className="row-sub">
+                  {mine.length} of up to {t.max}
+                </div>
+              </div>
+              <button className="tag use" onClick={() => put([...props, { table: t.id, roll: 1 + Math.floor(Math.random() * 100) }])}>
+                Roll d100
+              </button>
+            </div>
+            {mine.length > t.max && <p className="over-banner">More than {t.max}: an artifact has at most {t.max} of these. Kept if your DM allows.</p>}
+            {mine.map(({ p, i }) => {
+              const prop = artifactProperty(p.table, p.roll);
+              const opts = prop?.pick ? pickOptions(prop.pick) : undefined;
+              return (
+                <div className="row artifact-prop" key={i}>
+                  <div className="row-main">
+                    <div className="row-title">
+                      {String(p.roll === 100 ? "00" : p.roll).padStart(2, "0")}: {prop?.text}
+                    </div>
+                    {opts && opts !== "text" && (
+                      <Select label="The DM's choice" value={p.pick ?? ""} onChange={(v) => put(props.map((x, k) => (k === i ? { ...x, ...(v ? { pick: v } : { pick: undefined }) } : x)))} options={[["", "The DM's choice…"], ...opts]} />
+                    )}
+                    {opts === "text" && (
+                      <input className="search" value={p.pick ?? ""} maxLength={80} placeholder="The DM's choice" onChange={(e) => put(props.map((x, k) => (k === i ? { ...x, pick: e.target.value || undefined } : x)))} aria-label="The DM's choice" />
+                    )}
+                  </div>
+                  <button className="link danger-text" onClick={() => put(props.filter((_, k) => k !== i))}>
+                    Remove
+                  </button>
+                </div>
+              );
+            })}
+            <div className="row">
+              <div className="row-main row-title">Or pick one</div>
+              <Select
+                label={`Pick a ${t.name.toLowerCase()} property`}
+                value=""
+                onChange={(v) => v && put([...props, { table: t.id, roll: Number(v) }])}
+                options={[["", "Pick…"], ...choices.map((c): [string, string] => [String(c.from), `${String(c.from === 100 ? "00" : c.from).padStart(2, "0")}–${String(c.to === 100 ? "00" : c.to).padStart(2, "0")}: ${c.text}`])]}
+              />
+            </div>
+          </div>
+        );
+      })}
+    </section>
   );
 }
