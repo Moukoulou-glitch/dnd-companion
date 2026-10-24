@@ -834,6 +834,20 @@
         "pack": "table-2014",
         "book": "XGtE",
         "page": 29
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "attack.item:longbow",
+            "op": "note",
+            "label": "Magic Arrow: a nonmagical arrow fired from this bow counts as magical."
+          },
+          {
+            "selector": "attack.item:shortbow",
+            "op": "note",
+            "label": "Magic Arrow: a nonmagical arrow fired from this bow counts as magical."
+          }
+        ]
       }
     },
     {
@@ -1343,6 +1357,16 @@
         "pack": "table-2014",
         "book": "XGtE",
         "page": 31
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "rapid-strike",
+            "name": "Rapid Strike",
+            "economy": "free",
+            "note": "Once per turn, in the Attack action, with advantage on an attack: give up the advantage for one more weapon attack against that creature."
+          }
+        ]
       }
     },
     {

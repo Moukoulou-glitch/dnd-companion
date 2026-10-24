@@ -223,3 +223,18 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 - Mighty Summoner: the extra hit points show as a change to the creature's maximum; that its natural weapons are magical is a note.
 - Durable Summons: only for spells of the conjuration school.
 
+## Damage and attack options (round 11c)
+
+- Frenzy: switch it on when you rage (Actions → Frenzy); its bonus-action attack is rolled from your weapons. The exhaustion comes when Rage switches off or its timer ends.
+- Overchannel: the backlash is named on the tick-box and noted when spent; enter it as damage without a type (nothing reduces it). The app doesn't check that the spell is a wizard spell.
+- Empowered Evocation: offered on every evocation spell's damage; once per spell is yours to keep.
+- Potent Cantrip, Magic Arrow, Primal Strike, Order's Wrath: notes on the rolls (magical damage isn't sent anywhere by the app).
+- Combat Inspiration: the AC use is a reminder on the Valor die's tag.
+- Rapid Strike: whether you had advantage is yours to say.
+- Retaliation, Scornful Rebuke, Hurl Through Hell, Dark One's Blessing: buttons you press when their trigger happens.
+- Holy Nimbus' 10 radiant damage to enemies and Draconic Presence's saves are the DM's.
+- Wolf Spirit, Bear Attunement, Shielding Storm: tags while raging; your allies' benefits are theirs to track (Shielding Storm is in + Effect → Other).
+- Fungal Body: the condition immunities are applied; a critical hit counting as normal is yours to apply when you enter the damage.
+- Rage Beyond Death: at 0 HP while raging you aren't unconscious; when the rage ends there, the app marks you dead.
+- Starry Form: the constellation is a switch; an older Starry Form in use before this update has no constellation switch (use Change constellation).
+

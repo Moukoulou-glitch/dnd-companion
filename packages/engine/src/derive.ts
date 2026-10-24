@@ -231,6 +231,8 @@ export interface ActionResult {
   recoversSlots?: { budget: number; maxLevel: number };
   /** Combat Wild Shape: spend a slot, heal this die per slot level. */
   slotHeal?: { die: string };
+  /** Starry Form: the pick's switches. */
+  choiceToggles?: Record<string, string[]>;
 }
 
 export interface SpeedResult {
@@ -672,7 +674,9 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     for (const inc of reg.find(id, "effect")?.includes ?? []) addCond(inc);
   };
   for (const e of c.effects) addCond(e.effect);
-  const unconscious = onYou.has("condition:unconscious") || (c.hp.current <= 0 && !c.shape);
+  // Rage Beyond Death: at 0 hit points while raging you keep fighting.
+  const beyondDeath = c.toggles.includes("raging") && sources.some((s) => s.id === "feature:path-of-the-zealot-rage-beyond-death");
+  const unconscious = onYou.has("condition:unconscious") || (c.hp.current <= 0 && !c.shape && !beyondDeath);
   const incapacitated = unconscious || onYou.has("condition:incapacitated");
   const paladinLevel = classLevels["class:paladin"] ?? 0;
   const fillTag = (t: string) =>
@@ -794,6 +798,14 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       }
       if (mod.op === "note") {
         if (conditionState(mod.when) !== "fail" && mod.label) notes.push(mod.label);
+        continue;
+      }
+      // Overchannel: a tick-box that makes the damage dice deal their maximum.
+      if (mod.op === "maximize" && conditionState(mod.when) !== "fail") {
+        const s: Suggestion = { label: labelOf(a), effect: "maximum damage", apply: { flat: 0, dice: [], maximize: true } };
+        if (mod.when?.text) s.reason = mod.when.text;
+        if (mod.spends) s.spends = mod.spends;
+        suggestions.push(s);
         continue;
       }
       // Great Weapon Fighting: a tick-box on the damage roll (the player knows whether the weapon is held in two hands).
@@ -1498,7 +1510,16 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       if (r.damage && also.length) r.damage.also = also;
       // Spell-specific modifiers too (Agonizing Blast: "roll.damage.spell.eldritch-blast").
       // Cantrips too: "roll.damage.spell.cantrip" (Blessed Strikes, Potent Spellcasting).
-      r.damageBonus = roll(["roll.damage.spell", `roll.damage.spell.${def.id.replace(/^spell:/, "")}`, ...(def.level === 0 ? ["roll.damage.spell.cantrip"] : [])], []);
+      // By school and level too: "roll.damage.spell.school.evocation" (Empowered Evocation), "roll.damage.spell.level.3" (Overchannel: 1st to 5th).
+      r.damageBonus = roll(
+        ["roll.damage.spell", `roll.damage.spell.${def.id.replace(/^spell:/, "")}`, ...(def.level === 0 ? ["roll.damage.spell.cantrip"] : []), `roll.damage.spell.school.${def.school.toLowerCase()}`, `roll.damage.spell.level.${def.level}`],
+        [],
+      );
+      // Overchannel: what it costs this time (free the first time after a long rest, then 2d12, 3d12… necrotic per spell level).
+      const oc = resources.find((x) => x.id === "overchannel");
+      for (const sg of r.damageBonus.suggestions)
+        if (sg.label === "Overchannel" && oc)
+          sg.reason = oc.used === 0 ? "a wizard spell of 1st to 5th level; the first time since your long rest costs nothing" : `a wizard spell of 1st to 5th level; this time you take ${oc.used + 1}d12 necrotic per spell level (ignores resistance and immunity)`;
       // Elemental Adept (remastered): dice of the chosen type count as at least your proficiency bonus.
       const adeptTypes = sources.filter((x) => x.id === "feat:elemental-adept").flatMap((x) => x.choices.type ?? []);
       if (adeptTypes.length && def.damage?.type && adeptTypes.includes(def.damage.type)) r.damageBonus.minDie = { value: pb, types: adeptTypes, label: "Elemental Adept" };
@@ -1616,6 +1637,8 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       if (a.heal !== undefined) entry.heal = amountOf(a.heal, s);
       if (a.others) entry.others = true;
       if (a.gives) entry.gives = { effect: a.gives.effect, ...(a.gives.selfWarning ? { selfWarning: a.gives.selfWarning } : {}) };
+      // Combat Inspiration (Valor): the die can also go on weapon damage or AC.
+      if (entry.gives?.effect === "other:bardic-inspiration" && sources.some((x) => x.id === "feature:college-of-valor-combat-inspiration")) entry.gives.effect = "other:bardic-inspiration-valor";
       if (s.common) entry.common = true;
       for (const k of ["asAttack", "dash", "untilTurnStart", "endsConcentration", "infoOnly"] as const) if (a[k]) entry[k] = true;
       if (a.check) entry.check = a.check;
@@ -1640,6 +1663,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       if (a.spendAmount) entry.spendAmount = a.spendAmount;
       if (a.recoversSlots) entry.recoversSlots = { budget: Math.ceil((classLevels[a.recoversSlots.class] ?? 0) / 2), maxLevel: a.recoversSlots.maxLevel };
       if (a.slotHeal) entry.slotHeal = a.slotHeal;
+      if (a.choiceToggles) entry.choiceToggles = a.choiceToggles;
       // Defensive Duelist (remastered): proficiency bonus + half Dexterity (rounded up, at least 1).
       if (a.id === "defensive-duelist") {
         const half = Math.max(1, Math.ceil(mods.dex / 2));
@@ -1963,6 +1987,8 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
   );
   if (shape) {
     sheet.shape = shape;
+    if (shape.kind === "wildshape" && sources.some((s) => s.id === "feature:circle-of-the-moon-primal-strike"))
+      shape.notes.push("Primal Strike: this form's attacks count as magical for overcoming resistance and immunity to nonmagical attacks and damage.");
     // In a form, initiative uses its Dexterity (Wild Shape keeps your other bonuses, like Alert); its Multiattack sets the attacks.
     const dexMod = shape.abilities.dex.modifier;
     const kept = shape.kind === "wildshape" || shape.kind === "shapechange" ? sheet.initiative.parts.filter((p) => !/dexterity/i.test(p.label)) : [];

@@ -909,6 +909,30 @@
         "pack": "table-2014",
         "book": "TCoE",
         "page": 37
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.immune.blinded",
+            "op": "immune",
+            "label": "Fungal Body"
+          },
+          {
+            "selector": "defense.immune.deafened",
+            "op": "immune",
+            "label": "Fungal Body"
+          },
+          {
+            "selector": "defense.immune.frightened",
+            "op": "immune",
+            "label": "Fungal Body"
+          },
+          {
+            "selector": "defense.immune.poisoned",
+            "op": "immune",
+            "label": "Fungal Body"
+          }
+        ]
       }
     },
     {
@@ -1030,7 +1054,18 @@
             "duration": {
               "minutes": 10
             },
-            "note": "10 minutes. Archer: luminous arrow now and as a bonus action. Chalice: extra healing. Dragon: minimum 10 on Int/Wis checks and concentration saves."
+            "note": "10 minutes. Archer: luminous arrow now and as a bonus action. Chalice: extra healing. Dragon: minimum 10 on Int/Wis checks and concentration saves.",
+            "choiceToggles": {
+              "Archer": [
+                "starry-form-archer"
+              ],
+              "Chalice": [
+                "starry-form-chalice"
+              ],
+              "Dragon": [
+                "starry-form-dragon"
+              ]
+            }
           },
           {
             "id": "starry-form-archer",
@@ -1055,22 +1090,20 @@
             "selector": "roll.check.int",
             "op": "minD20",
             "value": 10,
-            "mode": "suggested",
+            "mode": "auto",
             "label": "Starry Form: Dragon",
             "when": {
-              "toggle": "starry-form",
-              "text": "Dragon constellation"
+              "toggle": "starry-form-dragon"
             }
           },
           {
             "selector": "roll.check.wis",
             "op": "minD20",
             "value": 10,
-            "mode": "suggested",
+            "mode": "auto",
             "label": "Starry Form: Dragon",
             "when": {
-              "toggle": "starry-form",
-              "text": "Dragon constellation"
+              "toggle": "starry-form-dragon"
             }
           },
           {
@@ -1080,7 +1113,7 @@
             "mode": "suggested",
             "label": "Starry Form: Dragon",
             "when": {
-              "toggle": "starry-form",
+              "toggle": "starry-form-dragon",
               "text": "Dragon constellation (concentration save)"
             }
           }
@@ -1139,6 +1172,47 @@
         "pack": "table-2014",
         "book": "TCoE",
         "page": 39
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "starry-form-change",
+            "name": "Change constellation",
+            "economy": "free",
+            "choose": {
+              "label": "Constellation",
+              "options": [
+                "Archer",
+                "Chalice",
+                "Dragon"
+              ]
+            },
+            "choiceToggles": {
+              "Archer": [
+                "starry-form-archer"
+              ],
+              "Chalice": [
+                "starry-form-chalice"
+              ],
+              "Dragon": [
+                "starry-form-dragon"
+              ]
+            },
+            "note": "At the start of each of your turns while in Starry Form: switch to another constellation."
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "stat.speed.fly",
+            "op": "grantSpeed",
+            "value": 20,
+            "hover": true,
+            "label": "Starry Form: Dragon",
+            "when": {
+              "toggle": "starry-form-dragon"
+            }
+          }
+        ]
       }
     },
     {

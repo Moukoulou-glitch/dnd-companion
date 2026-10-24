@@ -1360,6 +1360,382 @@
           "label": "Fiendish Resilience"
         }
       ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:frenzy",
+      "name": "Frenzy",
+      "summary": "Starting when you choose this path at 3rd level, you can go into a frenzy when you rage.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "Starting when you choose this path at 3rd level, you can go into a frenzy when you rage. If you do so, for the duration of your rage you can make a single melee weapon attack as a bonus action on each of your turns after this one. When your rage ends, you suffer one level of exhaustion (as described in appendix A)."
+      ],
+      "grant": {
+        "actions": [
+          {
+            "id": "frenzy",
+            "name": "Frenzy",
+            "economy": "free",
+            "toggles": [
+              "frenzied"
+            ],
+            "note": "When you rage: frenzy too. Until the rage ends, one melee weapon attack as a bonus action on each of your later turns; when it ends, one level of exhaustion."
+          },
+          {
+            "id": "frenzy-attack",
+            "name": "Frenzy attack",
+            "economy": "bonus",
+            "note": "While frenzied: one melee weapon attack. Roll it from your weapons."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:retaliation",
+      "name": "Retaliation",
+      "summary": "Starting at 14th level, when you take damage from a creature that is within 5 feet of you, you can use your reaction to make a melee weapon Attack against that creature.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "Starting at 14th level, when you take damage from a creature that is within 5 feet of you, you can use your reaction to make a melee weapon Attack against that creature."
+      ],
+      "grant": {
+        "actions": [
+          {
+            "id": "retaliation",
+            "name": "Retaliation",
+            "economy": "reaction",
+            "note": "When a creature within 5 ft damages you: one melee weapon attack against it. Roll it from your weapons."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:holy-nimbus",
+      "name": "Holy Nimbus",
+      "summary": "At 20th level, as an action, you can emanate an aura of sunlight.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "At 20th level, as an action, you can emanate an aura of sunlight. For 1 minute, bright light shines from you in a 30-foot radius, and dim light shines 30 feet beyond that.",
+        "Whenever an enemy creature starts its turn in the bright light, the creature takes 10 radiant damage.",
+        "In addition, for the duration, you have advantage on saving throws against spells cast by fiends or undead."
+      ],
+      "grant": {
+        "resources": [
+          {
+            "id": "holy-nimbus",
+            "name": "Holy Nimbus",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "holy-nimbus",
+            "name": "Holy Nimbus",
+            "economy": "action",
+            "cost": {
+              "resource": "holy-nimbus"
+            },
+            "toggles": [
+              "holy-nimbus"
+            ],
+            "duration": {
+              "rounds": 10
+            },
+            "note": "1 minute of sunlight around you."
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.save.*",
+            "op": "advantage",
+            "mode": "suggested",
+            "label": "Holy Nimbus",
+            "when": {
+              "toggle": "holy-nimbus",
+              "text": "against a spell cast by a fiend or an undead"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:supreme-sneak",
+      "name": "Supreme Sneak",
+      "summary": "Starting at 9th level, you have advantage on a Dexterity (Stealth) check if you move no more than half your speed on the same turn.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "Starting at 9th level, you have advantage on a Dexterity (Stealth) check if you move no more than half your speed on the same turn."
+      ],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.check.skill.stealth",
+            "op": "advantage",
+            "mode": "suggested",
+            "label": "Supreme Sneak",
+            "when": {
+              "text": "if you move no more than half your speed this turn"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:draconic-presence",
+      "name": "Draconic Presence",
+      "summary": "Beginning at 18th level, you can channel the dread presence of your dragon ancestor, causing those around you to become awestruck or frightened.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "Beginning at 18th level, you can channel the dread presence of your dragon ancestor, causing those around you to become awestruck or frightened. As an action, you can spend 5 sorcery points to draw on this power and exude an aura of awe or fear (your choice) to a distance of 60 feet. For 1 minute or until you lose your concentration (as if you were casting a concentration spell), each hostile creature that starts its turn in this aura must succeed on a Wisdom saving throw or be charmed (if you chose awe) or frightened (if you chose fear) until the aura ends. A creature that succeeds on this saving throw is immune to your aura for 24 hours."
+      ],
+      "grant": {
+        "actions": [
+          {
+            "id": "draconic-presence",
+            "name": "Draconic Presence",
+            "economy": "action",
+            "cost": {
+              "resource": "sorcery-points",
+              "amount": 5
+            },
+            "choose": {
+              "label": "Aura",
+              "options": [
+                "Awe (charmed)",
+                "Fear (frightened)"
+              ]
+            },
+            "duration": {
+              "rounds": 10
+            },
+            "note": "A 60-ft aura for 1 minute, with concentration: each hostile creature starting its turn in it makes a Wisdom save or is charmed or frightened until it ends; on a success it's immune for 24 hours."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:dark-ones-blessing",
+      "name": "Dark One's Blessing",
+      "summary": "Starting at 1st level, when you reduce a hostile creature to 0 hit points, you gain temporary hit points equal to your Charisma modifier + your warlock level (minimum of 1).",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "Starting at 1st level, when you reduce a hostile creature to 0 hit points, you gain temporary hit points equal to your Charisma modifier + your warlock level (minimum of 1)."
+      ],
+      "grant": {
+        "actions": [
+          {
+            "id": "dark-ones-blessing",
+            "name": "Dark One's Blessing",
+            "economy": "free",
+            "tempHp": "classLevel.class:warlock + mod.cha",
+            "note": "When you reduce a hostile creature to 0 hit points: temporary hit points (Charisma + warlock level, at least 1)."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:hurl-through-hell",
+      "name": "Hurl Through Hell",
+      "summary": "Starting at 14th level, when you hit a creature with an attack, you can use this feature to instantly transport the target through the lower planes.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "Starting at 14th level, when you hit a creature with an attack, you can use this feature to instantly transport the target through the lower planes. The creature disappears and hurtles through a nightmare landscape.",
+        "At the end of your next turn, the target returns to the space it previously occupied, or the nearest unoccupied space. If the target is not a fiend, it takes 10d10 psychic damage as it reels from its horrific experience.",
+        "Once you use this feature, you can't use it again until you finish a long rest."
+      ],
+      "grant": {
+        "resources": [
+          {
+            "id": "hurl-through-hell",
+            "name": "Hurl Through Hell",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "hurl-through-hell",
+            "name": "Hurl Through Hell",
+            "economy": "free",
+            "cost": {
+              "resource": "hurl-through-hell"
+            },
+            "roll": {
+              "dice": "10d10",
+              "label": "psychic damage (not to a fiend), when it returns at the end of your next turn"
+            },
+            "note": "When you hit with an attack: the target vanishes through the lower planes until the end of your next turn."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:potent-cantrip",
+      "name": "Potent Cantrip",
+      "summary": "Starting at 6th level, your damaging cantrips affect even creatures that avoid the brunt of the effect.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "Starting at 6th level, your damaging cantrips affect even creatures that avoid the brunt of the effect. When a creature succeeds on a saving throw against your cantrip, the creature takes half the cantrip's damage (if any) but suffers no additional effect from the cantrip."
+      ],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.damage.spell.cantrip",
+            "op": "note",
+            "label": "Potent Cantrip: a creature that succeeds on its save takes half the damage (no other effect)."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:empowered-evocation",
+      "name": "Empowered Evocation",
+      "summary": "Beginning at 10th level, you can add your Intelligence modifier to one damage roll of any wizard evocation spell you cast.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "Beginning at 10th level, you can add your Intelligence modifier to one damage roll of any wizard evocation spell you cast."
+      ],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.damage.spell.school.evocation",
+            "op": "add",
+            "value": "mod.int",
+            "mode": "suggested",
+            "label": "Empowered Evocation",
+            "when": {
+              "text": "one damage roll of a wizard evocation spell"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:overchannel",
+      "name": "Overchannel",
+      "summary": "Starting at 14th level, you can increase the power of your simpler spells.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "Starting at 14th level, you can increase the power of your simpler spells. When you cast a wizard spell of 1st through 5th level that deals damage, you can deal maximum damage with that spell.",
+        "The first time you do so, you suffer no adverse effect. If you use this feature again before you finish a long rest, you take 2d12 necrotic damage for each level of the spell, immediately after you cast it. Each time you use this feature again before finishing a long rest, the necrotic damage per spell level increases by 1d12. This damage ignores resistance and immunity."
+      ],
+      "grant": {
+        "resources": [
+          {
+            "id": "overchannel",
+            "name": "Overchannel (uses since long rest)",
+            "max": 10,
+            "reset": "long"
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.damage.spell.level.1",
+            "op": "maximize",
+            "mode": "suggested",
+            "label": "Overchannel",
+            "spends": {
+              "resource": "overchannel",
+              "amount": 1
+            },
+            "when": {
+              "text": "a wizard spell of 1st to 5th level"
+            }
+          },
+          {
+            "selector": "roll.damage.spell.level.2",
+            "op": "maximize",
+            "mode": "suggested",
+            "label": "Overchannel",
+            "spends": {
+              "resource": "overchannel",
+              "amount": 1
+            },
+            "when": {
+              "text": "a wizard spell of 1st to 5th level"
+            }
+          },
+          {
+            "selector": "roll.damage.spell.level.3",
+            "op": "maximize",
+            "mode": "suggested",
+            "label": "Overchannel",
+            "spends": {
+              "resource": "overchannel",
+              "amount": 1
+            },
+            "when": {
+              "text": "a wizard spell of 1st to 5th level"
+            }
+          },
+          {
+            "selector": "roll.damage.spell.level.4",
+            "op": "maximize",
+            "mode": "suggested",
+            "label": "Overchannel",
+            "spends": {
+              "resource": "overchannel",
+              "amount": 1
+            },
+            "when": {
+              "text": "a wizard spell of 1st to 5th level"
+            }
+          },
+          {
+            "selector": "roll.damage.spell.level.5",
+            "op": "maximize",
+            "mode": "suggested",
+            "label": "Overchannel",
+            "spends": {
+              "resource": "overchannel",
+              "amount": 1
+            },
+            "when": {
+              "text": "a wizard spell of 1st to 5th level"
+            }
+          }
+        ]
+      }
     }
   ]
 }

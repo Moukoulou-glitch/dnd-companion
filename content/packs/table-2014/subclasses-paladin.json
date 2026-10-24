@@ -1191,6 +1191,20 @@
         "pack": "table-2014",
         "book": "XGtE",
         "page": 37
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "scornful-rebuke",
+            "name": "Scornful Rebuke",
+            "economy": "free",
+            "roll": {
+              "dice": "mod.cha",
+              "label": "psychic damage to the creature that hit you (at least 1)"
+            },
+            "note": "When a creature hits you with an attack (not while you're incapacitated): it takes psychic damage equal to your Charisma modifier."
+          }
+        ]
       }
     },
     {

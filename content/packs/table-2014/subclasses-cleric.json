@@ -3288,6 +3288,15 @@
         "pack": "table-2014",
         "book": "TCoE",
         "page": 32
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.damage.weapon.*",
+            "op": "note",
+            "label": "Order's Wrath: once per turn, a creature your Divine Strike hits is cursed until your next turn; the next hit on it by someone else adds 2d8 psychic (they add Order's Wrath from + Effect → Other)."
+          }
+        ]
       }
     },
     {

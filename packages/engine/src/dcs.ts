@@ -37,6 +37,8 @@ export const FEATURE_DCS: Record<string, DcSpec> = {
   "feature:order-domain-channel-divinity-orders-demand": SPELL("cleric", "Wisdom"),
   "feature:tempest-domain-wrath-of-the-storm": SPELL("cleric", "Dexterity"),
   "feature:tempest-domain-thunderbolt-strike": SPELL("cleric", "none (pushes Large or smaller)"),
+  // Sorcerer
+  "feature:draconic-presence": SPELL("sorcerer", "Wisdom"),
   // Paladin
   "feature:channel-divinity-turn-the-unholy": SPELL("paladin", "Wisdom"),
   "feature:oath-of-vengeance-abjure-enemy": SPELL("paladin", "Wisdom"),

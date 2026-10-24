@@ -446,7 +446,9 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
           c.deathSaves.failures = 3;
           prompts.push({ kind: "dead", dc: 0, spell: "", reason: `Massive damage: ${rest} damage took you to 0 with ${overflow} left over, at least your hit point maximum (${maxHp}).` });
         } else {
-          notes.push("Dropped to 0 HP: unconscious. Death saves start on your turn.");
+          if (c.toggles.includes("raging") && sheet.features.some((f) => f.id === "feature:path-of-the-zealot-rage-beyond-death"))
+            notes.push("Rage Beyond Death: at 0 HP you keep fighting while you rage (not unconscious). Death saves still happen; if your rage ends at 0 HP, you die.");
+          else notes.push("Dropped to 0 HP: unconscious. Death saves start on your turn.");
         }
       }
       break;
@@ -506,6 +508,8 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       const next = Math.min(r.max, used + op.payload.amount);
       if (used + op.payload.amount > r.max) notes.push(`${r.name}: no uses left (${r.max} maximum). Recorded as fully used.`);
       c.resourcesUsed[r.id] = next;
+      // Overchannel after its free use: the backlash (entered as damage with no type, so nothing reduces it).
+      if (r.id === "overchannel" && used > 0) notes.push(`Overchannel: you take ${used + 1}d12 necrotic per spell level. It ignores resistance and immunity: enter it as damage without a type.`);
       break;
     }
 
@@ -1170,6 +1174,18 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         notes.push(`Healed ${c.hp.current - before}.`);
       }
       if (a.toggles.length) c.toggles = [...new Set([...c.toggles, ...a.toggles])];
+      // Starry Form's constellation: the pick's switch on, the others off.
+      if (a.choiceToggles && op.payload.choice) {
+        const all = new Set(Object.values(a.choiceToggles).flat());
+        c.toggles = [...c.toggles.filter((t) => !all.has(t)), ...(a.choiceToggles[op.payload.choice] ?? [])];
+      }
+      // Rapid Strike: one more attack this Attack action, once per turn.
+      if (a.id === "rapid-strike") {
+        const cb = c.combat;
+        if (cb?.usedThisTurn.includes(a.id)) notes.push("Rapid Strike was already used this turn. Done anyway.");
+        if (cb && cb.attacks > 0) cb.attacks -= 1;
+        notes.push("Give up advantage on one attack: one more attack with this Attack action.");
+      }
       if (a.restores) {
         const target = sheet.resources.find((r) => r.id === a.restores!.resource);
         const used = c.resourcesUsed[a.restores.resource] ?? 0;
@@ -1288,7 +1304,7 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
           else entry.minutes = d.fromRoll === "hours" ? rolledN * 60 : rolledN;
         } else if (d.rounds) entry.rounds = d.rounds;
         else if (d.minutes) entry.minutes = d.minutes;
-        if (a.toggles.length) entry.toggles = a.toggles;
+        if (a.toggles.length || a.choiceToggles) entry.toggles = [...a.toggles, ...Object.values(a.choiceToggles ?? {}).flat()];
         if (a.summons) entry.companion = a.summons.companion;
         // Using it again restarts the timer instead of stacking a second one.
         removeEffects(c.effects.filter((e) => e.effect === "custom" && e.custom?.name === a.name));
@@ -2648,6 +2664,21 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
     // What follows it (Haste's lethargy), until after your next turn: ending on your turn, this turn's end doesn't count.
     if (def?.afterEffect && reg.find(def.afterEffect, "effect") && !c.effects.some((x) => x.effect === def.afterEffect)) {
       c.effects.push({ id: `${e.id}-after`, effect: def.afterEffect, rounds: c.combat?.myTurn ? 2 : 1 });
+    }
+  }
+  // Rage ending: Frenzy's exhaustion; Rage Beyond Death at 0 hit points.
+  if (input.toggles.includes("raging") && !c.toggles.includes("raging")) {
+    if (c.toggles.includes("frenzied") || input.toggles.includes("frenzied")) {
+      c.toggles = c.toggles.filter((t) => t !== "frenzied");
+      const ex = c.effects.find((e) => e.effect === "condition:exhaustion");
+      if (ex) ex.level = Math.min(6, (ex.level ?? 1) + 1);
+      else c.effects.push({ id: `${op.id}-frenzy`, effect: "condition:exhaustion", level: 1 });
+      notes.push(`Frenzy: the rage is over, one level of exhaustion (now ${ex?.level ?? 1}).`);
+    }
+    if (c.hp.current === 0 && sheet.features.some((f) => f.id === "feature:path-of-the-zealot-rage-beyond-death") && c.deathSaves.failures < 3) {
+      c.deathSaves.failures = 3;
+      notes.push("Rage Beyond Death: your rage ends while you're at 0 hit points, and you die.");
+      prompts.push({ kind: "dead", dc: 0, spell: "", reason: "Rage Beyond Death: your rage ended while you were at 0 hit points." });
     }
   }
   if (c.combat?.hasteAttack && !c.effects.some((e) => reg.find(reg.effectId(e.effect), "effect")?.actions?.some((a) => a.limited))) c.combat.hasteAttack = false;

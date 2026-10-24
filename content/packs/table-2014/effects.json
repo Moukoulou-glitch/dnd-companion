@@ -939,6 +939,112 @@
     },
     {
       "kind": "effect",
+      "id": "other:bardic-inspiration-valor",
+      "name": "Bardic Inspiration (Valor)",
+      "category": "other",
+      "summary": "A College of Valor bard's die: add it to one attack roll, ability check or saving throw, or to a weapon's damage, or (as a reaction) to your AC against one attack, within 10 minutes. Remove it once you use it.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE/PHB",
+        "page": 55
+      },
+      "modifiers": [
+        {
+          "selector": "roll.attack.*",
+          "op": "add",
+          "value": "1{choice}",
+          "mode": "suggested",
+          "label": "Bardic Inspiration",
+          "when": {
+            "text": "once within 10 minutes; the die is then gone"
+          }
+        },
+        {
+          "selector": "roll.save.*",
+          "op": "add",
+          "value": "1{choice}",
+          "mode": "suggested",
+          "label": "Bardic Inspiration",
+          "when": {
+            "text": "once within 10 minutes; the die is then gone"
+          }
+        },
+        {
+          "selector": "roll.check.*",
+          "op": "add",
+          "value": "1{choice}",
+          "mode": "suggested",
+          "label": "Bardic Inspiration",
+          "when": {
+            "text": "once within 10 minutes; the die is then gone"
+          }
+        },
+        {
+          "selector": "roll.damage.weapon.*",
+          "op": "add",
+          "value": "1{choice}",
+          "mode": "suggested",
+          "label": "Bardic Inspiration",
+          "when": {
+            "text": "Combat Inspiration: on a weapon's damage instead; the die is then gone"
+          }
+        }
+      ],
+      "minutes": 10,
+      "usedUp": true,
+      "choice": {
+        "label": "Which die?",
+        "options": [
+          "d6",
+          "d8",
+          "d10",
+          "d12"
+        ]
+      },
+      "reminders": [
+        "Combat Inspiration: as a reaction when an attack would hit you, roll the die and add it to your AC against that attack; then remove it."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "other:orders-wrath",
+      "name": "Order's Wrath",
+      "category": "other",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 32
+      },
+      "summary": "An Order cleric's Divine Strike cursed a creature until the start of the cleric's next turn: your next hit on it deals an extra 2d8 psychic damage, and the curse ends.",
+      "rounds": 1,
+      "usedUp": true,
+      "modifiers": [
+        {
+          "selector": "roll.damage.weapon.*",
+          "op": "add",
+          "value": "2d8",
+          "mode": "suggested",
+          "label": "Order's Wrath",
+          "damageType": "psychic",
+          "when": {
+            "text": "the next hit on the cursed creature; the curse then ends"
+          }
+        },
+        {
+          "selector": "roll.damage.spell",
+          "op": "add",
+          "value": "2d8",
+          "mode": "suggested",
+          "label": "Order's Wrath",
+          "damageType": "psychic",
+          "when": {
+            "text": "the next hit on the cursed creature; the curse then ends"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "effect",
       "id": "other:half-cover",
       "name": "Half cover",
       "category": "other",

@@ -16,7 +16,7 @@ export interface ComposerBase {
     effect: string;
     reason?: string;
     /** critAt: a critical hit on this or more while ticked (Hexblade's Curse: 19, against the cursed target). */
-    apply: { flat: number; dice: string[]; damageType?: string; mode?: "advantage" | "disadvantage"; weaponDice?: string; critAt?: number; rerollAtOrBelow?: number; minD20?: number };
+    apply: { flat: number; dice: string[]; damageType?: string; mode?: "advantage" | "disadvantage"; weaponDice?: string; critAt?: number; rerollAtOrBelow?: number; minD20?: number; maximize?: boolean };
     /** Ticking it spends this (a superiority die). */
     spends?: { resource: string; amount: number };
     /** One of a group per roll. */
@@ -151,6 +151,8 @@ export function composeDamage(
   // Great Weapon Fighting: each damage die of the attack showing this or lower is rolled once more, and the new roll counts.
   const reroll = Math.max(0, ...base.suggestions.filter((x) => choices.enabled.includes(x.label)).map((x) => x.apply.rerollAtOrBelow ?? 0));
   if (reroll > 0) out.terms = out.terms.map((t) => (t.kind === "dice" && t.sign > 0 ? { ...t, rerollAtOrBelow: Math.max(t.rerollAtOrBelow ?? 0, reroll) } : t));
+  // Overchannel: every damage die deals its maximum.
+  if (base.suggestions.some((x) => choices.enabled.includes(x.label) && x.apply.maximize)) out.terms = out.terms.map((t) => (t.kind === "dice" && t.sign > 0 ? { ...t, min: t.sides } : t));
   // Elemental Adept: each die of the chosen type counts as at least the minimum.
   if (base.minDie) {
     const md = base.minDie;

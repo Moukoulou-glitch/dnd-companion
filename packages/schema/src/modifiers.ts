@@ -78,6 +78,8 @@ export const ModifierOp = z.enum([
   "minD20",
   /** Reroll dice at or below `value` once (Great Weapon Fighting, Halfling Lucky). */
   "reroll",
+  /** Damage dice deal their maximum (Overchannel), as a tick-box. */
+  "maximize",
   /** Critical hit range starts at `value` (Champion: 19). */
   "critRange",
   /** Extra weapon damage dice on a critical hit (Brutal Critical). */
@@ -390,6 +392,8 @@ export const ActionDef = z
      * none above `maxLevel` (Arcane Recovery, Natural Recovery). The panel asks which.
      */
     recoversSlots: z.object({ class: DefId, maxLevel: z.number().int().min(1).max(9) }).strict().optional(),
+    /** The pick from `choose` switches these on, and the other picks' off (Starry Form: "Dragon" → starry-form-dragon). */
+    choiceToggles: z.record(z.string(), z.array(z.string())).optional(),
     /** Spend a spell slot to heal this die per slot level (Combat Wild Shape: 1d8). The panel asks which slot. */
     slotHeal: z.object({ die: z.string() }).strict().optional(),
   })

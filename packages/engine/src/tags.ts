@@ -61,6 +61,35 @@ export const FEATURE_TAGS: Record<string, FeatureTagDef> = {
     whileToggle: "raging",
     reminders: ["While raging, a 10-ft aura: on rage and as a bonus action on later turns, its effect (desert, sea or tundra) triggers."],
   },
+  "feature:path-of-the-totem-warrior-totem-spirit-wolf": {
+    name: "Wolf Spirit",
+    whileToggle: "raging",
+    reminders: ["While you rage, your friends have advantage on melee attack rolls against any creature within 5 ft of you that's hostile to you."],
+  },
+  "feature:path-of-the-totem-warrior-attunement-bear": {
+    name: "Bear Attunement",
+    whileToggle: "raging",
+    reminders: ["While you rage, a hostile creature within 5 ft of you that can see or hear you has disadvantage on attack rolls against anyone but you (or another creature with this feature). Not against a creature that can't be frightened."],
+  },
+  "feature:path-of-the-totem-warrior-aspect-wolf": {
+    name: "Aspect of the Wolf",
+    reminders: ["You can track creatures while travelling at a fast pace, and move stealthily while travelling at a normal pace."],
+  },
+  "feature:path-of-the-storm-herald-shielding-storm": {
+    name: "Shielding Storm",
+    whileToggle: "raging",
+    reminders: ["Creatures of your choice in your Storm Aura resist its damage type (desert: fire, sea: lightning, tundra: cold).", "Allies with the app: add “Shielding Storm” from Add an effect → Other, with the type."],
+  },
+  "feature:path-of-the-zealot-rage-beyond-death": {
+    name: "Rage Beyond Death",
+    whileToggle: "raging",
+    reminders: ["While you rage, 0 hit points doesn't knock you unconscious. You still make death saves and take damage at 0 as usual; if the rage ends while you're at 0 hit points, you die."],
+  },
+  "feature:circle-of-spores-fungal-body": {
+    name: "Fungal Body",
+    needs: "notIncapacitated",
+    reminders: ["You can't be blinded, deafened, frightened or poisoned.", "A critical hit against you counts as a normal hit: take the damage without the extra dice."],
+  },
   "feature:twilight-domain-eyes-of-night": {
     name: "Eyes of Night",
     reminders: ["You see in dim light and darkness out to 300 ft (darkvision).", "Action: share it for 1 hour with up to {wis} willing creatures within 10 ft; once per long rest, or again for a spell slot."],
@@ -76,6 +105,8 @@ export const TOGGLE_REMINDERS: Record<string, string[]> = {
   ],
   "vigilant-blessing": ["Advantage on your next initiative roll; it ends after that roll.", "Using it again (on anyone) ends the last one."],
   "eyes-of-night-shared": ["Your darkvision (300 ft) is shared for 1 hour with the creatures you picked."],
+  "holy-nimbus": ["Bright light 30 ft around you, dim light 30 ft beyond, for 1 minute.", "An enemy that starts its turn in the bright light takes 10 radiant damage."],
+  frenzied: ["While you rage: one melee weapon attack as a bonus action on each of your turns after this one (Frenzy attack).", "When the rage ends: one level of exhaustion (the app adds it)."],
 };
 
 /** Names for switches when the action's own name would clash with a tag (Eyes of Night shared vs the darkvision). */
