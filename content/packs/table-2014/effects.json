@@ -4102,6 +4102,35 @@
       "reminders": [
         "At the end of each of your turns, a Constitution save: a success ends it."
       ]
+    },
+    {
+      "kind": "effect",
+      "id": "effect:guardian-of-faith",
+      "name": "Guardian of Faith",
+      "category": "spell",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 246
+      },
+      "summary": "A Large spectral guardian hovers where you put it for 8 hours. A hostile creature that first moves within 10 ft of it on a turn makes a Dexterity save: 20 radiant damage, half on a success. It vanishes once it has dealt 60 damage in all.",
+      "selfOnly": true,
+      "minutes": 480,
+      "counter": {
+        "label": "Damage left",
+        "start": 60,
+        "endsAtZero": true,
+        "strike": {
+          "amount": 20,
+          "type": "radiant",
+          "save": "dex"
+        },
+        "endText": "The guardian has dealt 60 damage in all: it vanishes, and Guardian of Faith ends."
+      },
+      "reminders": [
+        "It occupies its space and doesn't move.",
+        "Only creatures hostile to you trigger it, once per turn each."
+      ]
     }
   ]
 }

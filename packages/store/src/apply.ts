@@ -1637,7 +1637,7 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
           const word = k.label.toLowerCase();
           if (n === 0 && k.endsAtZero) {
             c.effects = c.effects.filter((x) => x.id !== e.id);
-            notes.push(`The last of the ${word} is gone: ${def.name} ends.`);
+            notes.push(k.endText ?? `The last of the ${word} is gone: ${def.name} ends.`);
             break;
           }
           notes.push(n < before ? `${def.name}: ${n} ${word} left.` : `${def.name}: back to ${n} ${word}.`);

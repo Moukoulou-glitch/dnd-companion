@@ -374,6 +374,10 @@ export const EffectDef = z
         need: z.array(z.number().int().min(1).max(20)).optional(),
         ac: z.object({ base: z.number().int(), ability: z.enum(["str", "dex", "con", "int", "wis", "cha"]).optional() }).strict().optional(),
         endsAtZero: z.boolean().optional(),
+        /** What it deals each time (Guardian of Faith: 20 radiant, half on a Dexterity save): the count goes down by the damage dealt. */
+        strike: z.object({ amount: z.number().int().min(1), type: z.string(), save: z.enum(["str", "dex", "con", "int", "wis", "cha"]) }).strict().optional(),
+        /** Said when it reaches 0 (Guardian of Faith: the guardian vanishes). */
+        endText: z.string().optional(),
       })
       .strict()
       .optional(),

@@ -50,3 +50,16 @@ describe("11e-1: encumbrance", () => {
     expect(s.speed.total).toBe(30);
   });
 });
+
+describe("11e-1 fix: carrying capacity by size", () => {
+  it("Medium ×1, Powerful Build one size larger, Large ×2, Tiny ×½, Enlarge one size up", () => {
+    const human = pc(15, "race:human", []).encumbrance;
+    expect([human.capacity, human.pushLift, human.size]).toEqual([240, 480, "medium"]);
+    const goliath = pc(15, "race:goliath", []);
+    expect(goliath.encumbrance).toMatchObject({ size: "large", factor: 2, capacity: goliath.abilities.str.score.total * 30 });
+    expect(goliath.encumbrance.note).toMatch(/Powerful Build/);
+    expect(pc(15, "race:human", [], { size: "large" }).encumbrance.capacity).toBe(480);
+    expect(pc(15, "race:human", [], { size: "tiny" }).encumbrance.capacity).toBe(120);
+    expect(pc(15, "race:human", [], { effects: [{ id: "e", effect: "effect:enlarge-reduce", choice: "Enlarge", rounds: 10 }] }).encumbrance.capacity).toBe(480);
+  });
+});

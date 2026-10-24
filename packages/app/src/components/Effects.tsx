@@ -1,3 +1,4 @@
+import { NumberStep } from "./Adjust";
 import { ChangesEditor, changeValid, changesToModifiers, describeChanges, emptyChange, type ChangeDraft } from "./ChangesEditor";
 import { RichText } from "./Conditions";
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
@@ -12,7 +13,7 @@ type Act = (type: OperationType, payload: unknown, label: string) => void;
 export function effectChipLabel(e: EffectResult, hideTime = false): string {
   let s = e.name;
   if (e.level !== undefined) s += ` ${e.level}`;
-  if (e.counter) s += ` ×${e.counter.left}`;
+  if (e.counter) s += e.counter.strike ? ` (${e.counter.left} left)` : ` ×${e.counter.left}`;
   if (e.choice?.value) s += `: ${ABILITY_NAMES[e.choice.value as Ability] ? optionName(e.choice.value).slice(0, 3) : e.choice.value}`;
   if (e.upcast && e.upcast.castLevel > e.upcast.baseLevel) s += ` (lvl ${e.upcast.castLevel})`;
   if (hideTime) return s;
@@ -465,6 +466,42 @@ function CounterSection({ e, counter, act, close }: { e: EffectResult; counter: 
     }
   };
   const hitsDuplicate = d20 !== null && counter.need !== undefined && d20 >= counter.need;
+  // Guardian of Faith: each strike takes the damage dealt off what's left (half on a save).
+  const strike = counter.strike;
+  if (strike) {
+    const deal = (n: number, saved: boolean) => {
+      const dealt = Math.min(counter.left, n);
+      const left = counter.left - dealt;
+      act("updateEffect", { instanceId: e.instanceId, count: left }, `${e.name}: ${dealt} ${strike.type} damage${saved ? " (saved)" : ""}, ${left} left.`);
+      if (left === 0 && counter.endsAtZero) close();
+    };
+    const half = Math.floor(strike.amount / 2);
+    return (
+      <div className="counter-box">
+        <div className="row">
+          <div className="row-main">
+            <div className="row-title">{counter.label}</div>
+            <div className="row-sub">
+              {strike.amount} {strike.type} damage, {ABILITY_NAMES[strike.save as keyof typeof ABILITY_NAMES] ?? strike.save} save{strike.dc ? ` DC ${strike.dc}` : ""} for half. It vanishes at {counter.start} dealt.
+            </div>
+          </div>
+          <span className="counter-left">{counter.left}</span>
+        </div>
+        <div className="meter" aria-hidden="true">
+          <span style={{ width: `${(counter.left / counter.start) * 100}%` }} />
+        </div>
+        <div className="big-actions">
+          <button className="big primary" disabled={counter.left <= 0} onClick={() => deal(strike.amount, false)}>
+            Failed the save: {Math.min(strike.amount, counter.left)}
+          </button>
+          <button className="big" disabled={counter.left <= 0} onClick={() => deal(half, true)}>
+            Saved: {Math.min(half, counter.left)}
+          </button>
+        </div>
+        <NumberStep value={counter.left} min={0} max={counter.start} label={`${counter.label}, by hand`} onChange={(n) => set(n)} />
+      </div>
+    );
+  }
   return (
     <div className="counter-box">
       <div className="row">

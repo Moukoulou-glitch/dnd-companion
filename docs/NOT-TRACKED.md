@@ -252,6 +252,7 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 
 - Stealth: disadvantage from the armor you wear (Medium Armor Master lifts it for medium armor).
 - Heavy armor's Strength: 10 ft slower below it; dwarves aren't slowed.
-- Encumbrance, by the checkbox on the Items page: carrying capacity (Strength × 15; over it is warned: beyond it you can only push, drag or lift) or the variant (speed and disadvantage applied). Powerful Build doubles it; other size changes (Enlarge) aren't counted. Every item in the inventory counts, even one kept in a Bag of Holding: the app doesn't know what's inside what.
+- Encumbrance, by the checkbox on the Items page: carrying capacity (Strength × 15; over it is warned: beyond it you can only push, drag or lift) or the variant (speed and disadvantage applied). Size counts: Tiny half, Large twice, Huge four times, Gargantuan eight times; Powerful Build and Enlarge one size larger, Reduce one smaller. Every item in the inventory counts, even one kept in a Bag of Holding: the app doesn't know what's inside what.
 - Beacon of Hope: someone else healing you is entered by hand (enter their maximum); the dice on screen still tumble, and each one counts as its highest face.
+- Guardian of Faith: after each creature's save, tap "Failed the save" or "Saved"; the damage left counts down and the guardian vanishes at 60. Who is hostile and comes within 10 ft is yours to say.
 

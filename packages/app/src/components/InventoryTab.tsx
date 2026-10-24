@@ -461,12 +461,25 @@ function Encumbrance({ character, sheet, act, itemsWeight }: { character: Charac
       <p className="note">
         {Math.round(itemsWeight * 10) / 10} lb. of items{e.coins ? ` and ${e.coins} coins (${Math.round((e.coins / 50) * 10) / 10} lb.)` : ""}: {e.carried} lb.
       </p>
+      <div className="stat-row">
+        <div className="stat-box">
+          <b>{e.capacity}</b>
+          <span>lb. maximum carrying capacity</span>
+        </div>
+        <div className="stat-box">
+          <b>{e.pushLift}</b>
+          <span>lb. push, drag or lift</span>
+        </div>
+      </div>
+      <p className="note">
+        Strength {sheet.abilities.str.score.total} × 15{e.factor !== 1 ? ` × ${e.factor}` : ""}, as a {e.size} creature{e.factor === 0.5 ? " (Tiny: half)" : e.factor > 1 ? " (twice for each size above Medium)" : ""}.
+      </p>
       <div className="group">
         <label className="row check">
           <input type="checkbox" checked={rule === "standard"} onChange={() => pick("standard")} />
           <div className="row-main">
             <div className="row-title">Carrying capacity</div>
-            <div className="row-sub">Up to {e.capacity} lb. (Strength × 15).</div>
+            <div className="row-sub">Up to {e.capacity} lb.; over it you can only push, drag or lift.</div>
           </div>
         </label>
         <label className="row check">
@@ -474,7 +487,7 @@ function Encumbrance({ character, sheet, act, itemsWeight }: { character: Charac
           <div className="row-main">
             <div className="row-title">Variant: encumbrance</div>
             <div className="row-sub">
-              Over {e.encumberedAt ?? sheet.abilities.str.score.total * 5} lb.: speed −10 ft. Over {e.heavyAt ?? sheet.abilities.str.score.total * 10} lb.: speed −20 ft and disadvantage on Strength, Dexterity and Constitution checks, attacks and saves.
+              Over {e.encumberedAt ?? sheet.abilities.str.score.total * 5 * e.factor} lb.: speed −10 ft. Over {e.heavyAt ?? sheet.abilities.str.score.total * 10 * e.factor} lb.: speed −20 ft and disadvantage on Strength, Dexterity and Constitution checks, attacks and saves.
             </div>
           </div>
         </label>

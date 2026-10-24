@@ -3571,3 +3571,6 @@ button.mpip {
 .fx-beacon .fx-label { color: #f5d36a; text-shadow: 0 0 8px rgba(60, 210, 140, 0.9); }
 .beacon-text { color: #3cbf86; }
 button.big.beacon { background: linear-gradient(120deg, #1f9d6b, #c9a227); color: #0b1a12; }
+/* A count shown as a bar (Guardian of Faith's damage left) */
+.counter-box .meter { height: 8px; border-radius: 4px; background: rgba(255, 255, 255, 0.08); overflow: hidden; margin: 6px 0 10px; }
+.counter-box .meter span { display: block; height: 100%; background: linear-gradient(90deg, #f0c75e, #fff2b8); transition: width 300ms ease; }

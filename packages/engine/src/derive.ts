@@ -310,7 +310,7 @@ export interface EffectResult {
   /** Lasts until your next turn starts (Dodge, Ready): one round, no countdown to adjust. */
   untilTurnStart?: boolean;
   /** What it counts (Mirror Image's duplicates): how many are left, the d20 needed now and their AC. */
-  counter?: { label: string; left: number; start: number; need?: number; ac?: number; endsAtZero: boolean };
+  counter?: { label: string; left: number; start: number; need?: number; ac?: number; endsAtZero: boolean; strike?: { amount: number; type: string; save: string; dc?: number } };
 }
 
 export interface ResourceResult {
@@ -415,6 +415,11 @@ export interface DerivedSheet {
     carried: number;
     coins: number;
     capacity: number;
+    /** Push, drag or lift: twice the capacity. */
+    pushLift: number;
+    /** The size it's worked out for, and the multiple of Strength × 15 it gives. */
+    size: string;
+    factor: number;
     encumberedAt?: number;
     heavyAt?: number;
     state: "fine" | "encumbered" | "heavy" | "over";
@@ -682,10 +687,28 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
   const itemsWeight = c.inventory.reduce((w, i) => w + (reg.find(i.item, "item")?.weight ?? 0) * i.quantity, 0);
   const coins = Object.values(c.currency ?? {}).reduce((n: number, v) => n + (v ?? 0), 0);
   const carried = Math.round((itemsWeight + coins / 50) * 10) / 10;
-  const bigger = sources.some((s) => /powerful-build/.test(s.id)) ? 2 : 1;
+  // Carrying capacity by size (PHB p. 176): Tiny ×½, Small and Medium ×1, then ×2 for each size above Medium.
+  // Powerful Build counts you one size larger; Enlarge/Reduce on you, one up or down.
+  const SIZES = ["tiny", "small", "medium", "large", "huge", "gargantuan"] as const;
+  const baseSize = (c.size ?? reg.find(c.race, "race")?.size ?? "medium").toLowerCase();
+  const sizeWhy: string[] = [];
+  let sizeStep = Math.max(0, SIZES.indexOf(baseSize as (typeof SIZES)[number]));
+  const build = sources.find((s) => /powerful-build/.test(s.id));
+  if (build) {
+    sizeStep += 1;
+    sizeWhy.push(`${build.label}: one size larger`);
+  }
+  const enlarge = c.effects.find((e) => e.effect === "effect:enlarge-reduce" && e.choice);
+  if (enlarge) {
+    sizeStep += enlarge.choice === "Enlarge" ? 1 : -1;
+    sizeWhy.push(`${enlarge.choice === "Enlarge" ? "Enlarged" : "Reduced"}: one size ${enlarge.choice === "Enlarge" ? "larger" : "smaller"}`);
+  }
+  sizeStep = Math.max(0, Math.min(SIZES.length - 1, sizeStep));
+  const bigger = sizeStep === 0 ? 0.5 : sizeStep <= 2 ? 1 : 2 ** (sizeStep - 2);
+  const sizeName = SIZES[sizeStep]!;
   const encRule = c.settings.encumbrance;
-  const encumbrance: DerivedSheet["encumbrance"] = { rule: encRule ?? "none", carried, coins, capacity: strScore * 15 * bigger, state: "fine" };
-  if (bigger > 1) encumbrance.note = "Powerful Build: counts as one size larger (twice the weight).";
+  const encumbrance: DerivedSheet["encumbrance"] = { rule: encRule ?? "none", carried, coins, capacity: strScore * 15 * bigger, pushLift: strScore * 30 * bigger, size: sizeName, factor: bigger, state: "fine" };
+  if (sizeWhy.length) encumbrance.note = `${sizeWhy.join("; ")}: counted as ${sizeName}.`;
   if (encRule === "variant") {
     encumbrance.encumberedAt = strScore * 5 * bigger;
     encumbrance.heavyAt = strScore * 10 * bigger;
@@ -1800,6 +1823,11 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       const need = left > 0 ? k.need?.[Math.min(left, k.need.length) - 1] : undefined;
       if (need !== undefined) r.counter.need = need;
       if (k.ac) r.counter.ac = k.ac.base + (k.ac.ability ? abilities[k.ac.ability].modifier : 0);
+      // Guardian of Faith: what it deals, against your best spell save DC.
+      if (k.strike) {
+        const dcs = spellcasting.map((x) => x.saveDc.total);
+        r.counter.strike = { ...k.strike, ...(dcs.length ? { dc: Math.max(...dcs) } : {}) };
+      }
     }
     if (def?.endsOn) r.endsOn = def.endsOn;
     if (e.untilTurnStart) r.untilTurnStart = true;

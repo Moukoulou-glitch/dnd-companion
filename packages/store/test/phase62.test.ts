@@ -72,3 +72,18 @@ describe("11d: a tag for every spell with a duration you cast", () => {
     expect(l.character.effects.some((e) => e.custom?.name?.startsWith("Enlarge/Reduce"))).toBe(false);
   });
 });
+
+describe("11e-1 fix: Guardian of Faith", () => {
+  it("counts the damage it deals and vanishes at 60", () => {
+    const l = make("class:cleric", 7, (c) => c.spells.push({ spell: "spell:guardian-of-faith", list: "cleric", prepared: true }));
+    l.record("castSpell", { spell: "spell:guardian-of-faith", list: "cleric", level: 4, using: "slot", selfEffect: true });
+    const e = l.character.effects.find((x) => x.effect === "effect:guardian-of-faith")!;
+    const s = derive(l.character, reg).effects.find((x) => x.instanceId === e.id)!;
+    expect(s.counter).toMatchObject({ left: 60, strike: { amount: 20, type: "radiant", save: "dex" } });
+    expect(s.counter?.strike?.dc).toBe(derive(l.character, reg).spellcasting[0]!.saveDc.total);
+    l.record("updateEffect", { instanceId: e.id, count: 40 });
+    l.record("updateEffect", { instanceId: e.id, count: 30 });
+    expect(l.record("updateEffect", { instanceId: e.id, count: 0 }).join(" ")).toMatch(/dealt 60 damage in all: it vanishes/);
+    expect(l.character.effects.some((x) => x.effect === "effect:guardian-of-faith")).toBe(false);
+  });
+});
