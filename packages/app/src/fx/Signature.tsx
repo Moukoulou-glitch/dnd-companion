@@ -460,6 +460,7 @@ const STAR = "M0,-40 L8,-8 L40,0 L8,8 L0,40 L-8,8 L-40,0 L-8,-8 Z";
 function ClassPiece({ cls }: { cls: string }) {
   const emblem = (
     <svg className="sig-emblem" viewBox="-50 -50 100 100">
+      <path className="glow" pathLength={1} d={EMBLEMS[cls] ?? STAR} />
       <path pathLength={1} d={EMBLEMS[cls] ?? STAR} />
     </svg>
   );
