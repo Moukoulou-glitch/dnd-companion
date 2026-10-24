@@ -3563,3 +3563,11 @@ button.mpip {
 .row.check.sub-check {
   padding-left: 28px;
 }
+
+/* Beacon of Hope: emerald light shot with gold rising through the hit points */
+.fx-beacon .fx-core { width: 150px; height: 80px; background: radial-gradient(ellipse, rgba(60, 210, 140, 0.7), rgba(245, 200, 80, 0.45) 45%, rgba(0, 0, 0, 0) 72%); animation: fx-pop var(--fx-ms) ease-out forwards; }
+.fx-beacon .fx-ring { border-color: rgba(245, 205, 90, 0.9); box-shadow: 0 0 12px rgba(60, 210, 140, 0.8); animation: fx-ripple var(--fx-ms) ease-out forwards; }
+.fx-beacon .fx-dot { width: 6px; height: 6px; background: #ffe08a; box-shadow: 0 0 8px #3cd28c; animation-name: fx-rise; }
+.fx-beacon .fx-label { color: #f5d36a; text-shadow: 0 0 8px rgba(60, 210, 140, 0.9); }
+.beacon-text { color: #3cbf86; }
+button.big.beacon { background: linear-gradient(120deg, #1f9d6b, #c9a227); color: #0b1a12; }

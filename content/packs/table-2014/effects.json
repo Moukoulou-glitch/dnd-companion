@@ -3904,7 +3904,7 @@
       "concentration": true,
       "reminders": [
         "Death saves with advantage: roll two d20s and use the higher (the death save panel says so).",
-        "Any healing you receive is the maximum the dice could give: enter the maximum when someone heals you."
+        "Healing you receive is the maximum the dice could give: the app does it for your own healing rolls, Hit Dice and potions; when someone else heals you, enter their maximum."
       ]
     },
     {

@@ -409,6 +409,17 @@ export interface DerivedSheet {
   components: { spell: string; spellName: string; material: string; costly: boolean; consumed: boolean; have: boolean; count: number }[];
   /** Attacks per Attack action: 2 with Extra Attack. */
   attacksPerAction: number;
+  /** Carried weight and the encumbrance rule picked ("none": not tracked). */
+  encumbrance: {
+    rule: "standard" | "variant" | "none";
+    carried: number;
+    coins: number;
+    capacity: number;
+    encumberedAt?: number;
+    heavyAt?: number;
+    state: "fine" | "encumbered" | "heavy" | "over";
+    note?: string;
+  };
   /** Uses that come back when you roll initiative with none left (Relentless, Perfect Self). */
   initiativeRegains: { resource: string; amount: number; from: string }[];
   /** Rule permissions: two-weapon fighting with non-light weapons (Dual Wielder), ability modifier on off-hand damage (the style). */
@@ -665,6 +676,30 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     }
   }
   const active: ActiveMod[] = sources.flatMap((source) => (source.grant.modifiers ?? []).map((mod) => ({ mod, source })));
+
+  // Carried weight: items (equipped or not) and coins (50 to the pound). Encumbrance, by the rule the player picked.
+  const strScore = abilities.str.score.total;
+  const itemsWeight = c.inventory.reduce((w, i) => w + (reg.find(i.item, "item")?.weight ?? 0) * i.quantity, 0);
+  const coins = Object.values(c.currency ?? {}).reduce((n: number, v) => n + (v ?? 0), 0);
+  const carried = Math.round((itemsWeight + coins / 50) * 10) / 10;
+  const bigger = sources.some((s) => /powerful-build/.test(s.id)) ? 2 : 1;
+  const encRule = c.settings.encumbrance;
+  const encumbrance: DerivedSheet["encumbrance"] = { rule: encRule ?? "none", carried, coins, capacity: strScore * 15 * bigger, state: "fine" };
+  if (bigger > 1) encumbrance.note = "Powerful Build: counts as one size larger (twice the weight).";
+  if (encRule === "variant") {
+    encumbrance.encumberedAt = strScore * 5 * bigger;
+    encumbrance.heavyAt = strScore * 10 * bigger;
+    encumbrance.state = carried > encumbrance.capacity ? "over" : carried > encumbrance.heavyAt ? "heavy" : carried > encumbrance.encumberedAt ? "encumbered" : "fine";
+  } else if (encRule === "standard") encumbrance.state = carried > encumbrance.capacity ? "over" : "fine";
+  if (encRule && encumbrance.state === "over") warnings.push(`Carrying ${carried} lb., over your carrying capacity of ${encumbrance.capacity} lb.: beyond that you can only push, drag or lift (up to twice the capacity).`);
+  // Variant: heavily encumbered (and over): disadvantage on checks, attacks and saves with Strength, Dexterity or Constitution.
+  if (encRule === "variant" && (encumbrance.state === "heavy" || encumbrance.state === "over")) {
+    const source: Source = { id: "rule:encumbrance", label: "Heavily encumbered", grant: {}, choices: {} };
+    for (const ab of ["str", "dex", "con"] as const)
+      for (const sel of [`roll.check.${ab}`, `roll.save.${ab}`]) active.push({ mod: { selector: sel, op: "disadvantage", mode: "auto", label: "Heavily encumbered" } as Modifier, source });
+    active.push({ mod: { selector: "roll.attack.weapon.*", op: "disadvantage", mode: "auto", label: "Heavily encumbered" } as Modifier, source });
+    active.push({ mod: { selector: "roll.initiative", op: "disadvantage", mode: "auto", label: "Heavily encumbered" } as Modifier, source });
+  }
 
   // Conditions on you, with what they include (Paralyzed includes Incapacitated); 0 HP counts as unconscious.
   const onYou = new Set<string>();
@@ -948,6 +983,10 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     skills[sk] = { ...roll([`roll.check.skill.${sk}`, `roll.check.${ab}`], base), ability: ab, proficiency };
   }
 
+  // Armor that hampers stealth (Medium Armor Master: not medium armor).
+  const armorDef = armorWorn?.def.armor;
+  if (armorWorn && armorDef?.stealthDisadvantage && !(armorDef.category === "medium" && sources.some((s) => s.id === "feat:medium-armor-master")))
+    skills.stealth.disadvantage.push(armorWorn.inst.name ?? armorWorn.def.name);
   // Stonecunning and Artificer's Lore: History checks on stonework or on magic items, alchemy and tech add twice the proficiency bonus.
   // Only for those subjects, so they're offered; the bonus brings the total to double, whatever proficiency you already have.
   for (const [id, about] of [
@@ -1036,7 +1075,6 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     const b = statWith(key, base);
     return b.total < 0 ? { total: 0, parts: [...b.parts, { label: "Not less than 0", value: -b.total }] } : b;
   };
-  const strScore = abilities.str.score.total;
   const highBase = 3 + mods.str;
   const runUpSet = modsFor(["stat.jump.runup"]).filter((a) => a.mod.op === "set" && conditionState(a.mod.when) === "pass");
   const bestial = (c.choices["feature:path-of-the-beast-bestial-soul"]?.trait ?? []).includes("Jumping") && sources.some((s) => s.id === "feature:path-of-the-beast-bestial-soul");
@@ -1055,7 +1093,13 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
 
   // Speed.
   const race = reg.get(c.race, "race");
-  const speed = statWith("stat.speed.walk", [{ label: race.name, value: race.speed }]);
+  const speedBase: Part[] = [{ label: race.name, value: race.speed }];
+  // Heavy armor without its Strength: 10 ft slower (not for dwarves).
+  const strNeed = armorWorn?.def.armor?.strengthRequired;
+  if (armorWorn && strNeed && strScore < strNeed && !/dwarf/.test(c.race)) speedBase.push({ label: `${armorWorn.inst.name ?? armorWorn.def.name} (needs Strength ${strNeed})`, value: -10 });
+  if (encumbrance.state === "encumbered") speedBase.push({ label: `Encumbered (over ${encumbrance.encumberedAt} lb.)`, value: -10 });
+  if (encumbrance.state === "heavy" || (encRule === "variant" && encumbrance.state === "over")) speedBase.push({ label: `Heavily encumbered (over ${encumbrance.heavyAt} lb.)`, value: -20 });
+  const speed = statWith("stat.speed.walk", speedBase);
   /** Swim, fly and climb speeds from features and effects: the best of each kind, then the same changes as walking (Grappled: 0). */
   const otherSpeeds = (walk: Breakdown): SpeedResult[] => {
     const out: SpeedResult[] = [];
@@ -1964,6 +2008,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       ),
     ],
     rules,
+    encumbrance,
     initiativeRegains: sources.flatMap((s) => (s.grant.initiativeRegain ? [{ ...s.grant.initiativeRegain, from: s.label }] : [])),
     attacksPerAction: Math.max(
       sources.some((s) => /^feature:extra-attack/.test(s.id)) ? 2 : 1,

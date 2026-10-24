@@ -701,7 +701,11 @@ export const Character = z
     companions: z.record(z.string(), CompanionState).default({}),
     /** Per-character preferences. Real dice is the default: most players at the table roll physical dice. */
     settings: z
-      .object({ physicalDice: z.boolean().default(true) })
+      .object({
+        physicalDice: z.boolean().default(true),
+        /** Encumbrance rule the player picked: the standard carrying capacity, the variant, or none (not tracked). */
+        encumbrance: z.enum(["standard", "variant"]).optional(),
+      })
       .strict()
       .default({}),
     notes: z.array(Note).default([]),

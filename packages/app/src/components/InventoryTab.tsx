@@ -436,12 +436,51 @@ export function InventoryTab({
         </section>
       )}
       {character.classes.some((x) => x.class === "class:wizard") && <SpellbookFund gp={character.spellbookFunds} act={act} />}
-      <p className={`note${attuned > 3 ? " danger-text" : ""}`}>
-        Carrying {Math.round(weight * 10) / 10} lb.
-      </p>
+      <Encumbrance character={character} sheet={sheet} act={act} itemsWeight={weight} />
       <button className="big wide" onClick={openAdd}>
         Add an item
       </button>
     </main>
+  );
+}
+
+/**
+ * Carried weight, and the encumbrance rule the player picked: the standard carrying capacity or the variant
+ * (one, or neither: not tracked). Ticking one unticks the other.
+ */
+function Encumbrance({ character, sheet, act, itemsWeight }: { character: Character; sheet: DerivedSheet; act: (type: OperationType, payload: unknown, label: string) => void; itemsWeight: number }) {
+  const e = sheet.encumbrance;
+  const rule = character.settings.encumbrance;
+  const pick = (r: "standard" | "variant") =>
+    act("setField", { path: ["settings", "encumbrance"], value: rule === r ? undefined : r }, rule === r ? "Encumbrance not tracked." : r === "standard" ? "Encumbrance: carrying capacity." : "Encumbrance: the variant rule.");
+  const state =
+    e.state === "over" ? `Over your carrying capacity (${e.capacity} lb.)` : e.state === "heavy" ? `Heavily encumbered: speed −20 ft, disadvantage on Strength, Dexterity and Constitution checks, attacks and saves` : e.state === "encumbered" ? "Encumbered: speed −10 ft" : rule ? "Not encumbered" : "";
+  return (
+    <section>
+      <h2>Carrying</h2>
+      <p className="note">
+        {Math.round(itemsWeight * 10) / 10} lb. of items{e.coins ? ` and ${e.coins} coins (${Math.round((e.coins / 50) * 10) / 10} lb.)` : ""}: {e.carried} lb.
+      </p>
+      <div className="group">
+        <label className="row check">
+          <input type="checkbox" checked={rule === "standard"} onChange={() => pick("standard")} />
+          <div className="row-main">
+            <div className="row-title">Carrying capacity</div>
+            <div className="row-sub">Up to {e.capacity} lb. (Strength × 15).</div>
+          </div>
+        </label>
+        <label className="row check">
+          <input type="checkbox" checked={rule === "variant"} onChange={() => pick("variant")} />
+          <div className="row-main">
+            <div className="row-title">Variant: encumbrance</div>
+            <div className="row-sub">
+              Over {e.encumberedAt ?? sheet.abilities.str.score.total * 5} lb.: speed −10 ft. Over {e.heavyAt ?? sheet.abilities.str.score.total * 10} lb.: speed −20 ft and disadvantage on Strength, Dexterity and Constitution checks, attacks and saves.
+            </div>
+          </div>
+        </label>
+      </div>
+      {state && <p className={e.state === "fine" ? "note" : "over-banner"}>{state}.</p>}
+      {e.note && <p className="note">{e.note}</p>}
+    </section>
   );
 }

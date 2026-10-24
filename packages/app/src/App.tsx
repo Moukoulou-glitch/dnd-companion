@@ -59,6 +59,8 @@ import { liveAttack } from "./oneTime";
 import { NumberStep } from "./components/Adjust";
 import { zeroHpOptions } from "@dnd/store";
 
+const BEACON_EFFECT = "effect:beacon-of-hope";
+
 /** What was chosen before damage that drops you to 0 is recorded. */
 type ZeroHpChoice = { relentless?: true; grave?: { saved: boolean; total?: number; crit?: boolean }; rage?: { saved: boolean; total?: number } };
 import { CLASS_DICE_COLOURS, classDiceColour, mainClass, setDiceClasses, setDiceResources, setDiceState, usePickedDiceColour } from "./diceColours";
@@ -584,8 +586,15 @@ export function App() {
     // Song of Rest: the bard's own extra die, once at the end of a short rest in which Hit Dice were spent.
     const song = sheet.actions.find((a) => a.id === "song-of-rest")?.roll;
     const songSides = song ? Number(/d(\d+)/.exec(song.text)?.[1] ?? 6) : 0;
-    const spend = (roll: number, withSong: boolean) => {
-      s.act("spendHitDie", { die, roll }, `Spent a ${die}.`);
+    // Beacon of Hope: healing you is the maximum (a Hit Die, Song of Rest's die).
+    const beacon = !!live.current.character?.effects.some((e) => e.effect === BEACON_EFFECT);
+    const spend = (rolled: number, withSong: boolean) => {
+      const roll = beacon ? sides : rolled;
+      s.act("spendHitDie", { die, roll }, `Spent a ${die}${beacon ? ` (Beacon of Hope: ${sides})` : ""}.`);
+      if (withSong && songSides && beacon) {
+        s.act("heal", { amount: songSides }, `Song of Rest: ${songSides} more hit points (Beacon of Hope: the maximum).`);
+        return close();
+      }
       if (!withSong || !songSides) return close();
       const heal = (n: number) => {
         s.act("heal", { amount: n }, `Song of Rest: ${n} more hit points.`);
@@ -608,7 +617,16 @@ export function App() {
         </>,
       );
     };
-    open(`Spend a ${die}`, () => <HitDieEntry sides={sides} con={formatBonus({ total: sheet.abilities.con.modifier, dice: [] })} songSides={songSides} onSpend={spend} onRoll={(withSong) => void rollOrThrow(`1d${sides}`, true, undefined, { source: "Hit Die" }).then((r) => spend(r.total, withSong))} />);
+    open(`Spend a ${die}`, () => (
+      <HitDieEntry
+        sides={sides}
+        con={formatBonus({ total: sheet.abilities.con.modifier, dice: [] })}
+        songSides={songSides}
+        beacon={beacon}
+        onSpend={spend}
+        onRoll={(withSong) => void rollOrThrow(`1d${sides}`, true, undefined, { source: beacon ? "Beacon of Hope" : "Hit Die" }).then((r) => spend(r.total, withSong))}
+      />
+    ));
   };
 
   /** Opens the roll composer for any d20 roll; attacks also get the damage step. */
@@ -1258,6 +1276,7 @@ export function App() {
       return (
         <FeaturePanel
           a={current}
+          beaconIds={friendlyTargets(live.current.character!, live.current.sheet!, registry).filter((t) => t.effects.includes(BEACON_EFFECT)).map((t) => t.id)}
           physical={live.current.character?.settings.physicalDice ?? true}
           text={feature?.text}
           {...(current.check
@@ -2439,21 +2458,24 @@ export function App() {
       properties: [],
     };
     const all = friendlyTargets(live.current.character!, live.current.sheet!, registry);
+    const b = withBeacon(attack, all);
     open(name, () => (
       <Composer
         title={name}
         base={live.current.sheet!.saves.con}
-        attack={attack}
+        attack={b.attack}
+        optionInfo={b.optionInfo}
         damageOnly
         healing
         healTargets={{
           targets: [
-            ...all.map((t) => ({ id: t.id, name: t.name, sub: `${t.hp} / ${t.max} HP${t.kind === "me" ? "" : ` · ${t.type}`}`, warnings: t.hp === 0 && t.kind !== "me" ? targetWarnings(t, {}, name) : [] })),
-            { id: "other", name: "Someone else", sub: "They track it on their own sheet", warnings: [] },
+            ...all.map((t) => ({ id: t.id, name: t.name, sub: `${t.hp} / ${t.max} HP${t.kind === "me" ? "" : ` · ${t.type}`}`, warnings: t.hp === 0 && t.kind !== "me" ? targetWarnings(t, {}, name) : [], ...beaconFlag(t) })),
+            { id: "other", name: "Someone else", sub: "They track it on their own sheet", warnings: [], ...otherBeaconFlag() },
           ],
           max: 1,
-          onHeal: (ids, n) => {
+          onHeal: (ids, rolled, per) => {
             const id = ids[0] ?? "me";
+            const n = per?.[id] ?? rolled;
             live.current.act("useItem", { instanceId, ...(id !== "me" ? { given: true } : {}) }, id === "me" ? `${name}: drunk.` : id === "other" ? `${name}: given, ${n} hit points to that creature.` : `${name}: given.`);
             if (id !== "other") healTarget(id, n, name);
             close();
@@ -2557,6 +2579,24 @@ export function App() {
    * Who a healing spell can go to (you, companions out now, summoned creatures), with what its rules warn about,
    * and how it's applied: each one healed by the roll; you regain Blessed Healer's when someone else is.
    */
+  /** Beacon of Hope on a heal target, and the question for someone else while you concentrate on it. */
+  const beaconFlag = (t: { effects: string[] }) => (t.effects.includes(BEACON_EFFECT) ? { beacon: true } : {});
+  const otherBeaconFlag = () => (live.current.character?.concentration?.spell === "spell:beacon-of-hope" ? { askBeacon: true } : {});
+  /**
+   * A healing roll with Beacon of Hope's maximum as an option, when it can matter (someone you could heal is
+   * under it, or you concentrate on it): ticked when you are under it. Ticked, the dice are its emerald-gold.
+   */
+  const withBeacon = (attack: WeaponAttack, all: { id: string; effects: string[] }[]): { attack: WeaponAttack; optionInfo: Record<string, OptionInfo> } => {
+    const meUnder = all.some((t) => t.id === "me" && t.effects.includes(BEACON_EFFECT));
+    const relevant = all.some((t) => t.effects.includes(BEACON_EFFECT)) || !!otherBeaconFlag().askBeacon;
+    if (!relevant) return { attack, optionInfo: {} };
+    const sg = { label: "Beacon of Hope", effect: "maximum healing", reason: "the creature you heal is under Beacon of Hope", apply: { flat: 0, dice: [], maximize: true } };
+    return {
+      attack: { ...attack, damage: { ...attack.damage, bonus: { ...attack.damage.bonus, suggestions: [...attack.damage.bonus.suggestions, sg] } } },
+      optionInfo: meUnder ? { "Beacon of Hope": { preselect: true } } : {},
+    };
+  };
+
   const healTargetsFor = (sp: SpellResult, level: number) => {
     const ch = live.current.character!;
     const sh = live.current.sheet!;
@@ -2567,14 +2607,15 @@ export function App() {
     const selfBack = back?.length ? { label: back.map((b) => b.label).join(", "), value: back.reduce((n, b) => n + b.value, 0) } : undefined;
     return {
       targets: [
-        ...all.map((t) => ({ id: t.id, name: t.name, sub: `${t.hp} / ${t.max} HP${t.kind === "me" ? "" : ` · ${t.type}`}`, warnings: targetWarnings(t, rule, sp.name) })),
+        ...all.map((t) => ({ id: t.id, name: t.name, sub: `${t.hp} / ${t.max} HP${t.kind === "me" ? "" : ` · ${t.type}`}`, warnings: targetWarnings(t, rule, sp.name), ...beaconFlag(t) })),
         // A party member or anyone the app doesn't track: they add it on their own sheet (Blessed Healer still counts it).
-        { id: "other", name: "Someone else", sub: "A party member: they add it on their own sheet", warnings: [] as string[] },
+        { id: "other", name: "Someone else", sub: "A party member: they add it on their own sheet", warnings: [] as string[], ...otherBeaconFlag() },
       ],
       max: rule?.max ?? 1,
       ...(selfBack ? { selfBack } : {}),
-      onHeal: (ids: string[], n: number) => {
+      onHeal: (ids: string[], rolled: number, per?: Record<string, number>) => {
         for (const id of ids) {
+          const n = per?.[id] ?? rolled;
           if (id === "other") {
             continue;
           }
@@ -2588,7 +2629,7 @@ export function App() {
           }
         }
         if (selfBack && ids.some((id) => id !== "me"))
-          live.current.act("heal", { amount: selfBack.value }, `${ids.includes("other") ? `${sp.name}: ${n} to someone else. ` : ""}${selfBack.label}: you regain ${selfBack.value}.`);
+          live.current.act("heal", { amount: selfBack.value }, `${ids.includes("other") ? `${sp.name}: ${per?.other ?? rolled} to someone else. ` : ""}${selfBack.label}: you regain ${selfBack.value}.`);
         close();
       },
     };
@@ -2665,6 +2706,8 @@ export function App() {
             },
           }
         : spIn;
+    // Healing spells: Beacon of Hope's maximum, ticked when you're under it.
+    const healB = sp.heal && !sp.damage ? withBeacon(spellAsAttack(sp, level, alt), friendlyTargets(live.current.character!, live.current.sheet!, registry)) : undefined;
     const beams = sp.beams?.byLevel[sp.level === 0 ? 0 : level];
     const notes = beams && beams > 1 ? [`${beams} ${sp.beams!.what}, each its own attack: they can hit the same target or different ones. The app takes you through them one by one.`] : [];
     const portent = portentFor();
@@ -2672,7 +2715,7 @@ export function App() {
       <Composer
         title={sp.name}
         base={sp.attack ?? live.current.sheet!.saves.con}
-        attack={spellAsAttack(sp, level, alt)}
+        attack={healB?.attack ?? spellAsAttack(sp, level, alt)}
         damageOnly={damageOnly}
         notes={notes}
         typeChoices={(sp.typeChoices ?? []).flatMap((tc) => {
@@ -2687,7 +2730,7 @@ export function App() {
             },
           ];
         })}
-        optionInfo={{ ...optionInfoFor(spellAsAttack(sp, level, alt)), ...spellOptionInfo(sp, level) }}
+        optionInfo={{ ...optionInfoFor(spellAsAttack(sp, level, alt)), ...spellOptionInfo(sp, level), ...(healB?.optionInfo ?? {}) }}
         onOptionsUsed={recordOptions}
         onDamageOptions={(labels) => {
           // Empowered Evocation: counted per casting.
@@ -3606,11 +3649,12 @@ function Welcome({
 }
 
 /** A Hit Die: tap the face, or let the app roll. With Song of Rest, a tick-box for the bard's extra die. */
-function HitDieEntry({ sides, con, songSides, onSpend, onRoll }: { sides: number; con: string; songSides: number; onSpend: (roll: number, withSong: boolean) => void; onRoll: (withSong: boolean) => void }) {
+function HitDieEntry({ sides, con, songSides, beacon, onSpend, onRoll }: { sides: number; con: string; songSides: number; beacon?: boolean; onSpend: (roll: number, withSong: boolean) => void; onRoll: (withSong: boolean) => void }) {
   const [song, setSong] = useState(false);
   return (
     <>
       <p className="note">Tap what you rolled, or let the app roll. Constitution {con} is added.</p>
+      {beacon && <p className="note beacon-text">Beacon of Hope: the die counts as {sides}, whatever it shows.</p>}
       {songSides > 0 && (
         <label className="row check" style={{ padding: "8px 0" }}>
           <input type="checkbox" checked={song} onChange={() => setSong(!song)} />

@@ -29,7 +29,10 @@ export function FeaturePanel({
   targets,
   slots,
   onSlots,
+  beaconIds,
 }: {
+  /** Who is under Beacon of Hope ("me", a companion's id, "summon:<id>"): healing them is the maximum. */
+  beaconIds?: string[];
   /** Spell slots by level (Arcane Recovery, Combat Wild Shape). */
   slots?: { level: number; total: number; used: number }[];
   /** Recovering slots, or spending one to heal (with what was rolled). */
@@ -73,8 +76,13 @@ export function FeaturePanel({
       if (inAir.current) skipThrow();
     };
   }, []);
+  // Beacon of Hope: healing that reaches a creature under it is the maximum the dice can give.
+  const healedId = pickable ? target : me === false ? "other" : "me";
+  const beacon = !!a.heal && !!beaconIds?.includes(healedId);
+  const maxOfAmount = amount ? amount.flat + amount.dice.reduce((t, d) => t + (/^(\d*)d(\d+)$/.test(d) ? Number(/^(\d*)/.exec(d)![1] || 1) * Number(/d(\d+)$/.exec(d)![1]) : 0), 0) : 0;
   const useNow = async (free = false) => {
     if (!amount) return useWith(undefined, free, undefined, undefined, undefined, me);
+    if (beacon && physical) return useWith(maxOfAmount, free, undefined, undefined, undefined, me);
     if (physical) return useWith(Number(entry) + amount.flat, free, undefined, undefined, undefined, me);
     // The app rolls for this character: 3D dice when they're on (in the feature's own look: Second Wind's), else the app's roll.
     setThrowing(true);
@@ -87,8 +95,9 @@ export function FeaturePanel({
           total += roll(d).total;
           continue;
         }
-        const faces = await facesOrRoll(Number(m[1] || 1), Number(m[2]), true, { source: a.name, keys: a.cost ? [`resource:${a.cost.resource}`] : [] });
-        total += faces.reduce((x, f) => x + f, 0);
+        const faces = await facesOrRoll(Number(m[1] || 1), Number(m[2]), true, beacon ? { source: "Beacon of Hope" } : { source: a.name, keys: a.cost ? [`resource:${a.cost.resource}`] : [] });
+        // Beacon of Hope: each die counts as its maximum.
+        total += beacon ? faces.length * Number(m[2]) : faces.reduce((x, f) => x + f, 0);
       }
       inAir.current = false;
       if (!alive.current) return;
@@ -174,7 +183,8 @@ export function FeaturePanel({
             {a.tempHp ? "Temporary HP" : a.heal ? "Healing" : `Roll ${amount.text}, ${a.roll!.label}`}
             {a.tempHp || a.heal ? `: ${amount.text}` : ""}
           </p>
-          {physical && amount.dice.length > 0 && (
+          {beacon && <p className="note beacon-text">Beacon of Hope: the maximum, {maxOfAmount}.</p>}
+          {physical && !beacon && amount.dice.length > 0 && (
             <label className="entry">
               <span>Roll {amount.dice.join(" + ")} and type the dice total</span>
               <input inputMode="numeric" pattern="[0-9]*" value={entry} onChange={(e) => setEntry(e.target.value.replace(/\D/g, "").slice(0, 3))} />
@@ -185,7 +195,7 @@ export function FeaturePanel({
       {a.recoversSlots && slots && onSlots ? (
         <RecoverSlots a={a} slots={slots} none={!!none} onDone={(levels) => onSlots({ slots: levels })} />
       ) : a.slotHeal && slots && onSlots ? (
-        <SlotHeal a={a} slots={slots} physical={physical} onDone={(slot, rolled) => onSlots({ slot, rolled })} />
+        <SlotHeal a={a} slots={slots} physical={physical} beacon={!!beaconIds?.includes("me")} onDone={(slot, rolled) => onSlots({ slot, rolled })} />
       ) : a.infoOnly ? null : a.spendAmount ? (
         <>
           <label className="entry">
@@ -239,7 +249,7 @@ export function FeaturePanel({
           </button>
         </>
       ) : (
-      <button className={`big wide ${none ? "damage" : "primary"}`} disabled={throwing || (!!amount && physical && amount.dice.length > 0 && !entry)} onClick={() => void useNow()}>
+      <button className={`big wide ${none ? "damage" : "primary"}${beacon ? " beacon" : ""}`} disabled={throwing || (!!amount && physical && !beacon && amount.dice.length > 0 && !entry)} onClick={() => void useNow()}>
         {throwing ? "Throwing…" : none ? `Use ${a.name} anyway` : a.roll && !physical ? `Roll and use ${a.name}` : `Use ${a.name}`}
       </button>
       )}
@@ -305,7 +315,7 @@ function RecoverSlots({ a, slots, none, onDone }: { a: ActionResult; slots: { le
 }
 
 /** Combat Wild Shape: pick a slot; it heals its die once per slot level, rolled here or from your dice. */
-function SlotHeal({ a, slots, physical, onDone }: { a: ActionResult; slots: { level: number; total: number; used: number }[]; physical: boolean; onDone: (slot: number, rolled: number) => void }) {
+function SlotHeal({ a, slots, physical, beacon, onDone }: { a: ActionResult; slots: { level: number; total: number; used: number }[]; physical: boolean; beacon?: boolean; onDone: (slot: number, rolled: number) => void }) {
   const { die } = a.slotHeal!;
   const [level, setLevel] = useState<number | undefined>(slots.find((s) => s.total - s.used > 0)?.level);
   const [entry, setEntry] = useState("");
@@ -313,11 +323,13 @@ function SlotHeal({ a, slots, physical, onDone }: { a: ActionResult; slots: { le
   const sides = Number(/d(\d+)/.exec(die)?.[1] ?? 8);
   const go = async () => {
     if (!level) return;
+    // Beacon of Hope: the maximum.
+    if (beacon && physical) return onDone(level, level * sides);
     if (physical) return onDone(level, Number(entry));
     setBusy(true);
     try {
-      const faces = await facesOrRoll(level, sides, true, { source: a.name, keys: [] });
-      onDone(level, faces.reduce((x, f) => x + f, 0));
+      const faces = await facesOrRoll(level, sides, true, beacon ? { source: "Beacon of Hope" } : { source: a.name, keys: [] });
+      onDone(level, beacon ? level * sides : faces.reduce((x, f) => x + f, 0));
     } finally {
       setBusy(false);
     }
@@ -338,7 +350,8 @@ function SlotHeal({ a, slots, physical, onDone }: { a: ActionResult; slots: { le
             </button>
           ))}
       </div>
-      {level && physical && (
+      {beacon && <p className="note beacon-text">Beacon of Hope: the maximum, {level ? level * sides : 0}.</p>}
+      {level && physical && !beacon && (
         <label className="entry">
           <span>
             Roll {level}d{sides} and type the total
@@ -346,7 +359,7 @@ function SlotHeal({ a, slots, physical, onDone }: { a: ActionResult; slots: { le
           <input inputMode="numeric" pattern="[0-9]*" value={entry} onChange={(e) => setEntry(e.target.value.replace(/\D/g, "").slice(0, 3))} />
         </label>
       )}
-      <button className="big wide primary" disabled={!level || busy || (physical && !entry)} onClick={() => void go()}>
+      <button className="big wide primary" disabled={!level || busy || (physical && !beacon && !entry)} onClick={() => void go()}>
         {busy ? "Throwing…" : level ? `Spend a level ${level} slot and heal ${level}d${sides}` : "No slots"}
       </button>
     </>

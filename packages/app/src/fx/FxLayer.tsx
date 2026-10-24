@@ -41,6 +41,8 @@ export function specOf(e: FxEvent): FxSpec {
       return { at: "result", ms: 420, buzz: [40], look: "fx-fumble" };
     case "heal":
       return { at: "hp", ms: 700, look: "fx-heal", label: `+${e.amount} HP` };
+    case "beacon-heal":
+      return { at: e.other ? "center" : "hp", ms: 1300, buzz: [12, 40, 12], look: "fx-heal fx-beacon", label: `+${e.amount} HP · Beacon of Hope`, particles: 10 };
     case "temp":
       return { at: "hp", ms: 650, look: "fx-temp", label: `+${e.amount} temp` };
     case "defend":

@@ -13,6 +13,8 @@ export type FxEvent =
   | { kind: "crit" }
   | { kind: "fumble" }
   | { kind: "heal"; amount: number }
+  /** Healing under Beacon of Hope: the maximum, in emerald and gold (on you, or on a companion or summoned creature: `other`). */
+  | { kind: "beacon-heal"; amount: number; other?: string }
   | { kind: "temp"; amount: number }
   /** Damage that never reached you: "prevented" (none got through), "reduced" (less than dealt), "absorbed" (temporary HP took it). */
   | { kind: "defend"; how: "prevented" | "reduced" | "absorbed"; amount: number }
@@ -88,7 +90,20 @@ export function opFx(type: string, payload: unknown, before: Character, after: C
   const ha = after.hp ?? { current: 0, temp: 0 };
 
   // Hit points that actually came back (capped at the maximum by the rules already); setting HP by hand and levelling aren't healing.
-  if (onYou && type !== "levelUp" && type !== "levelDown" && type !== "setHp" && ha.current > hb.current) out.push({ kind: "heal", amount: ha.current - hb.current });
+  const beaconOn = (effects: { effect: string }[] | undefined) => !!effects?.some((e) => e.effect === "effect:beacon-of-hope");
+  if (onYou && type !== "levelUp" && type !== "levelDown" && type !== "setHp" && ha.current > hb.current)
+    out.push(beaconOn(after.effects) ? { kind: "beacon-heal", amount: ha.current - hb.current } : { kind: "heal", amount: ha.current - hb.current });
+  // A companion or a summoned creature under Beacon of Hope, healed.
+  if (type === "heal" && typeof p.companion === "string") {
+    const b = before.companions?.[p.companion]?.hp?.current;
+    const a = after.companions?.[p.companion]?.hp?.current;
+    if (beaconOn(after.companions?.[p.companion]?.effects) && a !== undefined && (b === undefined || a > b)) out.push({ kind: "beacon-heal", amount: b === undefined ? Number(p.amount) || 0 : a - b, other: p.companion });
+  }
+  if (type === "summonHp" && typeof p.id === "string") {
+    const b = before.summons?.find((m) => m.id === p.id);
+    const a = after.summons?.find((m) => m.id === p.id);
+    if (a && b && a.hp > b.hp && beaconOn(a.effects)) out.push({ kind: "beacon-heal", amount: a.hp - b.hp, other: a.name ?? "summon" });
+  }
   if (onYou && ha.temp > hb.temp) out.push({ kind: "temp", amount: ha.temp - hb.temp });
 
   if (type === "damage" && onYou && !before.shape && hb.current > 0) {

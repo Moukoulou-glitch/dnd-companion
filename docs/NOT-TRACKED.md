@@ -248,3 +248,10 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 - Ray of Enfeeblement: halving the damage of Strength weapon attacks is yours (a note on the damage roll). Its saves, and Blindness/Deafness', are at the end of your turns.
 - Animal Shapes: the beast's size limit and CR are checked (warned, not blocked); casting on others leaves their forms to them.
 
+## Armor and encumbrance (round 11e-1)
+
+- Stealth: disadvantage from the armor you wear (Medium Armor Master lifts it for medium armor).
+- Heavy armor's Strength: 10 ft slower below it; dwarves aren't slowed.
+- Encumbrance, by the checkbox on the Items page: carrying capacity (Strength × 15; over it is warned: beyond it you can only push, drag or lift) or the variant (speed and disadvantage applied). Powerful Build doubles it; other size changes (Enlarge) aren't counted. Containers that don't count their contents (a Bag of Holding) are counted at their own weight only if their contents aren't listed separately.
+- Beacon of Hope: someone else healing you is entered by hand (enter their maximum); the dice on screen still tumble, and each one counts as its highest face.
+

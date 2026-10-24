@@ -45,7 +45,7 @@ interface Props {
   healing?: boolean;
   onHealSelf?: (amount: number) => void;
   /** Who the healing can go to (you, companions, summoned creatures): replaces "Heal myself" with a choice. */
-  healTargets?: { targets: HealTarget[]; max: number; selfBack?: { label: string; value: number }; onHeal: (ids: string[], amount: number) => void };
+  healTargets?: { targets: HealTarget[]; max: number; selfBack?: { label: string; value: number }; onHeal: (ids: string[], amount: number, perTarget?: Record<string, number>) => void };
   /** A DC the d20 roll must meet (concentration checks). */
   dc?: number;
   /** What the roll is against the DC ("Constitution saving throw"). */
@@ -383,7 +383,14 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
         Next {repeat.what.replace(/s$/, "")} ({nth + 1} of {repeat.count})
       </button>
     ) : null;
-  const [damageChoices, setDamageChoices] = useState<ComposerChoices>({ enabled: [], manual: "none", extra: 0 });
+  // Straight to the damage (a spell's healing, a potion): the options that start ticked are ticked (Beacon of Hope when you're under it).
+  const [damageChoices, setDamageChoices] = useState<ComposerChoices>(() => ({
+    enabled: damageOnly && attack ? attack.damage.bonus.suggestions.filter((x) => optionInfo?.[x.label]?.preselect || x.preset === "always").map((x) => x.label) : [],
+    manual: "none",
+    extra: 0,
+  }));
+  /** The last damage or healing rolled, for its maximum (Beacon of Hope on a target). */
+  const lastDamage = useRef<Composed | undefined>(undefined);
   const [stage, setStage] = useState<Stage>(damageOnly ? { step: "damage-setup", crit: false } : { step: "setup" });
   const [entering, setEntering] = useState(false);
 
@@ -393,6 +400,9 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
   const [chosenHands, setChosenHands] = useState<Hands>(() => (attack && isVersatile(attack) ? defaultHands(attack.attackId, attack.damage.bonus) : "one"));
   const hands: Hands = attack ? handsOf(attack, chosenHands) : "one";
   const damageBase = useMemo(() => (attack ? forHands(withoutUsedUp(attack.damage.bonus, usedUp), hands) : undefined), [attack, usedUp, hands]);
+  // Beacon of Hope (or Overchannel): every die at its maximum.
+  const maxed = !!damageBase?.suggestions.some((x) => damageChoices.enabled.includes(x.label) && x.apply.maximize);
+  const beaconRolled = damageChoices.enabled.includes(BEACON);
   // Smites: the slot picked decides the dice (Divine Smite with a 3rd-level slot: 4d8).
   const [slotPick, setSlotPick] = useState<Record<string, { key: string; extra: boolean }>>({});
   const smites = Object.entries(optionInfo ?? {}).filter(([label, info]) => info.slots && damageChoices.enabled.includes(label));
@@ -461,7 +471,9 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
    */
   const keysFor = (source: string | undefined): string[] => {
     const opt = [...base.suggestions, ...(damageBase?.suggestions ?? [])].find((x) => x.label === source);
-    return [...(opt?.spends ? [`resource:${opt.spends.resource}`] : []), ...(diceSource ? [diceSource] : [])];
+    // Beacon of Hope: the healing dice in its emerald-gold.
+    const beacon = damageChoices.enabled.includes(BEACON) ? ["name:Beacon of Hope"] : [];
+    return [...beacon, ...(opt?.spends ? [`resource:${opt.spends.resource}`] : []), ...(diceSource ? [diceSource] : [])];
   };
   /**
    * Throws the dice for `c`, then `done` with the roll. Skipped, or the 3D dice can't be drawn or fail:
@@ -514,6 +526,7 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
     if (!damage || stage.step !== "damage-setup") return;
     const label = `${attack!.name} ${healing ? "healing" : "damage"}${stage.crit ? " (critical)" : ""}`;
     const result = done ?? rollComposed(damage);
+    lastDamage.current = damage;
     const rec =
       diceTotal === undefined
         ? recordOf(label, "damage", result)
@@ -874,7 +887,12 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
           </p>
         ))}
         <p className="formula">{formatFormula(damage.terms).replace(/\[[^\]]*\]/g, "")}</p>
-        {physical ? (
+        {physical && maxed ? (
+          // Every die at its maximum: nothing to roll.
+          <button className="big primary wide beacon" onClick={() => rollDamage()}>
+            {healing ? "Maximum healing" : "Maximum damage"}: {rollComposed(damage).result.total}
+          </button>
+        ) : physical ? (
           entering ? (
             <TotalEntry prompt={`Roll ${diceToRoll(damage)} and type the total of the dice.`} onDone={rollDamage} />
           ) : (
@@ -902,7 +920,14 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
         <ResultView r={stage.record} />
         {throwNote && <p className="note">{throwNote}</p>}
         {healing && healTargets && (
-          <HealTargets targets={healTargets.targets} max={healTargets.max} amount={stage.record.total} selfBack={healTargets.selfBack} onHeal={(ids) => healTargets.onHeal(ids, stage.record.total)} />
+          <HealTargets
+            targets={healTargets.targets}
+            max={healTargets.max}
+            amount={stage.record.total}
+            beacon={{ rolledMax: beaconRolled, maxAmount: lastDamage.current ? maxTotal(lastDamage.current) : stage.record.total }}
+            selfBack={healTargets.selfBack}
+            onHeal={(ids, per) => healTargets.onHeal(ids, stage.record.total, per)}
+          />
         )}
         {healing && onHealSelf && !healTargets && (
           <button className="big heal wide" onClick={() => onHealSelf(stage.record.total)}>
@@ -918,4 +943,11 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
   }
 
   return null;
+}
+
+const BEACON = "Beacon of Hope";
+
+/** The most a roll can give: every die at its maximum. */
+function maxTotal(c: Composed): number {
+  return rollComposed({ ...c, terms: c.terms.map((t) => (t.kind === "dice" && t.sign > 0 ? { ...t, min: t.sides } : t)) }).result.total;
 }
