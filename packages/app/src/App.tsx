@@ -18,6 +18,7 @@ import { DcBig, Reminders } from "./components/DcBig";
 import { DistributePanel } from "./components/Distribute";
 import { RageVeins, greyLevel, useFlourishes } from "./components/Fx";
 import { FxLayer, playFx } from "./fx/FxLayer";
+import { spellInfoOf } from "./fx/generated";
 import { DiceStrip } from "./dice/DiceStrip";
 import { DiceSettings } from "./dice/DiceSettings";
 import { ownFeatureOf } from "./ownFeature";
@@ -186,6 +187,8 @@ export function App() {
   useFlourishes(onRage, actionName);
   // The school a spell really has (from its definition), for the cast effect's colour.
   const spellSchool = useCallback((id: string) => (registry.find(id, "spell") as { school?: string } | undefined)?.school, []);
+  // What a spell's generated effect needs (level, school, damage, area): from the SRD or a book file on this device.
+  const spellLook = useCallback((id: string) => spellInfoOf(registry.find(id, "spell")), []);
 
   // Recharge abilities roll their d6 by themselves when a turn starts (yours in a form, or a summoned creature's).
   useEffect(() => {
@@ -3200,7 +3203,7 @@ export function App() {
     <ConditionLinks.Provider value={showCondition}>
     <div className="app">
       <RageVeins show={rageAt} />
-      <FxLayer school={spellSchool} character={c} />
+      <FxLayer school={spellSchool} spell={spellLook} character={c} />
       <DiceStrip />
       {grey > 0 && <div className="grey-veil" aria-hidden="true" style={{ backdropFilter: `grayscale(${grey})`, WebkitBackdropFilter: `grayscale(${grey})` }} />}
       <header className="strip">

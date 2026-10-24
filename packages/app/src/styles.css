@@ -3648,3 +3648,167 @@ button.big.beacon { background: linear-gradient(120deg, #1f9d6b, #c9a227); color
   .fx.sfx-sg .sg-ring, .fx.sfx-sg-strike .sg-ring { animation: fx-static var(--fx-ms) ease-out forwards !important; scale: 1 !important; }
   .sfx-ongoing-sg.drift .sg-ring { translate: 0 0; }
 }
+
+/* ── Generated spell effects (12a, fx/generated.ts + fx/GenSpell.tsx) ─────────────
+   Every spell without a hand-made look: a sigil in its school's colours, then its
+   shape (area, touch, ray, aura, healing or the school's motif) in its damage
+   type's colour. --s grows with the tier; the cast's sigil comes first (--d0),
+   its shape after. Transform and opacity only; one flash at most, never repeated. */
+.gs { position: absolute; inset: 0; pointer-events: none; --s: 1; --d0: 0ms; --d1: var(--ms); }
+.gs-t0 { --s: 0.8; } .gs-t1 { --s: 1.2; } .gs-t2 { --s: 2; } .gs-t3 { --s: 3.2; } .gs-t4 { --s: 4.6; }
+.gs-cast { --d0: calc(var(--ms) * 0.35); --d1: calc(var(--ms) * 0.65); }
+.gs-skip { opacity: 0; transition: opacity 180ms ease-out; }
+.gs-at { position: absolute; left: var(--x); top: var(--y); width: 0; height: 0; }
+.gs-at > * { position: absolute; left: 0; top: 0; transform: translate(-50%, -50%); opacity: 0; }
+
+/* The whole screen, for the biggest */
+.gs-dim { position: absolute; inset: 0; opacity: 0; background: radial-gradient(circle at var(--x) var(--y), rgba(var(--c), 0.14), rgba(4, 6, 12, 0.5) 62%); animation: gs-dim var(--ms) ease-in-out forwards; }
+.gs-t4 .gs-dim { background: radial-gradient(circle at var(--x) var(--y), rgba(var(--c), 0.2), rgba(2, 3, 8, 0.72) 58%); }
+@keyframes gs-dim { 0% { opacity: 0; } 15% { opacity: 1; } 78% { opacity: 1; } 100% { opacity: 0; } }
+.gs-vig { position: absolute; inset: 0; opacity: 0; box-shadow: inset 0 0 70px rgba(var(--c), 0.5); animation: gs-vig var(--ms) ease-out forwards; }
+.gs-t3 .gs-vig, .gs-t4 .gs-vig { box-shadow: inset 0 0 130px rgba(var(--c), 0.6), inset 0 0 40px rgba(var(--c2), 0.4); }
+@keyframes gs-vig { 0% { opacity: 0; } 30% { opacity: 1; } 70% { opacity: 0.8; } 100% { opacity: 0; } }
+.gs-rays {
+  position: absolute; left: var(--x); top: var(--y); width: 220vmax; height: 220vmax; translate: -50% -50%; opacity: 0;
+  background: repeating-conic-gradient(from 0deg, rgba(var(--c2), 0.2) 0deg 3deg, rgba(0, 0, 0, 0) 3deg 15deg);
+  -webkit-mask-image: radial-gradient(circle, #000 0, rgba(0, 0, 0, 0) 45%); mask-image: radial-gradient(circle, #000 0, rgba(0, 0, 0, 0) 45%);
+  animation: gs-rays var(--ms) ease-out forwards;
+}
+@keyframes gs-rays { 0% { opacity: 0; rotate: -10deg; scale: 0.6; } 35% { opacity: 0.3; } 55% { opacity: 1; scale: 1; } 100% { opacity: 0; rotate: 25deg; scale: 1.1; } }
+.gs-pillars { position: absolute; inset: 0; }
+.gs-pillar {
+  position: absolute; top: 0; bottom: 0; left: calc(8% + var(--i) * 21%); width: 22px; margin-left: -11px; opacity: 0; transform-origin: 50% 100%;
+  background: linear-gradient(to top, rgba(var(--c), 0), rgba(var(--c), 0.55) 25%, rgba(255, 255, 255, 0.75) 55%, rgba(var(--c2), 0.35) 80%, rgba(var(--c2), 0));
+  animation: gs-pillar calc(var(--ms) * 0.6) calc(var(--ms) * 0.18 + var(--i) * 90ms) ease-out forwards;
+}
+.gs-pillar:nth-child(odd) { width: 14px; margin-left: -7px; }
+@keyframes gs-pillar { 0% { opacity: 0; scale: 1 0; } 35% { opacity: 1; scale: 1 1; } 75% { opacity: 0.8; } 100% { opacity: 0; scale: 1.6 1; } }
+.gs-flash { position: absolute; inset: 0; opacity: 0; background: radial-gradient(circle at var(--x) var(--y), rgba(255, 255, 255, 0.7), rgba(var(--c), 0.35) 40%, rgba(0, 0, 0, 0) 75%); animation: gs-flash var(--ms) ease-out forwards; }
+.gs-hit .gs-flash { animation-name: gs-flash-hit; }
+@keyframes gs-flash { 0%, 38% { opacity: 0; } 46% { opacity: 1; } 70%, 100% { opacity: 0; } }
+@keyframes gs-flash-hit { 0% { opacity: 0; } 12% { opacity: 0.85; } 45%, 100% { opacity: 0; } }
+
+/* The sigil: rings drawn one after another, marks, the school's glyph */
+.gs-sigil {
+  width: var(--sig); height: var(--sig); fill: none; stroke: rgba(var(--c), 0.9); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round;
+  filter: drop-shadow(0 0 5px rgba(var(--c), 0.75)); animation: gs-sigil var(--ms) ease-out forwards;
+}
+.gs-t3 .gs-sigil { width: min(var(--sig), 88vw); height: min(var(--sig), 88vw); filter: none; stroke-width: 1.2; }
+.gs-t4 .gs-sigil { width: min(var(--sig), 96vw, 80vh); height: min(var(--sig), 96vw, 80vh); filter: none; stroke-width: 1; animation-name: gs-sigil-big; }
+.gs-sigil .ring { stroke-dasharray: 1; stroke-dashoffset: 1; animation: gs-draw calc(var(--ms) * 0.3) calc(var(--ms) * 0.05 * var(--i)) ease-out forwards; }
+.gs-sigil .ring.r1 { stroke: rgba(var(--c2), 0.8); stroke-width: 0.9; }
+.gs-sigil .marks { fill: rgba(var(--c2), 0.85); stroke: none; opacity: 0; animation: gs-in calc(var(--ms) * 0.25) calc(var(--ms) * 0.15) ease-out forwards; }
+.gs-sigil .glyph path { stroke: rgba(var(--c2), 0.95); stroke-width: 2.2; stroke-dasharray: 1; stroke-dashoffset: 1; animation: gs-draw calc(var(--ms) * 0.3) calc(var(--ms) * 0.12) ease-out forwards; }
+.gs-t3 .gs-sigil .glyph, .gs-t4 .gs-sigil .glyph { transform: scale(1.5); }
+.gs-up .gs-sigil .ring:first-child { stroke-width: 2.6; }
+@keyframes gs-draw { to { stroke-dashoffset: 0; } }
+@keyframes gs-in { to { opacity: 1; } }
+@keyframes gs-sigil { 0% { opacity: 0; scale: 0.45; rotate: -70deg; } 22% { opacity: 1; scale: 1; } 62% { opacity: 1; rotate: 15deg; } 100% { opacity: 0; scale: 1.18; rotate: 40deg; } }
+@keyframes gs-sigil-big { 0% { opacity: 0; scale: 0.3; rotate: -90deg; } 25% { opacity: 1; scale: 0.9; } 45% { scale: 1; } 72% { opacity: 1; rotate: 20deg; } 100% { opacity: 0; scale: 1.25; rotate: 50deg; } }
+.gs-sigil .glyph { transform-origin: 0 0; }
+.gs-t1 .gs-sigil .marks, .gs-t2 .gs-sigil .marks { animation-duration: calc(var(--ms) * 0.2); }
+
+/* Shapes */
+.gs-core { width: calc(64px * var(--s)); height: calc(64px * var(--s)); border-radius: 50%; background: radial-gradient(circle, #fff 0, rgba(var(--c), 0.9) 24%, rgba(var(--c), 0.35) 50%, rgba(0, 0, 0, 0) 70%); animation: gs-pop var(--d1) var(--d0) ease-out forwards; }
+@keyframes gs-pop { 0% { opacity: 1; scale: 0.2; } 30% { opacity: 1; scale: 1; } 100% { opacity: 0; scale: 1.4; } }
+.gs-wave { width: calc(52px * var(--s)); height: calc(52px * var(--s)); border-radius: 50%; border: calc(2px + var(--s) * 1px) solid rgba(var(--c), 0.85); box-shadow: 0 0 calc(8px * var(--s)) rgba(var(--c), 0.55); animation: gs-wave var(--d1) calc(var(--d0) + var(--i) * 110ms) cubic-bezier(0.2, 0.7, 0.3, 1) forwards; }
+@keyframes gs-wave { 0% { opacity: 1; scale: 0.2; } 100% { opacity: 0; scale: 2.6; } }
+.gs-box { width: calc(56px * var(--s)); height: calc(56px * var(--s)); border: calc(2px + var(--s) * 0.8px) solid rgba(var(--c), 0.9); box-shadow: 0 0 calc(8px * var(--s)) rgba(var(--c), 0.5), inset 0 0 calc(10px * var(--s)) rgba(var(--c), 0.35); animation: gs-box var(--d1) var(--d0) ease-out forwards; }
+.gs-box.b2 { border-color: rgba(var(--c2), 0.7); animation-name: gs-box2; animation-delay: calc(var(--d0) + 120ms); }
+@keyframes gs-box { 0% { opacity: 1; scale: 0.2; rotate: 0deg; } 100% { opacity: 0; scale: 2.3; rotate: 45deg; } }
+@keyframes gs-box2 { 0% { opacity: 1; scale: 0.2; rotate: 45deg; } 100% { opacity: 0; scale: 2; rotate: 0deg; } }
+.gs-at > .gs-cone {
+  width: calc(110px * var(--s)); height: min(calc(110px * var(--s)), 70vh); transform: translate(-50%, -100%); transform-origin: 50% 100%;
+  clip-path: polygon(50% 100%, 0 0, 100% 0); background: radial-gradient(ellipse at 50% 100%, #fff 0, rgba(var(--c), 0.92) 18%, rgba(var(--c), 0.45) 55%, rgba(0, 0, 0, 0) 78%);
+  animation: gs-cone var(--d1) var(--d0) ease-out forwards;
+}
+@keyframes gs-cone { 0% { opacity: 1; scale: 0.15; } 40% { opacity: 1; scale: 1; } 100% { opacity: 0; scale: 1.08; } }
+.gs-at > .gs-line {
+  left: calc(-1 * var(--x)); width: 100vw; height: calc(6px * var(--s)); transform: translateY(-50%); transform-origin: 0 50%; border-radius: 99px;
+  background: linear-gradient(90deg, rgba(var(--c), 0), rgba(var(--c), 0.9) 8%, #fff 50%, rgba(var(--c), 0.9) 92%, rgba(var(--c), 0));
+  box-shadow: 0 0 calc(10px * var(--s)) rgba(var(--c), 0.8); animation: gs-line var(--d1) var(--d0) ease-out forwards;
+}
+@keyframes gs-line { 0% { opacity: 1; scale: 0 1; } 30% { opacity: 1; scale: 1 1; } 60% { opacity: 0.9; scale: 1 0.7; } 100% { opacity: 0; scale: 1 0.2; } }
+.gs-at > .gs-col {
+  top: calc(-1 * var(--y)); height: var(--y); width: calc(38px * var(--s)); transform: translateX(-50%); transform-origin: 50% 0;
+  background: linear-gradient(to bottom, rgba(var(--c), 0), rgba(var(--c), 0.7) 55%, #fff); border-radius: 0 0 50% 50% / 0 0 18px 18px;
+  animation: gs-col var(--d1) var(--d0) ease-in forwards;
+}
+@keyframes gs-col { 0% { opacity: 1; scale: 1 0; } 35% { opacity: 1; scale: 1 1; } 100% { opacity: 0; scale: 1.3 1; } }
+.gs-at > .gs-wall { left: calc(-1 * var(--x)); width: 100vw; height: min(calc(44px * var(--s)), 60vh); transform: translateY(-100%); display: flex; justify-content: space-around; align-items: flex-end; opacity: 1; }
+.gs-wall > span {
+  width: 7%; height: 100%; transform-origin: 50% 100%; opacity: 0; border-radius: 40% 40% 0 0;
+  background: linear-gradient(to top, rgba(var(--c), 0.95), rgba(var(--c2), 0.45) 60%, rgba(var(--c2), 0));
+  animation: gs-rise var(--d1) calc(var(--d0) + var(--i) * 45ms) ease-out forwards;
+}
+.gs-wall > span:nth-child(even) { height: 78%; }
+@keyframes gs-rise { 0% { opacity: 1; scale: 1 0; } 40% { opacity: 1; scale: 1 1; } 75% { opacity: 0.9; } 100% { opacity: 0; scale: 1 1.05; } }
+.gs-at > .gs-ray {
+  top: calc(-1 * var(--y)); height: var(--y); width: calc(5px * var(--s) + 2px); transform: translateX(-50%); transform-origin: 50% 100%; border-radius: 99px;
+  background: linear-gradient(to top, #fff, rgba(var(--c), 0.95) 25%, rgba(var(--c), 0)); box-shadow: 0 0 calc(8px * var(--s)) rgba(var(--c), 0.8);
+  animation: gs-ray var(--d1) var(--d0) cubic-bezier(0.3, 0.8, 0.3, 1) forwards;
+}
+@keyframes gs-ray { 0% { opacity: 1; scale: 1 0; } 30% { opacity: 1; scale: 1 1; } 100% { opacity: 0; scale: 0.3 1; } }
+.gs-aura { width: calc(80px * var(--s)); height: calc(80px * var(--s)); border-radius: 50%; border: 2px solid rgba(var(--c), 0.85); background: radial-gradient(circle, rgba(var(--c), 0) 45%, rgba(var(--c), 0.22) 70%, rgba(var(--c), 0) 72%); animation: gs-aura var(--d1) var(--d0) ease-out forwards; }
+.gs-aura.a2 { border: 1.5px dashed rgba(var(--c2), 0.75); background: none; animation-delay: calc(var(--d0) + 150ms); animation-name: gs-aura2; }
+@keyframes gs-aura { 0% { opacity: 0; scale: 0.4; } 30% { opacity: 1; scale: 1; } 75% { opacity: 0.9; scale: 1.04; } 100% { opacity: 0; scale: 1.12; } }
+@keyframes gs-aura2 { 0% { opacity: 0; scale: 0.5; rotate: 0deg; } 35% { opacity: 1; scale: 1.1; } 100% { opacity: 0; scale: 1.2; rotate: 60deg; } }
+.gs-mote { width: 7px; height: 7px; border-radius: 50%; background: rgb(var(--c2)); box-shadow: 0 0 7px rgba(var(--c), 0.9); margin-left: calc((var(--i) - 3) * 11px * var(--s)); animation: gs-mote var(--d1) calc(var(--d0) + var(--i) * 60ms) ease-out forwards; }
+.gs-mote:nth-child(odd) { background: rgb(var(--c)); }
+@keyframes gs-mote { 0% { opacity: 0; translate: 0 calc(10px * var(--s)); } 25% { opacity: 1; } 100% { opacity: 0; translate: 0 calc(-60px * var(--s)); } }
+.gs-s-heal .gs-core { background: radial-gradient(circle, rgba(255, 255, 255, 0.8) 0, rgba(var(--c), 0.55) 30%, rgba(var(--c2), 0.2) 55%, rgba(0, 0, 0, 0) 72%); }
+
+/* The school's motif (spells with no area, damage or range of their own) */
+.gs-motif { width: min(calc(110px * var(--s)), 86vw); height: min(calc(110px * var(--s)), 86vw); fill: none; stroke: rgba(var(--c2), 0.95); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; animation: gs-motif var(--d1) var(--d0) ease-out forwards; }
+.gs-motif path { stroke-dasharray: 1; stroke-dashoffset: 1; animation: gs-draw calc(var(--d1) * 0.5) var(--d0) ease-out forwards; }
+.gs-t0 .gs-motif, .gs-t1 .gs-motif { filter: drop-shadow(0 0 4px rgba(var(--c), 0.9)); }
+@keyframes gs-motif { 0% { opacity: 1; scale: 0.6; } 50% { opacity: 1; scale: 1; } 100% { opacity: 0; scale: 1.15; } }
+.gs-divination .gs-motif { animation-name: gs-eye; }
+@keyframes gs-eye { 0% { opacity: 1; scale: 1 0.05; } 35% { scale: 1 1; } 80% { opacity: 1; } 100% { opacity: 0; scale: 1.1 1.1; } }
+.gs-enchantment .gs-motif, .gs-conjuration .gs-motif { animation-name: gs-turn; }
+@keyframes gs-turn { 0% { opacity: 1; scale: 0.3; rotate: -120deg; } 55% { opacity: 1; scale: 1; rotate: 0deg; } 100% { opacity: 0; scale: 1.1; rotate: 30deg; } }
+.gs-illusion .gs-motif { animation-name: gs-flicker; }
+@keyframes gs-flicker { 0% { opacity: 0; translate: -8px 0; } 15% { opacity: 1; translate: 6px 0; } 25% { opacity: 0.4; translate: -4px 0; } 40% { opacity: 1; translate: 0 0; } 85% { opacity: 1; } 100% { opacity: 0; translate: 10px 0; } }
+.gs-necromancy .gs-motif { animation-name: gs-close; stroke: rgba(var(--c), 0.95); }
+@keyframes gs-close { 0% { opacity: 0; scale: 1.5; } 40% { opacity: 1; scale: 1; } 85% { opacity: 1; } 100% { opacity: 0; scale: 0.85; } }
+.gs-transmutation .gs-motif { animation-name: gs-morph; }
+@keyframes gs-morph { 0% { opacity: 1; scale: 0.5; rotate: 0deg; } 50% { scale: 1; rotate: 120deg; } 100% { opacity: 0; scale: 1.1; rotate: 240deg; } }
+.gs-abjuration .gs-motif { animation-name: gs-ward; }
+@keyframes gs-ward { 0% { opacity: 1; scale: 0.5; } 40% { scale: 1.05; } 55% { scale: 0.97; } 85% { opacity: 1; scale: 1; } 100% { opacity: 0; scale: 1.08; } }
+
+/* Sparks: gathering in during the cast's sigil, bursting out on an impact */
+.gs-p { width: calc(3px + var(--s) * 1px); height: calc(3px + var(--s) * 1px); border-radius: 50%; background: rgb(var(--c2)); box-shadow: 0 0 6px rgba(var(--c), 0.9); }
+.gs-p:nth-child(even) { background: rgb(var(--c)); }
+.gs-cast .gs-p { animation: gs-gather calc(var(--ms) * 0.45) calc(var(--i) * 30ms) ease-in forwards; }
+.gs-hit .gs-p { animation: gs-burst var(--ms) ease-out forwards; }
+@keyframes gs-gather { 0% { opacity: 0; transform: translate(-50%, -50%) rotate(var(--a)) translateY(calc(-1.6 * var(--d))); } 20% { opacity: 1; } 90% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -50%) rotate(var(--a)) translateY(0); } }
+@keyframes gs-burst { 0% { opacity: 1; transform: translate(-50%, -50%) rotate(var(--a)) translateY(-6px); } 100% { opacity: 0; transform: translate(-50%, -50%) rotate(var(--a)) translateY(calc(-1 * var(--d))); } }
+
+/* The spell's name: a short label (1st–5th), a title for the biggest */
+.gs-label {
+  position: absolute; left: var(--x); top: max(6px, calc(var(--y) - 44px - var(--s) * 14px)); translate: -50% 0; white-space: nowrap; font-weight: 700; font-size: 0.95rem;
+  color: rgb(var(--c2)); text-shadow: 0 1px 6px rgba(0, 0, 0, 0.9); background: rgba(10, 12, 20, 0.6); padding: 1px 8px; border-radius: 10px; opacity: 0;
+  animation: fx-label var(--ms) ease-out forwards;
+}
+.gs-title {
+  position: absolute; left: 50%; top: 20%; translate: -50% 0; max-width: 92vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; opacity: 0;
+  font-size: 1.55rem; font-weight: 700; font-variant: small-caps; letter-spacing: 0.12em; color: rgb(var(--c2));
+  text-shadow: 0 0 14px rgba(var(--c), 0.9), 0 2px 8px rgba(0, 0, 0, 0.95); animation: gs-title var(--ms) ease-out forwards;
+}
+.gs-t4 .gs-title { font-size: 2.1rem; top: 16%; }
+@keyframes gs-title { 0%, 30% { opacity: 0; translate: -50% 8px; letter-spacing: 0.3em; } 50% { opacity: 1; translate: -50% 0; letter-spacing: 0.12em; } 85% { opacity: 1; } 100% { opacity: 0; } }
+
+/* The screen's shake (7th level and up): the top strip, the page and the tabs; never under reduced motion */
+html.fx-shake .app > .strip, html.fx-shake .app > main, html.fx-shake .app > .tabs { animation: fx-shake var(--shake-ms) linear; }
+html.fx-shake-strong .app > .strip, html.fx-shake-strong .app > main, html.fx-shake-strong .app > .tabs { animation-name: fx-shake-strong; }
+@keyframes fx-shake { 0%, 100% { translate: 0 0; } 15% { translate: -3px 1px; } 30% { translate: 3px -1px; } 45% { translate: -2px -1px; } 60% { translate: 2px 1px; } 80% { translate: -1px 0; } }
+@keyframes fx-shake-strong { 0%, 100% { translate: 0 0; } 10% { translate: -6px 2px; } 22% { translate: 5px -3px; } 34% { translate: -5px -1px; } 46% { translate: 4px 3px; } 60% { translate: -3px -2px; } 75% { translate: 2px 1px; } 88% { translate: -1px 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .gs-p, .gs-rays, .gs-pillars, .gs-flash, .gs-wave, .gs-box, .gs-mote, .gs-dim, .gs-at > .gs-cone, .gs-at > .gs-line, .gs-at > .gs-col, .gs-at > .gs-ray, .gs-at > .gs-wall { display: none; }
+  .gs-sigil, .gs-motif, .gs-core, .gs-aura, .gs-vig, .gs-title, .gs-label { animation: fx-static var(--ms) ease-out forwards !important; scale: 1 !important; rotate: 0deg !important; }
+  .gs-sigil .ring, .gs-sigil .glyph path, .gs-motif path { animation: none !important; stroke-dashoffset: 0; }
+  .gs-sigil .marks { animation: none !important; opacity: 1; }
+  .gs-title { translate: -50% 0 !important; }
+  html.fx-shake .app > * { animation: none !important; }
+}

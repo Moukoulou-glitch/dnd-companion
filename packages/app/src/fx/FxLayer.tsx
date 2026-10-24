@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import type { Character } from "@dnd/schema";
 import type { RollRecord } from "../rolls";
-import { formFx, ongoingFx, opFx, rollFx, type FxEvent } from "./triggers";
+import { formFx, ongoingFx, opFx, rollFx, type FxEvent, type SpellLookup } from "./triggers";
+import { GenSpell } from "./GenSpell";
+import type { GenLook } from "./generated";
 import { phaseLook } from "./spells";
 import { DAMAGE_FX, FORM_FX } from "./looks";
 
@@ -29,6 +31,12 @@ export interface FxSpec {
   dmg?: { rgb: string; shape: string };
   /** Words shown and sent off (Sending). */
   words?: string[];
+  /** A generated spell effect (fx/generated.ts): drawn by GenSpell. */
+  gen?: GenLook;
+  /** Shake the screen this long (7th-level spells and up; never under reduced motion). */
+  shake?: number;
+  /** A tap ends it early. */
+  skippable?: boolean;
 }
 
 const SCHOOLS = ["evocation", "abjuration", "necromancy", "conjuration"];
@@ -96,6 +104,10 @@ export function specOf(e: FxEvent): FxSpec {
       const f = FORM_FX[e.form]!;
       return { at: "edge", ms: f.ms, look: f.start, label: f.label, ...(f.buzz ? { buzz: f.buzz } : {}) };
     }
+    case "gen": {
+      const g = e.g;
+      return { at: g.at, ms: g.ms, look: `gs-${g.shape}`, buzz: g.buzz, gen: g, ...(g.shake ? { shake: g.shake } : {}), ...(g.skippable ? { skippable: true } : {}) };
+    }
     case "spell": {
       const p = phaseLook(e.spell, e.phase, e.mode);
       // A phase with no look of its own plays nothing big: the generic circle for a cast, nothing otherwise.
@@ -157,6 +169,31 @@ interface Shown {
   spec: FxSpec;
   x: number;
   y: number;
+  /** Tapped away: fading out. */
+  skip?: boolean;
+}
+
+const reducedMotion = () => typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/**
+ * A short shake of what's on screen (the top strip, the page, the tabs and an open panel; never the
+ * effects layer or anything fixed inside them). 7th-level spells and up; never under reduced motion.
+ */
+let shakeTimer: ReturnType<typeof setTimeout> | undefined;
+function shakeScreen(ms: number, strong: boolean) {
+  if (reducedMotion() || typeof document === "undefined") return;
+  const html = document.documentElement;
+  html.style.setProperty("--shake-ms", `${ms}ms`);
+  html.classList.remove("fx-shake", "fx-shake-strong");
+  // Restart the animation when a second one comes during the first.
+  void html.offsetWidth;
+  html.classList.add("fx-shake", ...(strong ? ["fx-shake-strong"] : []));
+  if (shakeTimer) clearTimeout(shakeTimer);
+  shakeTimer = setTimeout(() => html.classList.remove("fx-shake", "fx-shake-strong"), ms + 30);
+}
+function stopShake() {
+  if (shakeTimer) clearTimeout(shakeTimer);
+  document.documentElement.classList.remove("fx-shake", "fx-shake-strong");
 }
 
 function placeOf(at: FxSpec["at"], tap: { x: number; y: number }): { x: number; y: number } {
@@ -183,20 +220,34 @@ export function playFx(e: FxEvent) {
   window.dispatchEvent(new CustomEvent("dnd-fx", { detail: e }));
 }
 
-export function FxLayer({ school, character }: { school: (spell: string) => string | undefined; character?: Character | undefined }) {
+export function FxLayer({ school, spell, character }: { school: (spell: string) => string | undefined; spell?: SpellLookup; character?: Character | undefined }) {
   const [shown, setShown] = useState<Shown[]>([]);
+  const shownRef = useRef<Shown[]>([]);
+  shownRef.current = shown;
   const tap = useRef({ x: window.innerWidth / 2, y: window.innerHeight / 3 });
   const next = useRef(1);
   const schoolRef = useRef(school);
   schoolRef.current = school;
+  const spellRef = useRef(spell);
+  spellRef.current = spell;
   const characterRef = useRef(character);
   characterRef.current = character;
 
   useEffect(() => {
-    const onDown = (e: PointerEvent) => (tap.current = { x: e.clientX, y: e.clientY });
+    const onDown = (e: PointerEvent) => {
+      tap.current = { x: e.clientX, y: e.clientY };
+      // A tap ends a long effect early (a 9th-level spell): it fades out quickly. The tap still does what it was for.
+      const gone = shownRef.current.filter((x) => x.spec.skippable && !x.skip).map((x) => x.id);
+      if (!gone.length) return;
+      stopShake();
+      setShown((s) => s.map((x) => (gone.includes(x.id) ? { ...x, skip: true } : x)));
+      setTimeout(() => setShown((t) => t.filter((x) => !gone.includes(x.id))), 220);
+    };
     const play = (events: FxEvent[]) => {
       for (const ev of events) {
-        const spec = specOf(ev);
+        const s0 = specOf(ev);
+        // Reduced motion: a generated effect is a short, still fade (and no shake).
+        const spec = s0.gen && reducedMotion() ? { ...s0, ms: Math.min(s0.ms, 900), gen: { ...s0.gen, ms: Math.min(s0.ms, 900), shake: 0 }, skippable: false, shake: 0 } : s0;
         const id = next.current++;
         const show = () => {
           const p = placeOf(spec.at, tap.current);
@@ -206,14 +257,16 @@ export function FxLayer({ school, character }: { school: (spell: string) => stri
         // A roll's result appears on screen right after it's saved: wait a frame or two for it.
         if (spec.at === "result") setTimeout(show, 40);
         else show();
+        // The shake comes with the spell's climax: after a cast's sigil, at once for an impact.
+        if (spec.shake) setTimeout(() => shakeScreen(spec.shake!, (spec.gen?.level ?? 0) >= 9), spec.gen?.phase === "cast" ? Math.round(spec.ms * 0.35) : 0);
         if (spec.buzz && typeof navigator !== "undefined" && typeof navigator.vibrate === "function") navigator.vibrate(spec.buzz);
       }
     };
     const onOp = (e: Event) => {
       const { type, payload, before, after } = (e as CustomEvent<{ type: string; payload: unknown; before: Character; after: Character }>).detail;
-      play(opFx(type, payload, before, after, (s) => schoolRef.current(s)));
+      play(opFx(type, payload, before, after, (s) => schoolRef.current(s), spellRef.current ? (s) => spellRef.current?.(s) : undefined));
     };
-    const onRoll = (e: Event) => play(rollFx((e as CustomEvent<RollRecord>).detail, characterRef.current));
+    const onRoll = (e: Event) => play(rollFx((e as CustomEvent<RollRecord>).detail, characterRef.current, spellRef.current ? (s) => spellRef.current?.(s) : undefined));
     const onFx = (e: Event) => play([(e as CustomEvent<FxEvent>).detail]);
     document.addEventListener("pointerdown", onDown, true);
     window.addEventListener("dnd-op", onOp);
@@ -233,8 +286,10 @@ export function FxLayer({ school, character }: { school: (spell: string) => stri
       {FORM_KEYS.map((f) => (
         <Ongoing key={f} look={formFx(character).find((x) => x.form === f)?.look} />
       ))}
-      {shown.map(({ id, spec, x, y }) =>
-        spec.at === "sky" ? (
+      {shown.map(({ id, spec, x, y, skip }) =>
+        spec.gen ? (
+          <GenSpell key={id} g={spec.gen} x={x} y={y} {...(skip ? { skip } : {})} />
+        ) : spec.at === "sky" ? (
           <div key={id} className={`fx fx-sky ${spec.look}`} style={{ left: x, height: y, ["--fx-ms" as string]: `${spec.ms}ms` }}>
             <span className="sfx-cloud" />
             <svg className="sfx-bolt-path" viewBox="0 0 40 100" preserveAspectRatio="none">

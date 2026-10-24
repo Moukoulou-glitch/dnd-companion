@@ -2,6 +2,10 @@ import type { Character } from "@dnd/schema";
 import type { RollRecord } from "../rolls";
 import { CHARMED, DAMAGE_FX, FORM_FX, damageKey } from "./looks";
 import { alignmentSide, spellFxOf, type SpellPhase } from "./spells";
+import { genLook, type GenLook, type SpellInfo } from "./generated";
+
+/** Looks a spell up for its generated effect (fx/generated.ts); undefined: the older generic circle. */
+export type SpellLookup = (spell: string) => SpellInfo | undefined;
 
 /**
  * Which flourish a confirmed change or roll earns. Pure: it only compares the
@@ -42,11 +46,13 @@ export type FxEvent =
   | { kind: "charmed" }
   /** A transformation started (Necrotic Shroud, Form of Dread): by the state the feature turns on. */
   | { kind: "form"; form: string }
+  /** A spell with no hand-made look: its generated one (fx/generated.ts), by level, school, damage and shape. */
+  | { kind: "gen"; g: GenLook }
   /** Sending: the message's words, once it's sent. */
   | { kind: "sending"; words: string[] };
 
 /** A saved roll: crit and natural 1 on attack rolls only; Sneak Attack when its dice are in the damage. */
-export function rollFx(r: RollRecord, c?: Character): FxEvent[] {
+export function rollFx(r: RollRecord, c?: Character, info?: SpellLookup): FxEvent[] {
   if (r.kind === "d20") {
     if (!r.attack) return [];
     const reckless: FxEvent[] = r.options?.includes(RECKLESS) ? [{ kind: "reckless", hit: false }] : [];
@@ -65,6 +71,12 @@ export function rollFx(r: RollRecord, c?: Character): FxEvent[] {
     // The damage type the player picked (Spirit Guardians: radiant or necrotic) plays too.
     const type = sdef.withDamageType ? mainType(r) : undefined;
     if (type) out.push({ kind: "damage-type", type });
+  }
+  // A spell with no hand-made look at all: its generated impact, in the colour of the damage rolled (it says the type too).
+  const gi = r.spell && !sdef ? info?.(r.spell) : undefined;
+  if (gi) {
+    const t = mainType(r);
+    out.push({ kind: "gen", g: genLook(gi, phase, t ? { type: t } : {}) });
   }
   // The damage type's look, only when nothing else plays on this roll (a spell's own look or Sneak Attack say more).
   if (!out.length) {
@@ -88,7 +100,7 @@ export function mainType(r: RollRecord): string | undefined {
 const level = (c: Character) => c.classes.reduce((t, k) => t + k.level, 0);
 
 /** A recorded operation: what actually changed. `school` looks a spell's school up (never guessed from its name). */
-export function opFx(type: string, payload: unknown, before: Character, after: Character, school?: (spell: string) => string | undefined): FxEvent[] {
+export function opFx(type: string, payload: unknown, before: Character, after: Character, school?: (spell: string) => string | undefined, info?: SpellLookup): FxEvent[] {
   const out: FxEvent[] = [];
   const p = (payload ?? {}) as Record<string, unknown>;
   // Damage and healing on a summoned creature or companion aren't yours.
@@ -141,7 +153,10 @@ export function opFx(type: string, payload: unknown, before: Character, after: C
     const picked = [cast.choice, cast.castingTime].find((m): m is string => typeof m === "string" && !!def?.modes?.[m.toLowerCase()]);
     // Spirit Guardians: by the caster's alignment.
     const mode = def?.byAlignment ? alignmentSide(after.alignment) : picked?.toLowerCase();
+    const gi = def?.cast ? undefined : info?.(cast.spell);
     if (def?.cast) out.push({ kind: "spell", spell: cast.spell, phase: "cast", ...(mode ? { mode } : {}) });
+    // Its generated look, bigger with the spell's level; a higher slot adds rings and sparks.
+    else if (gi) out.push({ kind: "gen", g: genLook(gi, "cast", typeof cast.level === "number" ? { slot: cast.level } : {}) });
     else {
       const s = school?.(cast.spell)?.toLowerCase();
       out.push(s ? { kind: "cast", school: s } : { kind: "cast" });
