@@ -201,7 +201,7 @@ export function SummonGroupPanel({
                 </div>
               </button>
               <button className={`chip hp-frame tier-${hpTier(m.hp, summonBlock(reg, m)?.hp.max ?? d?.hp ?? 0)}${m.hp === 0 ? " danger-text" : ""}`} onClick={() => openHp(m.id)}>
-                {m.hp}/{summonBlock(reg, m)?.hp.max ?? d?.hp ?? "?"} HP
+                {m.hp}/{summonBlock(reg, m)?.hp.max ?? d?.hp ?? "?"} HP{m.temp ? ` +${m.temp}` : ""}
               </button>
               {!shared && (
                 <button className="chip" onClick={() => rollInitiative(group, m.id)}>
@@ -489,7 +489,7 @@ export function SummonMemberPanel({
             {m.hp}
             <small>/{b?.hp.max ?? "?"}</small>
           </b>
-          <span>HP · damage or heal</span>
+          <span>HP{m.temp ? ` + ${m.temp} temp` : ""} · damage or heal</span>
         </button>
         <div className="stat-box">
           <b>{b?.ac ?? "?"}</b>

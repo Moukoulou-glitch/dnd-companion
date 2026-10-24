@@ -92,7 +92,11 @@
             "cost": {
               "resource": "arcane-recovery"
             },
-            "note": "After a short rest: recover spell slots with levels adding up to half your wizard level (rounded up), none 6th level or higher."
+            "note": "After a short rest: recover spell slots with levels adding up to half your wizard level (rounded up), none 6th level or higher.",
+            "recoversSlots": {
+              "class": "class:wizard",
+              "maxLevel": 5
+            }
           }
         ]
       }

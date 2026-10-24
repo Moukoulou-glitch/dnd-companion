@@ -623,6 +623,8 @@ export const Character = z
             creature: DefId,
             name: z.string().optional(),
             hp: z.number().int().min(0),
+            /** Temporary hit points (Durable Summons: 30), lost first. */
+            temp: z.number().int().min(0).optional(),
             /** The spell that brought it. */
             spell: DefId,
             /** Summoned together: one group, one initiative when it's shared. */

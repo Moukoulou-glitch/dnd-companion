@@ -470,6 +470,12 @@
         "pack": "table-2014",
         "book": "PHB",
         "page": 74
+      },
+      "grant": {
+        "initiativeRegain": {
+          "resource": "superiority-dice",
+          "amount": 1
+        }
       }
     },
     {
@@ -861,6 +867,12 @@
         "pack": "table-2014",
         "book": "XGtE",
         "page": 29
+      },
+      "grant": {
+        "initiativeRegain": {
+          "resource": "arcane-shot",
+          "amount": 1
+        }
       }
     },
     {
@@ -1314,6 +1326,12 @@
         "pack": "table-2014",
         "book": "XGtE",
         "page": 31
+      },
+      "grant": {
+        "initiativeRegain": {
+          "resource": "fighting-spirit",
+          "amount": 1
+        }
       }
     },
     {

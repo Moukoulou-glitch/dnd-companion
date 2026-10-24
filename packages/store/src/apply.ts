@@ -20,7 +20,7 @@ const evalFlatSafe = (v: ValueExpr, ctx: Parameters<typeof evalFlat>[1]): number
 /** A follow-up the app should open: a concentration save (yours, or a summoned creature's when `summon` is set). */
 /** A question for the player: a concentration save, or news of instant death (`reason`). */
 /** `grave`: Strength of the Grave could save you from this drop to 0 (DC in `dc`); asked before damage is recorded. */
-export type Prompt = { kind: "concentration" | "dead" | "grave" | "stable"; dc: number; spell: string; summon?: string; reason?: string };
+export type Prompt = { kind: "concentration" | "dead" | "grave" | "rage" | "stable"; dc: number; spell: string; summon?: string; reason?: string };
 
 /** The effect a stable character at 0 HP carries: its minutes count down to 1 HP. */
 export const STABLE_EFFECT = "other:stable";
@@ -250,6 +250,13 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
     }
   };
 
+  /** Focused Conjuration: damage can't break your concentration on a conjuration spell. */
+  const focusedConjuration = () => {
+    if (!c.concentration || !sheet.features.some((f) => f.id === "feature:conjuration-focused-conjuration")) return false;
+    return reg.find(c.concentration.spell, "spell")?.school.toLowerCase() === "conjuration";
+  };
+  const hasFeature = (id: string) => sheet.features.some((f) => f.id === id);
+
   switch (op.type) {
     case "damage": {
       let { amount, damageType } = op.payload;
@@ -289,7 +296,8 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
           if (sd !== amount) notes.push(`${d.name} ${sd === 0 ? "is immune" : sd < amount ? "resists" : "is vulnerable"}: ${sd} damage.`);
         }
         if (c.concentration && sd > 0) {
-          prompts.push({ kind: "concentration", dc: Math.max(10, Math.floor(sd / 2)), spell: c.concentration.name });
+          if (focusedConjuration()) notes.push(`Focused Conjuration: the damage can't break your concentration on ${c.concentration.name}.`);
+          else prompts.push({ kind: "concentration", dc: Math.max(10, Math.floor(sd / 2)), spell: c.concentration.name });
           concAsked = true;
         }
         c.shape.hp -= sd;
@@ -396,6 +404,20 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
             : "Strength of the Grave is already used until your next long rest.",
           );
         }
+        // Relentless Rage: while raging, a Constitution save (DC 10, +5 for each use since your last rest) to drop to 1 instead.
+        const rage = sheet.resources.find((x) => x.id === "relentless-rage");
+        if (c.hp.current === 0 && rage && c.toggles.includes("raging") && !killedOutright) {
+          const dc = 10 + 5 * rage.used;
+          const r = op.payload.rage;
+          if (!r) prompts.push({ kind: "rage", dc, spell: "" });
+          else {
+            c.resourcesUsed[rage.id] = rage.used + 1;
+            if (r.saved) {
+              c.hp.current = 1;
+              notes.push(`Relentless Rage: Constitution save${r.total !== undefined ? ` ${r.total}` : ""} against DC ${dc} succeeds; you drop to 1 hit point instead. Next time it's DC ${dc + 5}.`);
+            } else notes.push(`Relentless Rage: Constitution save${r.total !== undefined ? ` ${r.total}` : ""} against DC ${dc} fails; you drop to 0. Next time it's DC ${dc + 5}.`);
+          }
+        } else if (op.payload.rage && c.hp.current === 0) notes.push(!rage ? "Relentless Rage isn't one of your features." : killedOutright ? "Relentless Rage can't help: that damage kills you outright." : "Relentless Rage works only while you're raging.");
         if (c.hp.current === 0 && op.payload.relentless) {
           // Relentless Endurance (asked before the damage was recorded): not if killed outright, once per long rest.
           const r = sheet.resources.find((x) => x.id === "relentless-endurance");
@@ -412,7 +434,10 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       if (concentrating) {
         if (c.hp.current === 0) endConcentration(c, notes, "Dropped to 0 HP.");
         // 2014: DC 10 or half the damage taken, whichever is higher. Temp HP still count as damage taken.
-        else if (!concAsked) prompts.push({ kind: "concentration", dc: Math.max(10, Math.floor(dmg / 2)), spell: concentrating.name });
+        else if (!concAsked) {
+          if (focusedConjuration()) notes.push(`Focused Conjuration: the damage can't break your concentration on ${concentrating.name}.`);
+          else prompts.push({ kind: "concentration", dc: Math.max(10, Math.floor(dmg / 2)), spell: concentrating.name });
+        }
       }
       if (c.hp.current === 0 && before > 0) {
         const overflow = rest - before;
@@ -594,7 +619,22 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
           notes.push(`${x.creature} isn't in the content on this device.`);
           continue;
         }
-        for (let i = 0; i < x.count; i++) c.summons.push({ id: `${group}-${++n}`, creature: d.id, hp: d.hp, spell, group, ...(concentration ? { concentration } : {}) });
+        // Mighty Summoner: beasts and fey from a spell get 2 more hit points per Hit Die. Durable Summons: 30 temporary HP from a conjuration spell.
+        const mighty = hasFeature("feature:circle-of-the-shepherd-mighty-summoner") && /^(beast|fey)/i.test(d.type ?? "") ? 2 * Number(/^(\d+)d/.exec(d.hitDice ?? "")?.[1] ?? 0) : 0;
+        const durable = hasFeature("feature:conjuration-durable-summons") && reg.find(spell, "spell")?.school.toLowerCase() === "conjuration";
+        for (let i = 0; i < x.count; i++)
+          c.summons.push({
+            id: `${group}-${++n}`,
+            creature: d.id,
+            hp: d.hp + mighty,
+            spell,
+            group,
+            ...(concentration ? { concentration } : {}),
+            ...(mighty ? { maxHpAdjust: { reduce: 0, increase: mighty } } : {}),
+            ...(durable ? { temp: 30 } : {}),
+          });
+        if (mighty) notes.push(`Mighty Summoner: ${d.name} has ${mighty} more hit points, and its natural weapons count as magical.`);
+        if (durable) notes.push(`Durable Summons: ${x.count > 1 ? "each has" : `${d.name} has`} 30 temporary hit points.`);
       }
       notes.push(`${creatures.map((x) => `${x.count > 1 ? `${x.count} × ` : ""}${reg.find(x.creature, "creature")?.name ?? x.creature}`).join(", ")} ${creatures.reduce((t, x) => t + x.count, 0) > 1 ? "appear" : "appears"}.`);
       break;
@@ -616,7 +656,15 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
           ...(op.payload.adamantine ? { adamantine: true } : {}),
         });
         for (const n of r.notes) notes.push(`${who}: ${n}`);
-        const amount = r.amount;
+        let amount = r.amount;
+        // Temporary hit points go first (Durable Summons).
+        if (x.temp) {
+          const absorbed = Math.min(x.temp, amount);
+          x.temp -= absorbed;
+          amount -= absorbed;
+          if (!x.temp) delete x.temp;
+          if (absorbed) notes.push(`${who}: temporary HP absorbed ${absorbed}.`);
+        }
         target = Math.max(0, x.hp - amount);
       }
       const max = (def?.hp ?? target) + summonHpBonus(x, reg);
@@ -1130,6 +1178,29 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
           c.resourcesUsed[a.restores.resource] = Math.max(0, used - a.restores.amount);
           notes.push(`${target.name}: ${Math.min(used, a.restores.amount)} regained.`);
         }
+      }
+      // Arcane Recovery, Natural Recovery: the spent slots picked come back (more than allowed: noted, still done).
+      if (a.recoversSlots && op.payload.slots?.length) {
+        const back: number[] = [];
+        for (const lvl of op.payload.slots) {
+          const used = c.slotsUsed[String(lvl)] ?? 0;
+          if (used <= 0) continue;
+          c.slotsUsed[String(lvl)] = used - 1;
+          back.push(lvl);
+        }
+        const sum = back.reduce((s, l) => s + l, 0);
+        notes.push(back.length ? `Slots back: ${back.map((l) => `level ${l}`).join(", ")}.` : "No spent slots to recover.");
+        if (sum > a.recoversSlots.budget) notes.push(`That's ${sum} levels of slots; ${a.name} allows ${a.recoversSlots.budget}. Kept, beyond the rules.`);
+        if (back.some((l) => l > a.recoversSlots!.maxLevel)) notes.push(`${a.name} can't recover slots above level ${a.recoversSlots.maxLevel}. Kept, beyond the rules.`);
+      }
+      // Combat Wild Shape: a slot spent for healing (the healing itself comes as its own heal).
+      if (a.slotHeal && op.payload.slot) {
+        const key = String(op.payload.slot);
+        const total = sheet.spellSlots.find((x) => x.level === op.payload.slot)?.total ?? 0;
+        const used = c.slotsUsed[key] ?? 0;
+        if (used >= total) notes.push(`No level ${op.payload.slot} slot left: used anyway.`);
+        c.slotsUsed[key] = used + 1;
+        if (!c.shape) notes.push(`${a.name} heals you while you're in a Wild Shape form.`);
       }
       if (!free) spendTurn(a.asAttack ? "attack" : a.economy, (cb) => {
         // Grapple and Shove take the place of one attack of the Attack action.
@@ -1676,6 +1747,15 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
 
     case "setInitiative": {
       if (!c.combat) c.combat = CombatState.parse({});
+      // Relentless, Perfect Self, Superior Inspiration: rolling initiative with none left brings some back (the first roll of a combat only).
+      if (c.combat.initiative === undefined) {
+        for (const g of sheet.initiativeRegains) {
+          const r = sheet.resources.find((x) => x.id === g.resource);
+          if (!r || r.remaining > 0) continue;
+          c.resourcesUsed[r.id] = Math.max(0, r.used - g.amount);
+          notes.push(`${g.from}: ${Math.min(g.amount, r.used)} ${r.name} back.`);
+        }
+      }
       c.combat.initiative = op.payload.value;
       break;
     }
@@ -1755,6 +1835,13 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       if (prev?.myTurn) notes.push("Your turn had already started: everything is back for a fresh turn.");
       c.combat = CombatState.parse({ round, myTurn: true, hadTurn: true, ...(prev?.initiative !== undefined ? { initiative: prev.initiative } : {}) });
       notes.push(`Round ${round}: action, bonus action, reaction and movement are back.`);
+      // Survivor: at the start of your turn, at no more than half your hit points (but above 0), regain 5 + Constitution modifier.
+      if (hasFeature("feature:survivor") && c.hp.current > 0 && c.hp.current <= Math.floor(maxHp / 2)) {
+        const amount = Math.max(0, 5 + sheet.abilities.con.modifier);
+        const before = c.hp.current;
+        c.hp.current = Math.min(maxHp, before + amount);
+        notes.push(`Survivor: ${c.hp.current - before} hit points back (5 + Constitution).`);
+      }
       break;
     }
 

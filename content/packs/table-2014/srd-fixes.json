@@ -900,6 +900,462 @@
           }
         ]
       }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:natural-recovery",
+      "name": "Natural Recovery",
+      "summary": "Starting at 2nd level, you can regain some of your magical energy by sitting in meditation and communing with nature.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "Starting at 2nd level, you can regain some of your magical energy by sitting in meditation and communing with nature. During a short rest, you choose expended spell slots to recover. The spell slots can have a combined level that is equal to or less than half your druid level (rounded up), and none of the slots can be 6th level or higher. You can't use this feature again until you finish a long rest.",
+        "For example, when you are a 4th-level druid, you can recover up to two levels worth of spell slots. You can recover either a 2nd-level slot or two 1st-level slots."
+      ],
+      "grant": {
+        "resources": [
+          {
+            "id": "natural-recovery",
+            "name": "Natural Recovery",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "natural-recovery",
+            "name": "Natural Recovery",
+            "economy": "free",
+            "cost": {
+              "resource": "natural-recovery"
+            },
+            "recoversSlots": {
+              "class": "class:druid",
+              "maxLevel": 5
+            },
+            "note": "During a short rest: pick spent slots with levels adding up to half your druid level (rounded up), none 6th level or higher."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:dark-ones-own-luck",
+      "name": "Dark One's Own Luck",
+      "summary": "Starting at 6th level, you can call on your patron to alter fate in your favor.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "Starting at 6th level, you can call on your patron to alter fate in your favor. When you make an ability check or a saving throw, you can use this feature to add a d10 to your roll. You can do so after seeing the initial roll but before any of the roll's effects occur.",
+        "Once you use this feature, you can't use it again until you finish a short or long rest."
+      ],
+      "grant": {
+        "resources": [
+          {
+            "id": "dark-ones-own-luck",
+            "name": "Dark One's Own Luck",
+            "max": 1,
+            "reset": "short"
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.check.*",
+            "op": "add",
+            "value": "1d10",
+            "mode": "suggested",
+            "label": "Dark One's Own Luck",
+            "spends": {
+              "resource": "dark-ones-own-luck",
+              "amount": 1
+            },
+            "when": {
+              "text": "after seeing the roll, before its effects: spends its use until a short or long rest"
+            }
+          },
+          {
+            "selector": "roll.save.*",
+            "op": "add",
+            "value": "1d10",
+            "mode": "suggested",
+            "label": "Dark One's Own Luck",
+            "spends": {
+              "resource": "dark-ones-own-luck",
+              "amount": 1
+            },
+            "when": {
+              "text": "after seeing the roll, before its effects: spends its use until a short or long rest"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:stroke-of-luck",
+      "name": "Stroke of Luck",
+      "summary": "At 20th level, you have an uncanny knack for succeeding when you need to.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "At 20th level, you have an uncanny knack for succeeding when you need to. If your attack misses a target within range, you can turn the miss into a hit. Alternatively, if you fail an ability check, you can treat the d20 roll as a 20.",
+        "Once you use this feature, you can't use it again until you finish a short or long rest."
+      ],
+      "grant": {
+        "resources": [
+          {
+            "id": "stroke-of-luck",
+            "name": "Stroke of Luck",
+            "max": 1,
+            "reset": "short"
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.check.*",
+            "op": "minD20",
+            "value": 20,
+            "mode": "suggested",
+            "label": "Stroke of Luck",
+            "spends": {
+              "resource": "stroke-of-luck",
+              "amount": 1
+            },
+            "when": {
+              "text": "a failed ability check: the d20 counts as a 20; spends its use until a short or long rest"
+            }
+          }
+        ],
+        "actions": [
+          {
+            "id": "stroke-of-luck",
+            "name": "Stroke of Luck: the miss hits",
+            "economy": "free",
+            "cost": {
+              "resource": "stroke-of-luck"
+            },
+            "note": "An attack that missed a target within range hits instead. Roll its damage from the attack."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:relentless-rage",
+      "name": "Relentless Rage",
+      "summary": "Starting at 11th level, your rage can keep you fighting despite grievous wounds.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "Starting at 11th level, your rage can keep you fighting despite grievous wounds. If you drop to 0 hit points while you're raging and don't die outright, you can make a DC 10 Constitution saving throw. If you succeed, you drop to 1 hit point instead.",
+        "Each time you use this feature after the first, the DC increases by 5. When you finish a short or long rest, the DC resets to 10."
+      ],
+      "grant": {
+        "resources": [
+          {
+            "id": "relentless-rage",
+            "name": "Relentless Rage (uses since rest)",
+            "max": 10,
+            "reset": "short"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:spell-mastery",
+      "name": "Spell Mastery",
+      "summary": "At 18th level, you have achieved such mastery over certain spells that you can cast them at will.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "At 18th level, you have achieved such mastery over certain spells that you can cast them at will. Choose a 1st-level wizard spell and a 2nd-level wizard spell that are in your spellbook. You can cast those spells at their lowest level without expending a spell slot when you have them prepared. If you want to cast either spell at a higher level, you must expend a spell slot as normal.",
+        "By spending 8 hours in study, you can exchange one or both of the spells you chose for different spells of the same levels."
+      ],
+      "choices": [
+        {
+          "id": "first",
+          "label": "Spell Mastery: 1st-level spell",
+          "kind": "spell",
+          "count": 1,
+          "list": "wizard",
+          "atWill": true,
+          "spells": {
+            "classes": [
+              "wizard"
+            ],
+            "level": 1
+          }
+        },
+        {
+          "id": "second",
+          "label": "Spell Mastery: 2nd-level spell",
+          "kind": "spell",
+          "count": 1,
+          "list": "wizard",
+          "atWill": true,
+          "spells": {
+            "classes": [
+              "wizard"
+            ],
+            "level": 2
+          }
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:signature-spell",
+      "name": "Signature Spell",
+      "summary": "When you reach 20th level, you gain mastery over two powerful spells and can cast them with little effort.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "When you reach 20th level, you gain mastery over two powerful spells and can cast them with little effort. Choose two 3rd-level wizard spells in your spellbook as your signature spells. You always have these spells prepared, they don't count against the number of spells you have prepared, and you can cast each of them once at 3rd level without expending a spell slot. When you do so, you can't do so again until you finish a short or long rest.",
+        "If you want to cast either spell at a higher level, you must expend a spell slot as normal."
+      ],
+      "choices": [
+        {
+          "id": "first",
+          "label": "Signature spell",
+          "kind": "spell",
+          "count": 1,
+          "list": "wizard",
+          "resource": "signature-spell-1",
+          "spells": {
+            "classes": [
+              "wizard"
+            ],
+            "level": 3
+          }
+        },
+        {
+          "id": "second",
+          "label": "Second signature spell",
+          "kind": "spell",
+          "count": 1,
+          "list": "wizard",
+          "resource": "signature-spell-2",
+          "spells": {
+            "classes": [
+              "wizard"
+            ],
+            "level": 3
+          }
+        }
+      ],
+      "grant": {
+        "resources": [
+          {
+            "id": "signature-spell-1",
+            "name": "Signature spell",
+            "max": 1,
+            "reset": "short"
+          },
+          {
+            "id": "signature-spell-2",
+            "name": "Second signature spell",
+            "max": 1,
+            "reset": "short"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:song-of-rest-d6",
+      "name": "Song of Rest",
+      "summary": "Beginning at 2nd level, you can use soothing music or oration to help revitalize your wounded allies during a short rest.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "Beginning at 2nd level, you can use soothing music or oration to help revitalize your wounded allies during a short rest. If you or any friendly creatures who can hear your performance regain hit points at the end of the short rest by spending one or more Hit Dice, each of those creatures regains an extra 1d6 hit points.",
+        "The extra hit points increase when you reach certain levels in this class: to 1d8 at 9th level, to 1d10 at 13th level, and to 1d12 at 17th level.",
+        "Level 9: Beginning at 2nd level, you can use soothing music or oration to help revitalize your wounded allies during a short rest. If you or any friendly creatures who can hear your performance regain hit points at the end of the short rest by spending one or more Hit Dice, each of those creatures regains an extra 1d6 hit points. The extra hit points increase when you reach certain levels in this class: to 1d8 at 9th level, to 1d10 at 13th level, and to 1d12 at 17th level.",
+        "Level 13: Beginning at 2nd level, you can use soothing music or oration to help revitalize your wounded allies during a short rest. If you or any friendly creatures who can hear your performance regain hit points at the end of the short rest by spending one or more Hit Dice, each of those creatures regains an extra 1d6 hit points. The extra hit points increase when you reach certain levels in this class: to 1d8 at 9th level, to 1d10 at 13th level, and to 1d12 at 17th level.",
+        "Level 17: Beginning at 2nd level, you can use soothing music or oration to help revitalize your wounded allies during a short rest. If you or any friendly creatures who can hear your performance regain hit points at the end of the short rest by spending one or more Hit Dice, each of those creatures regains an extra 1d6 hit points. The extra hit points increase when you reach certain levels in this class: to 1d8 at 9th level, to 1d10 at 13th level, and to 1d12 at 17th level."
+      ],
+      "scaling": {
+        "die": {
+          "class": "class:bard",
+          "table": [
+            [
+              2,
+              "1d6"
+            ],
+            [
+              9,
+              "1d8"
+            ],
+            [
+              13,
+              "1d10"
+            ],
+            [
+              17,
+              "1d12"
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "song-of-rest",
+            "name": "Song of Rest",
+            "economy": "free",
+            "roll": {
+              "dice": "scale.die",
+              "label": "extra hit points for a creature that spent Hit Dice this short rest"
+            },
+            "note": "At the end of a short rest: you and each friendly creature who heard you and spent Hit Dice regain this much more. Yours is offered when you spend a Hit Die."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:fiendish-resilience",
+      "name": "Fiendish Resilience",
+      "summary": "Starting at 10th level, you can choose one damage type when you finish a short or long rest.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "Starting at 10th level, you can choose one damage type when you finish a short or long rest. You gain resistance to that damage type until you choose a different one with this feature. Damage from magical weapons or silver weapons ignores this resistance."
+      ],
+      "grant": {
+        "actions": [
+          {
+            "id": "fiendish-resilience",
+            "name": "Fiendish Resilience",
+            "economy": "free",
+            "selfEffect": "other:fiendish-resilience",
+            "choose": {
+              "label": "Resistance to",
+              "options": [
+                "acid",
+                "bludgeoning",
+                "cold",
+                "fire",
+                "force",
+                "lightning",
+                "necrotic",
+                "piercing",
+                "poison",
+                "psychic",
+                "radiant",
+                "slashing",
+                "thunder"
+              ]
+            },
+            "note": "When you finish a short or long rest: resistance to the type you pick until you pick another. Magical and silvered weapons ignore it."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:superior-inspiration",
+      "name": "Superior Inspiration",
+      "summary": "At 20th level, when you roll initiative and have no uses of Bardic Inspiration left, you regain one use.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "At 20th level, when you roll initiative and have no uses of Bardic Inspiration left, you regain one use."
+      ],
+      "grant": {
+        "initiativeRegain": {
+          "resource": "bardic-inspiration",
+          "amount": 1
+        }
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:perfect-self",
+      "name": "Perfect Self",
+      "summary": "At 20th level, when you roll for initiative and have no ki points remaining, you regain 4 ki points.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "At 20th level, when you roll for initiative and have no ki points remaining, you regain 4 ki points."
+      ],
+      "grant": {
+        "initiativeRegain": {
+          "resource": "ki",
+          "amount": 4
+        }
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:survivor",
+      "name": "Survivor",
+      "summary": "At 18th level, you attain the pinnacle of resilience in battle.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "At 18th level, you attain the pinnacle of resilience in battle. At the start of each of your turns, you regain hit points equal to 5 + your Constitution modifier if you have no more than half of your hit points left. You don't gain this benefit if you have 0 hit points."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "other:fiendish-resilience",
+      "name": "Fiendish Resilience",
+      "category": "other",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "summary": "Resistance to the damage type you picked, until you pick another. Magical and silvered weapons ignore it.",
+      "selfOnly": true,
+      "choice": {
+        "label": "Damage type",
+        "options": [
+          "acid",
+          "bludgeoning",
+          "cold",
+          "fire",
+          "force",
+          "lightning",
+          "necrotic",
+          "piercing",
+          "poison",
+          "psychic",
+          "radiant",
+          "slashing",
+          "thunder"
+        ]
+      },
+      "modifiers": [
+        {
+          "selector": "defense.resist.{choice}",
+          "op": "resist",
+          "label": "Fiendish Resilience"
+        }
+      ]
     }
   ]
 }

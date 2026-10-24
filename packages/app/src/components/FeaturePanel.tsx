@@ -27,7 +27,13 @@ export function FeaturePanel({
   onUse,
   checks,
   targets,
+  slots,
+  onSlots,
 }: {
+  /** Spell slots by level (Arcane Recovery, Combat Wild Shape). */
+  slots?: { level: number; total: number; used: number }[];
+  /** Recovering slots, or spending one to heal (with what was rolled). */
+  onSlots?: (p: { slots?: number[]; slot?: number; rolled?: number }) => void;
   /**
    * Who it can go to, when it heals or gives something (Healing Hands, Lay on Hands, Bardic Inspiration):
    * you, your companions, your summoned creatures, or someone the app doesn't track ("other"). Warnings never block.
@@ -176,7 +182,11 @@ export function FeaturePanel({
           )}
         </>
       )}
-      {a.infoOnly ? null : a.spendAmount ? (
+      {a.recoversSlots && slots && onSlots ? (
+        <RecoverSlots a={a} slots={slots} none={!!none} onDone={(levels) => onSlots({ slots: levels })} />
+      ) : a.slotHeal && slots && onSlots ? (
+        <SlotHeal a={a} slots={slots} physical={physical} onDone={(slot, rolled) => onSlots({ slot, rolled })} />
+      ) : a.infoOnly ? null : a.spendAmount ? (
         <>
           <label className="entry">
             <span>
@@ -238,6 +248,107 @@ export function FeaturePanel({
           Just activate: switch it on without spending anything
         </button>
       )}
+    </>
+  );
+}
+
+/** Arcane Recovery, Natural Recovery: pick spent slots, their levels adding up to the budget (more is warned, not blocked). */
+function RecoverSlots({ a, slots, none, onDone }: { a: ActionResult; slots: { level: number; total: number; used: number }[]; none: boolean; onDone: (levels: number[]) => void }) {
+  const { budget, maxLevel } = a.recoversSlots!;
+  const [pick, setPick] = useState<Record<number, number>>({});
+  const spent = slots.filter((s) => s.used > 0);
+  const levels = Object.entries(pick).flatMap(([l, n]) => Array.from({ length: n }, () => Number(l)));
+  const sum = levels.reduce((x, l) => x + l, 0);
+  const tooHigh = levels.some((l) => l > maxLevel);
+  return (
+    <>
+      <p className="sub-head">
+        Slots to recover: {sum} of {budget} levels
+      </p>
+      {spent.length === 0 && <p className="note">No spent spell slots.</p>}
+      <div className="group">
+        {spent.map((s) => {
+          const n = pick[s.level] ?? 0;
+          return (
+            <div className="row" key={s.level}>
+              <div className="row-main">
+                <div className="row-title">Level {s.level}</div>
+                <div className="row-sub">
+                  {s.used} spent{s.level > maxLevel ? `, above level ${maxLevel}` : ""}
+                </div>
+              </div>
+              <div className="stepper">
+                <button className="key" aria-label={`One fewer level ${s.level}`} disabled={n === 0} onClick={() => setPick({ ...pick, [s.level]: n - 1 })}>
+                  −
+                </button>
+                <span>{n}</span>
+                <button className="key" aria-label={`One more level ${s.level}`} disabled={n >= s.used} onClick={() => setPick({ ...pick, [s.level]: n + 1 })}>
+                  +
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      {(sum > budget || tooHigh) && (
+        <p className="over-banner">
+          {sum > budget ? `That's more than ${budget} levels of slots. ` : ""}
+          {tooHigh ? `${a.name} can't recover slots above level ${maxLevel}. ` : ""}
+          You can still do it if your DM allows.
+        </p>
+      )}
+      <button className={`big wide ${none || sum > budget || tooHigh ? "damage" : "primary"}`} disabled={!levels.length} onClick={() => onDone(levels)}>
+        Recover {levels.length ? levels.map((l) => `level ${l}`).join(", ") : "slots"}
+      </button>
+    </>
+  );
+}
+
+/** Combat Wild Shape: pick a slot; it heals its die once per slot level, rolled here or from your dice. */
+function SlotHeal({ a, slots, physical, onDone }: { a: ActionResult; slots: { level: number; total: number; used: number }[]; physical: boolean; onDone: (slot: number, rolled: number) => void }) {
+  const { die } = a.slotHeal!;
+  const [level, setLevel] = useState<number | undefined>(slots.find((s) => s.total - s.used > 0)?.level);
+  const [entry, setEntry] = useState("");
+  const [busy, setBusy] = useState(false);
+  const sides = Number(/d(\d+)/.exec(die)?.[1] ?? 8);
+  const go = async () => {
+    if (!level) return;
+    if (physical) return onDone(level, Number(entry));
+    setBusy(true);
+    try {
+      const faces = await facesOrRoll(level, sides, true, { source: a.name, keys: [] });
+      onDone(level, faces.reduce((x, f) => x + f, 0));
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <>
+      <p className="sub-head">Which slot?</p>
+      <div className="choice-grid">
+        {slots
+          .filter((s) => s.total > 0)
+          .map((s) => (
+            <button key={s.level} className={`big${level === s.level ? " primary" : ""}${s.total - s.used <= 0 ? " damage" : ""}`} onClick={() => setLevel(s.level)}>
+              Level {s.level}
+              <span className="sub">
+                {s.total - s.used} left, {s.level}
+                {die.replace(/^1/, "")}
+              </span>
+            </button>
+          ))}
+      </div>
+      {level && physical && (
+        <label className="entry">
+          <span>
+            Roll {level}d{sides} and type the total
+          </span>
+          <input inputMode="numeric" pattern="[0-9]*" value={entry} onChange={(e) => setEntry(e.target.value.replace(/\D/g, "").slice(0, 3))} />
+        </label>
+      )}
+      <button className="big wide primary" disabled={!level || busy || (physical && !entry)} onClick={() => void go()}>
+        {busy ? "Throwing…" : level ? `Spend a level ${level} slot and heal ${level}d${sides}` : "No slots"}
+      </button>
     </>
   );
 }

@@ -227,6 +227,10 @@ export interface ActionResult {
   summons?: { companion: string; tempHp: number };
   /** The DC a creature saves against (Stunning Strike: your ki save DC). */
   dc?: FeatureDc;
+  /** Arcane Recovery, Natural Recovery: slot levels adding up to `budget`, none above `maxLevel`. */
+  recoversSlots?: { budget: number; maxLevel: number };
+  /** Combat Wild Shape: spend a slot, heal this die per slot level. */
+  slotHeal?: { die: string };
 }
 
 export interface SpeedResult {
@@ -403,6 +407,8 @@ export interface DerivedSheet {
   components: { spell: string; spellName: string; material: string; costly: boolean; consumed: boolean; have: boolean; count: number }[];
   /** Attacks per Attack action: 2 with Extra Attack. */
   attacksPerAction: number;
+  /** Uses that come back when you roll initiative with none left (Relentless, Perfect Self). */
+  initiativeRegains: { resource: string; amount: number; from: string }[];
   /** Rule permissions: two-weapon fighting with non-light weapons (Dual Wielder), ability modifier on off-hand damage (the style). */
   rules: { twoWeaponNonLight: boolean; twoWeaponAbility: boolean; durable: boolean; heavyArmorMaster: boolean; warCaster: boolean };
   /** Data problems found while deriving (missing choices, too many attuned items). */
@@ -768,6 +774,15 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
         const v = flatOf(a);
         const s: Suggestion = { label: labelOf(a), effect: `crit on ${v}–20`, apply: { flat: 0, dice: [], critAt: v } };
         if (mod.when?.text) s.reason = mod.when.text;
+        suggestions.push(s);
+        continue;
+      }
+      // Stroke of Luck: the d20 counts as a 20 when ticked (and its use is spent).
+      if (mod.op === "minD20" && mod.value !== undefined && conditionState(mod.when) !== "fail" && mod.mode === "suggested") {
+        const v = flatOf(a);
+        const s: Suggestion = { label: labelOf(a), effect: `d20 counts as ${v}`, apply: { flat: 0, dice: [], minD20: v } };
+        if (mod.when?.text) s.reason = mod.when.text;
+        if (mod.spends) s.spends = mod.spends;
         suggestions.push(s);
         continue;
       }
@@ -1268,7 +1283,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
 
   // Spells: class lists from the character, plus spells features grant or let the player pick.
   const spellDefs = new Map<string, { def: ReturnType<typeof reg.get<"spell">> | undefined; list: string; prepared: boolean; granted?: GrantedSpellRef; notInBook?: boolean }>();
-  type GrantedSpellRef = { resource?: string; from?: string; atWill?: boolean; extra?: string; scroll?: { instanceId: string; level: number }; pointCost?: { resource: string; amount: number } };
+  type GrantedSpellRef = { resource?: string; from?: string; atWill?: boolean; withSlots?: boolean; extra?: string; scroll?: { instanceId: string; level: number }; pointCost?: { resource: string; amount: number } };
   for (const inst of c.spells) {
     spellDefs.set(`${inst.list}|${inst.spell}`, { def: reg.has(inst.spell) ? reg.get(inst.spell, "spell") : undefined, list: inst.list, prepared: inst.prepared, ...(inst.notInBook ? { notInBook: true } : {}) });
     if (!reg.has(inst.spell)) warnings.push(`Spell "${inst.spell}" isn't in any content pack.`);
@@ -1302,7 +1317,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     }
     // Spells picked through a feature's spell choices (Magic Initiate, Fey Touched).
     if (reg.has(s.id) && /^(feature|feat):/.test(s.id)) {
-      const d = reg.get(s.id, s.id.startsWith("feat:") ? "feat" : "feature") as { choices?: { id: string; kind: string; resource?: string; list?: string }[] };
+      const d = reg.get(s.id, s.id.startsWith("feat:") ? "feat" : "feature") as { choices?: { id: string; kind: string; resource?: string; list?: string; atWill?: boolean }[] };
       for (const ch of d.choices ?? []) {
         if (ch.kind !== "spell") continue;
         // Cast with the feature's own spellcasting, or the one the choice names (Mystic Arcanum: warlock).
@@ -1316,6 +1331,12 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
             // "Magic Initiate: free 1st-level spell" becomes "Magic Initiate: Guiding Bolt".
             const res = resources.find((r) => r.id === ch.resource);
             if (res) res.name = `${res.name.split(":")[0]}: ${def.name}`;
+          }
+          // Spell Mastery: at will at its own level; slots still cast it higher.
+          if (def && def.level > 0 && ch.atWill) {
+            granted.atWill = true;
+            granted.withSlots = true;
+            granted.from = s.label;
           }
           spellDefs.set(`${listOf}|${id}`, { def, list: listOf, prepared: true, granted });
         }
@@ -1424,7 +1445,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       ready: def.level === 0 || granted || !preparedLists.has(list) ? "always" : prepared ? "prepared" : "not prepared",
       // Multiclassing (PHB p. 164): Pact Magic slots cast your other classes' spells, and your Spellcasting slots cast your warlock spells.
       // A warlock spell of 6th level or higher is a Mystic Arcanum: cast once per long rest, never with a slot.
-      cast: granted?.atWill ? { slotLevels: [], atWill: true } : { slotLevels: list === pactList && def.level > 5 ? [] : castLevels.filter((l) => l > 0) },
+      cast: granted?.atWill ? { slotLevels: granted.withSlots ? castLevels.filter((l) => l > def.level) : [], atWill: true } : { slotLevels: list === pactList && def.level > 5 ? [] : castLevels.filter((l) => l > 0) },
     };
     if (def.material) r.material = def.material;
     if (notInBook && !granted) r.notInBook = true;
@@ -1614,6 +1635,8 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
         delete entry.cost;
       }
       if (a.spendAmount) entry.spendAmount = a.spendAmount;
+      if (a.recoversSlots) entry.recoversSlots = { budget: Math.ceil((classLevels[a.recoversSlots.class] ?? 0) / 2), maxLevel: a.recoversSlots.maxLevel };
+      if (a.slotHeal) entry.slotHeal = a.slotHeal;
       // Defensive Duelist (remastered): proficiency bonus + half Dexterity (rounded up, at least 1).
       if (a.id === "defensive-duelist") {
         const half = Math.max(1, Math.ceil(mods.dex / 2));
@@ -1910,6 +1933,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       ),
     ],
     rules,
+    initiativeRegains: sources.flatMap((s) => (s.grant.initiativeRegain ? [{ ...s.grant.initiativeRegain, from: s.label }] : [])),
     attacksPerAction: Math.max(
       sources.some((s) => /^feature:extra-attack/.test(s.id)) ? 2 : 1,
       ...sources.map((s) => (s.grant.extraAttacks !== undefined ? evalFlat(s.grant.extraAttacks, ctxFor(s)) : 1)),

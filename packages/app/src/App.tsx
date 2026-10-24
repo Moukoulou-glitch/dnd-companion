@@ -60,7 +60,7 @@ import { NumberStep } from "./components/Adjust";
 import { zeroHpOptions } from "@dnd/store";
 
 /** What was chosen before damage that drops you to 0 is recorded. */
-type ZeroHpChoice = { relentless?: true; grave?: { saved: boolean; total?: number; crit?: boolean } };
+type ZeroHpChoice = { relentless?: true; grave?: { saved: boolean; total?: number; crit?: boolean }; rage?: { saved: boolean; total?: number } };
 import { CLASS_DICE_COLOURS, classDiceColour, mainClass, setDiceClasses, setDiceResources, setDiceState, usePickedDiceColour } from "./diceColours";
 import { Choose, Confirm, PoolRollPanel, SlotSpendPanel, SpendDiePanel } from "./components/Prompts";
 import { BottomSheet, BreakdownLines } from "./components/Sheet";
@@ -328,7 +328,7 @@ export function App() {
   const withZeroHp = (payload: { amount: number; damageType?: string; magical?: true; fromSpell?: true }, go: (extra: ZeroHpChoice) => void) => {
     const ch = live.current.character;
     const o = ch ? zeroHpOptions(ch, payload, registry) : { relentless: false };
-    if (!o.grave && !o.relentless) return go({});
+    if (!o.grave && !o.relentless && !o.rage) return go({});
     let answered = false;
     const finish = (extra: ZeroHpChoice) => {
       if (answered) return;
@@ -348,8 +348,47 @@ export function App() {
         />
       ));
     };
+    /** A saving throw against a DC, then what follows with its result. */
+    const saveThen = (title: string, ability: "cha" | "con", dc: number, dcLabel: string, then: (result: { saved: boolean; total?: number }) => void) => {
+      let total: number | undefined;
+      open(`${title}: DC ${dc}`, () => (
+        <Composer
+          title={title}
+          base={live.current.sheet!.saves[ability]}
+          dc={dc}
+          dcLabel={dcLabel}
+          onOptionsUsed={recordOptions}
+          physical={live.current.character?.settings.physicalDice ?? true}
+          onPhysicalChange={setPhysicalDice}
+          onRolled={(r) => {
+            total = r.total;
+            live.current.addRoll(r);
+          }}
+          onCheck={(passed) => {
+            const result = { saved: passed, ...(total !== undefined ? { total } : {}) };
+            // A moment to see the roll, then the damage is recorded with its result.
+            setTimeout(() => then(result), 1100);
+          }}
+        />
+      ));
+    };
+    // Relentless Rage (while raging): a Constitution save; on a failure Relentless Endurance can still be used.
+    const askRage = (extra: ZeroHpChoice) => {
+      const rage = o.rage;
+      if (!rage) return askRelentless(extra);
+      open("Relentless Rage?", () => (
+        <Choose
+          question={`${payload.amount} damage drops you to 0 hit points while you're raging. Relentless Rage: a Constitution saving throw, DC ${rage.dc}. On a success you drop to 1 instead.`}
+          detail="The DC goes up by 5 each time you use it, and back to 10 after a short or long rest."
+          options={[
+            { label: `Roll the Constitution save (DC ${rage.dc})`, onPick: () => saveThen("Relentless Rage", "con", rage.dc, "Constitution saving throw", (r) => (r.saved ? finish({ ...extra, rage: r }) : askRelentless({ ...extra, rage: r }))) },
+            { label: "Don't use it", onPick: () => askRelentless(extra) },
+          ]}
+        />
+      ));
+    };
     const grave = o.grave;
-    if (!grave) return askRelentless({});
+    if (!grave) return askRage({});
     const rollSave = () => {
       let total: number | undefined;
       open(`Strength of the Grave: DC ${grave.dc}`, () => (
@@ -368,7 +407,7 @@ export function App() {
           onCheck={(passed) => {
             const result = { saved: passed, ...(total !== undefined ? { total } : {}) };
             // A moment to see the roll, then the damage is recorded with its result.
-            setTimeout(() => (passed ? finish({ grave: result }) : askRelentless({ grave: result })), 1100);
+            setTimeout(() => (passed ? finish({ grave: result }) : askRage({ grave: result })), 1100);
           }}
         />
       ));
@@ -379,8 +418,8 @@ export function App() {
         detail="Not against a critical hit or radiant damage. It's used up only when the save succeeds, then not again until a long rest."
         options={[
           { label: `Roll the Charisma save (DC ${grave.dc})`, onPick: rollSave },
-          { label: "It was a critical hit: can't use it", onPick: () => askRelentless({ grave: { saved: false, crit: true } }) },
-          { label: "Don't use it", onPick: () => askRelentless({}) },
+          { label: "It was a critical hit: can't use it", onPick: () => askRage({ grave: { saved: false, crit: true } }) },
+          { label: "Don't use it", onPick: () => askRage({}) },
         ]}
       />
     ));
@@ -534,26 +573,34 @@ export function App() {
 
   const openHitDie = (die: string) => {
     const sides = Number(die.slice(1));
-    const spend = (roll: number) => {
+    // Song of Rest: the bard's own extra die, once at the end of a short rest in which Hit Dice were spent.
+    const song = sheet.actions.find((a) => a.id === "song-of-rest")?.roll;
+    const songSides = song ? Number(/d(\d+)/.exec(song.text)?.[1] ?? 6) : 0;
+    const spend = (roll: number, withSong: boolean) => {
       s.act("spendHitDie", { die, roll }, `Spent a ${die}.`);
-      close();
+      if (!withSong || !songSides) return close();
+      const heal = (n: number) => {
+        s.act("heal", { amount: n }, `Song of Rest: ${n} more hit points.`);
+        close();
+      };
+      open(
+        `Song of Rest: 1d${songSides}`,
+        <>
+          <p className="note">Tap what your d{songSides} shows, or let the app roll.</p>
+          <div className="keys" style={{ gridTemplateColumns: "repeat(4, 1fr)", marginTop: 10 }}>
+            {Array.from({ length: songSides }, (_, i) => (
+              <button key={i} className="key" onClick={() => heal(i + 1)}>
+                {i + 1}
+              </button>
+            ))}
+          </div>
+          <button className="big" style={{ width: "100%", marginTop: 10 }} onClick={() => void rollOrThrow(`1d${songSides}`, true, undefined, { source: "Song of Rest" }).then((r) => heal(r.total))}>
+            Roll for me
+          </button>
+        </>,
+      );
     };
-    open(
-      `Spend a ${die}`,
-      <>
-        <p className="note">Tap what you rolled, or let the app roll. Constitution {formatBonus({ total: sheet.abilities.con.modifier, dice: [] })} is added.</p>
-        <div className="keys" style={{ gridTemplateColumns: "repeat(4, 1fr)", marginTop: 10 }}>
-          {Array.from({ length: sides }, (_, i) => (
-            <button key={i} className="key" onClick={() => spend(i + 1)}>
-              {i + 1}
-            </button>
-          ))}
-        </div>
-        <button className="big" style={{ width: "100%", marginTop: 10 }} onClick={() => void rollOrThrow(`1d${sides}`, true, undefined, { source: "Hit Die" }).then((r) => spend(r.total))}>
-          Roll for me
-        </button>
-      </>,
-    );
+    open(`Spend a ${die}`, () => <HitDieEntry sides={sides} con={formatBonus({ total: sheet.abilities.con.modifier, dice: [] })} songSides={songSides} onSpend={spend} onRoll={(withSong) => void rollOrThrow(`1d${sides}`, true, undefined, { source: "Hit Die" }).then((r) => spend(r.total, withSong))} />);
   };
 
   /** Opens the roll composer for any d20 roll; attacks also get the damage step. */
@@ -1214,6 +1261,21 @@ export function App() {
               }
             : {})}
           {...(current.others || current.gives || current.spendAmount?.heals ? { targets: featureTargets(current) } : {})}
+          {...(current.recoversSlots || current.slotHeal
+            ? {
+                slots: live.current.sheet?.spellSlots ?? [],
+                onSlots: (p: { slots?: number[]; slot?: number; rolled?: number }) =>
+                  guard({ name: current.name, economy: current.economy, actionId: current.id }, () => {
+                    const label = p.slots
+                      ? `${current.name}: ${p.slots.map((l) => `level ${l}`).join(", ")} back.`
+                      : `${current.name}: a level ${p.slot} slot for ${p.rolled ?? 0} hit points.`;
+                    live.current.act("useAction", { action: current.id, ...(p.slots ? { slots: p.slots } : {}), ...(p.slot ? { slot: p.slot } : {}), ...(p.rolled !== undefined ? { rolled: p.rolled } : {}) }, label);
+                    if (p.slot && p.rolled) live.current.act("heal", { amount: p.rolled }, `Healed ${p.rolled}.`);
+                    flashForFeature(current.id);
+                    close();
+                  }),
+              }
+            : {})}
           onUse={(rolled, free, check, choice, spend, onMe, target) => {
             // Readying a spell: pick it, then cast it now and hold it.
             if (choice === "Cast a Spell" && current.choose) return openReadySpell();
@@ -3443,5 +3505,34 @@ function Welcome({
         </>
       )}
     </main>
+  );
+}
+
+/** A Hit Die: tap the face, or let the app roll. With Song of Rest, a tick-box for the bard's extra die. */
+function HitDieEntry({ sides, con, songSides, onSpend, onRoll }: { sides: number; con: string; songSides: number; onSpend: (roll: number, withSong: boolean) => void; onRoll: (withSong: boolean) => void }) {
+  const [song, setSong] = useState(false);
+  return (
+    <>
+      <p className="note">Tap what you rolled, or let the app roll. Constitution {con} is added.</p>
+      {songSides > 0 && (
+        <label className="row check" style={{ padding: "8px 0" }}>
+          <input type="checkbox" checked={song} onChange={() => setSong(!song)} />
+          <div className="row-main">
+            <div className="row-title">Song of Rest: 1d{songSides} more</div>
+            <div className="row-sub">At the end of a short rest in which you spent Hit Dice, once.</div>
+          </div>
+        </label>
+      )}
+      <div className="keys" style={{ gridTemplateColumns: "repeat(4, 1fr)", marginTop: 10 }}>
+        {Array.from({ length: sides }, (_, i) => (
+          <button key={i} className="key" onClick={() => onSpend(i + 1, song)}>
+            {i + 1}
+          </button>
+        ))}
+      </div>
+      <button className="big" style={{ width: "100%", marginTop: 10 }} onClick={() => onRoll(song)}>
+        Roll for me
+      </button>
+    </>
   );
 }

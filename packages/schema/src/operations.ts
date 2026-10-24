@@ -34,6 +34,8 @@ export const OPERATION_PAYLOADS = {
       fromSpell: z.boolean().optional(),
       relentless: z.boolean().optional(),
       grave: z.object({ saved: z.boolean(), total: z.number().int().optional(), crit: z.boolean().optional() }).strict().optional(),
+      /** Relentless Rage, asked before it's recorded: the Constitution save's result. */
+      rage: z.object({ saved: z.boolean(), total: z.number().int().optional() }).strict().optional(),
     })
     .strict(),
   /** Healing, capped at maximum HP. Healing from 0 HP clears death saves. */
@@ -192,6 +194,10 @@ export const OPERATION_PAYLOADS = {
       rolled: z.number().int().min(0).optional(),
       /** "Just activate": switch it on without spending its cost or the turn (forgot to mark it earlier). */
       free: z.boolean().optional(),
+      /** Spell slots recovered, by level (Arcane Recovery, Natural Recovery). */
+      slots: z.array(z.number().int().min(1).max(9)).optional(),
+      /** The spell slot spent (Combat Wild Shape's healing). */
+      slot: z.number().int().min(1).max(9).optional(),
     })
     .strict(),
   addItem: z

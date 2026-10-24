@@ -164,6 +164,19 @@
         "pack": "table-2014",
         "book": "PHB",
         "page": 69
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "combat-wild-shape-heal",
+            "name": "Combat Wild Shape: heal",
+            "economy": "bonus",
+            "slotHeal": {
+              "die": "1d8"
+            },
+            "note": "While in a Wild Shape form: spend a spell slot to regain 1d8 hit points per level of the slot."
+          }
+        ]
       }
     },
     {

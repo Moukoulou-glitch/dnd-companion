@@ -25,10 +25,13 @@ export function offersRelentless(c: Character, payload: DamagePayload, reg: Cont
  * recorded: Strength of the Grave (its save DC: 5 + the damage taken, after
  * resistances) and Relentless Endurance. Works on a copy: nothing is recorded.
  */
-export function zeroHpOptions(c: Character, payload: DamagePayload, reg: ContentRegistry): { grave?: { dc: number }; relentless: boolean } {
+export function zeroHpOptions(c: Character, payload: DamagePayload, reg: ContentRegistry): { grave?: { dc: number }; rage?: { dc: number }; relentless: boolean } {
   const relentless = offersRelentless(c, payload, reg);
   if (payload.companion || c.hp.current <= 0) return { relentless };
   const op = { id: "dry-run", characterId: c.id, author: "dry-run", at: "0", type: "damage", payload } as Operation;
-  const g = applyOperation(c, op, reg).prompts.find((p) => p.kind === "grave");
-  return g ? { grave: { dc: g.dc }, relentless } : { relentless };
+  const prompts = applyOperation(c, op, reg).prompts;
+  const g = prompts.find((p) => p.kind === "grave");
+  // Relentless Rage (while raging): a Constitution save, DC 10 and 5 more for each use since the last rest.
+  const r = prompts.find((p) => p.kind === "rage");
+  return { ...(g ? { grave: { dc: g.dc } } : {}), ...(r ? { rage: { dc: r.dc } } : {}), relentless };
 }

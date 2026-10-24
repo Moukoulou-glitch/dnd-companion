@@ -16,7 +16,7 @@ export interface ComposerBase {
     effect: string;
     reason?: string;
     /** critAt: a critical hit on this or more while ticked (Hexblade's Curse: 19, against the cursed target). */
-    apply: { flat: number; dice: string[]; damageType?: string; mode?: "advantage" | "disadvantage"; weaponDice?: string; critAt?: number; rerollAtOrBelow?: number };
+    apply: { flat: number; dice: string[]; damageType?: string; mode?: "advantage" | "disadvantage"; weaponDice?: string; critAt?: number; rerollAtOrBelow?: number; minD20?: number };
     /** Ticking it spends this (a superiority die). */
     spends?: { resource: string; amount: number };
     /** One of a group per roll. */
@@ -100,7 +100,9 @@ export function composeD20(base: ComposerBase, choices: ComposerChoices = noChoi
   if (mode !== "normal") d20.keep = { which: mode === "advantage" ? "highest" : "lowest", n: 1 };
   const critAt = Math.min(base.critAt ?? 20, ...on.map((s) => s.apply.critAt ?? 20));
   if (critAt < 20) d20.critAtOrAbove = critAt;
-  if (base.minD20) d20.min = base.minD20;
+  // Reliable Talent always; Stroke of Luck (treat the d20 as a 20) when ticked.
+  const minD20 = Math.max(base.minD20 ?? 0, ...on.map((s) => s.apply.minD20 ?? 0));
+  if (minD20 > 0) d20.min = minD20;
   // Halfling Lucky: a d20 showing this or lower is rolled again once, and the new roll counts.
   const reroll = Math.max(0, ...on.map((s) => s.apply.rerollAtOrBelow ?? 0));
   if (reroll > 0) d20.rerollAtOrBelow = reroll;

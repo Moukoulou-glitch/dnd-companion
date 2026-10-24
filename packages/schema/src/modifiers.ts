@@ -385,6 +385,13 @@ export const ActionDef = z
      * hit points and these temporary HP; it stays while the action's timer runs.
      */
     summons: z.object({ companion: z.string(), tempHp: ValueExpr.optional() }).strict().optional(),
+    /**
+     * Recover spent spell slots whose levels add up to half your level in `class` (rounded up),
+     * none above `maxLevel` (Arcane Recovery, Natural Recovery). The panel asks which.
+     */
+    recoversSlots: z.object({ class: DefId, maxLevel: z.number().int().min(1).max(9) }).strict().optional(),
+    /** Spend a spell slot to heal this die per slot level (Combat Wild Shape: 1d8). The panel asks which slot. */
+    slotHeal: z.object({ die: z.string() }).strict().optional(),
   })
   .strict();
 export type ActionDef = z.infer<typeof ActionDef>;
@@ -529,6 +536,8 @@ export const Grant = z
     companions: z.array(CompanionDef).optional(),
     /** Attacks per Attack action (Extra Attack: 2; a fighter's 3 at 11th level and 4 at 20th). */
     extraAttacks: ValueExpr.optional(),
+    /** When you roll initiative with none of this resource left, you regain `amount` (Relentless: a superiority die; Perfect Self: 4 ki). */
+    initiativeRegain: z.object({ resource: z.string(), amount: z.number().int().min(1).default(1) }).strict().optional(),
   })
   .strict();
 export type Grant = z.infer<typeof Grant>;
@@ -583,6 +592,8 @@ export const ChoiceDef = z
     optionLevels: z.record(z.string(), z.number().int().min(1).max(20)).optional(),
     /** Option choices: the feature each picked value brings with it (Rune Carver: "Fire Rune" → the Fire Rune's passive and invoke). */
     grants: z.record(z.string(), DefId).optional(),
+    /** Spell choices: cast at will at the spell's own level, slots still work for higher levels (Spell Mastery). */
+    atWill: z.boolean().optional(),
     /** No upper limit: `count` is where it starts and more can be added (a ritual book grows as you copy spells). */
     open: z.boolean().optional(),
     /** Spell choices with a `from` list: other spells it may be swapped for later (Divine affinity: any cleric spell), listed after with a note. */

@@ -209,3 +209,17 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 - Diamond Soul's reroll: an action that spends 1 ki; roll the save again from the Sheet.
 - PHB Dragonborn Breath Weapon: the targets' saves and damage are the DM's; the app rolls the damage, shows the DC, and spends the use.
 
+## Uses and recharges (round 11b)
+
+- Initiative regains (Relentless, Ever-Ready Shot, Tireless Spirit, Superior Inspiration, Perfect Self): applied the first time you roll initiative in a combat; rolling it again in the same combat doesn't give another.
+- Arcane Recovery, Natural Recovery: "after a short rest" is yours to say; the slots you pick come back.
+- Combat Wild Shape: the healing goes to your beast form; the slot is spent even if you aren't transformed (noted).
+- Stroke of Luck: ticked on a check before rolling, the d20 counts as 20; for an attack, the "miss hits" button spends it and you roll the damage.
+- Dark One's Own Luck: ticked before the roll (the rules let you decide after seeing it; tick it and roll again if you forgot).
+- Relentless Rage: each save counts as a use, success or failure; the count resets on a short or long rest.
+- Song of Rest: your own extra die is a tick-box when you spend a Hit Die (once per rest is yours to keep); for others, the button rolls it for them.
+- Fiendish Resilience: pick it after a rest from Actions; the resistance stays until the next pick. That magical and silvered weapons ignore it is yours to apply.
+- Spell Mastery: the app doesn't check that the spells are in your spellbook or prepared.
+- Mighty Summoner: the extra hit points show as a change to the creature's maximum; that its natural weapons are magical is a note.
+- Durable Summons: only for spells of the conjuration school.
+
