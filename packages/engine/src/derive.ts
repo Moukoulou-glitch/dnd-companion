@@ -1317,7 +1317,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     }
     // Spells picked through a feature's spell choices (Magic Initiate, Fey Touched).
     if (reg.has(s.id) && /^(feature|feat):/.test(s.id)) {
-      const d = reg.get(s.id, s.id.startsWith("feat:") ? "feat" : "feature") as { choices?: { id: string; kind: string; resource?: string; list?: string; atWill?: boolean }[] };
+      const d = reg.get(s.id, s.id.startsWith("feat:") ? "feat" : "feature") as { choices?: { id: string; kind: string; resource?: string; list?: string; atWill?: boolean; spellbook?: boolean }[] };
       for (const ch of d.choices ?? []) {
         if (ch.kind !== "spell") continue;
         // Cast with the feature's own spellcasting, or the one the choice names (Mystic Arcanum: warlock).
@@ -1325,6 +1325,9 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
         if (!listOf) continue;
         for (const id of s.choices[ch.id] ?? []) {
           const def = reg.has(id) ? reg.get(id, "spell") : undefined;
+          // Spell Mastery, Signature Spells: chosen from the spells in your spellbook.
+          if (ch.spellbook && !c.spells.some((i) => i.list === listOf && i.spell === id && !i.notInBook))
+            warnings.push(`${s.label}: ${def?.name ?? id} isn't in your spellbook. Kept, beyond the rules.`);
           const granted: GrantedSpellRef = {};
           if (def && def.level > 0 && ch.resource) {
             granted.resource = ch.resource;

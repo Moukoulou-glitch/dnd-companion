@@ -218,8 +218,8 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 - Dark One's Own Luck: ticked before the roll (the rules let you decide after seeing it; tick it and roll again if you forgot).
 - Relentless Rage: each save counts as a use, success or failure; the count resets on a short or long rest.
 - Song of Rest: your own extra die is a tick-box when you spend a Hit Die (once per rest is yours to keep); for others, the button rolls it for them.
-- Fiendish Resilience: pick it after a rest from Actions; the resistance stays until the next pick. That magical and silvered weapons ignore it is yours to apply.
-- Spell Mastery: the app doesn't check that the spells are in your spellbook or prepared.
+- Fiendish Resilience: pick it after a rest from Actions; a tag "Fiendish Resilience: <type>" shows the resistance until the next pick replaces it. That magical and silvered weapons ignore it is yours to apply.
+- Spell Mastery and Signature Spells: a pick that isn't in your spellbook is warned about (kept); whether Spell Mastery's spells are prepared isn't checked.
 - Mighty Summoner: the extra hit points show as a change to the creature's maximum; that its natural weapons are magical is a note.
 - Durable Summons: only for spells of the conjuration school.
 

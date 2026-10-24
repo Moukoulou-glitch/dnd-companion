@@ -120,6 +120,15 @@ describe("11b: spells", () => {
     expect(fb.ready).toBe("always");
     expect(s.resources.find((r) => r.id === "signature-spell-2")?.reset).toBe("short");
   });
+  it("Spell Mastery and Signature Spells warn about a spell that isn't in the spellbook", () => {
+    const l = make("class:wizard", 20, undefined, (c) => {
+      c.choices["feature:spell-mastery"] = { first: ["spell:shield"], second: ["spell:misty-step"] };
+      c.spells.push({ spell: "spell:shield", list: "wizard", prepared: true });
+    });
+    const w = derive(l.character, reg).warnings.join(" ");
+    expect(w).toMatch(/Spell Mastery: Misty Step isn't in your spellbook/);
+    expect(w).not.toMatch(/Shield isn't/);
+  });
 });
 
 describe("11b: summoned creatures", () => {

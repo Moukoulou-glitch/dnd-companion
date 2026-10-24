@@ -1095,7 +1095,8 @@
               "wizard"
             ],
             "level": 1
-          }
+          },
+          "spellbook": true
         },
         {
           "id": "second",
@@ -1109,7 +1110,8 @@
               "wizard"
             ],
             "level": 2
-          }
+          },
+          "spellbook": true
         }
       ]
     },
@@ -1139,7 +1141,8 @@
               "wizard"
             ],
             "level": 3
-          }
+          },
+          "spellbook": true
         },
         {
           "id": "second",
@@ -1153,7 +1156,8 @@
               "wizard"
             ],
             "level": 3
-          }
+          },
+          "spellbook": true
         }
       ],
       "grant": {

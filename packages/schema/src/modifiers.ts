@@ -594,6 +594,8 @@ export const ChoiceDef = z
     grants: z.record(z.string(), DefId).optional(),
     /** Spell choices: cast at will at the spell's own level, slots still work for higher levels (Spell Mastery). */
     atWill: z.boolean().optional(),
+    /** Spell choices: the spells should be in your spellbook (Spell Mastery, Signature Spells); a picked one that isn't is warned about. */
+    spellbook: z.boolean().optional(),
     /** No upper limit: `count` is where it starts and more can be added (a ritual book grows as you copy spells). */
     open: z.boolean().optional(),
     /** Spell choices with a `from` list: other spells it may be swapped for later (Divine affinity: any cleric spell), listed after with a note. */
