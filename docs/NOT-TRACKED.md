@@ -200,3 +200,12 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 
 - Each rune you know is a tag on Play, on by default; switch it off when its object isn't with you (its benefits and its damage invoke stop; its reaction and bonus-action buttons stay). Hill and Storm before fighter 7th: warned, kept.
 - The Fire Rune's shackles: the target's save and its restraint are the DM's; the 2d6 at the start of its turns is a button to roll. Cloud and Stone are reactions with their text (and Stone's DC); Storm's advantage or disadvantage is given by you, applied by the DM.
+
+## Racial and class traits (round 11a)
+
+- Lucky, Brave, Fey Ancestry, Gnome Cunning: offered on every roll of their kind; whether the save is against fear, charm or magic is yours to say (Lucky is on by default and only changes a 1). Halfling Nimbleness (moving through larger creatures) is text.
+- Stonecunning and Artificer's Lore: offered on History checks; whether the check is about stonework or a magic item is yours to say.
+- Evasion: a note on Dexterity saves; the half-or-nothing damage is applied by you when you take it.
+- Diamond Soul's reroll: an action that spends 1 ki; roll the save again from the Sheet.
+- PHB Dragonborn Breath Weapon: the targets' saves and damage are the DM's; the app rolls the damage, shows the DC, and spends the use.
+

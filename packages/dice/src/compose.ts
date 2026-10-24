@@ -101,6 +101,9 @@ export function composeD20(base: ComposerBase, choices: ComposerChoices = noChoi
   const critAt = Math.min(base.critAt ?? 20, ...on.map((s) => s.apply.critAt ?? 20));
   if (critAt < 20) d20.critAtOrAbove = critAt;
   if (base.minD20) d20.min = base.minD20;
+  // Halfling Lucky: a d20 showing this or lower is rolled again once, and the new roll counts.
+  const reroll = Math.max(0, ...on.map((s) => s.apply.rerollAtOrBelow ?? 0));
+  if (reroll > 0) d20.rerollAtOrBelow = reroll;
   out.terms.push(d20);
   out.sources.push(mode === "normal" ? "d20" : `d20, ${mode}`);
 
@@ -195,6 +198,12 @@ export function physicalDamageTotal(c: Composed, diceTotal: number): number {
 export function d20Count(c: Composed): number {
   const t = c.terms[0];
   return t && t.kind === "dice" && t.sides === 20 ? t.count : 0;
+}
+
+/** Halfling Lucky: a d20 at or below this is rolled again (0 when nothing rerolls). */
+export function d20Reroll(c: Composed): number {
+  const t = c.terms[0];
+  return t && t.kind === "dice" && t.sides === 20 ? t.rerollAtOrBelow ?? 0 : 0;
 }
 
 /** Number of dice of each size to roll, for the physical damage prompt: "2d8 + 4d6". */

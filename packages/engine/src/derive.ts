@@ -917,6 +917,19 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     skills[sk] = { ...roll([`roll.check.skill.${sk}`, `roll.check.${ab}`], base), ability: ab, proficiency };
   }
 
+  // Stonecunning and Artificer's Lore: History checks on stonework or on magic items, alchemy and tech add twice the proficiency bonus.
+  // Only for those subjects, so they're offered; the bonus brings the total to double, whatever proficiency you already have.
+  for (const [id, about] of [
+    ["feature:trait-stonecunning", "about the origin of stonework"],
+    ["feature:trait-artificers-lore", "about magic items, alchemical objects or technological devices"],
+  ] as const) {
+    const src = sources.find((s) => s.id === id);
+    if (!src) continue;
+    const h = skills.history;
+    const extra = h.proficiency >= 2 ? 0 : h.proficiency === 1 ? pb : 2 * pb;
+    if (extra > 0) h.suggestions.push({ label: src.label, effect: `+${extra}`, reason: `History check ${about}: double proficiency bonus`, apply: { flat: extra, dice: [] } });
+  }
+
   // Tools and instruments: any ability, the player's pick. Expertise in a tool, or "rule.toolExpertise" (Fire Rune), doubles the bonus.
   const toolSlug = (n: string) => n.toLowerCase().replace(/['’]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
   const toolDoubler = modsFor(["rule.toolExpertise"]).find((m) => m.mod.op === "allow" && conditionState(m.mod.when) === "pass");

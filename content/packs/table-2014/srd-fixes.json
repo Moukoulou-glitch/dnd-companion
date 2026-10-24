@@ -1,0 +1,905 @@
+{
+  "definitions": [
+    {
+      "kind": "feature",
+      "id": "feature:slippery-mind",
+      "name": "Slippery Mind",
+      "summary": "By 15th level, you have acquired greater mental strength.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "By 15th level, you have acquired greater mental strength. You gain proficiency in Wisdom saving throws."
+      ],
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "save",
+            "target": "wis"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:diamond-soul",
+      "name": "Diamond Soul",
+      "summary": "Beginning at 14th level, your mastery of ki grants you proficiency in all saving throws.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "Beginning at 14th level, your mastery of ki grants you proficiency in all saving throws.",
+        "Additionally, whenever you make a saving throw and fail, you can spend 1 ki point to reroll it and take the second result."
+      ],
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "save",
+            "target": "str"
+          },
+          {
+            "kind": "save",
+            "target": "dex"
+          },
+          {
+            "kind": "save",
+            "target": "con"
+          },
+          {
+            "kind": "save",
+            "target": "int"
+          },
+          {
+            "kind": "save",
+            "target": "wis"
+          },
+          {
+            "kind": "save",
+            "target": "cha"
+          }
+        ],
+        "actions": [
+          {
+            "id": "diamond-soul-reroll",
+            "name": "Diamond Soul: reroll a failed save",
+            "economy": "free",
+            "cost": {
+              "resource": "ki",
+              "amount": 1
+            },
+            "note": "A saving throw failed: spend 1 ki point to reroll it; the second roll counts."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:bonus-proficiency",
+      "name": "Bonus Proficiency",
+      "summary": "When you choose this domain at 1st level, you gain proficiency with heavy armor.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "When you choose this domain at 1st level, you gain proficiency with heavy armor."
+      ],
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "armor",
+            "target": "heavy"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:bonus-proficiencies",
+      "name": "Bonus Proficiencies",
+      "summary": "When you join the College of Lore at 3rd level, you gain proficiency with three skills of your choice.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "When you join the College of Lore at 3rd level, you gain proficiency with three skills of your choice."
+      ],
+      "choices": [
+        {
+          "id": "skills",
+          "label": "Skills",
+          "kind": "skill",
+          "count": 3
+        }
+      ],
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "skill",
+            "target": {
+              "choice": "skills"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:trait-lucky",
+      "name": "Lucky",
+      "summary": "When you roll a 1 on the d20 for an attack roll, ability check, or saving throw, you can reroll the die and must use the new roll.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "When you roll a 1 on the d20 for an attack roll, ability check, or saving throw, you can reroll the die and must use the new roll."
+      ],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.attack.*",
+            "op": "reroll",
+            "value": 1,
+            "mode": "suggested",
+            "preset": "always",
+            "label": "Lucky"
+          },
+          {
+            "selector": "roll.save.*",
+            "op": "reroll",
+            "value": 1,
+            "mode": "suggested",
+            "preset": "always",
+            "label": "Lucky"
+          },
+          {
+            "selector": "roll.check.*",
+            "op": "reroll",
+            "value": 1,
+            "mode": "suggested",
+            "preset": "always",
+            "label": "Lucky"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:trait-brave",
+      "name": "Brave",
+      "summary": "You have advantage on saving throw against being frightened.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "You have advantage on saving throw against being frightened."
+      ],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.save.*",
+            "op": "advantage",
+            "mode": "suggested",
+            "label": "Brave",
+            "when": {
+              "text": "against being frightened"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:trait-fey-ancestry",
+      "name": "Fey Ancestry",
+      "summary": "You have advantage on saving throws against being charmed, and magic cannot put you to sleep.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "You have advantage on saving throws against being charmed, and magic cannot put you to sleep."
+      ],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.save.*",
+            "op": "advantage",
+            "mode": "suggested",
+            "label": "Fey Ancestry",
+            "when": {
+              "text": "against being charmed"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:trait-gnome-cunning",
+      "name": "Gnome Cunning",
+      "summary": "You have advantage on all Intelligence, Wisdom, and Charisma saving throws against magic.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "You have advantage on all Intelligence, Wisdom, and Charisma saving throws against magic."
+      ],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.save.int",
+            "op": "advantage",
+            "mode": "suggested",
+            "label": "Gnome Cunning",
+            "when": {
+              "text": "against magic"
+            }
+          },
+          {
+            "selector": "roll.save.wis",
+            "op": "advantage",
+            "mode": "suggested",
+            "label": "Gnome Cunning",
+            "when": {
+              "text": "against magic"
+            }
+          },
+          {
+            "selector": "roll.save.cha",
+            "op": "advantage",
+            "mode": "suggested",
+            "label": "Gnome Cunning",
+            "when": {
+              "text": "against magic"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:monk-evasion",
+      "name": "Evasion",
+      "summary": "At 7th level, your instinctive agility lets you dodge out of the way of certain area effects, such as a blue dragon's lightning breath or a fireball spell.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "At 7th level, your instinctive agility lets you dodge out of the way of certain area effects, such as a blue dragon's lightning breath or a fireball spell. When you are subjected to an effect that allows you to make a Dexterity saving throw to take only half damage, you instead take no damage if you succeed on the saving throw, and only half damage if you fail."
+      ],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.save.dex",
+            "op": "note",
+            "label": "Evasion: a Dexterity save for half damage takes none on a success, half on a failure"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:trait-draconic-ancestry-black",
+      "name": "Draconic Ancestry (Black)",
+      "summary": "Black dragon: acid breath (5 by 30 ft line, Dexterity save) and resistance to acid damage.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "You have draconic ancestry. Choose one type of dragon from the Draconic Ancestry table. Your breath weapon and damage resistance are determined by the dragon type, as shown in the table."
+      ],
+      "scaling": {
+        "dice": {
+          "table": [
+            [
+              1,
+              "2d6"
+            ],
+            [
+              6,
+              "3d6"
+            ],
+            [
+              11,
+              "4d6"
+            ],
+            [
+              16,
+              "5d6"
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.acid",
+            "op": "resist",
+            "label": "Damage Resistance (draconic ancestry)"
+          }
+        ],
+        "actions": [
+          {
+            "id": "breath-weapon-black",
+            "name": "Breath Weapon (acid)",
+            "economy": "action",
+            "cost": {
+              "resource": "breath-weapon"
+            },
+            "roll": {
+              "dice": "scale.dice",
+              "label": "acid damage (5 by 30 ft line, Dexterity save, half on a success)"
+            },
+            "note": "A 5 by 30 ft line: each creature makes a Dexterity save (DC 8 + Con + proficiency), acid damage, half on a success. Once per short or long rest."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:trait-draconic-ancestry-blue",
+      "name": "Draconic Ancestry (Blue)",
+      "summary": "Blue dragon: lightning breath (5 by 30 ft line, Dexterity save) and resistance to lightning damage.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "You have draconic ancestry. Choose one type of dragon from the Draconic Ancestry table. Your breath weapon and damage resistance are determined by the dragon type, as shown in the table."
+      ],
+      "scaling": {
+        "dice": {
+          "table": [
+            [
+              1,
+              "2d6"
+            ],
+            [
+              6,
+              "3d6"
+            ],
+            [
+              11,
+              "4d6"
+            ],
+            [
+              16,
+              "5d6"
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.lightning",
+            "op": "resist",
+            "label": "Damage Resistance (draconic ancestry)"
+          }
+        ],
+        "actions": [
+          {
+            "id": "breath-weapon-blue",
+            "name": "Breath Weapon (lightning)",
+            "economy": "action",
+            "cost": {
+              "resource": "breath-weapon"
+            },
+            "roll": {
+              "dice": "scale.dice",
+              "label": "lightning damage (5 by 30 ft line, Dexterity save, half on a success)"
+            },
+            "note": "A 5 by 30 ft line: each creature makes a Dexterity save (DC 8 + Con + proficiency), lightning damage, half on a success. Once per short or long rest."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:trait-draconic-ancestry-brass",
+      "name": "Draconic Ancestry (Brass)",
+      "summary": "Brass dragon: fire breath (5 by 30 ft line, Dexterity save) and resistance to fire damage.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "You have draconic ancestry. Choose one type of dragon from the Draconic Ancestry table. Your breath weapon and damage resistance are determined by the dragon type, as shown in the table."
+      ],
+      "scaling": {
+        "dice": {
+          "table": [
+            [
+              1,
+              "2d6"
+            ],
+            [
+              6,
+              "3d6"
+            ],
+            [
+              11,
+              "4d6"
+            ],
+            [
+              16,
+              "5d6"
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.fire",
+            "op": "resist",
+            "label": "Damage Resistance (draconic ancestry)"
+          }
+        ],
+        "actions": [
+          {
+            "id": "breath-weapon-brass",
+            "name": "Breath Weapon (fire)",
+            "economy": "action",
+            "cost": {
+              "resource": "breath-weapon"
+            },
+            "roll": {
+              "dice": "scale.dice",
+              "label": "fire damage (5 by 30 ft line, Dexterity save, half on a success)"
+            },
+            "note": "A 5 by 30 ft line: each creature makes a Dexterity save (DC 8 + Con + proficiency), fire damage, half on a success. Once per short or long rest."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:trait-draconic-ancestry-bronze",
+      "name": "Draconic Ancestry (Bronze)",
+      "summary": "Bronze dragon: lightning breath (5 by 30 ft line, Dexterity save) and resistance to lightning damage.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "You have draconic ancestry. Choose one type of dragon from the Draconic Ancestry table. Your breath weapon and damage resistance are determined by the dragon type, as shown in the table."
+      ],
+      "scaling": {
+        "dice": {
+          "table": [
+            [
+              1,
+              "2d6"
+            ],
+            [
+              6,
+              "3d6"
+            ],
+            [
+              11,
+              "4d6"
+            ],
+            [
+              16,
+              "5d6"
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.lightning",
+            "op": "resist",
+            "label": "Damage Resistance (draconic ancestry)"
+          }
+        ],
+        "actions": [
+          {
+            "id": "breath-weapon-bronze",
+            "name": "Breath Weapon (lightning)",
+            "economy": "action",
+            "cost": {
+              "resource": "breath-weapon"
+            },
+            "roll": {
+              "dice": "scale.dice",
+              "label": "lightning damage (5 by 30 ft line, Dexterity save, half on a success)"
+            },
+            "note": "A 5 by 30 ft line: each creature makes a Dexterity save (DC 8 + Con + proficiency), lightning damage, half on a success. Once per short or long rest."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:trait-draconic-ancestry-copper",
+      "name": "Draconic Ancestry (Copper)",
+      "summary": "Copper dragon: acid breath (5 by 30 ft line, Dexterity save) and resistance to acid damage.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "You have draconic ancestry. Choose one type of dragon from the Draconic Ancestry table. Your breath weapon and damage resistance are determined by the dragon type, as shown in the table."
+      ],
+      "scaling": {
+        "dice": {
+          "table": [
+            [
+              1,
+              "2d6"
+            ],
+            [
+              6,
+              "3d6"
+            ],
+            [
+              11,
+              "4d6"
+            ],
+            [
+              16,
+              "5d6"
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.acid",
+            "op": "resist",
+            "label": "Damage Resistance (draconic ancestry)"
+          }
+        ],
+        "actions": [
+          {
+            "id": "breath-weapon-copper",
+            "name": "Breath Weapon (acid)",
+            "economy": "action",
+            "cost": {
+              "resource": "breath-weapon"
+            },
+            "roll": {
+              "dice": "scale.dice",
+              "label": "acid damage (5 by 30 ft line, Dexterity save, half on a success)"
+            },
+            "note": "A 5 by 30 ft line: each creature makes a Dexterity save (DC 8 + Con + proficiency), acid damage, half on a success. Once per short or long rest."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:trait-draconic-ancestry-gold",
+      "name": "Draconic Ancestry (Gold)",
+      "summary": "Gold dragon: fire breath (15 ft cone, Dexterity save) and resistance to fire damage.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "You have draconic ancestry. Choose one type of dragon from the Draconic Ancestry table. Your breath weapon and damage resistance are determined by the dragon type, as shown in the table."
+      ],
+      "scaling": {
+        "dice": {
+          "table": [
+            [
+              1,
+              "2d6"
+            ],
+            [
+              6,
+              "3d6"
+            ],
+            [
+              11,
+              "4d6"
+            ],
+            [
+              16,
+              "5d6"
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.fire",
+            "op": "resist",
+            "label": "Damage Resistance (draconic ancestry)"
+          }
+        ],
+        "actions": [
+          {
+            "id": "breath-weapon-gold",
+            "name": "Breath Weapon (fire)",
+            "economy": "action",
+            "cost": {
+              "resource": "breath-weapon"
+            },
+            "roll": {
+              "dice": "scale.dice",
+              "label": "fire damage (15 ft cone, Dexterity save, half on a success)"
+            },
+            "note": "A 15 ft cone: each creature makes a Dexterity save (DC 8 + Con + proficiency), fire damage, half on a success. Once per short or long rest."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:trait-draconic-ancestry-green",
+      "name": "Draconic Ancestry (Green)",
+      "summary": "Green dragon: poison breath (15 ft cone, Constitution save) and resistance to poison damage.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "You have draconic ancestry. Choose one type of dragon from the Draconic Ancestry table. Your breath weapon and damage resistance are determined by the dragon type, as shown in the table."
+      ],
+      "scaling": {
+        "dice": {
+          "table": [
+            [
+              1,
+              "2d6"
+            ],
+            [
+              6,
+              "3d6"
+            ],
+            [
+              11,
+              "4d6"
+            ],
+            [
+              16,
+              "5d6"
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.poison",
+            "op": "resist",
+            "label": "Damage Resistance (draconic ancestry)"
+          }
+        ],
+        "actions": [
+          {
+            "id": "breath-weapon-green",
+            "name": "Breath Weapon (poison)",
+            "economy": "action",
+            "cost": {
+              "resource": "breath-weapon"
+            },
+            "roll": {
+              "dice": "scale.dice",
+              "label": "poison damage (15 ft cone, Constitution save, half on a success)"
+            },
+            "note": "A 15 ft cone: each creature makes a Constitution save (DC 8 + Con + proficiency), poison damage, half on a success. Once per short or long rest."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:trait-draconic-ancestry-red",
+      "name": "Draconic Ancestry (Red)",
+      "summary": "Red dragon: fire breath (15 ft cone, Dexterity save) and resistance to fire damage.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "You have draconic ancestry. Choose one type of dragon from the Draconic Ancestry table. Your breath weapon and damage resistance are determined by the dragon type, as shown in the table."
+      ],
+      "scaling": {
+        "dice": {
+          "table": [
+            [
+              1,
+              "2d6"
+            ],
+            [
+              6,
+              "3d6"
+            ],
+            [
+              11,
+              "4d6"
+            ],
+            [
+              16,
+              "5d6"
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.fire",
+            "op": "resist",
+            "label": "Damage Resistance (draconic ancestry)"
+          }
+        ],
+        "actions": [
+          {
+            "id": "breath-weapon-red",
+            "name": "Breath Weapon (fire)",
+            "economy": "action",
+            "cost": {
+              "resource": "breath-weapon"
+            },
+            "roll": {
+              "dice": "scale.dice",
+              "label": "fire damage (15 ft cone, Dexterity save, half on a success)"
+            },
+            "note": "A 15 ft cone: each creature makes a Dexterity save (DC 8 + Con + proficiency), fire damage, half on a success. Once per short or long rest."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:trait-draconic-ancestry-silver",
+      "name": "Draconic Ancestry (Silver)",
+      "summary": "Silver dragon: cold breath (15 ft cone, Constitution save) and resistance to cold damage.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "You have draconic ancestry. Choose one type of dragon from the Draconic Ancestry table. Your breath weapon and damage resistance are determined by the dragon type, as shown in the table."
+      ],
+      "scaling": {
+        "dice": {
+          "table": [
+            [
+              1,
+              "2d6"
+            ],
+            [
+              6,
+              "3d6"
+            ],
+            [
+              11,
+              "4d6"
+            ],
+            [
+              16,
+              "5d6"
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.cold",
+            "op": "resist",
+            "label": "Damage Resistance (draconic ancestry)"
+          }
+        ],
+        "actions": [
+          {
+            "id": "breath-weapon-silver",
+            "name": "Breath Weapon (cold)",
+            "economy": "action",
+            "cost": {
+              "resource": "breath-weapon"
+            },
+            "roll": {
+              "dice": "scale.dice",
+              "label": "cold damage (15 ft cone, Constitution save, half on a success)"
+            },
+            "note": "A 15 ft cone: each creature makes a Constitution save (DC 8 + Con + proficiency), cold damage, half on a success. Once per short or long rest."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:trait-draconic-ancestry-white",
+      "name": "Draconic Ancestry (White)",
+      "summary": "White dragon: cold breath (15 ft cone, Constitution save) and resistance to cold damage.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "You have draconic ancestry. Choose one type of dragon from the Draconic Ancestry table. Your breath weapon and damage resistance are determined by the dragon type, as shown in the table."
+      ],
+      "scaling": {
+        "dice": {
+          "table": [
+            [
+              1,
+              "2d6"
+            ],
+            [
+              6,
+              "3d6"
+            ],
+            [
+              11,
+              "4d6"
+            ],
+            [
+              16,
+              "5d6"
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.cold",
+            "op": "resist",
+            "label": "Damage Resistance (draconic ancestry)"
+          }
+        ],
+        "actions": [
+          {
+            "id": "breath-weapon-white",
+            "name": "Breath Weapon (cold)",
+            "economy": "action",
+            "cost": {
+              "resource": "breath-weapon"
+            },
+            "roll": {
+              "dice": "scale.dice",
+              "label": "cold damage (15 ft cone, Constitution save, half on a success)"
+            },
+            "note": "A 15 ft cone: each creature makes a Constitution save (DC 8 + Con + proficiency), cold damage, half on a success. Once per short or long rest."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:trait-breath-weapon",
+      "name": "Breath Weapon",
+      "summary": "You can use your action to exhale destructive energy.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "You can use your action to exhale destructive energy. Your draconic ancestry determines the size, shape, and damage type of the exhalation.",
+        "When you use your breath weapon, each creature in the area of the exhalation must make a saving throw, the type of which is determined by your draconic ancestry. The DC for this saving throw equals 8 + your Constitution modifier + your proficiency bonus. A creature takes 2d6 damage on a failed save, and half as much damage on a successful one. The damage increases to 3d6 at 6th level, 4d6 at 11th level, and 5d6 at 16th level.",
+        "After you use your breath weapon, you cannot use it again until you complete a short or long rest."
+      ],
+      "grant": {
+        "resources": [
+          {
+            "id": "breath-weapon",
+            "name": "Breath Weapon",
+            "max": 1,
+            "reset": "short"
+          }
+        ]
+      }
+    }
+  ]
+}

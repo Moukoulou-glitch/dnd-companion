@@ -11,6 +11,7 @@ import {
   composeD20,
   composeDamage,
   d20Count,
+  d20Reroll,
   diceToRoll,
   formatFormula,
   physicalDamageTotal,
@@ -229,18 +230,42 @@ function Options({
   );
 }
 
-/** Tap the face you rolled. Two taps when rolling with advantage or disadvantage. */
-function D20Entry({ count, onDone }: { count: number; onDone: (values: number[]) => void }) {
+/**
+ * Tap the face you rolled. Two taps when rolling with advantage or disadvantage.
+ * With Halfling Lucky (`reroll`), a die at or below it is rolled again: the new
+ * roll is tapped right after it, in the order the dice code reads them.
+ */
+function D20Entry({ count, reroll = 0, onDone }: { count: number; reroll?: number; onDone: (values: number[]) => void }) {
   const [values, setValues] = useState<number[]>([]);
+  const [dice, setDice] = useState(0);
+  const [again, setAgain] = useState(false);
   const pick = (v: number) => {
     const next = [...values, v];
-    if (next.length >= count) onDone(next);
-    else setValues(next);
+    const left = again ? dice : dice + 1;
+    if (!again && reroll > 0 && v <= reroll) {
+      setValues(next);
+      setDice(left);
+      setAgain(true);
+      return;
+    }
+    setAgain(false);
+    if (left >= count) onDone(next);
+    else {
+      setValues(next);
+      setDice(left);
+    }
   };
+  const last = values[values.length - 1];
   return (
     <>
       <p className="note">
-        {count === 1 ? "Tap what your d20 shows." : values.length === 0 ? "Tap the first d20." : `First d20: ${values[0]}. Tap the second.`}
+        {again
+          ? `Lucky: you rolled ${last}. Roll that d20 again and tap the new roll.`
+          : count === 1
+            ? "Tap what your d20 shows."
+            : dice === 0
+              ? "Tap the first d20."
+              : `First d20: ${last}. Tap the second.`}
       </p>
       <div className="keys d20">
         {Array.from({ length: 20 }, (_, i) => (
@@ -636,7 +661,7 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
           </div>
         )}
         {physical ? (
-          <D20Entry key={d20Count(d20)} count={d20Count(d20)} onDone={rollD20} />
+          <D20Entry key={`${d20Count(d20)}-${d20Reroll(d20)}`} count={d20Count(d20)} reroll={d20Reroll(d20)} onDone={rollD20} />
         ) : (
           <button className="big primary wide" disabled={throwing} onClick={() => (throwing3d ? throwThen(d20, (r, t) => rollD20(undefined, d20, r, t)) : rollD20())}>
             {throwing ? "Throwing…" : throwing3d ? "Throw the dice" : "Roll"}

@@ -77,6 +77,17 @@ export const FEATURE_DCS: Record<string, DcSpec> = {
   "feature:rune-knight-stone-rune": { save: "Wisdom", by: ["con"], name: "Rune save DC" },
   // Races
   "feature:trait-breath-weapon": { save: "Dexterity or Constitution (by your ancestry)", by: ["con"], name: "Breath Weapon DC" },
+  // The PHB dragonborn's breath, by ancestry.
+  "feature:trait-draconic-ancestry-black": { save: "Dexterity", by: ["con"], name: "Breath Weapon DC" },
+  "feature:trait-draconic-ancestry-blue": { save: "Dexterity", by: ["con"], name: "Breath Weapon DC" },
+  "feature:trait-draconic-ancestry-brass": { save: "Dexterity", by: ["con"], name: "Breath Weapon DC" },
+  "feature:trait-draconic-ancestry-bronze": { save: "Dexterity", by: ["con"], name: "Breath Weapon DC" },
+  "feature:trait-draconic-ancestry-copper": { save: "Dexterity", by: ["con"], name: "Breath Weapon DC" },
+  "feature:trait-draconic-ancestry-gold": { save: "Dexterity", by: ["con"], name: "Breath Weapon DC" },
+  "feature:trait-draconic-ancestry-green": { save: "Constitution", by: ["con"], name: "Breath Weapon DC" },
+  "feature:trait-draconic-ancestry-red": { save: "Dexterity", by: ["con"], name: "Breath Weapon DC" },
+  "feature:trait-draconic-ancestry-silver": { save: "Constitution", by: ["con"], name: "Breath Weapon DC" },
+  "feature:trait-draconic-ancestry-white": { save: "Constitution", by: ["con"], name: "Breath Weapon DC" },
   // Fizban's dragonborn: each ancestry's breath weapon (Dexterity), and the metallic one's second breath.
   "feature:ftd-chromatic-ancestry-black": { save: "Dexterity", by: ["con"], name: "Breath Weapon DC" },
   "feature:ftd-chromatic-ancestry-blue": { save: "Dexterity", by: ["con"], name: "Breath Weapon DC" },

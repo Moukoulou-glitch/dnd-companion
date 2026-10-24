@@ -410,6 +410,15 @@
         "pack": "table-2014",
         "book": "PHB",
         "page": 96
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.save.dex",
+            "op": "note",
+            "label": "Evasion: a Dexterity save for half damage takes none on a success, half on a failure"
+          }
+        ]
       }
     },
     {
