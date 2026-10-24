@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { Character } from "@dnd/schema";
 import type { RollRecord } from "../rolls";
-import { formFx, ongoingFx, opFx, rollFx, type FxEvent, type SpellLookup } from "./triggers";
+import { formFx, ongoingFx, opFx, rollFx, type FeatureLookup, type FxEvent, type SpellLookup } from "./triggers";
 import { GenSpell } from "./GenSpell";
 import type { GenLook } from "./generated";
 import { phaseLook } from "./spells";
@@ -220,7 +220,7 @@ export function playFx(e: FxEvent) {
   window.dispatchEvent(new CustomEvent("dnd-fx", { detail: e }));
 }
 
-export function FxLayer({ school, spell, character }: { school: (spell: string) => string | undefined; spell?: SpellLookup; character?: Character | undefined }) {
+export function FxLayer({ school, spell, feature, character }: { school: (spell: string) => string | undefined; spell?: SpellLookup; feature?: FeatureLookup; character?: Character | undefined }) {
   const [shown, setShown] = useState<Shown[]>([]);
   const shownRef = useRef<Shown[]>([]);
   shownRef.current = shown;
@@ -230,6 +230,9 @@ export function FxLayer({ school, spell, character }: { school: (spell: string) 
   schoolRef.current = school;
   const spellRef = useRef(spell);
   spellRef.current = spell;
+  const lastFeature = useRef({ id: "", at: 0 });
+  const featureRef = useRef(feature);
+  featureRef.current = feature;
   const characterRef = useRef(character);
   characterRef.current = character;
 
@@ -245,6 +248,12 @@ export function FxLayer({ school, spell, character }: { school: (spell: string) 
     };
     const play = (events: FxEvent[]) => {
       for (const ev of events) {
+        // One use recorded as two operations (its action, then its resource) plays once.
+        if (ev.kind === "gen" && ev.g.sig?.startsWith("cls-")) {
+          const now = Date.now();
+          if (lastFeature.current.id === ev.g.spell && now - lastFeature.current.at < 800) continue;
+          lastFeature.current = { id: ev.g.spell, at: now };
+        }
         const s0 = specOf(ev);
         // Reduced motion: a generated effect is a short, still fade (and no shake).
         const spec = s0.gen && reducedMotion() ? { ...s0, ms: Math.min(s0.ms, 900), gen: { ...s0.gen, ms: Math.min(s0.ms, 900), shake: 0 }, skippable: false, shake: 0 } : s0;
@@ -264,7 +273,7 @@ export function FxLayer({ school, spell, character }: { school: (spell: string) 
     };
     const onOp = (e: Event) => {
       const { type, payload, before, after } = (e as CustomEvent<{ type: string; payload: unknown; before: Character; after: Character }>).detail;
-      play(opFx(type, payload, before, after, (s) => schoolRef.current(s), spellRef.current ? (s) => spellRef.current?.(s) : undefined));
+      play(opFx(type, payload, before, after, (s) => schoolRef.current(s), spellRef.current ? (s) => spellRef.current?.(s) : undefined, featureRef.current ? (t, pl) => featureRef.current?.(t, pl) : undefined));
     };
     const onRoll = (e: Event) => play(rollFx((e as CustomEvent<RollRecord>).detail, characterRef.current, spellRef.current ? (s) => spellRef.current?.(s) : undefined));
     const onFx = (e: Event) => play([(e as CustomEvent<FxEvent>).detail]);

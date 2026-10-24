@@ -3,6 +3,10 @@ import type { RollRecord } from "../rolls";
 import { CHARMED, DAMAGE_FX, FORM_FX, damageKey } from "./looks";
 import { alignmentSide, spellFxOf, type SpellPhase } from "./spells";
 import { genLook, type GenLook, type SpellInfo } from "./generated";
+import { featureLook, type FeatureInfo } from "./features";
+
+/** The feature a recorded use belongs to (fx/features.ts featureFor, on the live sheet); undefined: no look. */
+export type FeatureLookup = (type: string, payload: unknown) => FeatureInfo | undefined;
 
 /** Looks a spell up for its generated effect (fx/generated.ts); undefined: the older generic circle. */
 export type SpellLookup = (spell: string) => SpellInfo | undefined;
@@ -100,7 +104,7 @@ export function mainType(r: RollRecord): string | undefined {
 const level = (c: Character) => c.classes.reduce((t, k) => t + k.level, 0);
 
 /** A recorded operation: what actually changed. `school` looks a spell's school up (never guessed from its name). */
-export function opFx(type: string, payload: unknown, before: Character, after: Character, school?: (spell: string) => string | undefined, info?: SpellLookup): FxEvent[] {
+export function opFx(type: string, payload: unknown, before: Character, after: Character, school?: (spell: string) => string | undefined, info?: SpellLookup, feature?: FeatureLookup): FxEvent[] {
   const out: FxEvent[] = [];
   const p = (payload ?? {}) as Record<string, unknown>;
   // Damage and healing on a summoned creature or companion aren't yours.
@@ -172,6 +176,10 @@ export function opFx(type: string, payload: unknown, before: Character, after: C
     else if (sa.successes > sb.successes) out.push({ kind: "death-save", result: "success", final: sa.successes >= 3 });
     else if (sa.failures > sb.failures) out.push({ kind: "death-save", result: "failure", final: sa.failures >= 3 });
   }
+
+  // A feature used (its action, resource or state): its class's look, bigger the later the class gives it.
+  const used = feature && ["useAction", "spendResource", "usePool", "toggle"].includes(type) ? feature(type, payload) : undefined;
+  if (used) out.push({ kind: "gen", g: featureLook(used) });
 
   if (type === "useAction") {
     if (p.action === "flurry-of-blows") out.push({ kind: "flurry" });

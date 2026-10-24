@@ -434,8 +434,81 @@ export function Signature({ g, x, y }: { g: GenLook; x: number; y: number }): { 
         screen: screen(<path className="sig-ecg" pathLength={1} d={`M0,${y} L${x - 60},${y} L${x - 44},${y - 8} L${x - 32},${y} L${x - 18},${y + 14} L${x - 6},${y - 70} L${x + 8},${y + 40} L${x + 20},${y} L${x + 40},${y - 12} L${x + 58},${y} L${W},${y}`} />),
       };
     default:
-      return none;
+      return g.sig?.startsWith("cls-") ? { at: <ClassPiece cls={g.sig.slice(4)} />, screen: null } : none;
   }
+}
+
+/** Class emblems (12c), viewBox -50..50: drawn in the class's second colour over a faint fill of its first. */
+const EMBLEMS: Record<string, string> = {
+  barbarian: "M-30,-32 Q-8,0 -26,36 M-6,-38 Q16,-4 0,38 M18,-34 Q38,0 24,36",
+  bard: "M-14,30 A9,7 -20 1 1 -14,29.9 M-6,27 L-6,-30 L24,-38 L24,18 M24,18 A9,7 -20 1 1 24,17.9 M-6,-16 L24,-24",
+  cleric: "M0,-40 L0,40 M-40,0 L40,0 M14,0 A14,14 0 1 1 -14,0 A14,14 0 1 1 14,0 M-22,-22 L-14,-14 M22,-22 L14,-14 M-22,22 L-14,14 M22,22 L14,14",
+  druid: "M0,40 C-30,12 -26,-28 0,-42 C26,-28 30,12 0,40 Z M0,40 L0,-32 M0,12 L-14,-2 M0,-6 L14,-20 M0,24 L12,12",
+  fighter: "M-34,34 L24,-24 L32,-36 L20,-28 Z M34,34 L-24,-24 L-32,-36 L-20,-28 Z M-24,16 L-14,26 M24,16 L14,26",
+  monk: "M0,-36 A36,36 0 1 1 0,36 A36,36 0 1 1 0,-36 M0,-36 A18,18 0 0 1 0,0 A18,18 0 0 0 0,36 M4,-18 A4,4 0 1 1 -4,-18 A4,4 0 1 1 4,-18",
+  paladin: "M0,-40 L30,-28 L28,6 C24,24 10,34 0,42 C-10,34 -24,24 -28,6 L-30,-28 Z M0,-24 L0,26 M-15,-6 L15,-6",
+  ranger: "M-34,34 L30,-30 M30,-30 L12,-28 M30,-30 L28,-12 M-34,34 L-34,20 M-34,34 L-20,34 M-28,28 L-28,16 M-28,28 L-16,28 M-6,-34 A30,30 0 0 1 34,6",
+  rogue: "M0,-42 L7,-8 L4,16 L-4,16 L-7,-8 Z M-16,16 L16,16 M0,16 L0,34 M-5,40 A5,5 0 1 0 5,40",
+  sorcerer: "M0,38 C-26,26 -26,-6 -6,-18 C-10,-4 2,0 4,-10 C8,-22 2,-32 -2,-42 C22,-28 32,0 24,18 C18,30 8,36 0,38 Z",
+  warlock: "M-38,0 C-20,-24 20,-24 38,0 C20,24 -20,24 -38,0 Z M0,-14 L6,0 L0,14 L-6,0 Z M-30,-30 L-22,-22 M30,-30 L22,-22",
+  wizard: "M0,-18 C-14,-28 -30,-28 -38,-24 L-38,28 C-30,24 -14,24 0,34 C14,24 30,24 38,28 L38,-24 C30,-28 14,-28 0,-18 Z M0,-18 L0,34 M-30,-10 L-10,-6 M-30,2 L-10,6 M10,-6 L30,-10 M10,6 L30,2",
+  artificer: "M0,-14 A14,14 0 1 1 0,14 A14,14 0 1 1 0,-14 M0,-36 L0,-24 M0,24 L0,36 M-36,0 L-24,0 M24,0 L36,0 M-25,-25 L-17,-17 M25,25 L17,17 M25,-25 L17,-17 M-25,25 L-17,17",
+};
+const STAR = "M0,-40 L8,-8 L40,0 L8,8 L0,40 L-8,8 L-40,0 L-8,-8 Z";
+
+/** The class's emblem and its one accent: claws and a roar, notes, a halo, leaves, a shockwave, a ki ring, a pillar, an arrow, smoke, sparks, tendrils, orbiting runes. */
+function ClassPiece({ cls }: { cls: string }) {
+  const emblem = (
+    <svg className="sig-emblem" viewBox="-50 -50 100 100">
+      <path pathLength={1} d={EMBLEMS[cls] ?? STAR} />
+    </svg>
+  );
+  const accent = (() => {
+    switch (cls) {
+      case "barbarian":
+      case "fighter":
+        return range(2).map((i) => <span key={i} className="gs-wave sig-acc-wave" style={v({ i })} />);
+      case "bard":
+        return range(6).map((i) => <span key={i} className="sig-note" style={v({ i, dx: `${(i - 2.5) * 22}px` })}>{i % 2 ? "\u266B" : "\u266A"}</span>);
+      case "cleric":
+        return <span className="sig-halo" />;
+      case "paladin":
+        return (
+          <>
+            <span className="gs-col sig-pillar sig-acc-pillar" />
+            <span className="sig-halo" />
+          </>
+        );
+      case "druid":
+      case "ranger":
+        return range(8).map((i) => <span key={i} className="sig-leafc" style={v({ a: `${i * 45 + 10}deg`, i: i % 4 })} />);
+      case "monk":
+        return <span className="sig-kiring" />;
+      case "rogue":
+        return range(5).map((i) => <span key={i} className="sig-puff sig-smoke" style={v({ i, dx: `${(rnd(i) - 0.5) * 60}px`, dy: `${(rnd(i, 3) - 0.5) * 40}px` })} />);
+      case "warlock":
+        return range(6).map((i) => <span key={i} className="sig-tendril" style={v({ a: `${i * 60 + 30}deg`, i })} />);
+      case "wizard":
+      case "sorcerer":
+        return (
+          <span className="sig-orbit">
+            {range(8).map((i) => (
+              <i key={i} style={v({ a: `${i * 45}deg` })}>
+                {["\u2726", "\u25C7", "\u2727", "\u25B3"][i % 4]}
+              </i>
+            ))}
+          </span>
+        );
+      default:
+        return <span className="gs-core" />;
+    }
+  })();
+  return (
+    <>
+      {accent}
+      {emblem}
+    </>
+  );
 }
 
 /** Signatures whose piece replaces the impact on the damage too (the rest show the generic impact there). */

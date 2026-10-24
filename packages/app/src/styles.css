@@ -4038,3 +4038,31 @@ html.fx-shake-strong .app > .strip, html.fx-shake-strong .app > main, html.fx-sh
   .sig-pwall > span, .sig-morph .m0, .sig-hands path, .sig-wings path, .sig-clock path, .sig-portal b { animation: none !important; opacity: 1; scale: 1 !important; translate: 0 0 !important; rotate: 0deg !important; }
   .sig-enemy circle, .sig-enemy path, .sig-rune path, .sig-pwk .crack { animation: none !important; stroke-dashoffset: 0; }
 }
+
+/* ── Feature animations (12c, fx/features.ts): the class's emblem and one accent ── */
+.gs[class*="gsig-cls-"] { --d0: 0ms; --d1: var(--ms); }
+.sig-emblem { width: calc(70px * var(--s)); height: calc(70px * var(--s)); max-width: 80vw; max-height: 80vw; fill: rgba(var(--c), 0.22); stroke: rgb(var(--c2)); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 5px rgba(var(--c), 0.85)); animation: sig-emblem var(--ms) ease-out forwards; }
+.gs-t3 .sig-emblem, .gs-t4 .sig-emblem { filter: none; stroke-width: 1.8; }
+.sig-emblem path { stroke-dasharray: 1; stroke-dashoffset: 1; animation: gs-draw calc(var(--ms) * 0.35) ease-out forwards; }
+@keyframes sig-emblem { 0% { opacity: 0; scale: 0.5; } 18% { opacity: 1; scale: 1.08; } 30% { scale: 1; } 78% { opacity: 1; } 100% { opacity: 0; scale: 1.12; } }
+.sig-acc-wave { border-color: rgba(var(--c), 0.85); }
+.sig-note { font-size: calc(14px + var(--s) * 6px); font-weight: 700; color: rgb(var(--c2)); text-shadow: 0 0 6px rgba(var(--c), 0.9); transform: translate(-50%, -50%) translateX(var(--dx)); animation: sig-note var(--ms) calc(var(--i) * 70ms) ease-out forwards; }
+.sig-note:nth-child(odd) { color: rgb(var(--c)); }
+@keyframes sig-note { 0% { opacity: 0; translate: 0 10px; rotate: -10deg; } 25% { opacity: 1; } 100% { opacity: 0; translate: calc((var(--i) - 2.5) * 8px) calc(-70px * var(--s)); rotate: 12deg; } }
+.sig-halo { width: calc(90px * var(--s)); height: calc(28px * var(--s)); border-radius: 50%; border: 3px solid rgb(var(--c)); box-shadow: 0 0 12px rgba(var(--c), 0.8), inset 0 0 8px rgba(var(--c2), 0.6); margin-top: calc(-40px * var(--s)); animation: sig-halo var(--ms) ease-out forwards; }
+@keyframes sig-halo { 0% { opacity: 0; scale: 0.4 0.4; } 30% { opacity: 1; scale: 1 1; } 80% { opacity: 1; } 100% { opacity: 0; scale: 1.1 1.1; } }
+.gs-at > .sig-acc-pillar { width: calc(34px * var(--s)); background: linear-gradient(to bottom, rgba(var(--c), 0), rgba(var(--c), 0.55) 60%, rgba(255, 255, 255, 0.9)); }
+.sig-leafc { width: 12px; height: 7px; border-radius: 0 100% 0 100%; background: rgb(var(--c)); animation: sig-leafc var(--ms) calc(var(--i) * 50ms) ease-out forwards; }
+.sig-leafc:nth-child(odd) { background: rgb(var(--c2)); }
+@keyframes sig-leafc { 0% { opacity: 0; transform: translate(-50%, -50%) rotate(var(--a)) translateY(-8px) rotate(0deg); } 20% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -50%) rotate(calc(var(--a) + 70deg)) translateY(calc(-50px * var(--s))) rotate(220deg); } }
+.sig-kiring { width: calc(96px * var(--s)); height: calc(96px * var(--s)); border-radius: 50%; background: conic-gradient(from 0deg, rgba(var(--c), 0) 0deg, rgba(var(--c), 0.9) 300deg, rgba(var(--c2), 1) 360deg); -webkit-mask-image: radial-gradient(circle, transparent 60%, #000 62%, #000 70%, transparent 72%); mask-image: radial-gradient(circle, transparent 60%, #000 62%, #000 70%, transparent 72%); animation: sig-kiring var(--ms) ease-out forwards; }
+@keyframes sig-kiring { 0% { opacity: 0; rotate: 0deg; scale: 0.6; } 20% { opacity: 1; } 80% { opacity: 1; scale: 1; } 100% { opacity: 0; rotate: 540deg; scale: 1.15; } }
+.sig-smoke { background: radial-gradient(circle, rgba(var(--c2), 0.85), rgba(var(--c), 0.35) 50%, rgba(var(--c), 0) 70%); animation-duration: var(--ms); }
+.sig-orbit { width: calc(110px * var(--s)); height: calc(110px * var(--s)); animation: sig-orbit var(--ms) linear forwards; }
+.sig-orbit i { position: absolute; left: 50%; top: 50%; font-style: normal; font-size: calc(10px + var(--s) * 5px); color: rgb(var(--c2)); text-shadow: 0 0 6px rgb(var(--c)); transform: translate(-50%, -50%) rotate(var(--a)) translateY(calc(-50px * var(--s))) rotate(calc(-1 * var(--a))); }
+@keyframes sig-orbit { 0% { opacity: 0; rotate: -40deg; scale: 0.6; } 20% { opacity: 1; scale: 1; } 80% { opacity: 1; } 100% { opacity: 0; rotate: 160deg; scale: 1.05; } }
+@media (prefers-reduced-motion: reduce) {
+  .sig-emblem, .sig-halo, .sig-orbit { animation: fx-static var(--ms) ease-out forwards !important; scale: 1 !important; rotate: 0deg !important; }
+  .sig-emblem path { animation: none !important; stroke-dashoffset: 0; }
+  .sig-note, .sig-leafc, .sig-kiring, .sig-smoke, .sig-acc-wave, .sig-acc-pillar { display: none !important; }
+}
