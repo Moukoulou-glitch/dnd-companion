@@ -2705,7 +2705,8 @@
             "name": "Divine Intervention",
             "economy": "action",
             "toggles": [],
-            "note": "Your deity intervenes, no roll needed; the DM chooses how. Then not again for 7 days."
+            "note": "Your deity intervenes, no roll needed; the DM chooses how. Then not again for 7 days.",
+            "everyDays": 7
           }
         ]
       }
@@ -3163,7 +3164,271 @@
               "dice": "1d100",
               "label": "your cleric level or lower: your deity intervenes"
             },
-            "note": "Call on your deity: roll d100, and if it's your cleric level or lower, the DM chooses how it helps. On a success, not again for 7 days; otherwise after a long rest."
+            "note": "Call on your deity: roll d100, and if it's your cleric level or lower, the DM chooses how it helps. On a success, not again for 7 days; otherwise after a long rest.",
+            "everyDays": 7,
+            "everyDaysIfRollAtMost": "classLevel.class:cleric"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:magical-secrets-1",
+      "name": "Magical Secrets",
+      "summary": "At 10th level, learn two spells from any class (of a level you can cast, or cantrips). They count as bard spells and as spells known.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "By 10th level, you have plundered magical knowledge from a wide spectrum of disciplines. Choose two spells from any class, including this one. A spell you choose must be of a level you can cast, as shown on the Bard table, or a cantrip.",
+        "The chosen spells count as bard spells for you and are included in the number in the Spells Known column of the Bard table.",
+        "You learn two additional spells from any class at 14th level and again at 18th level."
+      ],
+      "choices": [
+        {
+          "id": "spells",
+          "label": "Magical Secrets (10th)",
+          "kind": "spell",
+          "count": 2,
+          "list": "bard",
+          "spells": {
+            "upToSlots": true
+          },
+          "inKnown": "bard"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:magical-secrets-2",
+      "name": "Magical Secrets",
+      "summary": "At 14th level, two more spells from any class (of a level you can cast, or cantrips). They count as bard spells and as spells known.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "By 10th level, you have plundered magical knowledge from a wide spectrum of disciplines. Choose two spells from any class, including this one. A spell you choose must be of a level you can cast, as shown on the Bard table, or a cantrip.",
+        "The chosen spells count as bard spells for you and are included in the number in the Spells Known column of the Bard table."
+      ],
+      "choices": [
+        {
+          "id": "spells",
+          "label": "Magical Secrets (14th)",
+          "kind": "spell",
+          "count": 2,
+          "list": "bard",
+          "spells": {
+            "upToSlots": true
+          },
+          "inKnown": "bard"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:magical-secrets-3",
+      "name": "Magical Secrets",
+      "summary": "At 18th level, two more spells from any class (of a level you can cast, or cantrips). They count as bard spells and as spells known.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "By 10th level, you have plundered magical knowledge from a wide spectrum of disciplines. Choose two spells from any class, including this one. A spell you choose must be of a level you can cast, as shown on the Bard table, or a cantrip.",
+        "The chosen spells count as bard spells for you and are included in the number in the Spells Known column of the Bard table."
+      ],
+      "choices": [
+        {
+          "id": "spells",
+          "label": "Magical Secrets (18th)",
+          "kind": "spell",
+          "count": 2,
+          "list": "bard",
+          "spells": {
+            "upToSlots": true
+          },
+          "inKnown": "bard"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:additional-magical-secrets",
+      "name": "Additional Magical Secrets",
+      "summary": "At 6th level, you learn two spells of your choice from any class.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "At 6th level, you learn two spells of your choice from any class. A spell you choose must be of a level you can cast, as shown on the Bard table, or a cantrip. The chosen spells count as bard spells for you but don't count against the number of bard spells you know."
+      ],
+      "choices": [
+        {
+          "id": "spells",
+          "label": "Additional Magical Secrets",
+          "kind": "spell",
+          "count": 2,
+          "list": "bard",
+          "spells": {
+            "upToSlots": true
+          }
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:peerless-skill",
+      "name": "Peerless Skill",
+      "summary": "From 14th level: on an ability check, spend a Bardic Inspiration use to add its die, even after seeing the roll.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "Starting at 14th level, when you make an ability check, you can expend one use of Bardic Inspiration. Roll a Bardic Inspiration die and add the number rolled to your ability check. You can choose to do so after you roll the die for the ability check, but before the GM tells you whether you succeed or fail."
+      ],
+      "scaling": {
+        "die": {
+          "class": "class:bard",
+          "table": [
+            [
+              1,
+              "1d6"
+            ],
+            [
+              5,
+              "1d8"
+            ],
+            [
+              10,
+              "1d10"
+            ],
+            [
+              15,
+              "1d12"
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.check.*",
+            "op": "add",
+            "value": "scale.die",
+            "mode": "suggested",
+            "label": "Peerless Skill",
+            "spends": {
+              "resource": "bardic-inspiration",
+              "amount": 1
+            },
+            "when": {
+              "text": "after seeing the roll, before the DM says whether it succeeds: spends one Bardic Inspiration use"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:countercharm",
+      "name": "Countercharm",
+      "summary": "Action: a performance until the end of your next turn. You and friends within 30 ft who can hear you have advantage on saves against being frightened or charmed.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "At 6th level, you gain the ability to use musical notes or words of power to disrupt mind-influencing effects. As an action, you can start a performance that lasts until the end of your next turn. During that time, you and any friendly creatures within 30 feet of you have advantage on saving throws against being frightened or charmed. A creature must be able to hear you to gain this benefit. The performance ends early if you are incapacitated or silenced or if you voluntarily end it (no action required)."
+      ],
+      "grant": {
+        "actions": [
+          {
+            "id": "countercharm",
+            "name": "Countercharm",
+            "economy": "action",
+            "toggles": [
+              "countercharm"
+            ],
+            "duration": {
+              "rounds": 1
+            },
+            "note": "Until the end of your next turn: you and friends within 30 ft who can hear you have advantage on saves against being frightened or charmed."
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.save.*",
+            "op": "advantage",
+            "label": "Countercharm",
+            "when": {
+              "toggle": "countercharm",
+              "text": "a save against being frightened or charmed"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:primeval-awareness",
+      "name": "Primeval Awareness",
+      "summary": "Action and a ranger spell slot: for 1 minute per slot level, sense whether aberrations, celestials, dragons, elementals, fey, fiends or undead are within 1 mile (6 in your favored terrain).",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "Beginning at 3rd level, you can use your action and expend one ranger spell slot to focus your awareness on the region around you. For 1 minute per level of the spell slot you expend, you can sense whether the following types of creatures are present within 1 mile of you (or within up to 6 miles if you are in your favored terrain): aberrations, celestials, dragons, elementals, fey, fiends, and undead. This feature doesn't reveal the creatures' location or number."
+      ],
+      "grant": {
+        "actions": [
+          {
+            "id": "primeval-awareness",
+            "name": "Primeval Awareness",
+            "economy": "action",
+            "note": "Spend a ranger spell slot (mark it on the slots): 1 minute per slot level. You learn only whether those creature types are near, not where or how many."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:hide-in-plain-sight",
+      "name": "Hide in Plain Sight",
+      "summary": "1 minute of camouflage: +10 to Stealth checks while you stay pressed against a surface without moving or acting.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "Starting at 10th level, you can spend 1 minute creating camouflage for yourself. You must have access to fresh mud, dirt, plants, soot, and other naturally occurring materials with which to create your camouflage.",
+        "Once you are camouflaged in this way, you can try to hide by pressing yourself up against a solid surface, such as a tree or wall, that is at least as tall and wide as you are. You gain a +10 bonus to Dexterity (Stealth) checks as long as you remain there without moving or taking actions. Once you move or take an action or a reaction, you must camouflage yourself again to gain this benefit."
+      ],
+      "grant": {
+        "actions": [
+          {
+            "id": "hide-in-plain-sight",
+            "name": "Hide in Plain Sight",
+            "economy": "free",
+            "toggles": [
+              "hide-in-plain-sight"
+            ],
+            "note": "1 minute to camouflage with mud, plants or soot. +10 Stealth while you stay against a surface as big as you; moving, an action or a reaction ends it."
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.check.skill.stealth",
+            "op": "add",
+            "value": 10,
+            "label": "Hide in Plain Sight",
+            "when": {
+              "toggle": "hide-in-plain-sight"
+            }
           }
         ]
       }

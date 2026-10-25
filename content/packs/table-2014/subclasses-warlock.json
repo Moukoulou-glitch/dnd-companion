@@ -868,13 +868,6 @@
             "kind": "weapon",
             "target": "martial"
           }
-        ],
-        "modifiers": [
-          {
-            "selector": "roll.attack.weapon.*",
-            "op": "note",
-            "label": "Hex Warrior: your hex weapon (and pact weapon) can use Charisma instead of Strength or Dexterity for attack and damage."
-          }
         ]
       }
     },

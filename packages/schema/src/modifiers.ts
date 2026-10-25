@@ -356,6 +356,13 @@ export const ActionDef = z
       .optional(),
     /** Gives back uses of another resource (Psionic Power: regain one die). */
     restores: z.object({ resource: z.string(), amount: z.number().int().min(1).default(1) }).strict().optional(),
+    /**
+     * Once every this many days (Divine Intervention after a success: 7; Charm of Sunlight: 10). Using it
+     * writes a note in the Backstory with the in-world date and when it can be used again.
+     */
+    everyDays: z.number().int().min(1).optional(),
+    /** Only a roll at or under this starts the wait (Divine Intervention: your cleric level). */
+    everyDaysIfRollAtMost: ValueExpr.optional(),
     /** All Pact Magic slots come back (Eldritch Master). */
     restoresPactSlots: z.boolean().optional(),
     /** Ends these effects or conditions on you (Stillness of Mind: charmed, frightened). */
@@ -631,6 +638,8 @@ export const ChoiceDef = z
     spellbook: z.boolean().optional(),
     /** No upper limit: `count` is where it starts and more can be added (a ritual book grows as you copy spells). */
     open: z.boolean().optional(),
+    /** Spell choices: the picks count toward this spell list's Spells Known (Magical Secrets: "bard"), so that many fewer are asked for there. */
+    inKnown: z.string().optional(),
     /** Spell choices with a `from` list: other spells it may be swapped for later (Divine affinity: any cleric spell), listed after with a note. */
     orSpells: z.object({ classes: z.array(z.string()), minLevel: z.number().int().min(0).max(9).optional(), upToSlots: z.boolean().optional(), note: z.string() }).strict().optional(),
   })

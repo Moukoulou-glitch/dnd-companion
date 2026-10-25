@@ -67,6 +67,8 @@ export interface RollBreakdown extends Breakdown {
   minDie?: { value: number; types: string[]; label: string };
   /** A total below this counts as this (Indomitable Might: your Strength score). */
   minTotal?: { value: number; label: string };
+  /** With advantage, three d20s instead of two (Elven Accuracy: attacks with Dexterity, Intelligence, Wisdom or Charisma). */
+  tripleAdvantage?: string;
   dice: DicePart[];
   advantage: string[];
   disadvantage: string[];

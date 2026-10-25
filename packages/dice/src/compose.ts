@@ -32,6 +32,8 @@ export interface ComposerBase {
   minD20?: number;
   /** A total below this counts as this (Indomitable Might: the Strength score). */
   minTotal?: { value: number; label: string };
+  /** With advantage, three d20s keep the highest (Elven Accuracy). */
+  tripleAdvantage?: string;
   /** Sources that make the roll fail automatically; the composer warns but still lets you roll. */
   autoFail?: string[];
   /** Reminders shown with the roll. */
@@ -100,7 +102,8 @@ export function composeD20(base: ComposerBase, choices: ComposerChoices = noChoi
   const mode = choices.force ?? (adv.length && !dis.length ? "advantage" : dis.length && !adv.length ? "disadvantage" : "normal");
   const out: Composed = { terms: [], sources: [], d20Mode: mode, advantageFrom: adv, disadvantageFrom: dis };
 
-  const d20: Term = { kind: "dice", sign: 1, count: mode === "normal" ? 1 : 2, sides: 20 };
+  const triple = mode === "advantage" && !!base.tripleAdvantage;
+  const d20: Term = { kind: "dice", sign: 1, count: mode === "normal" ? 1 : triple ? 3 : 2, sides: 20 };
   if (mode !== "normal") d20.keep = { which: mode === "advantage" ? "highest" : "lowest", n: 1 };
   const critAt = Math.min(base.critAt ?? 20, ...on.map((s) => s.apply.critAt ?? 20));
   if (critAt < 20) d20.critAtOrAbove = critAt;
@@ -111,7 +114,7 @@ export function composeD20(base: ComposerBase, choices: ComposerChoices = noChoi
   const reroll = Math.max(0, ...on.map((s) => s.apply.rerollAtOrBelow ?? 0));
   if (reroll > 0) d20.rerollAtOrBelow = reroll;
   out.terms.push(d20);
-  out.sources.push(mode === "normal" ? "d20" : `d20, ${mode}`);
+  out.sources.push(mode === "normal" ? "d20" : triple ? `d20, advantage (${base.tripleAdvantage}: three dice)` : `d20, ${mode}`);
 
   for (const p of base.parts) pushFlat(out, p.value, p.label);
   for (const d of base.dice) pushDice(out, d.dice, d.label);

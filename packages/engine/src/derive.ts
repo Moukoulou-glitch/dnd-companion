@@ -222,6 +222,9 @@ export interface ActionResult {
   stopsMovement?: boolean;
   restores?: { resource: string; amount: number };
   restoresPactSlots?: boolean;
+  /** Once every this many days: a Backstory note when used (only when the roll is at most `everyDaysIfRollAtMost`, if set). */
+  everyDays?: number;
+  everyDaysIfRollAtMost?: number;
   endsConditions?: string[];
   /** Spells this use casts for free (Haunted: Invisibility): using it opens the spell. */
   spells?: { id: string; list: string }[];
@@ -460,6 +463,8 @@ export interface DerivedSheet {
   initiativeRegains: { resource: string; amount: number; from: string }[];
   /** Uses back at the end of a short rest (Sorcerous Restoration). */
   shortRestRegains: { resource: string; amount: number; from: string }[];
+  /** Healing dice you roll for yourself count as their maximum, and why (Gift of the Ever-Living Ones, with the familiar near). */
+  selfMaxHealing?: string;
   /** Rule permissions: two-weapon fighting with non-light weapons (Dual Wielder), ability modifier on off-hand damage (the style). */
   rules: { twoWeaponNonLight: boolean; twoWeaponAbility: boolean; durable: boolean; heavyArmorMaster: boolean; warCaster: boolean };
   /** Data problems found while deriving (missing choices, too many attuned items). */
@@ -1224,6 +1229,10 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
   const allowed = (key: string) => modsFor([key]).some((a) => a.mod.op === "allow" && conditionState(a.mod.when) === "pass");
   const rules = { twoWeaponNonLight: allowed("rule.twoWeapon.nonLight"), twoWeaponAbility: allowed("rule.twoWeapon.ability"), durable: allowed("rule.durable"), heavyArmorMaster: allowed("rule.heavyArmorMaster") && armorWorn?.def.armor?.category === "heavy", warCaster: sources.some((s) => s.id === "feat:war-caster") };
 
+  // Elven Accuracy: with advantage on an attack that doesn't use Strength, three d20s.
+  const elvenAccuracy = sources.some((s) => s.id === "feat:elven-accuracy");
+  const hexWarrior = sources.some((s) => s.id === "feature:hexblade-hex-warrior");
+  const pactBlade = sources.some((s) => s.id === "feature:pact-of-the-blade");
   // Attacks: every weapon carried (switching weapons needs no edit), plus attacks features grant.
   const attacks: WeaponAttack[] = [];
   const buildAttacks = (
@@ -1262,7 +1271,8 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     for (const mode of modes) {
       const thrown = mode === "thrown";
       const attackKeys = [`roll.attack.weapon.${mode}`, "item.attack", `attack.${o.attackId}`];
-      const damageKeys = [`roll.damage.weapon.${mode}`, "item.damage", `damage.${o.attackId}`];
+      // By damage type too: "roll.damage.weapon.type.piercing" (Piercer).
+      const damageKeys = [`roll.damage.weapon.${mode}`, "item.damage", `damage.${o.attackId}`, ...(w.damageType ? [`roll.damage.weapon.type.${w.damageType}`] : [])];
       if (o.offHand) {
         attackKeys.push("roll.attack.weapon.offhand");
         damageKeys.push("roll.damage.weapon.offhand");
@@ -1272,6 +1282,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
         damageKeys.push(`damage.${o.attackId}.thrown`);
       }
       const attack = roll(attackKeys, [abilityPart(ability), ...(o.proficient ? [pbPart()] : []), ...magic], o.itemInstanceId);
+      if (elvenAccuracy && ability !== "str") attack.tripleAdvantage = "Elven Accuracy";
       // Two-weapon fighting: no ability modifier on the off-hand damage unless it's negative, or with the Two-Weapon Fighting style.
       const offHandAbility = !o.offHand || mods[ability] < 0 || rules.twoWeaponAbility;
       const bonus = roll(damageKeys, [...(offHandAbility ? [abilityPart(ability)] : []), ...magic], o.itemInstanceId);
@@ -1354,6 +1365,19 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
         entry.attack.suggestions.push(sg(sh.diff));
         entry.damage.bonus.suggestions.push(sg(offHandAbility || sh.diff === 0 ? sh.diff : 0, /^1d\d+$/.test(w.damage) ? "1d8" : undefined));
         entry.note = /^Not/.test(sh.flag) ? "Shillelagh: not a club or quarterstaff" : "Shillelagh: tick it on the roll";
+      }
+      // Hex Warrior: Charisma instead of Strength or Dexterity with the hex weapon (picked after a long rest,
+      // one you're proficient with and not two-handed), or with a pact weapon (Pact of the Blade).
+      if (hexWarrior && o.itemInstanceId && mods.cha > mods[ability] && (o.proficient || pactBlade) && (!w.properties.includes("two-handed") || pactBlade)) {
+        const diff = mods.cha - mods[ability];
+        const sg = (flat: number): Suggestion => ({
+          label: "Hex Warrior",
+          effect: signed(flat) || "Charisma",
+          reason: `your hex weapon${pactBlade ? " or pact weapon" : ""}: Charisma instead of ${ABILITY_NAMES[ability]}${w.properties.includes("two-handed") ? " (two-handed: only as your pact weapon)" : ""}`,
+          apply: { flat, dice: [] },
+        });
+        entry.attack.suggestions.push(sg(diff));
+        entry.damage.bonus.suggestions.push(sg(offHandAbility ? diff : 0));
       }
       attacks.push(entry);
     }
@@ -1647,6 +1671,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     if (timer) r.timer = timer;
     if (sc && def.attack) {
       r.attack = roll([`roll.attack.spell.${def.attack}`, `roll.attack.spell.${def.id.replace(/^spell:/, "")}`], [pbPart(), abilityPart(sc.ability), ...statAdds("stat.spell.attack")]);
+      if (elvenAccuracy && sc.ability !== "str") r.attack.tripleAdvantage = "Elven Accuracy";
     }
     if (sc && def.save) r.save = { ability: def.save.ability, dc: sc.saveDc.total, onSuccess: def.save.onSuccess };
     const levelsFor = (table?: Record<string, string>, byCharacter = false) => {
@@ -1678,9 +1703,10 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       if (r.damage && also.length) r.damage.also = also;
       // Spell-specific modifiers too (Agonizing Blast: "roll.damage.spell.eldritch-blast").
       // Cantrips too: "roll.damage.spell.cantrip" (Blessed Strikes, Potent Spellcasting).
-      // By school and level too: "roll.damage.spell.school.evocation" (Empowered Evocation), "roll.damage.spell.level.3" (Overchannel: 1st to 5th).
+      // By school and level too: "roll.damage.spell.school.evocation" (Empowered Evocation), "roll.damage.spell.level.3" (Overchannel: 1st to 5th);
+      // by damage type: "roll.damage.spell.type.fire" (Flames of Phlegethos).
       r.damageBonus = roll(
-        ["roll.damage.spell", `roll.damage.spell.${def.id.replace(/^spell:/, "")}`, ...(def.level === 0 ? ["roll.damage.spell.cantrip"] : []), `roll.damage.spell.school.${def.school.toLowerCase()}`, `roll.damage.spell.level.${def.level}`],
+        ["roll.damage.spell", `roll.damage.spell.${def.id.replace(/^spell:/, "")}`, ...(def.level === 0 ? ["roll.damage.spell.cantrip"] : []), `roll.damage.spell.school.${def.school.toLowerCase()}`, `roll.damage.spell.level.${def.level}`, ...(def.damage?.type ? [`roll.damage.spell.type.${def.damage.type}`] : [])],
         [],
       );
       // Overchannel: what it costs this time (free the first time after a long rest, then 2d12, 3d12… necrotic per spell level).
@@ -1787,6 +1813,10 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       if (a.notAfterMoving) entry.notAfterMoving = true;
       if (a.restores) entry.restores = a.restores;
       if (a.restoresPactSlots) entry.restoresPactSlots = true;
+      if (a.everyDays) {
+        entry.everyDays = a.everyDays;
+        if (a.everyDaysIfRollAtMost !== undefined) entry.everyDaysIfRollAtMost = evalFlat(a.everyDaysIfRollAtMost, ctxFor(s));
+      }
       if (a.endsConditions?.length) entry.endsConditions = a.endsConditions;
       if (a.cost) {
         const free = spells.filter((sp) => sp.cast.free?.resource === a.cost!.resource).map((sp) => ({ id: sp.id, list: sp.list.id }));
@@ -1985,7 +2015,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     // Dodge shows as its own effect chip while it lasts, not as a switch.
     if (switcher?.common) continue;
     const byAction = switcher?.name;
-    const label = byAction ?? (a.mod.op === "note" ? a.source.label : labelOf(a));
+    const label = TOGGLE_LABELS[name] ?? byAction ?? (a.mod.op === "note" ? a.source.label : labelOf(a));
     toggles.push({ name, label, on: c.toggles.includes(name), ...(TOGGLE_REMINDERS[name] ? { reminders: TOGGLE_REMINDERS[name]!.map(fillTag) } : {}) });
   }
 
@@ -2183,6 +2213,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     encumbrance,
     initiativeRegains: sources.flatMap((s) => (s.grant.initiativeRegain ? [{ ...s.grant.initiativeRegain, from: s.label }] : [])),
     shortRestRegains: sources.flatMap((s) => (s.grant.shortRestRegain ?? []).map((g) => ({ ...g, from: s.label }))),
+    ...(sources.some((s) => s.id === "feature:invocation-gift-of-the-ever-living-ones") && c.toggles.includes("ever-living-near") ? { selfMaxHealing: "Gift of the Ever-Living Ones" } : {}),
     attacksPerAction: Math.max(
       sources.some((s) => /^feature:extra-attack/.test(s.id)) ? 2 : 1,
       ...sources.map((s) => (s.grant.extraAttacks !== undefined ? evalFlat(s.grant.extraAttacks, ctxFor(s)) : 1)),

@@ -1889,6 +1889,8 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       if (c.combat) notes.push("Already in combat.");
       else {
         c.combat = CombatState.parse({});
+        if (sheet.features.some((f) => f.id === "feature:thiefs-reflexes"))
+          notes.push("Thief's Reflexes: in this first round you take two turns, at your initiative and at your initiative minus 10 (not if you're surprised).");
         // Companions and summoned creatures start the fight fresh: no initiative yet, nothing used.
         for (const st of Object.values(c.companions)) {
           delete st.initiative;

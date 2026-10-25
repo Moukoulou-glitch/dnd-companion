@@ -245,6 +245,18 @@
         "pack": "table-2014",
         "book": "XGtE",
         "page": 57
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.heal.spell",
+            "op": "note",
+            "label": "Gift of the Ever-Living Ones: healing dice you roll for yourself count as their maximum.",
+            "when": {
+              "toggle": "ever-living-near"
+            }
+          }
+        ]
       }
     },
     {

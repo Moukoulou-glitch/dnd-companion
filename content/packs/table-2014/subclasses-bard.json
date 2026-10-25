@@ -82,7 +82,16 @@
         "progression": "full"
       },
       "spellPreparation": "known",
-      "features": [],
+      "features": [
+        {
+          "level": 14,
+          "feature": "feature:magical-secrets-2"
+        },
+        {
+          "level": 18,
+          "feature": "feature:magical-secrets-3"
+        }
+      ],
       "adds": [
         {
           "level": 1,

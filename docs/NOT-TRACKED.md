@@ -293,7 +293,22 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 - Disease immunity is listed with your immunities; diseases themselves aren't tracked.
 - Stillness of Mind ends one charmed or frightened tag on you (the one you pick).
 - Cleansing Touch: ending a spell on you is removing its tag; on someone else, it's theirs.
-- Divine Intervention: from 20th level the action has no roll; the 7-day wait after a success is yours to keep.
+- Divine Intervention: from 20th level the action has no roll. After a success the 7-day wait is written in the Backstory (13c); the app doesn't stop you using it sooner.
 - Foe Slayer: offered on every weapon attack and damage roll; whether the target is a favored enemy, and once per turn, are yours to keep.
 - Thief's Reflexes: the second turn's initiative is a note; the turn order isn't changed.
 - Empty Body: invisible (advantage on your attacks, a reminder about attacks against you) and resistance to all but force while it's on; Astral Projection for 8 ki is cast from the Spells tab.
+
+## Uses, reminders and feature mechanics (round 13c)
+
+- Once every N days (Divine Intervention after a success, Charm of Sunlight): a Backstory note says when it's back; nothing stops an earlier use.
+- Mirror Image and Blur on the name: from the effect tags; Mirror Image shows one copy per duplicate left as you count them down.
+- Magical Secrets: the picks are among the spells known, so the "Spells known" list asks for that many fewer; swapping a Magical Secrets spell on level-up is a new pick.
+- Peerless Skill and Homing Strikes: ticking spends the use when the roll is made. Homing Strikes' die is spent only if the attack then hits: if it still misses, give the die back on the Play page.
+- Countercharm: advantage is offered on every save while it's on (charm and fright only); friends within 30 ft are theirs to apply.
+- Primeval Awareness: the ranger spell slot is marked by hand; what it senses is the DM's.
+- Hide in Plain Sight: +10 Stealth while switched on; switch it off when you move, act or react.
+- Hex Warrior: an option on every weapon you're proficient with that isn't two-handed (any weapon with Pact of the Blade); which one is your hex weapon this long rest is yours to keep.
+- Elven Accuracy: three d20s with advantage on attacks that don't use Strength (weapon attacks by their ability, spell attacks); with Shillelagh or Hex Warrior ticked on a Strength weapon, it's yours to apply.
+- Piercer: the extra critical die on piercing weapons is rolled; the once-per-turn reroll of one damage die is a note (do it by hand). Not on piercing spells.
+- Flames of Phlegethos: 1s are rerolled once on spells whose main damage is fire; the flame wreath is its own action.
+- Gift of the Ever-Living Ones: switch "Familiar within 100 ft" on; then your Hit Dice, your own healing features and your healing spells on yourself are the maximum. Healing from others isn't affected.

@@ -4087,3 +4087,24 @@ html.fx-shake-strong .app > .strip, html.fx-shake-strong .app > main, html.fx-sh
 /* 12d: the biggest sigils come in whole (turning and growing) instead of drawing each ring: drawing lines that large is redrawn every frame. */
 .gs-t3 .gs-sigil .ring, .gs-t4 .gs-sigil .ring { animation: none; stroke-dashoffset: 0; }
 .gs-t3 .gs-sigil .glyph path, .gs-t4 .gs-sigil .glyph path { animation: none; stroke-dashoffset: 0; }
+
+/* Mirror Image and Blur on the character's name (fx/NameFx.tsx). */
+.who-name { position: relative; display: inline-block; }
+.name-real { position: relative; }
+.name-image { position: absolute; left: 0; top: 0; white-space: nowrap; pointer-events: none; color: rgba(190, 210, 255, 0.55); text-shadow: 0 0 6px rgba(150, 180, 255, 0.6); animation: name-image 3.2s ease-in-out infinite; animation-delay: calc(var(--i) * -1.07s); }
+@keyframes name-image {
+  0%, 100% { transform: translate(-7px, 0); opacity: 0.55; }
+  25% { transform: translate(5px, -3px); opacity: 0.35; }
+  50% { transform: translate(8px, 1px); opacity: 0.6; }
+  75% { transform: translate(-4px, 3px); opacity: 0.3; }
+}
+.name-blur .name-real { animation: name-blur 1.8s ease-in-out infinite; text-shadow: 3px 0 2px rgba(200, 210, 240, 0.45), -3px 0 2px rgba(200, 210, 240, 0.45); }
+@keyframes name-blur {
+  0%, 100% { filter: blur(0.4px); transform: translateX(0); }
+  30% { filter: blur(1.4px); transform: translateX(1.5px); }
+  60% { filter: blur(0.8px); transform: translateX(-1.5px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .name-image { animation: none !important; transform: translate(calc((var(--i) - 1) * 6px), 0); opacity: 0.35; }
+  .name-blur .name-real { animation: none !important; filter: blur(0.8px); }
+}

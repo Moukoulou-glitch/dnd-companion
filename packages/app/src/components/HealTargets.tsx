@@ -9,6 +9,8 @@ export interface HealTarget {
   warnings: string[];
   /** Under Beacon of Hope: its healing is the maximum. */
   beacon?: boolean;
+  /** What makes it the maximum when it isn't Beacon of Hope (Gift of the Ever-Living Ones). */
+  maxLabel?: string;
   /** Someone the app doesn't track, while you concentrate on Beacon of Hope: ask whether it's under it. */
   askBeacon?: boolean;
 }
@@ -58,7 +60,7 @@ export function HealTargets({
               <div className="row-main">
                 <div className="row-title">{t.id === "me" ? `Me (${t.name})` : t.name}</div>
                 {t.sub && <div className="row-sub">{t.sub}</div>}
-                {t.beacon && beacon && <div className="row-sub beacon-text">Beacon of Hope: the maximum, {beacon.maxAmount}</div>}
+                {t.beacon && beacon && <div className="row-sub beacon-text">{t.maxLabel ?? "Beacon of Hope"}: the maximum, {beacon.maxAmount}</div>}
                 {t.warnings.map((w) => (
                   <div className="row-sub danger-text" key={w}>
                     {w}

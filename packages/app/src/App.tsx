@@ -19,6 +19,7 @@ import { DistributePanel } from "./components/Distribute";
 import { RageVeins, greyLevel, useFlourishes } from "./components/Fx";
 import { FxLayer, playFx } from "./fx/FxLayer";
 import { spellInfoOf } from "./fx/generated";
+import { NameFx } from "./fx/NameFx";
 import { featureFor } from "./fx/features";
 import { DiceStrip } from "./dice/DiceStrip";
 import { DiceSettings } from "./dice/DiceSettings";
@@ -54,6 +55,7 @@ import { bookReport, registry } from "./content";
 import { BookText, BooksPanel } from "./components/BookText";
 import { SendingPanel, sendingNote } from "./components/Sending";
 import { formatWorld } from "./calendar";
+import { everyDaysNote } from "./everyDays";
 import { BuildPanel, LevelUpPanel, NewCharacterPanel, type NewCharacterInput } from "./components/Builder";
 import { flashEnabled, flashForFeature, flashForSpell, flashTorch, setFlashEnabled } from "./flash";
 import { PlayTab, type PlayPrompts } from "./components/PlayTab";
@@ -454,6 +456,15 @@ export function App() {
     ));
   };
 
+  /**
+   * A use that comes back only after days (Divine Intervention after a success: 7; Charm of Sunlight: 10):
+   * a note in the Backstory with the session, the in-world date and the day it can be used again.
+   */
+  const noteEveryDays = (a: ActionResult, rolled?: number) => {
+    const note = everyDaysNote(a, rolled, live.current.character?.story);
+    if (note) live.current.act("addNote", note, `${a.name}: noted in your Backstory (next in ${a.everyDays} days).`);
+  };
+
   /** Sending's message: written after the cast, saved as a note (with the session and in-world date), the words sent off. */
   const openSending = () =>
     open("Sending", () => (
@@ -610,13 +621,13 @@ export function App() {
     // Song of Rest: the bard's own extra die, once at the end of a short rest in which Hit Dice were spent.
     const song = sheet.actions.find((a) => a.id === "song-of-rest")?.roll;
     const songSides = song ? Number(/d(\d+)/.exec(song.text)?.[1] ?? 6) : 0;
-    // Beacon of Hope: healing you is the maximum (a Hit Die, Song of Rest's die).
-    const beacon = !!live.current.character?.effects.some((e) => e.effect === BEACON_EFFECT);
+    // Beacon of Hope, or Gift of the Ever-Living Ones: healing you is the maximum (a Hit Die, Song of Rest's die).
+    const beacon = live.current.character?.effects.some((e) => e.effect === BEACON_EFFECT) ? "Beacon of Hope" : live.current.sheet?.selfMaxHealing;
     const spend = (rolled: number, withSong: boolean) => {
       const roll = beacon ? sides : rolled;
-      s.act("spendHitDie", { die, roll }, `Spent a ${die}${beacon ? ` (Beacon of Hope: ${sides})` : ""}.`);
+      s.act("spendHitDie", { die, roll }, `Spent a ${die}${beacon ? ` (${beacon}: ${sides})` : ""}.`);
       if (withSong && songSides && beacon) {
-        s.act("heal", { amount: songSides }, `Song of Rest: ${songSides} more hit points (Beacon of Hope: the maximum).`);
+        s.act("heal", { amount: songSides }, `Song of Rest: ${songSides} more hit points (${beacon}: the maximum).`);
         return close();
       }
       if (!withSong || !songSides) return close();
@@ -648,7 +659,7 @@ export function App() {
         songSides={songSides}
         beacon={beacon}
         onSpend={spend}
-        onRoll={(withSong) => void rollOrThrow(`1d${sides}`, true, undefined, { source: beacon ? "Beacon of Hope" : "Hit Die" }).then((r) => spend(r.total, withSong))}
+        onRoll={(withSong) => void rollOrThrow(`1d${sides}`, true, undefined, { source: beacon === "Beacon of Hope" ? "Beacon of Hope" : "Hit Die" }).then((r) => spend(r.total, withSong))}
       />
     ));
   };
@@ -1302,7 +1313,11 @@ export function App() {
       return (
         <FeaturePanel
           a={current}
-          beaconIds={friendlyTargets(live.current.character!, live.current.sheet!, registry).filter((t) => t.effects.includes(BEACON_EFFECT)).map((t) => t.id)}
+          beaconIds={[
+            ...friendlyTargets(live.current.character!, live.current.sheet!, registry).filter((t) => t.effects.includes(BEACON_EFFECT)).map((t) => t.id),
+            ...(live.current.sheet?.selfMaxHealing ? ["me"] : []),
+          ]}
+          {...(live.current.sheet?.selfMaxHealing && !live.current.character?.effects.some((e) => e.effect === BEACON_EFFECT) ? { maxLabels: { me: live.current.sheet.selfMaxHealing } } : {})}
           {...(fromResource
             ? {
                 onJustSpend: () => {
@@ -1376,6 +1391,7 @@ export function App() {
                 },
                 () => {
                   live.current.act("useAction", payload, label);
+                  noteEveryDays(current, rolled);
                   // Its effect on you (Bardic Inspiration on yourself, if your table allows it): the die it gives.
                   const die = current.gives && current.cost ? live.current.sheet?.resources.find((r) => r.id === current.cost!.resource)?.die : undefined;
                   if (current.gives && onMe) {
@@ -2694,7 +2710,12 @@ export function App() {
    * and how it's applied: each one healed by the roll; you regain Blessed Healer's when someone else is.
    */
   /** Beacon of Hope on a heal target, and the question for someone else while you concentrate on it. */
-  const beaconFlag = (t: { effects: string[] }) => (t.effects.includes(BEACON_EFFECT) ? { beacon: true } : {});
+  const beaconFlag = (t: { id: string; effects: string[] }) => {
+    if (t.effects.includes(BEACON_EFFECT)) return { beacon: true };
+    // Gift of the Ever-Living Ones: your own healing of yourself, with the familiar near.
+    const gift = live.current.sheet?.selfMaxHealing;
+    return t.id === "me" && gift ? { beacon: true, maxLabel: gift } : {};
+  };
   const otherBeaconFlag = () => (live.current.character?.concentration?.spell === "spell:beacon-of-hope" ? { askBeacon: true } : {});
   /**
    * A healing roll with Beacon of Hope's maximum as an option, when it can matter (someone you could heal is
@@ -2702,11 +2723,15 @@ export function App() {
    */
   const withBeacon = (attack: WeaponAttack, all: { id: string; effects: string[] }[]): { attack: WeaponAttack; optionInfo: Record<string, OptionInfo> } => {
     const meUnder = all.some((t) => t.id === "me" && t.effects.includes(BEACON_EFFECT));
+    const gift = live.current.sheet?.selfMaxHealing;
     const relevant = all.some((t) => t.effects.includes(BEACON_EFFECT)) || !!otherBeaconFlag().askBeacon;
-    if (!relevant) return { attack, optionInfo: {} };
-    const sg = { label: "Beacon of Hope", effect: "maximum healing", reason: "the creature you heal is under Beacon of Hope", apply: { flat: 0, dice: [], maximize: true } };
+    const sgs: RollBreakdown["suggestions"] = [];
+    if (relevant) sgs.push({ label: "Beacon of Hope", effect: "maximum healing", reason: "the creature you heal is under Beacon of Hope", apply: { flat: 0, dice: [], maximize: true } });
+    // Gift of the Ever-Living Ones: healing yourself, with your familiar within 100 ft.
+    if (gift && !meUnder && all.some((t) => t.id === "me")) sgs.push({ label: gift, effect: "maximum healing", reason: "healing yourself, with your familiar within 100 ft", apply: { flat: 0, dice: [], maximize: true } });
+    if (!sgs.length) return { attack, optionInfo: {} };
     return {
-      attack: { ...attack, damage: { ...attack.damage, bonus: { ...attack.damage.bonus, suggestions: [...attack.damage.bonus.suggestions, sg] } } },
+      attack: { ...attack, damage: { ...attack.damage, bonus: { ...attack.damage.bonus, suggestions: [...attack.damage.bonus.suggestions, ...sgs] } } },
       optionInfo: meUnder ? { "Beacon of Hope": { preselect: true } } : {},
     };
   };
@@ -3288,7 +3313,7 @@ export function App() {
       {grey > 0 && <div className="grey-veil" aria-hidden="true" style={{ backdropFilter: `grayscale(${grey})`, WebkitBackdropFilter: `grayscale(${grey})` }} />}
       <header className="strip">
         <button className="who" onClick={openRoster} aria-label={`${c.name}. Switch character`}>
-          <span className="who-name">{c.name}</span>
+          <NameFx name={c.name} sheet={sheet} />
           <span className="who-class">{s.roster.find((r) => r.id === s.selectedId)?.summary}</span>
         </button>
 
@@ -3763,12 +3788,12 @@ function Welcome({
 }
 
 /** A Hit Die: tap the face, or let the app roll. With Song of Rest, a tick-box for the bard's extra die. */
-function HitDieEntry({ sides, con, songSides, beacon, onSpend, onRoll }: { sides: number; con: string; songSides: number; beacon?: boolean; onSpend: (roll: number, withSong: boolean) => void; onRoll: (withSong: boolean) => void }) {
+function HitDieEntry({ sides, con, songSides, beacon, onSpend, onRoll }: { sides: number; con: string; songSides: number; beacon?: string; onSpend: (roll: number, withSong: boolean) => void; onRoll: (withSong: boolean) => void }) {
   const [song, setSong] = useState(false);
   return (
     <>
       <p className="note">Tap what you rolled, or let the app roll. Constitution {con} is added.</p>
-      {beacon && <p className="note beacon-text">Beacon of Hope: the die counts as {sides}, whatever it shows.</p>}
+      {beacon && <p className="note beacon-text">{beacon}: the die counts as {sides}, whatever it shows.</p>}
       {songSides > 0 && (
         <label className="row check" style={{ padding: "8px 0" }}>
           <input type="checkbox" checked={song} onChange={() => setSong(!song)} />

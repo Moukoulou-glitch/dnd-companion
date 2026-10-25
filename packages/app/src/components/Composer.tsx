@@ -640,6 +640,7 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
         {!choices.force && d20.d20Mode !== "normal" && (
           <p className="note">
             {d20.d20Mode === "advantage" ? "Advantage" : "Disadvantage"} from {(d20.d20Mode === "advantage" ? d20.advantageFrom : d20.disadvantageFrom).join(", ")}.
+            {d20.d20Mode === "advantage" && base.tripleAdvantage && ` ${base.tripleAdvantage}: three d20s, the highest counts.`}
           </p>
         )}
         {d20.d20Mode === "normal" && d20.advantageFrom.length > 0 && d20.disadvantageFrom.length > 0 && (

@@ -250,7 +250,9 @@ export function buildItems(c: Character, reg: ContentRegistry): BuildItem[] {
     if (cantripCount > 0) {
       out.push({ key: `${def.id}|cantrips`, kind: "spells", sourceName: def.name, label: "Cantrips known", done: cantrips.length >= cantripCount, need: cantripCount, picked: cantrips, class: def.id, list: sc.id, spellKind: "cantrips", maxLevel: 0, ...(cantrips.length > cantripCount ? { over: true } : {}) });
     }
-    const known = def.progression?.spellsKnown?.[cl.level - 1] ?? 0;
+    // Magical Secrets: those picks are among the spells known, so fewer are asked for here.
+    const secrets = [...new Set(allSources.map((x) => x.id))].reduce((n, id) => n + (/^feature:/.test(id) ? defChoices(c, reg, id).filter((ch) => ch.inKnown === sc.id).reduce((t, ch) => t + ch.count, 0) : 0), 0);
+    const known = Math.max(0, (def.progression?.spellsKnown?.[cl.level - 1] ?? 0) - secrets);
     if (known > 0) {
       out.push({ key: `${def.id}|known`, kind: "spells", sourceName: def.name, label: "Spells known", done: leveled.length >= known, need: known, picked: leveled, class: def.id, list: sc.id, spellKind: "known", maxLevel, ...(leveled.length > known ? { over: true } : {}) });
     } else if (def.id === "class:wizard") {

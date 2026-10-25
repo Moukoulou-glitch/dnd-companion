@@ -109,6 +109,9 @@ export const FEATURE_TAGS: Record<string, FeatureTagDef> = {
 
 /** What a switched-on feature does, under its chip. */
 export const TOGGLE_REMINDERS: Record<string, string[]> = {
+  countercharm: ["Until the end of your next turn: you and friends within 30 ft who can hear you have advantage on saves against being frightened or charmed.", "Ends early if you're incapacitated or silenced, or when you end it (no action)."],
+  "hide-in-plain-sight": ["+10 to Stealth while you stay pressed against the surface.", "Moving, or taking an action or a reaction, ends it: camouflage again (1 minute)."],
+  "ever-living-near": ["Your familiar is within 100 ft: healing dice you roll for yourself count as their maximum (Hit Dice, potions, your own spells)."],
   "empty-body": ["Invisible for 1 minute: attack rolls against you have disadvantage, and yours have advantage.", "Resistance to all damage except force."],
   "twilight-sanctuary": [
     "A 30-ft sphere of twilight around you for 1 minute.",
@@ -124,4 +127,5 @@ export const TOGGLE_REMINDERS: Record<string, string[]> = {
 /** Names for switches when the action's own name would clash with a tag (Eyes of Night shared vs the darkvision). */
 export const TOGGLE_LABELS: Record<string, string> = {
   "eyes-of-night-shared": "Eyes of Night (shared)",
+  "ever-living-near": "Familiar within 100 ft (Gift of the Ever-Living Ones)",
 };

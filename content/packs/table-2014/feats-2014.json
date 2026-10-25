@@ -430,13 +430,7 @@
           "choice": "ability",
           "amount": 1
         },
-        "modifiers": [
-          {
-            "selector": "roll.attack.*",
-            "op": "note",
-            "label": "Elven Accuracy: with advantage on a non-Strength attack, reroll one of the dice once"
-          }
-        ]
+        "modifiers": []
       },
       "choices": [
         {
@@ -622,9 +616,13 @@
         },
         "modifiers": [
           {
-            "selector": "roll.damage.spell",
-            "op": "note",
-            "label": "Flames of Phlegethos: reroll 1s on fire damage dice once; you may wreathe yourself in flames (1d4 fire to melee attackers within 5 ft)"
+            "selector": "roll.damage.spell.type.fire",
+            "op": "reroll",
+            "value": 1,
+            "label": "Flames of Phlegethos",
+            "when": {
+              "text": "reroll each 1 on the fire damage dice once; then you may wreathe yourself in flames until the end of your next turn"
+            }
           }
         ],
         "actions": [
@@ -1222,9 +1220,15 @@
         },
         "modifiers": [
           {
-            "selector": "roll.damage.weapon.*",
+            "selector": "roll.damage.weapon.type.piercing",
             "op": "note",
-            "label": "Piercer (piercing): once per turn reroll one damage die; on a crit roll one extra damage die"
+            "label": "Piercer: once per turn, reroll one damage die and use the new roll."
+          },
+          {
+            "selector": "roll.damage.weapon.type.piercing",
+            "op": "extraCritDice",
+            "value": 1,
+            "label": "Piercer"
           }
         ]
       },

@@ -600,11 +600,82 @@
       "kind": "feature",
       "id": "feature:soul-blades",
       "name": "Soul Blades",
-      "summary": "Spend Psionic Energy dice to turn a Psychic Blade miss into a hit, or to teleport by throwing a blade.",
+      "summary": "Homing Strikes: after a Psychic Blade misses, add a Psionic Energy die to the attack roll (spent only if it now hits). Psychic Teleportation: bonus action, spend a die and throw a blade to teleport up to 10 ft × the roll.",
       "source": {
         "pack": "table-2014",
         "book": "TCoE",
         "page": 64
+      },
+      "scaling": {
+        "die": {
+          "class": "class:rogue",
+          "table": [
+            [
+              3,
+              "1d6"
+            ],
+            [
+              5,
+              "1d8"
+            ],
+            [
+              11,
+              "1d10"
+            ],
+            [
+              17,
+              "1d12"
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "attack.attack:psychic-blade",
+            "op": "add",
+            "value": "scale.die",
+            "mode": "suggested",
+            "label": "Homing Strikes",
+            "spends": {
+              "resource": "psionic-energy",
+              "amount": 1
+            },
+            "when": {
+              "text": "after the attack misses: the die is spent only if the attack now hits (if it still misses, give it back on the Play page)"
+            }
+          },
+          {
+            "selector": "attack.attack:psychic-blade-bonus",
+            "op": "add",
+            "value": "scale.die",
+            "mode": "suggested",
+            "label": "Homing Strikes",
+            "spends": {
+              "resource": "psionic-energy",
+              "amount": 1
+            },
+            "when": {
+              "text": "after the attack misses: the die is spent only if the attack now hits (if it still misses, give it back on the Play page)"
+            }
+          }
+        ],
+        "actions": [
+          {
+            "id": "psychic-teleportation",
+            "name": "Psychic Teleportation",
+            "economy": "bonus",
+            "cost": {
+              "resource": "psionic-energy",
+              "amount": 1
+            },
+            "roll": {
+              "dice": "scale.die",
+              "label": "× 10 ft: how far you can teleport"
+            },
+            "note": "Throw a blade at an unoccupied space you can see, up to 10 ft × the roll away, and teleport there."
+          }
+        ]
       }
     }
   ]

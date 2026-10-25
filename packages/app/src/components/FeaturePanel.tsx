@@ -30,12 +30,15 @@ export function FeaturePanel({
   slots,
   onSlots,
   beaconIds,
+  maxLabels,
   onJustSpend,
 }: {
   /** From Play's Features: spend its use without doing anything else. */
   onJustSpend?: () => void;
   /** Who is under Beacon of Hope ("me", a companion's id, "summon:<id>"): healing them is the maximum. */
   beaconIds?: string[];
+  /** What makes it the maximum for some of them, when it isn't Beacon of Hope (you: Gift of the Ever-Living Ones). */
+  maxLabels?: Record<string, string>;
   /** Spell slots by level (Arcane Recovery, Combat Wild Shape). */
   slots?: { level: number; total: number; used: number }[];
   /** Recovering slots, or spending one to heal (with what was rolled). */
@@ -186,7 +189,7 @@ export function FeaturePanel({
             {a.tempHp ? "Temporary HP" : a.heal ? "Healing" : `Roll ${amount.text}, ${a.roll!.label}`}
             {a.tempHp || a.heal ? `: ${amount.text}` : ""}
           </p>
-          {beacon && <p className="note beacon-text">Beacon of Hope: the maximum, {maxOfAmount}.</p>}
+          {beacon && <p className="note beacon-text">{maxLabels?.[healedId] ?? "Beacon of Hope"}: the maximum, {maxOfAmount}.</p>}
           {physical && !beacon && amount.dice.length > 0 && (
             <label className="entry">
               <span>Roll {amount.dice.join(" + ")} and type the dice total</span>

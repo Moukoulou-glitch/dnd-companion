@@ -41,7 +41,8 @@
               "amount": 1
             },
             "toggles": [],
-            "note": "Sunlight in a 10-ft sphere around a crown of light that moves with you (Daylight variant, 5th level). Once every 10 days: restore it by hand."
+            "note": "Sunlight in a 10-ft sphere around a crown of light that moves with you (Daylight variant, 5th level). Once every 10 days: restore it by hand.",
+            "everyDays": 10
           },
           {
             "id": "charm-of-sunlight-join",
@@ -52,7 +53,8 @@
               "amount": 1
             },
             "toggles": [],
-            "note": "When an ally who earned the Charm with you activates theirs within 60 ft: spend yours to add 10 ft to the sphere and get your own crown of light."
+            "note": "When an ally who earned the Charm with you activates theirs within 60 ft: spend yours to add 10 ft to the sphere and get your own crown of light.",
+            "everyDays": 10
           }
         ]
       }
