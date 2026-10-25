@@ -619,7 +619,10 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     abilities[ab] = { score, modifier: Math.floor((score.total - 10) / 2), max, ...(asiOver ? { asiOver } : {}) };
   }
   const mods = Object.fromEntries(ABILITIES.map((a) => [a, abilities[a].modifier])) as Record<Ability, number>;
-  const ctx: ExprContext = { pb, mods, level, classLevels };
+  // "spellmod": the best spellcasting ability modifier among your classes (Charisma, Wisdom or Intelligence otherwise).
+  const castingAbilities = c.classes.map((cl) => reg.find(cl.class, "class")?.spellcasting?.ability).filter((a): a is Ability => typeof a === "string");
+  const spellMod = castingAbilities.length ? Math.max(...castingAbilities.map((a) => mods[a])) : Math.max(mods.int, mods.wis, mods.cha);
+  const ctx: ExprContext = { pb, mods, level, classLevels, spellMod };
 
   /** Expression context for one source: its level tables resolved at the character's class level. */
   const ctxCache = new Map<Source, ExprContext>();
@@ -1415,7 +1418,8 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
   for (const s of sources) {
     for (const a of s.grant.attacks ?? []) {
       // Damage can grow with level (Martial Arts: "scale.die" is 1d4, then 1d6 at 5th...).
-      const dice = a.damage.startsWith("scale.") ? evalExpr(a.damage, ctxFor(s)).find((x) => x.kind === "dice") : undefined;
+      // Or with the slot a spell was cast with (Shadow Blade: "bySlot[2:2d8;3:3d8;5:4d8;7:5d8]").
+      const dice = a.damage.startsWith("scale.") || /slotLevel|bySlot|cantrip/.test(a.damage) ? evalExpr(a.damage, ctxFor(s)).find((x) => x.kind === "dice") : undefined;
       const w: AttackDef = dice && dice.kind === "dice" ? { ...a, damage: dice.dice } : a;
       const o: Parameters<typeof buildAttacks>[1] = { attackId: a.id, name: a.name, proficient: true, action: a.action };
       if (a.requires) o.requires = a.requires;

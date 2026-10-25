@@ -1769,6 +1769,33 @@
       "initiative": "own",
       "concentration": true,
       "note": "One devil of CR 6 or lower (+1 per slot level above 5th). It's unfriendly, acts on its own initiative and isn't obliged to obey you; with its talisman you can command it. When the spell ends it returns to the Nine Hells."
+    },
+    {
+      "kind": "summon",
+      "id": "summon:animate-objects",
+      "name": "Animate Objects",
+      "spell": "spell:animate-objects",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "creatures": [
+        "creature:animated-object-tiny",
+        "creature:animated-object-small",
+        "creature:animated-object-medium",
+        "creature:animated-object-large",
+        "creature:animated-object-huge"
+      ],
+      "count": {
+        "5": 10,
+        "6": 12,
+        "7": 14,
+        "8": 16,
+        "9": 18
+      },
+      "initiative": "yours",
+      "concentration": true,
+      "note": "Up to 10 objects at 5th level (2 more for each level above): a Medium object counts as two, a Large as four, a Huge as eight. Bonus action: command any you control within 500 ft (one command for several). They act on your turn."
     }
   ]
 }

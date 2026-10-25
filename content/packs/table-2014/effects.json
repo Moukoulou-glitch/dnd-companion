@@ -4131,6 +4131,1125 @@
         "It occupies its space and doesn't move.",
         "Only creatures hostile to you trigger it, once per turn each."
       ]
+    },
+    {
+      "kind": "effect",
+      "id": "effect:true-strike",
+      "name": "True Strike",
+      "category": "spell",
+      "summary": "On your next turn, advantage on your first attack roll against the creature you picked.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "modifiers": [
+        {
+          "selector": "roll.attack.*",
+          "op": "advantage",
+          "mode": "suggested",
+          "preset": "always",
+          "label": "True Strike",
+          "when": {
+            "text": "your first attack on your next turn, against the creature you picked"
+          }
+        }
+      ],
+      "reminders": [
+        "Ticked already on your next attack roll; it goes once used (or when your concentration ends)."
+      ],
+      "rounds": 2,
+      "concentration": true,
+      "selfOnly": true
+    },
+    {
+      "kind": "effect",
+      "id": "effect:time-stop",
+      "name": "Time Stop",
+      "category": "spell",
+      "summary": "Time stops for everyone but you: 1d4 + 1 turns in a row.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "modifiers": [],
+      "reminders": [
+        "You can act and move as normal in those turns.",
+        "It ends early if something you do in them affects another creature or an object someone wears or carries, or if you move more than 1,000 ft from where you cast it."
+      ],
+      "counter": {
+        "label": "Turns",
+        "start": 5,
+        "startRoll": "1d4+1",
+        "endsAtZero": true,
+        "endText": "Time moves again."
+      },
+      "selfOnly": true
+    },
+    {
+      "kind": "effect",
+      "id": "effect:arcane-hand",
+      "name": "Arcane Hand",
+      "category": "spell",
+      "summary": "A Large hand of force (AC 20, hit points equal to your maximum). Bonus action on later turns: move it 60 ft and use one of its four effects.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "modifiers": [],
+      "reminders": [
+        "The hand: Large, AC 20, hit points equal to your hit point maximum, Strength 26, Dexterity 10. It isn't a creature you track here."
+      ],
+      "actions": [
+        {
+          "id": "arcane-hand-fist",
+          "name": "Arcane Hand: Clenched Fist",
+          "economy": "bonus",
+          "rollsSpell": "spell:arcane-hand",
+          "note": "Melee spell attack against a creature within 5 ft of the hand: 4d8 force (+2d8 for each slot level above 5th)."
+        },
+        {
+          "id": "arcane-hand-crush",
+          "name": "Arcane Hand: Grasping Hand crushes",
+          "economy": "bonus",
+          "roll": {
+            "dice": "2xslotLevel-8d6+spellmod",
+            "label": "bludgeoning damage to the creature it holds"
+          },
+          "note": "A creature the hand has grappled (it grapples with its Strength, +your spell attack): 2d6 + your spellcasting modifier (+2d6 for each slot level above 5th)."
+        },
+        {
+          "id": "arcane-hand-push",
+          "name": "Arcane Hand: Forceful Hand",
+          "economy": "bonus",
+          "infoOnly": true,
+          "note": "A Strength contest: the hand's check gets your spellcasting modifier ×2 (+2 for each slot level above 5th); on a win it pushes the creature up to 5 ft + 5 ft × your spellcasting modifier."
+        },
+        {
+          "id": "arcane-hand-wall",
+          "name": "Arcane Hand: Interposing Hand",
+          "economy": "bonus",
+          "infoOnly": true,
+          "note": "It stays between you and a creature, giving you half cover against it; the creature has to go around it (difficult terrain)."
+        }
+      ],
+      "rounds": 10,
+      "concentration": true,
+      "selfOnly": true,
+      "upcast": {
+        "baseLevel": 5
+      }
+    },
+    {
+      "kind": "effect",
+      "id": "effect:arcane-sword",
+      "name": "Arcane Sword",
+      "category": "spell",
+      "summary": "A floating sword of force for 1 minute. Bonus action on later turns: move it up to 20 ft and attack with it again.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "modifiers": [],
+      "reminders": [
+        "Bonus action on your turn: move it up to 20 ft and attack again."
+      ],
+      "actions": [
+        {
+          "id": "arcane-sword-attack",
+          "name": "Arcane Sword: attack",
+          "economy": "bonus",
+          "rollsSpell": "spell:arcane-sword",
+          "note": "Move it up to 20 ft and make a melee spell attack against a creature within 5 ft of it: 3d10 force."
+        }
+      ],
+      "rounds": 10,
+      "concentration": true,
+      "selfOnly": true
+    },
+    {
+      "kind": "effect",
+      "id": "effect:antimagic-field",
+      "name": "Antimagic Field",
+      "category": "spell",
+      "summary": "A 10-ft sphere around you where magic doesn't work.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "modifiers": [],
+      "reminders": [
+        "Inside it no spell can be cast; spells and magic items' properties are suppressed (not dispelled): your own buffs are off while you're in it.",
+        "Summoned or created creatures blink out inside it."
+      ],
+      "rounds": 600,
+      "concentration": true,
+      "selfOnly": true
+    },
+    {
+      "kind": "effect",
+      "id": "effect:mislead",
+      "name": "Mislead",
+      "category": "spell",
+      "summary": "You turn invisible and an illusory double of you appears where you stand.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "modifiers": [],
+      "reminders": [
+        "Invisible until you attack or cast a spell.",
+        "Your double: move it up to twice your speed and make it gesture, speak and act as you choose (no action). You can see and hear through it (bonus action to switch), blinded and deafened to your own surroundings while you do."
+      ],
+      "includes": [
+        "condition:invisible"
+      ],
+      "minutes": 60,
+      "concentration": true,
+      "selfOnly": true,
+      "endsOn": [
+        "attack",
+        "cast"
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "effect:booming-blade",
+      "name": "Booming Blade",
+      "category": "spell",
+      "summary": "The spell's melee weapon attack: on a hit the target is sheathed in booming energy until your next turn starts.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE"
+      },
+      "modifiers": [
+        {
+          "selector": "roll.damage.weapon.melee",
+          "op": "add",
+          "value": "cantrip-1d8",
+          "mode": "suggested",
+          "damageType": "thunder",
+          "label": "Booming Blade",
+          "when": {
+            "text": "the spell's attack: the target is sheathed in booming energy until your next turn starts (from 5th level, extra thunder dice on the hit)"
+          }
+        }
+      ],
+      "reminders": [
+        "Make the melee weapon attack from Actions: it's part of casting the spell, not the Attack action (no Extra Attack with it).",
+        "If the target willingly moves 5 ft or more before your next turn starts: Booming Blade: the target moved."
+      ],
+      "actions": [
+        {
+          "id": "booming-blade-moved",
+          "name": "Booming Blade: the target moved",
+          "economy": "free",
+          "roll": {
+            "dice": "cantripd8",
+            "label": "thunder damage to the target, then the spell ends"
+          },
+          "note": "It moved 5 ft or more of its own will before your next turn started."
+        }
+      ],
+      "rounds": 1,
+      "selfOnly": true
+    },
+    {
+      "kind": "effect",
+      "id": "effect:green-flame-blade",
+      "name": "Green-Flame Blade",
+      "category": "spell",
+      "summary": "The spell's melee weapon attack: on a hit green fire leaps to a second creature within 5 ft of the target.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE"
+      },
+      "modifiers": [
+        {
+          "selector": "roll.damage.weapon.melee",
+          "op": "add",
+          "value": "cantrip-1d8",
+          "mode": "suggested",
+          "damageType": "fire",
+          "label": "Green-Flame Blade",
+          "when": {
+            "text": "the spell's attack: on a hit the flame leaps to another creature within 5 ft of the target (from 5th level, extra fire dice on the hit)"
+          }
+        }
+      ],
+      "reminders": [
+        "Make the melee weapon attack from Actions: it's part of casting the spell, not the Attack action (no Extra Attack with it)."
+      ],
+      "actions": [
+        {
+          "id": "green-flame-blade-leap",
+          "name": "Green-Flame Blade: the flame leaps",
+          "economy": "free",
+          "roll": {
+            "dice": "spellmod+cantrip-1d8",
+            "label": "fire damage to a second creature within 5 ft of the target"
+          },
+          "note": "After the spell's attack hits."
+        }
+      ],
+      "rounds": 1,
+      "selfOnly": true
+    },
+    {
+      "kind": "effect",
+      "id": "effect:shadow-blade",
+      "name": "Shadow Blade",
+      "category": "spell",
+      "summary": "A blade of shadow in your hand: a simple melee weapon (finesse, light, thrown 20/60) dealing psychic damage, with advantage in dim light or darkness.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE"
+      },
+      "modifiers": [
+        {
+          "selector": "attack.attack:shadow-blade",
+          "op": "advantage",
+          "mode": "suggested",
+          "label": "Shadow Blade",
+          "when": {
+            "text": "you and the target are in dim light or darkness"
+          }
+        }
+      ],
+      "reminders": [
+        "It's magical. Thrown, it vanishes and comes back to your hand at once.",
+        "It ends if you let go of it (not when you throw it)."
+      ],
+      "attacks": [
+        {
+          "id": "attack:shadow-blade",
+          "name": "Shadow Blade",
+          "category": "simple",
+          "kind": "melee",
+          "damage": "bySlot[2:2d8;3:3d8;5:4d8;7:5d8]",
+          "damageType": "psychic",
+          "properties": [
+            "finesse",
+            "light",
+            "thrown"
+          ],
+          "range": [
+            20,
+            60
+          ]
+        }
+      ],
+      "rounds": 10,
+      "concentration": true,
+      "selfOnly": true,
+      "upcast": {
+        "baseLevel": 2
+      }
+    },
+    {
+      "kind": "effect",
+      "id": "effect:spirit-shroud",
+      "name": "Spirit Shroud",
+      "category": "spell",
+      "summary": "Spirits around you: your attacks that hit a creature within 10 ft deal extra damage of the chosen type, and that creature can't regain hit points until your next turn starts.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE"
+      },
+      "modifiers": [
+        {
+          "selector": "roll.damage.weapon.*",
+          "op": "add",
+          "value": "bySlot[3:1d8;5:2d8;7:3d8;9:4d8]",
+          "mode": "suggested",
+          "damageTypeFromChoice": true,
+          "label": "Spirit Shroud",
+          "when": {
+            "text": "the target is within 10 ft of you"
+          }
+        },
+        {
+          "selector": "roll.damage.spell",
+          "op": "add",
+          "value": "bySlot[3:1d8;5:2d8;7:3d8;9:4d8]",
+          "mode": "suggested",
+          "damageTypeFromChoice": true,
+          "label": "Spirit Shroud",
+          "when": {
+            "text": "a spell attack hitting a creature within 10 ft of you"
+          }
+        }
+      ],
+      "reminders": [
+        "A creature you hit with it can't regain hit points until your next turn starts."
+      ],
+      "choice": {
+        "label": "Damage type",
+        "options": [
+          "radiant",
+          "necrotic",
+          "cold"
+        ]
+      },
+      "actions": [
+        {
+          "id": "spirit-shroud-slow",
+          "name": "Spirit Shroud: chilling spirits",
+          "economy": "bonus",
+          "infoOnly": true,
+          "note": "A creature you can see within 10 ft: its speed is 10 ft lower until your next turn starts."
+        }
+      ],
+      "rounds": 10,
+      "concentration": true,
+      "selfOnly": true,
+      "upcast": {
+        "baseLevel": 3
+      }
+    },
+    {
+      "kind": "effect",
+      "id": "effect:crusaders-mantle",
+      "name": "Crusader's Mantle",
+      "category": "spell",
+      "summary": "You and friendly creatures within 30 ft deal 1d4 extra radiant damage on weapon hits.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB"
+      },
+      "modifiers": [
+        {
+          "selector": "roll.damage.weapon.*",
+          "op": "add",
+          "value": "1d4",
+          "damageType": "radiant",
+          "label": "Crusader's Mantle"
+        }
+      ],
+      "reminders": [
+        "Friendly creatures within 30 ft add 1d4 radiant to their weapon hits too."
+      ],
+      "rounds": 10,
+      "concentration": true,
+      "selfOnly": true
+    },
+    {
+      "kind": "effect",
+      "id": "effect:holy-weapon",
+      "name": "Holy Weapon",
+      "category": "spell",
+      "summary": "The weapon you touched glows: 2d8 extra radiant damage on its hits. A bonus action can end it in a burst of light.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE"
+      },
+      "modifiers": [
+        {
+          "selector": "roll.damage.weapon.*",
+          "op": "add",
+          "value": "2d8",
+          "mode": "suggested",
+          "damageType": "radiant",
+          "label": "Holy Weapon",
+          "when": {
+            "text": "with the weapon you touched"
+          }
+        }
+      ],
+      "reminders": [
+        "Bright light 30 ft, dim 30 ft more."
+      ],
+      "actions": [
+        {
+          "id": "holy-weapon-burst",
+          "name": "Holy Weapon: burst",
+          "economy": "bonus",
+          "roll": {
+            "dice": "4d8",
+            "label": "radiant damage to each creature you choose within 30 ft (Constitution save: half, and not blinded)"
+          },
+          "endsConcentration": true,
+          "note": "The spell ends; creatures that fail are blinded for 1 minute (a Constitution save at the end of each of their turns ends it)."
+        }
+      ],
+      "minutes": 60,
+      "concentration": true
+    },
+    {
+      "kind": "effect",
+      "id": "effect:elemental-weapon",
+      "name": "Elemental Weapon",
+      "category": "spell",
+      "summary": "A nonmagical weapon becomes magical: a bonus to its attacks and extra damage of the chosen type.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB"
+      },
+      "modifiers": [
+        {
+          "selector": "roll.attack.weapon.*",
+          "op": "add",
+          "value": "bySlot[3:1;5:2;7:3]",
+          "mode": "suggested",
+          "label": "Elemental Weapon",
+          "when": {
+            "text": "with the weapon you touched"
+          }
+        },
+        {
+          "selector": "roll.damage.weapon.*",
+          "op": "add",
+          "value": "bySlot[3:1d4;5:2d4;7:3d4]",
+          "mode": "suggested",
+          "damageTypeFromChoice": true,
+          "label": "Elemental Weapon",
+          "when": {
+            "text": "with the weapon you touched"
+          }
+        }
+      ],
+      "reminders": [],
+      "choice": {
+        "label": "Damage type",
+        "options": [
+          "acid",
+          "cold",
+          "fire",
+          "lightning",
+          "thunder"
+        ]
+      },
+      "minutes": 60,
+      "concentration": true,
+      "upcast": {
+        "baseLevel": 3
+      }
+    },
+    {
+      "kind": "effect",
+      "id": "effect:zephyr-strike",
+      "name": "Zephyr Strike",
+      "category": "spell",
+      "summary": "Your movement provokes no opportunity attacks. Once while it lasts: advantage on a weapon attack, 1d8 extra force on a hit, and 30 ft more speed this turn.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE"
+      },
+      "modifiers": [
+        {
+          "selector": "roll.attack.weapon.*",
+          "op": "advantage",
+          "mode": "suggested",
+          "label": "Zephyr Strike",
+          "when": {
+            "text": "once while the spell lasts; then 30 ft more speed until the end of the turn"
+          }
+        },
+        {
+          "selector": "roll.damage.weapon.*",
+          "op": "add",
+          "value": "1d8",
+          "mode": "suggested",
+          "damageType": "force",
+          "label": "Zephyr Strike",
+          "when": {
+            "text": "the attack you gave advantage with it"
+          }
+        }
+      ],
+      "reminders": [
+        "Your movement doesn't provoke opportunity attacks."
+      ],
+      "rounds": 10,
+      "concentration": true,
+      "selfOnly": true
+    },
+    {
+      "kind": "effect",
+      "id": "effect:hail-of-thorns",
+      "name": "Hail of Thorns",
+      "category": "spell",
+      "summary": "Your next ranged weapon hit sprouts thorns: the target and each creature within 5 ft of it make a Dexterity save.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB"
+      },
+      "modifiers": [
+        {
+          "selector": "roll.damage.weapon.ranged",
+          "op": "add",
+          "value": "slotLeveld10",
+          "mode": "suggested",
+          "preset": "always",
+          "damageType": "piercing",
+          "label": "Hail of Thorns",
+          "when": {
+            "text": "the target and each creature within 5 ft of it make a Dexterity save ({spelldc}): half on a success"
+          }
+        }
+      ],
+      "reminders": [
+        "Ticked already on your next ranged weapon damage roll; once rolled, this tag goes."
+      ],
+      "rounds": 10,
+      "concentration": true,
+      "selfOnly": true,
+      "upcast": {
+        "baseLevel": 1
+      }
+    },
+    {
+      "kind": "effect",
+      "id": "effect:lightning-arrow",
+      "name": "Lightning Arrow",
+      "category": "spell",
+      "summary": "Your next ranged weapon attack becomes a bolt of lightning: lightning instead of the weapon's damage (half on a miss), and a burst around the target.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB"
+      },
+      "modifiers": [],
+      "reminders": [
+        "The arrow or bolt goes back to normal once the attack is done."
+      ],
+      "actions": [
+        {
+          "id": "lightning-arrow-bolt",
+          "name": "Lightning Arrow: the bolt",
+          "economy": "free",
+          "roll": {
+            "dice": "slotLevel+1d8",
+            "label": "lightning damage instead of the weapon's: half on a miss"
+          },
+          "note": "Roll the attack with the weapon as usual, then this instead of its damage."
+        },
+        {
+          "id": "lightning-arrow-burst",
+          "name": "Lightning Arrow: the burst",
+          "economy": "free",
+          "roll": {
+            "dice": "slotLevel-1d8",
+            "label": "lightning damage to each creature within 10 ft of the target (Dexterity save: half)"
+          },
+          "note": "Hit or miss. Then the spell ends (end its tag)."
+        }
+      ],
+      "rounds": 10,
+      "concentration": true,
+      "selfOnly": true,
+      "upcast": {
+        "baseLevel": 3
+      }
+    },
+    {
+      "kind": "effect",
+      "id": "effect:swift-quiver",
+      "name": "Swift Quiver",
+      "category": "spell",
+      "summary": "Your quiver never runs out. Bonus action on each turn while it lasts: two attacks with a ranged weapon that fires arrows or bolts.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB"
+      },
+      "modifiers": [],
+      "reminders": [],
+      "actions": [
+        {
+          "id": "swift-quiver-shots",
+          "name": "Swift Quiver: two shots",
+          "economy": "bonus",
+          "infoOnly": true,
+          "note": "Two attacks with your bow or crossbow: roll them from the weapon above. Ammunition from the quiver vanishes after it hits or misses."
+        }
+      ],
+      "rounds": 10,
+      "concentration": true,
+      "selfOnly": true
+    },
+    {
+      "kind": "effect",
+      "id": "effect:witch-bolt",
+      "name": "Witch Bolt",
+      "category": "spell",
+      "summary": "A beam of lightning holds the creature you hit. On each later turn, your action deals 1d12 lightning to it automatically.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB"
+      },
+      "modifiers": [],
+      "reminders": [
+        "It ends if you use your action for anything else, or the target moves out of range or gets total cover."
+      ],
+      "actions": [
+        {
+          "id": "witch-bolt-again",
+          "name": "Witch Bolt: the beam",
+          "economy": "action",
+          "roll": {
+            "dice": "1d12",
+            "label": "lightning damage, no attack roll"
+          },
+          "note": "While the target is within range and not behind total cover."
+        }
+      ],
+      "rounds": 10,
+      "concentration": true,
+      "selfOnly": true
+    },
+    {
+      "kind": "effect",
+      "id": "effect:compelled-duel",
+      "name": "Compelled Duel",
+      "category": "spell",
+      "summary": "A creature that failed its Wisdom save is drawn to duel you.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB"
+      },
+      "modifiers": [],
+      "reminders": [
+        "It has disadvantage on attacks against anyone but you, and must make a Wisdom save to move more than 30 ft from you.",
+        "It ends if you attack another creature, cast a spell on one, an ally harms the target, or you end your turn more than 30 ft from it."
+      ],
+      "rounds": 10,
+      "concentration": true,
+      "selfOnly": true
+    },
+    {
+      "kind": "effect",
+      "id": "effect:blade-ward",
+      "name": "Blade Ward",
+      "category": "spell",
+      "summary": "Until the end of your next turn, resistance to bludgeoning, piercing and slashing damage from weapon attacks.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB"
+      },
+      "modifiers": [],
+      "reminders": [
+        "Halve weapon attacks' bludgeoning, piercing and slashing damage before you enter it (spells and other damage aren't halved)."
+      ],
+      "rounds": 1,
+      "selfOnly": true
+    },
+    {
+      "kind": "effect",
+      "id": "effect:aura-of-vitality",
+      "name": "Aura of Vitality",
+      "category": "spell",
+      "summary": "Healing energy in a 30-ft aura. Bonus action on each turn: one creature in it, you included, regains 2d6 hit points.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB"
+      },
+      "modifiers": [],
+      "reminders": [],
+      "actions": [
+        {
+          "id": "aura-of-vitality-heal",
+          "name": "Aura of Vitality: heal",
+          "economy": "bonus",
+          "heal": "2d6",
+          "note": "One creature within 30 ft, you too."
+        }
+      ],
+      "rounds": 10,
+      "concentration": true,
+      "selfOnly": true
+    },
+    {
+      "kind": "effect",
+      "id": "effect:aura-of-life",
+      "name": "Aura of Life",
+      "category": "spell",
+      "summary": "A 30-ft aura: you and friends in it resist necrotic damage and your hit point maximum can't be reduced; a friend at 0 hit points who starts a turn in it regains 1.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB"
+      },
+      "modifiers": [
+        {
+          "selector": "defense.resist.necrotic",
+          "op": "resist",
+          "label": "Aura of Life"
+        }
+      ],
+      "reminders": [
+        "Your hit point maximum can't be reduced.",
+        "A friend at 0 hit points who starts a turn in the aura regains 1 hit point."
+      ],
+      "rounds": 100,
+      "concentration": true
+    },
+    {
+      "kind": "effect",
+      "id": "effect:aura-of-purity",
+      "name": "Aura of Purity",
+      "category": "spell",
+      "summary": "A 30-ft aura: no disease, resistance to poison, advantage on saves against several conditions.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB"
+      },
+      "modifiers": [
+        {
+          "selector": "defense.resist.poison",
+          "op": "resist",
+          "label": "Aura of Purity"
+        },
+        {
+          "selector": "roll.save.*",
+          "op": "advantage",
+          "mode": "suggested",
+          "label": "Aura of Purity",
+          "when": {
+            "text": "a save against being blinded, charmed, deafened, frightened, paralyzed, poisoned or stunned"
+          }
+        }
+      ],
+      "reminders": [
+        "You can't become diseased while in it."
+      ],
+      "rounds": 100,
+      "concentration": true
+    },
+    {
+      "kind": "effect",
+      "id": "effect:tensers-transformation",
+      "name": "Tenser's Transformation",
+      "category": "spell",
+      "summary": "Battle prowess: 50 temporary hit points, advantage on weapon attacks, 2d12 extra force on weapon hits, Extra Attack, and proficiency with armor, shields, weapons and Strength and Constitution saves.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE"
+      },
+      "modifiers": [
+        {
+          "selector": "roll.attack.weapon.*",
+          "op": "advantage",
+          "label": "Tenser's Transformation"
+        },
+        {
+          "selector": "roll.damage.weapon.*",
+          "op": "add",
+          "value": "2d12",
+          "damageType": "force",
+          "label": "Tenser's Transformation"
+        }
+      ],
+      "reminders": [
+        "You can't cast spells while it lasts.",
+        "Proficiency with all armor, shields, simple and martial weapons and Strength and Constitution saves: add it by hand where it's missing.",
+        "Two attacks when you take the Attack action (only one if you already have Extra Attack)."
+      ],
+      "tempHpGain": 50,
+      "rounds": 100,
+      "concentration": true,
+      "selfOnly": true,
+      "endNote": "make a DC 15 Constitution save; on a failure, one level of exhaustion."
+    },
+    {
+      "kind": "effect",
+      "id": "effect:investiture-of-flame",
+      "name": "Investiture of Flame",
+      "category": "spell",
+      "summary": "Elemental power for 10 minutes: immunity to fire and resistance to cold, and an action to unleash it.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE"
+      },
+      "modifiers": [
+        {
+          "selector": "defense.immune.fire",
+          "op": "immune",
+          "label": "Investiture of Flame"
+        },
+        {
+          "selector": "defense.resist.cold",
+          "op": "resist",
+          "label": "Investiture of Flame"
+        }
+      ],
+      "reminders": [
+        "Bright light 30 ft, dim 30 ft more.",
+        "Creatures moving within 5 ft of you for the first time on a turn, or ending their turn there, take 1d10 fire."
+      ],
+      "actions": [
+        {
+          "id": "investiture-of-flame-line",
+          "name": "Investiture of Flame: line of fire",
+          "economy": "action",
+          "roll": {
+            "dice": "4d8",
+            "label": "fire damage in a 15-ft line, 5 ft wide (Dexterity save: half)"
+          },
+          "note": "Creatures moving within 5 ft of you or hitting you in melee take 1d10 fire."
+        }
+      ],
+      "minutes": 10,
+      "concentration": true,
+      "selfOnly": true
+    },
+    {
+      "kind": "effect",
+      "id": "effect:investiture-of-ice",
+      "name": "Investiture of Ice",
+      "category": "spell",
+      "summary": "Elemental power for 10 minutes: immunity to cold and resistance to fire, and an action to unleash it.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE"
+      },
+      "modifiers": [
+        {
+          "selector": "defense.immune.cold",
+          "op": "immune",
+          "label": "Investiture of Ice"
+        },
+        {
+          "selector": "defense.resist.fire",
+          "op": "resist",
+          "label": "Investiture of Ice"
+        }
+      ],
+      "reminders": [
+        "You can move across difficult terrain made of ice or snow at no extra cost."
+      ],
+      "actions": [
+        {
+          "id": "investiture-of-ice-cone",
+          "name": "Investiture of Ice: cone of cold",
+          "economy": "action",
+          "roll": {
+            "dice": "4d6",
+            "label": "cold damage in a 15-ft cone (Constitution save: half, and a failure halves its speed until your next turn)"
+          },
+          "note": "Ice doesn't slow you; the ground within 10 ft of you is difficult terrain for others."
+        }
+      ],
+      "minutes": 10,
+      "concentration": true,
+      "selfOnly": true
+    },
+    {
+      "kind": "effect",
+      "id": "effect:investiture-of-stone",
+      "name": "Investiture of Stone",
+      "category": "spell",
+      "summary": "Elemental power for 10 minutes: resistance to nonmagical weapon damage, and an action to unleash it.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE"
+      },
+      "modifiers": [
+        {
+          "selector": "defense.resist.bludgeoning",
+          "op": "resist",
+          "label": "Investiture of Stone",
+          "when": {
+            "text": "from nonmagical attacks"
+          }
+        },
+        {
+          "selector": "defense.resist.piercing",
+          "op": "resist",
+          "label": "Investiture of Stone",
+          "when": {
+            "text": "from nonmagical attacks"
+          }
+        },
+        {
+          "selector": "defense.resist.slashing",
+          "op": "resist",
+          "label": "Investiture of Stone",
+          "when": {
+            "text": "from nonmagical attacks"
+          }
+        }
+      ],
+      "reminders": [
+        "You move across difficult terrain made of earth or stone at no extra cost, and through solid earth or stone (not ending your turn in it)."
+      ],
+      "actions": [
+        {
+          "id": "investiture-of-stone-quake",
+          "name": "Investiture of Stone: tremor",
+          "economy": "action",
+          "infoOnly": true,
+          "note": "Each creature on the ground within 15 ft makes a Dexterity save or is knocked prone."
+        }
+      ],
+      "minutes": 10,
+      "concentration": true,
+      "selfOnly": true
+    },
+    {
+      "kind": "effect",
+      "id": "effect:investiture-of-wind",
+      "name": "Investiture of Wind",
+      "category": "spell",
+      "summary": "Elemental power for 10 minutes: a 60-ft flying speed, and an action to unleash it.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE"
+      },
+      "modifiers": [
+        {
+          "selector": "stat.speed.fly",
+          "op": "grantSpeed",
+          "value": 60,
+          "label": "Investiture of Wind"
+        }
+      ],
+      "reminders": [
+        "Ranged weapon attacks against you have disadvantage."
+      ],
+      "actions": [
+        {
+          "id": "investiture-of-wind-cube",
+          "name": "Investiture of Wind: whirlwind",
+          "economy": "action",
+          "roll": {
+            "dice": "2d10",
+            "label": "bludgeoning damage in a 15-ft cube within 60 ft (Constitution save: half; Large or smaller who fail are pushed 10 ft)"
+          }
+        }
+      ],
+      "minutes": 10,
+      "concentration": true,
+      "selfOnly": true
+    },
+    {
+      "kind": "effect",
+      "id": "effect:tashas-otherworldly-guise",
+      "name": "Tasha's Otherworldly Guise",
+      "category": "spell",
+      "summary": "A form from the Upper or Lower Planes: immunities, a 40-ft flying speed, +2 AC, magical weapon attacks with your spellcasting ability, and two attacks with the Attack action.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE"
+      },
+      "modifiers": [
+        {
+          "selector": "defense.immune.radiant",
+          "op": "immune",
+          "label": "Otherworldly Guise",
+          "when": {
+            "choice": "Upper Planes"
+          }
+        },
+        {
+          "selector": "defense.immune.necrotic",
+          "op": "immune",
+          "label": "Otherworldly Guise",
+          "when": {
+            "choice": "Upper Planes"
+          }
+        },
+        {
+          "selector": "defense.immune.fire",
+          "op": "immune",
+          "label": "Otherworldly Guise",
+          "when": {
+            "choice": "Lower Planes"
+          }
+        },
+        {
+          "selector": "defense.immune.poison",
+          "op": "immune",
+          "label": "Otherworldly Guise",
+          "when": {
+            "choice": "Lower Planes"
+          }
+        },
+        {
+          "selector": "defense.immune.charmed",
+          "op": "immune",
+          "label": "Otherworldly Guise"
+        },
+        {
+          "selector": "stat.speed.fly",
+          "op": "grantSpeed",
+          "value": 40,
+          "label": "Otherworldly Guise"
+        },
+        {
+          "selector": "stat.ac",
+          "op": "add",
+          "value": 2,
+          "label": "Otherworldly Guise"
+        }
+      ],
+      "reminders": [
+        "Weapon attacks are magical and can use your spellcasting ability instead of Strength or Dexterity for attack and damage.",
+        "Two attacks when you take the Attack action (not on top of Extra Attack)."
+      ],
+      "choice": {
+        "label": "Plane",
+        "options": [
+          "Upper Planes",
+          "Lower Planes"
+        ]
+      },
+      "rounds": 10,
+      "concentration": true,
+      "selfOnly": true
+    },
+    {
+      "kind": "effect",
+      "id": "effect:intellect-fortress",
+      "name": "Intellect Fortress",
+      "category": "spell",
+      "summary": "Resistance to psychic damage and advantage on Intelligence, Wisdom and Charisma saves.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE"
+      },
+      "modifiers": [
+        {
+          "selector": "defense.resist.psychic",
+          "op": "resist",
+          "label": "Intellect Fortress"
+        },
+        {
+          "selector": "roll.save.int",
+          "op": "advantage",
+          "label": "Intellect Fortress"
+        },
+        {
+          "selector": "roll.save.wis",
+          "op": "advantage",
+          "label": "Intellect Fortress"
+        },
+        {
+          "selector": "roll.save.cha",
+          "op": "advantage",
+          "label": "Intellect Fortress"
+        }
+      ],
+      "reminders": [],
+      "minutes": 60,
+      "concentration": true
+    },
+    {
+      "kind": "effect",
+      "id": "effect:gift-of-alacrity",
+      "name": "Gift of Alacrity",
+      "category": "spell",
+      "summary": "For 8 hours, add 1d8 to your initiative rolls.",
+      "source": {
+        "pack": "table-2014",
+        "book": "EGtW"
+      },
+      "modifiers": [
+        {
+          "selector": "roll.initiative",
+          "op": "add",
+          "value": "1d8",
+          "label": "Gift of Alacrity"
+        }
+      ],
+      "reminders": [],
+      "minutes": 480
     }
   ]
 }

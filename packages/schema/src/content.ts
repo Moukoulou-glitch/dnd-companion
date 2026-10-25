@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { Ability, DamageType, DefId, Ruleset } from "./core.js";
-import { ActionDef, ChoiceDef, Grant, Modifier, SpellcastingDef } from "./modifiers.js";
+import { ActionDef, AttackDef, ChoiceDef, Grant, Modifier, SpellcastingDef } from "./modifiers.js";
 
 /**
  * Where a definition comes from. `book` and `page` are references only;
@@ -366,6 +366,8 @@ export const EffectDef = z
     reminders: z.array(z.string()).default([]),
     /** Actions you can take while it's on (Haste: the extra action). */
     actions: z.array(ActionDef).optional(),
+    /** Weapons it gives you while it's on (Shadow Blade); damage may use the slot it was cast with. */
+    attacks: z.array(AttackDef).optional(),
     /** Said when it ends (Haste: the wave of lethargy). */
     endNote: z.string().optional(),
     /** Turns you into a creature (Polymorph: a beast; True Polymorph: any creature): the app asks which. */
@@ -389,6 +391,8 @@ export const EffectDef = z
         strike: z.object({ amount: z.number().int().min(1), type: z.string(), save: z.enum(["str", "dex", "con", "int", "wis", "cha"]) }).strict().optional(),
         /** Said when it reaches 0 (Guardian of Faith: the guardian vanishes). */
         endText: z.string().optional(),
+        /** Rolled when it's cast, and the count starts there (Time Stop: 1d4 + 1 turns). */
+        startRoll: z.string().optional(),
       })
       .strict()
       .optional(),

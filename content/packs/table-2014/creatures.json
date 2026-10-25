@@ -628,6 +628,251 @@
       "resist": [
         "bludgeoning, piercing, and slashing from nonmagical attacks"
       ]
+    },
+    {
+      "kind": "creature",
+      "id": "creature:animated-object-tiny",
+      "name": "Animated Object (Tiny)",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "size": "Tiny",
+      "type": "construct",
+      "ac": 18,
+      "hp": 20,
+      "speed": {
+        "walk": 30
+      },
+      "abilities": {
+        "str": 4,
+        "dex": 18,
+        "con": 10,
+        "int": 3,
+        "wis": 3,
+        "cha": 1
+      },
+      "cr": 0,
+      "senses": {
+        "blindsight": 30
+      },
+      "languages": "none",
+      "traits": [
+        {
+          "name": "Animated",
+          "text": "Blind beyond 30 ft. At 0 hit points it goes back to being an object; damage beyond that carries over to the object."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Slam",
+          "text": "Melee Weapon Attack: +8 to hit, reach 5 ft., one target. Hit: 1d4 + 4 bludgeoning damage (piercing or slashing for an object with a blade or point).",
+          "attack": {
+            "kind": "melee",
+            "toHit": 8,
+            "reach": "5 ft.",
+            "damage": "1d4",
+            "damageBonus": 4,
+            "damageType": "bludgeoning"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "creature",
+      "id": "creature:animated-object-small",
+      "name": "Animated Object (Small)",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "size": "Small",
+      "type": "construct",
+      "ac": 16,
+      "hp": 25,
+      "speed": {
+        "walk": 30
+      },
+      "abilities": {
+        "str": 6,
+        "dex": 14,
+        "con": 10,
+        "int": 3,
+        "wis": 3,
+        "cha": 1
+      },
+      "cr": 0,
+      "senses": {
+        "blindsight": 30
+      },
+      "languages": "none",
+      "traits": [
+        {
+          "name": "Animated",
+          "text": "Blind beyond 30 ft. At 0 hit points it goes back to being an object; damage beyond that carries over to the object."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Slam",
+          "text": "Melee Weapon Attack: +6 to hit, reach 5 ft., one target. Hit: 1d8 + 2 bludgeoning damage (piercing or slashing for an object with a blade or point).",
+          "attack": {
+            "kind": "melee",
+            "toHit": 6,
+            "reach": "5 ft.",
+            "damage": "1d8",
+            "damageBonus": 2,
+            "damageType": "bludgeoning"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "creature",
+      "id": "creature:animated-object-medium",
+      "name": "Animated Object (Medium)",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "size": "Medium",
+      "type": "construct",
+      "ac": 13,
+      "hp": 40,
+      "speed": {
+        "walk": 30
+      },
+      "abilities": {
+        "str": 10,
+        "dex": 12,
+        "con": 10,
+        "int": 3,
+        "wis": 3,
+        "cha": 1
+      },
+      "cr": 0,
+      "senses": {
+        "blindsight": 30
+      },
+      "languages": "none",
+      "traits": [
+        {
+          "name": "Animated",
+          "text": "Blind beyond 30 ft. At 0 hit points it goes back to being an object; damage beyond that carries over to the object."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Slam",
+          "text": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 2d6 + 1 bludgeoning damage (piercing or slashing for an object with a blade or point).",
+          "attack": {
+            "kind": "melee",
+            "toHit": 5,
+            "reach": "5 ft.",
+            "damage": "2d6",
+            "damageBonus": 1,
+            "damageType": "bludgeoning"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "creature",
+      "id": "creature:animated-object-large",
+      "name": "Animated Object (Large)",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "size": "Large",
+      "type": "construct",
+      "ac": 10,
+      "hp": 50,
+      "speed": {
+        "walk": 30
+      },
+      "abilities": {
+        "str": 14,
+        "dex": 10,
+        "con": 10,
+        "int": 3,
+        "wis": 3,
+        "cha": 1
+      },
+      "cr": 0,
+      "senses": {
+        "blindsight": 30
+      },
+      "languages": "none",
+      "traits": [
+        {
+          "name": "Animated",
+          "text": "Blind beyond 30 ft. At 0 hit points it goes back to being an object; damage beyond that carries over to the object."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Slam",
+          "text": "Melee Weapon Attack: +6 to hit, reach 5 ft., one target. Hit: 2d10 + 2 bludgeoning damage (piercing or slashing for an object with a blade or point).",
+          "attack": {
+            "kind": "melee",
+            "toHit": 6,
+            "reach": "5 ft.",
+            "damage": "2d10",
+            "damageBonus": 2,
+            "damageType": "bludgeoning"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "creature",
+      "id": "creature:animated-object-huge",
+      "name": "Animated Object (Huge)",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "size": "Huge",
+      "type": "construct",
+      "ac": 10,
+      "hp": 80,
+      "speed": {
+        "walk": 30
+      },
+      "abilities": {
+        "str": 18,
+        "dex": 6,
+        "con": 10,
+        "int": 3,
+        "wis": 3,
+        "cha": 1
+      },
+      "cr": 0,
+      "senses": {
+        "blindsight": 30
+      },
+      "languages": "none",
+      "traits": [
+        {
+          "name": "Animated",
+          "text": "Blind beyond 30 ft. At 0 hit points it goes back to being an object; damage beyond that carries over to the object."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Slam",
+          "text": "Melee Weapon Attack: +8 to hit, reach 5 ft., one target. Hit: 2d12 + 4 bludgeoning damage (piercing or slashing for an object with a blade or point).",
+          "attack": {
+            "kind": "melee",
+            "toHit": 8,
+            "reach": "5 ft.",
+            "damage": "2d12",
+            "damageBonus": 4,
+            "damageType": "bludgeoning"
+          }
+        }
+      ]
     }
   ]
 }

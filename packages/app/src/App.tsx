@@ -3110,6 +3110,21 @@ export function App() {
                 }
               // Polymorph, True Polymorph or Shapechange on yourself: which creature? (Its effect is found when you pick.)
               const eff = selfEffect ? effReg().find(sp.id.replace(/^spell:/, "effect:"), "effect") : undefined;
+              // Time Stop: its 1d4 + 1 turns, rolled now (3D dice when they're on), and counted down on its card.
+              if (eff?.counter?.startRoll) {
+                const m = /^(\d*d\d+)([+-]\d+)?$/.exec(eff.counter.startRoll.replace(/\s+/g, ""));
+                if (m)
+                  void rollOrThrow(m[1]!.startsWith("d") ? `1${m[1]}` : m[1]!, true, undefined, { source: eff.name }).then((r) => {
+                    const n = r.total + Number(m[2] ?? 0);
+                    // The effect the cast just put on, once the sheet has caught up with the cast.
+                    const set = (tries: number) => {
+                      const inst = [...(live.current.character?.effects ?? [])].reverse().find((e) => e.effect === eff.id);
+                      if (!inst) return void (tries > 0 && setTimeout(() => set(tries - 1), 60));
+                      live.current.act("updateEffect", { instanceId: inst.id, count: n }, `${eff.name}: ${n} ${eff.counter!.label.toLowerCase()} (${eff.counter!.startRoll}).`);
+                    };
+                    set(10);
+                  });
+              }
               if (eff?.transform) {
                 transformed = true;
                 openTransform(shapeKindOf(eff.transform), { forEffect: eff.id, ...(using === "free" && sp.cast.free?.resource === "shapechanger" ? { maxCr: 1 } : {}) });

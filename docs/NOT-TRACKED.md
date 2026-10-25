@@ -316,3 +316,17 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 - Piercer: the extra critical die on piercing weapons is rolled; the reroll of one die is offered after the damage. Not on piercing spells.
 - Flames of Phlegethos: 1s are rerolled once on spells whose main damage is fire; the flame wreath is its own action.
 - Gift of the Ever-Living Ones: switch "Familiar within 100 ft" on; then your Hit Dice, your own healing features and your healing spells on yourself are the maximum. Healing from others isn't affected.
+
+## Spells (round 13d)
+
+- Book spells' mechanics apply when the spell itself comes from your book files (the app has no text for them); their tags exist either way.
+- Booming Blade and Green-Flame Blade: cast the spell, then make the melee weapon attack from Actions and tick its rider. The turn tracker may count the attack as the Attack action's: it's part of the spell (no Extra Attack).
+- Time Stop: the turns are rolled and counted on its tag; whether something you did ends it early is yours to judge.
+- Arcane Hand: the hand's own hit points and AC are on its tag, not tracked. Forceful and Interposing Hand are explained, not rolled.
+- Animate Objects: pick up to the number of objects; a Medium object counts as two, a Large as four, a Huge as eight (the picker doesn't weigh them).
+- Holy Weapon, Elemental Weapon, Spirit Shroud, Zephyr Strike: offered on every weapon roll; which weapon or target it applies to is yours to tick.
+- Blade Ward and the Investiture of Stone's resistance: halve weapon damage by hand (spells aren't halved).
+- Tenser's Transformation and Otherworldly Guise: the proficiencies and the spellcasting ability on weapon attacks are reminders.
+- Lightning Arrow: roll the attack with the weapon, then the bolt instead of its damage.
+- Antimagic Field: your own magic being suppressed inside it isn't switched off by the app.
+- Not added: Conjure Barrage and Conjure Volley (their damage comes from the book text), Simulacrum and Wish.

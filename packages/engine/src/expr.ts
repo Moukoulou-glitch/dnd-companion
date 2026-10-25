@@ -9,6 +9,8 @@ export interface ExprContext {
   scale?: Record<string, ValueExpr>;
   /** Slot level an effect was cast at (Aid). */
   slotLevel?: number;
+  /** Your spellcasting ability's modifier, the best when you have several ("spellmod": Green-Flame Blade's leap). */
+  spellMod?: number;
 }
 
 export type Term = { kind: "flat"; value: number; label?: string } | { kind: "dice"; dice: string };
@@ -23,7 +25,8 @@ const DICE = /^(\d*)d(\d+)$/;
 export function evalExpr(expr: ValueExpr, ctx: ExprContext): Term[] {
   if (typeof expr === "number") return [{ kind: "flat", value: expr }];
 
-  const tokens = expr.replace(/\s+/g, "").match(/[+-]?[^+-]+/g);
+  // Kept whole: "bySlot[3:1d8;5:2d8]", and dice counts with their own sign ("slotLevel-1d8", "2xslotLevel-8d6", "cantrip-1d8").
+  const tokens = expr.replace(/\s+/g, "").match(/[+-]?(?:bySlot\[[^\]]*\]|(?:\d+x)?slotLevel[+-]\d+d\d+|cantrip-\d+d\d+|[^+-]+)/g);
   if (!tokens) throw new Error(`Empty expression "${expr}"`);
 
   return tokens.flatMap((raw): Term[] => {
@@ -65,6 +68,30 @@ export function evalExpr(expr: ValueExpr, ctx: ExprContext): Term[] {
       const n = ctx.slotLevel + (sd[1] === "-" ? -Number(sd[2]) : sd[1] === "+" ? Number(sd[2]) : 0);
       return { kind: "dice", dice: `${sign < 0 ? "-" : ""}${Math.max(1, n)}d${sd[3]}` };
     }
+    // "2xslotLevel-8d6": twice the slot level, less 8, of d6 (Arcane Hand's crush: 2d6 at 5th, +2d6 a level).
+    const xs = /^(\d+)xslotLevel(?:([+-])(\d+))?d(\d+)$/.exec(t);
+    if (xs) {
+      if (ctx.slotLevel === undefined) throw new Error(`"slotLevel" used outside a cast effect in "${expr}"`);
+      const n = Number(xs[1]) * ctx.slotLevel + (xs[2] === "-" ? -Number(xs[3]) : xs[2] === "+" ? Number(xs[3]) : 0);
+      return { kind: "dice", dice: `${sign < 0 ? "-" : ""}${Math.max(1, n)}d${xs[4]}` };
+    }
+    // "bySlot[3:1d8;5:2d8;7:3d8]": what the slot level reaches, the highest entry at or under it (Spirit Shroud).
+    const bs = /^bySlot\[(.+)\]$/.exec(t);
+    if (bs) {
+      if (ctx.slotLevel === undefined) throw new Error(`"slotLevel" used outside a cast effect in "${expr}"`);
+      const rows = bs[1]!.split(";").map((r) => r.split(":")).map(([l, v]) => [Number(l), v!] as const).sort((a, b) => a[0] - b[0]);
+      const hit = rows.filter(([l]) => l <= ctx.slotLevel!).at(-1) ?? rows[0]!;
+      const inner = single(sign, hit[1]);
+      return inner;
+    }
+    // "cantripd8": a cantrip's dice by character level (1, 2 at 5th, 3 at 11th, 4 at 17th); "cantrip-1d8": one fewer (none below 5th).
+    const cd = /^cantrip(?:-(\d+))?d(\d+)$/.exec(t);
+    if (cd) {
+      const n = 1 + (ctx.level >= 5 ? 1 : 0) + (ctx.level >= 11 ? 1 : 0) + (ctx.level >= 17 ? 1 : 0) - Number(cd[1] ?? 0);
+      if (n <= 0) return { kind: "flat", value: 0 };
+      return { kind: "dice", dice: `${sign < 0 ? "-" : ""}${n}d${cd[2]}` };
+    }
+    if (t === "spellmod") return { kind: "flat", value: sign * (ctx.spellMod ?? Math.max(ctx.mods.int, ctx.mods.wis, ctx.mods.cha)), label: "Spellcasting modifier" };
     if (t === "slotLevel") {
       if (ctx.slotLevel === undefined) throw new Error(`"slotLevel" used outside a cast effect in "${expr}"`);
       return { kind: "flat", value: sign * ctx.slotLevel, label: "Slot level" };
