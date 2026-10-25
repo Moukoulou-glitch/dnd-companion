@@ -350,6 +350,9 @@ export interface ResourceResult {
   effect?: string;
 }
 
+/** Pools two classes share (the first id is the one kept). */
+const SHARED_POOLS: string[][] = [["channel-divinity", "channel-divinity-paladin"]];
+
 export interface DerivedSheet {
   level: number;
   proficiencyBonus: number;
@@ -404,6 +407,8 @@ export interface DerivedSheet {
   spellSlots: { level: number; total: number; used: number }[];
   pactSlots?: { count: number; level: number; used: number };
   resources: ResourceResult[];
+  /** A resource id another class's actions use → the shared pool it spends (Channel Divinity). */
+  resourceAliases?: Record<string, string>;
   proficiencies: { armor: string[]; weapons: string[]; tools: string[]; languages: string[]; removed: { kind: string; target: string; reason?: string }[] };
   defenses: { resist: string[]; immune: string[]; vulnerable: string[] };
   senses: Record<string, number>;
@@ -563,12 +568,15 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       fromAsi += n ?? 0;
     }
     // "You can't increase an ability score above 20 using this feature" (PHB p. 15).
-    const beforeHand = parts.reduce((t, p) => t + p.value, 0);
+    // A bonus that comes with a higher maximum (Primal Champion's +4) isn't held to the ASI's 20.
+    const pastCap = sources.reduce((t, s) => t + (s.grant.abilityMax?.[ab] ? (s.grant.abilityBonuses?.[ab] ?? 0) : 0), 0);
+    const beforeHand = parts.reduce((t, p) => t + p.value, 0) - pastCap;
     const asiOver = fromAsi > 0 && beforeHand > 20;
     if (asiOver) warnings.push(`${ABILITY_NAMES[ab]} is ${beforeHand} from Ability Score Improvements, but they can't raise a score above 20. Take ${Math.min(fromAsi, beforeHand - 20)} back, or put it in another ability.`);
     // Permanent changes (Manual of Gainful Exercise: +2, and the maximum becomes 22; a curse: -1).
     const adj = c.abilityAdjust?.[ab];
-    let max = 20;
+    // A feature that raises the maximum (Primal Champion: 24).
+    let max = Math.max(20, ...sources.map((s) => s.grant.abilityMax?.[ab] ?? 0));
     for (const p of adj?.permanent ?? []) {
       parts.push({ label: `${p.amount > 0 ? "Permanent bonus" : "Permanent penalty"}${p.from ? ` (${p.from})` : ""}`, value: p.amount });
       if (p.newMax) max = Math.max(max, p.newMax);
@@ -1984,6 +1992,24 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     });
   }
 
+  // Channel Divinity from two classes (2014 multiclassing): taking the feature again gives that class's options, not
+  // more uses. One pool, with the uses of whichever class grants more; the other class's actions spend it.
+  const resourceAliases: Record<string, string> = {};
+  for (const [main = "", ...others] of SHARED_POOLS) {
+    const m = resources.find((r) => r.id === main);
+    for (const o of others) {
+      const x = resources.find((r) => r.id === o);
+      if (!m || !x) continue;
+      m.max = Math.max(m.max, x.max);
+      m.used = Math.min(m.max, (c.resourcesUsed[main] ?? 0) + (c.resourcesUsed[o] ?? 0));
+      m.remaining = m.max - m.used;
+      m.source = `${m.source} and ${x.source} (shared)`;
+      resources.splice(resources.indexOf(x), 1);
+      resourceAliases[o] = main;
+    }
+    if (m && Object.values(resourceAliases).includes(main))
+      for (const a of actions) if (a.cost && (a.cost.resource === main || resourceAliases[a.cost.resource] === main)) a.cost = { ...a.cost, resource: main, name: m.name, remaining: m.remaining };
+  }
   // A resource spent by a feature that rolls a die (Second Wind's d10): that die, and what it does.
   for (const r of resources) {
     const a = actions.find((x) => x.cost?.resource === r.id && (x.heal?.dice.length || x.tempHp?.dice.length || x.roll?.dice.length));
@@ -2044,6 +2070,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     }),
     spellSlots: slotsTotal.map((total, i) => ({ level: i + 1, total, used: Math.min(total, c.slotsUsed[String(i + 1)] ?? 0) })),
     resources,
+    ...(Object.keys(resourceAliases).length ? { resourceAliases } : {}),
     proficiencies: {
       armor: [...profs.armor],
       weapons: [...profs.weapon],

@@ -536,7 +536,20 @@ export const Grant = z
      * list while the feature is on, and so does any spell whose book entry names the class under
      * "Optional/Variant Classes".
      */
-    expandedSpells: z.object({ class: z.string(), spells: z.array(DefId).default([]) }).strict().optional(),
+    expandedSpells: z
+      .object({
+        class: z.string(),
+        spells: z.array(DefId).default([]),
+        /**
+         * Also every spell whose book entry names the class under "Optional/Variant Classes" (Tasha's lists:
+         * the default). A patron's or other subclass's own list says false: only its spells join.
+         */
+        withVariants: z.boolean().optional(),
+      })
+      .strict()
+      .optional(),
+    /** A higher maximum for these ability scores (Primal Champion: Strength and Constitution up to 24). */
+    abilityMax: z.record(Ability, z.number().int().min(1).max(30)).optional(),
     spells: z.array(GrantedSpell).optional(),
     senses: z.record(z.string(), z.number()).optional(),
     companions: z.array(CompanionDef).optional(),

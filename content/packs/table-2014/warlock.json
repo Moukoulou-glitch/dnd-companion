@@ -108,11 +108,29 @@
       "kind": "feature",
       "id": "feature:undead-expanded-spells",
       "name": "Expanded Spell List (Undead)",
-      "summary": "Extra spells added to your warlock list, starting with Bane and False Life.",
+      "summary": "Extra spells added to your warlock list: Bane, False Life; Blindness/Deafness, Phantasmal Force; Phantom Steed, Speak with Dead; Death Ward, Greater Invisibility; Antilife Shell, Cloudkill.",
       "source": {
         "pack": "table-2014",
         "book": "VRGtR",
         "page": 30
+      },
+      "grant": {
+        "expandedSpells": {
+          "class": "warlock",
+          "spells": [
+            "spell:bane",
+            "spell:false-life",
+            "spell:blindness-deafness",
+            "spell:phantasmal-force",
+            "spell:phantom-steed",
+            "spell:speak-with-dead",
+            "spell:death-ward",
+            "spell:greater-invisibility",
+            "spell:antilife-shell",
+            "spell:cloudkill"
+          ],
+          "withVariants": false
+        }
       }
     },
     {

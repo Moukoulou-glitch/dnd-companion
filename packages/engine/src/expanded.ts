@@ -13,15 +13,18 @@ import { collectSources, type Source } from "./sources.js";
  */
 export function expandedFromSources(sources: Source[], reg: ContentRegistry): Map<string, Set<string>> {
   const out = new Map<string, Set<string>>();
+  // Classes whose Tasha's list is on: their book "Optional/Variant Classes" spells join too (a patron's own list doesn't do that).
+  const variants = new Set<string>();
   for (const s of sources) {
     const x = s.grant.expandedSpells;
     if (!x) continue;
     const set = out.get(x.class) ?? new Set<string>();
     for (const id of x.spells) set.add(id);
     out.set(x.class, set);
+    if (x.withVariants !== false) variants.add(x.class);
   }
-  if (out.size) {
-    for (const d of reg.list("spell")) for (const cls of d.optionalClasses ?? []) out.get(cls)?.add(d.id);
+  if (variants.size) {
+    for (const d of reg.list("spell")) for (const cls of d.optionalClasses ?? []) if (variants.has(cls)) out.get(cls)?.add(d.id);
   }
   return out;
 }

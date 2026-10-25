@@ -1736,6 +1736,839 @@
           }
         ]
       }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:circle-of-the-land-arctic",
+      "name": "Circle of the Land: Arctic",
+      "summary": "Your circle spells, always prepared and not counted against the spells you prepare: Hold Person, Spike Growth (3rd); Sleet Storm, Slow (5th); Freedom of Movement, Ice Storm (7th); Commune With Nature, Cone of Cold (9th).",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "The Circle of the Land is made up of mystics and sages who safeguard ancient knowledge and rites through a vast oral tradition. These druids meet within sacred circles of trees or standing stones to whisper primal secrets in Druidic. The circle's wisest members preside as the chief priests of communities that hold to the Old Faith and serve as advisors to the rulers of those folk. As a member of this circle, your magic is influenced by the land where you were initiated into the circle's mysterious rites."
+      ],
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:hold-person",
+            "name": "Hold Person",
+            "casting": "always prepared",
+            "list": "druid",
+            "minLevel": 3,
+            "levelOf": "class:druid"
+          },
+          {
+            "spell": "spell:spike-growth",
+            "name": "Spike Growth",
+            "casting": "always prepared",
+            "list": "druid",
+            "minLevel": 3,
+            "levelOf": "class:druid"
+          },
+          {
+            "spell": "spell:sleet-storm",
+            "name": "Sleet Storm",
+            "casting": "always prepared",
+            "list": "druid",
+            "minLevel": 5,
+            "levelOf": "class:druid"
+          },
+          {
+            "spell": "spell:slow",
+            "name": "Slow",
+            "casting": "always prepared",
+            "list": "druid",
+            "minLevel": 5,
+            "levelOf": "class:druid"
+          },
+          {
+            "spell": "spell:freedom-of-movement",
+            "name": "Freedom of Movement",
+            "casting": "always prepared",
+            "list": "druid",
+            "minLevel": 7,
+            "levelOf": "class:druid"
+          },
+          {
+            "spell": "spell:ice-storm",
+            "name": "Ice Storm",
+            "casting": "always prepared",
+            "list": "druid",
+            "minLevel": 7,
+            "levelOf": "class:druid"
+          },
+          {
+            "spell": "spell:commune-with-nature",
+            "name": "Commune With Nature",
+            "casting": "always prepared",
+            "list": "druid",
+            "minLevel": 9,
+            "levelOf": "class:druid"
+          },
+          {
+            "spell": "spell:cone-of-cold",
+            "name": "Cone of Cold",
+            "casting": "always prepared",
+            "list": "druid",
+            "minLevel": 9,
+            "levelOf": "class:druid"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:circle-of-the-land-coast",
+      "name": "Circle of the Land: Coast",
+      "summary": "Your circle spells, always prepared and not counted against the spells you prepare: Mirror Image, Misty Step (3rd); Water Breathing, Water Walk (5th); Control Water, Freedom of Movement (7th); Conjure Elemental, Scrying (9th).",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "The Circle of the Land is made up of mystics and sages who safeguard ancient knowledge and rites through a vast oral tradition. These druids meet within sacred circles of trees or standing stones to whisper primal secrets in Druidic. The circle's wisest members preside as the chief priests of communities that hold to the Old Faith and serve as advisors to the rulers of those folk. As a member of this circle, your magic is influenced by the land where you were initiated into the circle's mysterious rites."
+      ],
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:mirror-image",
+            "name": "Mirror Image",
+            "casting": "always prepared",
+            "list": "druid",
+            "minLevel": 3,
+            "levelOf": "class:druid"
+          },
+          {
+            "spell": "spell:misty-step",
+            "name": "Misty Step",
+            "casting": "always prepared",
+            "list": "druid",
+            "minLevel": 3,
+            "levelOf": "class:druid"
+          },
+          {
+            "spell": "spell:water-breathing",
+            "name": "Water Breathing",
+            "casting": "always prepared",
+            "list": "druid",
+            "minLevel": 5,
+            "levelOf": "class:druid"
+          },
+          {
+            "spell": "spell:water-walk",
+            "name": "Water Walk",
+            "casting": "always prepared",
+            "list": "druid",
+            "minLevel": 5,
+            "levelOf": "class:druid"
+          },
+          {
+            "spell": "spell:control-water",
+            "name": "Control Water",
+            "casting": "always prepared",
+            "list": "druid",
+            "minLevel": 7,
+            "levelOf": "class:druid"
+          },
+          {
+            "spell": "spell:freedom-of-movement",
+            "name": "Freedom of Movement",
+            "casting": "always prepared",
+            "list": "druid",
+            "minLevel": 7,
+            "levelOf": "class:druid"
+          },
+          {
+            "spell": "spell:conjure-elemental",
+            "name": "Conjure Elemental",
+            "casting": "always prepared",
+            "list": "druid",
+            "minLevel": 9,
+            "levelOf": "class:druid"
+          },
+          {
+            "spell": "spell:scrying",
+            "name": "Scrying",
+            "casting": "always prepared",
+            "list": "druid",
+            "minLevel": 9,
+            "levelOf": "class:druid"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:circle-of-the-land-desert",
+      "name": "Circle of the Land: Desert",
+      "summary": "Your circle spells, always prepared and not counted against the spells you prepare: Blur, Silence (3rd); Create Food and Water, Protection From Energy (5th); Blight, Hallucinatory Terrain (7th); Insect Plague, Wall of Stone (9th).",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "The Circle of the Land is made up of mystics and sages who safeguard ancient knowledge and rites through a vast oral tradition. These druids meet within sacred circles of trees or standing stones to whisper primal secrets in Druidic. The circle's wisest members preside as the chief priests of communities that hold to the Old Faith and serve as advisors to the rulers of those folk. As a member of this circle, your magic is influenced by the land where you were initiated into the circle's mysterious rites."
+      ],
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:blur",
+            "name": "Blur",
+            "casting": "always prepared",
+            "list": "druid",
+            "minLevel": 3,
+            "levelOf": "class:druid"
+          },
+          {
+            "spell": "spell:silence",
+            "name": "Silence",
+            "casting": "always prepared",
+            "list": "druid",
+            "minLevel": 3,
+            "levelOf": "class:druid"
+          },
+          {
+            "spell": "spell:create-food-and-water",
+            "name": "Create Food and Water",
+            "casting": "always prepared",
+            "list": "druid",
+            "minLevel": 5,
+            "levelOf": "class:druid"
+          },
+          {
+            "spell": "spell:protection-from-energy",
+            "name": "Protection From Energy",
+            "casting": "always prepared",
+            "list": "druid",
+            "minLevel": 5,
+            "levelOf": "class:druid"
+          },
+          {
+            "spell": "spell:blight",
+            "name": "Blight",
+            "casting": "always prepared",
+            "list": "druid",
+            "minLevel": 7,
+            "levelOf": "class:druid"
+          },
+          {
+            "spell": "spell:hallucinatory-terrain",
+            "name": "Hallucinatory Terrain",
+            "casting": "always prepared",
+            "list": "druid",
+            "minLevel": 7,
+            "levelOf": "class:druid"
+          },
+          {
+            "spell": "spell:insect-plague",
+            "name": "Insect Plague",
+            "casting": "always prepared",
+            "list": "druid",
+            "minLevel": 9,
+            "levelOf": "class:druid"
+          },
+          {
+            "spell": "spell:wall-of-stone",
+            "name": "Wall of Stone",
+            "casting": "always prepared",
+            "list": "druid",
+            "minLevel": 9,
+            "levelOf": "class:druid"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:circle-of-the-land-forest",
+      "name": "Circle of the Land: Forest",
+      "summary": "Your circle spells, always prepared and not counted against the spells you prepare: Barkskin, Spider Climb (3rd); Call Lightning, Plant Growth (5th); Divination, Freedom of Movement (7th); Commune With Nature, Tree Stride (9th).",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "The Circle of the Land is made up of mystics and sages who safeguard ancient knowledge and rites through a vast oral tradition. These druids meet within sacred circles of trees or standing stones to whisper primal secrets in Druidic. The circle's wisest members preside as the chief priests of communities that hold to the Old Faith and serve as advisors to the rulers of those folk. As a member of this circle, your magic is influenced by the land where you were initiated into the circle's mysterious rites."
+      ],
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:barkskin",
+            "name": "Barkskin",
+            "casting": "always prepared",
+            "list": "druid",
+            "minLevel": 3,
+            "levelOf": "class:druid"
+          },
+          {
+            "spell": "spell:spider-climb",
+            "name": "Spider Climb",
+            "casting": "always prepared",
+            "list": "druid",
+            "minLevel": 3,
+            "levelOf": "class:druid"
+          },
+          {
+            "spell": "spell:call-lightning",
+            "name": "Call Lightning",
+            "casting": "always prepared",
+            "list": "druid",
+            "minLevel": 5,
+            "levelOf": "class:druid"
+          },
+          {
+            "spell": "spell:plant-growth",
+            "name": "Plant Growth",
+            "casting": "always prepared",
+            "list": "druid",
+            "minLevel": 5,
+            "levelOf": "class:druid"
+          },
+          {
+            "spell": "spell:divination",
+            "name": "Divination",
+            "casting": "always prepared",
+            "list": "druid",
+            "minLevel": 7,
+            "levelOf": "class:druid"
+          },
+          {
+            "spell": "spell:freedom-of-movement",
+            "name": "Freedom of Movement",
+            "casting": "always prepared",
+            "list": "druid",
+            "minLevel": 7,
+            "levelOf": "class:druid"
+          },
+          {
+            "spell": "spell:commune-with-nature",
+            "name": "Commune With Nature",
+            "casting": "always prepared",
+            "list": "druid",
+            "minLevel": 9,
+            "levelOf": "class:druid"
+          },
+          {
+            "spell": "spell:tree-stride",
+            "name": "Tree Stride",
+            "casting": "always prepared",
+            "list": "druid",
+            "minLevel": 9,
+            "levelOf": "class:druid"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:circle-of-the-land-grassland",
+      "name": "Circle of the Land: Grassland",
+      "summary": "Your circle spells, always prepared and not counted against the spells you prepare: Invisibility, Pass Without Trace (3rd); Daylight, Haste (5th); Divination, Freedom of Movement (7th); Dream, Insect Plague (9th).",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "The Circle of the Land is made up of mystics and sages who safeguard ancient knowledge and rites through a vast oral tradition. These druids meet within sacred circles of trees or standing stones to whisper primal secrets in Druidic. The circle's wisest members preside as the chief priests of communities that hold to the Old Faith and serve as advisors to the rulers of those folk. As a member of this circle, your magic is influenced by the land where you were initiated into the circle's mysterious rites."
+      ],
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:invisibility",
+            "name": "Invisibility",
+            "casting": "always prepared",
+            "list": "druid",
+            "minLevel": 3,
+            "levelOf": "class:druid"
+          },
+          {
+            "spell": "spell:pass-without-trace",
+            "name": "Pass Without Trace",
+            "casting": "always prepared",
+            "list": "druid",
+            "minLevel": 3,
+            "levelOf": "class:druid"
+          },
+          {
+            "spell": "spell:daylight",
+            "name": "Daylight",
+            "casting": "always prepared",
+            "list": "druid",
+            "minLevel": 5,
+            "levelOf": "class:druid"
+          },
+          {
+            "spell": "spell:haste",
+            "name": "Haste",
+            "casting": "always prepared",
+            "list": "druid",
+            "minLevel": 5,
+            "levelOf": "class:druid"
+          },
+          {
+            "spell": "spell:divination",
+            "name": "Divination",
+            "casting": "always prepared",
+            "list": "druid",
+            "minLevel": 7,
+            "levelOf": "class:druid"
+          },
+          {
+            "spell": "spell:freedom-of-movement",
+            "name": "Freedom of Movement",
+            "casting": "always prepared",
+            "list": "druid",
+            "minLevel": 7,
+            "levelOf": "class:druid"
+          },
+          {
+            "spell": "spell:dream",
+            "name": "Dream",
+            "casting": "always prepared",
+            "list": "druid",
+            "minLevel": 9,
+            "levelOf": "class:druid"
+          },
+          {
+            "spell": "spell:insect-plague",
+            "name": "Insect Plague",
+            "casting": "always prepared",
+            "list": "druid",
+            "minLevel": 9,
+            "levelOf": "class:druid"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:circle-of-the-land-mountain",
+      "name": "Circle of the Land: Mountain",
+      "summary": "Your circle spells, always prepared and not counted against the spells you prepare: Spider Climb, Spike Growth (3rd); Lightning Bolt, Meld Into Stone (5th); Stone Shape, Stoneskin (7th); Passwall, Wall of Stone (9th).",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "The Circle of the Land is made up of mystics and sages who safeguard ancient knowledge and rites through a vast oral tradition. These druids meet within sacred circles of trees or standing stones to whisper primal secrets in Druidic. The circle's wisest members preside as the chief priests of communities that hold to the Old Faith and serve as advisors to the rulers of those folk. As a member of this circle, your magic is influenced by the land where you were initiated into the circle's mysterious rites."
+      ],
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:spider-climb",
+            "name": "Spider Climb",
+            "casting": "always prepared",
+            "list": "druid",
+            "minLevel": 3,
+            "levelOf": "class:druid"
+          },
+          {
+            "spell": "spell:spike-growth",
+            "name": "Spike Growth",
+            "casting": "always prepared",
+            "list": "druid",
+            "minLevel": 3,
+            "levelOf": "class:druid"
+          },
+          {
+            "spell": "spell:lightning-bolt",
+            "name": "Lightning Bolt",
+            "casting": "always prepared",
+            "list": "druid",
+            "minLevel": 5,
+            "levelOf": "class:druid"
+          },
+          {
+            "spell": "spell:meld-into-stone",
+            "name": "Meld Into Stone",
+            "casting": "always prepared",
+            "list": "druid",
+            "minLevel": 5,
+            "levelOf": "class:druid"
+          },
+          {
+            "spell": "spell:stone-shape",
+            "name": "Stone Shape",
+            "casting": "always prepared",
+            "list": "druid",
+            "minLevel": 7,
+            "levelOf": "class:druid"
+          },
+          {
+            "spell": "spell:stoneskin",
+            "name": "Stoneskin",
+            "casting": "always prepared",
+            "list": "druid",
+            "minLevel": 7,
+            "levelOf": "class:druid"
+          },
+          {
+            "spell": "spell:passwall",
+            "name": "Passwall",
+            "casting": "always prepared",
+            "list": "druid",
+            "minLevel": 9,
+            "levelOf": "class:druid"
+          },
+          {
+            "spell": "spell:wall-of-stone",
+            "name": "Wall of Stone",
+            "casting": "always prepared",
+            "list": "druid",
+            "minLevel": 9,
+            "levelOf": "class:druid"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:circle-of-the-land-swamp",
+      "name": "Circle of the Land: Swamp",
+      "summary": "Your circle spells, always prepared and not counted against the spells you prepare: Acid Arrow, Darkness (3rd); Water Walk, Stinking Cloud (5th); Freedom of Movement, Locate Creature (7th); Insect Plague, Scrying (9th).",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "The Circle of the Land is made up of mystics and sages who safeguard ancient knowledge and rites through a vast oral tradition. These druids meet within sacred circles of trees or standing stones to whisper primal secrets in Druidic. The circle's wisest members preside as the chief priests of communities that hold to the Old Faith and serve as advisors to the rulers of those folk. As a member of this circle, your magic is influenced by the land where you were initiated into the circle's mysterious rites."
+      ],
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:acid-arrow",
+            "name": "Acid Arrow",
+            "casting": "always prepared",
+            "list": "druid",
+            "minLevel": 3,
+            "levelOf": "class:druid"
+          },
+          {
+            "spell": "spell:darkness",
+            "name": "Darkness",
+            "casting": "always prepared",
+            "list": "druid",
+            "minLevel": 3,
+            "levelOf": "class:druid"
+          },
+          {
+            "spell": "spell:water-walk",
+            "name": "Water Walk",
+            "casting": "always prepared",
+            "list": "druid",
+            "minLevel": 5,
+            "levelOf": "class:druid"
+          },
+          {
+            "spell": "spell:stinking-cloud",
+            "name": "Stinking Cloud",
+            "casting": "always prepared",
+            "list": "druid",
+            "minLevel": 5,
+            "levelOf": "class:druid"
+          },
+          {
+            "spell": "spell:freedom-of-movement",
+            "name": "Freedom of Movement",
+            "casting": "always prepared",
+            "list": "druid",
+            "minLevel": 7,
+            "levelOf": "class:druid"
+          },
+          {
+            "spell": "spell:locate-creature",
+            "name": "Locate Creature",
+            "casting": "always prepared",
+            "list": "druid",
+            "minLevel": 7,
+            "levelOf": "class:druid"
+          },
+          {
+            "spell": "spell:insect-plague",
+            "name": "Insect Plague",
+            "casting": "always prepared",
+            "list": "druid",
+            "minLevel": 9,
+            "levelOf": "class:druid"
+          },
+          {
+            "spell": "spell:scrying",
+            "name": "Scrying",
+            "casting": "always prepared",
+            "list": "druid",
+            "minLevel": 9,
+            "levelOf": "class:druid"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:circle-of-the-land-underdark",
+      "name": "Circle of the Land: Underdark",
+      "summary": "Your circle spells, always prepared and not counted against the spells you prepare: Spider Climb, Web (3rd); Gaseous Form, Stinking Cloud (5th); Greater Invisibility, Stone Shape (7th); Cloudkill, Insect Plague (9th).",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 69
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:spider-climb",
+            "name": "Spider Climb",
+            "casting": "always prepared",
+            "list": "druid",
+            "minLevel": 3,
+            "levelOf": "class:druid"
+          },
+          {
+            "spell": "spell:web",
+            "name": "Web",
+            "casting": "always prepared",
+            "list": "druid",
+            "minLevel": 3,
+            "levelOf": "class:druid"
+          },
+          {
+            "spell": "spell:gaseous-form",
+            "name": "Gaseous Form",
+            "casting": "always prepared",
+            "list": "druid",
+            "minLevel": 5,
+            "levelOf": "class:druid"
+          },
+          {
+            "spell": "spell:stinking-cloud",
+            "name": "Stinking Cloud",
+            "casting": "always prepared",
+            "list": "druid",
+            "minLevel": 5,
+            "levelOf": "class:druid"
+          },
+          {
+            "spell": "spell:greater-invisibility",
+            "name": "Greater Invisibility",
+            "casting": "always prepared",
+            "list": "druid",
+            "minLevel": 7,
+            "levelOf": "class:druid"
+          },
+          {
+            "spell": "spell:stone-shape",
+            "name": "Stone Shape",
+            "casting": "always prepared",
+            "list": "druid",
+            "minLevel": 7,
+            "levelOf": "class:druid"
+          },
+          {
+            "spell": "spell:cloudkill",
+            "name": "Cloudkill",
+            "casting": "always prepared",
+            "list": "druid",
+            "minLevel": 9,
+            "levelOf": "class:druid"
+          },
+          {
+            "spell": "spell:insect-plague",
+            "name": "Insect Plague",
+            "casting": "always prepared",
+            "list": "druid",
+            "minLevel": 9,
+            "levelOf": "class:druid"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:circle-of-the-land",
+      "name": "Circle of the Land",
+      "summary": "The Circle of the Land is made up of mystics and sages who safeguard ancient knowledge and rites through a vast oral tradition.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "The Circle of the Land is made up of mystics and sages who safeguard ancient knowledge and rites through a vast oral tradition. These druids meet within sacred circles of trees or standing stones to whisper primal secrets in Druidic. The circle's wisest members preside as the chief priests of communities that hold to the Old Faith and serve as advisors to the rulers of those folk. As a member of this circle, your magic is influenced by the land where you were initiated into the circle's mysterious rites."
+      ],
+      "choices": [
+        {
+          "id": "option",
+          "label": "Your land",
+          "kind": "feature",
+          "count": 1,
+          "from": [
+            "feature:circle-of-the-land-arctic",
+            "feature:circle-of-the-land-coast",
+            "feature:circle-of-the-land-desert",
+            "feature:circle-of-the-land-forest",
+            "feature:circle-of-the-land-grassland",
+            "feature:circle-of-the-land-mountain",
+            "feature:circle-of-the-land-swamp",
+            "feature:circle-of-the-land-underdark"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:land-spells-3",
+      "name": "Land spells (3)",
+      "summary": "Your land's circle spells for 3rd level join your always-prepared spells; they come from the land you chose (Circle of the Land).",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:land-spells-5",
+      "name": "Land spells (5)",
+      "summary": "Your land's circle spells for 5th level join your always-prepared spells; they come from the land you chose (Circle of the Land).",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:land-spells-7",
+      "name": "Land spells (7)",
+      "summary": "Your land's circle spells for 7th level join your always-prepared spells; they come from the land you chose (Circle of the Land).",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:land-spells-9",
+      "name": "Land spells (9)",
+      "summary": "Your land's circle spells for 9th level join your always-prepared spells; they come from the land you chose (Circle of the Land).",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:bonus-cantrip",
+      "name": "Bonus Cantrip",
+      "summary": "When you choose this circle at 2nd level, you learn one additional druid cantrip of your choice.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "When you choose this circle at 2nd level, you learn one additional druid cantrip of your choice."
+      ],
+      "choices": [
+        {
+          "id": "cantrip",
+          "label": "Bonus druid cantrip",
+          "kind": "spell",
+          "count": 1,
+          "list": "druid",
+          "spells": {
+            "classes": [
+              "druid"
+            ],
+            "level": 0
+          }
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:primal-champion",
+      "name": "Primal Champion",
+      "summary": "Strength and Constitution each go up by 4, and their maximum becomes 24.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "At 20th level, you embody the power of the wilds. Your Strength and Constitution scores increase by 4. Your maximum for those scores is now 24."
+      ],
+      "grant": {
+        "abilityBonuses": {
+          "str": 4,
+          "con": 4
+        },
+        "abilityMax": {
+          "str": 24,
+          "con": 24
+        }
+      }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:fiend",
+      "name": "Fiend",
+      "summary": "You have made a pact with a fiend from the lower planes of existence, a being whose aims are evil, even if you strive against those aims.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "You have made a pact with a fiend from the lower planes of existence, a being whose aims are evil, even if you strive against those aims. Such beings desire the corruption or destruction of all things, ultimately including you. Fiends powerful enough to forge a pact include demon lords such as Demogorgon, Orcus, Fraz'Urb-luu, and Baphomet; archdevils such as Asmodeus, Dispater, Mephistopheles, and Belial; pit fiends and balors that are especially mighty; and ultroloths and other lords of the yugoloths."
+      ],
+      "class": "class:warlock",
+      "features": [
+        {
+          "level": 1,
+          "feature": "feature:fiend-expanded-spells"
+        },
+        {
+          "level": 1,
+          "feature": "feature:dark-ones-blessing"
+        },
+        {
+          "level": 6,
+          "feature": "feature:dark-ones-own-luck"
+        },
+        {
+          "level": 10,
+          "feature": "feature:fiendish-resilience"
+        },
+        {
+          "level": 14,
+          "feature": "feature:hurl-through-hell"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:fiend-expanded-spells",
+      "name": "Expanded Spell List (Fiend)",
+      "summary": "Extra spells added to your warlock list: Burning Hands, Command; Blindness/Deafness, Scorching Ray; Fireball, Stinking Cloud; Fire Shield, Wall of Fire; Flame Strike, Hallow.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 109
+      },
+      "grant": {
+        "expandedSpells": {
+          "class": "warlock",
+          "spells": [
+            "spell:burning-hands",
+            "spell:command",
+            "spell:blindness-deafness",
+            "spell:scorching-ray",
+            "spell:fireball",
+            "spell:stinking-cloud",
+            "spell:fire-shield",
+            "spell:wall-of-fire",
+            "spell:flame-strike",
+            "spell:hallow"
+          ],
+          "withVariants": false
+        }
+      }
     }
   ]
 }

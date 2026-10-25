@@ -196,6 +196,24 @@
         "pack": "table-2014",
         "book": "PHB",
         "page": 109
+      },
+      "grant": {
+        "expandedSpells": {
+          "class": "warlock",
+          "spells": [
+            "spell:faerie-fire",
+            "spell:sleep",
+            "spell:calm-emotions",
+            "spell:phantasmal-force",
+            "spell:blink",
+            "spell:plant-growth",
+            "spell:dominate-beast",
+            "spell:greater-invisibility",
+            "spell:dominate-person",
+            "spell:seeming"
+          ],
+          "withVariants": false
+        }
       }
     },
     {
@@ -365,6 +383,26 @@
         "pack": "table-2014",
         "book": "PHB",
         "page": 110
+      },
+      "grant": {
+        "expandedSpells": {
+          "class": "warlock",
+          "spells": [
+            "spell:dissonant-whispers",
+            "spell:tashas-hideous-laughter",
+            "spell:hideous-laughter",
+            "spell:detect-thoughts",
+            "spell:phantasmal-force",
+            "spell:clairvoyance",
+            "spell:sending",
+            "spell:dominate-beast",
+            "spell:evards-black-tentacles",
+            "spell:black-tentacles",
+            "spell:dominate-person",
+            "spell:telekinesis"
+          ],
+          "withVariants": false
+        }
       }
     },
     {
@@ -498,6 +536,24 @@
         "pack": "table-2014",
         "book": "XGtE",
         "page": 54
+      },
+      "grant": {
+        "expandedSpells": {
+          "class": "warlock",
+          "spells": [
+            "spell:cure-wounds",
+            "spell:guiding-bolt",
+            "spell:flaming-sphere",
+            "spell:lesser-restoration",
+            "spell:daylight",
+            "spell:revivify",
+            "spell:guardian-of-faith",
+            "spell:wall-of-fire",
+            "spell:flame-strike",
+            "spell:greater-restoration"
+          ],
+          "withVariants": false
+        }
       }
     },
     {
@@ -698,6 +754,24 @@
         "pack": "table-2014",
         "book": "XGtE",
         "page": 55
+      },
+      "grant": {
+        "expandedSpells": {
+          "class": "warlock",
+          "spells": [
+            "spell:shield",
+            "spell:wrathful-smite",
+            "spell:blur",
+            "spell:branding-smite",
+            "spell:blink",
+            "spell:elemental-weapon",
+            "spell:phantasmal-killer",
+            "spell:staggering-smite",
+            "spell:banishing-smite",
+            "spell:cone-of-cold"
+          ],
+          "withVariants": false
+        }
       }
     },
     {
@@ -923,6 +997,25 @@
         "pack": "table-2014",
         "book": "TCoE",
         "page": 72
+      },
+      "grant": {
+        "expandedSpells": {
+          "class": "warlock",
+          "spells": [
+            "spell:create-or-destroy-water",
+            "spell:thunderwave",
+            "spell:gust-of-wind",
+            "spell:silence",
+            "spell:lightning-bolt",
+            "spell:sleet-storm",
+            "spell:control-water",
+            "spell:summon-elemental",
+            "spell:bigbys-hand",
+            "spell:arcane-hand",
+            "spell:cone-of-cold"
+          ],
+          "withVariants": false
+        }
       }
     },
     {
@@ -1201,7 +1294,35 @@
         "pack": "table-2014",
         "book": "TCoE",
         "page": 73
-      }
+      },
+      "grant": {
+        "expandedSpells": {
+          "class": "warlock",
+          "spells": [
+            "spell:detect-evil-and-good",
+            "spell:phantasmal-force",
+            "spell:create-food-and-water",
+            "spell:phantasmal-killer",
+            "spell:creation",
+            "spell:wish"
+          ],
+          "withVariants": false
+        }
+      },
+      "choices": [
+        {
+          "id": "kind",
+          "label": "Genie kind",
+          "kind": "feature",
+          "count": 1,
+          "from": [
+            "feature:genie-kind-dao",
+            "feature:genie-kind-djinni",
+            "feature:genie-kind-efreeti",
+            "feature:genie-kind-marid"
+          ]
+        }
+      ]
     },
     {
       "kind": "feature",
@@ -1388,6 +1509,102 @@
         "pack": "table-2014",
         "book": "TCoE",
         "page": 71
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:genie-kind-dao",
+      "name": "Genie kind: Dao (earth)",
+      "summary": "Your patron is a dao: Sanctuary, Spike Growth, Meld Into Stone, Stone Shape, Wall Of Stone join your warlock list.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 73
+      },
+      "grant": {
+        "expandedSpells": {
+          "class": "warlock",
+          "spells": [
+            "spell:sanctuary",
+            "spell:spike-growth",
+            "spell:meld-into-stone",
+            "spell:stone-shape",
+            "spell:wall-of-stone"
+          ],
+          "withVariants": false
+        }
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:genie-kind-djinni",
+      "name": "Genie kind: Djinni (air)",
+      "summary": "Your patron is a djinni: Thunderwave, Gust Of Wind, Wind Wall, Greater Invisibility, Seeming join your warlock list.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 73
+      },
+      "grant": {
+        "expandedSpells": {
+          "class": "warlock",
+          "spells": [
+            "spell:thunderwave",
+            "spell:gust-of-wind",
+            "spell:wind-wall",
+            "spell:greater-invisibility",
+            "spell:seeming"
+          ],
+          "withVariants": false
+        }
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:genie-kind-efreeti",
+      "name": "Genie kind: Efreeti (fire)",
+      "summary": "Your patron is a efreeti: Burning Hands, Scorching Ray, Fireball, Fire Shield, Flame Strike join your warlock list.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 73
+      },
+      "grant": {
+        "expandedSpells": {
+          "class": "warlock",
+          "spells": [
+            "spell:burning-hands",
+            "spell:scorching-ray",
+            "spell:fireball",
+            "spell:fire-shield",
+            "spell:flame-strike"
+          ],
+          "withVariants": false
+        }
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:genie-kind-marid",
+      "name": "Genie kind: Marid (water)",
+      "summary": "Your patron is a marid: Fog Cloud, Blur, Sleet Storm, Control Water, Cone Of Cold join your warlock list.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 73
+      },
+      "grant": {
+        "expandedSpells": {
+          "class": "warlock",
+          "spells": [
+            "spell:fog-cloud",
+            "spell:blur",
+            "spell:sleet-storm",
+            "spell:control-water",
+            "spell:cone-of-cold"
+          ],
+          "withVariants": false
+        }
       }
     }
   ]

@@ -69,6 +69,14 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
   const prompts: Prompt[] = [];
   const sheet = derive(c, reg);
   const maxHp = sheet.hpMax.total;
+  // One shared pool (Channel Divinity from two classes): uses recorded under the other class's name join it.
+  const aliasOf = (id: string) => sheet.resourceAliases?.[id] ?? id;
+  for (const [from, to] of Object.entries(sheet.resourceAliases ?? {})) {
+    if (!c.resourcesUsed[from]) continue;
+    const r = sheet.resources.find((x) => x.id === to);
+    if (r) c.resourcesUsed[to] = r.used;
+    delete c.resourcesUsed[from];
+  }
 
   /** The companion an HP operation targets, with its current HP filled in. */
   const companionTarget = (id: string | undefined) => {
@@ -499,7 +507,7 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       break;
 
     case "spendResource": {
-      const r = sheet.resources.find((x) => x.id === op.payload.resource);
+      const r = sheet.resources.find((x) => x.id === aliasOf(op.payload.resource));
       if (!r) {
         notes.push(`Unknown resource "${op.payload.resource}".`);
         break;
@@ -514,7 +522,7 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
     }
 
     case "restoreResource": {
-      const id = op.payload.resource;
+      const id = aliasOf(op.payload.resource);
       c.resourcesUsed[id] = Math.max(0, (c.resourcesUsed[id] ?? 0) - op.payload.amount);
       break;
     }

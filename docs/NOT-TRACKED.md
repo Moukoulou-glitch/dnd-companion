@@ -270,3 +270,10 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 - Curses: what a curse makes you do (Sword of Vengeance's and Berserker Axe's Wisdom saves, Shield of Missile Attraction drawing attacks) is the DM's; the disadvantages that can be ticked are offered on the rolls. Only the items listed above (and your own items with a curse) have one in the app.
 - Artifacts: properties with no numbers (a smell, a quest, a hostile spirit, the alignment rolled each dawn) are on the item's text. The ability score increase isn't capped at 24 by the app. A cast-from-the-artifact spell is once per dawn; roll the d6 yourself (on a 6, give the use back on its resource).
 
+
+## Round 13a
+
+- Circle of the Land: the land is picked in Choices; a Land druid made before this has no circle spells until it's picked (the Choices count shows it). Underdark is offered (PHB).
+- Warlock patron lists: a book spell whose name differs from the SRD's (Tasha's Hideous Laughter / Hideous Laughter) is listed under both names. The Genie's kind is picked on its expanded list; Genie's Wrath's damage type still isn't tied to it.
+- Channel Divinity from two classes: one pool with the larger number of uses; it resets on a short rest as both classes' do.
+- Primal Champion: a Strength or Constitution above 24 (from items or by hand) is warned, as any score above its maximum.
