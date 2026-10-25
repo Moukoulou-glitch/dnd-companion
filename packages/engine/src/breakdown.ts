@@ -65,6 +65,8 @@ export interface RollBreakdown extends Breakdown {
   notes?: string[];
   /** Damage dice of these types count as at least `value` each (Elemental Adept). */
   minDie?: { value: number; types: string[]; label: string };
+  /** A total below this counts as this (Indomitable Might: your Strength score). */
+  minTotal?: { value: number; label: string };
   dice: DicePart[];
   advantage: string[];
   disadvantage: string[];

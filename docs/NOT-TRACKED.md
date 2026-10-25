@@ -274,7 +274,7 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 ## Round 13a
 
 - Circle of the Land: the land is picked in Choices; a Land druid made before this has no circle spells until it's picked (the Choices count shows it). Underdark is offered (PHB).
-- Warlock patron lists: a book spell whose name differs from the SRD's (Tasha's Hideous Laughter / Hideous Laughter) is listed under both names. The Genie's kind is picked on its expanded list, and Genie's Wrath takes its damage type from it (no kind picked: no Genie's Wrath offered). The kind's Elemental Gift resistance (6th level) isn't tied to it yet.
+- Warlock patron lists: a book spell whose name differs from the SRD's (Tasha's Hideous Laughter / Hideous Laughter) is listed under both names. The Genie's kind is picked on its expanded list, and Genie's Wrath takes its damage type from it (no kind picked: no Genie's Wrath offered). The kind's Elemental Gift resistance comes from 6th level.
 - Channel Divinity from two classes: one pool with the larger number of uses; it resets on a short rest as both classes' do.
 - Primal Champion: a Strength or Constitution above 24 (from items or by hand) is warned, as any score above its maximum.
 
@@ -282,3 +282,18 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 
 - Hit Dice and Inspiration: hold a die about half a second; a tap, a swipe or scrolling does nothing. Keyboard: Enter or the arrow keys.
 - Features: a use with several options (Channel Divinity) lists them; a resource spent only by ticking extra damage (Fire Rune: invoke) can be rolled from Play or ticked on the hit. A resource with its own die that nothing else spends (superiority dice spent by hand) keeps its die panel with "Just spend one".
+
+## Capstones and immunities (round 13b)
+
+- Archdruid: Wild Shape never runs out; ignoring spell components is yours to apply.
+- Persistent Rage: the end-of-turn reminder changes; the 1-minute limit stays.
+- Indomitable Might: on Strength checks (Athletics included) the total is raised to your Strength score, with the app's dice or yours.
+- Mindless Rage: charmed and frightened immunity while raging; one already on you stays on its tag (suspended by the rules: ignore it until the rage ends).
+- Nature's Ward: the charm and fright protection against elementals and fey is a note on saves.
+- Disease immunity is listed with your immunities; diseases themselves aren't tracked.
+- Stillness of Mind ends one charmed or frightened tag on you (the one you pick).
+- Cleansing Touch: ending a spell on you is removing its tag; on someone else, it's theirs.
+- Divine Intervention: from 20th level the action has no roll; the 7-day wait after a success is yours to keep.
+- Foe Slayer: offered on every weapon attack and damage roll; whether the target is a favored enemy, and once per turn, are yours to keep.
+- Thief's Reflexes: the second turn's initiative is a note; the turn order isn't changed.
+- Empty Body: invisible (advantage on your attacks, a reminder about attacks against you) and resistance to all but force while it's on; Astral Projection for 8 ki is cast from the Spells tab.

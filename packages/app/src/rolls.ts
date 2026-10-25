@@ -51,7 +51,7 @@ export function recordOf(title: string, kind: RollRecord["kind"], r: ComposedRol
   };
   // Dice taken away (Diminution) brought it under the minimum: a line for the difference, so the lines still add up.
   const floorUp = r.result.floored !== undefined ? r.result.total - r.result.terms.reduce((n, t) => n + t.total, 0) : 0;
-  if (floorUp > 0) rec.lines.push({ source: `At least ${r.result.floored} damage`, detail: "", total: floorUp });
+  if (floorUp > 0) rec.lines.push({ source: r.composed.minTotalLabel ? `${r.composed.minTotalLabel}: counts as ${r.result.floored}` : `At least ${r.result.floored} damage`, detail: "", total: floorUp });
   if (kind === "d20" && r.result.natural !== undefined) rec.natural = r.result.natural;
   if (kind === "damage") {
     const first = r.result.terms[0]?.term.label;

@@ -50,6 +50,8 @@ export const Condition = z
     withShield: z.boolean().optional(),
     /** Final ability scores at least these values, e.g. { "dex": 16 }. */
     minScore: z.record(Ability, z.number().int()).optional(),
+    /** From this level in a class (Elemental Gift's resistance: warlock 6th). */
+    classLevel: z.object({ class: DefId, min: z.number().int().min(1).max(20) }).strict().optional(),
     /** A named on/off state on the character, e.g. "raging", "sharpshooter". */
     toggle: z.string().optional(),
     /** On unless the player switches this state on (a rune you know: "rune-fire-off" when its object isn't with you). */
@@ -103,6 +105,8 @@ export const ModifierOp = z.enum([
   "immune",
   /** Rolls: a reminder shown with the roll; `label` is the text (Ancestral Protectors on your first hit). */
   "note",
+  /** Checks: a total below this ability's score counts as the score (`value`: "str"; Indomitable Might). */
+  "atLeastScore",
   /**
    * A rule permission, no number: "rule.twoWeapon.nonLight" (Dual Wielder:
    * two-weapon fighting with weapons that aren't light), "rule.twoWeapon.ability"
@@ -310,6 +314,8 @@ export const ActionDef = z
     /** Only from this level: the character's, or with `levelOf`, that class's (Drow Magic's Darkness: 5th; Shadow Magic's Darkness: sorcerer 3rd). */
     minLevel: z.number().int().min(1).max(20).optional(),
     levelOf: DefId.optional(),
+    /** Only up to this level (Divine Intervention's roll, until Divine Intervention Improvement at 20th). */
+    maxLevel: z.number().int().min(1).max(20).optional(),
 
     economy: z.enum(["action", "bonus", "reaction", "free"]),
     /** Resource spent per use. */
@@ -350,6 +356,10 @@ export const ActionDef = z
       .optional(),
     /** Gives back uses of another resource (Psionic Power: regain one die). */
     restores: z.object({ resource: z.string(), amount: z.number().int().min(1).default(1) }).strict().optional(),
+    /** All Pact Magic slots come back (Eldritch Master). */
+    restoresPactSlots: z.boolean().optional(),
+    /** Ends these effects or conditions on you (Stillness of Mind: charmed, frightened). */
+    endsConditions: z.array(DefId).optional(),
     /** Only if you haven't moved this turn (Steady Aim). */
     notAfterMoving: z.boolean().optional(),
     /** Your speed becomes 0 for the rest of the turn (Steady Aim). */
@@ -548,6 +558,10 @@ export const Grant = z
       })
       .strict()
       .optional(),
+    /** These resources can be used without limit (Archdruid: Wild Shape). */
+    unlimitedResources: z.array(z.string()).optional(),
+    /** Uses that come back when you finish a short rest (Sorcerous Restoration: 4 sorcery points). */
+    shortRestRegain: z.array(z.object({ resource: z.string(), amount: z.number().int().min(1) }).strict()).optional(),
     /** A higher maximum for these ability scores (Primal Champion: Strength and Constitution up to 24). */
     abilityMax: z.record(Ability, z.number().int().min(1).max(30)).optional(),
     spells: z.array(GrantedSpell).optional(),

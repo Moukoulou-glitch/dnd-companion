@@ -221,6 +221,8 @@ export interface ActionResult {
   notAfterMoving?: boolean;
   stopsMovement?: boolean;
   restores?: { resource: string; amount: number };
+  restoresPactSlots?: boolean;
+  endsConditions?: string[];
   /** Spells this use casts for free (Haunted: Invisibility): using it opens the spell. */
   spells?: { id: string; list: string }[];
   tempHp?: Amount;
@@ -346,6 +348,8 @@ export interface ResourceResult {
   source: string;
   /** Rolls made in advance (Portent): the dice size and the values kept so far. */
   pool?: { sides: number; values: number[] };
+  /** Used without limit, and by what (Archdruid): never runs out. */
+  unlimited?: string;
   /** What one use rolls and does, from the feature that spends it (Second Wind: "heals 1d10 + 3"). */
   effect?: string;
 }
@@ -454,6 +458,8 @@ export interface DerivedSheet {
   };
   /** Uses that come back when you roll initiative with none left (Relentless, Perfect Self). */
   initiativeRegains: { resource: string; amount: number; from: string }[];
+  /** Uses back at the end of a short rest (Sorcerous Restoration). */
+  shortRestRegains: { resource: string; amount: number; from: string }[];
   /** Rule permissions: two-weapon fighting with non-light weapons (Dual Wielder), ability modifier on off-hand damage (the style). */
   rules: { twoWeaponNonLight: boolean; twoWeaponAbility: boolean; durable: boolean; heavyArmorMaster: boolean; warCaster: boolean };
   /** Data problems found while deriving (missing choices, too many attuned items). */
@@ -791,6 +797,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     for (const [ab, min] of Object.entries(when.minScore ?? {})) {
       if (abilities[ab as Ability].score.total < (min ?? 0)) return "fail";
     }
+    if (when.classLevel && (c.classes.find((k) => k.class === when.classLevel!.class)?.level ?? 0) < when.classLevel.min) return "fail";
     if (when.toggle && !c.toggles.includes(when.toggle)) return "fail";
     if (when.toggleOff && c.toggles.includes(when.toggleOff)) return "fail";
     if (when.attackAction && !(c.combat && c.combat.attacks > 0)) return "fail";
@@ -859,6 +866,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     let minD20: number | undefined;
     const autoFail: string[] = [];
     const notes: string[] = [];
+    let minTotal: { value: number; label: string } | undefined;
     for (const a of modsFor(keys, itemInstanceId)) {
       const { mod } = a;
       if (mod.op === "autoFail") {
@@ -890,6 +898,13 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       }
       if (mod.op === "note") {
         if (conditionState(mod.when) !== "fail" && mod.label) notes.push(mod.label);
+        continue;
+      }
+      // Indomitable Might: a total below your Strength score counts as the score.
+      if (mod.op === "atLeastScore" && typeof mod.value === "string" && conditionState(mod.when) === "pass") {
+        const ab = mod.value as Ability;
+        const v = abilities[ab]?.score.total;
+        if (v !== undefined && (!minTotal || v > minTotal.value)) minTotal = { value: v, label: labelOf(a) };
         continue;
       }
       // Overchannel: a tick-box that makes the damage dice deal their maximum.
@@ -955,6 +970,11 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     if (minD20 !== undefined && minD20 > 1) result.minD20 = minD20;
     if (autoFail.length) result.autoFail = autoFail;
     if (notes.length) result.notes = notes;
+    if (minTotal) {
+      result.minTotal = minTotal;
+      notes.push(`${minTotal.label}: a total below ${minTotal.value} counts as ${minTotal.value}.`);
+      result.notes = notes;
+    }
     return result;
   };
 
@@ -1766,6 +1786,8 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       }
       if (a.notAfterMoving) entry.notAfterMoving = true;
       if (a.restores) entry.restores = a.restores;
+      if (a.restoresPactSlots) entry.restoresPactSlots = true;
+      if (a.endsConditions?.length) entry.endsConditions = a.endsConditions;
       if (a.cost) {
         const free = spells.filter((sp) => sp.cast.free?.resource === a.cost!.resource).map((sp) => ({ id: sp.id, list: sp.list.id }));
         if (free.length) entry.spells = free;
@@ -1992,6 +2014,17 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     });
   }
 
+  // Archdruid: Wild Shape without limit. Its uses are never counted as spent.
+  const unlimited = new Map<string, string>();
+  for (const s of sources) for (const id of s.grant.unlimitedResources ?? []) unlimited.set(id, s.label);
+  for (const r of resources) {
+    const by = unlimited.get(r.id);
+    if (!by) continue;
+    r.used = 0;
+    r.remaining = r.max;
+    r.unlimited = by;
+  }
+  for (const a of actions) if (a.cost && unlimited.has(a.cost.resource)) a.cost = { ...a.cost, remaining: Math.max(a.cost.remaining, a.cost.amount) };
   // Channel Divinity from two classes (2014 multiclassing): taking the feature again gives that class's options, not
   // more uses. One pool, with the uses of whichever class grants more; the other class's actions spend it.
   const resourceAliases: Record<string, string> = {};
@@ -2149,6 +2182,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     rules,
     encumbrance,
     initiativeRegains: sources.flatMap((s) => (s.grant.initiativeRegain ? [{ ...s.grant.initiativeRegain, from: s.label }] : [])),
+    shortRestRegains: sources.flatMap((s) => (s.grant.shortRestRegain ?? []).map((g) => ({ ...g, from: s.label }))),
     attacksPerAction: Math.max(
       sources.some((s) => /^feature:extra-attack/.test(s.id)) ? 2 : 1,
       ...sources.map((s) => (s.grant.extraAttacks !== undefined ? evalFlat(s.grant.extraAttacks, ctxFor(s)) : 1)),

@@ -17,6 +17,13 @@ export interface FeatureTagDef {
 }
 
 export const FEATURE_TAGS: Record<string, FeatureTagDef> = {
+  "feature:purity-of-spirit": {
+    name: "Protection from Evil and Good (Purity of Spirit)",
+    reminders: [
+      "Aberrations, celestials, elementals, fey, fiends and undead have disadvantage on attack rolls against you.",
+      "They can't charm, frighten or possess you; if they already have, you have advantage on the new save against it.",
+    ],
+  },
   "feature:aura-of-protection": {
     name: "Aura of Protection",
     needs: "conscious",
@@ -102,6 +109,7 @@ export const FEATURE_TAGS: Record<string, FeatureTagDef> = {
 
 /** What a switched-on feature does, under its chip. */
 export const TOGGLE_REMINDERS: Record<string, string[]> = {
+  "empty-body": ["Invisible for 1 minute: attack rolls against you have disadvantage, and yours have advantage.", "Resistance to all damage except force."],
   "twilight-sanctuary": [
     "A 30-ft sphere of twilight around you for 1 minute.",
     "When a creature of your choice (you too) ends its turn inside, pick one: it gains 1d6 + {cleric} temporary hit points, or one charm or fright on it ends.",

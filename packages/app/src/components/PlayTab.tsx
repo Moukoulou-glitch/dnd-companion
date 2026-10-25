@@ -425,7 +425,7 @@ export function PlayTab({
                   <div className="row-sub">
                     {r.remaining} of {r.max}
                     {r.die ? ` ${r.die}` : ""}
-                    {r.effect ? ` · ${r.effect}` : ""} · {resetLabel(r.reset)}
+                    {r.effect ? ` · ${r.effect}` : ""} · {r.unlimited ? `unlimited (${r.unlimited})` : resetLabel(r.reset)}
                   </div>
                   {r.pool && r.remaining > 0 && (
                     <div className="pool">

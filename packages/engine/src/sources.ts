@@ -195,7 +195,10 @@ export function collectSources(c: Character, baseReg: ContentRegistry, duplicate
 
   // Parts that start at a level (Drow Magic's Darkness at 5th): left out below it.
   const total = c.classes.reduce((t, k) => t + k.level, 0);
-  const ok = (x: { minLevel?: number; levelOf?: string }) => !x.minLevel || (x.levelOf ? (c.classes.find((k) => k.class === x.levelOf)?.level ?? 0) : total) >= x.minLevel;
+  const ok = (x: { minLevel?: number; maxLevel?: number; levelOf?: string }) => {
+    const lv = x.levelOf ? (c.classes.find((k) => k.class === x.levelOf)?.level ?? 0) : total;
+    return (!x.minLevel || lv >= x.minLevel) && (!x.maxLevel || lv <= x.maxLevel);
+  };
   for (const s of out) {
     const g = s.grant;
     if (!g.spells?.some((x) => !ok(x)) && !g.actions?.some((x) => !ok(x)) && !g.resources?.some((x) => !ok(x))) continue;

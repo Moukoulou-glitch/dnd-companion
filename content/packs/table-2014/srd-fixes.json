@@ -2569,6 +2569,604 @@
           "withVariants": false
         }
       }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:archdruid",
+      "name": "Archdruid",
+      "summary": "Wild Shape as often as you like; you can ignore the verbal, somatic and costless material parts of your druid spells, in any shape.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "At 20th level, you can use your Wild Shape an unlimited number of times.",
+        "Additionally, you can ignore the verbal and somatic components of your druid spells, as well as any material components that lack a cost and aren't consumed by a spell. You gain this benefit in both your normal shape and your beast shape from Wild Shape."
+      ],
+      "grant": {
+        "unlimitedResources": [
+          "wild-shape"
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:sorcerous-restoration",
+      "name": "Sorcerous Restoration",
+      "summary": "When you finish a short rest, 4 spent sorcery points come back.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "At 20th level, you regain 4 expended sorcery points whenever you finish a short rest."
+      ],
+      "grant": {
+        "shortRestRegain": [
+          {
+            "resource": "sorcery-points",
+            "amount": 4
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:eldritch-master",
+      "name": "Eldritch Master",
+      "summary": "Once per long rest, spend 1 minute entreating your patron: every spent Pact Magic slot comes back.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "At 20th level, you can draw on your inner reserve of mystical power while entreating your patron to regain expended spell slots. You can spend 1 minute entreating your patron for aid to regain all your expended spell slots from your Pact Magic feature.",
+        "Once you regain spell slots with this feature, you must finish a long rest before you can do so again."
+      ],
+      "grant": {
+        "resources": [
+          {
+            "id": "eldritch-master",
+            "name": "Eldritch Master",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "eldritch-master",
+            "name": "Eldritch Master",
+            "economy": "free",
+            "cost": {
+              "resource": "eldritch-master"
+            },
+            "toggles": [],
+            "restoresPactSlots": true,
+            "note": "1 minute entreating your patron: all your Pact Magic slots come back."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:foe-slayer",
+      "name": "Foe Slayer",
+      "summary": "Once on each of your turns, add your Wisdom modifier to the attack roll or the damage roll of an attack against one of your favored enemies.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "At 20th level, you become an unparalleled hunter of your enemies. Once on each of your turns, you can add your Wisdom modifier to the attack roll or the damage roll of an attack you make against one of your favored enemies. You can choose to use this feature before or after the roll, but before any effects of the roll are applied."
+      ],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.attack.weapon.*",
+            "op": "add",
+            "value": "mod.wis",
+            "mode": "suggested",
+            "label": "Foe Slayer",
+            "oncePerTurn": true,
+            "when": {
+              "text": "against a favored enemy; once per turn, on this attack or its damage"
+            }
+          },
+          {
+            "selector": "roll.damage.weapon.*",
+            "op": "add",
+            "value": "mod.wis",
+            "mode": "suggested",
+            "label": "Foe Slayer",
+            "oncePerTurn": true,
+            "when": {
+              "text": "against a favored enemy; once per turn, if you didn't add it to the attack roll"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:divine-intervention-improvement",
+      "name": "Divine Intervention Improvement",
+      "summary": "Divine Intervention succeeds without a roll.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "At 20th level, your call for intervention succeeds automatically, no roll required."
+      ],
+      "grant": {
+        "actions": [
+          {
+            "id": "divine-intervention-sure",
+            "name": "Divine Intervention",
+            "economy": "action",
+            "toggles": [],
+            "note": "Your deity intervenes, no roll needed; the DM chooses how. Then not again for 7 days."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:persistent-rage",
+      "name": "Persistent Rage",
+      "summary": "Your rage ends early only if you fall unconscious or choose to end it (it still lasts at most 1 minute).",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "Beginning at 15th level, your rage is so fierce that it ends early only if you fall unconscious or if you choose to end it."
+      ],
+      "grant": {}
+    },
+    {
+      "kind": "feature",
+      "id": "feature:indomitable-might",
+      "name": "Indomitable Might",
+      "summary": "A Strength check whose total is below your Strength score uses the score instead.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "Beginning at 18th level, if your total for a Strength check is less than your Strength score, you can use that score in place of the total."
+      ],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.check.str",
+            "op": "atLeastScore",
+            "value": "str",
+            "label": "Indomitable Might"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:mindless-rage",
+      "name": "Mindless Rage",
+      "summary": "While raging you can't be charmed or frightened; one that's on you is suspended for the rage.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "Beginning at 6th level, you can't be charmed or frightened while raging. If you are charmed or frightened when you enter your rage, the effect is suspended for the duration of the rage."
+      ],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.immune.charmed",
+            "op": "immune",
+            "label": "Mindless Rage",
+            "when": {
+              "toggle": "raging"
+            }
+          },
+          {
+            "selector": "defense.immune.frightened",
+            "op": "immune",
+            "label": "Mindless Rage",
+            "when": {
+              "toggle": "raging"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:purity-of-body",
+      "name": "Purity of Body",
+      "summary": "Immune to disease and poison: poison damage and the poisoned condition.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "At 10th level, your mastery of the ki flowing through you makes you immune to disease and poison."
+      ],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.immune.poison",
+            "op": "immune",
+            "label": "Purity of Body"
+          },
+          {
+            "selector": "defense.immune.poisoned",
+            "op": "immune",
+            "label": "Purity of Body"
+          },
+          {
+            "selector": "defense.immune.disease",
+            "op": "immune",
+            "label": "Purity of Body"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:divine-health",
+      "name": "Divine Health",
+      "summary": "Immune to disease.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "By 3rd level, the divine magic flowing through you makes you immune to disease."
+      ],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.immune.disease",
+            "op": "immune",
+            "label": "Divine Health"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:natures-ward",
+      "name": "Nature's Ward",
+      "summary": "Immune to poison and disease; elementals and fey can't charm or frighten you.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "When you reach 10th level, you can't be charmed or frightened by elementals or fey, and you are immune to poison and disease."
+      ],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.immune.poison",
+            "op": "immune",
+            "label": "Nature's Ward"
+          },
+          {
+            "selector": "defense.immune.poisoned",
+            "op": "immune",
+            "label": "Nature's Ward"
+          },
+          {
+            "selector": "defense.immune.disease",
+            "op": "immune",
+            "label": "Nature's Ward"
+          },
+          {
+            "selector": "roll.save.*",
+            "op": "note",
+            "label": "Nature's Ward: an elemental or a fey can't charm or frighten you."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:empty-body",
+      "name": "Empty Body",
+      "summary": "4 ki, an action: invisible for 1 minute, with resistance to every damage type except force. 8 ki: cast Astral Projection without material components (yourself only).",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "Beginning at 18th level, you can use your action to spend 4 ki points to become invisible for 1 minute. During that time, you also have resistance to all damage but force damage.",
+        "Additionally, you can spend 8 ki points to cast the astral projection spell, without needing material components. When you do so, you can't take any other creatures with you."
+      ],
+      "grant": {
+        "spellcasting": {
+          "id": "empty-body",
+          "label": "Empty Body",
+          "ability": "wis",
+          "progression": "none"
+        },
+        "spells": [
+          {
+            "spell": "spell:astral-projection",
+            "name": "Astral Projection",
+            "casting": "8 ki, no material components, yourself only",
+            "pointCost": {
+              "resource": "ki",
+              "amount": 8
+            }
+          }
+        ],
+        "actions": [
+          {
+            "id": "empty-body",
+            "name": "Empty Body",
+            "economy": "action",
+            "cost": {
+              "resource": "ki",
+              "amount": 4
+            },
+            "toggles": [
+              "empty-body"
+            ],
+            "duration": {
+              "minutes": 1
+            },
+            "note": "Invisible for 1 minute, and resistance to all damage except force."
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.attack.*",
+            "op": "advantage",
+            "label": "Empty Body (invisible)",
+            "when": {
+              "toggle": "empty-body"
+            }
+          },
+          {
+            "selector": "defense.resist.acid",
+            "op": "resist",
+            "label": "Empty Body",
+            "when": {
+              "toggle": "empty-body"
+            }
+          },
+          {
+            "selector": "defense.resist.bludgeoning",
+            "op": "resist",
+            "label": "Empty Body",
+            "when": {
+              "toggle": "empty-body"
+            }
+          },
+          {
+            "selector": "defense.resist.cold",
+            "op": "resist",
+            "label": "Empty Body",
+            "when": {
+              "toggle": "empty-body"
+            }
+          },
+          {
+            "selector": "defense.resist.fire",
+            "op": "resist",
+            "label": "Empty Body",
+            "when": {
+              "toggle": "empty-body"
+            }
+          },
+          {
+            "selector": "defense.resist.lightning",
+            "op": "resist",
+            "label": "Empty Body",
+            "when": {
+              "toggle": "empty-body"
+            }
+          },
+          {
+            "selector": "defense.resist.necrotic",
+            "op": "resist",
+            "label": "Empty Body",
+            "when": {
+              "toggle": "empty-body"
+            }
+          },
+          {
+            "selector": "defense.resist.piercing",
+            "op": "resist",
+            "label": "Empty Body",
+            "when": {
+              "toggle": "empty-body"
+            }
+          },
+          {
+            "selector": "defense.resist.poison",
+            "op": "resist",
+            "label": "Empty Body",
+            "when": {
+              "toggle": "empty-body"
+            }
+          },
+          {
+            "selector": "defense.resist.psychic",
+            "op": "resist",
+            "label": "Empty Body",
+            "when": {
+              "toggle": "empty-body"
+            }
+          },
+          {
+            "selector": "defense.resist.radiant",
+            "op": "resist",
+            "label": "Empty Body",
+            "when": {
+              "toggle": "empty-body"
+            }
+          },
+          {
+            "selector": "defense.resist.slashing",
+            "op": "resist",
+            "label": "Empty Body",
+            "when": {
+              "toggle": "empty-body"
+            }
+          },
+          {
+            "selector": "defense.resist.thunder",
+            "op": "resist",
+            "label": "Empty Body",
+            "when": {
+              "toggle": "empty-body"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:stillness-of-mind",
+      "name": "Stillness of Mind",
+      "summary": "An action: end one effect on you that charms or frightens you.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "Starting at 7th level, you can use your action to end one effect on yourself that is causing you to be charmed or frightened."
+      ],
+      "grant": {
+        "actions": [
+          {
+            "id": "stillness-of-mind",
+            "name": "Stillness of Mind",
+            "economy": "action",
+            "toggles": [],
+            "endsConditions": [
+              "condition:charmed",
+              "condition:frightened"
+            ],
+            "choose": {
+              "label": "End which?",
+              "options": [
+                "Charmed",
+                "Frightened"
+              ]
+            },
+            "note": "Ends one effect on you that charms or frightens you."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:cleansing-touch",
+      "name": "Cleansing Touch",
+      "summary": "An action, uses equal to your Charisma modifier (at least 1) per long rest: end one spell on you or on a willing creature you touch.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "Beginning at 14th level, you can use your action to end one spell on yourself or on one willing creature that you touch.",
+        "You can use this feature a number of times equal to your Charisma modifier (a minimum of once). You regain expended uses when you finish a long rest."
+      ],
+      "grant": {
+        "resources": [
+          {
+            "id": "cleansing-touch",
+            "name": "Cleansing Touch",
+            "max": "mod1.cha",
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "cleansing-touch",
+            "name": "Cleansing Touch",
+            "economy": "action",
+            "cost": {
+              "resource": "cleansing-touch"
+            },
+            "toggles": [],
+            "note": "End one spell on you or on a willing creature you touch. On you: remove its tag."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:purity-of-spirit",
+      "name": "Purity of Spirit",
+      "summary": "Always under Protection from Evil and Good (shown as a tag).",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "Beginning at 15th level, you are always under the effects of a protection from evil and good spell."
+      ],
+      "grant": {}
+    },
+    {
+      "kind": "feature",
+      "id": "feature:thiefs-reflexes",
+      "name": "Thief's Reflexes",
+      "summary": "In the first round of a combat you take two turns: one at your initiative, one at your initiative minus 10 (not when surprised).",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "When you reach 17th level, you have become adept at laying ambushes and quickly escaping danger. You can take two turns during the first round of any combat. You take your first turn at your normal initiative and your second turn at your initiative minus 10. You can't use this feature when you are surprised."
+      ],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.initiative",
+            "op": "note",
+            "label": "Thief's Reflexes: a second turn in the first round, at this total minus 10 (not when surprised)."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:divine-intervention",
+      "name": "Divine Intervention",
+      "summary": "Beginning at 10th level, you can call on your deity to intervene on your behalf when your need is great.",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "Beginning at 10th level, you can call on your deity to intervene on your behalf when your need is great.",
+        "Imploring your deity's aid requires you to use your action. Describe the assistance you seek, and roll percentile dice. If you roll a number equal to or lower than your cleric level, your deity intervenes. The GM chooses the nature of the intervention; the effect of any cleric spell or cleric domain spell would be appropriate.",
+        "If your deity intervenes, you can't use this feature again for 7 days. Otherwise, you can use it again after you finish a long rest.",
+        "At 20th level, your call for intervention succeeds automatically, no roll required."
+      ],
+      "grant": {
+        "actions": [
+          {
+            "id": "divine-intervention",
+            "name": "Divine Intervention",
+            "economy": "action",
+            "toggles": [],
+            "maxLevel": 19,
+            "levelOf": "class:cleric",
+            "roll": {
+              "dice": "1d100",
+              "label": "your cleric level or lower: your deity intervenes"
+            },
+            "note": "Call on your deity: roll d100, and if it's your cleric level or lower, the DM chooses how it helps. On a success, not again for 7 days; otherwise after a long rest."
+          }
+        ]
+      }
     }
   ]
 }

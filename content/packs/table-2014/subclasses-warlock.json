@@ -1360,7 +1360,7 @@
       "kind": "feature",
       "id": "feature:genie-elemental-gift",
       "name": "Elemental Gift",
-      "summary": "Resistance to your genie's damage type (bludgeoning, thunder, fire or cold). Proficiency bonus times per long rest, a bonus action gives you a 30-foot flying speed (you can hover) for 10 minutes.",
+      "summary": "Resistance to your genie kind's damage type (bludgeoning, thunder, fire or cold: applied from the kind you picked). Proficiency bonus times per long rest, a bonus action gives you a 30-foot flying speed (you can hover) for 10 minutes.",
       "source": {
         "pack": "table-2014",
         "book": "TCoE",
@@ -1502,7 +1502,7 @@
       "kind": "feature",
       "id": "feature:genie-kind-dao",
       "name": "Genie kind: Dao (earth)",
-      "summary": "Your patron is a dao: Sanctuary, Spike Growth, Meld Into Stone, Stone Shape, Wall Of Stone join your warlock list. Genie's Wrath deals bludgeoning damage.",
+      "summary": "Your patron is a dao: Sanctuary, Spike Growth, Meld Into Stone, Stone Shape, Wall Of Stone join your warlock list. Genie's Wrath deals bludgeoning damage; from 6th level, Elemental Gift gives resistance to bludgeoning damage.",
       "source": {
         "pack": "table-2014",
         "book": "TCoE",
@@ -1532,6 +1532,17 @@
               "text": "once per turn, when you hit with an attack roll"
             },
             "damageType": "bludgeoning"
+          },
+          {
+            "selector": "defense.resist.bludgeoning",
+            "op": "resist",
+            "label": "Elemental Gift",
+            "when": {
+              "classLevel": {
+                "class": "class:warlock",
+                "min": 6
+              }
+            }
           }
         ]
       }
@@ -1540,7 +1551,7 @@
       "kind": "feature",
       "id": "feature:genie-kind-djinni",
       "name": "Genie kind: Djinni (air)",
-      "summary": "Your patron is a djinni: Thunderwave, Gust Of Wind, Wind Wall, Greater Invisibility, Seeming join your warlock list. Genie's Wrath deals thunder damage.",
+      "summary": "Your patron is a djinni: Thunderwave, Gust Of Wind, Wind Wall, Greater Invisibility, Seeming join your warlock list. Genie's Wrath deals thunder damage; from 6th level, Elemental Gift gives resistance to thunder damage.",
       "source": {
         "pack": "table-2014",
         "book": "TCoE",
@@ -1570,6 +1581,17 @@
               "text": "once per turn, when you hit with an attack roll"
             },
             "damageType": "thunder"
+          },
+          {
+            "selector": "defense.resist.thunder",
+            "op": "resist",
+            "label": "Elemental Gift",
+            "when": {
+              "classLevel": {
+                "class": "class:warlock",
+                "min": 6
+              }
+            }
           }
         ]
       }
@@ -1578,7 +1600,7 @@
       "kind": "feature",
       "id": "feature:genie-kind-efreeti",
       "name": "Genie kind: Efreeti (fire)",
-      "summary": "Your patron is a efreeti: Burning Hands, Scorching Ray, Fireball, Fire Shield, Flame Strike join your warlock list. Genie's Wrath deals fire damage.",
+      "summary": "Your patron is a efreeti: Burning Hands, Scorching Ray, Fireball, Fire Shield, Flame Strike join your warlock list. Genie's Wrath deals fire damage; from 6th level, Elemental Gift gives resistance to fire damage.",
       "source": {
         "pack": "table-2014",
         "book": "TCoE",
@@ -1608,6 +1630,17 @@
               "text": "once per turn, when you hit with an attack roll"
             },
             "damageType": "fire"
+          },
+          {
+            "selector": "defense.resist.fire",
+            "op": "resist",
+            "label": "Elemental Gift",
+            "when": {
+              "classLevel": {
+                "class": "class:warlock",
+                "min": 6
+              }
+            }
           }
         ]
       }
@@ -1616,7 +1649,7 @@
       "kind": "feature",
       "id": "feature:genie-kind-marid",
       "name": "Genie kind: Marid (water)",
-      "summary": "Your patron is a marid: Fog Cloud, Blur, Sleet Storm, Control Water, Cone Of Cold join your warlock list. Genie's Wrath deals cold damage.",
+      "summary": "Your patron is a marid: Fog Cloud, Blur, Sleet Storm, Control Water, Cone Of Cold join your warlock list. Genie's Wrath deals cold damage; from 6th level, Elemental Gift gives resistance to cold damage.",
       "source": {
         "pack": "table-2014",
         "book": "TCoE",
@@ -1646,6 +1679,17 @@
               "text": "once per turn, when you hit with an attack roll"
             },
             "damageType": "cold"
+          },
+          {
+            "selector": "defense.resist.cold",
+            "op": "resist",
+            "label": "Elemental Gift",
+            "when": {
+              "classLevel": {
+                "class": "class:warlock",
+                "min": 6
+              }
+            }
           }
         ]
       }

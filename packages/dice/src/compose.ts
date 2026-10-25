@@ -30,6 +30,8 @@ export interface ComposerBase {
   }[];
   critAt?: number;
   minD20?: number;
+  /** A total below this counts as this (Indomitable Might: the Strength score). */
+  minTotal?: { value: number; label: string };
   /** Sources that make the roll fail automatically; the composer warns but still lets you roll. */
   autoFail?: string[];
   /** Reminders shown with the roll. */
@@ -66,8 +68,10 @@ export interface Composed {
   disadvantageFrom: string[];
   /** Damage parts the target saves against (by their source label): a poison sting's DC 11 Constitution save, half on a success. */
   saves?: { source: string; dc: number; ability: string; half: boolean }[];
-  /** The total can't go below this (dice taken away, Diminution's -1d4: at least 1 damage). */
+  /** The total can't go below this (dice taken away, Diminution's -1d4: at least 1 damage; Indomitable Might). */
   minTotal?: number;
+  /** Why, when it isn't a damage floor (Indomitable Might). */
+  minTotalLabel?: string;
 }
 
 /** Adds every term of a dice expression ("3d4+3"); dice terms get the damage type as their label. */
@@ -116,6 +120,10 @@ export function composeD20(base: ComposerBase, choices: ComposerChoices = noChoi
     for (const d of s.apply.dice) pushDice(out, d, s.label);
   }
   pushFlat(out, choices.extra, "Added by hand");
+  if (base.minTotal) {
+    out.minTotal = base.minTotal.value;
+    out.minTotalLabel = base.minTotal.label;
+  }
   return out;
 }
 

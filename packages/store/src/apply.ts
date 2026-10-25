@@ -1065,6 +1065,15 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         if (kind === "long") delete c.extraCasts[k];
         else c.extraCasts[k] = { ...n, short: 0 };
       }
+      // Sorcerous Restoration: some uses back at the end of a short rest (a long rest restores them all anyway).
+      if (kind === "short")
+        for (const g of sheet.shortRestRegains) {
+          const r = sheet.resources.find((x) => x.id === g.resource);
+          if (!r || r.used <= 0 || r.reset === "short") continue;
+          const back = Math.min(g.amount, r.used);
+          c.resourcesUsed[r.id] = r.used - back;
+          notes.push(`${g.from}: ${back} ${r.name} back.`);
+        }
       const resets = kind === "short" ? ["short"] : ["short", "long", "dawn"];
       const restored = sheet.resources.filter((r) => resets.includes(r.reset) && r.used > 0).map((r) => r.name);
       for (const r of sheet.resources) if (resets.includes(r.reset)) delete c.resourcesUsed[r.id];
@@ -1203,6 +1212,21 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         if (cb?.usedThisTurn.includes(a.id)) notes.push("Rapid Strike was already used this turn. Done anyway.");
         if (cb && cb.attacks > 0) cb.attacks -= 1;
         notes.push("Give up advantage on one attack: one more attack with this Attack action.");
+      }
+      // Eldritch Master: every Pact Magic slot back.
+      if (a.restoresPactSlots) {
+        notes.push(c.pactSlotsUsed > 0 ? `${a.name}: ${c.pactSlotsUsed} Pact Magic slot${c.pactSlotsUsed === 1 ? "" : "s"} back.` : `${a.name}: no Pact Magic slot was spent.`);
+        c.pactSlotsUsed = 0;
+      }
+      // Stillness of Mind: ends one effect that charms or frightens you (the one picked, or the first there is).
+      if (a.endsConditions?.length) {
+        const picked = op.payload.choice ? `condition:${op.payload.choice.toLowerCase()}` : undefined;
+        const ends = picked && a.endsConditions.includes(picked) ? [picked] : a.endsConditions;
+        const one = c.effects.find((e) => ends.includes(e.effect));
+        if (one) {
+          removeEffects([one]);
+          notes.push(`${a.name}: ${effectName(one)} ended.`);
+        } else notes.push(`${a.name}: you aren't ${ends.map((x) => x.replace(/^condition:/, "")).join(" or ")}; nothing ended.`);
       }
       if (a.restores) {
         const target = sheet.resources.find((r) => r.id === a.restores!.resource);
@@ -1807,6 +1831,9 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
           notes.push(`${g.from}: ${Math.min(g.amount, r.used)} ${r.name} back.`);
         }
       }
+      // Thief's Reflexes: a second turn in the first round, 10 lower (not when surprised).
+      if (c.combat.round <= 1 && sheet.features.some((f) => f.id === "feature:thiefs-reflexes"))
+        notes.push(`Thief's Reflexes: you also take a turn at initiative ${op.payload.value - 10} in the first round, unless you're surprised.`);
       c.combat.initiative = op.payload.value;
       break;
     }
@@ -1849,7 +1876,12 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         if (conc.rounds <= 0) endConcentration(c, notes, `${conc.name} has run its course.`);
       }
       if (c.combat) c.combat.myTurn = false;
-      if (c.toggles.includes("raging")) notes.push("Still raging? It ends if you didn't attack a hostile creature or take damage since your last turn.");
+      if (c.toggles.includes("raging"))
+        notes.push(
+          sheet.features.some((f) => f.id === "feature:persistent-rage")
+            ? "Persistent Rage: your rage ends early only if you fall unconscious or choose to end it."
+            : "Still raging? It ends if you didn't attack a hostile creature or take damage since your last turn.",
+        );
       break;
     }
 
