@@ -15,7 +15,9 @@ import {
   diceToRoll,
   formatFormula,
   physicalDamageTotal,
+  rerollDie,
   rollComposed,
+  secureRng,
   sourcesMode,
   type ComposerBase,
   type ComposerChoices,
@@ -393,6 +395,9 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
   }));
   /** The last damage or healing rolled, for its maximum (Beacon of Hope on a target). */
   const lastDamage = useRef<Composed | undefined>(undefined);
+  /** The damage just rolled die by die (not typed in as one total), for Piercer's reroll of one die. */
+  const lastDamageRoll = useRef<ComposedRoll | undefined>(undefined);
+  const [rerolledOne, setRerolledOne] = useState(false);
   const [stage, setStage] = useState<Stage>(damageOnly ? { step: "damage-setup", crit: false } : { step: "setup" });
   const [entering, setEntering] = useState(false);
 
@@ -529,6 +534,8 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
     const label = `${attack!.name} ${healing ? "healing" : "damage"}${stage.crit ? " (critical)" : ""}`;
     const result = done ?? rollComposed(damage);
     lastDamage.current = damage;
+    lastDamageRoll.current = diceTotal === undefined ? result : undefined;
+    setRerolledOne(false);
     const rec =
       diceTotal === undefined
         ? recordOf(label, "damage", result)
@@ -906,7 +913,7 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
             </button>
           )
         ) : (
-          <button className="big primary wide" disabled={throwing} onClick={() => (throwing3d ? throwThen(damage, (r, t) => rollDamage(undefined, r, t), stage.crit ? { strong: true } : undefined) : rollDamage())}>
+          <button className="big primary wide" disabled={throwing} onClick={() => (throwing3d ? throwThen(damage, (r, t) => rollDamage(undefined, r, t), stage.crit ? { strong: true, crit: true } : undefined) : rollDamage())}>
             {throwing ? "Throwing…" : throwing3d ? (healing ? "Throw the healing dice" : "Throw the damage dice") : healing ? "Roll healing" : "Roll damage"}
           </button>
         )}
@@ -924,6 +931,22 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
       <>
         <ResultView r={stage.record} />
         {throwNote && <p className="note">{throwNote}</p>}
+        {!healing && attack?.damage.bonus.rerollOne && !rerolledOne && (
+          <RerollOne
+            what={attack.damage.bonus.rerollOne}
+            roll={lastDamageRoll.current}
+            total={stage.record.total}
+            onDone={(next, detail) => {
+              setRerolledOne(true);
+              const rec: RollRecord = next
+                ? { ...recordOf(`${stage.record.title}, ${attack.damage.bonus.rerollOne!.label}: one die again`, "damage", next), ...(stage.record.thrown ? { thrown: true } : {}) }
+                : { ...stage.record, id: crypto.randomUUID(), at: Date.now(), title: `${stage.record.title}, ${attack.damage.bonus.rerollOne!.label}: one die again`, total: detail!.total, lines: [...stage.record.lines, { source: `${attack.damage.bonus.rerollOne!.label}: a ${detail!.from} rolled again`, detail: `${detail!.from}→${detail!.to}`, total: detail!.to - detail!.from }] };
+              if (stage.record.options) rec.options = stage.record.options;
+              onRolled(rec);
+              setStage({ ...stage, record: rec });
+            }}
+          />
+        )}
         {healing && healTargets && (
           <HealTargets
             targets={healTargets.targets}
@@ -948,6 +971,57 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
   }
 
   return null;
+}
+
+/**
+ * Piercer: after the damage, pick one die and roll it again; the new face counts and the
+ * total follows. Dice rolled by the app (or thrown): tap the die. Your own dice typed in as
+ * one total: what the die showed and what it shows now.
+ */
+function RerollOne({ what, roll, total, onDone }: { what: { label: string; oncePerTurn?: boolean }; roll: ComposedRoll | undefined; total: number; onDone: (next: ComposedRoll | undefined, typed?: { from: number; to: number; total: number }) => void }) {
+  const [open, setOpen] = useState(false);
+  const [from, setFrom] = useState<number | undefined>();
+  const [to, setTo] = useState("");
+  const dice = roll
+    ? roll.result.terms.flatMap((t, ti) => (t.term.kind === "dice" && t.term.sign > 0 ? t.dice.map((d, di) => ({ ti, di, sides: (t.term as { sides: number }).sides, face: d.value, source: roll.composed.sources[ti] ?? "", dropped: d.dropped })) : [])).filter((d) => !d.dropped)
+    : [];
+  if (!open)
+    return (
+      <button className="big wide" onClick={() => setOpen(true)}>
+        {what.label}: roll one damage die again{what.oncePerTurn ? " (once per turn)" : ""}
+      </button>
+    );
+  if (roll)
+    return (
+      <div className="group reroll-one">
+        <p className="note">Which die? The new roll counts, even if it's lower.</p>
+        <div className="keys" style={{ gridTemplateColumns: "repeat(4, 1fr)" }}>
+          {dice.map((d) => (
+            <button key={`${d.ti}-${d.di}`} className="key" title={d.source} onClick={() => onDone(rerollDie(roll, d.ti, d.di, secureRng(d.sides)))}>
+              {d.face}
+              <small> d{d.sides}</small>
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  const n = Number(to);
+  return (
+    <div className="group reroll-one">
+      <p className="note">Roll one of your damage dice again. What did it show, and what does it show now?</p>
+      <div className="keys" style={{ gridTemplateColumns: "repeat(6, 1fr)" }}>
+        {Array.from({ length: 12 }, (_, i) => (
+          <button key={i} className={`key${from === i + 1 ? " on" : ""}`} aria-pressed={from === i + 1} onClick={() => setFrom(i + 1)}>
+            {i + 1}
+          </button>
+        ))}
+      </div>
+      <input className="search" inputMode="numeric" placeholder="It shows now" value={to} onChange={(e) => setTo(e.target.value.replace(/\D/g, ""))} aria-label="The new face" />
+      <button className="big primary wide" disabled={from === undefined || !n} onClick={() => onDone(undefined, { from: from!, to: n, total: total - from! + n })}>
+        New total: {from !== undefined && n ? total - from + n : "…"}
+      </button>
+    </div>
+  );
 }
 
 const BEACON = "Beacon of Hope";

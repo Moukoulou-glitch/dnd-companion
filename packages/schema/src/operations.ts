@@ -402,6 +402,8 @@ export const OPERATION_PAYLOADS = {
   removeCustomCompanion: z.object({ id: z.string() }).strict(),
   /** Proficiency bonus raised or lowered by hand. */
   setPbAdjust: z.object({ bonus: z.number().int().min(0).max(10).optional(), penalty: z.number().int().min(0).max(10).optional(), note: z.string().max(80).optional() }).strict(),
+  /** Critical range set by hand: a critical hit on `at`–20 on every attack roll (20: back to normal). */
+  setCritAdjust: z.object({ at: z.number().int().min(2).max(20).optional(), note: z.string().max(80).optional() }).strict(),
   /** A recharge action (Recharge 5–6) used, or back after its d6: on your form, or on a summoned creature. */
   recharge: z.object({ summon: z.string().optional(), name: z.string(), used: z.boolean() }).strict(),
   /** Personality, backstory and the session number. */
@@ -581,6 +583,7 @@ export const Operation = z.discriminatedUnion("type", [
   OperationBase.extend({ type: z.literal("setDefense"), payload: OPERATION_PAYLOADS.setDefense }),
   OperationBase.extend({ type: z.literal("recharge"), payload: OPERATION_PAYLOADS.recharge }),
   OperationBase.extend({ type: z.literal("setPbAdjust"), payload: OPERATION_PAYLOADS.setPbAdjust }),
+  OperationBase.extend({ type: z.literal("setCritAdjust"), payload: OPERATION_PAYLOADS.setCritAdjust }),
   OperationBase.extend({ type: z.literal("setCustomAction"), payload: OPERATION_PAYLOADS.setCustomAction }),
   OperationBase.extend({ type: z.literal("removeCustomAction"), payload: OPERATION_PAYLOADS.removeCustomAction }),
   OperationBase.extend({ type: z.literal("setCustomSpell"), payload: OPERATION_PAYLOADS.setCustomSpell }),

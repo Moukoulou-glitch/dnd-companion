@@ -82,6 +82,8 @@ export const ModifierOp = z.enum([
   "minD20",
   /** Reroll dice at or below `value` once (Great Weapon Fighting, Halfling Lucky). */
   "reroll",
+  /** After the damage roll, pick one damage die and roll it again; the new roll counts (Piercer). */
+  "rerollOneDie",
   /** Damage dice deal their maximum (Overchannel), as a tick-box. */
   "maximize",
   /** Critical hit range starts at `value` (Champion: 19). */

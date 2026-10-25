@@ -101,7 +101,7 @@ export function FeaturePanel({
           total += roll(d).total;
           continue;
         }
-        const faces = await facesOrRoll(Number(m[1] || 1), Number(m[2]), true, beacon ? { source: "Beacon of Hope" } : { source: a.name, keys: a.cost ? [`resource:${a.cost.resource}`] : [] });
+        const faces = await facesOrRoll(Number(m[1] || 1), Number(m[2]), true, beacon ? { source: "Beacon of Hope", max: true } : { source: a.name, keys: a.cost ? [`resource:${a.cost.resource}`] : [] });
         // Beacon of Hope: each die counts as its maximum.
         total += beacon ? faces.length * Number(m[2]) : faces.reduce((x, f) => x + f, 0);
       }
@@ -339,7 +339,7 @@ function SlotHeal({ a, slots, physical, beacon, onDone }: { a: ActionResult; slo
     if (physical) return onDone(level, Number(entry));
     setBusy(true);
     try {
-      const faces = await facesOrRoll(level, sides, true, beacon ? { source: "Beacon of Hope" } : { source: a.name, keys: [] });
+      const faces = await facesOrRoll(level, sides, true, beacon ? { source: "Beacon of Hope", max: true } : { source: a.name, keys: [] });
       onDone(level, beacon ? level * sides : faces.reduce((x, f) => x + f, 0));
     } finally {
       setBusy(false);

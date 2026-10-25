@@ -36,7 +36,7 @@ export interface Box {
 
 /** What the result strip and the effects hear about a throw. */
 export type DiceEvent =
-  | { type: "start"; dice: { sides: number; look?: DieLook }[]; strong: boolean; mode: DiceMode }
+  | { type: "start"; dice: { sides: number; look?: DieLook }[]; strong: boolean; crit?: boolean; mode: DiceMode }
   | { type: "die"; index: number; value: number }
   | { type: "end" }
   | { type: "skip" };
@@ -113,18 +113,20 @@ export function createThrower(getBox: () => Promise<Box>, opts: { container?: ()
     opts.container?.()?.classList.add("on");
     box.show();
     const dice = sides.map((s, i) => ({ sides: s, i, look: looks?.[i] }));
-    emit({ type: "start", dice: dice.map((d) => ({ sides: d.sides, ...(d.look ? { look: d.look } : {}) })), strong, mode });
+    emit({ type: "start", dice: dice.map((d) => ({ sides: d.sides, ...(d.look ? { look: d.look } : {}) })), strong, ...(options?.crit ? { crit: true } : {}), mode });
     const faces: number[] = [];
     try {
       for (const [n, batch] of batches(dice, (d) => d.look?.id ?? d.look?.color).entries()) {
         // A big roll's later batches fall faster, so the whole roll doesn't drag.
         box.updateConfig?.({ ...physicsFor(n > 0 && mode === "full" ? "fast" : mode, strong && n === 0), enableShadows: mode === "full" });
         onDie = (d) => {
-          const die = typeof d.data === "number" ? batch[d.data] : undefined;
+          const k = typeof d.data === "number" ? d.data : typeof d.data === "object" && d.data && "i" in d.data ? (d.data as { i: number }).i : undefined;
+          const die = k !== undefined ? batch[k] : undefined;
           if (die) emit({ type: "die", index: die.i, value: d.value === 0 && die.sides === 10 ? 10 : d.value });
         };
         // Each die its own group, tagged with its place in this batch (dice-box hands the tag back as each one settles).
-        const rolled = box.roll(batch.map((d, k) => ({ qty: 1, sides: d.sides, data: k, ...(d.look ? { themeColor: d.look.color, theme: d.look.theme } : {}) })));
+        // A die told what to show (Beacon of Hope's maximum) carries it to the patched dice world, which turns it to that face.
+        const rolled = box.roll(batch.map((d, k) => ({ qty: 1, sides: d.sides, data: options?.wants?.[d.i] ? { i: k, want: options.wants[d.i] } : k, ...(d.look ? { themeColor: d.look.color, theme: d.look.theme } : {}) })));
         const rolls = await Promise.race([withTimeout(rolled, 12000, "the throw"), skip]);
         // One group per die asked for, in order.
         faces.push(...[...rolls].sort((a, b) => a.groupId - b.groupId || a.rollId - b.rollId).map((r) => r.value));

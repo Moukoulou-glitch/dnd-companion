@@ -389,6 +389,8 @@ export interface DerivedSheet {
   };
   /** How the proficiency bonus adds up (level, and changes by hand). */
   proficiencyBreakdown: Breakdown;
+  /** Where critical hits start on attack rolls (20 normally), and what widens it (Improved Critical, set by hand). */
+  critRange: { at: number; from: { label: string; at: number }[] };
   /** Fly, swim and climb speeds the character has now. */
   speeds: SpeedResult[];
   hpMax: Breakdown;
@@ -872,8 +874,14 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     const autoFail: string[] = [];
     const notes: string[] = [];
     let minTotal: { value: number; label: string } | undefined;
+    let rerollOne: RollBreakdown["rerollOne"];
     for (const a of modsFor(keys, itemInstanceId)) {
       const { mod } = a;
+      // Piercer: after the damage roll, one die rolled again.
+      if (mod.op === "rerollOneDie") {
+        if (conditionState(mod.when) !== "fail") rerollOne = { label: labelOf(a), ...(mod.oncePerTurn ? { oncePerTurn: true } : {}) };
+        continue;
+      }
       if (mod.op === "autoFail") {
         if (conditionState(mod.when) === "pass") autoFail.push(labelOf(a));
         continue;
@@ -971,7 +979,14 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     if ((c.inspirations ?? 0) > 0 && keys.some((k) => /^roll\.(attack|save|check|initiative)/.test(k)) && !keys.some((k) => /^roll\.damage/.test(k)))
       suggestions.push({ label: "Inspiration", effect: "advantage", reason: `${c.inspirations} on hand; one is spent`, apply: { flat: 0, dice: [], mode: "advantage" } });
     const result: RollBreakdown = { ...sum(parts), dice, advantage, disadvantage, suggestions };
+    // Critical range set by hand (Sheet): on every attack roll, unless a feature already gives more.
+    const handCrit = c.critAdjust?.at;
+    if (handCrit !== undefined && handCrit < 20 && keys.some((k) => k.startsWith("roll.attack.")) && handCrit < (critAt ?? 20)) {
+      critAt = handCrit;
+      notes.push(`Critical hit on ${handCrit}–20, set by hand${c.critAdjust?.note ? ` (${c.critAdjust.note})` : ""}.`);
+    }
     if (critAt !== undefined && critAt < 20) result.critAt = critAt;
+    if (rerollOne) result.rerollOne = rerollOne;
     if (minD20 !== undefined && minD20 > 1) result.minD20 = minD20;
     if (autoFail.length) result.autoFail = autoFail;
     if (notes.length) result.notes = notes;
@@ -1362,7 +1377,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
           reason: sh.flag,
           apply: { flat, dice: [], ...(weaponDice ? { weaponDice } : {}) },
         });
-        entry.attack.suggestions.push(sg(sh.diff));
+        entry.attack.suggestions.push({ ...sg(sh.diff), ...(elvenAccuracy && sh.ability !== "str" && ability === "str" ? { apply: { ...sg(sh.diff).apply, tripleAdvantage: "Elven Accuracy" } } : {}) });
         entry.damage.bonus.suggestions.push(sg(offHandAbility || sh.diff === 0 ? sh.diff : 0, /^1d\d+$/.test(w.damage) ? "1d8" : undefined));
         entry.note = /^Not/.test(sh.flag) ? "Shillelagh: not a club or quarterstaff" : "Shillelagh: tick it on the roll";
       }
@@ -1376,7 +1391,9 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
           reason: `your hex weapon${pactBlade ? " or pact weapon" : ""}: Charisma instead of ${ABILITY_NAMES[ability]}${w.properties.includes("two-handed") ? " (two-handed: only as your pact weapon)" : ""}`,
           apply: { flat, dice: [] },
         });
-        entry.attack.suggestions.push(sg(diff));
+        const atk = sg(diff);
+        if (elvenAccuracy && ability === "str") atk.apply.tripleAdvantage = "Elven Accuracy";
+        entry.attack.suggestions.push(atk);
         entry.damage.bonus.suggestions.push(sg(offHandAbility ? diff : 0));
       }
       attacks.push(entry);
@@ -2088,6 +2105,13 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     level,
     proficiencyBonus: pb,
     proficiencyBreakdown: pbBreakdown,
+    critRange: (() => {
+      const from: { label: string; at: number }[] = [];
+      for (const a of modsFor(["roll.attack.weapon.melee", "roll.attack.weapon.ranged", "roll.attack.spell.melee", "roll.attack.spell.ranged"]))
+        if (a.mod.op === "critRange" && a.mod.mode !== "suggested" && conditionState(a.mod.when) === "pass" && !from.some((f) => f.label === labelOf(a))) from.push({ label: labelOf(a), at: flatOf(a) });
+      if (c.critAdjust && c.critAdjust.at < 20) from.push({ label: `Set by hand${c.critAdjust.note ? ` (${c.critAdjust.note})` : ""}`, at: c.critAdjust.at });
+      return { at: Math.min(20, ...from.map((f) => f.at)), from };
+    })(),
     abilities,
     saves,
     skills,

@@ -47,6 +47,7 @@ export function SheetTab({
   openExtra,
   openAdjust,
   openPb,
+  openCrit,
   openDefenses,
   onOptional,
   onOptionalAll,
@@ -69,6 +70,8 @@ export function SheetTab({
   openAdjust: (kind: "save" | "skill" | "passive") => void;
   /** The proficiency bonus, and changing it by hand. */
   openPb: () => void;
+  /** The critical hit range, and setting it by hand. */
+  openCrit: () => void;
   /** Resistances, immunities and vulnerabilities by hand. */
   openDefenses: () => void;
   /** Turn a Tasha's optional class feature on or off. */
@@ -101,6 +104,10 @@ export function SheetTab({
               <button className={`row pb-row${character.pbAdjust?.bonus || character.pbAdjust?.penalty ? " adjusted" : ""}`} onClick={openPb}>
           <div className="row-main row-title">Proficiency bonus</div>
           <span className="num">{signed(sheet.proficiencyBonus)}</span>
+        </button>
+        <button className={`row crit-row${character.critAdjust ? " adjusted" : ""}`} onClick={openCrit}>
+          <div className="row-main row-title">Critical hit</div>
+          <span className="num">{sheet.critRange.at < 20 ? `${sheet.critRange.at}–20` : "20"}</span>
         </button>
       </section>
 

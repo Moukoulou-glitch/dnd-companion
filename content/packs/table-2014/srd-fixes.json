@@ -3366,7 +3366,7 @@
             "label": "Countercharm",
             "when": {
               "toggle": "countercharm",
-              "text": "a save against being frightened or charmed"
+              "text": "Is this save against being charmed or frightened? Tick it for advantage (you, and friends within 30 ft who hear you)"
             }
           }
         ]

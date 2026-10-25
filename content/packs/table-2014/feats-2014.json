@@ -1221,8 +1221,9 @@
         "modifiers": [
           {
             "selector": "roll.damage.weapon.type.piercing",
-            "op": "note",
-            "label": "Piercer: once per turn, reroll one damage die and use the new roll."
+            "op": "rerollOneDie",
+            "label": "Piercer",
+            "oncePerTurn": true
           },
           {
             "selector": "roll.damage.weapon.type.piercing",

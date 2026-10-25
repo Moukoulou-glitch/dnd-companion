@@ -2152,6 +2152,16 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         notes.push("That effect isn't on it.");
         break;
       }
+      // Its spell level changed (Aid cast at 3rd, not 2nd): the hit points it gives follow, current ones too.
+      if (op.payload.slotLevel !== undefined) {
+        const base = def?.upcast?.baseLevel ?? 1;
+        const gain = (lv: number) => (def?.modifiers ?? []).reduce((n, m) => n + (m.selector === "stat.hp.max" && m.op === "add" && m.value !== undefined ? evalFlatSafe(m.value, { pb: 2, mods: { str: 0, dex: 0, con: 0, int: 0, wis: 0, cha: 0 }, level: 1, classLevels: {}, slotLevel: lv }) : 0), 0);
+        const diff = gain(op.payload.slotLevel) - gain(target.slotLevel ?? base);
+        target.slotLevel = op.payload.slotLevel;
+        if (st.hp && diff) st.hp.current = Math.max(0, st.hp.current + diff);
+        notes.push(`${def?.name ?? "It"} on ${comp.name}: cast at level ${op.payload.slotLevel}.`);
+        break;
+      }
       if (op.payload.rounds !== undefined) {
         // Its rounds changed (null: no timer); 0 ends it.
         if (op.payload.rounds === null) delete target.rounds;
@@ -2633,6 +2643,16 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       }
       c.optionalOff = [...off];
       if (!on) notes.push("Its picks are kept in case you turn it back on.");
+      break;
+    }
+
+    case "setCritAdjust": {
+      const { at, note } = op.payload;
+      const cur = c.critAdjust ?? { at: 20 };
+      const next = { at: at ?? cur.at, ...((note ?? cur.note) ? { note: note ?? cur.note } : {}) };
+      if (note === "") delete next.note;
+      if (next.at >= 20 && !next.note) delete c.critAdjust;
+      else c.critAdjust = next;
       break;
     }
 

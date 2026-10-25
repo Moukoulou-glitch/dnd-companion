@@ -81,3 +81,19 @@ describe("3D dice: the thrown faces are the roll, the engine does the rest", () 
     expect(a).toBe(b);
   });
 });
+
+describe("13c fixes: maximised dice are thrown with the face they turn to", () => {
+  it("Beacon of Hope's dice ask for their maximum; others don't", async () => {
+    const asked: (number | undefined)[][] = [];
+    const toss: Thrower = async (sides, _looks, options) => {
+      asked.push(options?.wants ?? []);
+      return sides.map((s) => options?.wants?.[0] ?? s - 1);
+    };
+    const max = { terms: parseFormula("2d8+3").map((t) => (t.kind === "dice" ? { ...t, min: 8 } : t)), sources: [] } as unknown as Composed;
+    const r = await rollThrown(max, toss);
+    expect(asked[0]).toEqual([8, 8]);
+    expect(r.result.total).toBe(19);
+    await rollThrown(c("2d8+3"), toss);
+    expect(asked[1]).toEqual([]);
+  });
+});

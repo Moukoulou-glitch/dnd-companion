@@ -268,6 +268,50 @@ export function SummonMaxHp({ member, reg, act }: { member: Character["summons"]
   );
 }
 
+/** The critical hit range on attack rolls: what widens it, and setting it by hand (a boon, a homebrew item). */
+export function CritPanel({ character, sheet, act }: { character: Character; sheet: DerivedSheet; act: Act }) {
+  const at = character.critAdjust?.at ?? 20;
+  const [note, setNote] = useState(character.critAdjust?.note ?? "");
+  const set = (n: number) => act("setCritAdjust", { at: n }, n < 20 ? `Critical hits on ${n}–20, by hand.` : "Critical range by hand cleared.");
+  return (
+    <>
+      <p className="note">
+        Your attack rolls are critical hits on a natural {sheet.critRange.at < 20 ? `${sheet.critRange.at}–20` : "20"}.
+        {sheet.critRange.from.length ? "" : " Nothing widens it now."}
+      </p>
+      {sheet.critRange.from.length > 0 && (
+        <div className="group">
+          {sheet.critRange.from.map((f) => (
+            <div className="row" key={f.label}>
+              <div className="row-main row-title">{f.label}</div>
+              <span className="num">{f.at}–20</span>
+            </div>
+          ))}
+        </div>
+      )}
+      <h2 className="sub-head">Set it by hand</h2>
+      <p className="note">A critical hit from this natural roll up, on every attack. When a feature gives more (Superior Critical: 18), the feature's counts.</p>
+      <div className="group">
+        <NumberStep label="Critical hit on" sub={at < 20 ? `${at}–20` : "20 only (normal)"} value={at} min={2} max={20} onChange={set} />
+      </div>
+      <input
+        className="search"
+        placeholder="Why (a boon, a magic item…)"
+        value={note}
+        maxLength={80}
+        onChange={(e) => setNote(e.target.value)}
+        onBlur={() => note !== (character.critAdjust?.note ?? "") && act("setCritAdjust", { note }, note ? `Why: ${note}.` : "Reason cleared.")}
+        aria-label="Why"
+      />
+      {at < 20 && (
+        <button className="link" onClick={() => act("setCritAdjust", { at: 20, note: "" }, "Back to a critical hit on a 20.")}>
+          Back to normal
+        </button>
+      )}
+    </>
+  );
+}
+
 /** The proficiency bonus: how it adds up, and a bonus or penalty by hand with why. */
 export function PbPanel({ character, sheet, act }: { character: Character; sheet: DerivedSheet; act: Act }) {
   const adj = character.pbAdjust ?? { bonus: 0, penalty: 0 };

@@ -46,7 +46,7 @@ import { HealerPanel } from "./components/Healer";
 import { BackstoryTab } from "./components/BackstoryTab";
 import { CUSTOM_BG, CustomBackgroundWizard } from "./components/CustomBackground";
 import { HpPad } from "./components/HpPad";
-import { PbPanel, AbilityAdjustPanel, MaxHpPanel, SummonMaxHp } from "./components/Adjust";
+import { PbPanel, CritPanel, AbilityAdjustPanel, MaxHpPanel, SummonMaxHp } from "./components/Adjust";
 import { DamageReducePanel } from "./components/Monk";
 import { BackgroundPicker } from "./components/BackgroundPicker";
 import { AddExtraPanel, ExtraEditor, ExtraInline, skillExtra } from "./components/Extras";
@@ -646,7 +646,7 @@ export function App() {
               </button>
             ))}
           </div>
-          <button className="big" style={{ width: "100%", marginTop: 10 }} onClick={() => void rollOrThrow(`1d${songSides}`, true, undefined, { source: "Song of Rest" }).then((r) => heal(r.total))}>
+          <button className="big" style={{ width: "100%", marginTop: 10 }} onClick={() => void rollOrThrow(`1d${songSides}`, true, undefined, { source: "Song of Rest", ...(beacon ? { max: true } : {}) }).then((r) => heal(r.total))}>
             Roll for me
           </button>
         </>,
@@ -659,7 +659,7 @@ export function App() {
         songSides={songSides}
         beacon={beacon}
         onSpend={spend}
-        onRoll={(withSong) => void rollOrThrow(`1d${sides}`, true, undefined, { source: beacon === "Beacon of Hope" ? "Beacon of Hope" : "Hit Die" }).then((r) => spend(r.total, withSong))}
+        onRoll={(withSong) => void rollOrThrow(`1d${sides}`, true, undefined, { source: beacon === "Beacon of Hope" ? "Beacon of Hope" : "Hit Die", ...(beacon ? { max: true } : {}) }).then((r) => spend(r.total, withSong))}
       />
     ));
   };
@@ -989,8 +989,9 @@ export function App() {
                 registry={registry}
                 act={live.current.act}
                 close={() => openSummonMember(id)}
-                onPick={(d, choice) => {
-                  live.current.act("summonEffect", { id, effect: d.id, add: true, ...(d.rounds ? { rounds: d.rounds } : d.minutes ? { rounds: d.minutes * 10 } : {}), ...(choice ? { choice } : {}) }, `${d.name} on ${m.name ?? registry.find(m.creature, "creature")?.name ?? "it"}.`);
+                already={(m.effects ?? []).map((e) => e.effect)}
+                onPick={(d, choice, slotLevel) => {
+                  live.current.act("summonEffect", { id, effect: d.id, add: true, ...(d.rounds ? { rounds: d.rounds } : d.minutes ? { rounds: d.minutes * 10 } : {}), ...(choice ? { choice } : {}), ...(slotLevel ? { slotLevel } : {}) }, `${d.name} on ${m.name ?? registry.find(m.creature, "creature")?.name ?? "it"}.`);
                   openSummonMember(id);
                 }}
               />
@@ -1963,11 +1964,12 @@ export function App() {
                 registry={registry}
                 act={live.current.act}
                 close={() => openCompanion(id)}
-                onPick={(d, choice) => {
+                already={(live.current.sheet?.companions.find((x) => x.id === id)?.effects ?? []).map((e) => e.effect)}
+                onPick={(d, choice, slotLevel) => {
                   live.current.act(
                     "companionEffect",
-                    { companion: id, effect: d.id, add: true, ...(d.rounds ? { rounds: d.rounds } : d.minutes ? { rounds: d.minutes * 10 } : {}), ...(choice ? { choice } : {}) },
-                    `${d.name} on ${comp.name}.`,
+                    { companion: id, effect: d.id, add: true, ...(d.rounds ? { rounds: d.rounds } : d.minutes ? { rounds: d.minutes * 10 } : {}), ...(choice ? { choice } : {}), ...(slotLevel ? { slotLevel } : {}) },
+                    `${d.name}${slotLevel ? ` (level ${slotLevel})` : ""} on ${comp.name}.`,
                   );
                   openCompanion(id);
                 }}
@@ -3196,7 +3198,7 @@ export function App() {
           readying={readying}
           companions={friendlyTargets(live.current.character!, live.current.sheet!, registry)
             .filter((t) => t.kind !== "me" && t.hp > 0)
-            .map((t) => ({ id: t.id, name: t.name, warnings: targetWarnings(t, SPELL_TARGETS[sp.id], sp.name) }))}
+            .map((t) => ({ id: t.id, name: t.name, warnings: targetWarnings(t, SPELL_TARGETS[sp.id], sp.name), ...(t.effects.includes(sp.id.replace(/^spell:/, "effect:")) ? { already: true } : {}) }))}
           onCast={(level, using, selfEffect, castingTime, onCompanions) => {
             castOnCompanions.current = onCompanions ?? [];
             castFlow(sp, level, using, selfEffect, readying, asReaction ? WAR_CASTER_TIME : castingTime);
@@ -3509,6 +3511,7 @@ export function App() {
           onOptional={(id, on) => live.current.act("setOptionalFeature", { feature: id, on }, `${registry.find(id, "feature")?.name ?? id} ${on ? "on" : "off"}.`)}
           onOptionalBoth={(id, both) => live.current.act("setOptionalFeature", { feature: id, on: true, both }, both ? `${registry.find(id, "feature")?.name ?? id}: both kept.` : `${registry.find(id, "feature")?.name ?? id} only.`)}
           onOptionalAll={(ids, on) => live.current.act("setOptionalFeature", { feature: ids[0], on, also: ids.slice(1) }, `Tasha's optional features ${on ? "on" : "off"}.`)}
+          openCrit={() => open("Critical hit", () => (live.current.character && live.current.sheet ? <CritPanel character={live.current.character} sheet={live.current.sheet} act={live.current.act} /> : null))}
           openPb={() => open("Proficiency bonus", () => (live.current.character && live.current.sheet ? <PbPanel character={live.current.character} sheet={live.current.sheet} act={live.current.act} /> : null))}
           openAdjust={(k) => open(k === "save" ? "Saving throws: bonus or penalty" : k === "skill" ? "Skills: bonus or penalty" : "Passive senses: bonus or penalty", () => (live.current.character ? <RollAdjustPanel kind={k} c={live.current.character} act={live.current.act} /> : null))} />}
       {tab === "story" && <BackstoryTab c={c} act={s.act} />}

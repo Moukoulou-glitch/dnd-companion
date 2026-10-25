@@ -300,7 +300,7 @@ export function SpellPanel({
   casterDamage?: boolean;
   onCast: (level: number, using: "slot" | "pact" | "free" | "ritual" | "none" | "extra" | "scroll" | "points", selfEffect: boolean, castingTime?: string, onCompanions?: string[]) => void;
   /** Your companions here now: its effect can go on them too (Bless on your wolf). */
-  companions?: { id: string; name: string; warnings?: string[] }[];
+  companions?: { id: string; name: string; warnings?: string[]; already?: boolean }[];
   /** Opens already cast at this level (after a turn warning was confirmed). */
   initialCast?: number | undefined;
   onPrepare: (prepared: boolean) => void;
@@ -400,6 +400,13 @@ export function SpellPanel({
               </span>
               {companions!.map((cp) => {
                 const on = onComps.includes(cp.id);
+                // Already under this spell: a second casting adds nothing on it.
+                if (cp.already)
+                  return (
+                    <button key={cp.id} className="chip" disabled title={`${cp.name} is already under ${sp.name}`}>
+                      {cp.name} (already)
+                    </button>
+                  );
                 return (
                   <button key={cp.id} className={`chip${on ? " on" : ""}`} aria-pressed={on} onClick={() => setOnComps(on ? onComps.filter((x) => x !== cp.id) : [...onComps, cp.id])}>
                     {cp.name}

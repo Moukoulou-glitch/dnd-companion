@@ -759,6 +759,8 @@ export const Character = z
     /** Healer feat: creatures patched up with a healer's kit since the last rest (once each per rest). */
     healerUsed: z.array(z.string()).default([]),
     pbAdjust: z.object({ bonus: z.number().int().min(0).max(10).default(0), penalty: z.number().int().min(0).max(10).default(0), note: z.string().max(80).optional() }).strict().default({ bonus: 0, penalty: 0 }),
+    /** Critical hits on attack rolls from this natural d20 up, set by hand (a homebrew boon); features that widen it more still count. */
+    critAdjust: z.object({ at: z.number().int().min(2).max(20), note: z.string().max(80).optional() }).strict().optional(),
     rollAdjust: z.record(z.string(), z.object({ bonus: z.number().int().min(0).default(0), penalty: z.number().int().min(0).default(0), note: z.string().max(80).optional() }).strict()).default({}),
     customBackground: CustomBackground.optional(),
     /** Actions and spells the player wrote. */

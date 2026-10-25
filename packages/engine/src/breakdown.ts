@@ -30,7 +30,7 @@ export interface Suggestion {
   /** Why it is only suggested, e.g. "target is within 5 ft". */
   reason?: string;
   /** What the roll composer applies when the player turns it on. */
-  apply: { flat: number; dice: string[]; damageType?: string; mode?: "advantage" | "disadvantage"; weaponDice?: string; critAt?: number; rerollAtOrBelow?: number; minD20?: number; maximize?: boolean };
+  apply: { flat: number; dice: string[]; damageType?: string; mode?: "advantage" | "disadvantage"; weaponDice?: string; critAt?: number; rerollAtOrBelow?: number; minD20?: number; maximize?: boolean; tripleAdvantage?: string };
   /** Once per turn (Sneak Attack). */
   oncePerTurn?: boolean;
   /** Only with the weapon in one hand, or in two (Dueling, Great Weapon Fighting). */
@@ -67,6 +67,8 @@ export interface RollBreakdown extends Breakdown {
   minDie?: { value: number; types: string[]; label: string };
   /** A total below this counts as this (Indomitable Might: your Strength score). */
   minTotal?: { value: number; label: string };
+  /** Damage: after the roll, one die of your choice can be rolled again (Piercer: once per turn). */
+  rerollOne?: { label: string; oncePerTurn?: boolean };
   /** With advantage, three d20s instead of two (Elven Accuracy: attacks with Dexterity, Intelligence, Wisdom or Charisma). */
   tripleAdvantage?: string;
   dice: DicePart[];

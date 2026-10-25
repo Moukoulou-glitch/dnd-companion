@@ -2839,12 +2839,14 @@ button.mpip {
   border: 2px solid var(--gold);
   background: var(--gold-soft);
 }
-.row.pb-row {
+.row.pb-row,
+.row.crit-row {
   margin-top: 8px;
   border: 1px solid var(--line);
   border-radius: var(--radius-m);
 }
-.row.pb-row.adjusted {
+.row.pb-row.adjusted,
+.row.crit-row.adjusted {
   border-color: var(--gold);
 }
 .rage-veins path.branch {

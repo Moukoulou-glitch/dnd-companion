@@ -17,7 +17,15 @@ export const canThrow = (sides: number) => THROWN_SIDES.includes(sides);
 
 /** How a throw is made: a critical hit's stronger throw. */
 export interface ThrowOptions {
+  /** Thrown harder (a critical hit; your dice while raging). */
   strong?: boolean;
+  /** A critical hit's damage: the strip says "Critical hit". Rage's harder throw isn't one. */
+  crit?: boolean;
+  /**
+   * The face each die should end on, by its place in the throw (Beacon of Hope, Overchannel: the maximum).
+   * The die lands as it falls, then turns to that face; the value read is that face.
+   */
+  wants?: (number | undefined)[];
   /** Settle fast whatever the motion setting (death saves: nothing to wait for). */
   quick?: boolean;
 }
@@ -36,13 +44,15 @@ export type DieLookOf = (label: string | undefined, sides: number, source?: stri
  */
 export async function rollThrown(c: Composed, toss: Thrower, appRng: Rng = secureRng, colourOf?: DieLookOf, options?: ThrowOptions): Promise<ComposedRoll & { thrown: number }> {
   // Each die's group, in the order the dice are rolled (term by term), for its colour.
-  const groups: { sides: number; label: string | undefined; source: string | undefined }[] = [];
+  const groups: { sides: number; label: string | undefined; source: string | undefined; max: boolean }[] = [];
   c.terms.forEach((t, ti) => {
-    if (t.kind === "dice") for (let i = 0; i < t.count; i++) groups.push({ sides: t.sides, label: t.label, source: c.sources[ti] });
+    if (t.kind === "dice") for (let i = 0; i < t.count; i++) groups.push({ sides: t.sides, label: t.label, source: c.sources[ti], max: (t.min ?? 0) >= t.sides });
   });
   // Which first rolls the roll needs: a dry run that never asks for a reroll.
   const first: number[] = [];
   const firstColours: (DieLook | undefined)[] = [];
+  // Dice that count as their maximum whatever they show (Beacon of Hope): they turn to it once they land.
+  const wants: (number | undefined)[] = [];
   let g = 0;
   rollComposed(c, undefined, (sides, reroll) => {
     if (reroll) return sides;
@@ -50,10 +60,12 @@ export async function rollThrown(c: Composed, toss: Thrower, appRng: Rng = secur
     if (canThrow(sides)) {
       first.push(sides);
       firstColours.push(colourOf && group?.sides === sides ? colourOf(group.label, sides, group.source) : undefined);
+      wants.push(group?.sides === sides && group.max ? sides : undefined);
     }
     return sides;
   });
-  const firstFaces = first.length ? check(first, await (colourOf ? toss(first, firstColours, options) : options ? toss(first, undefined, options) : toss(first))) : [];
+  const opts = wants.some((w) => w !== undefined) ? { ...options, wants } : options;
+  const firstFaces = first.length ? check(first, await (colourOf ? toss(first, firstColours, opts) : opts ? toss(first, undefined, opts) : toss(first))) : [];
   // The app's dice (no 3D model) keep their value between runs.
   const own: number[] = [];
   const play = (rerollFaces: number[] | undefined, wanted: number[]) => {

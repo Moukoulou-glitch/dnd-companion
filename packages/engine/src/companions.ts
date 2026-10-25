@@ -36,7 +36,8 @@ export interface CompanionResult {
   /** Dismissed until you summon it again: not in the fight, keeps its hit points. */
   away?: boolean;
   /** Conditions, spells and effects on it (Bless, Poisoned): their names, rounds left when timed. */
-  effects: { id: string; effect: string; name: string; rounds?: number; choice?: string; concentration?: boolean }[];
+  /** `slotLevel` and `baseLevel`: a spell that grows with its level (Aid), at the level it was cast with. */
+  effects: { id: string; effect: string; name: string; rounds?: number; choice?: string; concentration?: boolean; slotLevel?: number; baseLevel?: number }[];
   /** Summoned with an action: free once per `resource`, or with a slot of `slotMin`+ (the drake). */
   summon?: { resource: string; slotMin: number; note: string };
   /** What commanding it costs you, when it can be commanded (Primal Companion: bonus action; Ranger's Companion: action). */
@@ -366,6 +367,7 @@ export function withCompanionState(r: CompanionResult, state: CompanionState | u
     ...(e.rounds !== undefined ? { rounds: e.rounds } : {}),
     ...(e.choice ? { choice: e.choice } : {}),
     ...(e.concentration ? { concentration: true } : {}),
+    ...(reg.find(e.effect, "effect")?.upcast ? { baseLevel: reg.find(e.effect, "effect")!.upcast!.baseLevel, slotLevel: e.slotLevel ?? reg.find(e.effect, "effect")!.upcast!.baseLevel } : {}),
   }));
   const f = r.form;
   if (!f || !effects.length) return r;
@@ -415,7 +417,8 @@ export function withCompanionState(r: CompanionResult, state: CompanionState | u
     // Aid: the maximum goes up (the current stays as tracked; full when it's never been hurt).
     f.hpMax = { total: hpMax, parts: hpParts };
     if (state?.hp === undefined) f.hp = { ...f.hp, current: hpMax };
-    else f.hp = { ...f.hp, current: Math.min(hpMax, f.hp.current) };
+    // The tracked current, not the one already capped at the maximum without Aid.
+    else f.hp = { ...f.hp, current: Math.min(hpMax, state.hp.current) };
   }
   f.speeds = Object.fromEntries(
     Object.entries(f.speeds).map(([k, v]) => {

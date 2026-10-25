@@ -355,21 +355,24 @@ export function AddEffectPanel({
   close,
   onTransform,
   onPick,
+  already = [],
 }: {
   registry: ContentRegistry;
   act: Act;
   close: () => void;
   onTransform?: (d: EffectDef) => void;
-  /** Put the effect on someone else (a summoned creature) instead of you. */
-  onPick?: (d: EffectDef, choice?: string) => void;
+  /** Put the effect on someone else (a summoned creature) instead of you; a spell that grows with its level (Aid) asks the level. */
+  onPick?: (d: EffectDef, choice?: string, slotLevel?: number) => void;
+  /** Effects already on that creature: a spell can't go on it twice (its effects don't add up). */
+  already?: string[];
 }) {
   const [tab, setTab] = useState<"condition" | "spell" | "other" | "custom">("condition");
   const [q, setQ] = useState("");
   /** An effect with a choice (Bardic Inspiration's die, Hexed's ability) asks for it before it's added. */
   const [picking, setPicking] = useState<string | null>(null);
-  const add = (d: EffectDef, choice?: string) => {
+  const add = (d: EffectDef, choice?: string, slotLevel?: number) => {
     // Polymorph, True Polymorph: which creature? The effect goes on with the form.
-    if (onPick) return onPick(d, choice);
+    if (onPick) return onPick(d, choice, slotLevel);
     if (d.transform && onTransform) return onTransform(d);
     act("addEffect", { instanceId: crypto.randomUUID(), effect: d.id, ...(choice ? { choice } : {}) }, `${d.name}${choice ? ` (${optionName(choice)})` : ""} added.`);
     close();
@@ -400,15 +403,32 @@ export function AddEffectPanel({
         <>
           {tab === "spell" && <input className="search" type="search" placeholder="Search spells" value={q} onChange={(e) => setQ(e.target.value)} />}
           <div className="group">
-            {list.map((d) => (
+            {list.map((d) => {
+              // The same spell twice on one creature: the second doesn't add anything, so it isn't offered.
+              const on = d.category === "spell" && already.includes(d.id);
+              // A spell that grows with its level, put on someone else: at which level (Aid at 3rd: +10).
+              const levels = onPick && d.upcast ? Array.from({ length: 10 - d.upcast.baseLevel }, (_, i) => d.upcast!.baseLevel + i) : undefined;
+              return (
               <Fragment key={d.id}>
-                <button className="row" onClick={() => (d.choice ? setPicking(picking === d.id ? null : d.id) : add(d))}>
+                <button className="row" disabled={on} aria-disabled={on} onClick={() => (on ? undefined : d.choice || levels ? setPicking(picking === d.id ? null : d.id) : add(d))}>
                   <div className="row-main">
                     <div className="row-title">{d.name}</div>
-                    {d.summary && <div className="row-sub">{d.summary}</div>}
+                    {on ? <div className="row-sub">Already on it: the same spell doesn't add up. Change or end the one it has.</div> : d.summary && <div className="row-sub">{d.summary}</div>}
                   </div>
-                  {d.rounds && <span className="tag">{d.rounds} rounds</span>}
+                  {on ? <span className="tag">On</span> : d.rounds && <span className="tag">{d.rounds} rounds</span>}
                 </button>
+                {levels && !d.choice && picking === d.id && (
+                  <div className="pick-inline">
+                    <p className="sub-head">Cast at level</p>
+                    <div className="choice-grid">
+                      {levels.map((l) => (
+                        <button key={l} className="big" onClick={() => add(d, undefined, l)}>
+                          {l}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 {d.choice && picking === d.id && (
                   <div className="pick-inline">
                     <p className="sub-head">{d.choice.label}</p>
@@ -422,7 +442,8 @@ export function AddEffectPanel({
                   </div>
                 )}
               </Fragment>
-            ))}
+              );
+            })}
           </div>
         </>
       )}

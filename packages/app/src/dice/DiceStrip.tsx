@@ -90,7 +90,8 @@ export function DiceStrip() {
         if (timer.current) clearTimeout(timer.current);
         setDone(false);
         setMode(d.mode);
-        setStrong(d.strong);
+        // Only a critical hit says so (a raging throw is only harder).
+        setStrong(!!d.crit);
         setFlash(null);
         pending.current = [];
         dice20.current = new Set(d.dice.flatMap((x, i) => (x.sides === 20 ? [i] : [])));

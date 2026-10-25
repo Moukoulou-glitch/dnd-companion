@@ -926,6 +926,18 @@ function CompanionEffectPanel({ comp, e, act, onBack }: { comp: CompanionResult;
         {e.rounds !== undefined ? `${e.rounds} ${e.rounds === 1 ? "round" : "rounds"} left: counts down at the start of ${comp.turn === "own" ? "its" : "your"} turn.` : "No timer."}
         {e.concentration ? " Ends with your concentration." : ""}
       </p>
+      {e.baseLevel !== undefined && (
+        <>
+          <p className="sub-head">Cast at level</p>
+          <div className="choice-grid">
+            {Array.from({ length: 10 - e.baseLevel }, (_, i) => e.baseLevel! + i).map((l) => (
+              <button key={l} className={`big${l === (e.slotLevel ?? e.baseLevel) ? " primary" : ""}`} aria-pressed={l === (e.slotLevel ?? e.baseLevel)} onClick={() => l !== (e.slotLevel ?? e.baseLevel) && act("companionEffect", { companion: comp.id, effect: e.effect, add: false, instance: e.id, slotLevel: l }, `${e.name} on ${comp.name}: level ${l}.`)}>
+                {l}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
       <div className="big-actions">
         <button className="big" onClick={() => set(Math.max(0, (e.rounds ?? 1) - 1), "One round less.")}>
           One round less

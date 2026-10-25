@@ -303,12 +303,16 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 - Once every N days (Divine Intervention after a success, Charm of Sunlight): a Backstory note says when it's back; nothing stops an earlier use.
 - Mirror Image and Blur on the name: from the effect tags; Mirror Image shows one copy per duplicate left as you count them down.
 - Magical Secrets: the picks are among the spells known, so the "Spells known" list asks for that many fewer; swapping a Magical Secrets spell on level-up is a new pick.
+- Piercer: after the damage, one die is rolled again (tap it; with your own dice, type what it showed and shows now). Once per turn is yours to keep. With your own dice entered as one total the reroll line adds the difference.
+- Critical range by hand (Sheet → Critical hit): every attack roll; a feature that gives more still counts.
+- Beacon of Hope with 3D dice: each die lands, then turns to its maximum. A d4 turns only in a theme that reads it face-down; d100 doesn't turn (the value still counts as its maximum).
+- A spell already on a companion or summoned creature can't be put on it again from + Effect or when casting; change its level or end it on its card.
 - Peerless Skill and Homing Strikes: ticking spends the use when the roll is made. Homing Strikes' die is spent only if the attack then hits: if it still misses, give the die back on the Play page.
-- Countercharm: advantage is offered on every save while it's on (charm and fright only); friends within 30 ft are theirs to apply.
+- Countercharm: while it's on, every save asks whether it's against being charmed or frightened (tick for advantage); friends within 30 ft are theirs to apply.
 - Primeval Awareness: the ranger spell slot is marked by hand; what it senses is the DM's.
 - Hide in Plain Sight: +10 Stealth while switched on; switch it off when you move, act or react.
 - Hex Warrior: an option on every weapon you're proficient with that isn't two-handed (any weapon with Pact of the Blade); which one is your hex weapon this long rest is yours to keep.
-- Elven Accuracy: three d20s with advantage on attacks that don't use Strength (weapon attacks by their ability, spell attacks); with Shillelagh or Hex Warrior ticked on a Strength weapon, it's yours to apply.
-- Piercer: the extra critical die on piercing weapons is rolled; the once-per-turn reroll of one damage die is a note (do it by hand). Not on piercing spells.
+- Elven Accuracy: three d20s with advantage on attacks that don't use Strength (weapon attacks by their ability, spell attacks, a Strength weapon with Shillelagh or Hex Warrior ticked).
+- Piercer: the extra critical die on piercing weapons is rolled; the reroll of one die is offered after the damage. Not on piercing spells.
 - Flames of Phlegethos: 1s are rerolled once on spells whose main damage is fire; the flame wreath is its own action.
 - Gift of the Ever-Living Ones: switch "Familiar within 100 ft" on; then your Hit Dice, your own healing features and your healing spells on yourself are the maximum. Healing from others isn't affected.

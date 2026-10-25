@@ -1,5 +1,5 @@
 import { parseFormula, type Term } from "./formula.js";
-import { critFormula, roll, scriptedRng, secureRng, type Rng, type RollResult } from "./roll.js";
+import { critFormula, roll, scriptedRng, secureRng, type DieResult, type Rng, type RollResult } from "./roll.js";
 
 /**
  * The roll composer's inputs, shaped like the engine's RollBreakdown so the
@@ -16,7 +16,7 @@ export interface ComposerBase {
     effect: string;
     reason?: string;
     /** critAt: a critical hit on this or more while ticked (Hexblade's Curse: 19, against the cursed target). */
-    apply: { flat: number; dice: string[]; damageType?: string; mode?: "advantage" | "disadvantage"; weaponDice?: string; critAt?: number; rerollAtOrBelow?: number; minD20?: number; maximize?: boolean };
+    apply: { flat: number; dice: string[]; damageType?: string; mode?: "advantage" | "disadvantage"; weaponDice?: string; critAt?: number; rerollAtOrBelow?: number; minD20?: number; maximize?: boolean; tripleAdvantage?: string };
     /** Ticking it spends this (a superiority die). */
     spends?: { resource: string; amount: number };
     /** One of a group per roll. */
@@ -102,7 +102,9 @@ export function composeD20(base: ComposerBase, choices: ComposerChoices = noChoi
   const mode = choices.force ?? (adv.length && !dis.length ? "advantage" : dis.length && !adv.length ? "disadvantage" : "normal");
   const out: Composed = { terms: [], sources: [], d20Mode: mode, advantageFrom: adv, disadvantageFrom: dis };
 
-  const triple = mode === "advantage" && !!base.tripleAdvantage;
+  // Elven Accuracy: on the attack itself, or through a ticked option that swaps Strength out (Shillelagh, Hex Warrior).
+  const tripleFrom = base.tripleAdvantage ?? on.find((s) => s.apply.tripleAdvantage)?.apply.tripleAdvantage;
+  const triple = mode === "advantage" && !!tripleFrom;
   const d20: Term = { kind: "dice", sign: 1, count: mode === "normal" ? 1 : triple ? 3 : 2, sides: 20 };
   if (mode !== "normal") d20.keep = { which: mode === "advantage" ? "highest" : "lowest", n: 1 };
   const critAt = Math.min(base.critAt ?? 20, ...on.map((s) => s.apply.critAt ?? 20));
@@ -114,7 +116,7 @@ export function composeD20(base: ComposerBase, choices: ComposerChoices = noChoi
   const reroll = Math.max(0, ...on.map((s) => s.apply.rerollAtOrBelow ?? 0));
   if (reroll > 0) d20.rerollAtOrBelow = reroll;
   out.terms.push(d20);
-  out.sources.push(mode === "normal" ? "d20" : triple ? `d20, advantage (${base.tripleAdvantage}: three dice)` : `d20, ${mode}`);
+  out.sources.push(mode === "normal" ? "d20" : triple ? `d20, advantage (${tripleFrom}: three dice)` : `d20, ${mode}`);
 
   for (const p of base.parts) pushFlat(out, p.value, p.label);
   for (const d of base.dice) pushDice(out, d.dice, d.label);
@@ -181,6 +183,37 @@ export function withCrit(c: Composed, extraWeaponDice = 0, flatOnCrit: { label: 
   const out: Composed = { ...c, terms: critFormula(c.terms, extraWeaponDice), sources: [...c.sources] };
   for (const f of flatOnCrit) pushFlat(out, f.value, f.label);
   return out;
+}
+
+/**
+ * One die of a roll rolled again, and the new face counts (Piercer). Its
+ * minimum still applies (Elemental Adept); the totals follow. `term` and `die`
+ * index the result's terms and that term's dice.
+ */
+export function rerollDie(r: ComposedRoll, term: number, die: number, face: number): ComposedRoll {
+  const terms = r.result.terms.map((t, ti) => {
+    if (ti !== term || t.term.kind !== "dice") return t;
+    const tt = t.term;
+    const dice = t.dice.map((d, di) => {
+      if (di !== die) return d;
+      const before = d.rerolled ?? d.rolled;
+      const out: DieResult = { rolled: before, rerolled: face, value: face, dropped: d.dropped };
+      if (tt.min && face < tt.min) {
+        out.value = tt.min;
+        out.raised = true;
+      }
+      return out;
+    });
+    return { ...t, dice, total: tt.sign * dice.filter((d) => !d.dropped).reduce((s, d) => s + d.value, 0) };
+  });
+  let total = terms.reduce((s, t) => s + t.total, 0);
+  const result: RollResult = { ...r.result, terms, total };
+  delete result.floored;
+  if (r.composed.minTotal !== undefined && total < r.composed.minTotal) {
+    result.total = total = r.composed.minTotal;
+    result.floored = r.composed.minTotal;
+  }
+  return { ...r, result };
 }
 
 export interface ComposedRoll {
