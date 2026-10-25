@@ -89,3 +89,24 @@ describe("13a: Primal Champion", () => {
     expect(derive(pc([{ class: "class:barbarian", level: 19 }], {}, { str: 19, dex: 12, con: 17, int: 10, wis: 10, cha: 10 }), reg).abilities.str.score.total).toBe(20);
   });
 });
+
+describe("13a-2: Genie's Wrath takes the genie kind's damage type", () => {
+  const genie = (kind?: string) =>
+    derive(
+      pc([{ class: "class:warlock", level: 3, subclass: "subclass:the-genie" }], {
+        inventory: [{ id: "d", item: "item:dagger", quantity: 1, equipped: true, attuned: false }],
+        ...(kind ? { choices: { "feature:genie-expanded-spells": { kind: [`feature:genie-kind-${kind}`] } } } : {}),
+      }),
+      reg,
+    );
+  const wrath = (s: ReturnType<typeof derive>) => s.attacks.flatMap((a) => a.damage.bonus.suggestions).find((x) => /Genie's Wrath/.test(x.label));
+  it("fire for an efreeti, cold for a marid; offered once per turn on a hit", () => {
+    expect(wrath(genie("efreeti"))?.apply.damageType).toBe("fire");
+    expect(wrath(genie("marid"))?.apply.damageType).toBe("cold");
+    expect(wrath(genie("dao"))?.apply.damageType).toBe("bludgeoning");
+    expect(wrath(genie("djinni"))?.apply.damageType).toBe("thunder");
+  });
+  it("no kind picked yet: no Genie's Wrath (the Choices list asks for the kind)", () => {
+    expect(wrath(genie())).toBeUndefined();
+  });
+});

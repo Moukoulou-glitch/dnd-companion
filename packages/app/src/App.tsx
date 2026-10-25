@@ -22,7 +22,7 @@ import { spellInfoOf } from "./fx/generated";
 import { featureFor } from "./fx/features";
 import { DiceStrip } from "./dice/DiceStrip";
 import { DiceSettings } from "./dice/DiceSettings";
-import { ownFeatureOf } from "./ownFeature";
+import { ownFeatureOf, ridersOf, usesOf } from "./ownFeature";
 import { flourishAfter } from "./flourish";
 import { d20s, rollOrThrow } from "./dice/quick";
 import { useDiceMode } from "./dice3dSetting";
@@ -1288,7 +1288,8 @@ export function App() {
     });
   };
 
-  const openFeature = (a: ActionResult) => {
+  /** A feature's use: its panel, with what it does. From Play's Features (`fromResource`), also a way to spend the use alone. */
+  const openFeature = (a: ActionResult, fromResource?: { resource: string; name: string }, onUseOverride?: (rolled?: number) => void) => {
     if (a.rollsSpell) return rollEffectSpell(a);
     if (a.id === "wild-shape") return openTransform("wildshape");
     if (a.id === "deflect-missiles" || a.id === "slow-fall") return openReduce(a);
@@ -1302,6 +1303,14 @@ export function App() {
         <FeaturePanel
           a={current}
           beaconIds={friendlyTargets(live.current.character!, live.current.sheet!, registry).filter((t) => t.effects.includes(BEACON_EFFECT)).map((t) => t.id)}
+          {...(fromResource
+            ? {
+                onJustSpend: () => {
+                  live.current.act("spendResource", { resource: fromResource.resource, amount: current.cost?.amount ?? 1 }, `${fromResource.name} used (without its effect).`);
+                  close();
+                },
+              }
+            : {})}
           physical={live.current.character?.settings.physicalDice ?? true}
           text={feature?.text}
           {...(current.check
@@ -1329,6 +1338,11 @@ export function App() {
               }
             : {})}
           onUse={(rolled, free, check, choice, spend, onMe, target) => {
+            // A rider spent from Play (Fire Rune's 2d6 rolled now): its own way of being used.
+            if (onUseOverride) {
+              onUseOverride(rolled);
+              return close();
+            }
             // Readying a spell: pick it, then cast it now and hold it.
             if (choice === "Cast a Spell" && current.choose) return openReadySpell();
             if (a.id === "preserve-life") return openPreserveLife(!!free);
@@ -1703,11 +1717,74 @@ export function App() {
         });
         return;
       }
-      // A resource that is one rolling feature's own uses (Second Wind, Healing Hands, Form of Dread):
-      // spending it is using that feature, with its roll and its healing, as from the Actions page.
+      // Using a feature from Play asks first (a mis-tap is a tap outside away from nothing) and then does what
+      // the Actions page does: its roll, its healing, its turn economy in combat (Action Surge's extra action).
+      // Its uses only: "Use resource without effect".
+      const uses = usesOf(live.current.sheet?.actions ?? [], r.id);
       const own = ownFeatureOf(live.current.sheet?.actions ?? [], r.id);
-      if (own) return openFeature(own);
-      if (!r.die) return void s.act("spendResource", { resource: r.id }, `${r.name} used.`);
+      const justSpend = () => {
+        live.current.act("spendResource", { resource: r.id }, `${r.name} used (without its effect).`);
+        close();
+      };
+      if (own || uses.length === 1) return openFeature(own ?? uses[0]!, { resource: r.id, name: r.name });
+      // Spent by ticking extra damage on a hit (Fire Rune: invoke): roll it now, or tick it on the next damage roll.
+      const rider = !r.die ? ridersOf(live.current.sheet, r.id)[0] : undefined;
+      if (!uses.length && rider) {
+        const amount = { dice: rider.apply.dice, flat: rider.apply.flat, text: rider.effect.replace(/^\+/, "") };
+        const type = rider.apply.damageType ?? "";
+        return openFeature(
+          {
+            id: `rider:${r.id}`,
+            name: r.name,
+            economy: "free",
+            source: r.source,
+            toggles: [],
+            note: `${rider.reason ? `${rider.reason[0]!.toUpperCase()}${rider.reason.slice(1)}. ` : ""}It rides on a hit: roll it here, or tick "${rider.label}" on that hit's damage roll.`,
+            cost: { resource: r.id, name: r.name, amount: rider.spends?.amount ?? 1, remaining: r.remaining },
+            roll: { ...amount, label: `${type} damage`.trim() },
+          },
+          { resource: r.id, name: r.name },
+          (rolled) => live.current.act("spendResource", { resource: r.id, amount: rider.spends?.amount ?? 1 }, `${r.name}: ${rolled ?? amount.text} ${type} damage.`.replace(/\s+\./, ".")),
+        );
+      }
+      if (uses.length > 1)
+        return open(`Use ${r.name}?`, () => (
+          <>
+            <p className="note">
+              {r.remaining} of {r.max} left. Which use?
+            </p>
+            <div className="group">
+              {uses.map((a) => (
+                <button className="row" key={a.id} onClick={() => openFeature(a, { resource: r.id, name: r.name })}>
+                  <div className="row-main">
+                    <div className="row-title">{a.name}</div>
+                    <div className="row-sub">
+                      {a.economy === "free" ? "No action" : a.economy === "bonus" ? "Bonus action" : a.economy === "reaction" ? "Reaction" : "Action"}
+                      {a.cost && a.cost.amount > 1 ? ` · ${a.cost.amount} uses` : ""}
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+            <button className="big wide" onClick={justSpend}>
+              Use resource without effect
+            </button>
+          </>
+        ));
+      if (!r.die)
+        return open(`Use ${r.name}?`, () => (
+          <Confirm
+            question={`Use ${r.name}?`}
+            detail={`${r.remaining} of ${r.max} left. One use is spent.`}
+            no="No, cancel"
+            yes={`Use ${r.name}`}
+            onNo={close}
+            onYes={() => {
+              live.current.act("spendResource", { resource: r.id }, `${r.name} used.`);
+              close();
+            }}
+          />
+        ));
       open(r.name, () => (
         <SpendDiePanel
           r={r}

@@ -274,6 +274,11 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 ## Round 13a
 
 - Circle of the Land: the land is picked in Choices; a Land druid made before this has no circle spells until it's picked (the Choices count shows it). Underdark is offered (PHB).
-- Warlock patron lists: a book spell whose name differs from the SRD's (Tasha's Hideous Laughter / Hideous Laughter) is listed under both names. The Genie's kind is picked on its expanded list; Genie's Wrath's damage type still isn't tied to it.
+- Warlock patron lists: a book spell whose name differs from the SRD's (Tasha's Hideous Laughter / Hideous Laughter) is listed under both names. The Genie's kind is picked on its expanded list, and Genie's Wrath takes its damage type from it (no kind picked: no Genie's Wrath offered). The kind's Elemental Gift resistance (6th level) isn't tied to it yet.
 - Channel Divinity from two classes: one pool with the larger number of uses; it resets on a short rest as both classes' do.
 - Primal Champion: a Strength or Constitution above 24 (from items or by hand) is warned, as any score above its maximum.
+
+## Play page (round 13a-2)
+
+- Hit Dice and Inspiration: hold a die about half a second; a tap, a swipe or scrolling does nothing. Keyboard: Enter or the arrow keys.
+- Features: a use with several options (Channel Divinity) lists them; a resource spent only by ticking extra damage (Fire Rune: invoke) can be rolled from Play or ticked on the hit. A resource with its own die that nothing else spends (superiority dice spent by hand) keeps its die panel with "Just spend one".

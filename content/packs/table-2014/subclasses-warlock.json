@@ -1353,19 +1353,6 @@
             },
             "note": "Enter your vessel for up to 2 x proficiency bonus hours; leave with a bonus action. You hear outside as if in the vessel's space."
           }
-        ],
-        "modifiers": [
-          {
-            "selector": "roll.damage.*",
-            "op": "add",
-            "value": "pb",
-            "mode": "suggested",
-            "label": "Genie's Wrath",
-            "oncePerTurn": true,
-            "when": {
-              "text": "once per turn on a hit; type by genie: bludgeoning (Dao), thunder (Djinni), fire (Efreeti), cold (Marid)"
-            }
-          }
         ]
       }
     },
@@ -1515,7 +1502,7 @@
       "kind": "feature",
       "id": "feature:genie-kind-dao",
       "name": "Genie kind: Dao (earth)",
-      "summary": "Your patron is a dao: Sanctuary, Spike Growth, Meld Into Stone, Stone Shape, Wall Of Stone join your warlock list.",
+      "summary": "Your patron is a dao: Sanctuary, Spike Growth, Meld Into Stone, Stone Shape, Wall Of Stone join your warlock list. Genie's Wrath deals bludgeoning damage.",
       "source": {
         "pack": "table-2014",
         "book": "TCoE",
@@ -1532,14 +1519,28 @@
             "spell:wall-of-stone"
           ],
           "withVariants": false
-        }
+        },
+        "modifiers": [
+          {
+            "selector": "roll.damage.*",
+            "op": "add",
+            "value": "pb",
+            "mode": "suggested",
+            "label": "Genie's Wrath",
+            "oncePerTurn": true,
+            "when": {
+              "text": "once per turn, when you hit with an attack roll"
+            },
+            "damageType": "bludgeoning"
+          }
+        ]
       }
     },
     {
       "kind": "feature",
       "id": "feature:genie-kind-djinni",
       "name": "Genie kind: Djinni (air)",
-      "summary": "Your patron is a djinni: Thunderwave, Gust Of Wind, Wind Wall, Greater Invisibility, Seeming join your warlock list.",
+      "summary": "Your patron is a djinni: Thunderwave, Gust Of Wind, Wind Wall, Greater Invisibility, Seeming join your warlock list. Genie's Wrath deals thunder damage.",
       "source": {
         "pack": "table-2014",
         "book": "TCoE",
@@ -1556,14 +1557,28 @@
             "spell:seeming"
           ],
           "withVariants": false
-        }
+        },
+        "modifiers": [
+          {
+            "selector": "roll.damage.*",
+            "op": "add",
+            "value": "pb",
+            "mode": "suggested",
+            "label": "Genie's Wrath",
+            "oncePerTurn": true,
+            "when": {
+              "text": "once per turn, when you hit with an attack roll"
+            },
+            "damageType": "thunder"
+          }
+        ]
       }
     },
     {
       "kind": "feature",
       "id": "feature:genie-kind-efreeti",
       "name": "Genie kind: Efreeti (fire)",
-      "summary": "Your patron is a efreeti: Burning Hands, Scorching Ray, Fireball, Fire Shield, Flame Strike join your warlock list.",
+      "summary": "Your patron is a efreeti: Burning Hands, Scorching Ray, Fireball, Fire Shield, Flame Strike join your warlock list. Genie's Wrath deals fire damage.",
       "source": {
         "pack": "table-2014",
         "book": "TCoE",
@@ -1580,14 +1595,28 @@
             "spell:flame-strike"
           ],
           "withVariants": false
-        }
+        },
+        "modifiers": [
+          {
+            "selector": "roll.damage.*",
+            "op": "add",
+            "value": "pb",
+            "mode": "suggested",
+            "label": "Genie's Wrath",
+            "oncePerTurn": true,
+            "when": {
+              "text": "once per turn, when you hit with an attack roll"
+            },
+            "damageType": "fire"
+          }
+        ]
       }
     },
     {
       "kind": "feature",
       "id": "feature:genie-kind-marid",
       "name": "Genie kind: Marid (water)",
-      "summary": "Your patron is a marid: Fog Cloud, Blur, Sleet Storm, Control Water, Cone Of Cold join your warlock list.",
+      "summary": "Your patron is a marid: Fog Cloud, Blur, Sleet Storm, Control Water, Cone Of Cold join your warlock list. Genie's Wrath deals cold damage.",
       "source": {
         "pack": "table-2014",
         "book": "TCoE",
@@ -1604,7 +1633,21 @@
             "spell:cone-of-cold"
           ],
           "withVariants": false
-        }
+        },
+        "modifiers": [
+          {
+            "selector": "roll.damage.*",
+            "op": "add",
+            "value": "pb",
+            "mode": "suggested",
+            "label": "Genie's Wrath",
+            "oncePerTurn": true,
+            "when": {
+              "text": "once per turn, when you hit with an attack roll"
+            },
+            "damageType": "cold"
+          }
+        ]
       }
     }
   ]

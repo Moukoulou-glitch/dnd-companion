@@ -506,7 +506,7 @@ export function PlayTab({
             <div className="row-main">
               <div className="row-title">Inspiration</div>
               <div className="row-sub">
-                {character.inspirations ?? 0} of 10 · swipe one down to spend it, a grey one up when the DM gives one
+                {character.inspirations ?? 0} of 10 · hold one to spend it, hold a grey one when the DM gives you one
               </div>
             </div>
             <HitDiceRow
@@ -515,7 +515,7 @@ export function PlayTab({
               used={10 - (character.inspirations ?? 0)}
               tone="gold"
               what="Inspiration"
-              hintText="Swipe a golden die down to spend it (advantage on one attack, save or check), or a grey one up when you're given one. Rolls also offer it."
+              hintText="Hold a golden die to spend it (advantage on one attack, save or check), or hold a grey one when you're given one. Rolls also offer it."
               onSpend={() => act("setInspiration", { count: Math.max(0, (character.inspirations ?? 0) - 1) }, "Inspiration spent: advantage on one attack roll, saving throw or ability check.")}
               onRestore={() => act("setInspiration", { count: Math.min(10, (character.inspirations ?? 0) + 1) }, "Inspiration gained.")}
             />
@@ -531,7 +531,7 @@ export function PlayTab({
               <div className="row-main">
                 <div className="row-title">Hit Dice {h.die}</div>
                 <div className="row-sub">
-                  {h.total - (character.hitDiceUsed[h.die] ?? 0)} of {h.total} left · swipe one down to spend it
+                  {h.total - (character.hitDiceUsed[h.die] ?? 0)} of {h.total} left · hold one to spend it
                 </div>
               </div>
               <HitDiceRow

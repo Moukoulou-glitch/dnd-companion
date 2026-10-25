@@ -65,7 +65,10 @@ function PickList<T extends { id: string; name: string }>({
   sub,
   group,
   unavailable,
+  search,
 }: {
+  /** A search box over the names (and family names), with this placeholder. */
+  search?: string;
   /** Why an item can't be picked (you already have that feat), shown instead of letting it be picked. */
   unavailable?: (item: T) => string | undefined;
   items: T[];
@@ -74,6 +77,11 @@ function PickList<T extends { id: string; name: string }>({
   sub?: (item: T) => ReactNode;
   group?: (item: T) => string | undefined;
 }) {
+  const [q, setQ] = useState("");
+  const needle = q.trim().toLowerCase();
+  if (search && needle) items = items.filter((it) => it.id === "" || it.name.toLowerCase().includes(needle) || (group?.(it) ?? "").toLowerCase().includes(needle));
+  const box = search ? <input className="search" type="search" placeholder={search} value={q} onChange={(e) => setQ(e.target.value)} aria-label={search} /> : null;
+  const none = search && needle && !items.some((it) => it.id !== "") ? <p className="note">Nothing matches “{q.trim()}”.</p> : null;
   const row = (it: T, nested = false) => (
     <button key={it.id} className={`row${nested ? " nested" : ""}${unavailable?.(it) && selected !== it.id ? " dim" : ""}`} aria-current={selected === it.id} disabled={!!unavailable?.(it) && selected !== it.id} onClick={() => onPick(it)}>
       <div className="row-main">
@@ -84,10 +92,20 @@ function PickList<T extends { id: string; name: string }>({
       {selected === it.id && <span className="tag adv">chosen</span>}
     </button>
   );
-  if (!group) return <div className="group">{items.map((it) => row(it))}</div>;
+  if (!group)
+    return (
+      <>
+        {box}
+        {none}
+        <div className="group">{items.map((it) => row(it))}</div>
+      </>
+    );
   // Grouped (races and their subraces): each family is its own box under its name; a race on its own is a box of one.
   const blocks = pickBlocks(items, group);
   return (
+    <>
+    {box}
+    {none}
     <div className="pick-blocks">
       {blocks.map((b, i) =>
         b.name ? (
@@ -107,6 +125,7 @@ function PickList<T extends { id: string; name: string }>({
         ),
       )}
     </div>
+    </>
   );
 }
 
@@ -436,6 +455,7 @@ export function NewCharacterPanel({ reg, onCreate }: { reg: ContentRegistry; onC
       {step === 1 && (
         <PickList
           items={races}
+          search="Search races"
           selected={race}
           onPick={(r) => {
             setRace(r.id);
@@ -465,6 +485,7 @@ export function NewCharacterPanel({ reg, onCreate }: { reg: ContentRegistry; onC
           <p className="note">Load your book files to see every background; you can also pick none now and add one later.</p>
           <PickList
             items={[{ id: "", name: "None for now" }, ...backgrounds]}
+            search="Search backgrounds"
             selected={background ?? ""}
             onPick={(b) => {
               setBackground(b.id || undefined);

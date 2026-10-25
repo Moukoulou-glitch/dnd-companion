@@ -30,7 +30,10 @@ export function FeaturePanel({
   slots,
   onSlots,
   beaconIds,
+  onJustSpend,
 }: {
+  /** From Play's Features: spend its use without doing anything else. */
+  onJustSpend?: () => void;
   /** Who is under Beacon of Hope ("me", a companion's id, "summon:<id>"): healing them is the maximum. */
   beaconIds?: string[];
   /** Spell slots by level (Arcane Recovery, Combat Wild Shape). */
@@ -252,6 +255,11 @@ export function FeaturePanel({
       <button className={`big wide ${none ? "damage" : "primary"}${beacon ? " beacon" : ""}`} disabled={throwing || (!!amount && physical && !beacon && amount.dice.length > 0 && !entry)} onClick={() => void useNow()}>
         {throwing ? "Throwing…" : none ? `Use ${a.name} anyway` : a.roll && !physical ? `Roll and use ${a.name}` : `Use ${a.name}`}
       </button>
+      )}
+      {onJustSpend && a.cost && (
+        <button className="big wide" style={{ marginTop: 8 }} disabled={throwing} onClick={onJustSpend}>
+          Use resource without effect
+        </button>
       )}
       {!a.common && (a.cost || a.economy !== "free") && (a.toggles.length > 0 || a.duration) && (
         <button className="link" disabled={throwing || (!!amount && physical && amount.dice.length > 0 && !entry)} onClick={() => void useNow(true)}>

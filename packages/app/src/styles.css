@@ -1827,11 +1827,21 @@ ol.levels li[data-on="true"] {
   padding: 0;
   border: 0;
   background: none;
-  touch-action: none;
-  cursor: grab;
+  touch-action: manipulation;
+  cursor: pointer;
+  position: relative;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
   transition: transform 0.12s ease-out;
   border-radius: var(--radius-s);
 }
+/* Held: a ring fills around the die; when it closes, the die is spent (or got back). */
+.hold-ring { position: absolute; inset: -3px; width: calc(100% + 6px); height: calc(100% + 6px); pointer-events: none; fill: none; stroke: var(--focus); stroke-width: 4; stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: 1; opacity: 0; transform: rotate(-90deg); }
+.hit-die.holding { transform: scale(0.94); }
+.hit-die.holding .hold-ring { opacity: 1; animation: hold-fill var(--hold-ms, 500ms) linear forwards; }
+@keyframes hold-fill { to { stroke-dashoffset: 0; } }
+@media (prefers-reduced-motion: reduce) { .hit-die.holding .hold-ring { animation: none !important; stroke-dashoffset: 0.5; } }
 .hit-die:focus-visible {
   outline: 2px solid var(--focus);
 }

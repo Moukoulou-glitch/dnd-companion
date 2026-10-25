@@ -1,4 +1,5 @@
-import { useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
+import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
+import { LONG_PRESS_MS, MOVE_TOLERANCE } from "../longPress";
 
 /** A die seen from above: the outline and the facet lines of each shape. */
 const SHAPES: Record<number, { outline: string; facets: string[] }> = {
@@ -33,11 +34,14 @@ export function DieShape({ sides, spent }: { sides: number; spent: boolean }) {
   );
 }
 
-const SWIPE = 22;
+/** How long a die is held before it's spent or got back (the combat pills' long press). */
+export const HOLD_MS = LONG_PRESS_MS;
 
 /**
- * Hit Dice as dice: red while available, grey once spent. Swipe one down to
- * spend it; swipe a spent one up to get it back (the app asks first).
+ * Hit Dice as dice: red while available, grey once spent. Hold one (about half a
+ * second) to spend it; hold a spent one to get it back (the app asks first). A
+ * tap, a swipe or scrolling past does nothing but show the hint, so a mis-tap
+ * while moving around the page can't spend one. A ring fills while you hold.
  * Keyboard: Enter or Arrow Down spends, Arrow Up gets one back.
  */
 export function HitDiceRow({
@@ -48,7 +52,7 @@ export function HitDiceRow({
   onRestore,
   tone,
   what = "Hit Die",
-  hintText = "Swipe a die down to spend it, or a grey one up to get it back.",
+  hintText = "Hold a die to spend it, or hold a grey one to get it back.",
 }: {
   die: string;
   total: number;
@@ -61,27 +65,38 @@ export function HitDiceRow({
   hintText?: string;
 }) {
   const sides = Number(die.replace(/^d/, "")) || 6;
-  const start = useRef<{ y: number; i: number } | null>(null);
-  const [drag, setDrag] = useState<{ i: number; dy: number } | null>(null);
+  const press = useRef<{ x: number; y: number; i: number; timer: ReturnType<typeof setTimeout>; fired: boolean } | null>(null);
+  const [holding, setHolding] = useState<number | null>(null);
   const [hint, setHint] = useState(false);
+  const stop = () => {
+    if (press.current) clearTimeout(press.current.timer);
+    press.current = null;
+    setHolding(null);
+  };
+  useEffect(() => stop, []);
 
-  const down = (i: number) => (e: ReactPointerEvent<HTMLButtonElement>) => {
-    start.current = { y: e.clientY, i };
-    e.currentTarget.setPointerCapture(e.pointerId);
+  const down = (i: number, spent: boolean) => (e: ReactPointerEvent<HTMLButtonElement>) => {
+    stop();
+    const timer = setTimeout(() => {
+      if (!press.current) return;
+      press.current.fired = true;
+      setHolding(null);
+      if (typeof navigator !== "undefined" && typeof navigator.vibrate === "function") navigator.vibrate(15);
+      if (spent) onRestore();
+      else onSpend();
+    }, HOLD_MS);
+    press.current = { x: e.clientX, y: e.clientY, i, timer, fired: false };
+    setHolding(i);
   };
   const move = (e: ReactPointerEvent<HTMLButtonElement>) => {
-    if (!start.current) return;
-    setDrag({ i: start.current.i, dy: Math.max(-26, Math.min(26, e.clientY - start.current.y)) });
+    const p = press.current;
+    // Moving the finger (scrolling the page) is never a hold.
+    if (p && !p.fired && Math.hypot(e.clientX - p.x, e.clientY - p.y) > MOVE_TOLERANCE) stop();
   };
-  const up = (spent: boolean) => (e: ReactPointerEvent<HTMLButtonElement>) => {
-    const s = start.current;
-    start.current = null;
-    setDrag(null);
-    if (!s) return;
-    const dy = e.clientY - s.y;
-    if (dy > SWIPE && !spent) onSpend();
-    else if (dy < -SWIPE && spent) onRestore();
-    else if (Math.abs(dy) < 6) setHint(true);
+  const up = () => {
+    const p = press.current;
+    if (p && !p.fired) setHint(true);
+    stop();
   };
 
   return (
@@ -89,21 +104,19 @@ export function HitDiceRow({
       <div className="hit-dice">
         {Array.from({ length: total }, (_, i) => {
           const spent = i >= total - used;
-          const dy = drag?.i === i ? drag.dy : 0;
           return (
             <button
               key={i}
-              className="hit-die"
+              className={`hit-die${holding === i ? " holding" : ""}`}
               data-spent={spent}
-              style={dy ? { transform: `translateY(${dy}px)` } : undefined}
-              aria-label={spent ? `Spent ${what}. Swipe up to get it back` : `${what}. Swipe down to spend it`}
-              onPointerDown={down(i)}
+              style={{ ["--hold-ms" as string]: `${HOLD_MS}ms` }}
+              aria-label={spent ? `Spent ${what}. Hold to get it back` : `${what}. Hold to spend it`}
+              onPointerDown={down(i, spent)}
               onPointerMove={move}
-              onPointerUp={up(spent)}
-              onPointerCancel={() => {
-                start.current = null;
-                setDrag(null);
-              }}
+              onPointerUp={up}
+              onPointerLeave={stop}
+              onPointerCancel={stop}
+              onContextMenu={(e) => e.preventDefault()}
               onKeyDown={(e) => {
                 if (!spent && (e.key === "ArrowDown" || e.key === "Enter")) {
                   e.preventDefault();
@@ -115,6 +128,9 @@ export function HitDiceRow({
               }}
             >
               <DieShape sides={sides} spent={spent} />
+              <svg className="hold-ring" viewBox="0 0 60 60" aria-hidden="true">
+                <circle cx="30" cy="30" r="27" pathLength={1} />
+              </svg>
             </button>
           );
         })}
