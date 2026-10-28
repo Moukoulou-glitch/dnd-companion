@@ -23,7 +23,7 @@ import { NameFx } from "./fx/NameFx";
 import { featureFor } from "./fx/features";
 import { DiceStrip } from "./dice/DiceStrip";
 import { DiceSettings } from "./dice/DiceSettings";
-import { ownFeatureOf, ridersOf, usesOf } from "./ownFeature";
+import { freeSpellsOf, ownFeatureOf, ridersOf, rollOptionsOf, usesOf } from "./ownFeature";
 import { flourishAfter } from "./flourish";
 import { d20s, rollOrThrow } from "./dice/quick";
 import { useDiceMode } from "./dice3dSetting";
@@ -1839,6 +1839,86 @@ export function App() {
           { resource: r.id, name: r.name },
           (rolled) => live.current.act("spendResource", { resource: r.id, amount: rider.spends?.amount ?? 1 }, `${r.name}: ${rolled ?? amount.text} ${type} damage.`.replace(/\s+\./, ".")),
         );
+      }
+      if (!uses.length) {
+        const sheetNow = live.current.sheet;
+        // A count, not a use (Relentless Rage's DC, Overchannel's damage): the app marks it; by hand only on request.
+        if (r.tally)
+          return open(r.name, () => (
+            <>
+              <p className="note">{r.tally}</p>
+              <p className="note">
+                {r.used} so far. It goes back to 0 when you finish a {r.reset === "short" ? "short or long" : "long"} rest.
+              </p>
+              <button className="big wide" onClick={justSpend}>
+                Count one more by hand
+              </button>
+            </>
+          ));
+        // A free cast (Mystic Arcanum, Misty Wanderer, Star Map): the spell, where the free use casts it.
+        const spells = freeSpellsOf(sheetNow, r.id);
+        if (spells.length === 1) return openSpell(spells[0]!);
+        if (spells.length > 1)
+          return open(`Use ${r.name}?`, () => (
+            <>
+              <p className="note">
+                {r.remaining} of {r.max} left. Which spell?
+              </p>
+              <div className="group">
+                {spells.map((sp) => (
+                  <button className="row" key={`${sp.list.id}-${sp.id}`} onClick={() => openSpell(sp)}>
+                    <div className="row-main">
+                      <div className="row-title">{sp.name}</div>
+                      <div className="row-sub">{sp.level === 0 ? "Cantrip" : `Level ${sp.cast.free?.level ?? sp.level}`}, free</div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+              <button className="big wide" onClick={justSpend}>
+                Use resource without effect
+              </button>
+            </>
+          ));
+        // A free summon (the Drakewarden's drake): its card, where you pick the essence and summon it.
+        const comp = sheetNow?.companions.find((x) => x.summon?.resource === r.id);
+        if (comp) return openCompanion(comp.id);
+        // Ticked on the roll it changes (Dark One's Own Luck): say where, and keep spending it by hand.
+        const options = rollOptionsOf(sheetNow, r.id);
+        if (options.length)
+          return open(`Use ${r.name}?`, () => (
+            <>
+              <p className="note">
+                {r.remaining} of {r.max} left. Tick it on the roll it changes, in the roll screen: the use is spent when you do.
+              </p>
+              <ul className="note">
+                {options.map((o) => (
+                  <li key={o.label}>
+                    {o.label}: {o.effect}
+                    {o.reason ? ` (${o.reason})` : ""}
+                  </li>
+                ))}
+              </ul>
+              <button className="big wide" onClick={justSpend}>
+                Spend one anyway
+              </button>
+            </>
+          ));
+        // Its spell isn't here yet: say why, and keep spending it by hand.
+        const missing = r.spellMissing;
+        if (missing)
+          return open(`Use ${r.name}?`, () => (
+            <>
+              <p className="note">
+                {r.remaining} of {r.max} left.{" "}
+                {missing.why === "pick"
+                  ? `Its spell isn't picked yet: pick it for ${missing.feature} in Choices, and it's cast from here or the Spells tab.`
+                  : `${missing.spell} comes from your book files, which aren't loaded on this device: cast it from the book, then spend the use.`}
+              </p>
+              <button className="big wide" onClick={justSpend}>
+                Use resource without effect
+              </button>
+            </>
+          ));
       }
       if (uses.length > 1)
         return open(`Use ${r.name}?`, () => (

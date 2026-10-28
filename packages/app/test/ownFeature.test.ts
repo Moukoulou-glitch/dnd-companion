@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { Character } from "@dnd/schema";
 import { derive } from "@dnd/engine";
-import { ownFeatureOf, ridersOf, usesOf } from "../src/ownFeature";
+import { freeSpellsOf, ownFeatureOf, ridersOf, rollOptionsOf, usesOf } from "../src/ownFeature";
 import { tableRegistry } from "../../engine/test/helpers.js";
 const registry = () => reg;
 const reg = tableRegistry();
@@ -71,5 +71,44 @@ describe("Harness Divine Power from the Play page", () => {
     const u = usesOf(sheet.actions, "harness-divine-power");
     expect(u.map((a) => a.id)).toEqual(["harness-divine-power"]);
     expect(u[0]!.choose?.options).toEqual(["Level 1 slot", "Level 2 slot"]);
+  });
+});
+
+describe("14a: Play taps that used to only spend a use", () => {
+  it("a free cast opens its spell (Star Map's Guiding Bolt)", () => {
+    const sheet = derive(char([{ class: "class:druid", level: 2, subclass: "subclass:circle-of-stars" }]), registry());
+    expect(usesOf(sheet.actions, "star-map")).toEqual([]);
+    expect(freeSpellsOf(sheet, "star-map").map((s) => s.id)).toEqual(["spell:guiding-bolt"]);
+  });
+  it("Mystic Arcanum: says it isn't picked yet, then casts the pick", () => {
+    const c = char([{ class: "class:warlock", level: 11, subclass: "subclass:fiend" }]);
+    const before = derive(c, registry());
+    expect(before.resources.find((r) => r.id === "mystic-arcanum-6")?.spellMissing).toEqual({ why: "pick", feature: "Mystic Arcanum (6th level)" });
+    c.choices["feature:mystic-arcanum-6th-level"] = { spell: ["spell:true-seeing"] };
+    const after = derive(c, registry());
+    expect(after.resources.find((r) => r.id === "mystic-arcanum-6")?.spellMissing).toBeUndefined();
+    expect(freeSpellsOf(after, "mystic-arcanum-6").map((s) => s.id)).toEqual(["spell:true-seeing"]);
+  });
+  it("a book spell with no book loaded (Grasping Tentacles) says so", () => {
+    const sheet = derive(char([{ class: "class:warlock", level: 10, subclass: "subclass:the-fathomless" }]), registry());
+    expect(sheet.resources.find((r) => r.id === "grasping-tentacles")?.spellMissing).toEqual({ why: "book", spell: "Evard's Black Tentacles" });
+  });
+  it("Dark One's Own Luck is an option on checks and saves", () => {
+    const sheet = derive(char([{ class: "class:warlock", level: 6, subclass: "subclass:fiend" }]), registry());
+    expect(rollOptionsOf(sheet, "dark-ones-own-luck").map((o) => o.label)).toEqual(["Dark One's Own Luck"]);
+  });
+  it("Relentless Rage and Overchannel are counts, not uses", () => {
+    const b = derive(char([{ class: "class:barbarian", level: 11, subclass: "subclass:berserker" }]), registry());
+    expect(b.resources.find((r) => r.id === "relentless-rage")?.tally).toMatch(/DC by 5/);
+    const w = derive(char([{ class: "class:wizard", level: 14, subclass: "subclass:evocation" }]), registry());
+    expect(w.resources.find((r) => r.id === "overchannel")?.tally).toMatch(/necrotic/);
+  });
+  it("the drake's free summon is the drake's card", () => {
+    const sheet = derive(char([{ class: "class:ranger", level: 3, subclass: "subclass:drakewarden" }]), registry());
+    expect(sheet.companions.find((x) => x.summon?.resource === "drake-companion")?.id).toBe("drake");
+  });
+  it("Draconic Presence (spent only if the reroll works) opens its feature", () => {
+    const sheet = derive(char([{ class: "class:monk", level: 6, subclass: "subclass:way-of-the-ascendant-dragon" }]), registry());
+    expect(usesOf(sheet.actions, "draconic-presence").map((a) => a.id)).toEqual(["draconic-presence"]);
   });
 });

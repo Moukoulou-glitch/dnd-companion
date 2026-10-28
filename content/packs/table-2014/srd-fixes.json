@@ -1064,7 +1064,8 @@
             "id": "relentless-rage",
             "name": "Relentless Rage (uses since rest)",
             "max": 10,
-            "reset": "short"
+            "reset": "short",
+            "tally": "This counts how many times you've used Relentless Rage since your last rest: each one raises the next save's DC by 5. The app marks it itself when you drop to 0 hit points while raging."
           }
         ]
       }
@@ -1665,7 +1666,8 @@
             "id": "overchannel",
             "name": "Overchannel (uses since long rest)",
             "max": 10,
-            "reset": "long"
+            "reset": "long",
+            "tally": "This counts how many times you've used Overchannel since your last long rest: the first is free, and each one after it deals necrotic damage to you. The app marks it itself when you tick Overchannel on a spell's damage."
           }
         ],
         "modifiers": [

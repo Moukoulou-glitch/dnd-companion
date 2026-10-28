@@ -259,9 +259,10 @@ export function FeaturePanel({
         {throwing ? "Throwing…" : none ? `Use ${a.name} anyway` : a.roll && !physical ? `Roll and use ${a.name}` : `Use ${a.name}`}
       </button>
       )}
-      {onJustSpend && a.cost && (
+      {onJustSpend && (
         <button className="big wide" style={{ marginTop: 8 }} disabled={throwing} onClick={onJustSpend}>
-          Use resource without effect
+          {/* A use spent only when it works (Draconic Presence): the use isn't spent by using the feature. */}
+          {a.cost ? "Use resource without effect" : "It worked: spend the use"}
         </button>
       )}
       {!a.common && (a.cost || a.economy !== "free") && (a.toggles.length > 0 || a.duration) && (

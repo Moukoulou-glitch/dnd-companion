@@ -1616,7 +1616,7 @@
             "id": "draconic-presence",
             "name": "Draconic Presence",
             "economy": "reaction",
-            "note": "A failed Intimidation or Persuasion check: roll it again. Spend the use only if it now succeeds (Use resource without effect, or tap it)."
+            "note": "A failed Intimidation or Persuasion check: roll it again. Spend the use only if it now succeeds: on the Play page, tap It worked: spend the use."
           }
         ]
       }

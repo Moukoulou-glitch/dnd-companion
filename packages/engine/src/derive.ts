@@ -364,6 +364,10 @@ export interface ResourceResult {
   unlimited?: string;
   /** What one use rolls and does, from the feature that spends it (Second Wind: "heals 1d10 + 3"). */
   effect?: string;
+  /** It counts uses rather than being spent (Relentless Rage): what it counts. */
+  tally?: string;
+  /** It casts a spell the app can't offer yet: not picked in Choices (Mystic Arcanum), or a book spell with no book file loaded (Evard's Black Tentacles). */
+  spellMissing?: { why: "pick"; feature: string } | { why: "book"; spell: string };
 }
 
 /** Pools two classes share (the first id is the one kept). */
@@ -1560,6 +1564,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
         entry.die = die && die.kind === "dice" ? die.dice.replace(/^1d/, "d") : r.die;
       }
       if (r.pool) entry.pool = { sides: r.pool.sides, values: c.pools[r.id] ?? [] };
+      if (r.tally) entry.tally = r.tally;
       resources.push(entry);
     }
   }
@@ -1617,6 +1622,10 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
         if (inst && idef?.charges) granted.charges = { instanceId: inst.id, item: inst.name ?? idef.name, remaining: Math.max(0, idef.charges.max - (inst.chargesUsed ?? 0)), ...g.charges };
       }
       spellDefs.set(`${list}|${g.spell}`, { def: reg.has(g.spell) ? reg.get(g.spell, "spell") : undefined, list, prepared: true, granted });
+      if (g.resource && !reg.has(g.spell)) {
+        const res = resources.find((r) => r.id === g.resource);
+        if (res) res.spellMissing = { why: "book", spell: g.name ?? g.spell };
+      }
     }
     // Spells picked through a feature's spell choices (Magic Initiate, Fey Touched).
     if (reg.has(s.id) && /^(feature|feat):/.test(s.id)) {
@@ -1628,6 +1637,10 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
         // Cast with the feature's own spellcasting, or the one the choice names (Mystic Arcanum: warlock).
         const listOf = ch.list ?? ownList;
         if (!listOf) continue;
+        if (ch.resource && !(s.choices[ch.id] ?? []).length) {
+          const res = resources.find((r) => r.id === ch.resource);
+          if (res) res.spellMissing = { why: "pick", feature: s.label };
+        }
         for (const id of s.choices[ch.id] ?? []) {
           const def = reg.has(id) ? reg.get(id, "spell") : undefined;
           // Spell Mastery, Signature Spells: chosen from the spells in your spellbook.

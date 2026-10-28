@@ -228,6 +228,8 @@ export const ResourceDef = z
     /** Only from this level: the character's, or with `levelOf`, that class's (Drow Magic's Darkness: 5th; Shadow Magic's Darkness: sorcerer 3rd). */
     minLevel: z.number().int().min(1).max(20).optional(),
     levelOf: DefId.optional(),
+    /** It counts uses rather than being spent (Relentless Rage's DC, Overchannel's damage): what it counts, shown when it's tapped. */
+    tally: z.string().optional(),
   })
   .strict();
 export type ResourceDef = z.infer<typeof ResourceDef>;

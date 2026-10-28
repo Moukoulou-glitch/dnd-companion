@@ -361,3 +361,10 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 - Holding your breath: start it from Actions; end its tag when you breathe again. Suffocating's "can't regain hit points or be stabilized" is a reminder.
 - Underwater: add the Underwater tag from + Effect (Other); being only partly in water (no fire resistance) is yours to judge.
 - Surprised: the turn tracker doesn't stop you acting on that first turn; the tag reminds you.
+
+## Play page uses (round 14a)
+
+- A use that casts a spell for free (Mystic Arcanum, Signature Spells, Misty Wanderer, Star Map, Walker in Dreams, Telekinetic Master, Shapechanger, Primal Awareness) opens that spell. Before its spell is picked in Choices, or when the spell is in a book file that isn't loaded (Summon Fey, Evard's Black Tentacles), the panel says so and the use can still be spent by hand.
+- An option ticked on a roll (Dark One's Own Luck) says where it's ticked; "Spend one anyway" spends it without a roll.
+- Relentless Rage and Overchannel are counts the app keeps itself; a tap explains them and can add one by hand.
+- Draconic Presence: its use is spent only by "It worked: spend the use".
