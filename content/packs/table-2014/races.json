@@ -4001,6 +4001,66 @@
         "feature:shadar-kai-necrotic-resistance",
         "feature:shadar-kai-blessing-of-the-raven-queen"
       ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:deep-gnome-stone-camouflage",
+      "name": "Stone Camouflage",
+      "summary": "Advantage on Stealth checks to hide in rocky terrain.",
+      "source": {
+        "pack": "table-2014",
+        "book": "MToF"
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.check.skill.stealth",
+            "op": "advantage",
+            "label": "Stone Camouflage",
+            "when": {
+              "text": "hiding in rocky terrain"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "race",
+      "id": "race:deep-gnome",
+      "name": "Deep Gnome",
+      "summary": "Svirfneblin of the Underdark: 120 ft darkvision, Gnome Cunning, and hard to spot among rocks.",
+      "source": {
+        "pack": "table-2014",
+        "book": "MToF"
+      },
+      "size": "small",
+      "speed": 25,
+      "group": "Gnome",
+      "grant": {
+        "abilityBonuses": {
+          "int": 2,
+          "dex": 1
+        },
+        "proficiencies": [
+          {
+            "kind": "language",
+            "target": "Common"
+          },
+          {
+            "kind": "language",
+            "target": "Gnomish"
+          },
+          {
+            "kind": "language",
+            "target": "Undercommon"
+          }
+        ]
+      },
+      "features": [
+        "feature:superior-darkvision",
+        "feature:trait-gnome-cunning",
+        "feature:deep-gnome-stone-camouflage"
+      ]
     }
   ]
 }

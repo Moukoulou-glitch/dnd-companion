@@ -36,3 +36,12 @@ describe("13f: the races picked", () => {
     expect(pc("race:shadar-kai", 2).actions.some((a) => a.id === "raven-queen-ghostly")).toBe(false);
   });
 });
+
+describe("13f: Deep Gnome", () => {
+  it("Small, 25 ft, 120 ft darkvision, Gnome Cunning and Stone Camouflage", () => {
+    const g = pc("race:deep-gnome");
+    expect([g.abilities.int.score.total, g.abilities.dex.score.total, g.speed.total, g.senses.darkvision]).toEqual([12, 11, 25, 120]);
+    expect(g.skills.stealth.suggestions.some((x) => x.label === "Stone Camouflage")).toBe(true);
+    expect(g.saves.wis.suggestions.some((x) => /Gnome Cunning/.test(x.label))).toBe(true);
+  });
+});

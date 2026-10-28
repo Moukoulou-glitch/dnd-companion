@@ -352,5 +352,5 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 
 ## Races (round 13f)
 
-- Genasi, Duergar, Sea Elf, Shadar-kai: abilities, senses, resistances, speeds and innate spells are applied; Unending Breath, Earth Walk, Amphibious, Friend of the Sea and the sunlight limit on Duergar Magic are reminders.
+- Genasi, Duergar, Sea Elf, Shadar-kai, Deep Gnome: abilities, senses, resistances, speeds and innate spells are applied; Unending Breath, Earth Walk, Amphibious, Friend of the Sea and the sunlight limit on Duergar Magic are reminders.
 - Shadar-kai: after the teleport, switch on "ghostly" for the resistance (from 3rd level); it ends at the start of your next turn.
