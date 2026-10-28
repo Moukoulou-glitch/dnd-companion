@@ -368,3 +368,13 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 - An option ticked on a roll (Dark One's Own Luck) says where it's ticked; "Spend one anyway" spends it without a roll.
 - Relentless Rage and Overchannel are counts the app keeps itself; a tap explains them and can add one by hand.
 - Draconic Presence: its use is spent only by "It worked: spend the use".
+
+## Monk and cleric features (round 14b)
+
+- Physician's Touch: a free action after Hand of Healing ends the condition you pick on you; on someone else, and diseases, it's theirs to remove. Hand of Harm's poisoned rider is a note.
+- Flurry of Healing and Harm was already in the Flurry panel (Hand of Healing in place of strikes, Hand of Harm with no ki from 11th).
+- Tranquility: Sanctuary is put on you at the end of each long rest, until the next one; its other ways of ending are yours to apply (end the tag).
+- Intoxicated Frenzy: the Flurry asks for two to five strikes; that each one targets a different creature is yours to keep.
+- Keeper of Souls: type the creature's number of Hit Dice; once per round and the kind of creature are yours to check.
+- Expansive Bond: Protective Bond puts a resistance tag on you that halves the next damage you enter (any type) and then ends; if you enter none it lasts one round. The 60 ft range is in the notes; Emboldening Bond's range is yours to keep.
+- Voice of Authority: a reminder in the cast's note for every spell of 1st level or higher; whether it targeted an ally is yours to judge.

@@ -235,6 +235,8 @@ export interface ActionResult {
   everyDays?: number;
   everyDaysIfRollAtMost?: number;
   endsConditions?: string[];
+  /** Healing typed in rather than rolled, and what the number is (Keeper of Souls). */
+  healEntered?: string;
   /** Spells this use casts for free (Haunted: Invisibility): using it opens the spell. */
   spells?: { id: string; list: string }[];
   tempHp?: Amount;
@@ -476,6 +478,10 @@ export interface DerivedSheet {
   };
   /** Uses that come back when you roll initiative with none left (Relentless, Perfect Self). */
   initiativeRegains: { resource: string; amount: number; from: string }[];
+  /** Effects put on you when you finish a long rest (Tranquility: Sanctuary), with their save DC. */
+  afterLongRest: { effect: string; minutes?: number; dc?: number; from: string }[];
+  /** Reminders when you cast a spell of `minLevel` or higher (Voice of Authority). */
+  castReminders: { text: string; minLevel: number; from: string }[];
   /** Uses back at the end of a short rest (Sorcerous Restoration). */
   shortRestRegains: { resource: string; amount: number; from: string }[];
   /**
@@ -1951,6 +1957,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
         if (a.everyDaysIfRollAtMost !== undefined) entry.everyDaysIfRollAtMost = evalFlat(a.everyDaysIfRollAtMost, ctxFor(s));
       }
       if (a.endsConditions?.length) entry.endsConditions = a.endsConditions;
+      if (a.healEntered) entry.healEntered = a.healEntered;
       if (a.cost) {
         const free = spells.filter((sp) => sp.cast.free?.resource === a.cost!.resource).map((sp) => ({ id: sp.id, list: sp.list.id }));
         if (free.length) entry.spells = free;
@@ -2359,6 +2366,12 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     encumbrance,
     initiativeRegains: sources.flatMap((s) => (s.grant.initiativeRegain ? [{ ...s.grant.initiativeRegain, from: s.label }] : [])),
     shortRestRegains: sources.flatMap((s) => (s.grant.shortRestRegain ?? []).map((g) => ({ ...g, from: s.label }))),
+    afterLongRest: sources.flatMap((s) => {
+      const g = s.grant.afterLongRest;
+      if (!g) return [];
+      return [{ effect: g.effect, ...(g.minutes ? { minutes: g.minutes } : {}), ...(g.dc !== undefined ? { dc: evalFlat(g.dc, ctxFor(s)) } : {}), from: s.label }];
+    }),
+    castReminders: sources.flatMap((s) => (s.grant.castReminder ? [{ ...s.grant.castReminder, from: s.label }] : [])),
     breath: (() => {
       const base = Math.max(5, (1 + mods.con) * 10);
       let out: { rounds?: number; label: string; notes: string[] } = { rounds: base, label: `${Math.max(0.5, 1 + mods.con)} minute${1 + mods.con === 1 ? "" : "s"} (1 + Constitution modifier)`, notes: [] };

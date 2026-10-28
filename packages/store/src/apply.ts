@@ -202,6 +202,11 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       if (od.whileTempHp && tempBefore <= 0) continue;
       const lvl = e.castLevel ?? def.upcast?.baseLevel ?? 1;
       notes.push(od.text.replace("{amount}", od.amount !== undefined ? String(atLevel(od.amount, lvl)) : ""));
+      // Over once that damage is taken (Protective Bond's resistance).
+      if (od.endsAfter) {
+        c.effects = c.effects.filter((x) => x.id !== e.id);
+        continue;
+      }
       if (od.whileTempHp && c.hp.temp === 0) {
         c.effects = c.effects.filter((x) => x.id !== e.id);
         notes.push(`${def.name}'s temporary HP are gone: it ends.`);
@@ -374,8 +379,14 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
           }
         }
       }
+      // Resistance to all damage, of any type or none entered (Protective Bond's, from Expansive Bond).
+      if (sheet.defenses.resist.includes("all") && dmg > 0 && !(damageType && sheet.defenses.resist.includes(damageType))) {
+        const was = dmg;
+        dmg = Math.floor(dmg / 2);
+        notes.push(`Resistant to all damage: ${was} halved to ${dmg}.`);
+      }
       // Resistance to damage from spells (Aura of Warding): resistances don't stack, so not on top of a typed one.
-      if (op.payload.fromSpell && sheet.defenses.resist.includes("spells") && dmg > 0 && !(damageType && sheet.defenses.resist.includes(damageType))) {
+      if (op.payload.fromSpell && sheet.defenses.resist.includes("spells") && !sheet.defenses.resist.includes("all") && dmg > 0 && !(damageType && sheet.defenses.resist.includes(damageType))) {
         const was = dmg;
         dmg = Math.floor(dmg / 2);
         notes.push(`Resistant to damage from spells: ${was} halved to ${dmg}.`);
@@ -1152,6 +1163,17 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       if (kind === "long") {
         const dawn = c.inventory.filter((i) => (i.chargesUsed ?? 0) > 0 && reg.find(i.item, "item")?.charges?.regain);
         if (dawn.length) notes.push(`At dawn, charges come back: ${dawn.map((i) => `${i.name ?? reg.find(i.item, "item")!.name} (${reg.find(i.item, "item")!.charges!.regain})`).join(", ")}; roll it on the item.`);
+        // Effects a long rest puts on you (Tranquility: Sanctuary for 8 hours): a fresh one replaces the last.
+        for (const g of sheet.afterLongRest) {
+          const def = reg.find(reg.effectId(g.effect), "effect");
+          removeEffects(c.effects.filter((e) => e.effect === g.effect && e.from === g.from));
+          const entry: Character["effects"][number] = { id: `${op.id}-${g.effect}`, effect: g.effect, from: g.from };
+          if (g.minutes) entry.minutes = g.minutes;
+          else entry.untilRest = "long";
+          if (!c.combat) entry.outOfCombat = true;
+          c.effects.push(entry);
+          notes.push(`${g.from}: ${def?.name ?? g.effect} on you${g.minutes ? ` for ${g.minutes >= 60 && g.minutes % 60 === 0 ? `${g.minutes / 60} hours` : `${g.minutes} minutes`}` : " until your next long rest"}${g.dc !== undefined ? ` (save DC ${g.dc})` : ""}.`);
+        }
       }
       break;
     }
@@ -1597,6 +1619,8 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
           notes.push(`The material component is used up: ${have - 1} left.`);
         }
       }
+      // Reminders on casting (Voice of Authority: an ally you target can attack with its reaction).
+      for (const r of sheet.castReminders) if (level >= r.minLevel) notes.push(`${r.from}: ${r.text}`);
       if (op.payload.readied) {
         // Cast now, held with concentration until released with your reaction (PHB p. 193).
         if (castingEconomy(sp.castingTime) !== "action") notes.push(`${sp.name} isn't cast with 1 action: only those can be readied.`);

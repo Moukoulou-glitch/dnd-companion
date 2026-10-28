@@ -3482,6 +3482,25 @@
           "9": "12d8"
         }
       }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:tranquility",
+      "name": "Tranquility",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "summary": "At the end of each long rest, Sanctuary is on you until your next long rest (it can end early as the spell does). Its save DC is 8 + your Wisdom modifier + your proficiency bonus.",
+      "grant": {
+        "afterLongRest": {
+          "effect": "effect:sanctuary",
+          "dc": "8 + mod.wis + pb"
+        }
+      },
+      "text": [
+        "Beginning at 11th level, you can enter a special meditation that surrounds you with an aura of peace. At the end of a long rest, you gain the effect of a sanctuary spell that lasts until the start of your next long rest (the spell can end early as normal). The saving throw DC for the spell equals 8 + your Wisdom modifier + your proficiency bonus."
+      ]
     }
   ]
 }

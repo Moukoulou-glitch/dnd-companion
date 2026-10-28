@@ -1330,6 +1330,20 @@ export function App() {
       const dice = h ? `${h.dice.join("+")}${h.flat ? (h.flat > 0 ? `+${h.flat}` : String(h.flat)) : ""}` : "1d4";
       openTraitRoll("Hand of Healing", dice, "healing", then ? { back: { label: "On to the strike", to: then } } : {});
     };
+    // Intoxicated Frenzy (Drunken Master 17th): up to five strikes, each at a different creature.
+    const frenzy = sh?.features.some((f) => f.id === "feature:way-of-the-drunken-master-intoxicated-frenzy");
+    if (frenzy)
+      return open("Flurry of Blows", () => (
+        <Choose
+          question="Intoxicated Frenzy: up to three more strikes, each one against a different creature."
+          options={[
+            { label: "Two unarmed strikes", onPick: () => strikes(2) },
+            { label: "Three strikes (three creatures)", onPick: () => strikes(3) },
+            { label: "Four strikes (four creatures)", onPick: () => strikes(4) },
+            { label: "Five strikes (five creatures)", onPick: () => strikes(5) },
+          ]}
+        />
+      ));
     if (!healing) return strikes(2);
     open("Flurry of Blows", () => (
       <Choose

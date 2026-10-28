@@ -2937,6 +2937,20 @@
         "pack": "table-2014",
         "book": "XGtE",
         "page": 20
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "keeper-of-souls",
+            "name": "Keeper of Souls",
+            "economy": "free",
+            "toggles": [],
+            "heal": "0",
+            "healEntered": "Hit points: the creature's number of Hit Dice",
+            "others": true,
+            "note": "Once per round, when an enemy you can see dies within 60 ft: you or a creature of your choice within 60 ft regains hit points equal to its number of Hit Dice. Not if it was a construct or undead."
+          }
+        ]
       }
     },
     {
@@ -3043,6 +3057,12 @@
         "pack": "table-2014",
         "book": "TCoE",
         "page": 31
+      },
+      "grant": {
+        "castReminder": {
+          "text": "if the spell targets an ally, one of those allies can use its reaction to make one weapon attack against a creature you choose that you can see.",
+          "minLevel": 1
+        }
       }
     },
     {
@@ -3646,7 +3666,9 @@
             "id": "protective-bond",
             "name": "Protective Bond",
             "economy": "reaction",
-            "note": "A bonded creature teleports beside another within 30 ft and takes its damage instead."
+            "note": "A bonded creature teleports beside another within 30 ft and takes its damage instead.",
+            "maxLevel": 16,
+            "levelOf": "class:cleric"
           }
         ]
       }
@@ -3685,6 +3707,18 @@
         "pack": "table-2014",
         "book": "TCoE",
         "page": 33
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "protective-bond",
+            "name": "Protective Bond",
+            "economy": "reaction",
+            "toggles": [],
+            "selfEffect": "effect:protective-bond",
+            "note": "A bonded creature within 60 ft is about to take damage: you teleport beside it and take the damage instead, with resistance to it. Enter that damage next. If another bonded creature takes your place, it gets the resistance (theirs to apply)."
+          }
+        ]
       }
     },
     {

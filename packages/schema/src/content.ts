@@ -351,7 +351,13 @@ export const EffectDef = z
      * and it ends when they're gone.
      */
     onDamage: z
-      .object({ text: z.string(), amount: z.union([z.number(), z.string()]).optional(), whileTempHp: z.boolean().optional() })
+      .object({
+        text: z.string(),
+        amount: z.union([z.number(), z.string()]).optional(),
+        whileTempHp: z.boolean().optional(),
+        /** It ends once that damage is taken (Protective Bond's resistance, for the damage taken in another's place). */
+        endsAfter: z.boolean().optional(),
+      })
       .strict()
       .optional(),
     /** Current HP gained when applied (Aid). May use "slotLevel". */

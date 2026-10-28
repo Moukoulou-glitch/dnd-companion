@@ -5590,6 +5590,34 @@
         "No reactions until that turn ends."
       ],
       "rounds": 1
+    },
+    {
+      "kind": "effect",
+      "id": "effect:protective-bond",
+      "name": "Protective Bond: resisting",
+      "category": "other",
+      "summary": "You took a bonded creature's place: you resist the damage it was about to take.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 32
+      },
+      "modifiers": [
+        {
+          "selector": "defense.resist.all",
+          "op": "resist",
+          "label": "Protective Bond (Expansive Bond)"
+        }
+      ],
+      "reminders": [
+        "Enter the damage you take in its place: it's halved, and this tag ends."
+      ],
+      "rounds": 1,
+      "onDamage": {
+        "text": "Protective Bond: you resisted the damage you took in the other creature's place.",
+        "endsAfter": true
+      },
+      "selfOnly": true
     }
   ]
 }

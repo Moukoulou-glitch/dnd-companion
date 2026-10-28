@@ -197,6 +197,34 @@
         "pack": "table-2014",
         "book": "TCoE",
         "page": 49
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "physicians-touch",
+            "name": "Physician's Touch",
+            "economy": "free",
+            "toggles": [],
+            "endsConditions": [
+              "condition:blinded",
+              "condition:deafened",
+              "condition:paralyzed",
+              "condition:poisoned",
+              "condition:stunned"
+            ],
+            "choose": {
+              "label": "End which on you?",
+              "options": [
+                "Blinded",
+                "Deafened",
+                "Paralyzed",
+                "Poisoned",
+                "Stunned"
+              ]
+            },
+            "note": "Part of a Hand of Healing: it also ends one disease or one of these conditions. On you, pick it here; on someone else, it's theirs to remove. Hand of Harm can also leave its target poisoned until the end of your next turn."
+          }
+        ]
       }
     },
     {

@@ -88,6 +88,8 @@ export function FeaturePanel({
   const maxOfAmount = amount ? amount.flat + amount.dice.reduce((t, d) => t + (/^(\d*)d(\d+)$/.test(d) ? Number(/^(\d*)/.exec(d)![1] || 1) * Number(/d(\d+)$/.exec(d)![1]) : 0), 0) : 0;
   const useNow = async (free = false) => {
     if (!amount) return useWith(undefined, free, undefined, undefined, undefined, me);
+    // Healing typed in (Keeper of Souls: the creature's Hit Dice), not rolled.
+    if (a.healEntered) return useWith(Number(entry), free, undefined, undefined, undefined, me);
     if (beacon && physical) return useWith(maxOfAmount, free, undefined, undefined, undefined, me);
     if (physical) return useWith(Number(entry) + amount.flat, free, undefined, undefined, undefined, me);
     // The app rolls for this character: 3D dice when they're on (in the feature's own look: Second Wind's), else the app's roll.
@@ -187,10 +189,16 @@ export function FeaturePanel({
         <>
           <p className="sub-head">
             {a.tempHp ? "Temporary HP" : a.heal ? "Healing" : `Roll ${amount.text}, ${a.roll!.label}`}
-            {a.tempHp || a.heal ? `: ${amount.text}` : ""}
+            {a.healEntered ? "" : a.tempHp || a.heal ? `: ${amount.text}` : ""}
           </p>
+          {a.healEntered && (
+            <label className="entry">
+              <span>{a.healEntered}</span>
+              <input inputMode="numeric" pattern="[0-9]*" value={entry} onChange={(e) => setEntry(e.target.value.replace(/\D/g, "").slice(0, 3))} />
+            </label>
+          )}
           {beacon && <p className="note beacon-text">{maxLabels?.[healedId] ?? "Beacon of Hope"}: the maximum, {maxOfAmount}.</p>}
-          {physical && !beacon && amount.dice.length > 0 && (
+          {physical && !beacon && !a.healEntered && amount.dice.length > 0 && (
             <label className="entry">
               <span>Roll {amount.dice.join(" + ")} and type the dice total</span>
               <input inputMode="numeric" pattern="[0-9]*" value={entry} onChange={(e) => setEntry(e.target.value.replace(/\D/g, "").slice(0, 3))} />
@@ -255,7 +263,7 @@ export function FeaturePanel({
           </button>
         </>
       ) : (
-      <button className={`big wide ${none ? "damage" : "primary"}${beacon ? " beacon" : ""}`} disabled={throwing || (!!amount && physical && !beacon && amount.dice.length > 0 && !entry)} onClick={() => void useNow()}>
+      <button className={`big wide ${none ? "damage" : "primary"}${beacon ? " beacon" : ""}`} disabled={throwing || (!!a.healEntered && !Number(entry)) || (!!amount && physical && !beacon && amount.dice.length > 0 && !entry)} onClick={() => void useNow()}>
         {throwing ? "Throwing…" : none ? `Use ${a.name} anyway` : a.roll && !physical ? `Roll and use ${a.name}` : `Use ${a.name}`}
       </button>
       )}

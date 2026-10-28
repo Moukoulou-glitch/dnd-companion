@@ -339,6 +339,8 @@ export const ActionDef = z
     toggles: z.array(z.string()).default([]),
     tempHp: ValueExpr.optional(),
     heal: ValueExpr.optional(),
+    /** Healing whose amount is typed in rather than rolled, and what it is (Keeper of Souls: the dead creature's number of Hit Dice). */
+    healEntered: z.string().optional(),
     /** The healing can go to another creature (Healing Hands: touch a creature): asks whether it's on you. */
     others: z.boolean().optional(),
     /**
@@ -611,6 +613,10 @@ export const Grant = z
     extraAttacks: ValueExpr.optional(),
     /** When you roll initiative with none of this resource left, you regain `amount` (Relentless: a superiority die; Perfect Self: 4 ki). */
     initiativeRegain: z.object({ resource: z.string(), amount: z.number().int().min(1).default(1) }).strict().optional(),
+    /** An effect put on you when you finish a long rest (Tranquility: Sanctuary), for `minutes` or until the next long rest, with its save DC when it has one. */
+    afterLongRest: z.object({ effect: DefId, minutes: z.number().int().min(1).optional(), dc: ValueExpr.optional() }).strict().optional(),
+    /** A reminder each time you cast a spell of `minLevel` or higher (Voice of Authority: an ally you target can attack with its reaction). */
+    castReminder: z.object({ text: z.string(), minLevel: z.number().int().min(0).max(9).default(1) }).strict().optional(),
   })
   .strict();
 export type Grant = z.infer<typeof Grant>;
