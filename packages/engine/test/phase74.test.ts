@@ -23,6 +23,9 @@ describe("13f: College of Spirits", () => {
     const s6 = bard(6, { spells: [{ spell: "spell:dissonant-whispers", list: "bard", prepared: true }, { spell: "spell:cure-wounds", list: "bard", prepared: true }] });
     expect(s6.spells.find((s) => s.id === "spell:dissonant-whispers")?.damageBonus?.suggestions.find((x) => x.label === "Spiritual Focus")?.apply.dice).toEqual(["1d6"]);
     expect(s6.spells.find((s) => s.id === "spell:cure-wounds")?.damageBonus?.suggestions.find((x) => x.label === "Spiritual Focus")?.apply.dice).toEqual(["1d6"]);
+    // Not on another class's spells.
+    const cl = derive(Character.parse({ id: "p", schemaVersion: 1, ruleset: "5e-2014", name: "P", abilities: { str: 10, dex: 16, con: 14, int: 10, wis: 16, cha: 16 }, race: "race:human", classes: [{ class: "class:bard", level: 6, subclass: "subclass:college-of-spirits" }, { class: "class:cleric", level: 1 }], hp: { current: 30, temp: 0 }, spells: [{ spell: "spell:guiding-bolt", list: "cleric", prepared: true }] }), reg);
+    expect(cl.spells.find((s) => s.id === "spell:guiding-bolt")?.damageBonus?.suggestions.some((x) => x.label === "Spiritual Focus")).toBe(false);
     const s5 = bard(5, { spells: [{ spell: "spell:dissonant-whispers", list: "bard", prepared: true }] });
     expect(s5.spells.find((s) => s.id === "spell:dissonant-whispers")?.damageBonus?.suggestions.some((x) => x.label === "Spiritual Focus")).toBe(false);
   });
@@ -30,7 +33,11 @@ describe("13f: College of Spirits", () => {
     const c = pc("class:bard", 6, "subclass:college-of-spirits");
     const item = buildItems(c, reg).find((i) => /Spirit Session/.test(i.label));
     expect(item?.choice?.spells?.schools).toEqual(["divination", "necromancy"]);
-    expect(derive(pc("class:bard", 6, "subclass:college-of-spirits", { choices: { "feature:college-of-spirits-spirit-session": { spell: ["spell:speak-with-dead"] } } }), reg).spells.some((s) => s.id === "spell:speak-with-dead")).toBe(true);
+    const picked = { choices: { "feature:college-of-spirits-spirit-session": { spell: ["spell:speak-with-dead"] } } };
+    // Known only while the session's tag is on (until the long rest).
+    expect(derive(pc("class:bard", 6, "subclass:college-of-spirits", picked), reg).spells.some((s) => s.id === "spell:speak-with-dead")).toBe(false);
+    expect(derive(pc("class:bard", 6, "subclass:college-of-spirits", { ...picked, effects: [{ id: "s", effect: "effect:spirit-session", untilRest: "long" }] }), reg).spells.some((s) => s.id === "spell:speak-with-dead")).toBe(true);
+    expect(derive(pc("class:bard", 6, "subclass:college-of-spirits"), reg).actions.find((a) => a.id === "spirit-session")?.selfEffect).toBe("effect:spirit-session");
   });
 });
 

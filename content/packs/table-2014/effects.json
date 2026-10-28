@@ -5491,6 +5491,24 @@
         }
       ],
       "selfOnly": true
+    },
+    {
+      "kind": "effect",
+      "id": "effect:spirit-session",
+      "name": "Spirit Session",
+      "category": "other",
+      "summary": "You know the spell from your Spirit Session (picked in Choices) until your next long rest.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VRGR",
+        "page": 28
+      },
+      "modifiers": [],
+      "reminders": [
+        "The spell counts as a bard spell, not among your spells known."
+      ],
+      "untilRest": "long",
+      "selfOnly": true
     }
   ]
 }

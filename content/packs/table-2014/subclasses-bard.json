@@ -1349,7 +1349,7 @@
       "kind": "feature",
       "id": "feature:college-of-spirits-spiritual-focus",
       "name": "Spiritual Focus",
-      "summary": "A candle, crystal ball, skull, spirit board or tarokka deck is your spellcasting focus. From 6th level, a bard spell cast through it that deals damage or heals adds 1d6 to one of its rolls.",
+      "summary": "A candle, crystal ball, skull, spirit board or tarokka deck is your spellcasting focus. From 6th level, a bard spell cast through it that deals damage or heals adds 1d6 to one of its rolls (offered on your bard spells).",
       "source": {
         "pack": "table-2014",
         "book": "VRGR",
@@ -1358,7 +1358,7 @@
       "grant": {
         "modifiers": [
           {
-            "selector": "roll.damage.spell",
+            "selector": "roll.damage.spell.list.bard",
             "op": "add",
             "value": "1d6",
             "mode": "suggested",
@@ -1368,11 +1368,11 @@
                 "class": "class:bard",
                 "min": 6
               },
-              "text": "a bard spell cast through your Spiritual Focus: one of its damage rolls"
+              "text": "cast through your Spiritual Focus: one damage roll of the spell"
             }
           },
           {
-            "selector": "roll.heal.spell.option",
+            "selector": "roll.heal.spell.option.list.bard",
             "op": "add",
             "value": "1d6",
             "mode": "suggested",
@@ -1382,7 +1382,7 @@
                 "class": "class:bard",
                 "min": 6
               },
-              "text": "a bard spell cast through your Spiritual Focus: one of its healing rolls"
+              "text": "cast through your Spiritual Focus: one healing roll of the spell"
             }
           }
         ]
@@ -1449,7 +1449,8 @@
                 "12 · Mind-Bender: Intelligence save or psychic damage of three of your Bardic Inspiration dice and stunned until the end of its next turn."
               ]
             },
-            "note": "Keep it in mind until you bestow it or rest; a new roll replaces it. Saves: {spelldc}."
+            "note": "The tale is kept as a tag until you bestow it or rest; a new roll replaces it. Saves: {spelldc}.",
+            "holdsRoll": true
           },
           {
             "id": "tales-from-beyond-bestow",
@@ -1459,7 +1460,11 @@
               "dice": "scale.die",
               "label": "one Bardic Inspiration die for the tale (roll it as many times as the tale says)"
             },
-            "note": "One creature you can see within 30 ft, you too. Saves: {spelldc}."
+            "note": "One creature you can see within 30 ft, you too: the tale you hold. Saves: {spelldc}.",
+            "releases": [
+              "tales-from-beyond",
+              "tales-from-beyond-second"
+            ]
           }
         ]
       }
@@ -1487,7 +1492,8 @@
               "necromancy"
             ],
             "upToSlots": true
-          }
+          },
+          "whileEffect": "effect:spirit-session"
         }
       ],
       "grant": {
@@ -1508,7 +1514,8 @@
               "resource": "spirit-session",
               "amount": 1
             },
-            "note": "One hour with up to {pb} willing creatures. Pick the spell in Choices: its level can't be higher than how many took part. You know it until your next long rest."
+            "note": "One hour with up to {pb} willing creatures. Pick the spell in Choices (its level up to how many took part): you know it until your next long rest.",
+            "selfEffect": "effect:spirit-session"
           }
         ]
       }
@@ -1570,7 +1577,8 @@
                 "12 · Mind-Bender: Intelligence save or psychic damage of three of your Bardic Inspiration dice and stunned until the end of its next turn."
               ]
             },
-            "note": "Right after Tales from Beyond's roll, at no further cost."
+            "note": "Right after Tales from Beyond's roll, at no further cost. Both tales are held; bestowing ends both.",
+            "holdsRoll": true
           }
         ]
       }

@@ -42,3 +42,24 @@ describe("13e limits fixed in play", () => {
     expect(l.character.hp.current).toBe(10 + (4 + 2) * 2);
   });
 });
+
+describe("13f limits fixed in play", () => {
+  it("Tales from Beyond: the tale is held as a tag, replaced by a new roll, gone when bestowed", () => {
+    const l = make("class:bard", 6, [], (c) => (c.classes[0]!.subclass = "subclass:college-of-spirits"));
+    l.record("useAction", { action: "tales-from-beyond", rolled: 1 });
+    expect(l.character.effects.filter((e) => e.custom?.name.startsWith("Tale held")).map((e) => e.custom!.name)).toEqual(["Tale held: Clever Animal"]);
+    l.record("useAction", { action: "tales-from-beyond", rolled: 6 });
+    expect(l.character.effects.filter((e) => e.custom?.name.startsWith("Tale held")).map((e) => e.custom!.name)).toEqual(["Tale held: Traveler"]);
+    l.record("useAction", { action: "tales-from-beyond-bestow", rolled: 3 });
+    expect(l.character.effects.some((e) => e.custom?.name.startsWith("Tale held"))).toBe(false);
+  });
+  it("Spirit Session: its tag lasts until the long rest", () => {
+    const l = make("class:bard", 6, [], (c) => (c.classes[0]!.subclass = "subclass:college-of-spirits"));
+    l.record("useAction", { action: "spirit-session" });
+    expect(l.character.effects.some((e) => e.effect === "effect:spirit-session")).toBe(true);
+    l.record("rest", { kind: "short" });
+    expect(l.character.effects.some((e) => e.effect === "effect:spirit-session")).toBe(true);
+    l.record("rest", { kind: "long" });
+    expect(l.character.effects.some((e) => e.effect === "effect:spirit-session")).toBe(false);
+  });
+});

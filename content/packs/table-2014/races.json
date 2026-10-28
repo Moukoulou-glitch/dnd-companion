@@ -3200,6 +3200,807 @@
           }
         ]
       }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:genasi-unending-breath",
+      "name": "Unending Breath",
+      "summary": "You can hold your breath for as long as you like while you aren't incapacitated.",
+      "source": {
+        "pack": "table-2014",
+        "book": "EEPC"
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:genasi-mingle-with-the-wind",
+      "name": "Mingle with the Wind",
+      "summary": "Levitate once per long rest, without material components; Constitution is the spellcasting ability.",
+      "source": {
+        "pack": "table-2014",
+        "book": "EEPC"
+      },
+      "grant": {
+        "spellcasting": {
+          "id": "genasi-air",
+          "label": "Mingle with the Wind",
+          "ability": "con",
+          "progression": "none"
+        },
+        "spells": [
+          {
+            "spell": "spell:levitate",
+            "name": "Levitate",
+            "casting": "Once per long rest, no material components",
+            "resource": "genasi-air-levitate"
+          }
+        ],
+        "resources": [
+          {
+            "id": "genasi-air-levitate",
+            "name": "Mingle with the Wind: Levitate",
+            "max": 1,
+            "reset": "long"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:genasi-earth-walk",
+      "name": "Earth Walk",
+      "summary": "Difficult terrain made of earth or stone costs you no extra movement.",
+      "source": {
+        "pack": "table-2014",
+        "book": "EEPC"
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:genasi-merge-with-stone",
+      "name": "Merge with Stone",
+      "summary": "Pass without trace once per long rest, without material components; Constitution is the spellcasting ability.",
+      "source": {
+        "pack": "table-2014",
+        "book": "EEPC"
+      },
+      "grant": {
+        "spellcasting": {
+          "id": "genasi-earth",
+          "label": "Merge with Stone",
+          "ability": "con",
+          "progression": "none"
+        },
+        "spells": [
+          {
+            "spell": "spell:pass-without-trace",
+            "name": "Pass without Trace",
+            "casting": "Once per long rest, no material components",
+            "resource": "genasi-earth-pass-without-trace"
+          }
+        ],
+        "resources": [
+          {
+            "id": "genasi-earth-pass-without-trace",
+            "name": "Merge with Stone: Pass without Trace",
+            "max": 1,
+            "reset": "long"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:genasi-fire-resistance",
+      "name": "Fire Resistance",
+      "summary": "Resistance to fire damage. Your darkvision sees in shades of red.",
+      "source": {
+        "pack": "table-2014",
+        "book": "EEPC"
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.fire",
+            "op": "resist",
+            "label": "Fire Resistance"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:genasi-reach-to-the-blaze",
+      "name": "Reach to the Blaze",
+      "summary": "The produce flame cantrip; from 3rd level, burning hands once per long rest as a 1st-level spell. Constitution is the spellcasting ability.",
+      "source": {
+        "pack": "table-2014",
+        "book": "EEPC"
+      },
+      "grant": {
+        "spellcasting": {
+          "id": "genasi-fire",
+          "label": "Reach to the Blaze",
+          "ability": "con",
+          "progression": "none"
+        },
+        "spells": [
+          {
+            "spell": "spell:produce-flame",
+            "name": "Produce Flame",
+            "casting": "At will"
+          },
+          {
+            "spell": "spell:burning-hands",
+            "name": "Burning Hands",
+            "casting": "Once per long rest, no material components",
+            "resource": "genasi-fire-burning-hands",
+            "minLevel": 3,
+            "castAt": 1
+          }
+        ],
+        "resources": [
+          {
+            "id": "genasi-fire-burning-hands",
+            "name": "Reach to the Blaze: Burning Hands",
+            "max": 1,
+            "reset": "long",
+            "minLevel": 3
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:genasi-acid-resistance",
+      "name": "Acid Resistance",
+      "summary": "Resistance to acid damage.",
+      "source": {
+        "pack": "table-2014",
+        "book": "EEPC"
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.acid",
+            "op": "resist",
+            "label": "Acid Resistance"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:genasi-amphibious",
+      "name": "Amphibious",
+      "summary": "You breathe air and water.",
+      "source": {
+        "pack": "table-2014",
+        "book": "EEPC"
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:genasi-swim",
+      "name": "Swim",
+      "summary": "A swimming speed of 30 ft.",
+      "source": {
+        "pack": "table-2014",
+        "book": "EEPC"
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.speed.swim",
+            "op": "grantSpeed",
+            "value": 30,
+            "label": "Genasi (water)"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:genasi-call-to-the-wave",
+      "name": "Call to the Wave",
+      "summary": "The shape water cantrip; from 3rd level, create or destroy water once per long rest as a 2nd-level spell. Constitution is the spellcasting ability.",
+      "source": {
+        "pack": "table-2014",
+        "book": "EEPC"
+      },
+      "grant": {
+        "spellcasting": {
+          "id": "genasi-water",
+          "label": "Call to the Wave",
+          "ability": "con",
+          "progression": "none"
+        },
+        "spells": [
+          {
+            "spell": "spell:shape-water",
+            "name": "Shape Water",
+            "casting": "At will"
+          },
+          {
+            "spell": "spell:create-or-destroy-water",
+            "name": "Create or Destroy Water",
+            "casting": "Once per long rest, no material components",
+            "resource": "genasi-water-create-or-destroy-water",
+            "minLevel": 3,
+            "castAt": 2
+          }
+        ],
+        "resources": [
+          {
+            "id": "genasi-water-create-or-destroy-water",
+            "name": "Call to the Wave: Create or Destroy Water",
+            "max": 1,
+            "reset": "long",
+            "minLevel": 3
+          }
+        ]
+      }
+    },
+    {
+      "kind": "race",
+      "id": "race:air-genasi",
+      "name": "Air Genasi",
+      "summary": "Touched by elemental air: breath that never runs out, and levitation once a day.",
+      "source": {
+        "pack": "table-2014",
+        "book": "EEPC"
+      },
+      "size": "medium",
+      "speed": 30,
+      "group": "Genasi",
+      "grant": {
+        "abilityBonuses": {
+          "con": 2,
+          "dex": 1
+        },
+        "proficiencies": [
+          {
+            "kind": "language",
+            "target": "Common"
+          },
+          {
+            "kind": "language",
+            "target": "Primordial"
+          }
+        ]
+      },
+      "features": [
+        "feature:genasi-unending-breath",
+        "feature:genasi-mingle-with-the-wind"
+      ]
+    },
+    {
+      "kind": "race",
+      "id": "race:earth-genasi",
+      "name": "Earth Genasi",
+      "summary": "Touched by elemental earth: stone and earth don't slow you, and pass without trace once a day.",
+      "source": {
+        "pack": "table-2014",
+        "book": "EEPC"
+      },
+      "size": "medium",
+      "speed": 30,
+      "group": "Genasi",
+      "grant": {
+        "abilityBonuses": {
+          "con": 2,
+          "str": 1
+        },
+        "proficiencies": [
+          {
+            "kind": "language",
+            "target": "Common"
+          },
+          {
+            "kind": "language",
+            "target": "Primordial"
+          }
+        ]
+      },
+      "features": [
+        "feature:genasi-earth-walk",
+        "feature:genasi-merge-with-stone"
+      ]
+    },
+    {
+      "kind": "race",
+      "id": "race:fire-genasi",
+      "name": "Fire Genasi",
+      "summary": "Touched by elemental fire: darkvision, fire resistance, produce flame and burning hands.",
+      "source": {
+        "pack": "table-2014",
+        "book": "EEPC"
+      },
+      "size": "medium",
+      "speed": 30,
+      "group": "Genasi",
+      "grant": {
+        "abilityBonuses": {
+          "con": 2,
+          "int": 1
+        },
+        "proficiencies": [
+          {
+            "kind": "language",
+            "target": "Common"
+          },
+          {
+            "kind": "language",
+            "target": "Primordial"
+          }
+        ]
+      },
+      "features": [
+        "feature:trait-darkvision",
+        "feature:genasi-fire-resistance",
+        "feature:genasi-reach-to-the-blaze"
+      ]
+    },
+    {
+      "kind": "race",
+      "id": "race:water-genasi",
+      "name": "Water Genasi",
+      "summary": "Touched by elemental water: amphibious, a swimming speed, acid resistance, shape water and create or destroy water.",
+      "source": {
+        "pack": "table-2014",
+        "book": "EEPC"
+      },
+      "size": "medium",
+      "speed": 30,
+      "group": "Genasi",
+      "grant": {
+        "abilityBonuses": {
+          "con": 2,
+          "wis": 1
+        },
+        "proficiencies": [
+          {
+            "kind": "language",
+            "target": "Common"
+          },
+          {
+            "kind": "language",
+            "target": "Primordial"
+          }
+        ]
+      },
+      "features": [
+        "feature:genasi-acid-resistance",
+        "feature:genasi-amphibious",
+        "feature:genasi-swim",
+        "feature:genasi-call-to-the-wave"
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:duergar-resilience",
+      "name": "Duergar Resilience",
+      "summary": "Resistance to poison damage; advantage on saves against poison, illusions, and being charmed or paralyzed.",
+      "source": {
+        "pack": "table-2014",
+        "book": "MToF"
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.poison",
+            "op": "resist",
+            "label": "Duergar Resilience"
+          },
+          {
+            "selector": "roll.save.*",
+            "op": "advantage",
+            "label": "Duergar Resilience",
+            "when": {
+              "text": "against poison, an illusion, or being charmed or paralyzed"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:duergar-magic",
+      "name": "Duergar Magic",
+      "summary": "From 3rd level, enlarge/reduce on yourself (enlarge only) once per long rest; from 5th level, invisibility on yourself once per long rest. No material components; not while you're in direct sunlight. Intelligence is the spellcasting ability.",
+      "source": {
+        "pack": "table-2014",
+        "book": "MToF"
+      },
+      "grant": {
+        "spellcasting": {
+          "id": "duergar-magic",
+          "label": "Duergar Magic",
+          "ability": "int",
+          "progression": "none"
+        },
+        "spells": [
+          {
+            "spell": "spell:enlarge-reduce",
+            "name": "Enlarge/Reduce (enlarge, yourself)",
+            "casting": "Once per long rest, no material components",
+            "resource": "duergar-magic-enlarge-reduce",
+            "minLevel": 3
+          },
+          {
+            "spell": "spell:invisibility",
+            "name": "Invisibility (yourself)",
+            "casting": "Once per long rest, no material components",
+            "resource": "duergar-magic-invisibility",
+            "minLevel": 5
+          }
+        ],
+        "resources": [
+          {
+            "id": "duergar-magic-enlarge-reduce",
+            "name": "Duergar Magic: Enlarge/Reduce (enlarge, yourself)",
+            "max": 1,
+            "reset": "long",
+            "minLevel": 3
+          },
+          {
+            "id": "duergar-magic-invisibility",
+            "name": "Duergar Magic: Invisibility (yourself)",
+            "max": 1,
+            "reset": "long",
+            "minLevel": 5
+          }
+        ]
+      }
+    },
+    {
+      "kind": "race",
+      "id": "race:duergar",
+      "name": "Duergar",
+      "summary": "Gray dwarf of the Underdark: 120 ft darkvision, resilient against poison, illusions, charm and paralysis, and innate enlarge and invisibility, but hampered by sunlight.",
+      "source": {
+        "pack": "table-2014",
+        "book": "MToF"
+      },
+      "size": "medium",
+      "speed": 25,
+      "group": "Dwarf",
+      "grant": {
+        "abilityBonuses": {
+          "con": 2,
+          "str": 1
+        },
+        "proficiencies": [
+          {
+            "kind": "language",
+            "target": "Common"
+          },
+          {
+            "kind": "language",
+            "target": "Dwarvish"
+          },
+          {
+            "kind": "language",
+            "target": "Undercommon"
+          }
+        ]
+      },
+      "features": [
+        "feature:superior-darkvision",
+        "feature:duergar-resilience",
+        "feature:trait-dwarven-combat-training",
+        "feature:trait-tool-proficiency",
+        "feature:trait-stonecunning",
+        "feature:duergar-magic",
+        "feature:sunlight-sensitivity"
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:sea-elf-training",
+      "name": "Sea Elf Training",
+      "summary": "Proficiency with the spear, trident, light crossbow and net.",
+      "source": {
+        "pack": "table-2014",
+        "book": "MToF"
+      },
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "weapon",
+            "target": "spear"
+          },
+          {
+            "kind": "weapon",
+            "target": "trident"
+          },
+          {
+            "kind": "weapon",
+            "target": "light crossbow"
+          },
+          {
+            "kind": "weapon",
+            "target": "net"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:sea-elf-child-of-the-sea",
+      "name": "Child of the Sea",
+      "summary": "A swimming speed of 30 ft, and you breathe air and water.",
+      "source": {
+        "pack": "table-2014",
+        "book": "MToF"
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.speed.swim",
+            "op": "grantSpeed",
+            "value": 30,
+            "label": "Child of the Sea"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:sea-elf-friend-of-the-sea",
+      "name": "Friend of the Sea",
+      "summary": "With gestures and sounds you can share simple ideas with any beast that has a swimming speed of its own.",
+      "source": {
+        "pack": "table-2014",
+        "book": "MToF"
+      }
+    },
+    {
+      "kind": "race",
+      "id": "race:sea-elf",
+      "name": "Sea Elf",
+      "summary": "Elf of the oceans: breathes water, swims, and fights with spear, trident, crossbow and net.",
+      "source": {
+        "pack": "table-2014",
+        "book": "MToF"
+      },
+      "size": "medium",
+      "speed": 30,
+      "group": "Elf",
+      "grant": {
+        "abilityBonuses": {
+          "dex": 2,
+          "con": 1
+        },
+        "proficiencies": [
+          {
+            "kind": "language",
+            "target": "Common"
+          },
+          {
+            "kind": "language",
+            "target": "Elvish"
+          },
+          {
+            "kind": "language",
+            "target": "Aquan"
+          }
+        ]
+      },
+      "features": [
+        "feature:trait-darkvision",
+        "feature:keen-senses",
+        "feature:fey-ancestry",
+        "feature:trance",
+        "feature:sea-elf-training",
+        "feature:sea-elf-child-of-the-sea",
+        "feature:sea-elf-friend-of-the-sea"
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:shadar-kai-necrotic-resistance",
+      "name": "Necrotic Resistance",
+      "summary": "Resistance to necrotic damage.",
+      "source": {
+        "pack": "table-2014",
+        "book": "MToF"
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.necrotic",
+            "op": "resist",
+            "label": "Necrotic Resistance"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:shadar-kai-blessing-of-the-raven-queen",
+      "name": "Blessing of the Raven Queen",
+      "summary": "A bonus action: teleport up to 30 ft to an unoccupied space you can see, once per long rest. From 3rd level you also resist all damage until the start of your next turn.",
+      "source": {
+        "pack": "table-2014",
+        "book": "MToF"
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "raven-queen",
+            "name": "Blessing of the Raven Queen",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "defense.resist.acid",
+            "op": "resist",
+            "label": "Blessing of the Raven Queen",
+            "when": {
+              "toggle": "raven-queen-ghostly"
+            }
+          },
+          {
+            "selector": "defense.resist.bludgeoning",
+            "op": "resist",
+            "label": "Blessing of the Raven Queen",
+            "when": {
+              "toggle": "raven-queen-ghostly"
+            }
+          },
+          {
+            "selector": "defense.resist.cold",
+            "op": "resist",
+            "label": "Blessing of the Raven Queen",
+            "when": {
+              "toggle": "raven-queen-ghostly"
+            }
+          },
+          {
+            "selector": "defense.resist.fire",
+            "op": "resist",
+            "label": "Blessing of the Raven Queen",
+            "when": {
+              "toggle": "raven-queen-ghostly"
+            }
+          },
+          {
+            "selector": "defense.resist.force",
+            "op": "resist",
+            "label": "Blessing of the Raven Queen",
+            "when": {
+              "toggle": "raven-queen-ghostly"
+            }
+          },
+          {
+            "selector": "defense.resist.lightning",
+            "op": "resist",
+            "label": "Blessing of the Raven Queen",
+            "when": {
+              "toggle": "raven-queen-ghostly"
+            }
+          },
+          {
+            "selector": "defense.resist.necrotic",
+            "op": "resist",
+            "label": "Blessing of the Raven Queen",
+            "when": {
+              "toggle": "raven-queen-ghostly"
+            }
+          },
+          {
+            "selector": "defense.resist.piercing",
+            "op": "resist",
+            "label": "Blessing of the Raven Queen",
+            "when": {
+              "toggle": "raven-queen-ghostly"
+            }
+          },
+          {
+            "selector": "defense.resist.poison",
+            "op": "resist",
+            "label": "Blessing of the Raven Queen",
+            "when": {
+              "toggle": "raven-queen-ghostly"
+            }
+          },
+          {
+            "selector": "defense.resist.psychic",
+            "op": "resist",
+            "label": "Blessing of the Raven Queen",
+            "when": {
+              "toggle": "raven-queen-ghostly"
+            }
+          },
+          {
+            "selector": "defense.resist.radiant",
+            "op": "resist",
+            "label": "Blessing of the Raven Queen",
+            "when": {
+              "toggle": "raven-queen-ghostly"
+            }
+          },
+          {
+            "selector": "defense.resist.slashing",
+            "op": "resist",
+            "label": "Blessing of the Raven Queen",
+            "when": {
+              "toggle": "raven-queen-ghostly"
+            }
+          },
+          {
+            "selector": "defense.resist.thunder",
+            "op": "resist",
+            "label": "Blessing of the Raven Queen",
+            "when": {
+              "toggle": "raven-queen-ghostly"
+            }
+          }
+        ],
+        "actions": [
+          {
+            "id": "raven-queen",
+            "name": "Blessing of the Raven Queen",
+            "economy": "bonus",
+            "cost": {
+              "resource": "raven-queen",
+              "amount": 1
+            },
+            "note": "Teleport up to 30 ft to an unoccupied space you can see."
+          },
+          {
+            "id": "raven-queen-ghostly",
+            "name": "Blessing of the Raven Queen: ghostly",
+            "economy": "free",
+            "minLevel": 3,
+            "toggles": [
+              "raven-queen-ghostly"
+            ],
+            "untilTurnStart": true,
+            "note": "Right after the teleport: resistance to all damage until the start of your next turn."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "race",
+      "id": "race:shadar-kai",
+      "name": "Shadar-kai",
+      "summary": "Elf of the Shadowfell: necrotic resistance, and a teleport that leaves you ghostly and hard to hurt.",
+      "source": {
+        "pack": "table-2014",
+        "book": "MToF"
+      },
+      "size": "medium",
+      "speed": 30,
+      "group": "Elf",
+      "grant": {
+        "abilityBonuses": {
+          "dex": 2,
+          "con": 1
+        },
+        "proficiencies": [
+          {
+            "kind": "language",
+            "target": "Common"
+          },
+          {
+            "kind": "language",
+            "target": "Elvish"
+          }
+        ]
+      },
+      "features": [
+        "feature:trait-darkvision",
+        "feature:keen-senses",
+        "feature:fey-ancestry",
+        "feature:trance",
+        "feature:shadar-kai-necrotic-resistance",
+        "feature:shadar-kai-blessing-of-the-raven-queen"
+      ]
     }
   ]
 }

@@ -467,7 +467,7 @@ export function SpellPanel({
               </button>
             )}
             {sp.cast.free && (
-              <button className={sp.cast.free.remaining > 0 ? "big" : "big damage"} onClick={() => doCast(sp.level, "free")}>
+              <button className={sp.cast.free.remaining > 0 ? "big" : "big damage"} onClick={() => doCast(sp.cast.free!.level ?? sp.level, "free")}>
                 Free use
                 <span className="sub">{sp.cast.free.remaining} left</span>
               </button>

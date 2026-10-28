@@ -343,9 +343,14 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 
 ## College of Spirits and Way of the Ascendant Dragon (round 13f)
 
-- Tales from Beyond: the tale rolled is shown with its effect; which tale you're holding, and bestowing it, are yours to keep (the bestow action rolls the die for it).
-- Spiritual Focus: the d6 is offered on every bard spell's damage or healing roll; whether it went through the focus, and that it's one roll per spell, is yours.
-- Spirit Session: pick this time's spell in Choices; its level against how many took part is yours to check, and it isn't removed at the long rest by itself.
+- Tales from Beyond: the tale you hold is a tag until you bestow it or rest; its effect on the target is applied by you or the DM.
+- Spiritual Focus: the d6 is offered on your bard spells' damage and healing rolls; that it went through the focus, and one roll per spell, are yours.
+- Spirit Session: pick this time's spell in Choices; you know it while the session's tag is on (until your long rest). Its level against how many took part is yours to check.
 - Draconic Presence: spend its use only when the reroll succeeds.
 - Breath of the Dragon: it takes one attack of the Attack action; the augmented breath (17th) spends its own ki and the breath's use separately.
 - Aspect of the Wyrm: Frightful Presence's saves are rolled by the DM; the resistance is yours (allies in the aura apply it themselves).
+
+## Races (round 13f)
+
+- Genasi, Duergar, Sea Elf, Shadar-kai: abilities, senses, resistances, speeds and innate spells are applied; Unending Breath, Earth Walk, Amphibious, Friend of the Sea and the sunlight limit on Duergar Magic are reminders.
+- Shadar-kai: after the teleport, switch on "ghostly" for the resistance (from 3rd level); it ends at the start of your next turn.

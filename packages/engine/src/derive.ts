@@ -179,7 +179,8 @@ export interface SpellResult {
   cast: {
     slotLevels: number[];
     pact?: { level: number; remaining: number };
-    free?: { resource: string; name: string; remaining: number };
+    /** `level`: cast at this level with it (Call to the Wave: create or destroy water as a 2nd-level spell). */
+    free?: { resource: string; name: string; remaining: number; level?: number };
     /** Cast by spending points instead of a slot (Eyes of the Dark: Darkness for 2 sorcery points). */
     points?: { resource: string; name: string; amount: number; remaining: number };
     /** Cast without a slot whenever you like (an invocation's at-will spell). */
@@ -226,6 +227,8 @@ export interface ActionResult {
   stopsMovement?: boolean;
   restores?: { resource: string; amount: number; or?: string[] };
   restoresPactSlots?: boolean | number;
+  holdsRoll?: boolean;
+  releases?: string[];
   /** Once every this many days: a Backstory note when used (only when the roll is at most `everyDaysIfRollAtMost`, if set). */
   everyDays?: number;
   everyDaysIfRollAtMost?: number;
@@ -1218,7 +1221,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
   const speedBase: Part[] = [{ label: race.name, value: race.speed }];
   // Heavy armor without its Strength: 10 ft slower (not for dwarves).
   const strNeed = armorWorn?.def.armor?.strengthRequired;
-  if (armorWorn && strNeed && strScore < strNeed && !/dwarf/.test(c.race)) speedBase.push({ label: `${armorWorn.inst.name ?? armorWorn.def.name} (needs Strength ${strNeed})`, value: -10 });
+  if (armorWorn && strNeed && strScore < strNeed && !/dwarf/.test(c.race) && race.group !== "Dwarf") speedBase.push({ label: `${armorWorn.inst.name ?? armorWorn.def.name} (needs Strength ${strNeed})`, value: -10 });
   if (encumbrance.state === "encumbered") speedBase.push({ label: `Encumbered (over ${encumbrance.encumberedAt} lb.)`, value: -10 });
   if (encumbrance.state === "heavy" || (encRule === "variant" && encumbrance.state === "over")) speedBase.push({ label: `Heavily encumbered (over ${encumbrance.heavyAt} lb.)`, value: -20 });
   const speed = statWith("stat.speed.walk", speedBase);
@@ -1593,9 +1596,11 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     }
     // Spells picked through a feature's spell choices (Magic Initiate, Fey Touched).
     if (reg.has(s.id) && /^(feature|feat):/.test(s.id)) {
-      const d = reg.get(s.id, s.id.startsWith("feat:") ? "feat" : "feature") as { choices?: { id: string; kind: string; resource?: string; list?: string; atWill?: boolean; spellbook?: boolean }[] };
+      const d = reg.get(s.id, s.id.startsWith("feat:") ? "feat" : "feature") as { choices?: { id: string; kind: string; resource?: string; list?: string; atWill?: boolean; spellbook?: boolean; whileEffect?: string }[] };
       for (const ch of d.choices ?? []) {
         if (ch.kind !== "spell") continue;
+        // Spirit Session: the spell only while its tag is on (until the long rest).
+        if (ch.whileEffect && !c.effects.some((e) => e.effect === ch.whileEffect)) continue;
         // Cast with the feature's own spellcasting, or the one the choice names (Mystic Arcanum: warlock).
         const listOf = ch.list ?? ownList;
         if (!listOf) continue;
@@ -1778,7 +1783,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       // By school and level too: "roll.damage.spell.school.evocation" (Empowered Evocation), "roll.damage.spell.level.3" (Overchannel: 1st to 5th);
       // by damage type: "roll.damage.spell.type.fire" (Flames of Phlegethos).
       r.damageBonus = roll(
-        ["roll.damage.spell", `roll.damage.spell.${def.id.replace(/^spell:/, "")}`, ...(def.level === 0 ? ["roll.damage.spell.cantrip"] : []), `roll.damage.spell.school.${def.school.toLowerCase()}`, `roll.damage.spell.level.${def.level}`, ...(def.damage?.type ? [`roll.damage.spell.type.${def.damage.type}`] : [])],
+        ["roll.damage.spell", `roll.damage.spell.${def.id.replace(/^spell:/, "")}`, ...(def.level === 0 ? ["roll.damage.spell.cantrip"] : []), `roll.damage.spell.school.${def.school.toLowerCase()}`, `roll.damage.spell.level.${def.level}`, ...(def.damage?.type ? [`roll.damage.spell.type.${def.damage.type}`] : []), `roll.damage.spell.list.${list}`],
         [],
       );
       // Overchannel: what it costs this time (free the first time after a long rest, then 2d12, 3d12… necrotic per spell level).
@@ -1814,7 +1819,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
         if (back) r.heal.selfIfOthers = back;
         // Options to tick on the healing roll (Spiritual Focus: 1d6 on one healing roll).
         if (!r.damageBonus) {
-          const opt = roll(["roll.heal.spell.option"], []);
+          const opt = roll(["roll.heal.spell.option", `roll.heal.spell.option.list.${list}`], []);
           if (opt.suggestions.length) r.damageBonus = opt;
         }
       }
@@ -1836,7 +1841,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     }
     if (granted?.resource) {
       const res = resources.find((x) => x.id === granted.resource);
-      if (res) r.cast.free = { resource: res.id, name: res.name, remaining: res.remaining };
+      if (res) r.cast.free = { resource: res.id, name: res.name, remaining: res.remaining, ...(granted.castAt ? { level: granted.castAt } : {}) };
     }
     if (granted?.extra) {
       const n = c.extraCasts?.[`${list}|${def.id}`];
@@ -1888,6 +1893,8 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       if (/^(feature|feat|race|background):/.test(s.id)) entry.featureId = s.id;
       if (a.roll) entry.roll = { ...amountOf(a.roll.dice, s), label: a.roll.label, ...(a.roll.table ? { table: a.roll.table } : {}) };
       if (a.selfEffect) entry.selfEffect = a.selfEffect;
+      if (a.holdsRoll) entry.holdsRoll = true;
+      if (a.releases) entry.releases = a.releases;
       if (a.rollsSpell) entry.rollsSpell = a.rollsSpell;
       if (s.effectInstanceId) entry.effectInstanceId = s.effectInstanceId;
       if (a.duration) entry.duration = a.duration;

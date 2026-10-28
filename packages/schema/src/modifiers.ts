@@ -380,6 +380,12 @@ export const ActionDef = z
     restoresPactSlots: z.union([z.boolean(), z.number().int().min(1)]).optional(),
     /** Ends these effects or conditions on you (Stillness of Mind: charmed, frightened). */
     endsConditions: z.array(DefId).optional(),
+    /**
+     * The table result rolled is kept as a tag until a short or long rest, replacing the one this
+     * action kept before (Tales from Beyond: the tale you hold). `releases`: actions whose kept tags this one ends (bestowing the tale).
+     */
+    holdsRoll: z.boolean().optional(),
+    releases: z.array(z.string()).optional(),
     /** Only if you haven't moved this turn (Steady Aim). */
     notAfterMoving: z.boolean().optional(),
     /** Your speed becomes 0 for the rest of the turn (Steady Aim). */
@@ -663,6 +669,8 @@ export const ChoiceDef = z
     open: z.boolean().optional(),
     /** Spell choices: the picks count toward this spell list's Spells Known (Magical Secrets: "bard"), so that many fewer are asked for there. */
     inKnown: z.string().optional(),
+    /** Spell choices: the picked spell is yours only while this effect is on you (Spirit Session: until your next long rest). */
+    whileEffect: DefId.optional(),
     /** Spell choices with a `from` list: other spells it may be swapped for later (Divine affinity: any cleric spell), listed after with a note. */
     orSpells: z.object({ classes: z.array(z.string()), minLevel: z.number().int().min(0).max(9).optional(), upToSlots: z.boolean().optional(), note: z.string() }).strict().optional(),
   })

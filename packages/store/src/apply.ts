@@ -1335,19 +1335,37 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
           removeEffects(c.effects.filter((e) => e.effect === def.id));
           const entry: Character["effects"][number] = { id: `${op.id}-effect`, effect: def.id, from: a.source };
           if (op.payload.choice) entry.choice = op.payload.choice;
+          if (def.untilRest) entry.untilRest = def.untilRest;
+          // Until a rest, not timed (Spirit Session: the hour is the ritual, the spell lasts until the long rest).
           const d = a.duration;
-          if (d?.rounds) entry.rounds = d.rounds;
-          else if (d?.minutes) entry.minutes = d.minutes;
-          else if (def.rounds) entry.rounds = def.rounds;
-          else if (def.minutes) entry.minutes = def.minutes;
+          if (!def.untilRest) {
+            if (d?.rounds) entry.rounds = d.rounds;
+            else if (d?.minutes) entry.minutes = d.minutes;
+            else if (def.rounds) entry.rounds = def.rounds;
+            else if (def.minutes) entry.minutes = def.minutes;
+          }
           c.effects.push(entry);
           notes.push(`${def.name}${entry.choice ? `: ${entry.choice}` : ""}.`);
         }
       }
       // A roll with a table (Nathair's Mischief's surge): what the face means.
+      // Bestowing what was kept (Tales from Beyond's tale): its tag goes.
+      if (a.releases?.length) {
+        const held = c.effects.filter((e) => e.effect === "custom" && a.releases!.some((r) => e.id.endsWith(`-held-${r}`)));
+        if (held.length) {
+          removeEffects(held);
+          notes.push(`${held.map((e) => e.custom?.name ?? "").join(", ")}: bestowed.`);
+        } else notes.push("No tale held: roll one first (done anyway).");
+      }
       if (a.roll?.table && op.payload.rolled !== undefined) {
         const line = a.roll.table[op.payload.rolled - 1];
         if (line) notes.push(`${a.roll.label} ${op.payload.rolled}: ${line}`);
+        // Kept until bestowed or a rest; a new roll replaces it.
+        if (line && a.holdsRoll) {
+          removeEffects(c.effects.filter((e) => e.effect === "custom" && e.id.endsWith(`-held-${a.id}`)));
+          const title = line.replace(/^\d+\s*·\s*/, "").split(":")[0]!.trim();
+          c.effects.push({ id: `${op.id}-held-${a.id}`, effect: "custom", custom: { name: `Tale held: ${title}`, modifiers: [], text: line }, untilRest: "short", from: a.source });
+        }
       }
       if (a.duration && !a.selfEffect) {
         const rolledN = op.payload.rolled;
