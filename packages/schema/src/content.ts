@@ -366,6 +366,8 @@ export const EffectDef = z
     reminders: z.array(z.string()).default([]),
     /** Actions you can take while it's on (Haste: the extra action). */
     actions: z.array(ActionDef).optional(),
+    /** Its choice is a spell you can cast while it's on, at will (Wish duplicating a spell). */
+    grantsChosenSpell: z.boolean().optional(),
     /** Weapons it gives you while it's on (Shadow Blade); damage may use the slot it was cast with. */
     attacks: z.array(AttackDef).optional(),
     /** Said when it ends (Haste: the wave of lethargy). */
@@ -595,6 +597,8 @@ export const SummonDef = z
     initiative: z.enum(["own", "shared", "yours"]).default("shared"),
     /** Gone when your concentration ends. */
     concentration: z.boolean().optional(),
+    /** Its hit point maximum is half the creature's (Simulacrum). */
+    halfHp: z.boolean().optional(),
     /** A spirit whose stat block grows with the spell's level (Summon Beast): built when cast. */
     spirit: SpiritTemplate.optional(),
     note: z.string().optional(),

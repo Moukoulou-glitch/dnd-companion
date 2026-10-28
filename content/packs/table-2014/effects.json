@@ -5250,6 +5250,247 @@
       ],
       "reminders": [],
       "minutes": 480
+    },
+    {
+      "kind": "effect",
+      "id": "effect:conjure-barrage",
+      "name": "Conjure Barrage",
+      "category": "spell",
+      "summary": "Copies of your weapon or ammunition fill a 60-ft cone: each creature in it makes a Dexterity save, taking 3d8 damage of the weapon's type (half on a success).",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB"
+      },
+      "modifiers": [],
+      "reminders": [
+        "The damage is your weapon's or ammunition's type (picked when you cast). The piece of ammunition or the thrown weapon is used up as usual."
+      ],
+      "choice": {
+        "label": "Your weapon's damage type",
+        "options": [
+          "piercing",
+          "slashing",
+          "bludgeoning"
+        ]
+      },
+      "actions": [
+        {
+          "id": "conjure-barrage-roll",
+          "name": "Conjure Barrage: the barrage",
+          "economy": "free",
+          "roll": {
+            "dice": "3d8",
+            "label": "damage of your weapon's type to each creature in the 60-ft cone (Dexterity save against your spell save DC: half)"
+          },
+          "note": "Roll once for every creature in the cone."
+        }
+      ],
+      "rounds": 1,
+      "selfOnly": true
+    },
+    {
+      "kind": "effect",
+      "id": "effect:conjure-volley",
+      "name": "Conjure Volley",
+      "category": "spell",
+      "summary": "Your shot rains down as a hail of copies in a 40-ft-radius, 20-ft-high cylinder within 150 ft: each creature in it makes a Dexterity save, taking 8d8 damage of the weapon's type (half on a success).",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB"
+      },
+      "modifiers": [],
+      "reminders": [
+        "The damage is your weapon's or ammunition's type (picked when you cast)."
+      ],
+      "choice": {
+        "label": "Your weapon's damage type",
+        "options": [
+          "piercing",
+          "slashing",
+          "bludgeoning"
+        ]
+      },
+      "actions": [
+        {
+          "id": "conjure-volley-roll",
+          "name": "Conjure Volley: the volley",
+          "economy": "free",
+          "roll": {
+            "dice": "8d8",
+            "label": "damage of your weapon's type to each creature in the cylinder (Dexterity save against your spell save DC: half)"
+          },
+          "note": "Roll once for every creature in the area."
+        }
+      ],
+      "rounds": 1,
+      "selfOnly": true
+    },
+    {
+      "kind": "effect",
+      "id": "effect:wish-duplicate",
+      "name": "Wish: a spell",
+      "category": "spell",
+      "summary": "Wish duplicates a spell of 8th level or lower: cast it now, with no components and no requirements of its own, and no stress.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "modifiers": [],
+      "reminders": [
+        "Cast the spell from your Spells tab (at will, through Wish); then end this tag."
+      ],
+      "grantsChosenSpell": true,
+      "rounds": 1,
+      "selfOnly": true
+    },
+    {
+      "kind": "effect",
+      "id": "effect:wish-stress",
+      "name": "Wish's stress",
+      "category": "spell",
+      "summary": "The strain of a wish beyond duplicating a spell: necrotic damage for each spell you cast until a long rest, Strength 3 for 2d4 days, and a 33 percent chance of never casting Wish again.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "modifiers": [
+        {
+          "selector": "stat.ability.str",
+          "op": "set",
+          "value": 3,
+          "label": "Wish's stress"
+        }
+      ],
+      "reminders": [
+        "Until you finish a long rest: each spell you cast deals 1d10 necrotic damage to you per level of the spell; it can't be reduced or prevented.",
+        "Strength 3 (if it's higher) for 2d4 days; each of those days you spend resting and doing nothing more than light activity takes 2 days off.",
+        "Roll once: on 1–33 you can never cast Wish again."
+      ],
+      "actions": [
+        {
+          "id": "wish-stress-again",
+          "name": "Wish's stress: ever again?",
+          "economy": "free",
+          "roll": {
+            "dice": "1d100",
+            "label": "1–33: never again",
+            "table": [
+              "You can never cast Wish again.",
+              "You can never cast Wish again.",
+              "You can never cast Wish again.",
+              "You can never cast Wish again.",
+              "You can never cast Wish again.",
+              "You can never cast Wish again.",
+              "You can never cast Wish again.",
+              "You can never cast Wish again.",
+              "You can never cast Wish again.",
+              "You can never cast Wish again.",
+              "You can never cast Wish again.",
+              "You can never cast Wish again.",
+              "You can never cast Wish again.",
+              "You can never cast Wish again.",
+              "You can never cast Wish again.",
+              "You can never cast Wish again.",
+              "You can never cast Wish again.",
+              "You can never cast Wish again.",
+              "You can never cast Wish again.",
+              "You can never cast Wish again.",
+              "You can never cast Wish again.",
+              "You can never cast Wish again.",
+              "You can never cast Wish again.",
+              "You can never cast Wish again.",
+              "You can never cast Wish again.",
+              "You can never cast Wish again.",
+              "You can never cast Wish again.",
+              "You can never cast Wish again.",
+              "You can never cast Wish again.",
+              "You can never cast Wish again.",
+              "You can never cast Wish again.",
+              "You can never cast Wish again.",
+              "You can never cast Wish again.",
+              "You can cast Wish again.",
+              "You can cast Wish again.",
+              "You can cast Wish again.",
+              "You can cast Wish again.",
+              "You can cast Wish again.",
+              "You can cast Wish again.",
+              "You can cast Wish again.",
+              "You can cast Wish again.",
+              "You can cast Wish again.",
+              "You can cast Wish again.",
+              "You can cast Wish again.",
+              "You can cast Wish again.",
+              "You can cast Wish again.",
+              "You can cast Wish again.",
+              "You can cast Wish again.",
+              "You can cast Wish again.",
+              "You can cast Wish again.",
+              "You can cast Wish again.",
+              "You can cast Wish again.",
+              "You can cast Wish again.",
+              "You can cast Wish again.",
+              "You can cast Wish again.",
+              "You can cast Wish again.",
+              "You can cast Wish again.",
+              "You can cast Wish again.",
+              "You can cast Wish again.",
+              "You can cast Wish again.",
+              "You can cast Wish again.",
+              "You can cast Wish again.",
+              "You can cast Wish again.",
+              "You can cast Wish again.",
+              "You can cast Wish again.",
+              "You can cast Wish again.",
+              "You can cast Wish again.",
+              "You can cast Wish again.",
+              "You can cast Wish again.",
+              "You can cast Wish again.",
+              "You can cast Wish again.",
+              "You can cast Wish again.",
+              "You can cast Wish again.",
+              "You can cast Wish again.",
+              "You can cast Wish again.",
+              "You can cast Wish again.",
+              "You can cast Wish again.",
+              "You can cast Wish again.",
+              "You can cast Wish again.",
+              "You can cast Wish again.",
+              "You can cast Wish again.",
+              "You can cast Wish again.",
+              "You can cast Wish again.",
+              "You can cast Wish again.",
+              "You can cast Wish again.",
+              "You can cast Wish again.",
+              "You can cast Wish again.",
+              "You can cast Wish again.",
+              "You can cast Wish again.",
+              "You can cast Wish again.",
+              "You can cast Wish again.",
+              "You can cast Wish again.",
+              "You can cast Wish again.",
+              "You can cast Wish again.",
+              "You can cast Wish again.",
+              "You can cast Wish again.",
+              "You can cast Wish again.",
+              "You can cast Wish again.",
+              "You can cast Wish again.",
+              "You can cast Wish again."
+            ]
+          },
+          "note": "Roll once, after the wish."
+        },
+        {
+          "id": "wish-stress-spell",
+          "name": "Wish's stress: a spell cast",
+          "economy": "free",
+          "roll": {
+            "dice": "1d10",
+            "label": "necrotic damage per level of the spell you cast (until your long rest)"
+          },
+          "note": "Roll one d10 for each level of the spell: it can't be reduced or prevented."
+        }
+      ],
+      "selfOnly": true
     }
   ]
 }

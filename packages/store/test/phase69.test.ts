@@ -30,3 +30,12 @@ describe("13c fixes in play", () => {
     expect([c1.form?.hpMax.total, c1.form?.hp.current, c1.effects.length]).toEqual([26, 20, 1]);
   });
 });
+
+describe("13d additions in play", () => {
+  it("Simulacrum: half the creature's hit points", () => {
+    const l = log();
+    l.record("summon", { spell: "spell:simulacrum", group: "sim", creatures: [{ creature: "creature:knight", count: 1 }] });
+    const m = l.character.summons[0]!;
+    expect([m.hp, m.maxHpAdjust?.reduce]).toEqual([26, 26]);
+  });
+});

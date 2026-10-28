@@ -639,15 +639,18 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         // Mighty Summoner: beasts and fey from a spell get 2 more hit points per Hit Die. Durable Summons: 30 temporary HP from a conjuration spell.
         const mighty = hasFeature("feature:circle-of-the-shepherd-mighty-summoner") && /^(beast|fey)/i.test(d.type ?? "") ? 2 * Number(/^(\d+)d/.exec(d.hitDice ?? "")?.[1] ?? 0) : 0;
         const durable = hasFeature("feature:conjuration-durable-summons") && reg.find(spell, "spell")?.school.toLowerCase() === "conjuration";
+        // Simulacrum: half the creature's hit point maximum.
+        const half = reg.list("summon").some((s) => s.spell === spell && s.halfHp) ? Math.ceil(d.hp / 2) : 0;
+        if (half) notes.push(`${d.name}'s simulacrum: half its hit points (${d.hp - half}).`);
         for (let i = 0; i < x.count; i++)
           c.summons.push({
             id: `${group}-${++n}`,
             creature: d.id,
-            hp: d.hp + mighty,
+            hp: d.hp + mighty - half,
             spell,
             group,
             ...(concentration ? { concentration } : {}),
-            ...(mighty ? { maxHpAdjust: { reduce: 0, increase: mighty } } : {}),
+            ...(mighty || half ? { maxHpAdjust: { reduce: half, increase: mighty } } : {}),
             ...(durable ? { temp: 30 } : {}),
           });
         if (mighty) notes.push(`Mighty Summoner: ${d.name} has ${mighty} more hit points, and its natural weapons count as magical.`);

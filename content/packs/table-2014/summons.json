@@ -1796,6 +1796,26 @@
       "initiative": "yours",
       "concentration": true,
       "note": "Up to 10 objects at 5th level (2 more for each level above): a Medium object counts as two, a Large as four, a Huge as eight. Bonus action: command any you control within 500 ft (one command for several). They act on your turn."
+    },
+    {
+      "kind": "summon",
+      "id": "summon:simulacrum",
+      "name": "Simulacrum",
+      "spell": "spell:simulacrum",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "type": [
+        "beast",
+        "humanoid"
+      ],
+      "count": {
+        "7": 1
+      },
+      "initiative": "own",
+      "halfHp": true,
+      "note": "An icy duplicate of a beast or humanoid within 10 ft for the whole casting: the creature's statistics with half its hit point maximum, no equipment. It's friendly and obeys you, can't learn or grow stronger, and doesn't regain spell slots. Repair it in an alchemical lab (100 gp per hit point). Casting Simulacrum again destroys the one you have. A copy of a character: make it as a companion of your own (half that character's hit points)."
     }
   ]
 }

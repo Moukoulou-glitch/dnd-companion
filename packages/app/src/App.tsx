@@ -56,6 +56,7 @@ import { BookText, BooksPanel } from "./components/BookText";
 import { SendingPanel, sendingNote } from "./components/Sending";
 import { formatWorld } from "./calendar";
 import { everyDaysNote } from "./everyDays";
+import { WishPanel } from "./components/Wish";
 import { BuildPanel, LevelUpPanel, NewCharacterPanel, type NewCharacterInput } from "./components/Builder";
 import { flashEnabled, flashForFeature, flashForSpell, flashTorch, setFlashEnabled } from "./flash";
 import { PlayTab, type PlayPrompts } from "./components/PlayTab";
@@ -466,6 +467,31 @@ export function App() {
   };
 
   /** Sending's message: written after the cast, saved as a note (with the session and in-world date), the words sent off. */
+  /** Wish: duplicate a spell (it's on your Spells tab for now, at will), or wish for something else (its stress, 2d4 days rolled). */
+  const openWish = () =>
+    open("Wish", () => (
+      <WishPanel
+        registry={registry}
+        onDuplicate={(spell) => {
+          live.current.act("addEffect", { instanceId: crypto.randomUUID(), effect: "effect:wish-duplicate", choice: spell, rounds: 1 }, `Wish: ${registry.find(spell, "spell")?.name ?? spell}, cast it from your Spells.`);
+          // Its card, once the sheet has it.
+          const show = (tries: number) => {
+            const sp = live.current.sheet?.spells.find((x) => x.id === spell);
+            if (sp) return openSpell(sp);
+            if (tries > 0) setTimeout(() => show(tries - 1), 60);
+            else close();
+          };
+          show(10);
+        }}
+        onOther={() => {
+          void rollOrThrow("2d4", true, undefined, { source: "Wish" }).then((r) => {
+            live.current.act("addEffect", { instanceId: crypto.randomUUID(), effect: "effect:wish-stress", minutes: r.total * 1440 }, `Wish's stress: Strength 3 for ${r.total} days; necrotic damage for each spell you cast until a long rest.`);
+            close();
+          });
+        }}
+      />
+    ));
+
   const openSending = () =>
     open("Sending", () => (
       <SendingPanel
@@ -3136,6 +3162,11 @@ export function App() {
                 // A spirit's attacks use your spell attack and DC (the spellcasting this spell is cast with).
                 const sc = live.current.sheet?.spellcasting.find((x) => x.id === sp.list.id) ?? live.current.sheet?.spellcasting[0];
                 openSummon(sum.id, level, sc ? { attack: sc.attack.total, dc: sc.saveDc.total } : undefined);
+              }
+              // Wish: a spell duplicated, or something else and its stress.
+              if (sp.id === "spell:wish") {
+                transformed = true;
+                openWish();
               }
               // Sending: the message, then it's saved in your notes.
               if (sp.id === "spell:sending") {

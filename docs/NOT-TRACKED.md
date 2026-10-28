@@ -329,4 +329,6 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 - Tenser's Transformation and Otherworldly Guise: the proficiencies and the spellcasting ability on weapon attacks are reminders.
 - Lightning Arrow: roll the attack with the weapon, then the bolt instead of its damage.
 - Antimagic Field: your own magic being suppressed inside it isn't switched off by the app.
-- Not added: Conjure Barrage and Conjure Volley (their damage comes from the book text), Simulacrum and Wish.
+- Conjure Barrage and Conjure Volley: pick your weapon's damage type when casting, then roll the dice from the tag once per creature.
+- Wish: a duplicated spell is on your Spells tab while its tag is on (end the tag after casting). Anything else is your DM's; the stress is a tag: Strength 3 for the rolled days (resting days that take 2 off are counted by hand), the d100, and the necrotic d10s per spell level you roll from the tag.
+- Simulacrum: from the bestiary (beasts and humanoids). A copy of a character is made as a companion of your own, at half its hit points.

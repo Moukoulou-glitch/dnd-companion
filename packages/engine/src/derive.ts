@@ -613,6 +613,17 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       const now = parts.reduce((t, p) => t + p.value, 0);
       if (setMin.value > now) parts.push({ label: `Becomes ${setMin.value} (${setMin.label})`, value: setMin.value - now });
     }
+    // An effect that holds the score down while it lasts (Wish's stress: Strength 3): the lowest one, if it's lower.
+    let cap: { label: string; value: number } | undefined;
+    for (const s of sources)
+      for (const m of s.grant.modifiers ?? []) {
+        if (m.op !== "set" || m.selector !== `stat.ability.${ab}` || typeof m.value !== "number") continue;
+        if (!cap || m.value < cap.value) cap = { label: m.label ?? s.label, value: m.value };
+      }
+    if (cap) {
+      const now = parts.reduce((t, p) => t + p.value, 0);
+      if (cap.value < now) parts.push({ label: `At most ${cap.value} (${cap.label})`, value: cap.value - now });
+    }
     const score = sum(parts);
     if (score.total <= 0) warnings.push(`${ABILITY_NAMES[ab]} is ${score.total}: at 0 the character dies (Strength drain) or worse. Check with your DM.`);
     if (score.total > max && adj?.setTo === undefined && !setMin && !asiOver) warnings.push(`${ABILITY_NAMES[ab]} is ${score.total}, above ${max === 20 ? "the usual maximum of 20" : `its maximum of ${max}`}.`);
