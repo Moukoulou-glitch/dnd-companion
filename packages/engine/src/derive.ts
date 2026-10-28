@@ -518,6 +518,8 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     { label: `Level ${level}`, value: proficiencyBonus(level) },
     ...(pbAdj.bonus ? [{ label: `Bonus by hand${pbWhy}`, value: pbAdj.bonus }] : []),
     ...(pbAdj.penalty ? [{ label: `Penalty by hand${pbWhy}`, value: -pbAdj.penalty }] : []),
+    // An item that raises it (Ioun Stone of Mastery: +1).
+    ...sources.flatMap((s) => (s.grant.modifiers ?? []).filter((m) => m.selector === "stat.pb" && m.op === "add" && typeof m.value === "number").map((m) => ({ label: m.label ?? s.label, value: m.value as number }))),
   ]);
   const pb = Math.max(0, pbBreakdown.total);
   const classLevels = Object.fromEntries(c.classes.map((cl) => [cl.class, cl.level]));
@@ -1013,9 +1015,9 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
   };
 
   /** Flat additions to a stat (AC, speed, HP max); dice are not allowed here. */
-  const statAdds = (key: string): Part[] => {
+  const statAdds = (key: string | string[]): Part[] => {
     const parts: Part[] = [];
-    for (const a of modsFor([key])) {
+    for (const a of modsFor(typeof key === "string" ? [key] : key)) {
       if (a.mod.op !== "add" || a.mod.value === undefined) continue;
       if (conditionState(a.mod.when) !== "pass" || a.mod.mode === "suggested") continue;
       parts.push({ label: labelOf(a), value: flatOf(a) });
@@ -1469,8 +1471,9 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     id: sc.id,
     label: sc.label,
     ability: sc.ability,
-    saveDc: sum([{ label: "Base", value: 8 }, pbPart(), abilityPart(sc.ability), ...statAdds("stat.spell.dc")]),
-    attack: sum([pbPart(), abilityPart(sc.ability), ...statAdds("stat.spell.attack")]),
+    saveDc: sum([{ label: "Base", value: 8 }, pbPart(), abilityPart(sc.ability), ...statAdds(["stat.spell.dc", `stat.spell.dc.${sc.id}`])]),
+    // A focus for one class's spells (Rod of the Pact Keeper: "stat.spell.attack.warlock").
+    attack: sum([pbPart(), abilityPart(sc.ability), ...statAdds(["stat.spell.attack", `stat.spell.attack.${sc.id}`])]),
   }));
   const slots = spellSlots(casterLevels);
   /** A custom action's DC, by its feature id. */
@@ -1702,7 +1705,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     const timer = durationTimer(def.duration);
     if (timer) r.timer = timer;
     if (sc && def.attack) {
-      r.attack = roll([`roll.attack.spell.${def.attack}`, `roll.attack.spell.${def.id.replace(/^spell:/, "")}`], [pbPart(), abilityPart(sc.ability), ...statAdds("stat.spell.attack")]);
+      r.attack = roll([`roll.attack.spell.${def.attack}`, `roll.attack.spell.${def.id.replace(/^spell:/, "")}`], [pbPart(), abilityPart(sc.ability), ...statAdds(["stat.spell.attack", `stat.spell.attack.${sc.id}`])]);
       if (elvenAccuracy && sc.ability !== "str") r.attack.tripleAdvantage = "Elven Accuracy";
     }
     if (sc && def.save) r.save = { ability: def.save.ability, dc: sc.saveDc.total, onSuccess: def.save.onSuccess };

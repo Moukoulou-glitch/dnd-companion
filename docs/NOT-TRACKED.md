@@ -332,3 +332,15 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 - Conjure Barrage and Conjure Volley: pick your weapon's damage type when casting, then roll the dice from the tag once per creature.
 - Wish: a duplicated spell is on your Spells tab while its tag is on (end the tag after casting). Anything else is your DM's; the stress is a tag: Strength 3 for the rolled days (resting days that take 2 off are counted by hand), the d100, and the necrotic d10s per spell level you roll from the tag.
 - Simulacrum: from the bestiary (beasts and humanoids). A copy of a character is made as a companion of your own, at half its hit points.
+
+## Magic items (round 13e)
+
+- Charges are tapped on the item; casting a spell from a wand or staff doesn't spend them by itself. Wand of Fireballs uses its own DC 15: your sheet's DC is shown, use 15.
+- Staff of Power and Staff of the Magi: their spells are listed on the staff's action, cast with your own numbers from the Spells tab when you have them.
+- Weapons like Frost Brand, Holy Avenger, Dragon Slayer, Giant Slayer and Vorpal Sword come as longswords; another base weapon is your own item. Extra damage against a creature type is offered on the hit, yours to tick.
+- Winged Boots fly at 30 ft (your walking speed when it differs is yours to use); the 4 hours a day are yours to count.
+- Periapt of Wound Closure: doubled Hit Dice healing is added by hand; stabilizing is a note on death saves.
+- Rod of the Pact Keeper, Amulet of the Devout, Pearl of Power: the use is tracked, the slot or Channel Divinity coming back is tapped by hand.
+- Moon Sickle's 1d4 more healing is in its description, not added to the roll.
+- Ring of Spell Storing and Ioun Stone of Reserve: what they hold goes in the item's notes.
+- Bag of Holding: its 500 lb capacity isn't checked.

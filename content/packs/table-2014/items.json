@@ -1861,6 +1861,3188 @@
       "curse": {
         "text": "You can't take it off until Remove Curse or similar magic ends the curse. While you wear it you're vulnerable to bludgeoning and piercing damage."
       }
+    },
+    {
+      "kind": "item",
+      "id": "item:cloak-of-protection",
+      "name": "Cloak of Protection",
+      "summary": "+1 to AC and saving throws.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.ac",
+            "op": "add",
+            "value": 1,
+            "label": "Cloak of Protection"
+          },
+          {
+            "selector": "roll.save.*",
+            "op": "add",
+            "value": 1,
+            "label": "Cloak of Protection"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:ring-of-protection",
+      "name": "Ring of Protection",
+      "summary": "+1 to AC and saving throws.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "rare"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.ac",
+            "op": "add",
+            "value": 1,
+            "label": "Ring of Protection"
+          },
+          {
+            "selector": "roll.save.*",
+            "op": "add",
+            "value": 1,
+            "label": "Ring of Protection"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:bracers-of-defense",
+      "name": "Bracers of Defense",
+      "summary": "+2 AC while you wear no armor and hold no shield.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "rare"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.ac",
+            "op": "add",
+            "value": 2,
+            "label": "Bracers of Defense",
+            "when": {
+              "noArmor": true,
+              "noShield": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:gauntlets-of-ogre-power",
+      "name": "Gauntlets of Ogre Power",
+      "summary": "Your Strength score is 19 (no effect if it's already that or higher).",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.ability.str",
+            "op": "setMin",
+            "value": 19,
+            "label": "Gauntlets of Ogre Power"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:headband-of-intellect",
+      "name": "Headband of Intellect",
+      "summary": "Your Intelligence score is 19 (no effect if it's already that or higher).",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.ability.int",
+            "op": "setMin",
+            "value": 19,
+            "label": "Headband of Intellect"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:amulet-of-health",
+      "name": "Amulet of Health",
+      "summary": "Your Constitution score is 19 (no effect if it's already that or higher).",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "rare"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.ability.con",
+            "op": "setMin",
+            "value": 19,
+            "label": "Amulet of Health"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:belt-of-hill-giant-strength",
+      "name": "Belt of Hill Giant Strength",
+      "summary": "Your Strength score is 21 (no effect if it's already that or higher).",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "rare"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.ability.str",
+            "op": "setMin",
+            "value": 21,
+            "label": "Belt of Hill Giant Strength"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:belt-of-stone-giant-strength",
+      "name": "Belt of Stone Giant Strength",
+      "summary": "Your Strength score is 23 (no effect if it's already that or higher).",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "very rare"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.ability.str",
+            "op": "setMin",
+            "value": 23,
+            "label": "Belt of Stone Giant Strength"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:belt-of-frost-giant-strength",
+      "name": "Belt of Frost Giant Strength",
+      "summary": "Your Strength score is 23 (no effect if it's already that or higher).",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "very rare"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.ability.str",
+            "op": "setMin",
+            "value": 23,
+            "label": "Belt of Frost Giant Strength"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:belt-of-fire-giant-strength",
+      "name": "Belt of Fire Giant Strength",
+      "summary": "Your Strength score is 25 (no effect if it's already that or higher).",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "very rare"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.ability.str",
+            "op": "setMin",
+            "value": 25,
+            "label": "Belt of Fire Giant Strength"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:belt-of-cloud-giant-strength",
+      "name": "Belt of Cloud Giant Strength",
+      "summary": "Your Strength score is 27 (no effect if it's already that or higher).",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "legendary"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.ability.str",
+            "op": "setMin",
+            "value": 27,
+            "label": "Belt of Cloud Giant Strength"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:belt-of-storm-giant-strength",
+      "name": "Belt of Storm Giant Strength",
+      "summary": "Your Strength score is 29 (no effect if it's already that or higher).",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "legendary"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.ability.str",
+            "op": "setMin",
+            "value": 29,
+            "label": "Belt of Storm Giant Strength"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:ring-of-resistance-acid",
+      "name": "Ring of Resistance (Acid)",
+      "summary": "Resistance to acid damage.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "rare"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.acid",
+            "op": "resist",
+            "label": "Ring of Resistance"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:ring-of-resistance-cold",
+      "name": "Ring of Resistance (Cold)",
+      "summary": "Resistance to cold damage.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "rare"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.cold",
+            "op": "resist",
+            "label": "Ring of Resistance"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:ring-of-resistance-fire",
+      "name": "Ring of Resistance (Fire)",
+      "summary": "Resistance to fire damage.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "rare"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.fire",
+            "op": "resist",
+            "label": "Ring of Resistance"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:ring-of-resistance-force",
+      "name": "Ring of Resistance (Force)",
+      "summary": "Resistance to force damage.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "rare"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.force",
+            "op": "resist",
+            "label": "Ring of Resistance"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:ring-of-resistance-lightning",
+      "name": "Ring of Resistance (Lightning)",
+      "summary": "Resistance to lightning damage.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "rare"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.lightning",
+            "op": "resist",
+            "label": "Ring of Resistance"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:ring-of-resistance-necrotic",
+      "name": "Ring of Resistance (Necrotic)",
+      "summary": "Resistance to necrotic damage.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "rare"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.necrotic",
+            "op": "resist",
+            "label": "Ring of Resistance"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:ring-of-resistance-poison",
+      "name": "Ring of Resistance (Poison)",
+      "summary": "Resistance to poison damage.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "rare"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.poison",
+            "op": "resist",
+            "label": "Ring of Resistance"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:ring-of-resistance-psychic",
+      "name": "Ring of Resistance (Psychic)",
+      "summary": "Resistance to psychic damage.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "rare"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.psychic",
+            "op": "resist",
+            "label": "Ring of Resistance"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:ring-of-resistance-radiant",
+      "name": "Ring of Resistance (Radiant)",
+      "summary": "Resistance to radiant damage.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "rare"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.radiant",
+            "op": "resist",
+            "label": "Ring of Resistance"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:ring-of-resistance-thunder",
+      "name": "Ring of Resistance (Thunder)",
+      "summary": "Resistance to thunder damage.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "rare"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.thunder",
+            "op": "resist",
+            "label": "Ring of Resistance"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:ring-of-evasion",
+      "name": "Ring of Evasion",
+      "summary": "3 charges (1d3 back at dawn). Reaction when you fail a Dexterity save: spend a charge to succeed instead.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "rare"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "actions": [
+          {
+            "id": "ring-of-evasion",
+            "name": "Ring of Evasion",
+            "economy": "reaction",
+            "note": "A Dexterity save you failed becomes a success. Spend a charge: tap it on the ring."
+          }
+        ]
+      },
+      "charges": {
+        "max": 3,
+        "regain": "1d3"
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:ring-of-free-action",
+      "name": "Ring of Free Action",
+      "summary": "Difficult terrain costs you no extra movement, and magic can't reduce your speed or make you paralyzed or restrained.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "rare"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.save.*",
+            "op": "note",
+            "label": "Ring of Free Action: magic can't paralyze or restrain you, or reduce your speed"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:ring-of-spell-storing",
+      "name": "Ring of Spell Storing",
+      "summary": "Holds up to 5 levels of spells cast into it; while you wear it you can cast them (the original caster's level, DC and attack).",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "rare"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "actions": [
+          {
+            "id": "ring-of-spell-storing",
+            "name": "Ring of Spell Storing",
+            "economy": "action",
+            "infoOnly": true,
+            "note": "Cast a spell stored in it: its slot level, DC, attack bonus and ability are the original caster's. Write what it holds in the ring's notes."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:ring-of-regeneration",
+      "name": "Ring of Regeneration",
+      "summary": "You regain 1d6 hit points every 10 minutes if you have at least 1; lost body parts grow back over 1d6 + 1 days.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "very rare"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "actions": [
+          {
+            "id": "ring-of-regeneration",
+            "name": "Ring of Regeneration: 10 minutes",
+            "economy": "free",
+            "heal": "1d6",
+            "note": "Every 10 minutes, if you have at least 1 hit point."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:boots-of-speed",
+      "name": "Boots of Speed",
+      "summary": "Bonus action: click the heels to double your walking speed, and opportunity attacks against you have disadvantage. 10 minutes in all per long rest.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "rare"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.speed.walk",
+            "op": "multiply",
+            "value": 2,
+            "label": "Boots of Speed",
+            "when": {
+              "toggle": "boots-of-speed"
+            }
+          }
+        ],
+        "actions": [
+          {
+            "id": "boots-of-speed",
+            "name": "Boots of Speed",
+            "economy": "bonus",
+            "toggles": [
+              "boots-of-speed"
+            ],
+            "duration": {
+              "minutes": 10
+            },
+            "note": "Speed doubled; opportunity attacks against you have disadvantage. Click again to stop. 10 minutes in all until a long rest."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:boots-of-elvenkind",
+      "name": "Boots of Elvenkind",
+      "summary": "Your steps make no sound: advantage on Stealth checks to move silently.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "requiresAttunement": false,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.check.skill.stealth",
+            "op": "advantage",
+            "label": "Boots of Elvenkind",
+            "mode": "suggested",
+            "when": {
+              "text": "moving silently"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:boots-of-levitation",
+      "name": "Boots of Levitation",
+      "summary": "Cast levitate on yourself at will.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "rare"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:levitate",
+            "name": "Levitate",
+            "casting": "at will, on yourself",
+            "atWill": true
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:winged-boots",
+      "name": "Winged Boots",
+      "summary": "Fly at your walking speed for up to 4 hours a day (in pieces of at least a minute); 2 hours back for every 12 hours unused.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.speed.fly",
+            "op": "grantSpeed",
+            "value": 30,
+            "label": "Winged Boots (your walking speed)",
+            "when": {
+              "toggle": "winged-boots"
+            }
+          }
+        ],
+        "actions": [
+          {
+            "id": "winged-boots",
+            "name": "Winged Boots",
+            "economy": "free",
+            "toggles": [
+              "winged-boots"
+            ],
+            "note": "Flying speed equal to your walking speed (30 ft shown). Up to 4 hours a day; you fall when they run out."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:cloak-of-elvenkind",
+      "name": "Cloak of Elvenkind",
+      "summary": "Hood up: Perception checks to see you have disadvantage, and you have advantage on Stealth checks to hide.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.check.skill.stealth",
+            "op": "advantage",
+            "label": "Cloak of Elvenkind",
+            "mode": "suggested",
+            "when": {
+              "text": "hiding, with the hood up"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:cloak-of-displacement",
+      "name": "Cloak of Displacement",
+      "summary": "You seem to stand somewhere else: attacks against you have disadvantage until you're hit, then again from the start of your next turn.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "rare"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "actions": [
+          {
+            "id": "cloak-of-displacement",
+            "name": "Cloak of Displacement",
+            "economy": "free",
+            "infoOnly": true,
+            "note": "Attacks against you have disadvantage. After you're hit it stops until the start of your next turn; it doesn't work while you're incapacitated, restrained or can't move."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:periapt-of-wound-closure",
+      "name": "Periapt of Wound Closure",
+      "summary": "You stabilize at the start of your turn when dying, and you regain twice the hit points from Hit Dice.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.save.death",
+            "op": "note",
+            "label": "Periapt of Wound Closure: you stabilize at the start of your turn instead"
+          }
+        ],
+        "actions": [
+          {
+            "id": "periapt-of-wound-closure",
+            "name": "Periapt of Wound Closure",
+            "economy": "free",
+            "infoOnly": true,
+            "note": "A Hit Die heals twice its roll: add the second half with Heal."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:ioun-stone-protection",
+      "name": "Ioun Stone of Protection",
+      "summary": "Orbits your head: +1 AC.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "rare"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.ac",
+            "op": "add",
+            "value": 1,
+            "label": "Ioun Stone of Protection"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:ioun-stone-agility",
+      "name": "Ioun Stone of Agility",
+      "summary": "Orbits your head: +2 Dexterity (up to 20).",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "very rare"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "abilityBonuses": {
+          "dex": 2
+        }
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:ioun-stone-fortitude",
+      "name": "Ioun Stone of Fortitude",
+      "summary": "Orbits your head: +2 Constitution (up to 20).",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "very rare"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "abilityBonuses": {
+          "con": 2
+        }
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:ioun-stone-insight",
+      "name": "Ioun Stone of Insight",
+      "summary": "Orbits your head: +2 Wisdom (up to 20).",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "very rare"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "abilityBonuses": {
+          "wis": 2
+        }
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:ioun-stone-intellect",
+      "name": "Ioun Stone of Intellect",
+      "summary": "Orbits your head: +2 Intelligence (up to 20).",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "very rare"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "abilityBonuses": {
+          "int": 2
+        }
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:ioun-stone-leadership",
+      "name": "Ioun Stone of Leadership",
+      "summary": "Orbits your head: +2 Charisma (up to 20).",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "very rare"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "abilityBonuses": {
+          "cha": 2
+        }
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:ioun-stone-strength",
+      "name": "Ioun Stone of Strength",
+      "summary": "Orbits your head: +2 Strength (up to 20).",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "very rare"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "abilityBonuses": {
+          "str": 2
+        }
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:ioun-stone-mastery",
+      "name": "Ioun Stone of Mastery",
+      "summary": "Orbits your head: +1 proficiency bonus.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "legendary"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.pb",
+            "op": "add",
+            "value": 1,
+            "label": "Ioun Stone of Mastery"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:ioun-stone-awareness",
+      "name": "Ioun Stone of Awareness",
+      "summary": "Orbits your head: You can't be surprised.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "rare"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.initiative",
+            "op": "note",
+            "label": "Ioun Stone of Awareness: you can't be surprised"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:ioun-stone-regeneration",
+      "name": "Ioun Stone of Regeneration",
+      "summary": "Orbits your head: You regain 15 hit points every hour if you have at least 1.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "legendary"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "actions": [
+          {
+            "id": "ioun-regeneration",
+            "name": "Ioun Stone of Regeneration: an hour",
+            "economy": "free",
+            "heal": 15,
+            "note": "Each hour, if you have at least 1 hit point."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:ioun-stone-reserve",
+      "name": "Ioun Stone of Reserve",
+      "summary": "Orbits your head: Stores up to 3 levels of spells, like a Ring of Spell Storing.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "rare"
+      },
+      "requiresAttunement": true
+    },
+    {
+      "kind": "item",
+      "id": "item:ioun-stone-absorption",
+      "name": "Ioun Stone of Absorption",
+      "summary": "Orbits your head: Reaction: cancel a spell of 4th level or lower aimed only at you; it absorbs 20 levels of spells in all, then dulls.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "very rare"
+      },
+      "requiresAttunement": true
+    },
+    {
+      "kind": "item",
+      "id": "item:ioun-stone-greater-absorption",
+      "name": "Ioun Stone of Greater Absorption",
+      "summary": "Orbits your head: Reaction: cancel a spell of 8th level or lower aimed only at you; it absorbs 50 levels of spells in all, then dulls.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "legendary"
+      },
+      "requiresAttunement": true
+    },
+    {
+      "kind": "item",
+      "id": "item:ioun-stone-sustenance",
+      "name": "Ioun Stone of Sustenance",
+      "summary": "Orbits your head: You don't need to eat or drink.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "rare"
+      },
+      "requiresAttunement": true
+    },
+    {
+      "kind": "item",
+      "id": "item:staff-of-power",
+      "name": "Staff of Power",
+      "summary": "A +2 quarterstaff: +2 to AC, saving throws and spell attacks. 20 charges (2d8 + 4 back at dawn) for its spells; a hit can spend a charge for 1d6 force more.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "weapon",
+      "magic": {
+        "rarity": "very rare",
+        "bonus": 2
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.ac",
+            "op": "add",
+            "value": 2,
+            "label": "Staff of Power"
+          },
+          {
+            "selector": "roll.save.*",
+            "op": "add",
+            "value": 2,
+            "label": "Staff of Power"
+          },
+          {
+            "selector": "stat.spell.attack",
+            "op": "add",
+            "value": 2,
+            "label": "Staff of Power"
+          },
+          {
+            "selector": "item.damage",
+            "op": "add",
+            "value": "1d6",
+            "label": "Staff of Power (1 charge)",
+            "mode": "suggested",
+            "damageType": "force",
+            "when": {
+              "text": "spend 1 charge: tap it on the staff"
+            }
+          }
+        ],
+        "actions": [
+          {
+            "id": "staff-of-power-spells",
+            "name": "Staff of Power: spells",
+            "economy": "action",
+            "infoOnly": true,
+            "note": "With your DC and attack: cone of cold (5 charges), fireball (5th, 5), globe of invulnerability (6), hold monster (5), levitate (2), lightning bolt (5th, 5), magic missile (1), ray of enfeeblement (1), wall of force (5). Retributive Strike: break it (see its text)."
+          }
+        ]
+      },
+      "weight": 4,
+      "weapon": {
+        "category": "simple",
+        "kind": "melee",
+        "group": "quarterstaff",
+        "damage": "1d6",
+        "damageType": "bludgeoning",
+        "properties": [
+          "versatile"
+        ],
+        "versatileDamage": "1d8"
+      },
+      "charges": {
+        "max": 20,
+        "regain": "2d8+4",
+        "onEmpty": "The last charge: roll a d20; on a 1 it's a nonmagical quarterstaff."
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:staff-of-the-magi",
+      "name": "Staff of the Magi",
+      "summary": "A +2 quarterstaff: +2 to spell attacks, advantage on saves against spells, 50 charges (4d6 + 2 back at dawn) for its spells, and spell absorption.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "weapon",
+      "magic": {
+        "rarity": "legendary",
+        "bonus": 2
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.spell.attack",
+            "op": "add",
+            "value": 2,
+            "label": "Staff of the Magi"
+          },
+          {
+            "selector": "roll.save.*",
+            "op": "advantage",
+            "label": "Staff of the Magi",
+            "mode": "suggested",
+            "when": {
+              "text": "a save against a spell"
+            }
+          }
+        ],
+        "actions": [
+          {
+            "id": "staff-of-the-magi-absorb",
+            "name": "Staff of the Magi: absorb a spell",
+            "economy": "reaction",
+            "infoOnly": true,
+            "note": "A spell aimed only at you: it has no effect, and the staff gains charges equal to its level (it explodes past 50)."
+          },
+          {
+            "id": "staff-of-the-magi-spells",
+            "name": "Staff of the Magi: spells",
+            "economy": "action",
+            "infoOnly": true,
+            "note": "With your DC: conjure elemental (7), dispel magic (3), fireball (7th, 7), flaming sphere (2), ice storm (4), invisibility (2), knock (2), lightning bolt (7th, 7), passwall (5), plane shift (7), telekinesis (5), wall of fire (4), web (2); at will: arcane lock, detect magic, enlarge/reduce, light, mage hand, protection from evil and good."
+          }
+        ]
+      },
+      "weight": 4,
+      "weapon": {
+        "category": "simple",
+        "kind": "melee",
+        "group": "quarterstaff",
+        "damage": "1d6",
+        "damageType": "bludgeoning",
+        "properties": [
+          "versatile"
+        ],
+        "versatileDamage": "1d8"
+      },
+      "charges": {
+        "max": 50,
+        "regain": "4d6+2",
+        "onEmpty": "Roll a d20 when the last charge goes: on a 20 it regains 1d12 + 1."
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:robe-of-the-archmagi",
+      "name": "Robe of the Archmagi",
+      "summary": "Without armor, AC 15 + Dexterity; advantage on saves against spells; +2 to your spell save DC and spell attacks.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "legendary"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.ac",
+            "op": "acBase",
+            "value": "15+mod.dex",
+            "label": "Robe of the Archmagi",
+            "when": {
+              "noArmor": true
+            }
+          },
+          {
+            "selector": "roll.save.*",
+            "op": "advantage",
+            "label": "Robe of the Archmagi",
+            "mode": "suggested",
+            "when": {
+              "text": "a save against a spell or other magical effect"
+            }
+          },
+          {
+            "selector": "stat.spell.dc",
+            "op": "add",
+            "value": 2,
+            "label": "Robe of the Archmagi"
+          },
+          {
+            "selector": "stat.spell.attack",
+            "op": "add",
+            "value": 2,
+            "label": "Robe of the Archmagi"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:wand-of-magic-missiles",
+      "name": "Wand of Magic Missiles",
+      "summary": "7 charges (1d6 + 1 back at dawn): cast magic missile, 1 charge for 1st level and 1 more for each level above.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "requiresAttunement": false,
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:magic-missile",
+            "name": "Magic Missile",
+            "casting": "from the wand: 1 charge a level (tap the charges on the wand)",
+            "atWill": true
+          }
+        ]
+      },
+      "charges": {
+        "max": 7,
+        "regain": "1d6+1",
+        "onEmpty": "The last charge: roll a d20; on a 1 it crumbles to ash."
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:wand-of-fireballs",
+      "name": "Wand of Fireballs",
+      "summary": "7 charges (1d6 + 1 back at dawn): cast fireball (save DC 15), 1 charge for 3rd level and 1 more for each level above.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "rare"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:fireball",
+            "name": "Fireball",
+            "casting": "from the wand: DC 15, 1 charge a level from 3rd (tap the charges on the wand)",
+            "atWill": true
+          }
+        ]
+      },
+      "charges": {
+        "max": 7,
+        "regain": "1d6+1",
+        "onEmpty": "The last charge: roll a d20; on a 1 it crumbles to ash."
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:pearl-of-power",
+      "name": "Pearl of Power",
+      "summary": "Once a day, an action: regain one spent spell slot of 3rd level or lower.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "resources": [
+          {
+            "id": "pearl-of-power",
+            "name": "Pearl of Power",
+            "max": 1,
+            "reset": "dawn"
+          }
+        ],
+        "actions": [
+          {
+            "id": "pearl-of-power",
+            "name": "Pearl of Power",
+            "economy": "action",
+            "cost": {
+              "resource": "pearl-of-power",
+              "amount": 1
+            },
+            "note": "One spent spell slot of 3rd level or lower comes back: tap it back on the slots."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:frost-brand-longsword",
+      "name": "Frost Brand Longsword",
+      "summary": "1d6 extra cold damage on a hit; resistance to fire; light in freezing cold; puts out fires once an hour.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "weapon",
+      "magic": {
+        "rarity": "very rare"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "item.damage",
+            "op": "add",
+            "value": "1d6",
+            "label": "Frost Brand",
+            "damageType": "cold"
+          },
+          {
+            "selector": "defense.resist.fire",
+            "op": "resist",
+            "label": "Frost Brand"
+          }
+        ]
+      },
+      "weight": 3,
+      "weapon": {
+        "category": "martial",
+        "kind": "melee",
+        "group": "longsword",
+        "damage": "1d8",
+        "damageType": "slashing",
+        "properties": [
+          "versatile"
+        ],
+        "versatileDamage": "1d10"
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:sun-blade",
+      "name": "Sun Blade",
+      "summary": "A +2 blade of sunlight (radiant, finesse, versatile, proficient as a shortsword or longsword); 1d8 more radiant against undead; a bonus action to make it brighter or dimmer.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "weapon",
+      "magic": {
+        "rarity": "rare",
+        "bonus": 2
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "item.damage",
+            "op": "add",
+            "value": "1d8",
+            "label": "Sun Blade",
+            "mode": "suggested",
+            "damageType": "radiant",
+            "when": {
+              "text": "against an undead"
+            }
+          }
+        ]
+      },
+      "weight": 3,
+      "weapon": {
+        "category": "martial",
+        "kind": "melee",
+        "group": "longsword",
+        "damage": "1d8",
+        "damageType": "radiant",
+        "properties": [
+          "finesse",
+          "versatile"
+        ],
+        "versatileDamage": "1d10"
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:holy-avenger-longsword",
+      "name": "Holy Avenger Longsword",
+      "summary": "A +3 weapon: 2d10 more radiant against fiends and undead; while you hold it, you and friends within 10 ft (30 ft at paladin 17th) have advantage on saves against spells.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "weapon",
+      "magic": {
+        "rarity": "legendary",
+        "bonus": 3
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "item.damage",
+            "op": "add",
+            "value": "2d10",
+            "label": "Holy Avenger",
+            "mode": "suggested",
+            "damageType": "radiant",
+            "when": {
+              "text": "against a fiend or an undead"
+            }
+          },
+          {
+            "selector": "roll.save.*",
+            "op": "advantage",
+            "label": "Holy Avenger",
+            "mode": "suggested",
+            "when": {
+              "text": "a save against a spell or other magical effect"
+            }
+          }
+        ]
+      },
+      "weight": 3,
+      "weapon": {
+        "category": "martial",
+        "kind": "melee",
+        "group": "longsword",
+        "damage": "1d8",
+        "damageType": "slashing",
+        "properties": [
+          "versatile"
+        ],
+        "versatileDamage": "1d10"
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:dragon-slayer-longsword",
+      "name": "Dragon Slayer Longsword",
+      "summary": "A +1 weapon: 3d6 more of its type against dragons.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "weapon",
+      "magic": {
+        "rarity": "rare",
+        "bonus": 1
+      },
+      "requiresAttunement": false,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "item.damage",
+            "op": "add",
+            "value": "3d6",
+            "label": "Dragon Slayer",
+            "mode": "suggested",
+            "when": {
+              "text": "against a dragon (dragon turtles and wyverns too)"
+            }
+          }
+        ]
+      },
+      "weight": 3,
+      "weapon": {
+        "category": "martial",
+        "kind": "melee",
+        "group": "longsword",
+        "damage": "1d8",
+        "damageType": "slashing",
+        "properties": [
+          "versatile"
+        ],
+        "versatileDamage": "1d10"
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:giant-slayer-longsword",
+      "name": "Giant Slayer Longsword",
+      "summary": "A +1 weapon: 2d6 more of its type against giants, who must make a DC 15 Strength save or fall prone.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "weapon",
+      "magic": {
+        "rarity": "rare",
+        "bonus": 1
+      },
+      "requiresAttunement": false,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "item.damage",
+            "op": "add",
+            "value": "2d6",
+            "label": "Giant Slayer",
+            "mode": "suggested",
+            "when": {
+              "text": "against a giant: DC 15 Strength save or it falls prone"
+            }
+          }
+        ]
+      },
+      "weight": 3,
+      "weapon": {
+        "category": "martial",
+        "kind": "melee",
+        "group": "longsword",
+        "damage": "1d8",
+        "damageType": "slashing",
+        "properties": [
+          "versatile"
+        ],
+        "versatileDamage": "1d10"
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:javelin-of-lightning",
+      "name": "Javelin of Lightning",
+      "summary": "Once a day, thrown, it turns into a 120-ft bolt: 4d6 lightning to each creature in the line (Dexterity save DC 13, half), and the target takes it as well as the javelin's damage.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "weapon",
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "requiresAttunement": false,
+      "grant": {
+        "resources": [
+          {
+            "id": "javelin-of-lightning",
+            "name": "Javelin of Lightning",
+            "max": 1,
+            "reset": "dawn"
+          }
+        ],
+        "actions": [
+          {
+            "id": "javelin-of-lightning",
+            "name": "Javelin of Lightning: the bolt",
+            "economy": "free",
+            "cost": {
+              "resource": "javelin-of-lightning",
+              "amount": 1
+            },
+            "roll": {
+              "dice": "4d6",
+              "label": "lightning damage to each creature in the 5-ft-wide line (DC 13 Dexterity save: half; the target takes it on a hit too)"
+            },
+            "note": "Speak its word as you throw it."
+          }
+        ]
+      },
+      "weight": 2,
+      "weapon": {
+        "category": "simple",
+        "kind": "melee",
+        "group": "javelin",
+        "damage": "1d6",
+        "damageType": "piercing",
+        "properties": [
+          "thrown"
+        ],
+        "range": [
+          30,
+          120
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:mace-of-disruption",
+      "name": "Mace of Disruption",
+      "summary": "2d6 more radiant against fiends and undead; one with 25 hit points or fewer after the hit makes a DC 15 Wisdom save or is destroyed (frightened on a success).",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "weapon",
+      "magic": {
+        "rarity": "rare"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "item.damage",
+            "op": "add",
+            "value": "2d6",
+            "label": "Mace of Disruption",
+            "mode": "suggested",
+            "damageType": "radiant",
+            "when": {
+              "text": "against a fiend or an undead: at 25 HP or fewer, DC 15 Wisdom save or destroyed"
+            }
+          }
+        ]
+      },
+      "weight": 4,
+      "weapon": {
+        "category": "simple",
+        "kind": "melee",
+        "group": "mace",
+        "damage": "1d6",
+        "damageType": "bludgeoning",
+        "properties": []
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:dwarven-thrower",
+      "name": "Dwarven Thrower",
+      "summary": "A +3 warhammer that can be thrown (20/60) and flies back to you; thrown, 1d8 more damage (2d8 against giants).",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "weapon",
+      "magic": {
+        "rarity": "very rare",
+        "bonus": 3
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "damage.item:dwarven-thrower.thrown",
+            "op": "add",
+            "value": "1d8",
+            "label": "Dwarven Thrower (thrown)"
+          },
+          {
+            "selector": "damage.item:dwarven-thrower.thrown",
+            "op": "add",
+            "value": "1d8",
+            "label": "Dwarven Thrower (giant)",
+            "mode": "suggested",
+            "when": {
+              "text": "thrown at a giant"
+            }
+          }
+        ]
+      },
+      "weight": 2,
+      "weapon": {
+        "category": "martial",
+        "kind": "melee",
+        "group": "warhammer",
+        "damage": "1d8",
+        "damageType": "bludgeoning",
+        "properties": [
+          "versatile",
+          "thrown"
+        ],
+        "versatileDamage": "1d10",
+        "range": [
+          20,
+          60
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:vorpal-sword",
+      "name": "Vorpal Sword",
+      "summary": "A +3 blade that ignores resistance to slashing damage; on a natural 20 against a creature with a head it cuts it off (or 6d8 slashing more).",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "weapon",
+      "magic": {
+        "rarity": "legendary",
+        "bonus": 3
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "item.damage",
+            "op": "add",
+            "value": "6d8",
+            "label": "Vorpal Sword",
+            "mode": "suggested",
+            "when": {
+              "text": "a natural 20, when the head can't be cut off (or the creature survives without it)"
+            }
+          }
+        ]
+      },
+      "weight": 3,
+      "weapon": {
+        "category": "martial",
+        "kind": "melee",
+        "group": "longsword",
+        "damage": "1d8",
+        "damageType": "slashing",
+        "properties": [
+          "versatile"
+        ],
+        "versatileDamage": "1d10"
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:elven-chain",
+      "name": "Elven Chain",
+      "summary": "A +1 chain shirt; you count as proficient with it even without medium armor training.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "armor",
+      "magic": {
+        "rarity": "rare",
+        "bonus": 1
+      },
+      "requiresAttunement": false,
+      "weight": 20,
+      "armor": {
+        "category": "medium",
+        "base": 13,
+        "stealthDisadvantage": false
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:adamantine-half-plate",
+      "name": "Adamantine Half Plate",
+      "summary": "Any critical hit against you becomes a normal hit.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "armor",
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "requiresAttunement": false,
+      "grant": {
+        "actions": [
+          {
+            "id": "adamantine-half-plate",
+            "name": "Adamantine armor",
+            "economy": "free",
+            "infoOnly": true,
+            "note": "A critical hit against you is a normal hit: enter the damage as a normal hit."
+          }
+        ]
+      },
+      "weight": 40,
+      "armor": {
+        "category": "medium",
+        "base": 15,
+        "stealthDisadvantage": true
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:mithral-half-plate",
+      "name": "Mithral Half Plate",
+      "summary": "No disadvantage on Stealth, and no Strength needed.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "armor",
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "requiresAttunement": false,
+      "weight": 40,
+      "armor": {
+        "category": "medium",
+        "base": 15,
+        "stealthDisadvantage": false
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:adamantine-plate",
+      "name": "Adamantine Plate",
+      "summary": "Any critical hit against you becomes a normal hit.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "armor",
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "requiresAttunement": false,
+      "grant": {
+        "actions": [
+          {
+            "id": "adamantine-plate",
+            "name": "Adamantine armor",
+            "economy": "free",
+            "infoOnly": true,
+            "note": "A critical hit against you is a normal hit: enter the damage as a normal hit."
+          }
+        ]
+      },
+      "weight": 65,
+      "armor": {
+        "category": "heavy",
+        "base": 18,
+        "stealthDisadvantage": true,
+        "strengthRequired": 15
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:mithral-plate",
+      "name": "Mithral Plate",
+      "summary": "No disadvantage on Stealth, and no Strength needed.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "armor",
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "requiresAttunement": false,
+      "weight": 65,
+      "armor": {
+        "category": "heavy",
+        "base": 18,
+        "stealthDisadvantage": false
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:adamantine-breastplate",
+      "name": "Adamantine Breastplate",
+      "summary": "Any critical hit against you becomes a normal hit.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "armor",
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "requiresAttunement": false,
+      "grant": {
+        "actions": [
+          {
+            "id": "adamantine-breastplate",
+            "name": "Adamantine armor",
+            "economy": "free",
+            "infoOnly": true,
+            "note": "A critical hit against you is a normal hit: enter the damage as a normal hit."
+          }
+        ]
+      },
+      "weight": 20,
+      "armor": {
+        "category": "medium",
+        "base": 14,
+        "stealthDisadvantage": false
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:mithral-breastplate",
+      "name": "Mithral Breastplate",
+      "summary": "No disadvantage on Stealth, and no Strength needed.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "armor",
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "requiresAttunement": false,
+      "weight": 20,
+      "armor": {
+        "category": "medium",
+        "base": 14,
+        "stealthDisadvantage": false
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:adamantine-chain-mail",
+      "name": "Adamantine Chain Mail",
+      "summary": "Any critical hit against you becomes a normal hit.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "armor",
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "requiresAttunement": false,
+      "grant": {
+        "actions": [
+          {
+            "id": "adamantine-chain-mail",
+            "name": "Adamantine armor",
+            "economy": "free",
+            "infoOnly": true,
+            "note": "A critical hit against you is a normal hit: enter the damage as a normal hit."
+          }
+        ]
+      },
+      "weight": 55,
+      "armor": {
+        "category": "heavy",
+        "base": 16,
+        "stealthDisadvantage": true,
+        "strengthRequired": 13
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:mithral-chain-mail",
+      "name": "Mithral Chain Mail",
+      "summary": "No disadvantage on Stealth, and no Strength needed.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "armor",
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "requiresAttunement": false,
+      "weight": 55,
+      "armor": {
+        "category": "heavy",
+        "base": 16,
+        "stealthDisadvantage": false
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:animated-shield",
+      "name": "Animated Shield",
+      "summary": "Bonus action: it floats and protects you for 1 minute, leaving your hands free.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "shield",
+      "magic": {
+        "rarity": "very rare"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "actions": [
+          {
+            "id": "animated-shield",
+            "name": "Animated Shield",
+            "economy": "bonus",
+            "toggles": [
+              "animated-shield"
+            ],
+            "duration": {
+              "minutes": 1
+            },
+            "note": "It guards you as if you held it, for 1 minute or until you stop it or are incapacitated; then it falls or comes back to your hand."
+          }
+        ]
+      },
+      "weight": 6,
+      "shieldBonus": 2
+    },
+    {
+      "kind": "item",
+      "id": "item:sentinel-shield",
+      "name": "Sentinel Shield",
+      "summary": "Advantage on initiative rolls and Wisdom (Perception) checks.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "shield",
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "requiresAttunement": false,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.initiative",
+            "op": "advantage",
+            "label": "Sentinel Shield"
+          },
+          {
+            "selector": "roll.check.skill.perception",
+            "op": "advantage",
+            "label": "Sentinel Shield"
+          }
+        ]
+      },
+      "weight": 6,
+      "shieldBonus": 2
+    },
+    {
+      "kind": "item",
+      "id": "item:bag-of-holding",
+      "name": "Bag of Holding",
+      "summary": "Holds up to 500 lb (64 cubic ft) and always weighs 15 lb. Turned inside out or pierced, it's destroyed; inside a portal to the Astral Plane with another extradimensional space.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "requiresAttunement": false,
+      "weight": 15
+    },
+    {
+      "kind": "item",
+      "id": "item:rod-of-the-pact-keeper-1",
+      "name": "Rod of the Pact Keeper +1",
+      "summary": "+1 to your warlock spell attacks and save DCs. Once per long rest, an action: regain one Pact Magic slot.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE"
+      },
+      "category": "focus",
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.spell.attack.warlock",
+            "op": "add",
+            "value": 1,
+            "label": "Rod of the Pact Keeper +1"
+          },
+          {
+            "selector": "stat.spell.dc.warlock",
+            "op": "add",
+            "value": 1,
+            "label": "Rod of the Pact Keeper +1"
+          }
+        ],
+        "resources": [
+          {
+            "id": "rod-of-the-pact-keeper-1",
+            "name": "Rod of the Pact Keeper +1",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "pact-keeper-1",
+            "name": "Rod of the Pact Keeper: a slot back",
+            "economy": "action",
+            "note": "One Pact Magic slot comes back: tap it back on the slots.",
+            "cost": {
+              "resource": "rod-of-the-pact-keeper-1",
+              "amount": 1
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:wand-of-the-war-mage-1",
+      "name": "Wand of the War Mage +1",
+      "summary": "+1 to your spell attacks. Your spell attacks ignore half cover.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE"
+      },
+      "category": "focus",
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.spell.attack",
+            "op": "add",
+            "value": 1,
+            "label": "Wand of the War Mage +1"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:arcane-grimoire-1",
+      "name": "Arcane Grimoire +1",
+      "summary": "+1 to your wizard spell attacks and save DCs. Arcane Recovery gets back one more slot level.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE"
+      },
+      "category": "focus",
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.spell.attack.wizard",
+            "op": "add",
+            "value": 1,
+            "label": "Arcane Grimoire +1"
+          },
+          {
+            "selector": "stat.spell.dc.wizard",
+            "op": "add",
+            "value": 1,
+            "label": "Arcane Grimoire +1"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:amulet-of-the-devout-1",
+      "name": "Amulet of the Devout +1",
+      "summary": "+1 to your cleric and paladin spell attacks and save DCs. Once per long rest: one Channel Divinity without spending its use.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE"
+      },
+      "category": "focus",
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.spell.attack.cleric",
+            "op": "add",
+            "value": 1,
+            "label": "Amulet of the Devout +1"
+          },
+          {
+            "selector": "stat.spell.dc.cleric",
+            "op": "add",
+            "value": 1,
+            "label": "Amulet of the Devout +1"
+          },
+          {
+            "selector": "stat.spell.attack.paladin",
+            "op": "add",
+            "value": 1,
+            "label": "Amulet of the Devout +1"
+          },
+          {
+            "selector": "stat.spell.dc.paladin",
+            "op": "add",
+            "value": 1,
+            "label": "Amulet of the Devout +1"
+          }
+        ],
+        "resources": [
+          {
+            "id": "amulet-of-the-devout-1",
+            "name": "Amulet of the Devout +1",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "devout-1",
+            "name": "Amulet of the Devout: Channel Divinity",
+            "economy": "free",
+            "note": "Use a Channel Divinity option without spending a use: use it from Actions, then tap the use back.",
+            "cost": {
+              "resource": "amulet-of-the-devout-1",
+              "amount": 1
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:bloodwell-vial-1",
+      "name": "Bloodwell Vial +1",
+      "summary": "+1 to your sorcerer spell attacks and save DCs. Once per long rest, when you roll a Hit Die, regain 5 sorcery points.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE"
+      },
+      "category": "focus",
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.spell.attack.sorcerer",
+            "op": "add",
+            "value": 1,
+            "label": "Bloodwell Vial +1"
+          },
+          {
+            "selector": "stat.spell.dc.sorcerer",
+            "op": "add",
+            "value": 1,
+            "label": "Bloodwell Vial +1"
+          }
+        ],
+        "resources": [
+          {
+            "id": "bloodwell-vial-1",
+            "name": "Bloodwell Vial +1",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "bloodwell-1",
+            "name": "Bloodwell Vial: 5 sorcery points",
+            "economy": "free",
+            "restores": {
+              "resource": "sorcery-points",
+              "amount": 5
+            },
+            "note": "When you roll a Hit Die to regain hit points.",
+            "cost": {
+              "resource": "bloodwell-vial-1",
+              "amount": 1
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:rhythm-makers-drum-1",
+      "name": "Rhythm-Maker's Drum +1",
+      "summary": "+1 to your bard spell attacks and save DCs. Once per long rest, an action: regain one use of Bardic Inspiration.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE"
+      },
+      "category": "focus",
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.spell.attack.bard",
+            "op": "add",
+            "value": 1,
+            "label": "Rhythm-Maker's Drum +1"
+          },
+          {
+            "selector": "stat.spell.dc.bard",
+            "op": "add",
+            "value": 1,
+            "label": "Rhythm-Maker's Drum +1"
+          }
+        ],
+        "resources": [
+          {
+            "id": "rhythm-makers-drum-1",
+            "name": "Rhythm-Maker's Drum +1",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "rhythm-1",
+            "name": "Rhythm-Maker's Drum: Bardic Inspiration",
+            "economy": "action",
+            "restores": {
+              "resource": "bardic-inspiration",
+              "amount": 1
+            },
+            "cost": {
+              "resource": "rhythm-makers-drum-1",
+              "amount": 1
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:moon-sickle-1",
+      "name": "Moon Sickle +1",
+      "summary": "A +1 sickle; +1 to your druid and ranger spell attacks and save DCs; your healing spells heal 1d4 more when you hold it.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE"
+      },
+      "category": "weapon",
+      "magic": {
+        "rarity": "uncommon",
+        "bonus": 1
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.spell.attack.druid",
+            "op": "add",
+            "value": 1,
+            "label": "Moon Sickle +1"
+          },
+          {
+            "selector": "stat.spell.attack.ranger",
+            "op": "add",
+            "value": 1,
+            "label": "Moon Sickle +1"
+          },
+          {
+            "selector": "stat.spell.dc.druid",
+            "op": "add",
+            "value": 1,
+            "label": "Moon Sickle +1"
+          },
+          {
+            "selector": "stat.spell.dc.ranger",
+            "op": "add",
+            "value": 1,
+            "label": "Moon Sickle +1"
+          }
+        ]
+      },
+      "weight": 2,
+      "weapon": {
+        "category": "simple",
+        "kind": "melee",
+        "group": "sickle",
+        "damage": "1d4",
+        "damageType": "slashing",
+        "properties": [
+          "light"
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:rod-of-the-pact-keeper-2",
+      "name": "Rod of the Pact Keeper +2",
+      "summary": "+2 to your warlock spell attacks and save DCs. Once per long rest, an action: regain one Pact Magic slot.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE"
+      },
+      "category": "focus",
+      "magic": {
+        "rarity": "rare"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.spell.attack.warlock",
+            "op": "add",
+            "value": 2,
+            "label": "Rod of the Pact Keeper +2"
+          },
+          {
+            "selector": "stat.spell.dc.warlock",
+            "op": "add",
+            "value": 2,
+            "label": "Rod of the Pact Keeper +2"
+          }
+        ],
+        "resources": [
+          {
+            "id": "rod-of-the-pact-keeper-2",
+            "name": "Rod of the Pact Keeper +2",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "pact-keeper-2",
+            "name": "Rod of the Pact Keeper: a slot back",
+            "economy": "action",
+            "note": "One Pact Magic slot comes back: tap it back on the slots.",
+            "cost": {
+              "resource": "rod-of-the-pact-keeper-2",
+              "amount": 1
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:wand-of-the-war-mage-2",
+      "name": "Wand of the War Mage +2",
+      "summary": "+2 to your spell attacks. Your spell attacks ignore half cover.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE"
+      },
+      "category": "focus",
+      "magic": {
+        "rarity": "rare"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.spell.attack",
+            "op": "add",
+            "value": 2,
+            "label": "Wand of the War Mage +2"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:arcane-grimoire-2",
+      "name": "Arcane Grimoire +2",
+      "summary": "+2 to your wizard spell attacks and save DCs. Arcane Recovery gets back one more slot level.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE"
+      },
+      "category": "focus",
+      "magic": {
+        "rarity": "rare"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.spell.attack.wizard",
+            "op": "add",
+            "value": 2,
+            "label": "Arcane Grimoire +2"
+          },
+          {
+            "selector": "stat.spell.dc.wizard",
+            "op": "add",
+            "value": 2,
+            "label": "Arcane Grimoire +2"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:amulet-of-the-devout-2",
+      "name": "Amulet of the Devout +2",
+      "summary": "+2 to your cleric and paladin spell attacks and save DCs. Once per long rest: one Channel Divinity without spending its use.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE"
+      },
+      "category": "focus",
+      "magic": {
+        "rarity": "rare"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.spell.attack.cleric",
+            "op": "add",
+            "value": 2,
+            "label": "Amulet of the Devout +2"
+          },
+          {
+            "selector": "stat.spell.dc.cleric",
+            "op": "add",
+            "value": 2,
+            "label": "Amulet of the Devout +2"
+          },
+          {
+            "selector": "stat.spell.attack.paladin",
+            "op": "add",
+            "value": 2,
+            "label": "Amulet of the Devout +2"
+          },
+          {
+            "selector": "stat.spell.dc.paladin",
+            "op": "add",
+            "value": 2,
+            "label": "Amulet of the Devout +2"
+          }
+        ],
+        "resources": [
+          {
+            "id": "amulet-of-the-devout-2",
+            "name": "Amulet of the Devout +2",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "devout-2",
+            "name": "Amulet of the Devout: Channel Divinity",
+            "economy": "free",
+            "note": "Use a Channel Divinity option without spending a use: use it from Actions, then tap the use back.",
+            "cost": {
+              "resource": "amulet-of-the-devout-2",
+              "amount": 1
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:bloodwell-vial-2",
+      "name": "Bloodwell Vial +2",
+      "summary": "+2 to your sorcerer spell attacks and save DCs. Once per long rest, when you roll a Hit Die, regain 5 sorcery points.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE"
+      },
+      "category": "focus",
+      "magic": {
+        "rarity": "rare"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.spell.attack.sorcerer",
+            "op": "add",
+            "value": 2,
+            "label": "Bloodwell Vial +2"
+          },
+          {
+            "selector": "stat.spell.dc.sorcerer",
+            "op": "add",
+            "value": 2,
+            "label": "Bloodwell Vial +2"
+          }
+        ],
+        "resources": [
+          {
+            "id": "bloodwell-vial-2",
+            "name": "Bloodwell Vial +2",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "bloodwell-2",
+            "name": "Bloodwell Vial: 5 sorcery points",
+            "economy": "free",
+            "restores": {
+              "resource": "sorcery-points",
+              "amount": 5
+            },
+            "note": "When you roll a Hit Die to regain hit points.",
+            "cost": {
+              "resource": "bloodwell-vial-2",
+              "amount": 1
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:rhythm-makers-drum-2",
+      "name": "Rhythm-Maker's Drum +2",
+      "summary": "+2 to your bard spell attacks and save DCs. Once per long rest, an action: regain one use of Bardic Inspiration.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE"
+      },
+      "category": "focus",
+      "magic": {
+        "rarity": "rare"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.spell.attack.bard",
+            "op": "add",
+            "value": 2,
+            "label": "Rhythm-Maker's Drum +2"
+          },
+          {
+            "selector": "stat.spell.dc.bard",
+            "op": "add",
+            "value": 2,
+            "label": "Rhythm-Maker's Drum +2"
+          }
+        ],
+        "resources": [
+          {
+            "id": "rhythm-makers-drum-2",
+            "name": "Rhythm-Maker's Drum +2",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "rhythm-2",
+            "name": "Rhythm-Maker's Drum: Bardic Inspiration",
+            "economy": "action",
+            "restores": {
+              "resource": "bardic-inspiration",
+              "amount": 1
+            },
+            "cost": {
+              "resource": "rhythm-makers-drum-2",
+              "amount": 1
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:moon-sickle-2",
+      "name": "Moon Sickle +2",
+      "summary": "A +2 sickle; +2 to your druid and ranger spell attacks and save DCs; your healing spells heal 1d4 more when you hold it.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE"
+      },
+      "category": "weapon",
+      "magic": {
+        "rarity": "rare",
+        "bonus": 2
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.spell.attack.druid",
+            "op": "add",
+            "value": 2,
+            "label": "Moon Sickle +2"
+          },
+          {
+            "selector": "stat.spell.attack.ranger",
+            "op": "add",
+            "value": 2,
+            "label": "Moon Sickle +2"
+          },
+          {
+            "selector": "stat.spell.dc.druid",
+            "op": "add",
+            "value": 2,
+            "label": "Moon Sickle +2"
+          },
+          {
+            "selector": "stat.spell.dc.ranger",
+            "op": "add",
+            "value": 2,
+            "label": "Moon Sickle +2"
+          }
+        ]
+      },
+      "weight": 2,
+      "weapon": {
+        "category": "simple",
+        "kind": "melee",
+        "group": "sickle",
+        "damage": "1d4",
+        "damageType": "slashing",
+        "properties": [
+          "light"
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:rod-of-the-pact-keeper-3",
+      "name": "Rod of the Pact Keeper +3",
+      "summary": "+3 to your warlock spell attacks and save DCs. Once per long rest, an action: regain one Pact Magic slot.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE"
+      },
+      "category": "focus",
+      "magic": {
+        "rarity": "very rare"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.spell.attack.warlock",
+            "op": "add",
+            "value": 3,
+            "label": "Rod of the Pact Keeper +3"
+          },
+          {
+            "selector": "stat.spell.dc.warlock",
+            "op": "add",
+            "value": 3,
+            "label": "Rod of the Pact Keeper +3"
+          }
+        ],
+        "resources": [
+          {
+            "id": "rod-of-the-pact-keeper-3",
+            "name": "Rod of the Pact Keeper +3",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "pact-keeper-3",
+            "name": "Rod of the Pact Keeper: a slot back",
+            "economy": "action",
+            "note": "One Pact Magic slot comes back: tap it back on the slots.",
+            "cost": {
+              "resource": "rod-of-the-pact-keeper-3",
+              "amount": 1
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:wand-of-the-war-mage-3",
+      "name": "Wand of the War Mage +3",
+      "summary": "+3 to your spell attacks. Your spell attacks ignore half cover.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE"
+      },
+      "category": "focus",
+      "magic": {
+        "rarity": "very rare"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.spell.attack",
+            "op": "add",
+            "value": 3,
+            "label": "Wand of the War Mage +3"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:arcane-grimoire-3",
+      "name": "Arcane Grimoire +3",
+      "summary": "+3 to your wizard spell attacks and save DCs. Arcane Recovery gets back one more slot level.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE"
+      },
+      "category": "focus",
+      "magic": {
+        "rarity": "very rare"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.spell.attack.wizard",
+            "op": "add",
+            "value": 3,
+            "label": "Arcane Grimoire +3"
+          },
+          {
+            "selector": "stat.spell.dc.wizard",
+            "op": "add",
+            "value": 3,
+            "label": "Arcane Grimoire +3"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:amulet-of-the-devout-3",
+      "name": "Amulet of the Devout +3",
+      "summary": "+3 to your cleric and paladin spell attacks and save DCs. Once per long rest: one Channel Divinity without spending its use.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE"
+      },
+      "category": "focus",
+      "magic": {
+        "rarity": "very rare"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.spell.attack.cleric",
+            "op": "add",
+            "value": 3,
+            "label": "Amulet of the Devout +3"
+          },
+          {
+            "selector": "stat.spell.dc.cleric",
+            "op": "add",
+            "value": 3,
+            "label": "Amulet of the Devout +3"
+          },
+          {
+            "selector": "stat.spell.attack.paladin",
+            "op": "add",
+            "value": 3,
+            "label": "Amulet of the Devout +3"
+          },
+          {
+            "selector": "stat.spell.dc.paladin",
+            "op": "add",
+            "value": 3,
+            "label": "Amulet of the Devout +3"
+          }
+        ],
+        "resources": [
+          {
+            "id": "amulet-of-the-devout-3",
+            "name": "Amulet of the Devout +3",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "devout-3",
+            "name": "Amulet of the Devout: Channel Divinity",
+            "economy": "free",
+            "note": "Use a Channel Divinity option without spending a use: use it from Actions, then tap the use back.",
+            "cost": {
+              "resource": "amulet-of-the-devout-3",
+              "amount": 1
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:bloodwell-vial-3",
+      "name": "Bloodwell Vial +3",
+      "summary": "+3 to your sorcerer spell attacks and save DCs. Once per long rest, when you roll a Hit Die, regain 5 sorcery points.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE"
+      },
+      "category": "focus",
+      "magic": {
+        "rarity": "very rare"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.spell.attack.sorcerer",
+            "op": "add",
+            "value": 3,
+            "label": "Bloodwell Vial +3"
+          },
+          {
+            "selector": "stat.spell.dc.sorcerer",
+            "op": "add",
+            "value": 3,
+            "label": "Bloodwell Vial +3"
+          }
+        ],
+        "resources": [
+          {
+            "id": "bloodwell-vial-3",
+            "name": "Bloodwell Vial +3",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "bloodwell-3",
+            "name": "Bloodwell Vial: 5 sorcery points",
+            "economy": "free",
+            "restores": {
+              "resource": "sorcery-points",
+              "amount": 5
+            },
+            "note": "When you roll a Hit Die to regain hit points.",
+            "cost": {
+              "resource": "bloodwell-vial-3",
+              "amount": 1
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:rhythm-makers-drum-3",
+      "name": "Rhythm-Maker's Drum +3",
+      "summary": "+3 to your bard spell attacks and save DCs. Once per long rest, an action: regain one use of Bardic Inspiration.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE"
+      },
+      "category": "focus",
+      "magic": {
+        "rarity": "very rare"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.spell.attack.bard",
+            "op": "add",
+            "value": 3,
+            "label": "Rhythm-Maker's Drum +3"
+          },
+          {
+            "selector": "stat.spell.dc.bard",
+            "op": "add",
+            "value": 3,
+            "label": "Rhythm-Maker's Drum +3"
+          }
+        ],
+        "resources": [
+          {
+            "id": "rhythm-makers-drum-3",
+            "name": "Rhythm-Maker's Drum +3",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "rhythm-3",
+            "name": "Rhythm-Maker's Drum: Bardic Inspiration",
+            "economy": "action",
+            "restores": {
+              "resource": "bardic-inspiration",
+              "amount": 1
+            },
+            "cost": {
+              "resource": "rhythm-makers-drum-3",
+              "amount": 1
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:moon-sickle-3",
+      "name": "Moon Sickle +3",
+      "summary": "A +3 sickle; +3 to your druid and ranger spell attacks and save DCs; your healing spells heal 1d4 more when you hold it.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE"
+      },
+      "category": "weapon",
+      "magic": {
+        "rarity": "very rare",
+        "bonus": 3
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.spell.attack.druid",
+            "op": "add",
+            "value": 3,
+            "label": "Moon Sickle +3"
+          },
+          {
+            "selector": "stat.spell.attack.ranger",
+            "op": "add",
+            "value": 3,
+            "label": "Moon Sickle +3"
+          },
+          {
+            "selector": "stat.spell.dc.druid",
+            "op": "add",
+            "value": 3,
+            "label": "Moon Sickle +3"
+          },
+          {
+            "selector": "stat.spell.dc.ranger",
+            "op": "add",
+            "value": 3,
+            "label": "Moon Sickle +3"
+          }
+        ]
+      },
+      "weight": 2,
+      "weapon": {
+        "category": "simple",
+        "kind": "melee",
+        "group": "sickle",
+        "damage": "1d4",
+        "damageType": "slashing",
+        "properties": [
+          "light"
+        ]
+      }
     }
   ]
 }
