@@ -281,7 +281,7 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 ## Play page (round 13a-2)
 
 - Hit Dice and Inspiration: hold a die about half a second; a tap, a swipe or scrolling does nothing. Keyboard: Enter or the arrow keys.
-- Features: a use with several options (Channel Divinity) lists them; a resource spent only by ticking extra damage (Fire Rune: invoke) can be rolled from Play or ticked on the hit. A resource with its own die that nothing else spends (superiority dice spent by hand) keeps its die panel with "Just spend one".
+- Features: a use with several options (Channel Divinity) lists them; Harness Divine Power's own uses open it with the slot to pick; a resource spent only by ticking extra damage (Fire Rune: invoke) can be rolled from Play or ticked on the hit. A resource with its own die that nothing else spends (superiority dice spent by hand) keeps its die panel with "Just spend one".
 
 ## Capstones and immunities (round 13b)
 
