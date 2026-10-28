@@ -368,6 +368,12 @@ export const EffectDef = z
     reminders: z.array(z.string()).default([]),
     /** Actions you can take while it's on (Haste: the extra action). */
     actions: z.array(ActionDef).optional(),
+    /** Its rounds come from the character (holding your breath: 1 + Constitution modifier minutes; suffocating: Constitution modifier rounds). */
+    roundsFrom: z.enum(["breath", "suffocation"]).optional(),
+    /** When its time runs out (not when it's ended by hand), this effect follows (holding your breath → suffocating). */
+    whenTimeRunsOut: DefId.optional(),
+    /** When its time runs out, you drop to 0 hit points (suffocating). */
+    dropsToZero: z.boolean().optional(),
     /** Its choice is a spell you can cast while it's on, at will (Wish duplicating a spell). */
     grantsChosenSpell: z.boolean().optional(),
     /** Weapons it gives you while it's on (Shadow Blade); damage may use the slot it was cast with. */

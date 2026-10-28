@@ -18,6 +18,14 @@
             "op": "add",
             "value": 5,
             "label": "Alert"
+          },
+          {
+            "selector": "rule.notSurprised",
+            "op": "allow",
+            "label": "Alert",
+            "when": {
+              "conscious": true
+            }
           }
         ]
       }

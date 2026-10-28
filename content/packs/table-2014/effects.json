@@ -5509,6 +5509,87 @@
       ],
       "untilRest": "long",
       "selfOnly": true
+    },
+    {
+      "kind": "effect",
+      "id": "effect:holding-breath",
+      "name": "Holding your breath",
+      "category": "other",
+      "summary": "You can hold your breath for 1 + your Constitution modifier minutes (at least 30 seconds). When it runs out, you start suffocating.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 183
+      },
+      "modifiers": [],
+      "reminders": [
+        "Surface or find air before it runs out: then end this tag by hand.",
+        "Counts down with your turns in combat and with time passing out of it."
+      ],
+      "roundsFrom": "breath",
+      "whenTimeRunsOut": "effect:suffocating",
+      "selfOnly": true
+    },
+    {
+      "kind": "effect",
+      "id": "effect:suffocating",
+      "name": "Suffocating",
+      "category": "other",
+      "summary": "Out of breath: you last a number of rounds equal to your Constitution modifier (at least 1); then you drop to 0 hit points and are dying.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 183
+      },
+      "modifiers": [],
+      "reminders": [
+        "You can't regain hit points or be stabilized until you can breathe again.",
+        "Get air: end this tag by hand."
+      ],
+      "roundsFrom": "suffocation",
+      "dropsToZero": true
+    },
+    {
+      "kind": "effect",
+      "id": "effect:underwater",
+      "name": "Underwater",
+      "category": "other",
+      "summary": "Fighting underwater: most melee weapons have disadvantage unless you can swim, most ranged weapons have disadvantage and miss beyond their normal range; fully immersed, you resist fire.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 198
+      },
+      "modifiers": [
+        {
+          "selector": "defense.resist.fire",
+          "op": "resist",
+          "label": "Underwater (fully immersed)"
+        }
+      ],
+      "reminders": [
+        "Melee without disadvantage: dagger, javelin, shortsword, spear, trident (any weapon if you have a swimming speed).",
+        "Ranged without disadvantage (normal range only): crossbows, nets, and thrown javelins, spears, tridents and darts.",
+        "Fully immersed: resistance to fire damage."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "effect:surprised",
+      "name": "Surprised",
+      "category": "other",
+      "summary": "Caught off guard: no move or action on your first turn of the combat, and no reaction until that turn ends.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 189
+      },
+      "modifiers": [],
+      "reminders": [
+        "Your first turn: no movement, no action, no bonus action.",
+        "No reactions until that turn ends."
+      ],
+      "rounds": 1
     }
   ]
 }

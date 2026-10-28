@@ -317,7 +317,8 @@ export const OPERATION_PAYLOADS = {
   endConcentration: z.object({}).strict(),
   setPrepared: z.object({ spell: z.string(), list: z.string(), prepared: z.boolean() }).strict(),
   /** Enter a combat: turn tracking starts. */
-  startCombat: z.object({}).strict(),
+  /** `surprised`: the DM says you're surprised (no move or action on your first turn, no reaction until it ends). */
+  startCombat: z.object({ surprised: z.boolean().optional() }).strict(),
   /** Start of the character's turn: action, bonus action, reaction and movement come back. */
   startTurn: z.object({}).strict(),
   endCombat: z.object({}).strict(),

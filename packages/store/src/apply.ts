@@ -24,6 +24,7 @@ export type Prompt = { kind: "concentration" | "dead" | "grave" | "rage" | "stab
 
 /** The effect a stable character at 0 HP carries: its minutes count down to 1 HP. */
 export const STABLE_EFFECT = "other:stable";
+export const SURPRISED_EFFECT = "effect:surprised";
 
 /** What changed, in words the UI can show as a toast or reminder. */
 export interface ApplyResult {
@@ -228,6 +229,28 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
     notes.push(why);
   };
 
+  /** Rounds an effect lasts by the character (holding your breath, suffocating); undefined: no timer (Unending Breath). */
+  const roundsFromSheet = (def: { roundsFrom?: "breath" | "suffocation" } | undefined): number | undefined | null =>
+    def?.roundsFrom === "breath" ? (sheet.breath.rounds ?? null) : def?.roundsFrom === "suffocation" ? sheet.suffocationRounds : undefined;
+  /** Effects whose time ran out (not ended by hand): what follows (suffocating), or 0 hit points. */
+  const timeRanOut = (ended: Character["effects"]) => {
+    for (const e of ended) {
+      const def = e.effect === "custom" ? undefined : reg.find(reg.effectId(e.effect), "effect");
+      if (!def) continue;
+      if (def.dropsToZero && c.hp.current > 0) {
+        c.hp.current = 0;
+        c.hp.temp = 0;
+        notes.push(`${def.name}: you drop to 0 hit points and are dying.`);
+      }
+      const next = def.whenTimeRunsOut ? reg.find(def.whenTimeRunsOut, "effect") : undefined;
+      if (next && !c.effects.some((x) => x.effect === next.id)) {
+        const r = roundsFromSheet(next);
+        c.effects.push({ id: `${e.id}-then`, effect: next.id, ...(typeof r === "number" ? { rounds: r } : next.rounds ? { rounds: next.rounds } : {}) });
+        notes.push(`${next.name}${typeof r === "number" ? `: ${r} round${r === 1 ? "" : "s"}` : ""}.`);
+      }
+    }
+  };
+
   const passMinutes = (minutes: number) => {
     // The in-world clock moves too, unless the player keeps it by hand.
     if (c.story.calendar.followRests) c.story.calendar.minutes += minutes;
@@ -250,6 +273,7 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
     const shown = ended.filter((e) => e.effect !== STABLE_EFFECT);
     if (shown.length) notes.push(`Ended: ${shown.map(effectName).join(", ")}.`);
     removeEffects(ended);
+    timeRanOut(ended);
     const conc = c.concentration;
     if (conc && (conc.minutes !== undefined || conc.rounds !== undefined)) {
       if (conc.minutes !== undefined) conc.minutes = Math.max(0, conc.minutes - minutes);
@@ -1338,7 +1362,10 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
           if (def.untilRest) entry.untilRest = def.untilRest;
           // Until a rest, not timed (Spirit Session: the hour is the ritual, the spell lasts until the long rest).
           const d = a.duration;
-          if (!def.untilRest) {
+          const byChar = roundsFromSheet(def);
+          if (byChar === null) notes.push(`${def.name}: no time limit for you.`);
+          else if (byChar !== undefined) entry.rounds = byChar;
+          else if (!def.untilRest) {
             if (d?.rounds) entry.rounds = d.rounds;
             else if (d?.minutes) entry.minutes = d.minutes;
             else if (def.rounds) entry.rounds = def.rounds;
@@ -1689,6 +1716,13 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       const r = rounds ?? (minutes === undefined ? def?.rounds : undefined);
       if (r !== undefined) entry.rounds = r;
       if (minutes !== undefined) entry.minutes = minutes;
+      // Holding your breath, suffocating: their rounds from your Constitution (none for Unending Breath).
+      const byChar = roundsFromSheet(def);
+      if (byChar === null) {
+        delete entry.rounds;
+        delete entry.minutes;
+        notes.push(`${def!.name}: no time limit for you.`);
+      } else if (byChar !== undefined && r === undefined && minutes === undefined) entry.rounds = byChar;
       if (def?.levels) entry.level = Math.min(def.levels.length, level ?? 1);
       if (def?.counter) entry.count = def.counter.start;
       if (from) entry.from = from;
@@ -1914,6 +1948,7 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       });
       if (ended.length) notes.push(`Ended: ${ended.map(effectName).join(", ")}.`);
       removeEffects(ended);
+      timeRanOut(ended);
       // Dodge or Ready taken outside combat: no next turn to wait for, so they end now.
       endTurnStartEffects(c.effects.filter((e) => e.untilTurnStart && (e.outOfCombat || !c.combat)), "your turn is over");
       clearCompanionStates((x) => !!x.outOfCombat || !c.combat);
@@ -1936,6 +1971,15 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       if (c.combat) notes.push("Already in combat.");
       else {
         c.combat = CombatState.parse({});
+        // Surprised: no move or action on your first turn, no reaction until it ends (Alert: never).
+        if (op.payload.surprised) {
+          if (sheet.notSurprised) notes.push(`${sheet.notSurprised}: you aren't surprised.`);
+          else {
+            c.effects.push({ id: `${op.id}-surprised`, effect: SURPRISED_EFFECT, rounds: 1 });
+            notes.push("Surprised: you can't move or take an action on your first turn, and no reaction until that turn ends.");
+            if (sheet.features.some((f) => f.id === "feature:feral-instinct")) notes.push("Feral Instinct: rage first on that turn and you act normally.");
+          }
+        }
         if (sheet.features.some((f) => f.id === "feature:thiefs-reflexes"))
           notes.push("Thief's Reflexes: in this first round you take two turns, at your initiative and at your initiative minus 10 (not if you're surprised).");
         // Companions and summoned creatures start the fight fresh: no initiative yet, nothing used.

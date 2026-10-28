@@ -2493,6 +2493,16 @@
         "pack": "table-2014",
         "book": "VGtM",
         "page": 113
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.breath",
+            "op": "set",
+            "value": 150,
+            "label": "Hold Breath"
+          }
+        ]
       }
     },
     {
@@ -2894,6 +2904,15 @@
         "pack": "table-2014",
         "book": "VGtM",
         "page": 118
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.breath",
+            "op": "note",
+            "label": "You breathe water: no need to hold your breath underwater"
+          }
+        ]
       }
     },
     {
@@ -3209,6 +3228,16 @@
       "source": {
         "pack": "table-2014",
         "book": "EEPC"
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.breath",
+            "op": "set",
+            "value": 0,
+            "label": "Unending Breath"
+          }
+        ]
       }
     },
     {
@@ -3377,6 +3406,15 @@
       "source": {
         "pack": "table-2014",
         "book": "EEPC"
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.breath",
+            "op": "note",
+            "label": "You breathe water: no need to hold your breath underwater"
+          }
+        ]
       }
     },
     {
@@ -3741,6 +3779,11 @@
             "op": "grantSpeed",
             "value": 30,
             "label": "Child of the Sea"
+          },
+          {
+            "selector": "stat.breath",
+            "op": "note",
+            "label": "You breathe water: no need to hold your breath underwater"
           }
         ]
       }

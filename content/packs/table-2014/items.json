@@ -2928,9 +2928,9 @@
       "grant": {
         "modifiers": [
           {
-            "selector": "roll.initiative",
-            "op": "note",
-            "label": "Ioun Stone of Awareness: you can't be surprised"
+            "selector": "rule.notSurprised",
+            "op": "allow",
+            "label": "Ioun Stone of Awareness"
           }
         ]
       }

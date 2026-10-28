@@ -748,6 +748,52 @@
           }
         ]
       }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:action-fall",
+      "name": "Fall",
+      "common": true,
+      "summary": "A fall: 1d6 bludgeoning for every 10 ft, up to 20d6, and you land prone unless you take no damage.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 183
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "common-fall",
+            "name": "Fall",
+            "economy": "free",
+            "fall": true,
+            "note": "1d6 bludgeoning for every 10 ft fallen, at most 20d6. You land prone unless you take no damage."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:action-hold-breath",
+      "name": "Hold your breath",
+      "common": true,
+      "summary": "Hold your breath: 1 + your Constitution modifier minutes (at least 30 seconds), then you suffocate.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 183
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "common-hold-breath",
+            "name": "Hold your breath",
+            "economy": "free",
+            "selfEffect": "effect:holding-breath",
+            "note": "Starts its timer. End the tag when you can breathe again."
+          }
+        ]
+      }
     }
   ]
 }

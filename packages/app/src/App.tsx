@@ -57,6 +57,7 @@ import { SendingPanel, sendingNote } from "./components/Sending";
 import { formatWorld } from "./calendar";
 import { everyDaysNote } from "./everyDays";
 import { WishPanel } from "./components/Wish";
+import { FallPanel } from "./components/Fall";
 import { BuildPanel, LevelUpPanel, NewCharacterPanel, type NewCharacterInput } from "./components/Builder";
 import { flashEnabled, flashForFeature, flashForSpell, flashTorch, setFlashEnabled } from "./flash";
 import { PlayTab, type PlayPrompts } from "./components/PlayTab";
@@ -1221,6 +1222,32 @@ export function App() {
   const unarmed = (bonus: boolean) => live.current.sheet?.attacks.find((x) => x.attackId === (bonus ? "martial-arts-bonus" : "martial-arts")) ?? live.current.sheet?.attacks.find((x) => x.attackId === "martial-arts");
 
   /** Deflect Missiles and Slow Fall: the damage taken, the reduction, and what's left. */
+  /** A fall: its dice by the height, Slow Fall and Feather Fall, then the damage and landing prone. */
+  const openFall = () => {
+    const sh = live.current.sheet!;
+    const slow = sh.actions.find((x) => x.id === "slow-fall");
+    const featherFall = !!live.current.character?.effects.some((e) => e.effect === "effect:feather-fall");
+    open("Fall", () => (
+      <FallPanel
+        {...(slow ? { slowFall: 5 * monkLevel() } : {})}
+        featherFall={featherFall}
+        physical={live.current.character?.settings.physicalDice ?? true}
+        onDone={(dmg, usedSlow) => {
+          if (usedSlow && slow) live.current.act("useAction", { action: slow.id }, "Slow Fall: reaction used.");
+          // No damage (Feather Fall, Slow Fall taking it all, under 10 ft): you land on your feet.
+          if (dmg <= 0) return close();
+          withZeroHp({ amount: dmg, damageType: "bludgeoning" }, (extra) => {
+            const prompts = live.current.act("damage", { amount: dmg, damageType: "bludgeoning", ...extra }, `Fell: ${dmg} bludgeoning damage.`);
+            live.current.act("addEffect", { instanceId: crypto.randomUUID(), effect: "condition:prone" }, "You land prone.");
+            const check = prompts.find((p) => p.kind === "concentration" && !p.summon);
+            if (check) return openConcentrationCheck(check.dc);
+            close();
+          });
+        }}
+      />
+    ));
+  };
+
   const openReduce = (a: ActionResult) => {
     const sh = live.current.sheet!;
     const deflect = a.id === "deflect-missiles";
@@ -1333,6 +1360,7 @@ export function App() {
     if (a.rollsSpell) return rollEffectSpell(a);
     if (a.id === "wild-shape") return openTransform("wildshape");
     if (a.id === "deflect-missiles" || a.id === "slow-fall") return openReduce(a);
+    if (a.fall) return openFall();
     // A free cast (Haunted: Invisibility) opens the spell itself, where the free use casts it.
     const free = a.spells?.[0] && live.current.sheet?.spells.find((x) => x.id === a.spells![0]!.id && x.list.id === a.spells![0]!.list);
     if (free) return openSpell(free);
@@ -1704,8 +1732,27 @@ export function App() {
       },
     });
 
+  /** Starting a fight: are you surprised? (Not asked when you can't be: Alert.) */
   const startCombat = () => {
-    s.act("startCombat", {}, "Combat started.");
+    const can = live.current.sheet?.notSurprised;
+    if (can) return beginCombat(false);
+    open("Start combat", () => (
+      <>
+        <p className="note">Are you surprised? The DM says so when you didn't notice a threat before the fight began.</p>
+        <div className="big-actions">
+          <button className="big primary" onClick={() => beginCombat(false)}>
+            Not surprised
+          </button>
+          <button className="big" onClick={() => beginCombat(true)}>
+            Surprised
+          </button>
+        </div>
+      </>
+    ));
+  };
+
+  const beginCombat = (surprised: boolean) => {
+    s.act("startCombat", surprised ? { surprised: true } : {}, surprised ? "Combat started: you're surprised." : "Combat started.");
     // The app rolls the dice: companions and summoned creatures with their own initiative roll now too.
     // With your own dice, theirs wait for you (the turn order shows "?").
     // One throw for all of them (3D when it's on), each die labelled with whose it is.

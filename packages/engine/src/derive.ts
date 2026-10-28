@@ -228,6 +228,8 @@ export interface ActionResult {
   restores?: { resource: string; amount: number; or?: string[] };
   restoresPactSlots?: boolean | number;
   holdsRoll?: boolean;
+  /** Opens the falling panel (the common Fall action). */
+  fall?: boolean;
   releases?: string[];
   /** Once every this many days: a Backstory note when used (only when the roll is at most `everyDaysIfRollAtMost`, if set). */
   everyDays?: number;
@@ -472,6 +474,15 @@ export interface DerivedSheet {
   initiativeRegains: { resource: string; amount: number; from: string }[];
   /** Uses back at the end of a short rest (Sorcerous Restoration). */
   shortRestRegains: { resource: string; amount: number; from: string }[];
+  /**
+   * Holding your breath: how many rounds (1 + Constitution modifier minutes, at least 30 seconds; Lizardfolk: 15 minutes),
+   * or none when you never need to (Unending Breath); `notes`: what else changes it (you breathe water).
+   */
+  breath: { rounds?: number; label: string; notes: string[] };
+  /** Rounds you last once you run out of breath (your Constitution modifier, at least 1). */
+  suffocationRounds: number;
+  /** You can't be surprised, and why (Alert). */
+  notSurprised?: string;
   /** A Hit Die heals this many times what it would (Periapt of Wound Closure: twice). */
   hitDieMultiplier?: { value: number; label: string };
   /** Healing dice you roll for yourself count as their maximum, and why (Gift of the Ever-Living Ones, with the familiar near). */
@@ -1274,6 +1285,11 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
 
   // Rule permissions (Dual Wielder, Two-Weapon Fighting style).
   const allowed = (key: string) => modsFor([key]).some((a) => a.mod.op === "allow" && conditionState(a.mod.when) === "pass");
+  // Underwater (DMG/PHB p. 198): melee weapons other than these have disadvantage unless you swim; ranged ones too unless these.
+  const underwater = c.effects.some((e) => e.effect === "effect:underwater");
+  const swims = modsFor(["stat.speed.swim"]).some((a) => a.mod.op === "grantSpeed" && conditionState(a.mod.when) === "pass");
+  const UNDERWATER_MELEE = ["dagger", "javelin", "shortsword", "spear", "trident"];
+  const UNDERWATER_RANGED = ["light crossbow", "hand crossbow", "heavy crossbow", "net", "javelin", "spear", "trident", "dart"];
   const rules = { twoWeaponNonLight: allowed("rule.twoWeapon.nonLight"), twoWeaponAbility: allowed("rule.twoWeapon.ability"), durable: allowed("rule.durable"), heavyArmorMaster: allowed("rule.heavyArmorMaster") && armorWorn?.def.armor?.category === "heavy", warCaster: sources.some((s) => s.id === "feat:war-caster") };
 
   // Elven Accuracy: with advantage on an attack that doesn't use Strength, three d20s.
@@ -1361,6 +1377,14 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       // Weapon properties (PHB p. 146) the app can show: Heavy for a Small creature, long range, Loading, Reach.
       const small = (c.size ?? reg.find(c.race, "race")?.size ?? "medium").toLowerCase();
       if (w.properties.includes("heavy") && (small === "small" || small === "tiny")) entry.attack.disadvantage.push("Heavy weapon, Small creature");
+      if (underwater) {
+        const g = "group" in w ? (w as { group: string }).group : "";
+        if (mode === "melee" && !swims && !UNDERWATER_MELEE.includes(g)) entry.attack.disadvantage.push("Underwater (no swimming speed)");
+        if (mode !== "melee") {
+          if (!UNDERWATER_RANGED.includes(g)) entry.attack.disadvantage.push("Underwater");
+          (entry.attack.notes ??= []).push("Underwater: a target beyond the normal range is missed automatically.");
+        }
+      }
       if (entry.range && entry.range[1] > entry.range[0])
         entry.attack.suggestions.push({ label: "Long range", effect: "disadvantage", reason: `beyond ${entry.range[0]} ft, up to ${entry.range[1]} ft`, apply: { flat: 0, dice: [], mode: "disadvantage" } });
       const notes: string[] = [];
@@ -1894,6 +1918,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       if (a.roll) entry.roll = { ...amountOf(a.roll.dice, s), label: a.roll.label, ...(a.roll.table ? { table: a.roll.table } : {}) };
       if (a.selfEffect) entry.selfEffect = a.selfEffect;
       if (a.holdsRoll) entry.holdsRoll = true;
+      if (a.fall) entry.fall = true;
       if (a.releases) entry.releases = a.releases;
       if (a.rollsSpell) entry.rollsSpell = a.rollsSpell;
       if (s.effectInstanceId) entry.effectInstanceId = s.effectInstanceId;
@@ -2321,6 +2346,23 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     encumbrance,
     initiativeRegains: sources.flatMap((s) => (s.grant.initiativeRegain ? [{ ...s.grant.initiativeRegain, from: s.label }] : [])),
     shortRestRegains: sources.flatMap((s) => (s.grant.shortRestRegain ?? []).map((g) => ({ ...g, from: s.label }))),
+    breath: (() => {
+      const base = Math.max(5, (1 + mods.con) * 10);
+      let out: { rounds?: number; label: string; notes: string[] } = { rounds: base, label: `${Math.max(0.5, 1 + mods.con)} minute${1 + mods.con === 1 ? "" : "s"} (1 + Constitution modifier)`, notes: [] };
+      for (const a of modsFor(["stat.breath"])) {
+        if (conditionState(a.mod.when) === "fail") continue;
+        if (a.mod.op === "note" && a.mod.label) out.notes.push(a.mod.label);
+        if (a.mod.op === "set") {
+          const v = flatOf(a);
+          // 0: never runs out (Unending Breath); otherwise this many rounds if longer (Lizardfolk: 150).
+          if (v === 0) out = { label: labelOf(a), notes: out.notes };
+          else if (out.rounds !== undefined && v > out.rounds) out = { rounds: v, label: `${v / 10} minutes (${labelOf(a)})`, notes: out.notes };
+        }
+      }
+      return out;
+    })(),
+    suffocationRounds: Math.max(1, mods.con),
+    ...(allowed("rule.notSurprised") ? { notSurprised: modsFor(["rule.notSurprised"]).find((a) => a.mod.op === "allow")?.mod.label ?? "You can't be surprised" } : {}),
     ...(() => {
       const m = modsFor(["roll.hitdie"]).find((a) => a.mod.op === "multiply" && conditionState(a.mod.when) === "pass");
       return m ? { hitDieMultiplier: { value: flatOf(m), label: labelOf(m) } } : {};

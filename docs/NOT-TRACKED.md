@@ -354,3 +354,10 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 
 - Genasi, Duergar, Sea Elf, Shadar-kai, Deep Gnome: abilities, senses, resistances, speeds and innate spells are applied; Unending Breath, Earth Walk, Amphibious, Friend of the Sea and the sunlight limit on Duergar Magic are reminders.
 - Shadar-kai: after the teleport, switch on "ghostly" for the resistance (from 3rd level); it ends at the start of your next turn.
+
+## Falling, breath, underwater, surprise (round 13g)
+
+- Falling: the height is yours to say; landing in water or other softer ground is the DM's.
+- Holding your breath: start it from Actions; end its tag when you breathe again. Suffocating's "can't regain hit points or be stabilized" is a reminder.
+- Underwater: add the Underwater tag from + Effect (Other); being only partly in water (no fire resistance) is yours to judge.
+- Surprised: the turn tracker doesn't stop you acting on that first turn; the tag reminds you.

@@ -386,6 +386,8 @@ export const ActionDef = z
      */
     holdsRoll: z.boolean().optional(),
     releases: z.array(z.string()).optional(),
+    /** Opens the falling panel: the height, the dice, Slow Fall and Feather Fall (a common action). */
+    fall: z.boolean().optional(),
     /** Only if you haven't moved this turn (Steady Aim). */
     notAfterMoving: z.boolean().optional(),
     /** Your speed becomes 0 for the rest of the turn (Steady Aim). */
