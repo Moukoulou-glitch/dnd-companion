@@ -15,7 +15,8 @@ export function ownFeatureOf(actions: ActionResult[], resourceId: string): Actio
  * sheet's order. Actions anyone can take aren't features; a shared pool's other name counts (Channel Divinity).
  */
 export function usesOf(actions: ActionResult[], resourceId: string): ActionResult[] {
-  return actions.filter((a) => !a.common && a.cost?.resource === resourceId);
+  // Also the feature the pool is named after when it's paid with another pool (Harness Divine Power: its own uses, paid in Channel Divinity).
+  return actions.filter((a) => !a.common && (a.cost?.resource === resourceId || (a.id === resourceId && !!a.cost)));
 }
 
 /**

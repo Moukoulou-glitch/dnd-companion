@@ -62,3 +62,14 @@ describe("13a-2: a resource spent by ticking extra damage (Fire Rune: invoke)", 
     expect(ridersOf(sheet, "nothing")).toEqual([]);
   });
 });
+
+describe("Harness Divine Power from the Play page", () => {
+  it("its own uses open Harness Divine Power, with the slot to pick", () => {
+    const c = char([{ class: "class:cleric", level: 6, subclass: "subclass:life" }]);
+    c.slotsUsed = { "1": 2, "2": 1, "3": 1 };
+    const sheet = derive(c, registry());
+    const u = usesOf(sheet.actions, "harness-divine-power");
+    expect(u.map((a) => a.id)).toEqual(["harness-divine-power"]);
+    expect(u[0]!.choose?.options).toEqual(["Level 1 slot", "Level 2 slot"]);
+  });
+});
