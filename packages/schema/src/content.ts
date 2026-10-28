@@ -269,6 +269,8 @@ export const ItemDef = z
       .strict()
       .optional(),
     requiresAttunement: z.boolean().default(false),
+    /** The weapons or armor it can be (Frost Brand: any sword): picked on the item, its stats taken from that one. */
+    baseFrom: z.array(DefId).optional(),
     /** Applies while equipped (and attuned, if attunement is required). */
     grant: Grant.optional(),
     cost: z.object({ amount: z.number(), unit: z.enum(["cp", "sp", "ep", "gp", "pp"]) }).strict().optional(),

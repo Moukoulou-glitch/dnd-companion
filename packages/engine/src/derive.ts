@@ -169,7 +169,7 @@ export interface SpellResult {
    * Healing dice by slot level; `bonus`: flat healing added to each creature at that level (Disciple of Life: 2 + the spell's level);
    * `selfIfOthers`: what you regain when it heals someone else (Blessed Healer).
    */
-  heal?: { byLevel: Record<number, string>; bonus?: Record<number, { label: string; value: number }[]>; selfIfOthers?: Record<number, { label: string; value: number }[]> };
+  heal?: { byLevel: Record<number, string>; bonus?: Record<number, { label: string; value: number; dice?: string }[]>; selfIfOthers?: Record<number, { label: string; value: number }[]> };
   damageBonus?: RollBreakdown;
   /** How it can be cast right now. */
   /** Can be cast at just one creature (for War Caster). */
@@ -189,6 +189,8 @@ export interface SpellResult {
      * whether the spell is on one of your class lists, and the check to cast one above your level.
      */
     scroll?: { instanceId: string; level: number; dc: number; attack: number; onList: boolean; check?: { dc: number; ability: Ability; bonus: number } };
+    /** Cast with an item's charges (Wand of Magic Missiles: 1 at 1st, one more a level): the levels it can be cast at, and what each costs. */
+    charges?: { instanceId: string; item: string; remaining: number; options: { level: number; cost: number }[] };
   };
 }
 
@@ -220,8 +222,8 @@ export interface ActionResult {
   effectInstanceId?: string;
   notAfterMoving?: boolean;
   stopsMovement?: boolean;
-  restores?: { resource: string; amount: number };
-  restoresPactSlots?: boolean;
+  restores?: { resource: string; amount: number; or?: string[] };
+  restoresPactSlots?: boolean | number;
   /** Once every this many days: a Backstory note when used (only when the roll is at most `everyDaysIfRollAtMost`, if set). */
   everyDays?: number;
   everyDaysIfRollAtMost?: number;
@@ -253,7 +255,7 @@ export interface ActionResult {
   /** The DC a creature saves against (Stunning Strike: your ki save DC). */
   dc?: FeatureDc;
   /** Arcane Recovery, Natural Recovery: slot levels adding up to `budget`, none above `maxLevel`. */
-  recoversSlots?: { budget: number; maxLevel: number };
+  recoversSlots?: { budget: number; maxLevel: number; count?: number };
   /** Combat Wild Shape: spend a slot, heal this die per slot level. */
   slotHeal?: { die: string };
   /** Starry Form: the pick's switches. */
@@ -465,6 +467,8 @@ export interface DerivedSheet {
   initiativeRegains: { resource: string; amount: number; from: string }[];
   /** Uses back at the end of a short rest (Sorcerous Restoration). */
   shortRestRegains: { resource: string; amount: number; from: string }[];
+  /** A Hit Die heals this many times what it would (Periapt of Wound Closure: twice). */
+  hitDieMultiplier?: { value: number; label: string };
   /** Healing dice you roll for yourself count as their maximum, and why (Gift of the Ever-Living Ones, with the familiar near). */
   selfMaxHealing?: string;
   /** Rule permissions: two-weapon fighting with non-light weapons (Dual Wielder), ability modifier on off-hand damage (the style). */
@@ -532,10 +536,17 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     }
   }
 
+  /** An item as it is: one that can be several weapons or armors (Frost Brand: a greatsword) takes the picked one's stats. */
+  const itemAs = (inst: Character["inventory"][number]) => {
+    const def = reg.get(inst.item, "item");
+    const b = inst.base ? reg.find(inst.base, "item") : undefined;
+    if (!b) return { def, name: inst.name ?? def.name };
+    return { def: { ...def, ...(b.weapon ? { weapon: b.weapon } : {}), ...(b.armor ? { armor: b.armor } : {}), ...(b.weight !== undefined ? { weight: b.weight } : {}) }, name: inst.name ?? `${def.name} (${b.name})` };
+  };
   // Equipment state the conditions need.
   const equipped = c.inventory
     .filter((i) => i.equipped)
-    .map((i) => ({ inst: i, def: reg.get(i.item, "item") }));
+    .map((i) => ({ inst: i, def: itemAs(i).def }));
   const armorWorn = equipped.find((e) => e.def.category === "armor" && e.def.armor);
   const shieldHeld = equipped.find((e) => e.def.category === "shield");
 
@@ -1417,12 +1428,12 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
   };
 
   for (const inst of c.inventory) {
-    const def = reg.get(inst.item, "item");
+    const { def, name: itemName } = itemAs(inst);
     const w = def.weapon;
     if (!w) continue;
     const proficient = profs.weapon.has(w.category) || profs.weapon.has(w.group);
-    if (!proficient) warnings.push(`${inst.name ?? def.name}: not proficient, so no proficiency bonus on attacks.`);
-    const o: Parameters<typeof buildAttacks>[1] = { attackId: def.id, name: inst.name ?? def.name, proficient, itemInstanceId: inst.id, action: "attack" };
+    if (!proficient) warnings.push(`${itemName}: not proficient, so no proficiency bonus on attacks.`);
+    const o: Parameters<typeof buildAttacks>[1] = { attackId: def.id, name: itemName, proficient, itemInstanceId: inst.id, action: "attack" };
     if (def.magic?.bonus) o.magicBonus = def.magic.bonus;
     buildAttacks(w, o);
     // Every one-handed melee weapon can be the off-hand weapon of two-weapon fighting (bonus action).
@@ -1522,7 +1533,19 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
 
   // Spells: class lists from the character, plus spells features grant or let the player pick.
   const spellDefs = new Map<string, { def: ReturnType<typeof reg.get<"spell">> | undefined; list: string; prepared: boolean; granted?: GrantedSpellRef; notInBook?: boolean }>();
-  type GrantedSpellRef = { resource?: string; from?: string; atWill?: boolean; withSlots?: boolean; extra?: string; scroll?: { instanceId: string; level: number }; pointCost?: { resource: string; amount: number } };
+  type GrantedSpellRef = {
+    resource?: string;
+    from?: string;
+    atWill?: boolean;
+    withSlots?: boolean;
+    extra?: string;
+    scroll?: { instanceId: string; level: number };
+    pointCost?: { resource: string; amount: number };
+    /** Cast with an item's charges (a wand), at `castAt` or the spell's level and up. */
+    charges?: { instanceId: string; item: string; remaining: number; cost: number; perLevel?: boolean; maxLevel?: number };
+    castAt?: number;
+    dc?: number;
+  };
   for (const inst of c.spells) {
     spellDefs.set(`${inst.list}|${inst.spell}`, { def: reg.has(inst.spell) ? reg.get(inst.spell, "spell") : undefined, list: inst.list, prepared: inst.prepared, ...(inst.notInBook ? { notInBook: true } : {}) });
     if (!reg.has(inst.spell)) warnings.push(`Spell "${inst.spell}" isn't in any content pack.`);
@@ -1552,6 +1575,14 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       if (g.pointCost) granted.pointCost = g.pointCost;
       if (g.extra) granted.extra = g.extra;
       if (g.scroll) granted.scroll = g.scroll;
+      if (g.castAt) granted.castAt = g.castAt;
+      if (g.dc !== undefined) granted.dc = g.dc;
+      // An item's charges (Wand of Fireballs): how many are left on this one.
+      if (g.charges && s.itemInstanceId) {
+        const inst = c.inventory.find((i) => i.id === s.itemInstanceId);
+        const idef = inst ? reg.find(inst.item, "item") : undefined;
+        if (inst && idef?.charges) granted.charges = { instanceId: inst.id, item: inst.name ?? idef.name, remaining: Math.max(0, idef.charges.max - (inst.chargesUsed ?? 0)), ...g.charges };
+      }
       spellDefs.set(`${list}|${g.spell}`, { def: reg.has(g.spell) ? reg.get(g.spell, "spell") : undefined, list, prepared: true, granted });
     }
     // Spells picked through a feature's spell choices (Magic Initiate, Fey Touched).
@@ -1708,7 +1739,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       r.attack = roll([`roll.attack.spell.${def.attack}`, `roll.attack.spell.${def.id.replace(/^spell:/, "")}`], [pbPart(), abilityPart(sc.ability), ...statAdds(["stat.spell.attack", `stat.spell.attack.${sc.id}`])]);
       if (elvenAccuracy && sc.ability !== "str") r.attack.tripleAdvantage = "Elven Accuracy";
     }
-    if (sc && def.save) r.save = { ability: def.save.ability, dc: sc.saveDc.total, onSuccess: def.save.onSuccess };
+    if (sc && def.save) r.save = { ability: def.save.ability, dc: granted?.dc ?? sc.saveDc.total, onSuccess: def.save.onSuccess };
     const levelsFor = (table?: Record<string, string>, byCharacter = false) => {
       if (!table) return undefined;
       const out: Record<number, string> = {};
@@ -1758,11 +1789,16 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       // "roll.heal.spell" (Disciple of Life) and "roll.heal.spell.selfIfOthers" (Blessed Healer): worked out at each slot level, leveled spells only.
       if (def.level > 0) {
         const perLevel = (selector: string) => {
-          const out: Record<number, { label: string; value: number }[]> = {};
+          const out: Record<number, { label: string; value: number; dice?: string }[]> = {};
           for (const s of sources)
             for (const m of s.grant.modifiers ?? []) {
               if (m.selector !== selector || m.op !== "add" || m.value === undefined) continue;
-              for (const l of Object.keys(r.heal!.byLevel).map(Number)) (out[l] ??= []).push({ label: m.label ?? s.label, value: evalFlat(m.value, { ...ctxFor(s), slotLevel: l }) });
+              for (const l of Object.keys(r.heal!.byLevel).map(Number)) {
+                // Dice too (Moon Sickle: 1d4).
+                const terms = evalExpr(m.value, { ...ctxFor(s), slotLevel: l });
+                const dice = terms.filter((t) => t.kind === "dice").map((t) => (t as { dice: string }).dice).join("+");
+                (out[l] ??= []).push({ label: m.label ?? s.label, value: terms.reduce((n, t) => n + (t.kind === "flat" ? t.value : 0), 0), ...(dice ? { dice } : {}) });
+              }
             }
           return Object.keys(out).length ? out : undefined;
         };
@@ -1776,6 +1812,12 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     if (typeChoices.length) r.typeChoices = typeChoices;
     if (!granted?.atWill && slots.pact && def.level > 0 && def.level <= slots.pact.level) {
       r.cast.pact = { level: slots.pact.level, remaining: Math.max(0, slots.pact.count - c.pactSlotsUsed) };
+    }
+    if (granted?.charges) {
+      const ch = granted.charges;
+      const from = granted.castAt ?? Math.max(1, def.level);
+      const top = ch.perLevel ? Math.min(9, ch.maxLevel ?? 9) : from;
+      r.cast = { slotLevels: [], charges: { instanceId: ch.instanceId, item: ch.item, remaining: ch.remaining, options: Array.from({ length: Math.max(1, top - from + 1) }, (_, i) => ({ level: from + i, cost: ch.cost + (ch.perLevel ? i : 0) })) } };
     }
     if (granted?.pointCost) {
       const res = resources.find((x) => x.id === granted.pointCost!.resource);
@@ -1847,7 +1889,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       }
       if (a.notAfterMoving) entry.notAfterMoving = true;
       if (a.restores) entry.restores = a.restores;
-      if (a.restoresPactSlots) entry.restoresPactSlots = true;
+      if (a.restoresPactSlots) entry.restoresPactSlots = a.restoresPactSlots;
       if (a.everyDays) {
         entry.everyDays = a.everyDays;
         if (a.everyDaysIfRollAtMost !== undefined) entry.everyDaysIfRollAtMost = evalFlat(a.everyDaysIfRollAtMost, ctxFor(s));
@@ -1896,7 +1938,12 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
         delete entry.cost;
       }
       if (a.spendAmount) entry.spendAmount = a.spendAmount;
-      if (a.recoversSlots) entry.recoversSlots = { budget: Math.ceil((classLevels[a.recoversSlots.class] ?? 0) / 2), maxLevel: a.recoversSlots.maxLevel };
+      if (a.recoversSlots) {
+        // Half the class level, or a fixed budget (Pearl of Power); an item can add to it (Arcane Grimoire: one level more on Arcane Recovery).
+        const more = statAdds(`stat.recover.${a.id}`).reduce((n, p) => n + p.value, 0);
+        const budget = (a.recoversSlots.budget ?? Math.ceil((a.recoversSlots.class ? (classLevels[a.recoversSlots.class] ?? 0) : level) / 2)) + more;
+        entry.recoversSlots = { budget, maxLevel: a.recoversSlots.maxLevel, ...(a.recoversSlots.count ? { count: a.recoversSlots.count } : {}) };
+      }
       if (a.slotHeal) entry.slotHeal = a.slotHeal;
       if (a.choiceToggles) entry.choiceToggles = a.choiceToggles;
       // Defensive Duelist (remastered): proficiency bonus + half Dexterity (rounded up, at least 1).
@@ -2255,6 +2302,10 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     encumbrance,
     initiativeRegains: sources.flatMap((s) => (s.grant.initiativeRegain ? [{ ...s.grant.initiativeRegain, from: s.label }] : [])),
     shortRestRegains: sources.flatMap((s) => (s.grant.shortRestRegain ?? []).map((g) => ({ ...g, from: s.label }))),
+    ...(() => {
+      const m = modsFor(["roll.hitdie"]).find((a) => a.mod.op === "multiply" && conditionState(a.mod.when) === "pass");
+      return m ? { hitDieMultiplier: { value: flatOf(m), label: labelOf(m) } } : {};
+    })(),
     ...(sources.some((s) => s.id === "feature:invocation-gift-of-the-ever-living-ones") && c.toggles.includes("ever-living-near") ? { selfMaxHealing: "Gift of the Ever-Living Ones" } : {}),
     attacksPerAction: Math.max(
       sources.some((s) => /^feature:extra-attack/.test(s.id)) ? 2 : 1,

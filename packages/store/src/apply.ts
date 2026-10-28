@@ -1039,10 +1039,13 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       }
       // Durable: a Hit Die heals at least twice your Constitution modifier (minimum 2).
       const floor = sheet.rules.durable ? Math.max(2, 2 * con) : 0;
-      const healed = Math.max(0, roll + con, floor);
+      const base = Math.max(0, roll + con, floor);
+      // Periapt of Wound Closure: twice the hit points.
+      const mult = sheet.hitDieMultiplier;
+      const healed = mult ? base * mult.value : base;
       const before = c.hp.current;
       c.hp.current = Math.min(maxHp, before + healed);
-      notes.push(`Hit Die ${die}: ${roll} + Constitution ${con} = ${roll + con}${healed > roll + con ? `, Durable makes it ${healed}` : ""} HP.`);
+      notes.push(`Hit Die ${die}: ${roll} + Constitution ${con} = ${roll + con}${base > roll + con ? `, Durable makes it ${base}` : ""}${mult ? `, ×${mult.value} (${mult.label}) = ${healed}` : ""} HP.`);
       break;
     }
 
@@ -1218,8 +1221,10 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       }
       // Eldritch Master: every Pact Magic slot back.
       if (a.restoresPactSlots) {
-        notes.push(c.pactSlotsUsed > 0 ? `${a.name}: ${c.pactSlotsUsed} Pact Magic slot${c.pactSlotsUsed === 1 ? "" : "s"} back.` : `${a.name}: no Pact Magic slot was spent.`);
-        c.pactSlotsUsed = 0;
+        // All of them (Eldritch Master), or this many (Rod of the Pact Keeper: 1).
+        const back = a.restoresPactSlots === true ? c.pactSlotsUsed : Math.min(c.pactSlotsUsed, a.restoresPactSlots);
+        notes.push(back > 0 ? `${a.name}: ${back} Pact Magic slot${back === 1 ? "" : "s"} back.` : `${a.name}: no Pact Magic slot was spent.`);
+        c.pactSlotsUsed -= back;
       }
       // Stillness of Mind: ends one effect that charms or frightens you (the one picked, or the first there is).
       if (a.endsConditions?.length) {
@@ -1232,11 +1237,14 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         } else notes.push(`${a.name}: you aren't ${ends.map((x) => x.replace(/^condition:/, "")).join(" or ")}; nothing ended.`);
       }
       if (a.restores) {
-        const target = sheet.resources.find((r) => r.id === a.restores!.resource);
-        const used = c.resourcesUsed[a.restores.resource] ?? 0;
-        if (!target || used === 0) notes.push(`${target?.name ?? a.restores.resource}: none spent, nothing to regain.`);
+        // The first of its pools the character has (Amulet of the Devout: a cleric's Channel Divinity, or a paladin's).
+        const ids = [a.restores.resource, ...(a.restores.or ?? [])].map((id) => sheet.resourceAliases?.[id] ?? id);
+        const id = ids.find((x) => sheet.resources.some((r) => r.id === x)) ?? ids[0]!;
+        const target = sheet.resources.find((r) => r.id === id);
+        const used = c.resourcesUsed[id] ?? 0;
+        if (!target || used === 0) notes.push(`${target?.name ?? id}: none spent, nothing to regain.`);
         else {
-          c.resourcesUsed[a.restores.resource] = Math.max(0, used - a.restores.amount);
+          c.resourcesUsed[id] = Math.max(0, used - a.restores.amount);
           notes.push(`${target.name}: ${Math.min(used, a.restores.amount)} regained.`);
         }
       }
@@ -1251,6 +1259,7 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         }
         const sum = back.reduce((s, l) => s + l, 0);
         notes.push(back.length ? `Slots back: ${back.map((l) => `level ${l}`).join(", ")}.` : "No spent slots to recover.");
+        if (a.recoversSlots.count && back.length > a.recoversSlots.count) notes.push(`${a.name} brings back ${a.recoversSlots.count === 1 ? "one slot" : `${a.recoversSlots.count} slots`}. Kept, beyond the rules.`);
         if (sum > a.recoversSlots.budget) notes.push(`That's ${sum} levels of slots; ${a.name} allows ${a.recoversSlots.budget}. Kept, beyond the rules.`);
         if (back.some((l) => l > a.recoversSlots!.maxLevel)) notes.push(`${a.name} can't recover slots above level ${a.recoversSlots.maxLevel}. Kept, beyond the rules.`);
       }
@@ -1404,7 +1413,7 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
     }
 
     case "setItem": {
-      const { instanceId, quantity, equipped, attuned, name, scroll } = op.payload;
+      const { instanceId, quantity, equipped, attuned, name, scroll, base } = op.payload;
       const inst = c.inventory.find((i) => i.id === instanceId);
       if (!inst) {
         notes.push("That item is no longer in the inventory.");
@@ -1424,6 +1433,11 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
             notes.push(`${other.name ?? reg.get(other.item, "item").name} is cursed: you can't take it off until the curse is lifted. Done anyway, beyond the rules.`);
       if (quantity !== undefined) inst.quantity = quantity;
       if (name !== undefined) inst.name = name || undefined;
+      if (base === null) delete inst.base;
+      else if (base) {
+        if (def.baseFrom && !def.baseFrom.includes(base)) notes.push(`${def.name} isn't usually a ${reg.find(base, "item")?.name ?? base}. Kept, beyond the rules.`);
+        inst.base = base;
+      }
       if (scroll === null) delete inst.scroll;
       else if (scroll) inst.scroll = scroll.level === undefined ? { spell: scroll.spell } : { spell: scroll.spell, level: scroll.level };
       if (equipped !== undefined) {
@@ -1496,6 +1510,18 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         const n = c.extraCasts[key] ?? { short: 0, long: 0 };
         c.extraCasts[key] = { short: n.short + 1, long: n.long + 1 };
         notes.push(`${sp.name} without a slot (${sp.cast.extra?.tag ?? "beyond the rules"}): ${n.short + 1} since your short rest, ${n.long + 1} since your long rest.`);
+      } else if (using === "charges") {
+        // A wand or staff: its charges at this level (Wand of Fireballs at 4th: 4).
+        const ch = sp.cast.charges;
+        const inst = ch && c.inventory.find((i) => i.id === ch.instanceId);
+        const cost = ch?.options.find((o) => o.level === level)?.cost ?? ch?.options[0]?.cost ?? 1;
+        if (!ch || !inst) notes.push(`${sp.name}: no item to cast it with. Cast anyway.`);
+        else {
+          const max = reg.find(inst.item, "item")?.charges?.max ?? ch.remaining;
+          if (ch.remaining < cost) notes.push(`${ch.item}: ${ch.remaining} charge${ch.remaining === 1 ? "" : "s"} left, ${cost} needed. Cast anyway.`);
+          inst.chargesUsed = Math.min(max, (inst.chargesUsed ?? 0) + cost);
+          notes.push(`${ch.item}: ${cost} charge${cost === 1 ? "" : "s"} spent, ${Math.max(0, max - inst.chargesUsed)} left.`);
+        }
       } else if (using === "scroll") {
         const sc = sp.cast.scroll;
         const inst = sc && c.inventory.find((i) => i.id === sc.instanceId);

@@ -46,6 +46,8 @@ export const ItemInstance = z
     chargesUsed: z.number().int().min(0).optional(),
     /** Its curse was lifted (Remove Curse): the curse no longer holds for this one. */
     curseLifted: z.boolean().optional(),
+    /** Which weapon or armor it is, for an item that can be several (Frost Brand: a greatsword). */
+    base: DefId.optional(),
     /** A spell scroll: the spell written on it, and the level it's written at (default: from the item's name, or the spell's own). */
     scroll: z.object({ spell: DefId, level: z.number().int().min(0).max(9).optional() }).strict().optional(),
   })
@@ -571,7 +573,7 @@ export const Character = z
             spell: DefId,
             list: z.string(),
             level: z.number().int().min(0).max(9),
-            using: z.enum(["slot", "pact", "free", "ritual", "none", "extra", "scroll", "points"]),
+            using: z.enum(["slot", "pact", "free", "ritual", "none", "extra", "scroll", "points", "charges"]),
             selfEffect: z.boolean().default(false),
             choice: z.string().optional(),
             castingTime: z.string().optional(),

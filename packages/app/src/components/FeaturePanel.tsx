@@ -275,16 +275,17 @@ export function FeaturePanel({
 
 /** Arcane Recovery, Natural Recovery: pick spent slots, their levels adding up to the budget (more is warned, not blocked). */
 function RecoverSlots({ a, slots, none, onDone }: { a: ActionResult; slots: { level: number; total: number; used: number }[]; none: boolean; onDone: (levels: number[]) => void }) {
-  const { budget, maxLevel } = a.recoversSlots!;
+  const { budget, maxLevel, count } = a.recoversSlots!;
   const [pick, setPick] = useState<Record<number, number>>({});
   const spent = slots.filter((s) => s.used > 0);
   const levels = Object.entries(pick).flatMap(([l, n]) => Array.from({ length: n }, () => Number(l)));
   const sum = levels.reduce((x, l) => x + l, 0);
   const tooHigh = levels.some((l) => l > maxLevel);
+  const tooMany = count !== undefined && levels.length > count;
   return (
     <>
       <p className="sub-head">
-        Slots to recover: {sum} of {budget} levels
+        {count === 1 ? `One slot to recover, up to level ${maxLevel}` : `Slots to recover: ${sum} of ${budget} levels`}
       </p>
       {spent.length === 0 && <p className="note">No spent spell slots.</p>}
       <div className="group">
@@ -311,9 +312,9 @@ function RecoverSlots({ a, slots, none, onDone }: { a: ActionResult; slots: { le
           );
         })}
       </div>
-      {(sum > budget || tooHigh) && (
+      {(sum > budget || tooHigh || tooMany) && (
         <p className="over-banner">
-          {sum > budget ? `That's more than ${budget} levels of slots. ` : ""}
+          {tooMany ? `${a.name} brings back ${count === 1 ? "one slot" : `${count} slots`}. ` : sum > budget ? `That's more than ${budget} levels of slots. ` : ""}
           {tooHigh ? `${a.name} can't recover slots above level ${maxLevel}. ` : ""}
           You can still do it if your DM allows.
         </p>

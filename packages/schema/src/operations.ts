@@ -219,6 +219,8 @@ export const OPERATION_PAYLOADS = {
       name: z.string().optional(),
       /** The spell written on a spell scroll; null clears it. */
       scroll: z.object({ spell: z.string(), level: z.number().int().min(0).max(9).optional() }).strict().nullable().optional(),
+      /** Which weapon or armor it is (Frost Brand: item:greatsword); null: back to its own. */
+      base: z.string().nullable().optional(),
     })
     .strict(),
   adjustCurrency: z.object({ coin: z.enum(["cp", "sp", "ep", "gp", "pp"]), delta: z.number().int() }).strict(),
@@ -264,7 +266,7 @@ export const OPERATION_PAYLOADS = {
           spell: z.string(),
           list: z.string(),
           level: z.number().int().min(0).max(9),
-          using: z.enum(["slot", "pact", "free", "ritual", "none", "extra", "scroll", "points"]),
+          using: z.enum(["slot", "pact", "free", "ritual", "none", "extra", "scroll", "points", "charges"]),
           selfEffect: z.boolean().default(false),
           choice: z.string().optional(),
           castingTime: z.string().optional(),
@@ -298,7 +300,7 @@ export const OPERATION_PAYLOADS = {
       level: z.number().int().min(0).max(9),
       /** "extra": a spell the table gave, without a slot (counted per rest); "scroll": read from a spell scroll, which is used up. */
       /** "points": spends the spell's point cost (Eyes of the Dark: 2 sorcery points). */
-      using: z.enum(["slot", "pact", "free", "ritual", "none", "extra", "scroll", "points"]),
+      using: z.enum(["slot", "pact", "free", "ritual", "none", "extra", "scroll", "points", "charges"]),
       /** A scroll spell above your level: the ability check failed, the spell fades from the scroll with no effect. */
       failed: z.boolean().optional(),
       selfEffect: z.boolean().default(false),

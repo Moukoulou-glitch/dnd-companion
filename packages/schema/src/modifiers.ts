@@ -271,6 +271,15 @@ export const GrantedSpell = z
 
     /** Given by the table beyond the rules: cast without a slot too, counted per rest (its tag: "DM allows"). */
     extra: z.string().optional(),
+    /**
+     * Cast with the item's charges (Wand of Fireballs: 3 at 3rd, one more a level): `cost` at the spell's level
+     * (or `castAt`), and with `perLevel` one more charge for each level above, up to `maxLevel`.
+     */
+    charges: z.object({ cost: z.number().int().min(1), perLevel: z.boolean().optional(), maxLevel: z.number().int().min(1).max(9).optional() }).strict().optional(),
+    /** Always cast at this level (Staff of Power's fireball: 5th). */
+    castAt: z.number().int().min(1).max(9).optional(),
+    /** Its own save DC instead of yours (Wand of Fireballs: 15). */
+    dc: z.number().int().optional(),
     /** Written on a spell scroll in the inventory: read it to cast it (used up). */
     scroll: z.object({ instanceId: z.string(), level: z.number().int().min(0).max(9) }).strict().optional(),
   })
@@ -357,7 +366,7 @@ export const ActionDef = z
       .strict()
       .optional(),
     /** Gives back uses of another resource (Psionic Power: regain one die). */
-    restores: z.object({ resource: z.string(), amount: z.number().int().min(1).default(1) }).strict().optional(),
+    restores: z.object({ resource: z.string(), amount: z.number().int().min(1).default(1), or: z.array(z.string()).optional() }).strict().optional(),
     /**
      * Once every this many days (Divine Intervention after a success: 7; Charm of Sunlight: 10). Using it
      * writes a note in the Backstory with the in-world date and when it can be used again.
@@ -365,8 +374,8 @@ export const ActionDef = z
     everyDays: z.number().int().min(1).optional(),
     /** Only a roll at or under this starts the wait (Divine Intervention: your cleric level). */
     everyDaysIfRollAtMost: ValueExpr.optional(),
-    /** All Pact Magic slots come back (Eldritch Master). */
-    restoresPactSlots: z.boolean().optional(),
+    /** Pact Magic slots come back: all (Eldritch Master), or this many (Rod of the Pact Keeper: 1). */
+    restoresPactSlots: z.union([z.boolean(), z.number().int().min(1)]).optional(),
     /** Ends these effects or conditions on you (Stillness of Mind: charmed, frightened). */
     endsConditions: z.array(DefId).optional(),
     /** Only if you haven't moved this turn (Steady Aim). */
@@ -412,7 +421,17 @@ export const ActionDef = z
      * Recover spent spell slots whose levels add up to half your level in `class` (rounded up),
      * none above `maxLevel` (Arcane Recovery, Natural Recovery). The panel asks which.
      */
-    recoversSlots: z.object({ class: DefId, maxLevel: z.number().int().min(1).max(9) }).strict().optional(),
+    recoversSlots: z
+      .object({
+        class: DefId.optional(),
+        maxLevel: z.number().int().min(1).max(9),
+        /** A fixed budget of slot levels instead of half the class level (Pearl of Power: 3). */
+        budget: z.number().int().min(1).optional(),
+        /** At most this many slots (Pearl of Power: one). */
+        count: z.number().int().min(1).optional(),
+      })
+      .strict()
+      .optional(),
     /** The pick from `choose` switches these on, and the other picks' off (Starry Form: "Dragon" → starry-form-dragon). */
     choiceToggles: z.record(z.string(), z.array(z.string())).optional(),
     /** Spend a spell slot to heal this die per slot level (Combat Wild Shape: 1d8). The panel asks which slot. */

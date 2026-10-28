@@ -684,6 +684,7 @@ export function App() {
         con={formatBonus({ total: sheet.abilities.con.modifier, dice: [] })}
         songSides={songSides}
         beacon={beacon}
+        {...(sheet.hitDieMultiplier ? { times: sheet.hitDieMultiplier } : {})}
         onSpend={spend}
         onRoll={(withSong) => void rollOrThrow(`1d${sides}`, true, undefined, { source: beacon === "Beacon of Hope" ? "Beacon of Hope" : "Hit Die", ...(beacon ? { max: true } : {}) }).then((r) => spend(r.total, withSong))}
       />
@@ -1525,6 +1526,7 @@ export function App() {
         <ItemPanel
           inst={inst}
           def={itemDef(effReg(), inst.item)}
+          bases={(itemDef(effReg(), inst.item).baseFrom ?? []).map((id) => ({ id, name: effReg().find(id, "item")?.name ?? id }))}
           {...(custom ? { custom, onEditCustom: () => openCustomItem(custom.id, () => openItem(inst.id)) } : {})}
           act={live.current.act}
           close={close}
@@ -2933,7 +2935,7 @@ export function App() {
    * casting ask first, the turn rules warn, free uses with none left ask
    * "Are you sure?", and the spell sheet comes back showing it was cast.
    */
-  const castFlow = (sp: SpellResult, level: number, using: "slot" | "pact" | "free" | "ritual" | "none" | "extra" | "scroll" | "points", selfEffect: boolean, readying = false, castingTime?: string, targetAsked = false) => {
+  const castFlow = (sp: SpellResult, level: number, using: "slot" | "pact" | "free" | "ritual" | "none" | "extra" | "scroll" | "points" | "charges", selfEffect: boolean, readying = false, castingTime?: string, targetAsked = false) => {
     // A spell that changes a creature's form: Shapechange is always you; Polymorph and True Polymorph ask who, every time.
     const transform = readying ? undefined : effReg().find(sp.id.replace(/^spell:/, "effect:"), "effect")?.transform;
     // Shapechange is always you; so is the Transmutation wizard's Shapechanger (Polymorph on yourself, once per short rest).
@@ -3040,7 +3042,7 @@ export function App() {
   const castFlowAfterComponent = (
     sp: SpellResult,
     level: number,
-    using: "slot" | "pact" | "free" | "ritual" | "none" | "extra" | "scroll" | "points",
+    using: "slot" | "pact" | "free" | "ritual" | "none" | "extra" | "scroll" | "points" | "charges",
     selfEffect: boolean,
     readying: boolean,
     consume: boolean,
@@ -3837,12 +3839,13 @@ function Welcome({
 }
 
 /** A Hit Die: tap the face, or let the app roll. With Song of Rest, a tick-box for the bard's extra die. */
-function HitDieEntry({ sides, con, songSides, beacon, onSpend, onRoll }: { sides: number; con: string; songSides: number; beacon?: string; onSpend: (roll: number, withSong: boolean) => void; onRoll: (withSong: boolean) => void }) {
+function HitDieEntry({ sides, con, songSides, beacon, times, onSpend, onRoll }: { sides: number; con: string; songSides: number; beacon?: string; times?: { value: number; label: string }; onSpend: (roll: number, withSong: boolean) => void; onRoll: (withSong: boolean) => void }) {
   const [song, setSong] = useState(false);
   return (
     <>
       <p className="note">Tap what you rolled, or let the app roll. Constitution {con} is added.</p>
       {beacon && <p className="note beacon-text">{beacon}: the die counts as {sides}, whatever it shows.</p>}
+      {times && <p className="note">{times.label}: the hit points it gives are ×{times.value}.</p>}
       {songSides > 0 && (
         <label className="row check" style={{ padding: "8px 0" }}>
           <input type="checkbox" checked={song} onChange={() => setSong(!song)} />

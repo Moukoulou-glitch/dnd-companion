@@ -127,9 +127,12 @@ export function ItemPanel({
   custom,
   onEditCustom,
   onUse,
+  bases = [],
 }: {
   inst: Inst;
   def: ItemDef;
+  /** The weapons or armors it can be (Frost Brand: any sword), to pick which one this is. */
+  bases?: { id: string; name: string }[];
   /** Something to use up (a potion): drink it or give it, its roll and who it goes to. */
   onUse?: () => void;
   /** One of your own items: what it says and what the sheet applies, and a way to change it. */
@@ -199,6 +202,26 @@ export function ItemPanel({
       )}
       {def.curse && <CurseBox inst={inst} def={def} act={act} />}
       {def.charges && <ChargesBox inst={inst} def={def} act={act} />}
+      {bases.length > 0 && (
+        <label className="row">
+          <div className="row-main">
+            <div className="row-title">Which {def.weapon ? "weapon" : "armor"} it is</div>
+            <div className="row-sub">Its damage, properties or AC come from this one.</div>
+          </div>
+          <select
+            value={inst.base ?? ""}
+            aria-label={`Which ${def.weapon ? "weapon" : "armor"} it is`}
+            onChange={(e) => act("setItem", { instanceId: inst.id, base: e.target.value || null }, e.target.value ? `${def.name}: a ${bases.find((b) => b.id === e.target.value)?.name ?? e.target.value}.` : `${def.name}: back to its own.`)}
+          >
+            <option value="">{def.weapon ? "As listed" : "As listed"}</option>
+            {bases.map((b) => (
+              <option key={b.id} value={b.id}>
+                {b.name}
+              </option>
+            ))}
+          </select>
+        </label>
+      )}
       {isScroll(def) && <ScrollSpell inst={inst} def={def} act={act} spells={spells} {...(onRead ? { onRead } : {})} {...(onCopy ? { onCopy } : {})} onCustom={onCustomSpell ?? (() => {})} />}
       <div className="group">
         <div className="row">

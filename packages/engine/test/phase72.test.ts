@@ -29,7 +29,7 @@ describe("13e: SRD magic items' numbers", () => {
     expect(sheet([{ class: "class:wizard", level: 5 }], [["item:ring-of-resistance-fire"]]).defenses.resist).toContain("fire");
     const fb = sheet([{ class: "class:fighter", level: 5 }], [["item:frost-brand-longsword"]]);
     expect(fb.defenses.resist).toContain("fire");
-    expect(fb.attacks.find((a) => a.name === "Frost Brand Longsword")!.damage.bonus.dice.map((d) => d.dice)).toContain("1d6");
+    expect(fb.attacks.find((a) => a.name === "Frost Brand")!.damage.bonus.dice.map((d) => d.dice)).toContain("1d6");
     expect(sheet([{ class: "class:fighter", level: 5 }], [["item:sentinel-shield"]]).initiative.advantage).toContain("Sentinel Shield");
   });
   it("magic weapons and armor: their bonus, Mithral's stealth, Sun Blade's radiant", () => {

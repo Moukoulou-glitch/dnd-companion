@@ -17,10 +17,13 @@ function withParts<T extends { dice: { label: string; dice: string; damageType?:
 }
 
 /** Healing added to each creature at this slot level (Disciple of Life: 2 + the spell's level), as fixed parts of the roll. */
-function withHealBonus<T extends { total: number; parts: { label: string; value: number }[] }>(sp: SpellResult, key: number, bonus: T): T {
+function withHealBonus<T extends { total: number; parts: { label: string; value: number }[]; dice: { label: string; dice: string }[] }>(sp: SpellResult, key: number, bonus: T): T {
   const extra = sp.damage ? undefined : sp.heal?.bonus?.[key];
   if (!extra?.length) return bonus;
-  return { ...bonus, parts: [...bonus.parts, ...extra], total: bonus.total + extra.reduce((n, x) => n + x.value, 0) };
+  // Dice of its own (Moon Sickle: 1d4) roll with the spell's; numbers are fixed parts.
+  const flat = extra.filter((x) => x.value).map((x) => ({ label: x.label, value: x.value }));
+  const dice = extra.flatMap((x) => (x.dice ? [{ label: x.label, dice: x.dice }] : []));
+  return { ...bonus, parts: [...bonus.parts, ...flat], dice: [...bonus.dice, ...dice], total: bonus.total + flat.reduce((n, x) => n + x.value, 0) };
 }
 
 /** A spell shaped like a weapon attack, so the roll composer can roll its attack and damage. */
@@ -298,7 +301,7 @@ export function SpellPanel({
   casterSide?: boolean;
   /** That tag adds damage to your attacks (Hex), so the note can say so. */
   casterDamage?: boolean;
-  onCast: (level: number, using: "slot" | "pact" | "free" | "ritual" | "none" | "extra" | "scroll" | "points", selfEffect: boolean, castingTime?: string, onCompanions?: string[]) => void;
+  onCast: (level: number, using: "slot" | "pact" | "free" | "ritual" | "none" | "extra" | "scroll" | "points" | "charges", selfEffect: boolean, castingTime?: string, onCompanions?: string[]) => void;
   /** Your companions here now: its effect can go on them too (Bless on your wolf). */
   companions?: { id: string; name: string; warnings?: string[]; already?: boolean }[];
   /** Opens already cast at this level (after a turn warning was confirmed). */
@@ -339,7 +342,7 @@ export function SpellPanel({
       : []),
   ];
 
-  const doCast = (level: number, using: "slot" | "pact" | "free" | "ritual" | "none" | "extra" | "scroll" | "points") => {
+  const doCast = (level: number, using: "slot" | "pact" | "free" | "ritual" | "none" | "extra" | "scroll" | "points" | "charges") => {
     onCast(level, using, casterSide ? true : onMe, times.length > 1 ? time : undefined, casterSide ? [] : onComps);
     setCast(level);
   };
@@ -449,6 +452,14 @@ export function SpellPanel({
                 </span>
               </button>
             )}
+            {sp.cast.charges?.options.map((o) => (
+              <button key={`ch${o.level}`} className={sp.cast.charges!.remaining >= o.cost ? "big" : "big damage"} onClick={() => doCast(o.level, "charges")}>
+                {ordinal(o.level)} level · {o.cost} {o.cost === 1 ? "charge" : "charges"}
+                <span className="sub">
+                  {sp.cast.charges!.item}: {sp.cast.charges!.remaining} left
+                </span>
+              </button>
+            ))}
             {sp.cast.points && (
               <button className={sp.cast.points.remaining >= sp.cast.points.amount ? "big" : "big damage"} onClick={() => doCast(sp.level, "points")}>
                 {sp.cast.points.amount} {sp.cast.points.name.toLowerCase()}
@@ -494,7 +505,7 @@ export function SpellPanel({
               {sp.cast.scroll.onList ? "" : " It isn't on your class's spell list: the scroll is unintelligible to you unless your DM says otherwise."}
             </p>
           )}
-          {sp.level > 0 && sp.cast.slotLevels.length === 0 && !sp.cast.pact && !sp.cast.free && !sp.cast.points && !sp.ritual && !sp.cast.extra && !sp.cast.scroll && (
+          {sp.level > 0 && sp.cast.slotLevels.length === 0 && !sp.cast.pact && !sp.cast.free && !sp.cast.points && !sp.cast.charges && !sp.ritual && !sp.cast.extra && !sp.cast.scroll && (
             <p className="note">No slots of this level. Use your feature or ask your DM.</p>
           )}
         </>

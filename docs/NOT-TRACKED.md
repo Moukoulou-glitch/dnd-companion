@@ -335,12 +335,8 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 
 ## Magic items (round 13e)
 
-- Charges are tapped on the item; casting a spell from a wand or staff doesn't spend them by itself. Wand of Fireballs uses its own DC 15: your sheet's DC is shown, use 15.
-- Staff of Power and Staff of the Magi: their spells are listed on the staff's action, cast with your own numbers from the Spells tab when you have them.
-- Weapons like Frost Brand, Holy Avenger, Dragon Slayer, Giant Slayer and Vorpal Sword come as longswords; another base weapon is your own item. Extra damage against a creature type is offered on the hit, yours to tick.
-- Winged Boots fly at 30 ft (your walking speed when it differs is yours to use); the 4 hours a day are yours to count.
-- Periapt of Wound Closure: doubled Hit Dice healing is added by hand; stabilizing is a note on death saves.
-- Rod of the Pact Keeper, Amulet of the Devout, Pearl of Power: the use is tracked, the slot or Channel Divinity coming back is tapped by hand.
-- Moon Sickle's 1d4 more healing is in its description, not added to the roll.
+- Casting from a wand or staff spends its charges by the level picked; a charge used any other way (Staff of Power's extra 1d6 force) is tapped on the item.
+- Frost Brand, Holy Avenger, Dragon Slayer, Giant Slayer and Vorpal Sword: pick which sword (or axe) on the item; a longsword until then.
+- Winged Boots: the 4 hours a day are yours to count.
 - Ring of Spell Storing and Ioun Stone of Reserve: what they hold goes in the item's notes.
 - Bag of Holding: its 500 lb capacity isn't checked.

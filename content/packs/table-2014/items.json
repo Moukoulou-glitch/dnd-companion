@@ -2637,8 +2637,8 @@
           {
             "selector": "stat.speed.fly",
             "op": "grantSpeed",
-            "value": 30,
-            "label": "Winged Boots (your walking speed)",
+            "value": "walk",
+            "label": "Winged Boots",
             "when": {
               "toggle": "winged-boots"
             }
@@ -2652,7 +2652,7 @@
             "toggles": [
               "winged-boots"
             ],
-            "note": "Flying speed equal to your walking speed (30 ft shown). Up to 4 hours a day; you fall when they run out."
+            "note": "Flying speed equal to your walking speed. Up to 4 hours a day; you fall when they run out."
           }
         ]
       }
@@ -2731,15 +2731,12 @@
             "selector": "roll.save.death",
             "op": "note",
             "label": "Periapt of Wound Closure: you stabilize at the start of your turn instead"
-          }
-        ],
-        "actions": [
+          },
           {
-            "id": "periapt-of-wound-closure",
-            "name": "Periapt of Wound Closure",
-            "economy": "free",
-            "infoOnly": true,
-            "note": "A Hit Die heals twice its roll: add the second half with Heal."
+            "selector": "roll.hitdie",
+            "op": "multiply",
+            "value": 2,
+            "label": "Periapt of Wound Closure"
           }
         ]
       }
@@ -3073,11 +3070,87 @@
         ],
         "actions": [
           {
-            "id": "staff-of-power-spells",
-            "name": "Staff of Power: spells",
+            "id": "staff-of-power-retributive",
+            "name": "Staff of Power: Retributive Strike",
             "economy": "action",
             "infoOnly": true,
-            "note": "With your DC and attack: cone of cold (5 charges), fireball (5th, 5), globe of invulnerability (6), hold monster (5), levitate (2), lightning bolt (5th, 5), magic missile (1), ray of enfeeblement (1), wall of force (5). Retributive Strike: break it (see its text)."
+            "note": "Break the staff: everything within 30 ft takes force damage by distance (charges ×8 within 10 ft, ×6 to 20 ft, ×4 to 30 ft; DC 17 Dexterity save for half); you have a 50% chance to go to another plane, or take charges ×16."
+          }
+        ],
+        "spells": [
+          {
+            "spell": "spell:cone-of-cold",
+            "name": "Cone of Cold",
+            "casting": "from the staff, with your DC and attack",
+            "charges": {
+              "cost": 5
+            }
+          },
+          {
+            "spell": "spell:fireball",
+            "name": "Fireball",
+            "casting": "from the staff, with your DC and attack",
+            "charges": {
+              "cost": 5
+            },
+            "castAt": 5
+          },
+          {
+            "spell": "spell:globe-of-invulnerability",
+            "name": "Globe of Invulnerability",
+            "casting": "from the staff, with your DC and attack",
+            "charges": {
+              "cost": 6
+            }
+          },
+          {
+            "spell": "spell:hold-monster",
+            "name": "Hold Monster",
+            "casting": "from the staff, with your DC and attack",
+            "charges": {
+              "cost": 5
+            }
+          },
+          {
+            "spell": "spell:levitate",
+            "name": "Levitate",
+            "casting": "from the staff, with your DC and attack",
+            "charges": {
+              "cost": 2
+            }
+          },
+          {
+            "spell": "spell:lightning-bolt",
+            "name": "Lightning Bolt",
+            "casting": "from the staff, with your DC and attack",
+            "charges": {
+              "cost": 5
+            },
+            "castAt": 5
+          },
+          {
+            "spell": "spell:magic-missile",
+            "name": "Magic Missile",
+            "casting": "from the staff, with your DC and attack",
+            "charges": {
+              "cost": 1
+            }
+          },
+          {
+            "spell": "spell:ray-of-enfeeblement",
+            "name": "Ray of Enfeeblement",
+            "casting": "from the staff, with your DC and attack",
+            "charges": {
+              "cost": 1
+            }
+          },
+          {
+            "spell": "spell:wall-of-force",
+            "name": "Wall of Force",
+            "casting": "from the staff, with your DC and attack",
+            "charges": {
+              "cost": 5
+            }
           }
         ]
       },
@@ -3139,13 +3212,150 @@
             "economy": "reaction",
             "infoOnly": true,
             "note": "A spell aimed only at you: it has no effect, and the staff gains charges equal to its level (it explodes past 50)."
+          }
+        ],
+        "spells": [
+          {
+            "spell": "spell:conjure-elemental",
+            "name": "Conjure Elemental",
+            "casting": "from the staff, with your DC and attack",
+            "charges": {
+              "cost": 7
+            }
           },
           {
-            "id": "staff-of-the-magi-spells",
-            "name": "Staff of the Magi: spells",
-            "economy": "action",
-            "infoOnly": true,
-            "note": "With your DC: conjure elemental (7), dispel magic (3), fireball (7th, 7), flaming sphere (2), ice storm (4), invisibility (2), knock (2), lightning bolt (7th, 7), passwall (5), plane shift (7), telekinesis (5), wall of fire (4), web (2); at will: arcane lock, detect magic, enlarge/reduce, light, mage hand, protection from evil and good."
+            "spell": "spell:dispel-magic",
+            "name": "Dispel Magic",
+            "casting": "from the staff, with your DC and attack",
+            "charges": {
+              "cost": 3
+            }
+          },
+          {
+            "spell": "spell:fireball",
+            "name": "Fireball",
+            "casting": "from the staff, with your DC and attack",
+            "charges": {
+              "cost": 7
+            },
+            "castAt": 7
+          },
+          {
+            "spell": "spell:flaming-sphere",
+            "name": "Flaming Sphere",
+            "casting": "from the staff, with your DC and attack",
+            "charges": {
+              "cost": 2
+            }
+          },
+          {
+            "spell": "spell:ice-storm",
+            "name": "Ice Storm",
+            "casting": "from the staff, with your DC and attack",
+            "charges": {
+              "cost": 4
+            }
+          },
+          {
+            "spell": "spell:invisibility",
+            "name": "Invisibility",
+            "casting": "from the staff, with your DC and attack",
+            "charges": {
+              "cost": 2
+            }
+          },
+          {
+            "spell": "spell:knock",
+            "name": "Knock",
+            "casting": "from the staff, with your DC and attack",
+            "charges": {
+              "cost": 2
+            }
+          },
+          {
+            "spell": "spell:lightning-bolt",
+            "name": "Lightning Bolt",
+            "casting": "from the staff, with your DC and attack",
+            "charges": {
+              "cost": 7
+            },
+            "castAt": 7
+          },
+          {
+            "spell": "spell:passwall",
+            "name": "Passwall",
+            "casting": "from the staff, with your DC and attack",
+            "charges": {
+              "cost": 5
+            }
+          },
+          {
+            "spell": "spell:plane-shift",
+            "name": "Plane Shift",
+            "casting": "from the staff, with your DC and attack",
+            "charges": {
+              "cost": 7
+            }
+          },
+          {
+            "spell": "spell:telekinesis",
+            "name": "Telekinesis",
+            "casting": "from the staff, with your DC and attack",
+            "charges": {
+              "cost": 5
+            }
+          },
+          {
+            "spell": "spell:wall-of-fire",
+            "name": "Wall of Fire",
+            "casting": "from the staff, with your DC and attack",
+            "charges": {
+              "cost": 4
+            }
+          },
+          {
+            "spell": "spell:web",
+            "name": "Web",
+            "casting": "from the staff, with your DC and attack",
+            "charges": {
+              "cost": 2
+            }
+          },
+          {
+            "spell": "spell:arcane-lock",
+            "name": "Arcane Lock",
+            "casting": "from the staff, at will",
+            "atWill": true
+          },
+          {
+            "spell": "spell:detect-magic",
+            "name": "Detect Magic",
+            "casting": "from the staff, at will",
+            "atWill": true
+          },
+          {
+            "spell": "spell:enlarge-reduce",
+            "name": "Enlarge/Reduce",
+            "casting": "from the staff, at will",
+            "atWill": true
+          },
+          {
+            "spell": "spell:light",
+            "name": "Light",
+            "casting": "from the staff, at will",
+            "atWill": true
+          },
+          {
+            "spell": "spell:mage-hand",
+            "name": "Mage Hand",
+            "casting": "from the staff, at will",
+            "atWill": true
+          },
+          {
+            "spell": "spell:protection-from-evil-and-good",
+            "name": "Protection from Evil and Good",
+            "casting": "from the staff, at will",
+            "atWill": true
           }
         ]
       },
@@ -3235,8 +3445,12 @@
           {
             "spell": "spell:magic-missile",
             "name": "Magic Missile",
-            "casting": "from the wand: 1 charge a level (tap the charges on the wand)",
-            "atWill": true
+            "casting": "from the wand",
+            "charges": {
+              "cost": 1,
+              "perLevel": true,
+              "maxLevel": 7
+            }
           }
         ]
       },
@@ -3265,8 +3479,14 @@
           {
             "spell": "spell:fireball",
             "name": "Fireball",
-            "casting": "from the wand: DC 15, 1 charge a level from 3rd (tap the charges on the wand)",
-            "atWill": true
+            "casting": "from the wand, save DC 15",
+            "charges": {
+              "cost": 1,
+              "perLevel": true,
+              "maxLevel": 9
+            },
+            "castAt": 3,
+            "dc": 15
           }
         ]
       },
@@ -3308,7 +3528,12 @@
               "resource": "pearl-of-power",
               "amount": 1
             },
-            "note": "One spent spell slot of 3rd level or lower comes back: tap it back on the slots."
+            "note": "Pick the spent slot (3rd level or lower) that comes back.",
+            "recoversSlots": {
+              "maxLevel": 3,
+              "budget": 3,
+              "count": 1
+            }
           }
         ]
       }
@@ -3316,8 +3541,8 @@
     {
       "kind": "item",
       "id": "item:frost-brand-longsword",
-      "name": "Frost Brand Longsword",
-      "summary": "1d6 extra cold damage on a hit; resistance to fire; light in freezing cold; puts out fires once an hour.",
+      "name": "Frost Brand",
+      "summary": "1d6 extra cold damage on a hit; resistance to fire; light in freezing cold; puts out fires once an hour. Any sword: pick which on the item (a longsword until then).",
       "source": {
         "pack": "table-2014",
         "book": "SRD 5.1"
@@ -3354,7 +3579,14 @@
           "versatile"
         ],
         "versatileDamage": "1d10"
-      }
+      },
+      "baseFrom": [
+        "item:greatsword",
+        "item:longsword",
+        "item:rapier",
+        "item:scimitar",
+        "item:shortsword"
+      ]
     },
     {
       "kind": "item",
@@ -3403,8 +3635,8 @@
     {
       "kind": "item",
       "id": "item:holy-avenger-longsword",
-      "name": "Holy Avenger Longsword",
-      "summary": "A +3 weapon: 2d10 more radiant against fiends and undead; while you hold it, you and friends within 10 ft (30 ft at paladin 17th) have advantage on saves against spells.",
+      "name": "Holy Avenger",
+      "summary": "A +3 weapon: 2d10 more radiant against fiends and undead; while you hold it, you and friends within 10 ft (30 ft at paladin 17th) have advantage on saves against spells. Any sword: pick which on the item (a longsword until then).",
       "source": {
         "pack": "table-2014",
         "book": "SRD 5.1"
@@ -3450,13 +3682,20 @@
           "versatile"
         ],
         "versatileDamage": "1d10"
-      }
+      },
+      "baseFrom": [
+        "item:greatsword",
+        "item:longsword",
+        "item:rapier",
+        "item:scimitar",
+        "item:shortsword"
+      ]
     },
     {
       "kind": "item",
       "id": "item:dragon-slayer-longsword",
-      "name": "Dragon Slayer Longsword",
-      "summary": "A +1 weapon: 3d6 more of its type against dragons.",
+      "name": "Dragon Slayer",
+      "summary": "A +1 weapon: 3d6 more of its type against dragons. Any sword: pick which on the item (a longsword until then).",
       "source": {
         "pack": "table-2014",
         "book": "SRD 5.1"
@@ -3492,13 +3731,20 @@
           "versatile"
         ],
         "versatileDamage": "1d10"
-      }
+      },
+      "baseFrom": [
+        "item:greatsword",
+        "item:longsword",
+        "item:rapier",
+        "item:scimitar",
+        "item:shortsword"
+      ]
     },
     {
       "kind": "item",
       "id": "item:giant-slayer-longsword",
-      "name": "Giant Slayer Longsword",
-      "summary": "A +1 weapon: 2d6 more of its type against giants, who must make a DC 15 Strength save or fall prone.",
+      "name": "Giant Slayer",
+      "summary": "A +1 weapon: 2d6 more of its type against giants, who must make a DC 15 Strength save or fall prone. Any sword or axe: pick which on the item (a longsword until then).",
       "source": {
         "pack": "table-2014",
         "book": "SRD 5.1"
@@ -3534,7 +3780,17 @@
           "versatile"
         ],
         "versatileDamage": "1d10"
-      }
+      },
+      "baseFrom": [
+        "item:greatsword",
+        "item:longsword",
+        "item:rapier",
+        "item:scimitar",
+        "item:shortsword",
+        "item:battleaxe",
+        "item:greataxe",
+        "item:handaxe"
+      ]
     },
     {
       "kind": "item",
@@ -3688,7 +3944,7 @@
       "kind": "item",
       "id": "item:vorpal-sword",
       "name": "Vorpal Sword",
-      "summary": "A +3 blade that ignores resistance to slashing damage; on a natural 20 against a creature with a head it cuts it off (or 6d8 slashing more).",
+      "summary": "A +3 blade that ignores resistance to slashing damage; on a natural 20 against a creature with a head it cuts it off (or 6d8 slashing more). Any sword that deals slashing damage: pick which on the item (a longsword until then).",
       "source": {
         "pack": "table-2014",
         "book": "SRD 5.1"
@@ -3724,7 +3980,12 @@
           "versatile"
         ],
         "versatileDamage": "1d10"
-      }
+      },
+      "baseFrom": [
+        "item:greatsword",
+        "item:longsword",
+        "item:scimitar"
+      ]
     },
     {
       "kind": "item",
@@ -4084,11 +4345,12 @@
             "id": "pact-keeper-1",
             "name": "Rod of the Pact Keeper: a slot back",
             "economy": "action",
-            "note": "One Pact Magic slot comes back: tap it back on the slots.",
+            "note": "One spent Pact Magic slot comes back.",
             "cost": {
               "resource": "rod-of-the-pact-keeper-1",
               "amount": 1
-            }
+            },
+            "restoresPactSlots": 1
           }
         ]
       }
@@ -4142,6 +4404,12 @@
           },
           {
             "selector": "stat.spell.dc.wizard",
+            "op": "add",
+            "value": 1,
+            "label": "Arcane Grimoire +1"
+          },
+          {
+            "selector": "stat.recover.arcane-recovery",
             "op": "add",
             "value": 1,
             "label": "Arcane Grimoire +1"
@@ -4203,10 +4471,17 @@
             "id": "devout-1",
             "name": "Amulet of the Devout: Channel Divinity",
             "economy": "free",
-            "note": "Use a Channel Divinity option without spending a use: use it from Actions, then tap the use back.",
+            "note": "Use a Channel Divinity option from Actions; this gives the use back.",
             "cost": {
               "resource": "amulet-of-the-devout-1",
               "amount": 1
+            },
+            "restores": {
+              "resource": "channel-divinity",
+              "amount": 1,
+              "or": [
+                "channel-divinity-paladin"
+              ]
             }
           }
         ]
@@ -4361,6 +4636,12 @@
             "op": "add",
             "value": 1,
             "label": "Moon Sickle +1"
+          },
+          {
+            "selector": "roll.heal.spell",
+            "op": "add",
+            "value": "1d4",
+            "label": "Moon Sickle +1"
           }
         ]
       },
@@ -4418,11 +4699,12 @@
             "id": "pact-keeper-2",
             "name": "Rod of the Pact Keeper: a slot back",
             "economy": "action",
-            "note": "One Pact Magic slot comes back: tap it back on the slots.",
+            "note": "One spent Pact Magic slot comes back.",
             "cost": {
               "resource": "rod-of-the-pact-keeper-2",
               "amount": 1
-            }
+            },
+            "restoresPactSlots": 1
           }
         ]
       }
@@ -4478,6 +4760,12 @@
             "selector": "stat.spell.dc.wizard",
             "op": "add",
             "value": 2,
+            "label": "Arcane Grimoire +2"
+          },
+          {
+            "selector": "stat.recover.arcane-recovery",
+            "op": "add",
+            "value": 1,
             "label": "Arcane Grimoire +2"
           }
         ]
@@ -4537,10 +4825,17 @@
             "id": "devout-2",
             "name": "Amulet of the Devout: Channel Divinity",
             "economy": "free",
-            "note": "Use a Channel Divinity option without spending a use: use it from Actions, then tap the use back.",
+            "note": "Use a Channel Divinity option from Actions; this gives the use back.",
             "cost": {
               "resource": "amulet-of-the-devout-2",
               "amount": 1
+            },
+            "restores": {
+              "resource": "channel-divinity",
+              "amount": 1,
+              "or": [
+                "channel-divinity-paladin"
+              ]
             }
           }
         ]
@@ -4695,6 +4990,12 @@
             "op": "add",
             "value": 2,
             "label": "Moon Sickle +2"
+          },
+          {
+            "selector": "roll.heal.spell",
+            "op": "add",
+            "value": "1d4",
+            "label": "Moon Sickle +2"
           }
         ]
       },
@@ -4752,11 +5053,12 @@
             "id": "pact-keeper-3",
             "name": "Rod of the Pact Keeper: a slot back",
             "economy": "action",
-            "note": "One Pact Magic slot comes back: tap it back on the slots.",
+            "note": "One spent Pact Magic slot comes back.",
             "cost": {
               "resource": "rod-of-the-pact-keeper-3",
               "amount": 1
-            }
+            },
+            "restoresPactSlots": 1
           }
         ]
       }
@@ -4812,6 +5114,12 @@
             "selector": "stat.spell.dc.wizard",
             "op": "add",
             "value": 3,
+            "label": "Arcane Grimoire +3"
+          },
+          {
+            "selector": "stat.recover.arcane-recovery",
+            "op": "add",
+            "value": 1,
             "label": "Arcane Grimoire +3"
           }
         ]
@@ -4871,10 +5179,17 @@
             "id": "devout-3",
             "name": "Amulet of the Devout: Channel Divinity",
             "economy": "free",
-            "note": "Use a Channel Divinity option without spending a use: use it from Actions, then tap the use back.",
+            "note": "Use a Channel Divinity option from Actions; this gives the use back.",
             "cost": {
               "resource": "amulet-of-the-devout-3",
               "amount": 1
+            },
+            "restores": {
+              "resource": "channel-divinity",
+              "amount": 1,
+              "or": [
+                "channel-divinity-paladin"
+              ]
             }
           }
         ]
@@ -5028,6 +5343,12 @@
             "selector": "stat.spell.dc.ranger",
             "op": "add",
             "value": 3,
+            "label": "Moon Sickle +3"
+          },
+          {
+            "selector": "roll.heal.spell",
+            "op": "add",
+            "value": "1d4",
             "label": "Moon Sickle +3"
           }
         ]
