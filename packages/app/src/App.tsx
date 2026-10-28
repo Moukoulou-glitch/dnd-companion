@@ -779,6 +779,7 @@ export function App() {
         {...(opts.header ? { header: opts.header() } : {})}
         {...(opts.damageOnly ? { damageOnly: true } : {})}
         {...(atk ? { attack: atk } : {})}
+        {...(atk?.typeChoices?.length ? { typeChoices: atk.typeChoices } : {})}
         {...(opts.notes ? { notes: opts.notes } : {})}
         {...(opts.optionInfo ? { optionInfo: typeof opts.optionInfo === "function" ? opts.optionInfo() : opts.optionInfo } : {})}
         {...(opts.onCommit ? { onCommit: opts.onCommit } : {})}

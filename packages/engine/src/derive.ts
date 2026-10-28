@@ -92,6 +92,8 @@ export interface WeaponAttack {
   note?: string;
   /** A weapon that needs ammunition: the kinds you carry for it (empty: none). */
   ammo?: { instanceId: string; name: string; quantity: number }[];
+  /** Other damage types it can deal, picked on the roll (Draconic Strike: acid, cold, fire, lightning or poison). */
+  typeChoices?: { label: string; options: string[] }[];
 }
 
 /**
@@ -1344,6 +1346,10 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
         properties: w.properties,
       };
       if (o.itemInstanceId) entry.itemInstanceId = o.itemInstanceId;
+      // Another damage type, picked on the roll (Draconic Strike).
+      for (const a of modsFor(damageKeys, o.itemInstanceId))
+        if (a.mod.op === "changeDamageType" && typeof a.mod.value === "string" && conditionState(a.mod.when) !== "fail")
+          (entry.typeChoices ??= []).push({ label: labelOf(a), options: [w.damageType, ...a.mod.value.split("|").filter((t) => t !== w.damageType)] });
       // Two hands only for the main attack: an off-hand or thrown attack holds it in one.
       if (w.versatileDamage && !thrown && !o.offHand) entry.damage.versatileDice = w.versatileDamage;
       if (w.range && mode !== "melee") entry.range = w.range;
@@ -1806,6 +1812,11 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
         if (bonus) r.heal.bonus = bonus;
         const back = perLevel("roll.heal.spell.selfIfOthers");
         if (back) r.heal.selfIfOthers = back;
+        // Options to tick on the healing roll (Spiritual Focus: 1d6 on one healing roll).
+        if (!r.damageBonus) {
+          const opt = roll(["roll.heal.spell.option"], []);
+          if (opt.suggestions.length) r.damageBonus = opt;
+        }
       }
     }
     const typeChoices = r.damage ? damageTypeChoices(def, r.damage.type, list) : [];
@@ -1904,7 +1915,8 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       }
       if (a.stopsMovement) entry.stopsMovement = true;
       if (a.summons) entry.summons = { companion: a.summons.companion, tempHp: a.summons.tempHp !== undefined ? Math.max(0, evalFlat(a.summons.tempHp, ctxFor(s))) : 0 };
-      if (a.note) entry.note = a.note;
+      // "{dc:wis}" (a ki save DC) and "{spelldc}" in the note, worked out.
+      if (a.note) entry.note = fillTag(a.note).replace(/\{spelldc\}/g, spellDcText).replace(/\{dc:(str|dex|con|int|wis|cha)\}/g, (_, ab: Ability) => `DC ${8 + pb + mods[ab]}`);
       if (a.cost) {
         const r = resources.find((x) => x.id === a.cost!.resource);
         if (!r) warnings.push(`${a.name}: its resource "${a.cost.resource}" doesn't exist.`);

@@ -39,7 +39,7 @@ describe("proficiencies by hand, armor feats, Tasha's options, all the subclasse
   it("every class has its PHB, Xanathar's and Tasha's subclasses", () => {
     const count = (cls: string) => reg.list("subclass").filter((s) => s.class === cls).length;
     const want: Record<string, number> = {
-      "class:barbarian": 7, "class:bard": 7, "class:cleric": 12, "class:druid": 7, "class:fighter": 8, "class:monk": 8,
+      "class:barbarian": 7, "class:bard": 8 /* with College of Spirits */, "class:cleric": 12, "class:druid": 7, "class:fighter": 8, "class:monk": 9 /* with the Ascendant Dragon */,
       "class:paladin": 7, "class:ranger": 8 /* with Fizban's Drakewarden */, "class:rogue": 9, "class:sorcerer": 7, "class:warlock": 8, "class:wizard": 11,
     };
     for (const [cls, n] of Object.entries(want)) expect([cls, count(cls)]).toEqual([cls, n]);

@@ -1289,6 +1289,291 @@
           }
         ]
       }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:college-of-spirits",
+      "name": "College of Spirits",
+      "summary": "Bard who channels spirits through occult tools, telling their tales to change the world.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VRGR",
+        "page": 28
+      },
+      "class": "class:bard",
+      "features": [
+        {
+          "level": 3,
+          "feature": "feature:college-of-spirits-guiding-whispers"
+        },
+        {
+          "level": 3,
+          "feature": "feature:college-of-spirits-spiritual-focus"
+        },
+        {
+          "level": 3,
+          "feature": "feature:college-of-spirits-tales-from-beyond"
+        },
+        {
+          "level": 6,
+          "feature": "feature:college-of-spirits-spirit-session"
+        },
+        {
+          "level": 14,
+          "feature": "feature:college-of-spirits-mystical-connection"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:college-of-spirits-guiding-whispers",
+      "name": "Guiding Whispers",
+      "summary": "You learn guidance, without it counting among your cantrips; your guidance reaches 60 ft.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VRGR",
+        "page": 28
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:guidance",
+            "name": "Guidance",
+            "casting": "a bard cantrip that isn't counted; range 60 ft for you",
+            "list": "bard"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:college-of-spirits-spiritual-focus",
+      "name": "Spiritual Focus",
+      "summary": "A candle, crystal ball, skull, spirit board or tarokka deck is your spellcasting focus. From 6th level, a bard spell cast through it that deals damage or heals adds 1d6 to one of its rolls.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VRGR",
+        "page": 28
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.damage.spell",
+            "op": "add",
+            "value": "1d6",
+            "mode": "suggested",
+            "label": "Spiritual Focus",
+            "when": {
+              "classLevel": {
+                "class": "class:bard",
+                "min": 6
+              },
+              "text": "a bard spell cast through your Spiritual Focus: one of its damage rolls"
+            }
+          },
+          {
+            "selector": "roll.heal.spell.option",
+            "op": "add",
+            "value": "1d6",
+            "mode": "suggested",
+            "label": "Spiritual Focus",
+            "when": {
+              "classLevel": {
+                "class": "class:bard",
+                "min": 6
+              },
+              "text": "a bard spell cast through your Spiritual Focus: one of its healing rolls"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:college-of-spirits-tales-from-beyond",
+      "name": "Tales from Beyond",
+      "summary": "Holding your Spiritual Focus, a bonus action and a Bardic Inspiration use: roll your Bardic Inspiration die on the Spirit Tales table. An action later bestows that tale on a creature within 30 ft (you too). One tale at a time; it fades on a short or long rest. Saves use your spell save DC.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VRGR",
+        "page": 28
+      },
+      "scaling": {
+        "die": {
+          "class": "class:bard",
+          "table": [
+            [
+              1,
+              "1d6"
+            ],
+            [
+              5,
+              "1d8"
+            ],
+            [
+              10,
+              "1d10"
+            ],
+            [
+              15,
+              "1d12"
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "tales-from-beyond",
+            "name": "Tales from Beyond: a tale",
+            "economy": "bonus",
+            "cost": {
+              "resource": "bardic-inspiration",
+              "amount": 1
+            },
+            "roll": {
+              "dice": "scale.die",
+              "label": "the tale the spirits tell",
+              "table": [
+                "1 · Clever Animal: for 10 minutes, the target adds your Bardic Inspiration die to its Intelligence, Wisdom and Charisma checks (rolled after the d20).",
+                "2 · Renowned Duelist: your melee spell attack against the target; a hit deals force damage of two of your Bardic Inspiration dice + your Charisma modifier.",
+                "3 · Beloved Friends: the target and one creature it picks within 5 ft gain temporary hit points of your Bardic Inspiration die + your Charisma modifier.",
+                "4 · Runaway: the target teleports up to 30 ft with its reaction; up to your Charisma modifier of creatures it sees within 30 ft may do the same with theirs.",
+                "5 · Avenger: for 1 minute, a creature that hits the target in melee takes force damage of your Bardic Inspiration die.",
+                "6 · Traveler: temporary hit points of your Bardic Inspiration die + your bard level; while they last, +10 ft walking speed and +1 AC.",
+                "7 · Beguiler: Wisdom save or psychic damage of two of your Bardic Inspiration dice and incapacitated until the end of its next turn.",
+                "8 · Phantom: invisible until the end of its next turn or its first hit; that hit adds necrotic damage of your Bardic Inspiration die and frightens the creature hit until the end of its next turn.",
+                "9 · Brute: creatures of its choice within 30 ft make a Strength save: thunder damage of three of your Bardic Inspiration dice and prone, or half and standing.",
+                "10 · Dragon: a 30-ft cone of fire from its mouth: Dexterity save, fire damage of four of your Bardic Inspiration dice, half on a success.",
+                "11 · Angel: it regains hit points of two of your Bardic Inspiration dice + your Charisma modifier, and one of blinded, deafened, paralyzed, petrified or poisoned ends.",
+                "12 · Mind-Bender: Intelligence save or psychic damage of three of your Bardic Inspiration dice and stunned until the end of its next turn."
+              ]
+            },
+            "note": "Keep it in mind until you bestow it or rest; a new roll replaces it. Saves: {spelldc}."
+          },
+          {
+            "id": "tales-from-beyond-bestow",
+            "name": "Tales from Beyond: bestow it",
+            "economy": "action",
+            "roll": {
+              "dice": "scale.die",
+              "label": "one Bardic Inspiration die for the tale (roll it as many times as the tale says)"
+            },
+            "note": "One creature you can see within 30 ft, you too. Saves: {spelldc}."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:college-of-spirits-spirit-session",
+      "name": "Spirit Session",
+      "summary": "Once per long rest, an hour-long ritual (it can be part of a rest) with up to your proficiency bonus of willing creatures, you included: until your next long rest you know one divination or necromancy spell from any class, of a level up to the number of participants that you can cast. It counts as a bard spell, not among your spells known.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VRGR",
+        "page": 28
+      },
+      "choices": [
+        {
+          "id": "spell",
+          "label": "Spirit Session spell (this time)",
+          "kind": "spell",
+          "count": 1,
+          "list": "bard",
+          "spells": {
+            "schools": [
+              "divination",
+              "necromancy"
+            ],
+            "upToSlots": true
+          }
+        }
+      ],
+      "grant": {
+        "resources": [
+          {
+            "id": "spirit-session",
+            "name": "Spirit Session",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "spirit-session",
+            "name": "Spirit Session",
+            "economy": "free",
+            "cost": {
+              "resource": "spirit-session",
+              "amount": 1
+            },
+            "note": "One hour with up to {pb} willing creatures. Pick the spell in Choices: its level can't be higher than how many took part. You know it until your next long rest."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:college-of-spirits-mystical-connection",
+      "name": "Mystical Connection",
+      "summary": "When you roll on the Spirit Tales table, roll twice and pick either tale; doubles let you pick any tale.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VRGR",
+        "page": 28
+      },
+      "scaling": {
+        "die": {
+          "class": "class:bard",
+          "table": [
+            [
+              1,
+              "1d6"
+            ],
+            [
+              5,
+              "1d8"
+            ],
+            [
+              10,
+              "1d10"
+            ],
+            [
+              15,
+              "1d12"
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "tales-from-beyond-second",
+            "name": "Mystical Connection: the second roll",
+            "economy": "free",
+            "roll": {
+              "dice": "scale.die",
+              "label": "the second tale: keep either (the same number twice: any tale)",
+              "table": [
+                "1 · Clever Animal: for 10 minutes, the target adds your Bardic Inspiration die to its Intelligence, Wisdom and Charisma checks (rolled after the d20).",
+                "2 · Renowned Duelist: your melee spell attack against the target; a hit deals force damage of two of your Bardic Inspiration dice + your Charisma modifier.",
+                "3 · Beloved Friends: the target and one creature it picks within 5 ft gain temporary hit points of your Bardic Inspiration die + your Charisma modifier.",
+                "4 · Runaway: the target teleports up to 30 ft with its reaction; up to your Charisma modifier of creatures it sees within 30 ft may do the same with theirs.",
+                "5 · Avenger: for 1 minute, a creature that hits the target in melee takes force damage of your Bardic Inspiration die.",
+                "6 · Traveler: temporary hit points of your Bardic Inspiration die + your bard level; while they last, +10 ft walking speed and +1 AC.",
+                "7 · Beguiler: Wisdom save or psychic damage of two of your Bardic Inspiration dice and incapacitated until the end of its next turn.",
+                "8 · Phantom: invisible until the end of its next turn or its first hit; that hit adds necrotic damage of your Bardic Inspiration die and frightens the creature hit until the end of its next turn.",
+                "9 · Brute: creatures of its choice within 30 ft make a Strength save: thunder damage of three of your Bardic Inspiration dice and prone, or half and standing.",
+                "10 · Dragon: a 30-ft cone of fire from its mouth: Dexterity save, fire damage of four of your Bardic Inspiration dice, half on a success.",
+                "11 · Angel: it regains hit points of two of your Bardic Inspiration dice + your Charisma modifier, and one of blinded, deafened, paralyzed, petrified or poisoned ends.",
+                "12 · Mind-Bender: Intelligence save or psychic damage of three of your Bardic Inspiration dice and stunned until the end of its next turn."
+              ]
+            },
+            "note": "Right after Tales from Beyond's roll, at no further cost."
+          }
+        ]
+      }
     }
   ]
 }

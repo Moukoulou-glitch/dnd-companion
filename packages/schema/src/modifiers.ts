@@ -84,6 +84,8 @@ export const ModifierOp = z.enum([
   "reroll",
   /** After the damage roll, pick one damage die and roll it again; the new roll counts (Piercer). */
   "rerollOneDie",
+  /** The damage can be of another type, picked on the roll: `value` lists them, "acid|cold|fire" (Draconic Strike). */
+  "changeDamageType",
   /** Damage dice deal their maximum (Overchannel), as a tick-box. */
   "maximize",
   /** Critical hit range starts at `value` (Champion: 19). */

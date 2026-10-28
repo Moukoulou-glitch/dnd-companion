@@ -1527,6 +1527,482 @@
           }
         ]
       }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:way-of-the-ascendant-dragon",
+      "name": "Way of the Ascendant Dragon",
+      "summary": "Monk who emulates dragons: breath of energy, draconic wings and an aura of draconic might.",
+      "source": {
+        "pack": "table-2014",
+        "book": "FTD",
+        "page": 13
+      },
+      "class": "class:monk",
+      "features": [
+        {
+          "level": 3,
+          "feature": "feature:ascendant-dragon-draconic-disciple"
+        },
+        {
+          "level": 3,
+          "feature": "feature:ascendant-dragon-breath-of-the-dragon"
+        },
+        {
+          "level": 6,
+          "feature": "feature:ascendant-dragon-wings-unfurled"
+        },
+        {
+          "level": 11,
+          "feature": "feature:ascendant-dragon-aspect-of-the-wyrm"
+        },
+        {
+          "level": 17,
+          "feature": "feature:ascendant-dragon-ascendant-aspect"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:ascendant-dragon-draconic-disciple",
+      "name": "Draconic Disciple",
+      "summary": "Draconic Presence: a reaction to reroll a failed Intimidation or Persuasion check (once it turns a failure into a success, not again until a long rest). Draconic Strike: your unarmed strikes can deal acid, cold, fire, lightning or poison damage. Tongue of Dragons: one more language (Draconic or another).",
+      "source": {
+        "pack": "table-2014",
+        "book": "FTD",
+        "page": 13
+      },
+      "choices": [
+        {
+          "id": "language",
+          "label": "Tongue of Dragons",
+          "kind": "language",
+          "count": 1
+        }
+      ],
+      "grant": {
+        "proficiencies": [
+          {
+            "kind": "language",
+            "target": {
+              "choice": "language"
+            }
+          }
+        ],
+        "resources": [
+          {
+            "id": "draconic-presence",
+            "name": "Draconic Presence",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "damage.martial-arts",
+            "op": "changeDamageType",
+            "value": "acid|cold|fire|lightning|poison",
+            "label": "Draconic Strike"
+          },
+          {
+            "selector": "damage.martial-arts-bonus",
+            "op": "changeDamageType",
+            "value": "acid|cold|fire|lightning|poison",
+            "label": "Draconic Strike"
+          }
+        ],
+        "actions": [
+          {
+            "id": "draconic-presence",
+            "name": "Draconic Presence",
+            "economy": "reaction",
+            "note": "A failed Intimidation or Persuasion check: roll it again. Spend the use only if it now succeeds (Use resource without effect, or tap it)."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:ascendant-dragon-breath-of-the-dragon",
+      "name": "Breath of the Dragon",
+      "summary": "Replace one attack of the Attack action with a 20-ft cone or a 30-ft line (5 ft wide) of acid, cold, fire, lightning or poison: Dexterity save against your ki DC, two Martial Arts dice of damage (three from 11th), half on a success. Proficiency bonus uses per long rest; with none left, 2 ki.",
+      "source": {
+        "pack": "table-2014",
+        "book": "FTD",
+        "page": 13
+      },
+      "scaling": {
+        "breath": {
+          "class": "class:monk",
+          "table": [
+            [
+              3,
+              "2d4"
+            ],
+            [
+              5,
+              "2d6"
+            ],
+            [
+              11,
+              "3d8"
+            ],
+            [
+              17,
+              "3d10"
+            ]
+          ]
+        },
+        "augmented": {
+          "class": "class:monk",
+          "table": [
+            [
+              17,
+              "4d10"
+            ]
+          ]
+        }
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "breath-of-the-dragon",
+            "name": "Breath of the Dragon",
+            "max": "pb",
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "breath-of-the-dragon",
+            "name": "Breath of the Dragon",
+            "economy": "free",
+            "asAttack": true,
+            "cost": {
+              "resource": "breath-of-the-dragon",
+              "amount": 1
+            },
+            "choose": {
+              "label": "Damage type",
+              "options": [
+                "acid",
+                "cold",
+                "fire",
+                "lightning",
+                "poison"
+              ]
+            },
+            "roll": {
+              "dice": "scale.breath",
+              "label": "damage to each creature in the cone or line (Dexterity save: half)"
+            },
+            "note": "In place of one attack of the Attack action. Dexterity save {dc:wis}."
+          },
+          {
+            "id": "breath-of-the-dragon-ki",
+            "name": "Breath of the Dragon (2 ki)",
+            "economy": "free",
+            "asAttack": true,
+            "cost": {
+              "resource": "ki",
+              "amount": 2
+            },
+            "choose": {
+              "label": "Damage type",
+              "options": [
+                "acid",
+                "cold",
+                "fire",
+                "lightning",
+                "poison"
+              ]
+            },
+            "roll": {
+              "dice": "scale.breath",
+              "label": "damage to each creature in the cone or line (Dexterity save: half)"
+            },
+            "note": "With no uses left. Dexterity save {dc:wis}."
+          },
+          {
+            "id": "breath-of-the-dragon-augmented",
+            "name": "Breath of the Dragon: augmented (1 ki)",
+            "economy": "free",
+            "minLevel": 17,
+            "levelOf": "class:monk",
+            "cost": {
+              "resource": "ki",
+              "amount": 1
+            },
+            "choose": {
+              "label": "Damage type",
+              "options": [
+                "acid",
+                "cold",
+                "fire",
+                "lightning",
+                "poison"
+              ]
+            },
+            "roll": {
+              "dice": "scale.augmented",
+              "label": "damage in a 60-ft cone or a 90-ft line (Dexterity save: half)"
+            },
+            "note": "Ascendant Aspect: spend 1 ki when you use Breath of the Dragon (its use still goes). Dexterity save {dc:wis}."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:ascendant-dragon-wings-unfurled",
+      "name": "Wings Unfurled",
+      "summary": "When you use Step of the Wind, spectral wings give you a flying speed equal to your walking speed until the end of your turn. Proficiency bonus times per long rest.",
+      "source": {
+        "pack": "table-2014",
+        "book": "FTD",
+        "page": 13
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "wings-unfurled",
+            "name": "Wings Unfurled",
+            "max": "pb",
+            "reset": "long"
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "stat.speed.fly",
+            "op": "grantSpeed",
+            "value": "walk",
+            "label": "Wings Unfurled",
+            "when": {
+              "toggle": "wings-unfurled"
+            }
+          }
+        ],
+        "actions": [
+          {
+            "id": "wings-unfurled",
+            "name": "Wings Unfurled",
+            "economy": "free",
+            "cost": {
+              "resource": "wings-unfurled",
+              "amount": 1
+            },
+            "toggles": [
+              "wings-unfurled"
+            ],
+            "duration": {
+              "rounds": 1
+            },
+            "note": "With Step of the Wind: fly at your walking speed until the end of this turn."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:ascendant-dragon-aspect-of-the-wyrm",
+      "name": "Aspect of the Wyrm",
+      "summary": "A bonus action: a 10-ft aura for 1 minute, either frightening (a creature you pick, now and as a bonus action later: Wisdom save against your ki DC or frightened for 1 minute, saving at the end of its turns) or protective (you and allies in it resist acid, cold, fire, lightning or poison). Once per long rest, or 3 ki.",
+      "source": {
+        "pack": "table-2014",
+        "book": "FTD",
+        "page": 13
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "aspect-of-the-wyrm",
+            "name": "Aspect of the Wyrm",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "defense.resist.acid",
+            "op": "resist",
+            "label": "Aspect of the Wyrm",
+            "when": {
+              "toggle": "wyrm-resist-acid"
+            }
+          },
+          {
+            "selector": "defense.resist.cold",
+            "op": "resist",
+            "label": "Aspect of the Wyrm",
+            "when": {
+              "toggle": "wyrm-resist-cold"
+            }
+          },
+          {
+            "selector": "defense.resist.fire",
+            "op": "resist",
+            "label": "Aspect of the Wyrm",
+            "when": {
+              "toggle": "wyrm-resist-fire"
+            }
+          },
+          {
+            "selector": "defense.resist.lightning",
+            "op": "resist",
+            "label": "Aspect of the Wyrm",
+            "when": {
+              "toggle": "wyrm-resist-lightning"
+            }
+          },
+          {
+            "selector": "defense.resist.poison",
+            "op": "resist",
+            "label": "Aspect of the Wyrm",
+            "when": {
+              "toggle": "wyrm-resist-poison"
+            }
+          }
+        ],
+        "actions": [
+          {
+            "id": "aspect-of-the-wyrm",
+            "name": "Aspect of the Wyrm",
+            "economy": "bonus",
+            "cost": {
+              "resource": "aspect-of-the-wyrm",
+              "amount": 1
+            },
+            "duration": {
+              "minutes": 1
+            },
+            "toggles": [
+              "aspect-of-the-wyrm"
+            ],
+            "choose": {
+              "label": "Aura",
+              "options": [
+                "Frightful Presence",
+                "Resistance: acid",
+                "Resistance: cold",
+                "Resistance: fire",
+                "Resistance: lightning",
+                "Resistance: poison"
+              ]
+            },
+            "choiceToggles": {
+              "Resistance: acid": [
+                "wyrm-resist-acid"
+              ],
+              "Resistance: cold": [
+                "wyrm-resist-cold"
+              ],
+              "Resistance: fire": [
+                "wyrm-resist-fire"
+              ],
+              "Resistance: lightning": [
+                "wyrm-resist-lightning"
+              ],
+              "Resistance: poison": [
+                "wyrm-resist-poison"
+              ],
+              "Frightful Presence": [
+                "wyrm-frightful"
+              ]
+            },
+            "note": "Frightful Presence: a creature in the aura makes a Wisdom save {dc:wis} or is frightened (again as a bonus action on later turns). Resistance: you and allies in the 10-ft aura."
+          },
+          {
+            "id": "aspect-of-the-wyrm-ki",
+            "name": "Aspect of the Wyrm (3 ki)",
+            "economy": "bonus",
+            "cost": {
+              "resource": "ki",
+              "amount": 3
+            },
+            "duration": {
+              "minutes": 1
+            },
+            "toggles": [
+              "aspect-of-the-wyrm"
+            ],
+            "choose": {
+              "label": "Aura",
+              "options": [
+                "Frightful Presence",
+                "Resistance: acid",
+                "Resistance: cold",
+                "Resistance: fire",
+                "Resistance: lightning",
+                "Resistance: poison"
+              ]
+            },
+            "choiceToggles": {
+              "Resistance: acid": [
+                "wyrm-resist-acid"
+              ],
+              "Resistance: cold": [
+                "wyrm-resist-cold"
+              ],
+              "Resistance: fire": [
+                "wyrm-resist-fire"
+              ],
+              "Resistance: lightning": [
+                "wyrm-resist-lightning"
+              ],
+              "Resistance: poison": [
+                "wyrm-resist-poison"
+              ],
+              "Frightful Presence": [
+                "wyrm-frightful"
+              ]
+            },
+            "note": "Again after its free use. Frightful Presence: Wisdom save {dc:wis}."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:ascendant-dragon-ascendant-aspect",
+      "name": "Ascendant Aspect",
+      "summary": "Augment Breath: 1 ki makes Breath of the Dragon a 60-ft cone or 90-ft line dealing four Martial Arts dice. Blindsight 10 ft. Explosive Fury: when you create your Aspect of the Wyrm, creatures you pick in it make a Dexterity save against your ki DC or take 3d10 acid, cold, fire, lightning or poison.",
+      "source": {
+        "pack": "table-2014",
+        "book": "FTD",
+        "page": 13
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "sense.blindsight",
+            "op": "grantSense",
+            "value": 10,
+            "label": "Ascendant Aspect"
+          }
+        ],
+        "actions": [
+          {
+            "id": "explosive-fury",
+            "name": "Explosive Fury",
+            "economy": "free",
+            "choose": {
+              "label": "Damage type",
+              "options": [
+                "acid",
+                "cold",
+                "fire",
+                "lightning",
+                "poison"
+              ]
+            },
+            "roll": {
+              "dice": "3d10",
+              "label": "damage to each creature you pick in the aura (Dexterity save: none)"
+            },
+            "note": "As your Aspect of the Wyrm begins. Dexterity save {dc:wis}."
+          }
+        ]
+      }
     }
   ]
 }

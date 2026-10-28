@@ -340,3 +340,12 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 - Winged Boots: the 4 hours a day are yours to count.
 - Ring of Spell Storing and Ioun Stone of Reserve: what they hold goes in the item's notes.
 - Bag of Holding: its 500 lb capacity isn't checked.
+
+## College of Spirits and Way of the Ascendant Dragon (round 13f)
+
+- Tales from Beyond: the tale rolled is shown with its effect; which tale you're holding, and bestowing it, are yours to keep (the bestow action rolls the die for it).
+- Spiritual Focus: the d6 is offered on every bard spell's damage or healing roll; whether it went through the focus, and that it's one roll per spell, is yours.
+- Spirit Session: pick this time's spell in Choices; its level against how many took part is yours to check, and it isn't removed at the long rest by itself.
+- Draconic Presence: spend its use only when the reroll succeeds.
+- Breath of the Dragon: it takes one attack of the Attack action; the augmented breath (17th) spends its own ki and the breath's use separately.
+- Aspect of the Wyrm: Frightful Presence's saves are rolled by the DM; the resistance is yours (allies in the aura apply it themselves).
