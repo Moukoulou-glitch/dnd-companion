@@ -425,7 +425,8 @@ export const EffectDef = z
         /** Rolled when it's cast, and the count starts there (Time Stop: 1d4 + 1 turns). */
         startRoll: z.string().optional(),
         /** Using one heals you (Goodberry: eat a berry, 1 hit point). */
-        use: z.object({ label: z.string(), heal: z.number().int().min(0) }).strict().optional(),
+        /** `spellBonus`: features adding to your healing spells (Disciple of Life) are offered on each use too, your table's call. */
+        use: z.object({ label: z.string(), heal: z.number().int().min(0), spellBonus: z.boolean().optional() }).strict().optional(),
       })
       .strict()
       .optional(),

@@ -559,6 +559,22 @@ function CounterSection({ e, counter, act, close }: { e: EffectResult; counter: 
           {counter.use.heal > 0 ? <span className="sub">heals {counter.use.heal}</span> : null}
         </button>
       )}
+      {counter.use?.bonus && (
+        <button
+          className="big wide"
+          disabled={counter.left <= 0}
+          onClick={() => {
+            const n = counter.left - 1;
+            const total = counter.use!.heal + counter.use!.bonus!.reduce((t, b) => t + b.value, 0);
+            act("updateEffect", { instanceId: e.instanceId, count: n }, `${e.name}: ${counter.use!.label.toLowerCase()}, ${n} left.`);
+            act("heal", { amount: total }, `${e.name}: healed ${total} (${counter.use!.bonus!.map((b) => b.label).join(", ")}).`);
+            if (n === 0 && counter.endsAtZero) close();
+          }}
+        >
+          {counter.use.label}, with {counter.use.bonus.map((b) => b.label).join(" and ")}
+          <span className="sub">heals {counter.use.heal + counter.use.bonus.reduce((t, b) => t + b.value, 0)}, if your table allows it</span>
+        </button>
+      )}
       <div className="pips" aria-hidden="true">
         {Array.from({ length: counter.start }, (_, i) => (
           <span key={i} className={i < counter.left ? "pip on" : "pip"} />

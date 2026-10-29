@@ -2317,7 +2317,8 @@
           "label": "Absorb Elements (stored energy)",
           "when": {
             "text": "first melee hit on your next turn"
-          }
+          },
+          "damageTypeFromChoice": true
         }
       ],
       "rounds": 1,
@@ -2349,7 +2350,8 @@
           "selector": "roll.damage.weapon.*",
           "op": "add",
           "value": "1d4",
-          "label": "Divine Favor (radiant)"
+          "label": "Divine Favor (radiant)",
+          "damageType": "radiant"
         }
       ],
       "rounds": 10,
@@ -5878,7 +5880,8 @@
         "endsAtZero": true,
         "use": {
           "label": "Eat a berry",
-          "heal": 1
+          "heal": 1,
+          "spellBonus": true
         }
       },
       "reminders": [

@@ -367,7 +367,7 @@ export interface EffectResult {
   /** Lasts until your next turn starts (Dodge, Ready): one round, no countdown to adjust. */
   untilTurnStart?: boolean;
   /** What it counts (Mirror Image's duplicates): how many are left, the d20 needed now and their AC. */
-  counter?: { label: string; left: number; start: number; need?: number; ac?: number; endsAtZero: boolean; strike?: { amount: number; type: string; save: string; dc?: number }; use?: { label: string; heal: number } };
+  counter?: { label: string; left: number; start: number; need?: number; ac?: number; endsAtZero: boolean; strike?: { amount: number; type: string; save: string; dc?: number }; use?: { label: string; heal: number; bonus?: { label: string; value: number }[] } };
 }
 
 export interface ResourceResult {
@@ -2247,7 +2247,17 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       const k = def.counter;
       const left = Math.max(0, Math.min(k.start, e.count ?? k.start));
       r.counter = { label: k.label, left, start: k.start, endsAtZero: !!k.endsAtZero };
-      if (k.use) r.counter.use = k.use;
+      if (k.use) {
+        r.counter.use = { label: k.use.label, heal: k.use.heal };
+        // Goodberry with Disciple of Life: each berry as a 1st-level healing spell (some tables allow it).
+        if (k.use.spellBonus) {
+          const lvl = e.castLevel ?? def.upcast?.baseLevel ?? 1;
+          const bonus = sources.flatMap((src) =>
+            (src.grant.modifiers ?? []).filter((m) => m.selector === "roll.heal.spell" && m.op === "add" && m.value !== undefined).map((m) => ({ label: m.label ?? src.label, value: evalFlat(m.value!, { ...ctxFor(src), slotLevel: lvl }) })),
+          ).filter((b) => b.value > 0);
+          if (bonus.length) r.counter.use.bonus = bonus;
+        }
+      }
       const need = left > 0 ? k.need?.[Math.min(left, k.need.length) - 1] : undefined;
       if (need !== undefined) r.counter.need = need;
       if (k.ac) r.counter.ac = k.ac.base + (k.ac.ability ? abilities[k.ac.ability].modifier : 0);
