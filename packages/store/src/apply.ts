@@ -1163,6 +1163,12 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       if (kind === "long") {
         const dawn = c.inventory.filter((i) => (i.chargesUsed ?? 0) > 0 && reg.find(i.item, "item")?.charges?.regain);
         if (dawn.length) notes.push(`At dawn, charges come back: ${dawn.map((i) => `${i.name ?? reg.find(i.item, "item")!.name} (${reg.find(i.item, "item")!.charges!.regain})`).join(", ")}; roll it on the item.`);
+        // Things that last until your next long rest (Master Scrivener's scroll).
+        const fading = c.inventory.filter((i) => i.untilLongRest);
+        if (fading.length) {
+          c.inventory = c.inventory.filter((i) => !i.untilLongRest);
+          notes.push(`Gone with the long rest: ${fading.map((i) => i.name ?? reg.find(i.item, "item")?.name ?? i.item).join(", ")}.`);
+        }
         // Effects a long rest puts on you (Tranquility: Sanctuary for 8 hours): a fresh one replaces the last.
         for (const g of sheet.afterLongRest) {
           const def = reg.find(reg.effectId(g.effect), "effect");
@@ -1271,6 +1277,22 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         const back = a.restoresPactSlots === true ? c.pactSlotsUsed : Math.min(c.pactSlotsUsed, a.restoresPactSlots);
         notes.push(back > 0 ? `${a.name}: ${back} Pact Magic slot${back === 1 ? "" : "s"} back.` : `${a.name}: no Pact Magic slot was spent.`);
         c.pactSlotsUsed -= back;
+      }
+      // Master Scrivener: the picked spellbook spell on a scroll, written higher; gone at your next long rest.
+      if (a.scribesScroll && op.payload.choice) {
+        const sp = sheet.spells.find((x) => x.name === op.payload.choice && x.list.id === a.scribesScroll!.list);
+        const def = sp ? reg.find(sp.id, "spell") : undefined;
+        if (!sp || !def) notes.push(`${a.name}: ${op.payload.choice} isn't in your spellbook.`);
+        else {
+          const level = Math.min(9, def.level + a.scribesScroll.higher);
+          const ord = ["cantrip", "1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th"][level]!;
+          const item = level === 0 ? "item:spell-scroll-cantrip" : `item:spell-scroll-${ord}-level`;
+          const id = `${op.id}-scroll`;
+          if (reg.has(item) && !c.inventory.some((i) => i.id === id)) {
+            c.inventory.push({ id, item, quantity: 1, equipped: false, attuned: false, name: `${def.name} scroll (${a.name})`, scroll: { spell: def.id, level }, untilLongRest: true });
+            notes.push(`${a.name}: a scroll of ${def.name} at level ${level}, in your items. Only you can read it; it's gone at the end of your next long rest.`);
+          }
+        }
       }
       // Stillness of Mind: ends one effect that charms or frightens you (the one picked, or the first there is).
       if (a.endsConditions?.length) {

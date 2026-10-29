@@ -50,6 +50,8 @@ export const ItemInstance = z
     base: DefId.optional(),
     /** A spell scroll: the spell written on it, and the level it's written at (default: from the item's name, or the spell's own). */
     scroll: z.object({ spell: DefId, level: z.number().int().min(0).max(9).optional() }).strict().optional(),
+    /** Gone at the end of your next long rest (Master Scrivener's scroll). */
+    untilLongRest: z.boolean().optional(),
   })
   .strict();
 export type ItemInstance = z.infer<typeof ItemInstance>;

@@ -5618,6 +5618,33 @@
         "endsAfter": true
       },
       "selfOnly": true
+    },
+    {
+      "kind": "effect",
+      "id": "effect:emissary-of-redemption",
+      "name": "Emissary of Redemption",
+      "category": "other",
+      "summary": "You resist all damage other creatures deal you, and a creature that damages you takes radiant damage equal to half the damage you took.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 39
+      },
+      "modifiers": [
+        {
+          "selector": "defense.resist.all",
+          "op": "resist",
+          "label": "Emissary of Redemption"
+        }
+      ],
+      "reminders": [
+        "Against a creature you attack or target with a spell, neither part works until your next long rest. If you're only fighting that creature, end this tag; it comes back after your long rest.",
+        "Damage you deal yourself isn't resisted."
+      ],
+      "onDamage": {
+        "text": "Emissary of Redemption: the creature that damaged you takes radiant damage equal to half the damage you took (unless you've attacked it or targeted it with a spell since your long rest)."
+      },
+      "selfOnly": true
     }
   ]
 }

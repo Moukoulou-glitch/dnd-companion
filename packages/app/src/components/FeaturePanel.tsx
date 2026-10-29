@@ -72,6 +72,23 @@ export function FeaturePanel({
   const none = a.cost && a.cost.remaining < a.cost.amount;
 
   const [throwing, setThrowing] = useState(false);
+  // Rolled more than once, keeping one (Controlled Chaos, Controlled Surge): the faces, then the pick.
+  const times = a.roll?.times ?? 1;
+  const [faces, setFaces] = useState<number[] | null>(null);
+  const sidesOf = (d?: string) => Number(/^1?d(\d+)$/.exec(d ?? "")?.[1] ?? 0);
+  const rollTimes = async () => {
+    const sides = sidesOf(amount?.dice[0]);
+    if (!sides) return;
+    setThrowing(true);
+    try {
+      const f = await facesOrRoll(times, sides, true, { source: a.name });
+      if (alive.current) setFaces(f);
+    } finally {
+      if (alive.current) setThrowing(false);
+    }
+  };
+  // What a face means: the action's table, or its options when there's one per face (Wild Surge's d8).
+  const meaning = (n: number) => a.roll?.table?.[n - 1] ?? (a.choose && a.choose.options.length === sidesOf(amount?.dice[0]) ? a.choose.options[n - 1] : undefined);
   // Closed while its dice are in the air: the dice stop and the feature isn't used.
   const alive = useRef(true);
   const inAir = useRef(false);
@@ -198,9 +215,24 @@ export function FeaturePanel({
             </label>
           )}
           {beacon && <p className="note beacon-text">{maxLabels?.[healedId] ?? "Beacon of Hope"}: the maximum, {maxOfAmount}.</p>}
+          {times > 1 && faces && (
+            <div className="group">
+              {faces.map((f, i) => (
+                <div className="row" key={i}>
+                  <div className="row-main">
+                    <div className="row-title">
+                      Roll {i + 1}: {f}
+                    </div>
+                    {meaning(f) && <div className="row-sub">{meaning(f)}</div>}
+                  </div>
+                </div>
+              ))}
+              {faces.length > 1 && faces.every((f) => f === faces[0]) && a.choose && <p className="note">Both the same: pick any.</p>}
+            </div>
+          )}
           {physical && !beacon && !a.healEntered && amount.dice.length > 0 && (
             <label className="entry">
-              <span>Roll {amount.dice.join(" + ")} and type the dice total</span>
+              <span>{times > 1 ? `Roll ${amount.dice.join(" + ")} ${times} times and type the one you keep` : `Roll ${amount.dice.join(" + ")} and type the dice total`}</span>
               <input inputMode="numeric" pattern="[0-9]*" value={entry} onChange={(e) => setEntry(e.target.value.replace(/\D/g, "").slice(0, 3))} />
             </label>
           )}
@@ -235,6 +267,18 @@ export function FeaturePanel({
           </div>
           )}
         </>
+      ) : times > 1 && !physical && !faces ? (
+        <button className="big wide primary" disabled={throwing} onClick={() => void rollTimes()}>
+          {throwing ? "Throwing…" : `Roll ${amount?.dice[0] ?? ""} ${times} times`}
+        </button>
+      ) : times > 1 && !physical && faces && !a.choose ? (
+        <div className="big-actions">
+          {faces.map((f, i) => (
+            <button key={i} className="big primary" onClick={() => useWith(f + (amount?.flat ?? 0))}>
+              Keep {f}
+            </button>
+          ))}
+        </div>
       ) : a.choose ? (
         <>
           <p className="sub-head">{a.choose.label}</p>

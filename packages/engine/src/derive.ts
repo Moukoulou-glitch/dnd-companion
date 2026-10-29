@@ -215,7 +215,9 @@ export interface ActionResult {
   /** The feature or feat this comes from, for showing its text. */
   featureId?: string;
   /** Dice rolled when used and what the number means (Spirit Shield: damage prevented). */
-  roll?: Amount & { label: string; table?: string[] };
+  roll?: Amount & { label: string; table?: string[]; times?: number };
+  /** Writes a spellbook spell onto a scroll (Master Scrivener): the pick is the spell, written `higher` levels up. */
+  scribesScroll?: { list: string; maxLevel: number; higher: number };
   duration?: { rounds?: number; minutes?: number; fromRoll?: "rounds" | "minutes" | "hours" };
   /** The effect it puts on you, the pick as its choice (Chromatic Infusion). */
   selfEffect?: string;
@@ -1934,7 +1936,19 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     for (const a of s.grant.actions ?? []) {
       const entry: ActionResult = { id: a.id, name: a.name, economy: a.economy, source: s.label, toggles: a.toggles };
       if (/^(feature|feat|race|background):/.test(s.id)) entry.featureId = s.id;
-      if (a.roll) entry.roll = { ...amountOf(a.roll.dice, s), label: a.roll.label, ...(a.roll.table ? { table: a.roll.table } : {}) };
+      if (a.roll) entry.roll = { ...amountOf(a.roll.dice, s), label: a.roll.label, ...(a.roll.table ? { table: a.roll.table } : {}), ...(a.roll.times ? { times: a.roll.times } : {}) };
+      // Master Scrivener: the spells in your spellbook it can write.
+      if (a.scribesScroll) {
+        const sc = a.scribesScroll;
+        entry.scribesScroll = { list: sc.list, maxLevel: sc.maxLevel, higher: sc.higher };
+        const names = c.spells
+          .filter((i) => i.list === sc.list && !i.notInBook)
+          .map((i) => (reg.has(i.spell) ? reg.get(i.spell, "spell") : undefined))
+          .filter((d): d is NonNullable<typeof d> => !!d && d.level >= 1 && d.level <= sc.maxLevel)
+          .map((d) => d.name);
+        const options = [...new Set(names)].sort();
+        entry.choose = { label: options.length ? `Which spell goes on the scroll? (level ${sc.maxLevel} or lower, cast ${sc.higher} higher)` : `No spell of level ${sc.maxLevel} or lower in your spellbook`, options: options.length ? options : ["Nothing to write"] };
+      }
       if (a.selfEffect) entry.selfEffect = a.selfEffect;
       if (a.holdsRoll) entry.holdsRoll = true;
       if (a.fall) entry.fall = true;
@@ -2028,6 +2042,17 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       actions.push(entry);
     }
   }
+
+  // Lines other features add to an action's note (Arcane Charge on Action Surge), and rolls made twice (Controlled Surge).
+  for (const src of sources)
+    for (const n of src.grant.actionNotes ?? []) {
+      const targets = actions.filter((x) => x.id === n.action);
+      const text = n.value !== undefined ? n.text.replace("{value}", String(evalFlat(n.value, ctxFor(src)))) : n.text;
+      for (const t of targets) {
+        t.note = `${t.note ? `${t.note} ` : ""}${src.label}: ${text}`;
+        if (n.rollTimes && t.roll) t.roll = { ...t.roll, times: n.rollTimes };
+      }
+    }
 
   // Defenses and senses.
   const defenses: DerivedSheet["defenses"] = { resist: [], immune: [], vulnerable: [] };

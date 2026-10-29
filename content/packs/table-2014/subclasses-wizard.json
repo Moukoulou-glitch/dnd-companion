@@ -1422,6 +1422,33 @@
         "pack": "table-2014",
         "book": "TCoE",
         "page": 79
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "master-scrivener",
+            "name": "Master Scrivener",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "master-scrivener",
+            "name": "Master Scrivener",
+            "economy": "free",
+            "toggles": [],
+            "cost": {
+              "resource": "master-scrivener"
+            },
+            "scribesScroll": {
+              "list": "wizard",
+              "maxLevel": 2,
+              "higher": 1
+            },
+            "note": "After a long rest, touch your Wizardly Quill to a blank sheet: a 1st- or 2nd-level spell from your spellbook goes on a scroll, cast one level higher. Only you can read it, and it's gone at the end of your next long rest. It's read like any spell scroll."
+          }
+        ]
       }
     },
     {

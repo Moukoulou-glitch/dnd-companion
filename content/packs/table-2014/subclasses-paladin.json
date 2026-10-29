@@ -1689,6 +1689,21 @@
         "pack": "table-2014",
         "book": "XGtE",
         "page": 38
+      },
+      "grant": {
+        "afterLongRest": {
+          "effect": "effect:emissary-of-redemption"
+        },
+        "actions": [
+          {
+            "id": "emissary-of-redemption",
+            "name": "Emissary of Redemption",
+            "economy": "free",
+            "toggles": [],
+            "selfEffect": "effect:emissary-of-redemption",
+            "note": "It's put on you after each long rest. Use this to put it back on now (when you reach 20th level, or after ending it by hand for the wrong creature)."
+          }
+        ]
       }
     },
     {

@@ -1695,7 +1695,9 @@ export function App() {
     const cb = live.current.character?.combat;
     // An opportunity attack: on someone else's turn, or picked from the Reaction menu.
     const reaction = (!!cb && !cb.myTurn && a.action === "attack") || !!extra.reaction;
-    const economy = reaction ? "reaction" : a.action === "bonus" ? "bonus" : "action";
+    // Vigilant Defender (Cavalier 18th): off your turn, an opportunity attack that doesn't use your reaction (once per creature's turn: yours to keep).
+    const vigilant = reaction && !!cb && !cb.myTurn && !!live.current.sheet?.features.some((f) => f.id === "feature:cavalier-vigilant-defender");
+    const economy = vigilant ? "free" : reaction ? "reaction" : a.action === "bonus" ? "bonus" : "action";
     const melee = a.mode === "melee" || a.mode === "thrown";
     const light = a.properties.includes("light");
     const weapon: NonNullable<TurnIntent["weapon"]> = { attackId: a.attackId, light };
@@ -1707,6 +1709,8 @@ export function App() {
     const onCommit = () => {
       const now = live.current.character?.combat;
       if (!now) return;
+      // Vigilant Defender: nothing spent (your reaction stays for the rest of the round).
+      if (vigilant) return;
       const kind = economy === "action" ? "attack" : economy;
       const label = kind === "attack" ? `Attack ${now.attacks + 1} of ${perAction}.` : reaction ? "Reaction used (opportunity attack)." : "Bonus action used.";
       const attackWith: Record<string, unknown> = { attackId: a.attackId, melee, light };

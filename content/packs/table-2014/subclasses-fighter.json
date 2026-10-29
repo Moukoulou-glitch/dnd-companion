@@ -657,6 +657,14 @@
         "pack": "table-2014",
         "book": "PHB",
         "page": 75
+      },
+      "grant": {
+        "actionNotes": [
+          {
+            "action": "action-surge",
+            "text": "you can also teleport up to 30 ft to an unoccupied space you can see, before or after the extra action."
+          }
+        ]
       }
     },
     {
@@ -1129,6 +1137,14 @@
         "pack": "table-2014",
         "book": "XGtE",
         "page": 31
+      },
+      "grant": {
+        "actionNotes": [
+          {
+            "action": "common-opportunity-attack",
+            "text": "moving 5 ft or more while within your reach also provokes it, and a hit drops the creature's speed to 0 until the end of the current turn."
+          }
+        ]
       }
     },
     {
@@ -1160,6 +1176,14 @@
         "pack": "table-2014",
         "book": "XGtE",
         "page": 31
+      },
+      "grant": {
+        "actionNotes": [
+          {
+            "action": "common-opportunity-attack",
+            "text": "once on every creature's turn but your own, an opportunity attack that doesn't use your reaction. Off your turn the app doesn't spend your reaction on it."
+          }
+        ]
       }
     },
     {
@@ -2016,6 +2040,14 @@
         "pack": "table-2014",
         "book": "TCoE",
         "page": 45
+      },
+      "grant": {
+        "actionNotes": [
+          {
+            "action": "giants-might",
+            "text": "you can become Huge instead of Large, and your reach is 5 ft longer while you're enlarged."
+          }
+        ]
       }
     },
     {

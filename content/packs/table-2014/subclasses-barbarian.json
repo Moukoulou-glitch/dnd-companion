@@ -1527,6 +1527,15 @@
         "pack": "table-2014",
         "book": "TCoE",
         "page": 26
+      },
+      "grant": {
+        "actionNotes": [
+          {
+            "action": "wild-surge",
+            "text": "roll twice and pick either effect; if both rolls match, pick any effect on the table.",
+            "rollTimes": 2
+          }
+        ]
       }
     },
     {
@@ -1612,6 +1621,14 @@
         "pack": "table-2014",
         "book": "TCoE",
         "page": 24
+      },
+      "grant": {
+        "actionNotes": [
+          {
+            "action": "rage",
+            "text": "as part of the bonus action to rage, you can move up to half your speed."
+          }
+        ]
       }
     }
   ]

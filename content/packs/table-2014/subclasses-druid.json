@@ -537,6 +537,15 @@
         "pack": "table-2014",
         "book": "XGtE",
         "page": 24
+      },
+      "grant": {
+        "actionNotes": [
+          {
+            "action": "spirit-totem",
+            "text": "a beast or fey you summoned or created with a spell that ends its turn in the aura regains {value} hit points.",
+            "value": "classLevel.class:druid/2"
+          }
+        ]
       }
     },
     {

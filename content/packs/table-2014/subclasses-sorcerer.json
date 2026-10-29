@@ -203,6 +203,17 @@
               "label": "1 = surge"
             },
             "note": "After a leveled sorcerer spell, if the DM asks: on a 1, roll d100 on the Wild Magic Surge table."
+          },
+          {
+            "id": "wild-magic-surge-table",
+            "name": "Wild Magic Surge table",
+            "economy": "free",
+            "toggles": [],
+            "roll": {
+              "dice": "1d100",
+              "label": "Wild Magic Surge table (in your book)"
+            },
+            "note": "After a 1 on the surge check: roll d100 and read the effect in the table in your book."
           }
         ]
       }
@@ -307,6 +318,15 @@
         "pack": "table-2014",
         "book": "PHB",
         "page": 103
+      },
+      "grant": {
+        "actionNotes": [
+          {
+            "action": "wild-magic-surge-table",
+            "text": "roll twice and use either result.",
+            "rollTimes": 2
+          }
+        ]
       }
     },
     {

@@ -339,6 +339,11 @@ export const ActionDef = z
     toggles: z.array(z.string()).default([]),
     tempHp: ValueExpr.optional(),
     heal: ValueExpr.optional(),
+    /**
+     * Writes a spell from your spellbook onto a scroll (Master Scrivener): a spell of up to `maxLevel`, written
+     * `higher` levels above its own; the scroll is gone at your next long rest.
+     */
+    scribesScroll: z.object({ list: z.string(), maxLevel: z.number().int().min(1).max(9), higher: z.number().int().min(0).max(8).default(0) }).strict().optional(),
     /** Healing whose amount is typed in rather than rolled, and what it is (Keeper of Souls: the dead creature's number of Hit Dice). */
     healEntered: z.string().optional(),
     /** The healing can go to another creature (Healing Hands: touch a creature): asks whether it's on you. */
@@ -355,6 +360,8 @@ export const ActionDef = z
         label: z.string(),
         /** What each face means (Nathair's Mischief's d4 surge): the result shown is table[roll - 1]. */
         table: z.array(z.string()).optional(),
+        /** Rolled this many times, keeping one you pick (Controlled Chaos: the surge table twice). */
+        times: z.number().int().min(2).max(3).optional(),
       })
       .strict()
       .optional(),
@@ -617,6 +624,23 @@ export const Grant = z
     afterLongRest: z.object({ effect: DefId, minutes: z.number().int().min(1).optional(), dc: ValueExpr.optional() }).strict().optional(),
     /** A reminder each time you cast a spell of `minLevel` or higher (Voice of Authority: an ally you target can attack with its reaction). */
     castReminder: z.object({ text: z.string(), minLevel: z.number().int().min(0).max(9).default(1) }).strict().optional(),
+    /**
+     * A line added to another action's note, about how this feature changes it (Arcane Charge on Action Surge,
+     * Instinctive Pounce on Rage). "{value}" in the text is `value` worked out (Guardian Spirit: half your druid level).
+     */
+    actionNotes: z
+      .array(
+        z
+          .object({
+            action: z.string(),
+            text: z.string(),
+            value: ValueExpr.optional(),
+            /** Its roll is made this many times, keeping one you pick (Controlled Surge: the Wild Surge twice). */
+            rollTimes: z.number().int().min(2).max(3).optional(),
+          })
+          .strict(),
+      )
+      .optional(),
   })
   .strict();
 export type Grant = z.infer<typeof Grant>;
