@@ -450,3 +450,8 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
   - Adama: an option on attack rolls, saves and checks, and a tick on the death save (two taps, or the app rolls both; 16b); it counts only with advantage or disadvantage, which is yours to say.
 - Animations: Zone of Truth (the five lines, when you cast it or put its tag on you), Preserve Life (a waterfall rising), Fey Step (by season).
 
+## Round 16c: Channel Divinity and heritage animations
+
+- Every Channel Divinity option has its own animation: a sigil in its colours, its symbol, and its own motion. It plays when the option is used (not on "Just activate").
+- Heritage: Thinking Stone (a spell cast without a slot), the season spells, Adama (on a roll or a death save) and Fey Step as a reaction each have their own. Reaching 10th level plays your heritage's animation. Human Above All has nothing to use, so it shows only then.
+

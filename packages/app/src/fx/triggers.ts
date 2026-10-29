@@ -1,4 +1,5 @@
 import type { Character } from "@dnd/schema";
+import { CD_LOOKS, HERITAGE_LEVEL, HERITAGE_LOOKS } from "./divinity";
 import type { RollRecord } from "../rolls";
 import { CHARMED, DAMAGE_FX, FORM_FX, damageKey } from "./looks";
 import { alignmentSide, spellFxOf, type SpellPhase } from "./spells";
@@ -39,7 +40,11 @@ export type FxEvent =
   /** Channel Divinity: Preserve Life, a waterfall rising upward. */
   | { kind: "preserve-life" }
   /** Fey Step, by the eladrin's season (Slumberfall, Nocter, Titanspring, Heammer). */
-  | { kind: "fey-step"; season?: string }
+  | { kind: "fey-step"; season?: string; reaction?: boolean }
+  /** A Channel Divinity option used (its own sigil, symbol and motion: fx/divinity.ts). */
+  | { kind: "divinity"; action: string }
+  /** A heritage feature (homebrew, 10th level): its look, its name, and the season for Unbridled Seasons. */
+  | { kind: "heritage"; motif: "stone" | "ascend" | "seasons" | "adama"; label: string; season?: string }
   | { kind: "concentration"; kept: boolean }
   | { kind: "death-save"; result: "success" | "failure"; final: boolean }
   | { kind: "inspiration"; gained: boolean }
@@ -132,10 +137,20 @@ export function opFx(type: string, payload: unknown, before: Character, after: C
   // Zone of Truth: cast by you, or its tag put on you (someone else's).
   if ((type === "castSpell" && p.spell === "spell:zone-of-truth") || (type === "addEffect" && p.effect === "other:zone-of-truth")) out.push({ kind: "truth" });
   if (type === "useAction" && p.action === "preserve-life") out.push({ kind: "preserve-life" });
-  if (type === "useAction" && (p.action === "fey-step" || p.action === "fey-step-reaction")) {
-    const season = after.choices?.["race:eladrin"]?.season?.[0];
-    out.push({ kind: "fey-step", ...(typeof season === "string" ? { season } : {}) });
-  }
+  const season = after.choices?.["race:eladrin"]?.season?.[0];
+  if (type === "useAction" && (p.action === "fey-step" || p.action === "fey-step-reaction"))
+    out.push({ kind: "fey-step", ...(typeof season === "string" ? { season } : {}), ...(p.action === "fey-step-reaction" ? { reaction: true } : {}) });
+  // Channel Divinity: each option its own look.
+  if (type === "useAction" && typeof p.action === "string" && CD_LOOKS[p.action] && !p.free) out.push({ kind: "divinity", action: p.action });
+  // Heritage features: a stored Thinking Stone spell, a season's spell, Adama spent, and the features arriving at 10th level.
+  if (type === "castSpell" && p.list === "thinking-stone") out.push({ kind: "heritage", motif: "stone", label: "Thinking Stone" });
+  if (type === "castSpell" && p.list === "unbridled-seasons")
+    out.push({ kind: "heritage", motif: "seasons", label: `Unbridled Seasons${typeof season === "string" ? ` · ${season}` : ""}`, ...(typeof season === "string" ? { season } : {}) });
+  if (type === "spendResource" && p.resource === "adama") out.push({ kind: "heritage", motif: "adama", label: "Adama · two wholes" });
+  const heritage = HERITAGE_LOOKS[after.race];
+  const lvl = (ch: Character) => (ch.classes ?? []).reduce((t, x) => t + x.level, 0);
+  if (type === "levelUp" && heritage && lvl(before) < HERITAGE_LEVEL && lvl(after) >= HERITAGE_LEVEL)
+    out.push({ kind: "heritage", motif: heritage.motif, label: `Heritage: ${heritage.name}`, ...(heritage.motif === "seasons" && typeof season === "string" ? { season } : {}) });
   if (type === "useAction" && p.action === "theros" && typeof p.choice === "string") out.push({ kind: "theros", phenomenon: p.choice, ...(typeof p.rolled === "number" ? { days: p.rolled } : {}) });
   // Damage and healing on a summoned creature or companion aren't yours.
   const onYou = !p.companion && !p.summon;

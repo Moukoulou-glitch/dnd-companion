@@ -4260,3 +4260,98 @@ html.fx-shake-strong .app > .strip, html.fx-shake-strong .app > main, html.fx-sh
   .fx-preserve-stream { height: 100%; }
   .fx-truth-line { animation-duration: 1ms; }
 }
+
+/* Fey Step as a reaction (Unbridled Seasons): bigger rings, a second burst. */
+.fx-fey-unbridled .fx-fey-ring { border-width: 4px; }
+.fx-fey-unbridled .fx-fey-ring.b { top: 48%; animation-duration: 1300ms; }
+.fx-fey-unbridled .fx-fey-bit { animation-duration: 1700ms; }
+
+/* Channel Divinity: a holy sigil draws itself in the option's colours, its symbol burns in the middle,
+   and the option's own motion plays around it. --cd1 is the light, --cd2 the glow. */
+.fx-cd { position: absolute; inset: 0; overflow: hidden; animation: fx-floar-veil var(--fx-ms, 2100ms) ease-out forwards; }
+.fx-cd-stage { position: absolute; inset: 0; }
+.fx-cd-glow { position: absolute; inset: 0; background: radial-gradient(circle at 50% 46%, rgba(var(--cd2), 0.42), rgba(var(--cd2), 0.12) 38%, rgba(8, 10, 20, 0.55) 75%); animation: fx-cd-glow var(--fx-ms, 2100ms) ease-out forwards; }
+.fx-cd-sigil { position: absolute; left: 50%; top: 46%; width: 230px; height: 230px; margin: -115px; overflow: visible; fill: none; stroke: rgba(var(--cd1), 0.95); stroke-width: 1.6; filter: drop-shadow(0 0 6px rgba(var(--cd2), 0.95)); animation: fx-cd-spin var(--fx-ms, 2100ms) ease-out forwards; }
+.fx-cd-sigil circle { stroke-dasharray: 1; stroke-dashoffset: 1; animation: fx-cd-draw 700ms ease-out forwards; }
+.fx-cd-sigil circle.inner { animation-delay: 150ms; stroke-width: 1; }
+.fx-cd-sigil line { stroke-width: 2.4; opacity: 0; animation: fx-cd-tick 400ms ease-out 500ms forwards; }
+.fx-cd-glyph { position: absolute; left: 50%; top: 46%; width: 104px; height: 104px; margin: -52px; overflow: visible; fill: none; stroke: rgb(var(--cd1)); stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 8px rgba(var(--cd2), 1)) drop-shadow(0 0 18px rgba(var(--cd2), 0.7)); }
+.fx-cd-glyph path { stroke-dasharray: 1; stroke-dashoffset: 1; animation: fx-cd-draw 800ms ease-out 350ms forwards, fx-cd-pulse var(--fx-ms, 2100ms) ease-in-out forwards; }
+.fx-cd-twin { opacity: 0.55; animation: fx-cd-twin var(--fx-ms, 2100ms) ease-in-out forwards; }
+.fx-cd-ring { position: absolute; left: 50%; top: 46%; width: 80px; height: 80px; margin: -40px; border-radius: 50%; border: 3px solid rgba(var(--cd1), 0.9); box-shadow: 0 0 18px rgba(var(--cd2), 0.9); opacity: 0; animation: fx-cd-repel 1300ms ease-out forwards; }
+.fx-cd-ripple .fx-cd-ring { border-width: 1.5px; animation-name: fx-cd-ripple; animation-duration: 1600ms; }
+.fx-cd-ray { position: absolute; left: 50%; top: 46%; width: 6px; height: 46vh; margin-left: -3px; transform-origin: 50% 0; background: linear-gradient(to bottom, rgba(var(--cd1), 0.9), rgba(var(--cd2), 0)); filter: blur(2px); opacity: 0; animation: fx-cd-ray 1500ms ease-out 300ms forwards; }
+.fx-cd-bracket { position: absolute; left: 50%; top: 46%; width: 40px; height: 40px; border: 4px solid rgb(var(--cd1)); border-right: 0; border-bottom: 0; filter: drop-shadow(0 0 6px rgba(var(--cd2), 1)); opacity: 0; transform: rotate(calc(var(--q) * 90deg)) translate(-120px, -120px); animation: fx-cd-close 900ms cubic-bezier(0.3, 0.8, 0.3, 1) 200ms forwards; }
+.fx-cd-p { position: absolute; top: 46%; width: 7px; height: 7px; border-radius: 50%; background: rgb(var(--cd1)); box-shadow: 0 0 10px rgba(var(--cd2), 0.95); opacity: 0; }
+.fx-cd-rise .fx-cd-p { top: 80%; animation: fx-cd-rise 1600ms ease-out forwards; }
+.fx-cd-fall .fx-cd-p { top: -4%; width: 5px; height: 5px; background: rgba(var(--cd1), 0.8); animation: fx-cd-fall 1700ms ease-in forwards; }
+.fx-cd-leaves .fx-cd-p { top: -4%; width: 14px; height: 9px; border-radius: 0 80% 0 80%; background: linear-gradient(135deg, rgb(var(--cd1)), rgb(var(--cd2))); animation: fx-cd-leaf 1800ms ease-in-out forwards; }
+.fx-cd-sparks .fx-cd-p, .fx-cd-converge .fx-cd-p { left: 50% !important; width: 4px; height: 10px; border-radius: 2px; animation: fx-cd-spark 1100ms ease-out forwards; }
+.fx-cd-converge .fx-cd-p { width: 6px; height: 6px; border-radius: 50%; animation-name: fx-cd-converge; animation-duration: 1300ms; }
+.fx-cd-smoke .fx-cd-p { top: 70%; width: 90px; height: 50px; border-radius: 50%; background: radial-gradient(circle, rgba(var(--cd2), 0.7), transparent 70%); box-shadow: none; filter: blur(8px); animation: fx-cd-smoke 1900ms ease-out forwards; }
+.fx-cd-stars .fx-cd-p { top: calc(10% + (var(--i) * 4.6%)); width: 4px; height: 4px; background: #fff; animation: fx-cd-star 1600ms ease-in-out forwards; }
+.fx-cd .fx-label { color: rgb(var(--cd1)); text-shadow: 0 0 12px rgba(var(--cd2), 1), 0 0 2px #000; font-size: 1.15em; top: calc(46% + 135px); }
+@keyframes fx-cd-glow { 0% { opacity: 0; } 20% { opacity: 1; } 80% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes fx-cd-spin { 0% { transform: scale(0.7) rotate(-30deg); } 40% { transform: scale(1) rotate(0deg); } 100% { transform: scale(1.06) rotate(25deg); } }
+@keyframes fx-cd-draw { to { stroke-dashoffset: 0; } }
+@keyframes fx-cd-tick { to { opacity: 1; } }
+@keyframes fx-cd-pulse { 0%, 50% { opacity: 1; } 65% { opacity: 1; stroke-width: 6; } 100% { opacity: 0.9; stroke-width: 4; } }
+@keyframes fx-cd-twin { 0%, 25% { transform: translateX(0); opacity: 0; } 50% { opacity: 0.6; } 100% { transform: translateX(70px); opacity: 0; } }
+@keyframes fx-cd-repel { 0% { transform: scale(0.5); opacity: 0; } 20% { opacity: 1; } 100% { transform: scale(8); opacity: 0; } }
+@keyframes fx-cd-ripple { 0% { transform: scale(0.8); opacity: 0; } 25% { opacity: 0.9; } 100% { transform: scale(4.5); opacity: 0; } }
+@keyframes fx-cd-ray { 0% { opacity: 0; transform: scaleY(0.2); } 40% { opacity: 1; } 100% { opacity: 0; transform: scaleY(1); } }
+@keyframes fx-cd-close { 0% { opacity: 0; } 30% { opacity: 1; } 100% { opacity: 1; transform: rotate(calc(var(--q) * 90deg)) translate(-58px, -58px); } }
+@keyframes fx-cd-rise { 0% { opacity: 0; transform: translateY(0); } 20% { opacity: 1; } 100% { opacity: 0; transform: translateY(-70vh); } }
+@keyframes fx-cd-fall { 0% { opacity: 0; transform: translateY(0); } 20% { opacity: 0.9; } 100% { opacity: 0; transform: translateY(95vh) translateX(-20px); } }
+@keyframes fx-cd-leaf { 0% { opacity: 0; transform: translateY(0) rotate(0); } 15% { opacity: 1; } 50% { transform: translateY(45vh) translateX(30px) rotate(180deg); } 100% { opacity: 0; transform: translateY(95vh) translateX(-10px) rotate(360deg); } }
+@keyframes fx-cd-spark { 0% { opacity: 0; transform: rotate(var(--a)) translateY(0); } 15% { opacity: 1; } 100% { opacity: 0; transform: rotate(var(--a)) translateY(-34vw); } }
+@keyframes fx-cd-converge { 0% { opacity: 0; transform: rotate(var(--a)) translateY(-46vw); } 25% { opacity: 1; } 100% { opacity: 0; transform: rotate(var(--a)) translateY(0); } }
+@keyframes fx-cd-smoke { 0% { opacity: 0; transform: translateX(0) scale(0.6); } 30% { opacity: 1; } 100% { opacity: 0; transform: translateX(calc((var(--i) - 8) * 6px)) translateY(-20vh) scale(2.2); } }
+@keyframes fx-cd-star { 0%, 100% { opacity: 0; transform: scale(0.4); } 40% { opacity: 1; transform: scale(1.4); } 70% { opacity: 0.4; } }
+
+/* Heritage features (homebrew, 10th level). */
+.fx-her { position: absolute; inset: 0; overflow: hidden; animation: fx-floar-veil var(--fx-ms, 2600ms) ease-out forwards; background: radial-gradient(circle at 50% 46%, rgba(255, 240, 210, 0.18), rgba(8, 10, 20, 0.6) 70%); --fy1: 200, 170, 255; --fy2: 245, 235, 255; }
+.fx-her-stage { position: absolute; inset: 0; }
+.fx-her .fx-label { top: calc(46% + 120px); font-size: 1.2em; color: #fff4dc; text-shadow: 0 0 12px rgba(255, 210, 140, 0.95), 0 0 2px #000; }
+/* Thinking Stone: a stone tablet, runes carved in light, dust falling. */
+.fx-her-tablet { position: absolute; left: 50%; top: 46%; width: 150px; height: 190px; margin: -95px -75px; border-radius: 18px 18px 10px 10px; background: linear-gradient(160deg, #8d8a84, #5c5953 60%, #3f3d39); box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.25), 0 10px 30px rgba(0, 0, 0, 0.6); animation: fx-her-rise 900ms cubic-bezier(0.2, 0.9, 0.3, 1.2) forwards; }
+.fx-her-runes { position: absolute; left: 50%; top: 46%; width: 120px; height: 160px; margin: -80px -60px; fill: none; stroke: #ffe3a2; stroke-width: 3.2; stroke-linecap: round; filter: drop-shadow(0 0 6px rgba(255, 190, 90, 1)); }
+.fx-her-runes path { stroke-dasharray: 1; stroke-dashoffset: 1; animation: fx-cd-draw 1200ms ease-out 500ms forwards; }
+.fx-her-dust { position: absolute; top: 60%; width: 4px; height: 4px; border-radius: 50%; background: #cbbfa8; opacity: 0; animation: fx-cd-fall 1300ms ease-in forwards; }
+/* Human Above All: a column of light and chevrons climbing it. */
+.fx-her-column { position: absolute; left: 50%; top: 0; bottom: 0; width: 120px; margin-left: -60px; background: linear-gradient(to top, rgba(255, 220, 150, 0.1), rgba(255, 245, 220, 0.75)); filter: blur(12px); transform-origin: 50% 100%; animation: fx-her-column var(--fx-ms, 2600ms) ease-out forwards; }
+.fx-her-chevron { position: absolute; left: 50%; bottom: 10%; width: 44px; height: 44px; margin-left: -22px; border: 5px solid #fff3d2; border-right: 0; border-bottom: 0; transform: rotate(45deg); filter: drop-shadow(0 0 8px rgba(255, 210, 120, 1)); opacity: 0; animation: fx-her-climb 1400ms ease-out forwards; }
+.fx-her-mote { position: absolute; top: 85%; width: 5px; height: 5px; border-radius: 50%; background: #fff6dc; box-shadow: 0 0 8px rgba(255, 220, 140, 1); opacity: 0; animation: fx-cd-rise 1500ms ease-out forwards; }
+/* Unbridled Seasons: the wheel of the four seasons turns; yours lights up and bursts. */
+.fx-her-wheel { position: absolute; left: 50%; top: 46%; width: 200px; height: 200px; margin: -100px; border-radius: 50%; overflow: hidden; box-shadow: 0 0 30px rgba(255, 255, 255, 0.35); animation: fx-her-wheel var(--fx-ms, 2600ms) cubic-bezier(0.3, 0.6, 0.3, 1) forwards; }
+.fx-her-q { position: absolute; width: 50%; height: 50%; opacity: 0.45; transition: none; }
+.fx-her-q-autumn { left: 0; top: 0; background: radial-gradient(circle at 100% 100%, #f2a24c, #9c3f22); }
+.fx-her-q-winter { right: 0; top: 0; background: radial-gradient(circle at 0% 100%, #e8f6ff, #5b8fc8); }
+.fx-her-q-spring { left: 0; bottom: 0; background: radial-gradient(circle at 100% 0%, #ffd2e6, #4f9e55); }
+.fx-her-q-summer { right: 0; bottom: 0; background: radial-gradient(circle at 0% 0%, #fff2b0, #e2862b); }
+.fx-her-q.on { animation: fx-her-on var(--fx-ms, 2600ms) ease-out forwards; }
+.fx-her-autumn { --fy1: 214, 120, 60; --fy2: 255, 210, 150; }
+.fx-her-winter { --fy1: 120, 190, 255; --fy2: 235, 248, 255; }
+.fx-her-spring { --fy1: 120, 210, 120; --fy2: 255, 210, 235; }
+.fx-her-summer { --fy1: 255, 170, 60; --fy2: 255, 240, 180; }
+.fx-her-autumn .fx-fey-bit { width: 14px; height: 9px; border-radius: 0 80% 0 80%; background: linear-gradient(135deg, #f0a24a, #b5482a); }
+.fx-her-winter .fx-fey-bit { width: 3px; height: 14px; border-radius: 2px; background: #eaf7ff; }
+.fx-her-spring .fx-fey-bit { width: 11px; height: 11px; border-radius: 60% 0 60% 0; background: radial-gradient(circle, #fff, #ffb7d5 70%); }
+.fx-her-summer .fx-fey-bit { width: 6px; height: 6px; background: #fff3c4; box-shadow: 0 0 12px 3px rgba(255, 170, 60, 0.9); }
+/* Adama: two halves, elven and human, meet and become one whole. */
+.fx-her-half { position: absolute; top: 46%; width: 70px; height: 140px; margin-top: -70px; filter: drop-shadow(0 0 14px rgba(255, 255, 255, 0.6)); }
+.fx-her-half.left { left: 50%; margin-left: -70px; border-radius: 70px 0 0 70px; background: linear-gradient(90deg, #b9f2d8, #6fc7a5); animation: fx-her-left 1300ms cubic-bezier(0.3, 0.8, 0.3, 1) forwards; }
+.fx-her-half.right { left: 50%; border-radius: 0 70px 70px 0; background: linear-gradient(90deg, #ffc98a, #f39a5a); animation: fx-her-right 1300ms cubic-bezier(0.3, 0.8, 0.3, 1) forwards; }
+.fx-her-whole { position: absolute; left: 50%; top: 46%; width: 150px; height: 150px; margin: -75px; border-radius: 50%; border: 4px solid #fff6e4; box-shadow: 0 0 30px 10px rgba(255, 230, 190, 0.8), inset 0 0 30px rgba(255, 255, 255, 0.6); opacity: 0; animation: fx-her-whole var(--fx-ms, 2600ms) ease-out forwards; }
+@keyframes fx-her-rise { 0% { transform: translateY(60px) scale(0.85); opacity: 0; } 100% { transform: translateY(0) scale(1); opacity: 1; } }
+@keyframes fx-her-column { 0% { transform: scaleY(0); opacity: 0; } 30% { transform: scaleY(1); opacity: 1; } 100% { transform: scaleY(1); opacity: 0.6; } }
+@keyframes fx-her-climb { 0% { opacity: 0; transform: translateY(0) rotate(45deg); } 25% { opacity: 1; } 100% { opacity: 0; transform: translateY(-62vh) rotate(45deg); } }
+@keyframes fx-her-wheel { 0% { transform: scale(0.4) rotate(-120deg); opacity: 0; } 35% { transform: scale(1) rotate(0deg); opacity: 1; } 100% { transform: scale(1.05) rotate(90deg); opacity: 0.85; } }
+@keyframes fx-her-on { 0%, 30% { opacity: 0.45; } 45% { opacity: 1; filter: brightness(1.6); } 100% { opacity: 1; filter: brightness(1.2); } }
+@keyframes fx-her-left { 0% { transform: translateX(-46vw); opacity: 0; } 30% { opacity: 1; } 100% { transform: translateX(0); opacity: 1; } }
+@keyframes fx-her-right { 0% { transform: translateX(46vw); opacity: 0; } 30% { opacity: 1; } 100% { transform: translateX(0); opacity: 1; } }
+@keyframes fx-her-whole { 0%, 45% { opacity: 0; transform: scale(0.6); } 60% { opacity: 1; transform: scale(1.1); } 100% { opacity: 0.9; transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) {
+  .fx-cd-sigil, .fx-cd-ring, .fx-cd-ray, .fx-cd-bracket, .fx-cd-p, .fx-cd-twin, .fx-her-tablet, .fx-her-column, .fx-her-chevron, .fx-her-mote, .fx-her-dust, .fx-her-wheel, .fx-her-half, .fx-her-whole { animation: none; opacity: 0.7; }
+  .fx-cd-sigil circle, .fx-cd-glyph path, .fx-her-runes path { animation: none; stroke-dashoffset: 0; }
+}

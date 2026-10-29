@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { CD_LOOKS, GLYPHS, type CdLook } from "./divinity";
 import type { Character } from "@dnd/schema";
 import type { RollRecord } from "../rolls";
 import { formFx, ongoingFx, opFx, rollFx, type FeatureLookup, type FxEvent, type SpellLookup } from "./triggers";
@@ -37,6 +38,10 @@ export interface FxSpec {
   shake?: number;
   /** A tap ends it early. */
   skippable?: boolean;
+  /** A Channel Divinity option's look (fx/divinity.ts). */
+  cd?: CdLook;
+  /** A heritage feature's look, and the season for Unbridled Seasons. */
+  heritage?: { motif: string; season?: string };
 }
 
 const SCHOOLS = ["evocation", "abjuration", "necromancy", "conjuration"];
@@ -84,7 +89,25 @@ export function specOf(e: FxEvent): FxSpec {
       return { at: "edge", ms: 2800, buzz: [15, 30, 15, 30, 60], look: "fx-preserve", label: "Preserve Life", skippable: true };
     case "fey-step": {
       const season = e.season && FEY_SEASONS[e.season] ? e.season : undefined;
-      return { at: "edge", ms: 1700, buzz: [20, 30, 40], look: `fx-fey${season ? ` fx-fey-${FEY_SEASONS[season]}` : ""}`, label: season ? `Fey Step · ${season}` : "Fey Step", skippable: true };
+      const name = e.reaction ? "Fey Step (reaction)" : "Fey Step";
+      return { at: "edge", ms: e.reaction ? 2000 : 1700, buzz: [20, 30, 40], look: `fx-fey${season ? ` fx-fey-${FEY_SEASONS[season]}` : ""}${e.reaction ? " fx-fey-unbridled" : ""}`, label: season ? `${name} · ${season}` : name, skippable: true };
+    }
+    case "divinity": {
+      const cd = CD_LOOKS[e.action];
+      if (!cd) return { at: "edge", ms: 1, look: "fx-none" };
+      return { at: "edge", ms: 2100, buzz: [20, 40, 20, 40, 80], look: `fx-cd fx-cd-${cd.motion}`, label: `Channel Divinity · ${cd.name}`, cd, skippable: true };
+    }
+    case "heritage": {
+      const season = e.season && FEY_SEASONS[e.season] ? FEY_SEASONS[e.season] : undefined;
+      return {
+        at: "edge",
+        ms: 2600,
+        buzz: [15, 40, 15, 40, 90],
+        look: `fx-her fx-her-${e.motif}${season ? ` fx-her-${season}` : ""}`,
+        label: e.label,
+        heritage: { motif: e.motif, ...(season ? { season } : {}) },
+        skippable: true,
+      };
     }
     case "wrath":
       return { at: "edge", ms: 1400, buzz: [60, 40, 120], look: "fx-wrath", label: "Destructive Wrath · maximum", shake: 450 };
@@ -468,6 +491,78 @@ export function FxLayer({ school, spell, feature, character }: { school: (spell:
                 ))}
                 <span className="fx-preserve-crest" />
               </>
+            )}
+            {spec.cd && (
+              <span className="fx-cd-stage" style={{ ["--cd1" as string]: spec.cd.c1, ["--cd2" as string]: spec.cd.c2 }}>
+                <span className="fx-cd-glow" />
+                {["repel", "ripple"].includes(spec.cd.motion) && [0, 1, 2].map((i) => <span key={`r${i}`} className="fx-cd-ring" style={{ animationDelay: `${300 + i * 260}ms` }} />)}
+                {spec.cd.motion === "rays" && Array.from({ length: 12 }, (_, i) => <span key={`y${i}`} className="fx-cd-ray" style={{ transform: `rotate(${i * 30}deg)` }} />)}
+                {spec.cd.motion === "reticle" && [0, 1, 2, 3].map((i) => <span key={`k${i}`} className="fx-cd-bracket" style={{ ["--q" as string]: String(i) }} />)}
+                <svg className="fx-cd-sigil" viewBox="-60 -60 120 120" aria-hidden="true">
+                  <circle r="54" pathLength={1} />
+                  <circle r="44" pathLength={1} className="inner" />
+                  {Array.from({ length: 12 }, (_, i) => (
+                    <line key={i} x1="0" y1="-44" x2="0" y2="-54" transform={`rotate(${i * 30})`} />
+                  ))}
+                </svg>
+                <svg className="fx-cd-glyph" viewBox="0 0 100 100" aria-hidden="true">
+                  <path d={GLYPHS[spec.cd.glyph]} pathLength={1} />
+                </svg>
+                {spec.cd.motion === "mirror" && (
+                  <svg className="fx-cd-glyph fx-cd-twin" viewBox="0 0 100 100" aria-hidden="true">
+                    <path d={GLYPHS[spec.cd.glyph]} pathLength={1} />
+                  </svg>
+                )}
+                {["rise", "fall", "leaves", "sparks", "smoke", "stars", "converge"].includes(spec.cd.motion) &&
+                  Array.from({ length: 16 }, (_, i) => (
+                    <span key={`p${i}`} className="fx-cd-p" style={{ ["--i" as string]: String(i), ["--a" as string]: `${i * 22.5}deg`, left: `${(i * 37 + 7) % 100}%`, animationDelay: `${150 + (i % 8) * 90}ms` }} />
+                  ))}
+              </span>
+            )}
+            {spec.heritage && (
+              <span className="fx-her-stage">
+                {spec.heritage.motif === "stone" && (
+                  <>
+                    <span className="fx-her-tablet" />
+                    <svg className="fx-her-runes" viewBox="0 0 120 160" aria-hidden="true">
+                      <path pathLength={1} d="M30 30h24M42 30v26M30 56h24 M70 28l12 14l12-14 M82 42v16 M28 80l14 20l14-20 M66 78h28M66 78l14 22l14-22 M34 118c10-8 20 8 30 0c10-8 20 8 30 0 M60 132v18" />
+                    </svg>
+                    {Array.from({ length: 10 }, (_, i) => (
+                      <span key={i} className="fx-her-dust" style={{ left: `${30 + ((i * 17) % 40)}%`, animationDelay: `${700 + (i % 5) * 120}ms` }} />
+                    ))}
+                  </>
+                )}
+                {spec.heritage.motif === "ascend" && (
+                  <>
+                    <span className="fx-her-column" />
+                    {Array.from({ length: 6 }, (_, i) => (
+                      <span key={i} className="fx-her-chevron" style={{ animationDelay: `${i * 220}ms` }} />
+                    ))}
+                    {Array.from({ length: 12 }, (_, i) => (
+                      <span key={`m${i}`} className="fx-her-mote" style={{ left: `${40 + ((i * 13) % 20)}%`, animationDelay: `${300 + (i % 6) * 150}ms` }} />
+                    ))}
+                  </>
+                )}
+                {spec.heritage.motif === "seasons" && (
+                  <>
+                    <span className="fx-her-wheel">
+                      {["autumn", "winter", "spring", "summer"].map((q) => (
+                        <span key={q} className={`fx-her-q fx-her-q-${q}${spec.heritage!.season === q ? " on" : ""}`} />
+                      ))}
+                    </span>
+                    {Array.from({ length: 16 }, (_, i) => (
+                      <span key={i} className="fx-fey-bit" style={{ ["--a" as string]: `${i * 22.5}deg`, animationDelay: `${800 + (i % 4) * 60}ms` }} />
+                    ))}
+                  </>
+                )}
+                {spec.heritage.motif === "adama" && (
+                  <>
+                    <span className="fx-her-half left" />
+                    <span className="fx-her-half right" />
+                    <span className="fx-her-whole" />
+                  </>
+                )}
+              </span>
             )}
             {spec.look.startsWith("fx-fey") && (
               <>

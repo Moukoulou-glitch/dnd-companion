@@ -293,7 +293,10 @@ export function SpellPanel({
   onRollDamage,
   readying,
   bookChecks,
+  concentrating,
 }: {
+  /** The spell your concentration is on now (a free cast without concentration leaves it as it was). */
+  concentrating?: string | undefined;
   /** A wizard's spell: "Copy into the spellbook" and "Prepared today", in place of the plain tick-box. */
   bookChecks?: ReactNode;
   /** Casting it with the Ready action: held, released later with the reaction. */
@@ -528,7 +531,7 @@ export function SpellPanel({
       ) : (
         <>
           <p className="pass">
-            Cast{sp.level > 0 ? ` at ${ordinal(cast || sp.level)} level` : ""}.{sp.concentration ? " You're concentrating on it." : ""}
+            Cast{sp.level > 0 ? ` at ${ordinal(cast || sp.level)} level` : ""}.{sp.concentration && (concentrating === undefined || concentrating === sp.id) ? " You're concentrating on it." : sp.concentration ? " No concentration this time." : ""}
           </p>
           <div className="big-actions">
             {sp.attack && (

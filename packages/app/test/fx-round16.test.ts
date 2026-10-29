@@ -25,7 +25,7 @@ describe("round 16 on screen", () => {
     const [e] = opFx("useAction", { action: "fey-step" }, c, c);
     expect(e).toEqual({ kind: "fey-step", season: "Nocter" });
     expect(specOf(e!)).toMatchObject({ look: "fx-fey fx-fey-winter", label: "Fey Step · Nocter" });
-    expect(opFx("useAction", { action: "fey-step-reaction" }, c, c)[0]).toEqual({ kind: "fey-step", season: "Nocter" });
+    expect(opFx("useAction", { action: "fey-step-reaction" }, c, c)[0]).toEqual({ kind: "fey-step", season: "Nocter", reaction: true });
     expect(specOf({ kind: "fey-step" })).toMatchObject({ look: "fx-fey", label: "Fey Step" });
   });
 });

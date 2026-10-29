@@ -1,4 +1,5 @@
 import { FORM_FX } from "./looks";
+import { CD_LOOKS } from "./divinity";
 import { SKIP_AFTER, type GenLook, type Tier } from "./generated";
 
 /**
@@ -100,7 +101,9 @@ export interface FeatureSheet {
  * Uses with their own look already (fx/triggers.ts, components/Fx.tsx): Flurry of Blows' afterimages, Way of
  * Mercy's hands, Rage's veins, the transformations' forms. They keep theirs and get nothing more.
  */
-const OWN_LOOK = new Set(["flurry-of-blows", "hand-of-healing", "hand-of-harm", "destructive-wrath", "transmuted-spell", "floar", "theros", "preserve-life", "fey-step", "fey-step-reaction"]);
+const OWN_LOOK = new Set(["flurry-of-blows", "hand-of-healing", "hand-of-harm", "destructive-wrath", "transmuted-spell", "floar", "theros", "preserve-life", "fey-step", "fey-step-reaction", ...Object.keys(CD_LOOKS)]);
+/** Resources whose spending has its own look (Adama's two wholes). */
+const OWN_RESOURCES = new Set(["adama"]);
 const OWN_TOGGLES = new Set(["raging", ...Object.keys(FORM_FX)]);
 
 /**
@@ -126,6 +129,7 @@ export function featureFor(sheet: FeatureSheet | undefined, type: string, payloa
   };
   if (type === "useAction" && typeof p.action === "string" && !p.free) return ofAction(sheet.actions.find((a) => a.id === p.action));
   if ((type === "spendResource" || type === "usePool") && typeof p.resource === "string") {
+    if (OWN_RESOURCES.has(p.resource)) return undefined;
     // Spent for a named use (a sorcery point for Transmuted Spell): that use, not the first one that spends it.
     const act = typeof p.for === "string" ? sheet.actions.find((a) => a.id === p.for) : sheet.actions.find((a) => a.cost?.resource === p.resource);
     if (act) return ofAction(act);

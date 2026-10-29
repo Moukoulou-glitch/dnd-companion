@@ -3506,6 +3506,7 @@ export function App() {
           casterDamage={!!effReg().find(sp.id.replace(/^spell:/, "effect:"), "effect")?.modifiers.some((m) => m.selector.startsWith("roll.damage"))}
           initialCast={castAt}
           readying={readying}
+          concentrating={live.current.character?.concentration?.spell ?? ""}
           companions={friendlyTargets(live.current.character!, live.current.sheet!, registry)
             .filter((t) => t.kind !== "me" && t.hp > 0)
             .map((t) => ({ id: t.id, name: t.name, warnings: targetWarnings(t, SPELL_TARGETS[sp.id], sp.name), ...(t.effects.includes(sp.id.replace(/^spell:/, "effect:")) ? { already: true } : {}) }))}
