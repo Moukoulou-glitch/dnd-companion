@@ -126,7 +126,7 @@ export function collectSources(c: Character, baseReg: ContentRegistry, duplicate
     out.push({
       id: `scroll:${inst.id}`,
       label: "Spell scroll",
-      grant: { spells: [{ spell: inst.scroll.spell, name: sp?.name ?? inst.scroll.spell, casting: "scroll", list: `scroll-${inst.id}`, scroll: { instanceId: inst.id, level } }] },
+      grant: { spells: [{ spell: inst.scroll.spell, name: sp?.name ?? inst.scroll.spell, casting: "scroll", list: `scroll-${inst.id}`, scroll: { instanceId: inst.id, level, ...(inst.scroll.caster ? { caster: inst.scroll.caster } : {}) } }] },
       choices: {},
     });
   }

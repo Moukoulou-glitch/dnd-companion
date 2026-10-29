@@ -506,7 +506,9 @@
             "duration": {
               "minutes": 1
             },
-            "note": "Summon a spirit within 60 ft for 1 minute (30-ft aura). Bonus action: move it 60 ft."
+            "note": "Summon a spirit within 60 ft for 1 minute (30-ft aura). Bonus action: move it 60 ft.",
+            "maxLevel": 9,
+            "levelOf": "class:druid"
           },
           {
             "id": "spirit-totem-hawk",
@@ -539,11 +541,32 @@
         "page": 24
       },
       "grant": {
-        "actionNotes": [
+        "actions": [
           {
-            "action": "spirit-totem",
-            "text": "a beast or fey you summoned or created with a spell that ends its turn in the aura regains {value} hit points.",
-            "value": "classLevel.class:druid/2"
+            "id": "spirit-totem",
+            "name": "Spirit Totem",
+            "economy": "bonus",
+            "cost": {
+              "resource": "spirit-totem"
+            },
+            "choose": {
+              "label": "Spirit",
+              "options": [
+                "Bear",
+                "Hawk",
+                "Unicorn"
+              ]
+            },
+            "toggles": [
+              "spirit-totem"
+            ],
+            "duration": {
+              "minutes": 1
+            },
+            "note": "Summon a spirit within 60 ft for 1 minute (30-ft aura). Bonus action: move it 60 ft.",
+            "levelOf": "class:druid",
+            "minLevel": 10,
+            "selfEffect": "other:spirit-totem-guardian"
           }
         ]
       }

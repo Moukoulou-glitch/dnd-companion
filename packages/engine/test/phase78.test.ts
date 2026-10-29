@@ -9,23 +9,17 @@ const pc = (cls: string, level: number, subclass: string, extra: Record<string, 
 const act = (s: ReturnType<typeof derive>, id: string) => s.actions.find((a) => a.id === id)!;
 
 describe("14c: lines on other actions", () => {
-  it("Arcane Charge on Action Surge, Instinctive Pounce on Rage, Runic Juggernaut on Giant's Might", () => {
+  it("Arcane Charge on Action Surge, Instinctive Pounce on Rage", () => {
     expect(act(pc("class:fighter", 15, "subclass:eldritch-knight"), "action-surge").note).toMatch(/Arcane Charge: you can also teleport up to 30 ft/);
     expect(act(pc("class:fighter", 14, "subclass:eldritch-knight"), "action-surge").note ?? "").not.toMatch(/Arcane Charge/);
-    expect(act(pc("class:fighter", 18, "subclass:rune-knight"), "giants-might").note).toMatch(/Runic Juggernaut: you can become Huge/);
   });
   it("Hold the Line and Vigilant Defender on opportunity attacks", () => {
     const n = act(pc("class:fighter", 18, "subclass:cavalier"), "common-opportunity-attack").note!;
     expect(n).toMatch(/Hold the Line/);
     expect(n).toMatch(/Vigilant Defender/);
   });
-  it("Guardian Spirit: half your druid level; Creative Crescendo: your Charisma modifier", () => {
-    expect(act(pc("class:druid", 10, "subclass:circle-of-the-shepherd"), "spirit-totem").note).toMatch(/regains 5 hit points/);
+  it("Creative Crescendo: your Charisma modifier", () => {
     expect(act(pc("class:bard", 14, "subclass:college-of-creation"), "performance-of-creation").note).toMatch(/Charisma modifier \(3\)/);
-  });
-  it("Mote of Potential and Unfailing Inspiration on Bardic Inspiration", () => {
-    expect(act(pc("class:bard", 3, "subclass:college-of-creation"), "bardic-inspiration").note).toMatch(/Mote of Potential: .*\(3\)/);
-    expect(act(pc("class:bard", 6, "subclass:college-of-eloquence"), "bardic-inspiration").note).toMatch(/Unfailing Inspiration: .*keeps the die/);
   });
 });
 
@@ -52,5 +46,40 @@ describe("14c: Master Scrivener, Emissary of Redemption, Bestial Fury", () => {
     const beast = (l: number) => pc("class:ranger", l, "subclass:beast-master", { companions: { "primal-beast": { form: "land" } } }).companions.find((c) => c.id === "primal-beast")!;
     expect(beast(10).form?.attacksPerAction).toBe(1);
     expect(beast(11).form?.attacksPerAction).toBe(2);
+  });
+});
+
+describe("14c fixes", () => {
+  it("Runic Juggernaut: Giant's Might asks Large or Huge; your size and reach follow", () => {
+    const at18 = (toggles: string[]) => pc("class:fighter", 18, "subclass:rune-knight", { toggles, inventory: [{ id: "g", item: "item:greatsword", quantity: 1, equipped: true, attuned: false }] });
+    const gm = at18([]).actions.filter((a) => a.id === "giants-might");
+    expect(gm).toHaveLength(1);
+    expect(gm[0]!.choose?.options).toEqual(["Large", "Huge"]);
+    expect(at18([]).size).toEqual({ base: "medium", now: "medium", why: [] });
+    expect(at18(["giants-might"]).size.now).toBe("large");
+    expect(at18(["giants-might", "giants-might-huge"]).size).toEqual({ base: "medium", now: "huge", why: ["Giant's Might: large", "Runic Juggernaut: huge"] });
+    expect(at18(["giants-might"]).attacks.find((x) => x.name === "Greatsword")?.attack.notes).toContain("Reach: 10 ft (Runic Juggernaut)");
+    expect(pc("class:fighter", 10, "subclass:rune-knight", { toggles: ["giants-might"] }).size.now).toBe("large");
+    expect(act(pc("class:fighter", 10, "subclass:rune-knight"), "giants-might").choose).toBeUndefined();
+  });
+  it("Enlarge/Reduce changes your size on the sheet", () => {
+    expect(pc("class:fighter", 5, "subclass:champion", { effects: [{ id: "e", effect: "effect:enlarge-reduce", choice: "Enlarge" }] }).size.now).toBe("large");
+    expect(pc("class:fighter", 5, "subclass:champion", { effects: [{ id: "e", effect: "effect:enlarge-reduce", choice: "Reduce" }] }).size.now).toBe("small");
+  });
+  it("Mote of Potential and Unfailing Inspiration give their own Bardic Inspiration", () => {
+    expect(act(pc("class:bard", 3, "subclass:college-of-creation"), "bardic-inspiration").gives?.effect).toBe("other:bardic-inspiration-creation");
+    expect(act(pc("class:bard", 6, "subclass:college-of-eloquence"), "bardic-inspiration").gives?.effect).toBe("other:bardic-inspiration-eloquence");
+    expect(act(pc("class:bard", 5, "subclass:college-of-eloquence"), "bardic-inspiration").gives?.effect).toBe("other:bardic-inspiration");
+    const mote = pc("class:fighter", 5, "subclass:champion", { effects: [{ id: "m", effect: "other:bardic-inspiration-creation", choice: "d8", minutes: 10 }] });
+    expect(mote.skills.athletics.suggestions.find((x) => x.label === "Bardic Inspiration")?.apply.dice).toEqual(["2d8kh1"]);
+    expect(mote.saves.str.suggestions.find((x) => x.label === "Bardic Inspiration")?.apply.dice).toEqual(["1d8"]);
+    const elo = pc("class:fighter", 5, "subclass:champion", { effects: [{ id: "u", effect: "other:bardic-inspiration-eloquence", choice: "d10", minutes: 10 }] });
+    expect(elo.effects.find((e) => e.instanceId === "u")).toMatchObject({ usedUp: "Bardic Inspiration", keepIfFails: "Unfailing Inspiration" });
+  });
+  it("Guardian Spirit: Spirit Totem puts its tag on you, with the healing worked out", () => {
+    expect(act(pc("class:druid", 9, "subclass:circle-of-the-shepherd"), "spirit-totem").selfEffect).toBeUndefined();
+    expect(act(pc("class:druid", 10, "subclass:circle-of-the-shepherd"), "spirit-totem").selfEffect).toBe("other:spirit-totem-guardian");
+    const s = pc("class:druid", 10, "subclass:circle-of-the-shepherd", { effects: [{ id: "g", effect: "other:spirit-totem-guardian", choice: "Bear", minutes: 1 }] });
+    expect(s.effects.find((e) => e.instanceId === "g")?.reminders[0]).toMatch(/regains 5 hit points/);
   });
 });

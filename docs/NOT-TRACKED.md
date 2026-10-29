@@ -381,10 +381,13 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 
 ## Round 14c
 
-- Lines on other actions' notes (what the feature changes about them): Arcane Charge on Action Surge, Instinctive Pounce on Rage, Runic Juggernaut on Giant's Might (Huge and the reach aren't applied), Hold the Line and Vigilant Defender on Opportunity Attack, Mote of Potential and Unfailing Inspiration on Bardic Inspiration (what happens on the other creature's roll is theirs), Creative Crescendo on Performance of Creation, Guardian Spirit on Spirit Totem (the healing of your summons is yours to apply), Bestial Fury on Command companion.
+- Lines on other actions' notes (what the feature changes about them): Arcane Charge on Action Surge, Instinctive Pounce on Rage, Hold the Line and Vigilant Defender on Opportunity Attack, Creative Crescendo on Performance of Creation, Bestial Fury on Command companion.
+- Size: your size now is on the Play page (Giant's Might, Runic Juggernaut's Huge, Enlarge/Reduce) and counts for carrying. Reach from Runic Juggernaut shows on melee attacks; other reach changes aren't tracked.
+- Mote of Potential and Unfailing Inspiration: their own Bardic Inspiration dice. The mote's thunder burst and temporary HP are reminders on the tag; Unfailing Inspiration asks after the roll whether it still failed (your call).
+- Guardian Spirit: Spirit Totem's tag from 10th level, with the healing your summons get; applying it to them is yours.
 - Bestial Fury: the Primal beast's attacks per Attack action become two from 11th level. A beast you added yourself (PHB Ranger's Companion) gets the note only.
-- Vigilant Defender: off your turn, an opportunity attack doesn't spend your reaction; once per creature's turn is yours to keep.
+- Vigilant Defender: off your turn, an opportunity attack doesn't spend your reaction; the roll warns that it's once per creature's turn.
 - Controlled Surge and Controlled Chaos: the app rolls twice and shows both (with what each face means on the d8 table); you keep one. The Wild Magic Surge d100 table isn't in the app: read it in your book.
-- Master Scrivener: the scroll is in your items and is read like any spell scroll (DC and attack bonus by the scroll's level). It's removed at the end of your next long rest.
+- Master Scrivener: the scroll is in your items, cast with your wizard spell save DC and attack bonus whoever reads it. It's removed at the end of your next long rest.
 - Emissary of Redemption: a tag put on you after each long rest (resistance to all damage, a reminder of the radiant retaliation on each hit). Against a creature you've attacked or targeted, it's yours to set aside.
 - Already done before 14c (the round 14 audit listed them): Bond of Fang and Scale (the drake's growth at 7th), Master of Runes (two invokes from 15th), Great Stature's d8.

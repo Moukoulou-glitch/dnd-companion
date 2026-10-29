@@ -21,7 +21,7 @@ const ALIGNMENTS: Record<string, string> = {
 };
 
 /** Race, background, alignment, and size and creature type, in one line; background, alignment and creature can be changed. */
-function Identity({ c, onBackground, onIdentity }: { c: Character; onBackground: () => void; onIdentity: () => void }) {
+function Identity({ c, size: now, onBackground, onIdentity }: { c: Character; size?: DerivedSheet["size"]; onBackground: () => void; onIdentity: () => void }) {
   const race = registry.find(c.race, "race");
   const bg = c.background ? registry.find(c.background, "background") : undefined;
   const cap = (s: string) => s.replace(/^./, (x) => x.toUpperCase());
@@ -31,7 +31,8 @@ function Identity({ c, onBackground, onIdentity }: { c: Character; onBackground:
     ["Race", race?.name ?? c.race, undefined],
     ["Background", c.background === "background:custom" ? `${c.customBackground?.name || "You don't know me!"} (custom)` : bg?.name ?? "none", onBackground],
     ["Alignment", c.alignment ? ALIGNMENTS[c.alignment.toUpperCase()] ?? c.alignment : "not set", onIdentity],
-    ["Creature", `${cap(size)} ${type}`, onIdentity],
+    // Your size now when something changed it (Giant's Might, Enlarge): "Large humanoid (Giant's Might; normally Medium)".
+    ["Creature", now && now.now !== size ? `${cap(now.now)} ${type} (${now.why.map((w) => w.split(":")[0]).join(", ")}; normally ${cap(size)})` : `${cap(size)} ${type}`, onIdentity],
   ];
   return (
     <section className="identity" aria-label="Who you are">
@@ -229,7 +230,7 @@ export function PlayTab({
 
   return (
     <main>
-      <Identity c={character} onBackground={openBackground} onIdentity={openIdentity} />
+      <Identity c={character} size={sheet.size} onBackground={openBackground} onIdentity={openIdentity} />
 
       {backup && !character.combat && (
         <section className="timed-card backup-card">

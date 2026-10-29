@@ -345,6 +345,8 @@ export interface EffectResult {
   endsOn?: ("attack" | "cast")[];
   /** Gone once its bonus is used in a roll (Bardic Inspiration): the label to look for. */
   usedUp?: string;
+  /** Kept when the roll it's added to still fails (Unfailing Inspiration): the feature's name. */
+  keepIfFails?: string;
   /** Something readied with the Ready action, taken with your reaction; a spell when it's a readied spell. */
   release?: { spell?: { id: string; list: string; level: number } };
   /** Lasts until your next turn starts (Dodge, Ready): one round, no countdown to adjust. */
@@ -478,6 +480,8 @@ export interface DerivedSheet {
     state: "fine" | "encumbered" | "heavy" | "over";
     note?: string;
   };
+  /** Your size: your own (race or set by hand), and now, with what changed it (Giant's Might, Enlarge/Reduce). */
+  size: { base: string; now: string; why: string[] };
   /** Uses that come back when you roll initiative with none left (Relentless, Perfect Self). */
   initiativeRegains: { resource: string; amount: number; from: string }[];
   /** Effects put on you when you finish a long rest (Tranquility: Sanctuary), with their save DC. */
@@ -796,11 +800,30 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     sizeStep += 1;
     sizeWhy.push(`${build.label}: one size larger`);
   }
+  // Your size now (Giant's Might: Large, or Huge with Runic Juggernaut; Enlarge/Reduce: one up or down), shown on the sheet.
+  // A "stat.size" set (to the size's index, 0 = Tiny) makes you that size when you're smaller; on a switch it holds while it's on.
+  const baseStep = Math.max(0, SIZES.indexOf(baseSize as (typeof SIZES)[number]));
+  let nowStep = baseStep;
+  const nowWhy: string[] = [];
+  for (const a of active) {
+    if (a.mod.selector !== "stat.size" || a.mod.op !== "set" || a.mod.mode === "suggested") continue;
+    const w = a.mod.when;
+    if (w && (w.text || (w.toggle && !c.toggles.includes(w.toggle)) || (w.toggleOff && c.toggles.includes(w.toggleOff)))) continue;
+    const v = Math.max(0, Math.min(SIZES.length - 1, evalFlat(a.mod.value ?? 0, ctxFor(a.source))));
+    if (v > nowStep) {
+      nowStep = v;
+      nowWhy.push(`${a.mod.label ?? a.source.label}: ${SIZES[v]}`);
+    }
+  }
   const enlarge = c.effects.find((e) => e.effect === "effect:enlarge-reduce" && e.choice);
   if (enlarge) {
-    sizeStep += enlarge.choice === "Enlarge" ? 1 : -1;
-    sizeWhy.push(`${enlarge.choice === "Enlarge" ? "Enlarged" : "Reduced"}: one size ${enlarge.choice === "Enlarge" ? "larger" : "smaller"}`);
+    nowStep = Math.max(0, Math.min(SIZES.length - 1, nowStep + (enlarge.choice === "Enlarge" ? 1 : -1)));
+    nowWhy.push(`${enlarge.choice === "Enlarge" ? "Enlarged" : "Reduced"}: one size ${enlarge.choice === "Enlarge" ? "larger" : "smaller"}`);
   }
+  const sizeNow = { base: SIZES[baseStep]!, now: SIZES[nowStep]!, why: nowWhy };
+  // Carrying: your size now, and Powerful Build one larger.
+  sizeStep = nowStep + (build ? 1 : 0);
+  sizeWhy.push(...nowWhy);
   sizeStep = Math.max(0, Math.min(SIZES.length - 1, sizeStep));
   const bigger = sizeStep === 0 ? 0.5 : sizeStep <= 2 ? 1 : 2 ** (sizeStep - 2);
   const sizeName = SIZES[sizeStep]!;
@@ -845,6 +868,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       .replace(/\{wis\}/g, String(Math.max(1, mods.wis)))
       .replace(/\{pb\}/g, String(pb))
       .replace(/\{cleric\}/g, String(classLevels["class:cleric"] ?? 0))
+      .replace(/\{druidHalf\}/g, String(Math.floor((classLevels["class:druid"] ?? 0) / 2)))
       .replace(/\{range\}/g, paladinLevel >= 18 ? "30 ft" : "10 ft");
 
   const conditionState = (when: Condition | undefined): "pass" | "fail" | "unknown" => {
@@ -1401,7 +1425,12 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
         entry.attack.suggestions.push({ label: "Long range", effect: "disadvantage", reason: `beyond ${entry.range[0]} ft, up to ${entry.range[1]} ft`, apply: { flat: 0, dice: [], mode: "disadvantage" } });
       const notes: string[] = [];
       if (w.properties.includes("loading") && !sources.some((s) => s.id === "feat:crossbow-expert")) notes.push("Loading: one shot per action, bonus action or reaction");
-      if (w.properties.includes("reach") && mode === "melee") notes.push("Reach: 10 ft");
+      // Reach: 10 ft with the reach property, plus "stat.reach" bonuses that apply now (Runic Juggernaut while Huge).
+      if (mode === "melee") {
+        const longer = modsFor(["stat.reach"]).filter((x) => x.mod.op === "add" && x.mod.mode !== "suggested" && conditionState(x.mod.when) === "pass");
+        const extra = longer.reduce((n, x) => n + flatOf(x), 0);
+        if (w.properties.includes("reach") || extra) notes.push(`Reach: ${(w.properties.includes("reach") ? 10 : 5) + extra} ft${longer.length ? ` (${longer.map(labelOf).join(", ")})` : ""}`);
+      }
       if (notes.length) entry.attack.notes = [...(entry.attack.notes ?? []), ...notes];
       // A weapon that shoots ammunition: each kind you carry for it is an option on the roll (one at a time), with its
       // bonus (+1 arrows) and its own changes; with ammunition tracked the first starts ticked, and the app asks after the roll.
@@ -1585,7 +1614,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     atWill?: boolean;
     withSlots?: boolean;
     extra?: string;
-    scroll?: { instanceId: string; level: number };
+    scroll?: { instanceId: string; level: number; caster?: string };
     pointCost?: { resource: string; amount: number };
     /** Cast with an item's charges (a wand), at `castAt` or the spell's level and up. */
     charges?: { instanceId: string; item: string; remaining: number; cost: number; perLevel?: boolean; maxLevel?: number };
@@ -1893,8 +1922,10 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       r.cast.extra = { tag: granted.extra, sinceShort: n?.short ?? 0, sinceLong: n?.long ?? 0 };
     }
     if (granted?.scroll) {
-      // The scroll sets the DC and attack bonus by its level (DMG p. 200), not your spellcasting.
-      const [dc, attack] = SCROLL_DC[granted.scroll.level] ?? [13, 5];
+      // The scroll sets the DC and attack bonus by its level (DMG p. 200), not your spellcasting;
+      // unless it's written with yours (Master Scrivener: your wizard spell save DC and attack bonus).
+      const writer = granted.scroll.caster ? spellcasting.find((x) => x.id === granted.scroll!.caster) : undefined;
+      const [dc, attack] = writer ? [writer.saveDc.total, writer.attack.total] : SCROLL_DC[granted.scroll.level] ?? [13, 5];
       const myLists = c.classes.flatMap((cl) => {
         const d = reg.find(cl.class, "class");
         return d?.spellcasting && onClassList(def, [d.id.replace(/^class:/, "")], expanded) ? [d] : [];
@@ -1906,11 +1937,11 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
         .filter((a): a is Ability => !!a);
       const ability = abilities.reduce<Ability | undefined>((b, a) => (b === undefined || mods[a] > mods[b] ? a : b), undefined) ?? "int";
       r.cast = { slotLevels: [], scroll: { instanceId: granted.scroll.instanceId, level: granted.scroll.level, dc, attack, onList: myLists.length > 0 } };
-      if (def.level > highest) r.cast.scroll!.check = { dc: 10 + def.level, ability, bonus: mods[ability] };
+      if (def.level > highest && !writer) r.cast.scroll!.check = { dc: 10 + def.level, ability, bonus: mods[ability] };
       r.list = { id: list, label: "Spell scroll" };
       r.ready = "always";
       r.fromFeature = `Spell scroll (${granted.scroll.level === 0 ? "cantrip" : `level ${granted.scroll.level}`})`;
-      if (def.attack) r.attack = roll([`roll.attack.spell.${def.attack}`], [{ label: "Spell scroll", value: attack }]);
+      if (def.attack) r.attack = roll([`roll.attack.spell.${def.attack}`], [{ label: writer ? `Spell attack (${writer.label})` : "Spell scroll", value: attack }]);
       if (def.save) r.save = { ability: def.save.ability, dc, onSuccess: def.save.onSuccess };
     }
     spells.push(r);
@@ -1993,7 +2024,15 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       if (a.others) entry.others = true;
       if (a.gives) entry.gives = { effect: a.gives.effect, ...(a.gives.selfWarning ? { selfWarning: a.gives.selfWarning } : {}) };
       // Combat Inspiration (Valor): the die can also go on weapon damage or AC.
-      if (entry.gives?.effect === "other:bardic-inspiration" && sources.some((x) => x.id === "feature:college-of-valor-combat-inspiration")) entry.gives.effect = "other:bardic-inspiration-valor";
+      // The college's own die (Combat Inspiration, Mote of Potential, Unfailing Inspiration): what the creature can do with it.
+      if (entry.gives?.effect === "other:bardic-inspiration") {
+        const own = [
+          ["feature:college-of-valor-combat-inspiration", "other:bardic-inspiration-valor"],
+          ["feature:college-of-creation-mote-of-potential", "other:bardic-inspiration-creation"],
+          ["feature:college-of-eloquence-unfailing-inspiration", "other:bardic-inspiration-eloquence"],
+        ].find(([f]) => sources.some((x) => x.id === f));
+        if (own) entry.gives.effect = own[1]!;
+      }
       if (s.common) entry.common = true;
       for (const k of ["asAttack", "dash", "untilTurnStart", "endsConcentration", "infoOnly"] as const) if (a[k]) entry[k] = true;
       if (a.check) entry.check = a.check;
@@ -2097,7 +2136,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       if (e.custom?.modifiers.length) r.changes = e.custom.modifiers;
       if (!e.custom) warnings.push(`Effect "${e.effect}" isn't in the content pack.`);
     } else {
-      const reminders = [...def.reminders];
+      const reminders = def.reminders.map(fillTag);
       for (const inc of [...def.includes, ...((e.choice && def.includesByChoice?.[e.choice]) || [])]) reminders.push(...reg.get(inc, "effect").reminders);
       r = { ...base, id: def.id, name: def.name, category: def.category, concentration: def.concentration, reminders };
       if (def.summary) r.summary = def.summary;
@@ -2135,6 +2174,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     if (def?.usedUp) {
       const label = def.modifiers.find((m) => m.label)?.label;
       if (label) r.usedUp = label;
+      if (def.keepIfFails) r.keepIfFails = def.keepIfFails;
     }
     if (def) {
       const walk = (ids: string[]) => {
@@ -2389,6 +2429,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     ],
     rules,
     encumbrance,
+    size: sizeNow,
     initiativeRegains: sources.flatMap((s) => (s.grant.initiativeRegain ? [{ ...s.grant.initiativeRegain, from: s.label }] : [])),
     shortRestRegains: sources.flatMap((s) => (s.grant.shortRestRegain ?? []).map((g) => ({ ...g, from: s.label }))),
     afterLongRest: sources.flatMap((s) => {

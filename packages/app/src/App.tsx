@@ -749,6 +749,8 @@ export function App() {
     // Each roll is a fresh composer: the next one (a strike after Hand of Healing) never inherits the last one's dice.
     const rollKey = crypto.randomUUID();
     const healing = attack?.damage.type === "healing";
+    // Dice that come back if the roll still fails (Unfailing Inspiration): as they are before the roll uses them up.
+    const keepers = opts.notMine ? [] : (live.current.sheet?.effects ?? []).filter((e) => e.keepIfFails && e.usedUp);
     return open(title, () => {
       // The attack as the sheet has it now (a smite used on the first hit of Extra Attack is gone from the next).
       const atk = attack ? liveAttack(live.current.sheet, attack) : undefined;
@@ -775,7 +777,23 @@ export function App() {
             }
           : {})}
         {...(attack && !opts.damageOnly ? { ...(opts.notMine ? {} : { afterRoll: afterRollFor() }), onDone: opts.back ? opts.back.to : close } : {})}
-        {...(atk?.ammo && live.current.character?.settings.trackAmmo && !opts.notMine ? { afterD20: (enabled: string[]) => <AmmoAsk attack={atk} enabled={enabled} act={live.current.act} /> } : {})}
+        {...(() => {
+          // After the d20: count the ammunition, and keep a die that didn't help (Unfailing Inspiration).
+          const ammo = atk?.ammo && live.current.character?.settings.trackAmmo && !opts.notMine;
+          if (!ammo && !keepers.length) return {};
+          return {
+            afterD20: (enabled: string[]) => (
+              <>
+                {ammo && atk && <AmmoAsk attack={atk} enabled={enabled} act={live.current.act} />}
+                {keepers
+                  .filter((e) => enabled.includes(e.usedUp!))
+                  .map((e) => (
+                    <KeepAsk key={e.instanceId} e={e} act={live.current.act} />
+                  ))}
+              </>
+            ),
+          };
+        })()}
         base={rollBase}
         {...(opts.header ? { header: opts.header() } : {})}
         {...(opts.damageOnly ? { damageOnly: true } : {})}
@@ -1733,6 +1751,9 @@ export function App() {
         openRoll(a.name, a.attack, a, {
           ...extra,
           ...(reaction ? { reaction: true } : {}),
+          ...(vigilant
+            ? { notes: [...(extra.notes ?? []), "⚠ Vigilant Defender: this opportunity attack doesn't use your reaction, but it's only once on each creature's turn. Not a second time on the same creature's turn."] }
+            : {}),
           optionInfo: () => optionInfoFor(a),
           onCommit,
           onDamageOptions,
@@ -4033,6 +4054,30 @@ function TotalPad({ onDone }: { onDone: (n: number) => void }) {
  * After an attack with a weapon that shoots ammunition (when it's tracked): count one shot? Always asked, never assumed.
  * With several kinds, the one ticked on the roll; with none, a warning.
  */
+/** A die used on a roll that still failed comes back (Unfailing Inspiration): asked after the d20. */
+function KeepAsk({ e, act }: { e: EffectResult; act: (type: OperationType, payload: unknown, label: string) => unknown }) {
+  const [kept, setKept] = useState(false);
+  if (kept) return <p className="note">{e.keepIfFails}: the die is back.</p>;
+  return (
+    <div className="ammo-ask">
+      <p className="sub-head small">{e.keepIfFails}: did the roll still fail?</p>
+      <button
+        className="big wide"
+        onClick={() => {
+          act(
+            "addEffect",
+            { instanceId: crypto.randomUUID(), effect: e.id, ...(e.choice?.value ? { choice: e.choice.value } : {}), ...(e.minutes ? { minutes: e.minutes } : {}) },
+            `${e.keepIfFails}: the roll still failed, the ${e.choice?.value ?? ""} die is kept.`.replace("  ", " "),
+          );
+          setKept(true);
+        }}
+      >
+        It still failed: keep the die
+      </button>
+    </div>
+  );
+}
+
 function AmmoAsk({ attack, enabled, act }: { attack: WeaponAttack; enabled: string[]; act: (type: OperationType, payload: unknown, label: string) => unknown }) {
   const [answered, setAnswered] = useState<"yes" | "no" | null>(null);
   const kinds = attack.ammo ?? [];

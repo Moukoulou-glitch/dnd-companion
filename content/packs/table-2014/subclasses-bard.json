@@ -960,15 +960,6 @@
         "pack": "table-2014",
         "book": "TCoE",
         "page": 27
-      },
-      "grant": {
-        "actionNotes": [
-          {
-            "action": "bardic-inspiration",
-            "text": "a mote goes with the die. On a check, the creature rolls the die twice and picks; on an attack, a hit makes the target and creatures you pick within 5 ft of it make a Constitution save against your spell DC or take thunder damage equal to the die; on a save, it also gains temporary HP equal to the die + your Charisma modifier ({value}).",
-            "value": "mod.cha"
-          }
-        ]
       }
     },
     {
@@ -1238,14 +1229,6 @@
         "pack": "table-2014",
         "book": "TCoE",
         "page": 29
-      },
-      "grant": {
-        "actionNotes": [
-          {
-            "action": "bardic-inspiration",
-            "text": "if the creature adds the die and still fails, it keeps the die."
-          }
-        ]
       }
     },
     {

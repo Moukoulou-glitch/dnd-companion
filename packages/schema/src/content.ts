@@ -340,6 +340,8 @@ export const EffectDef = z
     selfOnly: z.boolean().optional(),
     /** Gone once its bonus is used in a roll (Bardic Inspiration). */
     usedUp: z.boolean().optional(),
+    /** Used up, unless the roll still fails: then it's kept (Unfailing Inspiration). The feature's name. */
+    keepIfFails: z.string().optional(),
     /** Ends when you do one of these (Invisibility: attack or cast a spell); the app asks. */
     endsOn: z.array(z.enum(["attack", "cast"])).optional(),
     /** Temporary HP gained when applied (Armor of Agathys: 5*slotLevel). */

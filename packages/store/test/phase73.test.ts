@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { newCharacter } from "@dnd/engine";
+import { derive, newCharacter } from "@dnd/engine";
 import { tableRegistry } from "../../engine/test/helpers.js";
 import { CharacterLog } from "../src/log.js";
 import { HybridClock } from "../src/clock.js";
@@ -33,5 +33,25 @@ describe("14c in play", () => {
     expect(l.record("damage", { amount: 20, damageType: "slashing" }).join(" ")).toMatch(/radiant damage equal to half/);
     expect(l.character.hp.current).toBe(hp - 10);
     expect(l.character.effects.some((e) => e.effect === "effect:emissary-of-redemption")).toBe(true);
+  });
+  it("Master Scrivener's scroll uses your wizard spell save DC and attack bonus, with no check", () => {
+    const l = make("class:wizard", 10, "subclass:order-of-scribes", (c) => {
+      c.spells = [{ spell: "spell:hold-person", list: "wizard", prepared: false }];
+    });
+    l.record("useAction", { action: "master-scrivener", choice: "Hold Person" });
+    const s = derive(l.character, reg);
+    const wiz = s.spellcasting.find((x) => x.id === "wizard")!;
+    const sp = s.spells.find((x) => x.cast.scroll && x.id === "spell:hold-person")!;
+    expect(sp.cast.scroll).toMatchObject({ level: 3, dc: wiz.saveDc.total, attack: wiz.attack.total });
+    expect(sp.cast.scroll?.check).toBeUndefined();
+  });
+  it("Guardian Spirit: Spirit Totem's tag carries its aura switch, which goes when the tag does", () => {
+    const l = make("class:druid", 10, "subclass:circle-of-the-shepherd");
+    l.record("useAction", { action: "spirit-totem", choice: "Bear" });
+    const tag = l.character.effects.find((e) => e.effect === "other:spirit-totem-guardian")!;
+    expect(tag).toMatchObject({ choice: "Bear", minutes: 1, toggles: ["spirit-totem"] });
+    expect(l.character.toggles).toContain("spirit-totem");
+    l.record("removeEffect", { instanceId: tag.id });
+    expect(l.character.toggles).not.toContain("spirit-totem");
   });
 });

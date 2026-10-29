@@ -49,7 +49,15 @@ export const ItemInstance = z
     /** Which weapon or armor it is, for an item that can be several (Frost Brand: a greatsword). */
     base: DefId.optional(),
     /** A spell scroll: the spell written on it, and the level it's written at (default: from the item's name, or the spell's own). */
-    scroll: z.object({ spell: DefId, level: z.number().int().min(0).max(9).optional() }).strict().optional(),
+    scroll: z
+      .object({
+        spell: DefId,
+        level: z.number().int().min(0).max(9).optional(),
+        /** Cast with this spellcasting's save DC and attack bonus, whoever reads it (Master Scrivener: your wizard's). */
+        caster: z.string().optional(),
+      })
+      .strict()
+      .optional(),
     /** Gone at the end of your next long rest (Master Scrivener's scroll). */
     untilLongRest: z.boolean().optional(),
   })

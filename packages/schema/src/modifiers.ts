@@ -285,7 +285,7 @@ export const GrantedSpell = z
     /** Its own save DC instead of yours (Wand of Fireballs: 15). */
     dc: z.number().int().optional(),
     /** Written on a spell scroll in the inventory: read it to cast it (used up). */
-    scroll: z.object({ instanceId: z.string(), level: z.number().int().min(0).max(9) }).strict().optional(),
+    scroll: z.object({ instanceId: z.string(), level: z.number().int().min(0).max(9), caster: z.string().optional() }).strict().optional(),
   })
   .strict();
 export type GrantedSpell = z.infer<typeof GrantedSpell>;

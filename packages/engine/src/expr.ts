@@ -15,7 +15,8 @@ export interface ExprContext {
 
 export type Term = { kind: "flat"; value: number; label?: string } | { kind: "dice"; dice: string };
 
-const DICE = /^(\d*)d(\d+)$/;
+/** "2d8", and "2d8kh1": two dice, keep the higher (Mote of Potential on a check: the die rolled twice, keep either). */
+const DICE = /^(\d*)d(\d+)(kh\d+)?$/;
 
 /**
  * Evaluates a value expression into terms. Named terms (pb, mod.dex) carry
@@ -100,7 +101,7 @@ export function evalExpr(expr: ValueExpr, ctx: ExprContext): Term[] {
     const dice = DICE.exec(t);
     if (dice) {
       // Negative dice (Bane's -1d4) keep their sign in the dice string.
-      return { kind: "dice", dice: `${sign < 0 ? "-" : ""}${dice[1] || "1"}d${dice[2]}` };
+      return { kind: "dice", dice: `${sign < 0 ? "-" : ""}${dice[1] || "1"}d${dice[2]}${dice[3] ?? ""}` };
     }
     if (t === "pb") return { kind: "flat", value: sign * ctx.pb, label: "Proficiency bonus" };
     if (t === "level") return { kind: "flat", value: sign * ctx.level, label: "Character level" };

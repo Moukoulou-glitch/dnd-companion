@@ -636,7 +636,7 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
           </p>
         )}
         {[...(notes ?? []), ...(base.notes ?? [])].map((n) => (
-          <p className="note reminder" key={n}>
+          <p className={n.startsWith("⚠") ? "warn" : "note reminder"} key={n}>
             <RichText text={n} />
           </p>
         ))}

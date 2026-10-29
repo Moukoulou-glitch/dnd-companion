@@ -1289,8 +1289,8 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
           const item = level === 0 ? "item:spell-scroll-cantrip" : `item:spell-scroll-${ord}-level`;
           const id = `${op.id}-scroll`;
           if (reg.has(item) && !c.inventory.some((i) => i.id === id)) {
-            c.inventory.push({ id, item, quantity: 1, equipped: false, attuned: false, name: `${def.name} scroll (${a.name})`, scroll: { spell: def.id, level }, untilLongRest: true });
-            notes.push(`${a.name}: a scroll of ${def.name} at level ${level}, in your items. Only you can read it; it's gone at the end of your next long rest.`);
+            c.inventory.push({ id, item, quantity: 1, equipped: false, attuned: false, name: `${def.name} scroll (${a.name})`, scroll: { spell: def.id, level, caster: a.scribesScroll.list }, untilLongRest: true });
+            notes.push(`${a.name}: a scroll of ${def.name} at level ${level}, in your items, with your spell save DC and attack bonus. It's gone at the end of your next long rest.`);
           }
         }
       }
@@ -1415,6 +1415,8 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
             else if (def.rounds) entry.rounds = def.rounds;
             else if (def.minutes) entry.minutes = def.minutes;
           }
+          // Its switches go with the tag (Spirit Totem's aura while Guardian Spirit's tag is on).
+          if (a.toggles.length || a.choiceToggles) entry.toggles = [...a.toggles, ...Object.values(a.choiceToggles ?? {}).flat()];
           c.effects.push(entry);
           notes.push(`${def.name}${entry.choice ? `: ${entry.choice}` : ""}.`);
         }

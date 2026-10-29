@@ -1940,7 +1940,9 @@
             },
             "duration": {
               "rounds": 10
-            }
+            },
+            "maxLevel": 17,
+            "levelOf": "class:fighter"
           }
         ],
         "modifiers": [
@@ -1971,6 +1973,15 @@
             },
             "label": "Giant's Might",
             "oncePerTurn": true
+          },
+          {
+            "selector": "stat.size",
+            "op": "set",
+            "value": 3,
+            "when": {
+              "toggle": "giants-might"
+            },
+            "label": "Giant's Might"
           }
         ]
       }
@@ -2042,10 +2053,57 @@
         "page": 45
       },
       "grant": {
-        "actionNotes": [
+        "actions": [
           {
-            "action": "giants-might",
-            "text": "you can become Huge instead of Large, and your reach is 5 ft longer while you're enlarged."
+            "id": "giants-might",
+            "name": "Giant's Might",
+            "economy": "bonus",
+            "toggles": [
+              "giants-might"
+            ],
+            "note": "Large for 1 minute, advantage on Strength checks and saves, extra damage once per turn. Runic Juggernaut: Huge if you pick it, and your reach is 5 ft longer while you're enlarged.",
+            "cost": {
+              "resource": "giants-might",
+              "amount": 1
+            },
+            "duration": {
+              "rounds": 10
+            },
+            "minLevel": 18,
+            "levelOf": "class:fighter",
+            "choose": {
+              "label": "How big?",
+              "options": [
+                "Large",
+                "Huge"
+              ]
+            },
+            "choiceToggles": {
+              "Large": [],
+              "Huge": [
+                "giants-might-huge"
+              ]
+            }
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "stat.size",
+            "op": "set",
+            "value": 4,
+            "when": {
+              "toggle": "giants-might-huge"
+            },
+            "label": "Runic Juggernaut"
+          },
+          {
+            "selector": "stat.reach",
+            "op": "add",
+            "value": 5,
+            "when": {
+              "toggle": "giants-might"
+            },
+            "label": "Runic Juggernaut"
           }
         ]
       }

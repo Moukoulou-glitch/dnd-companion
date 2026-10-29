@@ -1007,6 +1007,124 @@
     },
     {
       "kind": "effect",
+      "id": "other:bardic-inspiration-creation",
+      "name": "Bardic Inspiration (Mote of Potential)",
+      "category": "other",
+      "summary": "A College of Creation bard's die, with a mote that circles you: add the die to one attack roll, ability check or saving throw within 10 minutes. On a check the die is rolled twice and you keep either; on an attack or a save the mote does more (below). Remove it once you use it.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 28
+      },
+      "modifiers": [
+        {
+          "selector": "roll.attack.*",
+          "op": "add",
+          "value": "1{choice}",
+          "mode": "suggested",
+          "label": "Bardic Inspiration",
+          "when": {
+            "text": "once within 10 minutes; the die is then gone; on a hit the mote booms (see the tag)"
+          }
+        },
+        {
+          "selector": "roll.save.*",
+          "op": "add",
+          "value": "1{choice}",
+          "mode": "suggested",
+          "label": "Bardic Inspiration",
+          "when": {
+            "text": "once within 10 minutes; the die is then gone; you also gain temporary HP (see the tag)"
+          }
+        },
+        {
+          "selector": "roll.check.*",
+          "op": "add",
+          "value": "2{choice}kh1",
+          "mode": "suggested",
+          "label": "Bardic Inspiration",
+          "when": {
+            "text": "Mote of Potential: the die is rolled twice and the higher is kept; once within 10 minutes; the die is then gone"
+          }
+        }
+      ],
+      "minutes": 10,
+      "usedUp": true,
+      "choice": {
+        "label": "Which die?",
+        "options": [
+          "d6",
+          "d8",
+          "d10",
+          "d12"
+        ]
+      },
+      "reminders": [
+        "On an attack: if it hits, the mote booms. The target and any creatures the bard picks within 5 ft of it make a Constitution save against the bard's spell save DC or take thunder damage equal to the number the die rolled.",
+        "On a save: you also gain temporary HP equal to the number the die rolled + the bard's Charisma modifier."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "other:bardic-inspiration-eloquence",
+      "name": "Bardic Inspiration (Unfailing Inspiration)",
+      "category": "other",
+      "summary": "A College of Eloquence bard's die: add it to one attack roll, ability check or saving throw within 10 minutes. If the roll still fails, you keep the die.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 29
+      },
+      "modifiers": [
+        {
+          "selector": "roll.attack.*",
+          "op": "add",
+          "value": "1{choice}",
+          "mode": "suggested",
+          "label": "Bardic Inspiration",
+          "when": {
+            "text": "once within 10 minutes; the die is gone unless the roll still fails"
+          }
+        },
+        {
+          "selector": "roll.save.*",
+          "op": "add",
+          "value": "1{choice}",
+          "mode": "suggested",
+          "label": "Bardic Inspiration",
+          "when": {
+            "text": "once within 10 minutes; the die is gone unless the roll still fails"
+          }
+        },
+        {
+          "selector": "roll.check.*",
+          "op": "add",
+          "value": "1{choice}",
+          "mode": "suggested",
+          "label": "Bardic Inspiration",
+          "when": {
+            "text": "once within 10 minutes; the die is gone unless the roll still fails"
+          }
+        }
+      ],
+      "minutes": 10,
+      "usedUp": true,
+      "keepIfFails": "Unfailing Inspiration",
+      "choice": {
+        "label": "Which die?",
+        "options": [
+          "d6",
+          "d8",
+          "d10",
+          "d12"
+        ]
+      },
+      "reminders": [
+        "After the roll, if it still failed, tap \"It still failed: keep the die\": the die comes back."
+      ]
+    },
+    {
+      "kind": "effect",
       "id": "other:orders-wrath",
       "name": "Order's Wrath",
       "category": "other",
@@ -5645,6 +5763,31 @@
         "text": "Emissary of Redemption: the creature that damaged you takes radiant damage equal to half the damage you took (unless you've attacked it or targeted it with a spell since your long rest)."
       },
       "selfOnly": true
+    },
+    {
+      "kind": "effect",
+      "id": "other:spirit-totem-guardian",
+      "name": "Spirit Totem (Guardian Spirit)",
+      "category": "other",
+      "summary": "Your spirit totem is out, with its 30-ft aura, for 1 minute.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 24
+      },
+      "modifiers": [],
+      "minutes": 1,
+      "choice": {
+        "label": "Spirit",
+        "options": [
+          "Bear",
+          "Hawk",
+          "Unicorn"
+        ]
+      },
+      "reminders": [
+        "Guardian Spirit: a beast or fey you summoned or created with a spell that ends its turn in the aura regains {druidHalf} hit points."
+      ]
     }
   ]
 }

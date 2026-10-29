@@ -1446,7 +1446,7 @@
               "maxLevel": 2,
               "higher": 1
             },
-            "note": "After a long rest, touch your Wizardly Quill to a blank sheet: a 1st- or 2nd-level spell from your spellbook goes on a scroll, cast one level higher. Only you can read it, and it's gone at the end of your next long rest. It's read like any spell scroll."
+            "note": "After a long rest, touch your Wizardly Quill to a blank sheet: a 1st- or 2nd-level spell from your spellbook goes on a scroll, cast one level higher with your wizard spell save DC and spell attack bonus, whoever casts it. It's gone at the end of your next long rest."
           }
         ]
       }
