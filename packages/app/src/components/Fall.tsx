@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { rollOrThrow } from "../dice/quick";
+import { WhoRolls } from "./WhoRolls";
 
 /**
  * A fall (PHB p. 183): 1d6 bludgeoning for every 10 ft, at most 20d6; you land prone
  * unless you take no damage. Slow Fall (a monk's reaction) takes 5 × monk level off;
  * Feather Fall means no damage at all. Your own dice: type the total.
  */
-export function FallPanel({ slowFall, featherFall, physical, onDone }: { slowFall?: number; featherFall: boolean; physical: boolean; onDone: (damage: number, usedSlowFall: boolean) => void }) {
+export function FallPanel({ slowFall, featherFall, physical: mine, onDone }: { slowFall?: number; featherFall: boolean; physical: boolean; onDone: (damage: number, usedSlowFall: boolean) => void }) {
+  const [physical, setPhysical] = useState(mine);
   const [feet, setFeet] = useState("");
   const [slow, setSlow] = useState(false);
   const [typed, setTyped] = useState("");
@@ -33,6 +35,7 @@ export function FallPanel({ slowFall, featherFall, physical, onDone }: { slowFal
           </div>
         </label>
       )}
+      {!featherFall && n > 0 && <WhoRolls physical={physical} onChange={setPhysical} />}
       {featherFall || n === 0 ? (
         <button className="big primary wide" onClick={() => onDone(0, false)}>
           Land safely

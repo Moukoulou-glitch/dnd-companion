@@ -675,10 +675,11 @@ h2 {
   border-left: 1px solid var(--line);
 }
 
-.segmented button[aria-checked="true"] {
-  background: var(--panel-raised);
-  color: var(--text);
-  box-shadow: inset 0 -3px 0 var(--teal);
+/* The picked one: filled, with a bar underneath (radios and tabs alike). */
+.segmented button[aria-checked="true"],
+.segmented button[aria-selected="true"] {
+  background: var(--teal);
+  color: var(--bg);
 }
 
 .segmented.small {
@@ -720,6 +721,14 @@ h2 {
 .keys.d20 .key {
   min-height: 48px;
   font-size: 20px;
+}
+
+/* A face you picked (a die's result, a die to roll again). */
+.key.on,
+.key[aria-pressed="true"] {
+  background: var(--teal);
+  color: var(--bg);
+  font-weight: 800;
 }
 
 .key.ok {
@@ -1290,6 +1299,13 @@ button.tag {
   overflow: hidden;
   clip: rect(0 0 0 0);
   white-space: nowrap;
+}
+
+/* Advantage state in the roll composer: red for disadvantage, green for advantage; a normal roll stays quiet. */
+.segmented.mode button[data-mode="normal"][aria-checked="true"] {
+  background: var(--panel-raised);
+  color: var(--text);
+  box-shadow: inset 0 -3px 0 var(--teal);
 }
 
 /* Advantage state in the roll composer: red for disadvantage, green for advantage. */

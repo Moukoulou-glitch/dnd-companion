@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { roll } from "@dnd/dice";
 import type { ActionResult } from "@dnd/engine";
 import { facesOrRoll } from "../dice/quick";
+import { WhoRolls } from "./WhoRolls";
 import { skipThrow } from "../diceBox";
 
 const ECONOMY: Record<ActionResult["economy"], string> = {
@@ -23,7 +24,7 @@ export const economyLabel = (e: ActionResult["economy"]) => ECONOMY[e];
 export function FeaturePanel({
   a,
   text,
-  physical,
+  physical: mine,
   onUse,
   checks,
   targets,
@@ -61,6 +62,8 @@ export function FeaturePanel({
   checks?: { skill: string; name: string; bonus: string }[];
 }) {
   const amount = a.tempHp ?? a.heal ?? a.roll;
+  // Your own dice or the app's: the character's setting, changeable for this roll.
+  const [physical, setPhysical] = useState(mine);
   const [entry, setEntry] = useState("");
   const [points, setPoints] = useState("");
   // Healing Hands and the like: on someone else unless ticked.
@@ -285,6 +288,7 @@ export function FeaturePanel({
               </div>
             </label>
           )}
+          {!beacon && !a.healEntered && !maxOn && amount.dice.length > 0 && <WhoRolls physical={physical} onChange={setPhysical} />}
           {physical && !beacon && !a.healEntered && !maxOn && amount.dice.length > 0 && (
             <label className="entry">
               <span>{times > 1 ? `Roll ${amount.dice.join(" + ")} ${times} times and type the one you keep` : `Roll ${amount.dice.join(" + ")} and type the dice total`}</span>
@@ -440,8 +444,9 @@ function RecoverSlots({ a, slots, none, onDone }: { a: ActionResult; slots: { le
 }
 
 /** Combat Wild Shape: pick a slot; it heals its die once per slot level, rolled here or from your dice. */
-function SlotHeal({ a, slots, physical, beacon, onDone }: { a: ActionResult; slots: { level: number; total: number; used: number }[]; physical: boolean; beacon?: boolean; onDone: (slot: number, rolled: number) => void }) {
+function SlotHeal({ a, slots, physical: mine, beacon, onDone }: { a: ActionResult; slots: { level: number; total: number; used: number }[]; physical: boolean; beacon?: boolean; onDone: (slot: number, rolled: number) => void }) {
   const { die } = a.slotHeal!;
+  const [physical, setPhysical] = useState(mine);
   const [level, setLevel] = useState<number | undefined>(slots.find((s) => s.total - s.used > 0)?.level);
   const [entry, setEntry] = useState("");
   const [busy, setBusy] = useState(false);
@@ -476,6 +481,7 @@ function SlotHeal({ a, slots, physical, beacon, onDone }: { a: ActionResult; slo
           ))}
       </div>
       {beacon && <p className="note beacon-text">Beacon of Hope: the maximum, {level ? level * sides : 0}.</p>}
+      {level && !beacon && <WhoRolls physical={physical} onChange={setPhysical} />}
       {level && physical && !beacon && (
         <label className="entry">
           <span>

@@ -433,3 +433,8 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 - Sword Coast Adventurer's Guide, DMG and Explorer's Guide to Wildemount subclasses (Echo Knight) on a class page are left out (the table's rulings); the Book text page lists them.
 - Not in your files yet, so these have only the app's summaries: the actions list, a bestiary (Barlgura, Chasme, Goristro, Manes, Peryton, Shadow Demon, Yochlol), Fizban's Treasury (Drakewarden, Way of the Ascendant Dragon, its 7 spells, the Gift feats, the three dragonborn, Potion of Dragon's Majesty), and most races beyond your races file (PHB subraces, Volo's, Mordenkainen's, Genasi, Van Richten's).
 
+## Round 15d: who rolls, and what's picked
+
+- Rolling your own dice: a feature's dice (a breath weapon, Second Wind), healing from a slot, falling and Give Life now offer "My dice | App rolls" for that roll; the character's setting stays as it is.
+- The picked casting time (1 action, a bonus action through Untamed Flame, 8 hours), and every other two- or three-way switch, is filled in teal like the picked spell slot.
+

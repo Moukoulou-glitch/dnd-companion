@@ -6,6 +6,7 @@ import { RichText } from "./Conditions";
 import { TextList } from "./Shapes";
 import { TurnTracker } from "./TurnTracker";
 import { facesOrRoll } from "../dice/quick";
+import { WhoRolls } from "./WhoRolls";
 
 type Act = (type: OperationType, payload: unknown, label: string) => unknown;
 
@@ -403,7 +404,7 @@ function GiveLife({
   who,
   hp,
   me,
-  physical,
+  physical: mine,
   close,
   give,
 }: {
@@ -416,6 +417,7 @@ function GiveLife({
   close: () => void;
   give: (amount: number, target: string) => void;
 }) {
+  const [physical, setPhysical] = useState(mine);
   const [rolled, setRolled] = useState<number | null>(null);
   const [entry, setEntry] = useState("");
   const [other, setOther] = useState("");
@@ -439,6 +441,7 @@ function GiveLife({
       <p className="note">
         <b>{label}.</b> A living creature within 5 ft at 0 HP regains {dice} hit points (not a construct or undead). {who}'s current and maximum hit points drop by as much. Its bonus action; then it recharges on a 6.
       </p>
+      {rolled === null && <WhoRolls physical={physical} onChange={setPhysical} />}
       {physical ? (
         <label className="row">
           <span className="row-main">Your {dice} total</span>
