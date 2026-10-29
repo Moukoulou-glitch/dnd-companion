@@ -1,4 +1,4 @@
-import { bookPack, ContentRegistry, type BookReport } from "@dnd/engine";
+import { bookPack, bundleBookFiles, ContentRegistry, type BookReport } from "@dnd/engine";
 import { Character } from "@dnd/schema";
 // SRD first, then the table's pack; checked against the schema when the app is built (see vite.config.ts).
 import packs from "virtual:content-packs";
@@ -24,6 +24,11 @@ export let bookReport: BookReport | undefined;
  * the stored files at every start, so the table pack always decides what's
  * protected (house rules, remastered feats).
  */
+/** The book files as one file: duplicates and a second page for the same class left out. */
+export function bookBundle(files: { name: string; text: string }[]) {
+  return bundleBookFiles(files, buildRegistry());
+}
+
 export function addBooks(files: { name: string; text: string }[]): BookReport | undefined {
   if (!files.length) return undefined;
   const { pack, report } = bookPack(files, buildRegistry());

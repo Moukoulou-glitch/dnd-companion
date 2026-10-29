@@ -1,7 +1,7 @@
 import { RichText, TextBlocks } from "./Conditions";
 import { useState } from "react";
 import type { BookReport } from "@dnd/engine";
-import { bookReport } from "../content";
+import { bookBundle, bookReport } from "../content";
 import { db } from "../db";
 
 /** A definition's full text when it's loaded, otherwise its short summary and where to read it. */
@@ -54,6 +54,25 @@ export function BooksPanel({ report }: { report: BookReport | undefined }) {
     location.reload();
   };
 
+  /** All the loaded files as one: saved to the device, and it can take their place here. */
+  const [bundle, setBundle] = useState<{ text: string; kept: string[]; dropped: { name: string; why: string }[] } | null>(null);
+  const BUNDLE_NAME = "D&D book files.md";
+  const combine = async () => {
+    const b = bookBundle(await db.books());
+    setBundle(b);
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([b.text], { type: "text/markdown" }));
+    a.download = BUNDLE_NAME;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  };
+  const useBundle = async () => {
+    if (!bundle) return;
+    await db.clearBooks();
+    await db.putBook({ name: BUNDLE_NAME, text: bundle.text });
+    location.reload();
+  };
+
   return (
     <>
       <p className="note">
@@ -90,6 +109,14 @@ export function BooksPanel({ report }: { report: BookReport | undefined }) {
               </div>
             </div>
           )}
+          {report.leftOut && report.leftOut.length > 0 && (
+            <div className="row">
+              <div className="row-main">
+                <div className="row-title">Subclasses your table doesn't use</div>
+                <div className="row-sub">{report.leftOut.join(", ")} (Sword Coast Adventurer's Guide and the DMG)</div>
+              </div>
+            </div>
+          )}
           {report.kept.length > 0 && (
             <div className="row">
               <div className="row-main">
@@ -106,6 +133,26 @@ export function BooksPanel({ report }: { report: BookReport | undefined }) {
         <input type="file" multiple accept=".md,.txt,text/plain,text/markdown" onChange={(e) => void load(e.target.files)} />
       </label>
       {busy && <p className="note">{busy}</p>}
+      {report && report.files.length > 1 && (
+        <button className="big wide" style={{ marginTop: 10 }} onClick={() => void combine()}>
+          Combine into one file
+        </button>
+      )}
+      {bundle && (
+        <div className="pick-inline">
+          <p className="note">
+            Saved as “{BUNDLE_NAME}”: {bundle.kept.length} files in one. Load it on another device (or send it to a friend) instead of the separate files.
+          </p>
+          {bundle.dropped.length > 0 && (
+            <p className="note">
+              Left out: {bundle.dropped.map((d) => `${d.name} (${d.why})`).join("; ")}.
+            </p>
+          )}
+          <button className="big primary wide" onClick={() => void useBundle()}>
+            Keep only the combined file here
+          </button>
+        </div>
+      )}
       {report && (
         <button className="big damage wide" style={{ marginTop: 10 }} onClick={() => void clear()}>
           Remove all book text from this device

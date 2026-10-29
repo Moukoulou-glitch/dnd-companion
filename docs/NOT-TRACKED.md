@@ -426,3 +426,10 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 - Give Life: on the wisp's page, roll 3d6 (or enter your own), then pick who gets them: you (a warning if you aren't at 0 HP), or someone else by name. The wisp loses the same amount from its current and maximum hit points, and its bonus action and the recharge are marked. Its Invisibility ends if it was concentrating on it.
 - Not tracked for Give Life: a companion or another summon at 0 HP (in the app they're dead at 0, so they aren't offered); whether the target is a construct or undead, within 5 ft, or one it can see (in the text, yours to check).
 - Animations: Floar (a flame, gold when Radiant; Zenith's sun from 14th level) and Theros (sky, sun and land, in a look for each phenomenon, with the days). Both can be skipped and respect reduced motion.
+
+## Book files: one file
+
+- Characters → Book text → "Combine into one file" saves every loaded book file as one ("D&D book files.md"): the same text, read the same way. Identical files and a second page for the same class are left out (it says which). "Keep only the combined file here" swaps the separate files for it.
+- Sword Coast Adventurer's Guide and DMG subclasses on a class page are left out (the table's ruling); the Book text page lists them. Echo Knight (Explorer's Guide to Wildemount) is still added.
+- Not in your files yet, so these have only the app's summaries: the actions list, a bestiary (Barlgura, Chasme, Goristro, Manes, Peryton, Shadow Demon, Yochlol), Fizban's Treasury (Drakewarden, Way of the Ascendant Dragon, its 7 spells, the Gift feats, the three dragonborn, Potion of Dragon's Majesty), and most races beyond your races file (PHB subraces, Volo's, Mordenkainen's, Genasi, Van Richten's).
+

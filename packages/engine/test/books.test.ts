@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { bookFileKind, bookPack, derive, newCharacter } from "../src/index.js";
+import { bookFileKind, bookPack, bundleBookFiles, derive, newCharacter, splitBookFiles } from "../src/index.js";
 import { tableRegistry } from "./helpers.js";
 
 // Invented sample text in the same layout as the files a player loads; no book text is used here.
@@ -446,5 +446,42 @@ Sample text: a second weapon.
     expect(byId.get("feature:action-dash")?.text).toEqual(["Sample text: you go twice as far."]);
     expect(byId.get("feature:action-two-weapon-fighting")?.text).toEqual(["Sample text: a second weapon."]);
     expect([...byId.keys()].filter((id) => !id.startsWith("feature:action-"))).toEqual([]);
+  });
+});
+
+describe("book files in one file", () => {
+  const BARD_SCAG = BARD_PAGE.replace("College of Testing XGE p99", "College of Testing SCAG p99").replace(/Test Trick XGE/g, "Test Trick SCAG").replace("College of Testing: Level 6: Extra Attack XGE", "College of Testing: Level 6: Extra Attack SCAG");
+  it("a bundle reads exactly like the files in it; duplicates and a second page for a class are left out", () => {
+    const reg = tableRegistry();
+    const files = [
+      { name: "spells.md", text: SPELLS },
+      { name: "feats.md", text: FEATS },
+      { name: "feats copy.md", text: FEATS },
+      { name: "rogue.txt", text: CLASS_PAGE },
+      { name: "rogue older.txt", text: CLASS_PAGE.replace("Second sample paragraph.", "Another paragraph.") },
+      { name: "notes.txt", text: "Shopping list" },
+    ];
+    const b = bundleBookFiles(files, reg);
+    expect(b.kept).toEqual(["spells.md", "feats.md", "rogue.txt"]);
+    expect(b.dropped).toEqual([
+      { name: "feats copy.md", why: "the same as feats.md" },
+      { name: "rogue older.txt", why: "Rogue is already in, from rogue.txt" },
+      { name: "notes.txt", why: "not a book file the app reads" },
+    ]);
+    expect(splitBookFiles({ name: "all.md", text: b.text }).map((f) => f.name)).toEqual(["all.md › spells.md", "all.md › feats.md", "all.md › rogue.txt"]);
+    const key = (p: ReturnType<typeof bookPack>["pack"]) => JSON.stringify(p.definitions.map((d) => [d.id, d.text]).sort());
+    const one = bookPack([{ name: "all.md", text: b.text }], reg);
+    expect(key(one.pack)).toBe(key(bookPack(files.slice(0, 2).concat(files[3]!), reg).pack));
+    expect(one.report.files.map((f) => f.kind)).toEqual(["spells", "feats", "class page"]);
+    // A bundle inside a bundle opens up; an ordinary file passes through.
+    expect(bundleBookFiles([{ name: "all.md", text: b.text }], reg).kept).toEqual(["spells.md", "feats.md", "rogue.txt"]);
+    expect(splitBookFiles({ name: "x.md", text: FEATS })).toEqual([{ name: "x.md", text: FEATS }]);
+  });
+  it("the table's ruling: Sword Coast Adventurer's Guide and DMG subclasses stay out", () => {
+    const reg = tableRegistry();
+    const { pack, report } = bookPack([{ name: "bard.txt", text: BARD_SCAG }], reg);
+    expect(pack.definitions.some((d) => d.kind === "subclass" && d.name === "College of Testing")).toBe(false);
+    expect(report.leftOut).toEqual(["College of Testing"]);
+    expect(pack.definitions.some((d) => d.kind === "subclass" && d.name === "College of Echoes")).toBe(true);
   });
 });

@@ -30,6 +30,71 @@ export interface BookReport {
   kept: string[];
   /** How many third-party entries (Grim Hollow and other publishers) were left out. */
   excluded: number;
+  /** Subclasses the table doesn't use (Sword Coast Adventurer's Guide and the DMG), left out. */
+  leftOut?: string[];
+}
+
+/** The first line of a file that holds several book files (see `bundleBookFiles`). */
+export const BUNDLE_MARK = "<!-- dnd-companion book files -->";
+const FILE_LINE = /^<!-- file: (.+?) -->$/;
+
+/** A file made by `bundleBookFiles`, back into the files it holds; any other file as it is. */
+export function splitBookFiles(file: BookFile): BookFile[] {
+  const text = file.text.replace(/^\uFEFF/, "");
+  if (!text.startsWith(BUNDLE_MARK)) return [file];
+  const out: BookFile[] = [];
+  let cur: { name: string; lines: string[] } | undefined;
+  for (const line of text.split("\n")) {
+    const m = FILE_LINE.exec(line.trimEnd());
+    if (m) {
+      if (cur) out.push({ name: `${file.name} › ${cur.name}`, text: cur.lines.join("\n").replace(/\n+$/, "\n") });
+      cur = { name: m[1]!, lines: [] };
+    } else if (cur) cur.lines.push(line);
+  }
+  if (cur) out.push({ name: `${file.name} › ${cur.name}`, text: cur.lines.join("\n").replace(/\n+$/, "\n") });
+  return out;
+}
+
+/**
+ * Many book files as one: what's inside is kept as it is, each part under its own name, so
+ * loading the one file reads exactly like loading them all. Bundles inside are opened up; a
+ * file that's the same as an earlier one, and a second page for a class already in, are left
+ * out (the first wins: put the ones to keep first). Unrecognized files are left out too.
+ */
+export function bundleBookFiles(files: BookFile[], base: ContentRegistry): { text: string; kept: string[]; dropped: { name: string; why: string }[] } {
+  const parts = files.flatMap(splitBookFiles).map((f) => ({ name: f.name.replace(/^.* › /, ""), text: f.text.replace(/\r\n?/g, "\n") }));
+  const classByKey = new Map(base.list("class").flatMap((c) => namesOf(c).map((n) => [n, c.name] as const)));
+  const classNames = [...classByKey.keys()];
+  const seenText = new Map<string, string>();
+  const seenClass = new Map<string, string>();
+  const kept: BookFile[] = [];
+  const dropped: { name: string; why: string }[] = [];
+  for (const f of parts) {
+    const same = seenText.get(f.text);
+    if (same) {
+      dropped.push({ name: f.name, why: `the same as ${same}` });
+      continue;
+    }
+    const kind = bookFileKind(f.text);
+    if (kind === "unknown") {
+      dropped.push({ name: f.name, why: "not a book file the app reads" });
+      continue;
+    }
+    if (kind === "class page") {
+      const found = parseClassPageParts(f.text, classNames).className;
+      const cls = found ? classByKey.get(norm(found)) ?? found : undefined;
+      const other = cls ? seenClass.get(norm(cls)) : undefined;
+      if (other) {
+        dropped.push({ name: f.name, why: `${cls} is already in, from ${other}` });
+        continue;
+      }
+      if (cls) seenClass.set(norm(cls), f.name);
+    }
+    seenText.set(f.text, f.name);
+    kept.push(f);
+  }
+  const text = [BUNDLE_MARK, ...kept.flatMap((f) => [`<!-- file: ${f.name} -->`, f.text.replace(/\n+$/, "")])].join("\n") + "\n";
+  return { text, kept: kept.map((f) => f.name), dropped };
 }
 
 export function bookFileKind(text: string): BookFileKind {
@@ -71,6 +136,9 @@ function namesOf(def: Definition): string[] {
 
 /** Official books whose subclasses a class page may add (third-party ones are never loaded). */
 const OFFICIAL_BOOKS = new Set(["PHB'14", "PHB", "XGE", "TCE", "SCAG", "DMG'14", "DMG", "EGW", "VRGR", "FTD", "MOT", "GGR", "ERLW", "SCC", "AAG", "BMT", "MTF", "VGM", "AI", "LLK", "SatO", "TDCSR"].filter((b) => b !== "TDCSR"));
+
+/** Books whose subclasses the table leaves out (Oct 25): Sword Coast Adventurer's Guide and the DMG. */
+const LEFT_OUT_BOOKS = new Set(["SCAG", "DMG'14", "DMG"]);
 
 const BOOK_NAMES: Record<string, string> = { "PHB'14": "PHB", XGE: "XGE", TCE: "TCE", SCAG: "SCAG", EGW: "EGW", VRGR: "VRGR" };
 const bookName = (tag?: string) => (tag ? BOOK_NAMES[tag] ?? tag : "Book");
@@ -131,7 +199,7 @@ export function bookPack(files: BookFile[], base: ContentRegistry): { pack: Cont
   const classByName = new Map<string, string>();
   for (const c of base.list("class")) for (const n of namesOf(c)) classByName.set(n, c.id);
 
-  for (const f of files) {
+  for (const f of files.flatMap(splitBookFiles)) {
     const kind = bookFileKind(f.text);
     let count = 0;
     if (kind === "spells") {
@@ -404,6 +472,10 @@ export function bookPack(files: BookFile[], base: ContentRegistry): { pack: Cont
           const d = feats.find((x) => namesOf(x).includes(norm(f.name)) || namesOf(x).includes(norm(f.name.replace(/\s*\([^)]*\)\s*$/, ""))));
           if (d && f.text.length) attach(d, f.text);
         }
+        continue;
+      }
+      if (sc.book && LEFT_OUT_BOOKS.has(sc.book)) {
+        (report.leftOut ??= []).push(sc.name);
         continue;
       }
       const sid = `subclass:${slug(sc.name)}`;
