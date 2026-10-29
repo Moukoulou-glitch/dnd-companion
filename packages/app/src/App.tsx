@@ -3152,6 +3152,18 @@ export function App() {
         />
       ));
     }
+    // A rolled number (Heroes' Feast's 2d10): roll it here, or pick what your own dice showed.
+    const rolled = eff?.choice?.roll;
+    if (eff?.choice && rolled && !readying)
+      return open(sp.name, () => (
+        <Choose
+          question={`${eff.choice!.label}: roll ${rolled}, or pick what your dice showed.`}
+          options={[
+            { label: `Roll ${rolled}`, onPick: () => void rollOrThrow(rolled, true, undefined, { source: sp.name }).then((r) => go(String(Math.max(Number(eff.choice!.options[0]), Math.min(Number(eff.choice!.options.at(-1)), r.total))))) },
+            ...eff.choice!.options.map((o) => ({ label: o, onPick: () => go(o) })),
+          ]}
+        />
+      ));
     if (eff?.choice && !readying)
       return open(sp.name, () => (
         <Choose
@@ -3332,6 +3344,11 @@ export function App() {
                 const sc = live.current.sheet?.spellcasting.find((x) => x.id === sp.list.id) ?? live.current.sheet?.spellcasting[0];
                 openSummon(sum.id, level, sc ? { attack: sc.attack.total, dc: sc.saveDc.total } : undefined);
               }
+              // Counterspell, Dispel Magic: is the spell higher than the slot? Then the check.
+              if (sp.check) {
+                transformed = true;
+                openSpellCheck(sp, level);
+              }
               // Wish: a spell duplicated, or something else and its stress.
               if (sp.id === "spell:wish") {
                 transformed = true;
@@ -3365,8 +3382,10 @@ export function App() {
    * The timed action under way is done: its time passes, then its spell is cast
    * (the slot spent then), with what a cast brings (a summoning, a transformation).
    */
-  const finishTimed = () => {
+  const finishTimed = (tries = 10) => {
     const t = live.current.character?.timed;
+    // "Cast it now" right after starting it: the sheet may not have caught up with the start yet.
+    if (!t && tries > 0) return void setTimeout(() => finishTimed(tries - 1), 60);
     if (!t) return close();
     const prompts = live.current.act("finishTimed", {}, `${t.name}: done.`);
     const sp = t.cast && live.current.sheet?.spells.find((x) => x.id === t.cast!.spell && x.list.id === t.cast!.list);
@@ -3423,9 +3442,49 @@ export function App() {
           onRollAttack={(level) => roller(level, false)}
           onRollDamage={(level, alt) => roller(level, true, alt)}
         />
+        {sp.check && (
+          <button className="big wide" style={{ marginTop: 8 }} onClick={() => openSpellCheck(sp, castAt ?? sp.level)}>
+            {ABILITY_NAMES[sp.check.ability]} check against a higher-level spell
+          </button>
+        )}
         </>
       );
     });
+
+  /**
+   * Counterspell, Dispel Magic: against a spell of a higher level than the slot, an ability check with your
+   * spellcasting ability, DC 10 + that spell's level (Improved Abjuration's bonus is in it).
+   */
+  const openSpellCheck = (sp: SpellResult, slot: number) => {
+    const ck = sp.check;
+    if (!ck) return;
+    const ab = ABILITY_NAMES[ck.ability];
+    const levels = Array.from({ length: Math.max(0, 9 - slot) }, (_, i) => slot + 1 + i);
+    open(`${sp.name}: a higher-level spell?`, () => (
+      <Choose
+        question={`${ck.text} Its level?`}
+        options={[
+          ...levels.map((l) => ({
+            label: `Level ${l}: DC ${10 + l}`,
+            onPick: () =>
+              open(`${sp.name}: ${ab} check`, () => (
+                <Composer
+                  title={`${sp.name}: ${ab} check`}
+                  base={ck.roll}
+                  dc={10 + l}
+                  dcLabel={`a level ${l} spell`}
+                  physical={live.current.character?.settings.physicalDice ?? true}
+                  onPhysicalChange={setPhysicalDice}
+                  onRolled={(r) => live.current.addRoll(r)}
+                  onOptionsUsed={recordOptions}
+                />
+              )),
+          })),
+          { label: `No: level ${slot} or lower, it simply works`, onPick: () => openSpell(sp, slot) },
+        ]}
+      />
+    ));
+  };
 
   /** Long-press on a combat pill: what you can do with your action, bonus action or reaction. */
   const openEconomyMenu = (kind: EconomyKind) =>
@@ -3660,7 +3719,7 @@ export function App() {
           openMove={openMove}
           openCompanion={openCompanion}
           openCompanionBuilder={() => openCompanionBuilder()}
-          onTimedDone={finishTimed}
+          onTimedDone={() => finishTimed()}
           onTimedInterrupt={interruptTimed}
           backup={backupCard}
           openRangersCompanion={() => openCompanionBuilder(undefined, true)}

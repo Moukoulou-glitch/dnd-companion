@@ -328,7 +328,20 @@ export const EffectDef = z
      * Something chosen when it's applied (Hex: the ability). Selectors may use
      * "{choice}", e.g. "roll.check.{choice}".
      */
-    choice: z.object({ label: z.string(), options: z.array(z.string()).min(1) }).strict().optional(),
+    choice: z
+      .object({
+        label: z.string(),
+        options: z.array(z.string()).min(1),
+        /** The pick is a number rolled (Heroes' Feast: the 2d10 hit point maximum increase): offered as a roll. */
+        roll: z.string().optional(),
+      })
+      .strict()
+      .optional(),
+    /**
+     * Ends something on you instead of staying as a tag (Lesser Restoration): each pick and the condition it ends,
+     * or "exhaustion" for one exhaustion level.
+     */
+    ends: z.record(z.string(), z.string()).optional(),
     /** Cast at a higher level: modifiers may use "slotLevel" (Aid: 5*slotLevel - 5). */
     upcast: z.object({ baseLevel: z.number().int().min(1).max(9) }).strict().optional(),
     /** What each level does (Exhaustion), shown on its card. */
@@ -411,6 +424,8 @@ export const EffectDef = z
         endText: z.string().optional(),
         /** Rolled when it's cast, and the count starts there (Time Stop: 1d4 + 1 turns). */
         startRoll: z.string().optional(),
+        /** Using one heals you (Goodberry: eat a berry, 1 hit point). */
+        use: z.object({ label: z.string(), heal: z.number().int().min(0) }).strict().optional(),
       })
       .strict()
       .optional(),

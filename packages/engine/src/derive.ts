@@ -127,6 +127,15 @@ export interface SpellcastingResult {
 }
 
 /** A spell this character can cast, with every number already worked out. */
+/**
+ * Spells that make an ability check with your spellcasting ability against a spell of a higher level than
+ * the slot (DC 10 + that spell's level): what the check is for.
+ */
+const SPELL_CHECKS: Record<string, string> = {
+  "spell:counterspell": "The spell you're countering is of a higher level than your slot: on a success it fails anyway.",
+  "spell:dispel-magic": "A spell of a higher level than your slot: on a success it ends. One check for each such spell.",
+};
+
 export interface SpellResult {
   /** A wizard's spell prepared today without being in the spellbook. */
   notInBook?: boolean;
@@ -148,6 +157,8 @@ export interface SpellResult {
   placeholder: boolean;
   source: string;
   list: { id: string; label: string };
+  /** An ability check against a higher-level spell (Counterspell, Dispel Magic): DC 10 + its level; Improved Abjuration adds. */
+  check?: { ability: Ability; roll: RollBreakdown; text: string };
   /** Feature, feat or race it comes from, when not a class list (Infernal Legacy, Fey Touched). */
   fromFeature?: string;
   /**
@@ -352,7 +363,7 @@ export interface EffectResult {
   /** Lasts until your next turn starts (Dodge, Ready): one round, no countdown to adjust. */
   untilTurnStart?: boolean;
   /** What it counts (Mirror Image's duplicates): how many are left, the d20 needed now and their AC. */
-  counter?: { label: string; left: number; start: number; need?: number; ac?: number; endsAtZero: boolean; strike?: { amount: number; type: string; save: string; dc?: number } };
+  counter?: { label: string; left: number; start: number; need?: number; ac?: number; endsAtZero: boolean; strike?: { amount: number; type: string; save: string; dc?: number }; use?: { label: string; heal: number } };
 }
 
 export interface ResourceResult {
@@ -1825,6 +1836,12 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       if (elvenAccuracy && sc.ability !== "str") r.attack.tripleAdvantage = "Elven Accuracy";
     }
     if (sc && def.save) r.save = { ability: def.save.ability, dc: granted?.dc ?? sc.saveDc.total, onSuccess: def.save.onSuccess };
+    if (sc && SPELL_CHECKS[def.id])
+      r.check = {
+        ability: sc.ability,
+        roll: roll([`roll.check.${sc.ability}`, "roll.check.spell", `roll.check.spell.${def.school.toLowerCase()}`], [abilityPart(sc.ability)]),
+        text: SPELL_CHECKS[def.id]!,
+      };
     const levelsFor = (table?: Record<string, string>, byCharacter = false) => {
       if (!table) return undefined;
       const out: Record<number, string> = {};
@@ -2159,6 +2176,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       const k = def.counter;
       const left = Math.max(0, Math.min(k.start, e.count ?? k.start));
       r.counter = { label: k.label, left, start: k.start, endsAtZero: !!k.endsAtZero };
+      if (k.use) r.counter.use = k.use;
       const need = left > 0 ? k.need?.[Math.min(left, k.need.length) - 1] : undefined;
       if (need !== undefined) r.counter.need = need;
       if (k.ac) r.counter.ac = k.ac.base + (k.ac.ability ? abilities[k.ac.ability].modifier : 0);

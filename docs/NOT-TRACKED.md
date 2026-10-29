@@ -7,18 +7,18 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 - **Feature timers** come from the duration a use states ("for 1 minute"); a feature whose wording doesn't say it gets none.
 
 ## Per class (summary only, or partly tracked)
-- **Barbarian**: Totem Warrior Wolf spirit/aspect, Bear and Eagle attunement; Shielding Storm; Warrior of the Gods; Rage Beyond Death; Controlled Surge; Instinctive Pounce.
-- **Bard**: Combat Inspiration, Mote of Potential, Unfailing Inspiration, Creative Crescendo, Blade Flourish +10 ft speed; Magical Inspiration and Bardic Versatility (summary).
-- **Cleric**: Blessed Strikes, Improved Flare, Thunderbolt Strike, Stormborn, Improved Duplicity, Voice of Authority, Order's Wrath, Keeper of Souls, Expansive Bond, Circle of Mortality's maximized healing; Several conditional bonuses are tick-boxes, not automatic (Soul of the Forge, Avatar of Battle, Saint of Forge and Fire).
-- **Druid**: Moon druid features rely on the app's Wild Shape handling; Mighty Summoner, Guardian Spirit, Twinkling Constellations, Fungal Body, Primal Strike.
-- **Fighter**: Arcane Shot effects and their 18th-level increase; Rune Knight's individual rune passives (one shared counter); Cavalier/Samurai "or a language" alternatives; Samurai's alternate save; Know Your Enemy, Relentless, Weapon Bond's no-disarm, Arcane Charge, Hold the Line, Vigilant Defender, Rapid Strike, Great Stature, Master of Runes, Runic Juggernaut; Martial Versatility.
-- **Monk**: Four Elements discipline effects; Astral Self's Wisdom-for-attacks and three-attack rule; Kensei's one-melee-one-ranged rule; Intoxicated Frenzy; Dedicated Weapon.
-- **Paladin**: Aura of Conquest and Scornful Rebuke (damage to others), Emissary of Redemption, Invincible Conqueror's extra attack (its resistances and crit range are tracked), Mortal Bulwark's truesight, Living Legend/Mortal Bulwark slot refuel, Aura of Alacrity and Aura of the Sentinel (only your own bonus).
+- **Barbarian**: Totem Warrior Wolf spirit/aspect, Bear and Eagle attunement; Shielding Storm; Warrior of the Gods.
+- **Bard**: Blade Flourish +10 ft speed; Magical Inspiration and Bardic Versatility (summary).
+- **Cleric**: Blessed Strikes, Improved Flare, Thunderbolt Strike, Stormborn, Improved Duplicity, Order's Wrath, Circle of Mortality's maximized healing; Several conditional bonuses are tick-boxes, not automatic (Soul of the Forge, Avatar of Battle, Saint of Forge and Fire).
+- **Druid**: Moon druid features rely on the app's Wild Shape handling; Twinkling Constellations, Fungal Body, Primal Strike.
+- **Fighter**: Arcane Shot effects and their 18th-level increase; Cavalier/Samurai "or a language" alternatives; Samurai's alternate save; Know Your Enemy, Relentless, Weapon Bond's no-disarm, Rapid Strike; Martial Versatility.
+- **Monk**: Four Elements discipline effects; Astral Self's Wisdom-for-attacks and three-attack rule; Kensei's one-melee-one-ranged rule; Dedicated Weapon.
+- **Paladin**: Aura of Conquest and Scornful Rebuke (damage to others), Invincible Conqueror's extra attack (its resistances and crit range are tracked), Mortal Bulwark's truesight, Living Legend/Mortal Bulwark slot refuel, Aura of Alacrity and Aura of the Sentinel (only your own bonus).
 - **Ranger**: Mighty Swarm (built into Gathered Swarm's die).
 - **Rogue**: Infiltration Expertise, Impostor, Magical Ambush, Insightful Manipulator, Soul of Deceit, Fancy Footwork, Death's Friend; Whispers of the Dead offers skills only (no tools).
-- **Sorcerer**: Controlled Chaos, Unearthly Recovery's half-HP heal; Additional Sorcerer Spells, Sorcerous Versatility.
-- **Warlock**: Gift of the Sea swim speed, Elemental Gift flight and its genie-kind resistance, Awakened Mind telepathy, Beguiling Defenses' charm immunity, Hex Warrior's Charisma for weapon attacks, Genie's Wrath damage type.
-- **Wizard**: Arcane Ward is tracked as full after each long rest even before it's created; Savant features, Minor Alchemy, Focused Conjuration, Durable Summons, Split Enchantment, Alter Memories, Malleable Illusions, Master of Hexes, Sanctuary Vessel, Master Scrivener; Transmuter's Stone benefit; Grim Harvest healing (note); Durable Magic uses a switch you turn on while concentrating.
+- **Sorcerer**: Unearthly Recovery's half-HP heal; Additional Sorcerer Spells, Sorcerous Versatility.
+- **Warlock**: Gift of the Sea swim speed, Elemental Gift flight and its genie-kind resistance, Awakened Mind telepathy, Beguiling Defenses' charm immunity, Genie's Wrath damage type.
+- **Wizard**: Arcane Ward is tracked as full after each long rest even before it's created; Minor Alchemy, Split Enchantment, Alter Memories, Malleable Illusions, Master of Hexes, Sanctuary Vessel; Transmuter's Stone benefit; Grim Harvest healing (note); Durable Magic uses a switch you turn on while concentrating.
 
 ## Feats
 - Maneuvers: the app adds the die and spends it; what the maneuver does to the target (prone, pushed, frightened) is text with its DC. Sweeping Attack's second target, Commander's Strike's ally attack, Evasive Footwork's AC while moving and Parry's reduction are shown, not applied.
@@ -391,3 +391,11 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 - Master Scrivener: the scroll is in your items, cast with your wizard spell save DC and attack bonus whoever reads it. It's removed at the end of your next long rest.
 - Emissary of Redemption: a tag put on you after each long rest (resistance to all damage, a reminder of the radiant retaliation on each hit). Against a creature you've attacked or targeted, it's yours to set aside.
 - Already done before 14c (the round 14 audit listed them): Bond of Fang and Scale (the drake's growth at 7th), Master of Runes (two invokes from 15th), Great Stature's d8.
+
+## Round 14d
+
+- Counterspell and Dispel Magic: after casting (or from the spell), pick the level of the spell you're up against; above your slot, the check is rolled with your spellcasting ability against DC 10 + its level. Improved Abjuration's proficiency bonus is in it. Whether it worked is the DM's to say.
+- Heroes' Feast on you: roll the 2d10 (or pick what your dice showed); the maximum and current hit points go up, and the tag gives the immunities and advantage on Wisdom saves for 24 hours. Others at the feast apply it on their own sheets.
+- Goodberry: ten berries on a tag for 24 hours; "Eat a berry" heals 1 and counts one off. Berries you give away: take them off with −.
+- Lesser and Greater Restoration on you: the condition you pick (or one exhaustion level) ends; nothing stays as a tag. A curse or a reduced score or maximum is yours to undo.
+- A casting that takes minutes ("Cast it now"): fixed in 14d; it used to stop after starting.

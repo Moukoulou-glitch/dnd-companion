@@ -175,10 +175,12 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
     notes.push(`${name} was already on you: the same spell's effects don't combine, so you keep one${higher > 0 ? `, at level ${higher}` : ""}, with the new duration.`);
   };
 
-  const gainHp = (def: { hpGain?: string | number; tempHpGain?: string | number; upcast?: { baseLevel: number }; name: string }, castLevel?: number) => {
+  const gainHp = (def: { hpGain?: string | number; tempHpGain?: string | number; upcast?: { baseLevel: number }; name: string }, castLevel?: number, choice?: string) => {
     const slotLevel = castLevel ?? def.upcast?.baseLevel ?? 1;
     if (def.hpGain !== undefined) {
-      const amount = atLevel(def.hpGain, slotLevel);
+      // "{choice}": the number picked or rolled (Heroes' Feast's 2d10).
+      const expr = typeof def.hpGain === "string" && def.hpGain.includes("{choice}") ? (/^\d+$/.test(choice ?? "") ? def.hpGain.replace(/\{choice\}/g, choice!) : "0") : def.hpGain;
+      const amount = atLevel(expr, slotLevel);
       if (amount > 0 && c.hp.current > 0) {
         c.hp.current += amount;
         notes.push(`${def.name}: +${amount} current HP.`);
@@ -191,6 +193,29 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         notes.push(`${def.name}: ${amount} temporary HP.`);
       } else notes.push(`${def.name}: temporary HP don't stack, keeping ${c.hp.temp}.`);
     }
+  };
+
+  /** Lesser and Greater Restoration on you: the picked condition ends (or one exhaustion level), no tag stays. */
+  const restore = (def: { name: string; ends?: Record<string, string> }, choice?: string) => {
+    const target = choice ? def.ends?.[choice] : undefined;
+    if (!target) return void notes.push(`${def.name}: pick what it ends.`);
+    if (target === "exhaustion") {
+      const ex = c.effects.find((e) => e.effect === "condition:exhaustion");
+      if (!ex) return void notes.push(`${def.name}: you aren't exhausted.`);
+      const lvl = (ex.level ?? 1) - 1;
+      if (lvl <= 0) {
+        removeEffects([ex]);
+        notes.push(`${def.name}: exhaustion gone.`);
+      } else {
+        ex.level = lvl;
+        notes.push(`${def.name}: exhaustion down to level ${lvl}.`);
+      }
+      return;
+    }
+    const on = c.effects.filter((e) => e.effect === target);
+    if (!on.length) return void notes.push(`${def.name}: you aren't ${choice!.toLowerCase()}.`);
+    removeEffects(on);
+    notes.push(`${def.name}: ${choice!.toLowerCase()} ended.`);
   };
 
   /** Effects that remind you of something when you take damage (Armor of Agathys). */
@@ -1683,7 +1708,8 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       });
       const effectId = sp.id.replace(/^spell:/, "effect:");
       const selfDef = reg.find(effectId, "effect");
-      if (selfEffect && selfDef) {
+      if (selfEffect && selfDef?.ends) restore(selfDef, op.payload.choice);
+      else if (selfEffect && selfDef) {
         const def = selfDef;
         const entry: Character["effects"][number] = { id: `${op.id}-effect`, effect: effectId, from: "Your own spell" };
         const timer = def.rounds ? { rounds: def.rounds } : def.minutes ? { minutes: def.minutes } : sp.timer;
@@ -1692,7 +1718,7 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         if (def.upcast && level > 0) entry.castLevel = level;
         if (def.untilRest) entry.untilRest = def.untilRest;
         combineSame(entry, def.name);
-        gainHp(def, entry.castLevel);
+        gainHp(def, entry.castLevel, op.payload.choice);
         if (sp.concentration) entry.concentration = true;
         if (op.payload.choice) entry.choice = op.payload.choice;
         c.effects.push(entry);
@@ -1744,6 +1770,10 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       const effect = op.payload.effect === "custom" ? "custom" : reg.effectId(op.payload.effect);
       if (c.effects.some((e) => e.id === instanceId)) break;
       const def = effect !== "custom" ? reg.find(effect, "effect") : undefined;
+      if (def?.ends) {
+        restore(def, op.payload.choice);
+        break;
+      }
       // Immune to a condition (given by a feature or by hand): say so; the player decides.
       if (def?.category === "condition" && sheet.defenses.immune.some((x) => x.toLowerCase() === def.name.toLowerCase() || x === def.id)) notes.push(`You're immune to being ${def.name.toLowerCase()}: added anyway, remove it if it doesn't apply.`);
       const existing = def ? c.effects.find((e) => e.effect === effect) : undefined;
@@ -1786,7 +1816,7 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       c.effects.push(entry);
       if (def?.choice && !entry.choice) notes.push(`${def.name}: choose the ${def.choice.label.toLowerCase()} on its card.`);
       if (def?.upcast && !entry.castLevel) notes.push(`Cast at a higher level? Set it on ${def.name}'s card.`);
-      if (def) gainHp(def, entry.castLevel);
+      if (def) gainHp(def, entry.castLevel, entry.choice);
       // Incapacitating conditions break concentration.
       const brings = (id: string, seen = new Set<string>()): boolean => {
         if (id === "condition:incapacitated") return true;

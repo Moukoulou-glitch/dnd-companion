@@ -544,6 +544,21 @@ function CounterSection({ e, counter, act, close }: { e: EffectResult; counter: 
           </button>
         </div>
       </div>
+      {counter.use && (
+        <button
+          className="big wide primary"
+          disabled={counter.left <= 0}
+          onClick={() => {
+            const n = counter.left - 1;
+            act("updateEffect", { instanceId: e.instanceId, count: n }, `${e.name}: ${counter.use!.label.toLowerCase()}, ${n} left.`);
+            if (counter.use!.heal > 0) act("heal", { amount: counter.use!.heal }, `${e.name}: healed ${counter.use!.heal}.`);
+            if (n === 0 && counter.endsAtZero) close();
+          }}
+        >
+          {counter.use.label}
+          {counter.use.heal > 0 ? <span className="sub">heals {counter.use.heal}</span> : null}
+        </button>
+      )}
       <div className="pips" aria-hidden="true">
         {Array.from({ length: counter.start }, (_, i) => (
           <span key={i} className={i < counter.left ? "pip on" : "pip"} />

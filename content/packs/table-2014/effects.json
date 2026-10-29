@@ -5788,6 +5788,160 @@
       "reminders": [
         "Guardian Spirit: a beast or fey you summoned or created with a spell that ends its turn in the aura regains {druidHalf} hit points."
       ]
+    },
+    {
+      "kind": "effect",
+      "id": "effect:heroes-feast",
+      "name": "Heroes' Feast",
+      "category": "spell",
+      "summary": "For 24 hours: immune to poison and to being frightened, advantage on Wisdom saves, and a higher hit point maximum (2d10, gained as hit points too).",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 250
+      },
+      "modifiers": [
+        {
+          "selector": "defense.immune.poison",
+          "op": "immune",
+          "label": "Heroes' Feast"
+        },
+        {
+          "selector": "defense.immune.poisoned",
+          "op": "immune",
+          "label": "Heroes' Feast"
+        },
+        {
+          "selector": "defense.immune.frightened",
+          "op": "immune",
+          "label": "Heroes' Feast"
+        },
+        {
+          "selector": "roll.save.wis",
+          "op": "advantage",
+          "label": "Heroes' Feast"
+        },
+        {
+          "selector": "stat.hp.max",
+          "op": "add",
+          "value": "{choice}",
+          "label": "Heroes' Feast"
+        }
+      ],
+      "hpGain": "{choice}",
+      "minutes": 1440,
+      "choice": {
+        "label": "Hit point maximum increase",
+        "options": [
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15",
+          "16",
+          "17",
+          "18",
+          "19",
+          "20"
+        ],
+        "roll": "2d10"
+      },
+      "reminders": [
+        "Eating the feast also cured you of all diseases and poison: remove those tags."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "effect:goodberry",
+      "name": "Goodberry",
+      "category": "spell",
+      "summary": "Up to ten magic berries for 24 hours. Eating one takes an action: it restores 1 hit point and nourishes for a day.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 246
+      },
+      "modifiers": [],
+      "minutes": 1440,
+      "counter": {
+        "label": "Berries",
+        "start": 10,
+        "endsAtZero": true,
+        "use": {
+          "label": "Eat a berry",
+          "heal": 1
+        }
+      },
+      "reminders": [
+        "Eating a berry takes your action.",
+        "A berry you give away: take it off the count with −."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "effect:lesser-restoration",
+      "name": "Lesser Restoration",
+      "category": "spell",
+      "summary": "Ends one disease or one of these conditions: blinded, deafened, paralyzed or poisoned.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 255
+      },
+      "modifiers": [],
+      "choice": {
+        "label": "End which on you?",
+        "options": [
+          "Blinded",
+          "Deafened",
+          "Paralyzed",
+          "Poisoned"
+        ]
+      },
+      "ends": {
+        "Blinded": "condition:blinded",
+        "Deafened": "condition:deafened",
+        "Paralyzed": "condition:paralyzed",
+        "Poisoned": "condition:poisoned"
+      }
+    },
+    {
+      "kind": "effect",
+      "id": "effect:greater-restoration",
+      "name": "Greater Restoration",
+      "category": "spell",
+      "summary": "Ends one exhaustion level, or being charmed or petrified, or a curse, or a reduction to an ability score or to the hit point maximum.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 246
+      },
+      "modifiers": [],
+      "choice": {
+        "label": "End which on you?",
+        "options": [
+          "One exhaustion level",
+          "Charmed",
+          "Petrified"
+        ]
+      },
+      "ends": {
+        "One exhaustion level": "exhaustion",
+        "Charmed": "condition:charmed",
+        "Petrified": "condition:petrified"
+      },
+      "reminders": [
+        "A curse, or a reduction to an ability score or your hit point maximum: end that tag, or undo the change, by hand."
+      ]
     }
   ]
 }

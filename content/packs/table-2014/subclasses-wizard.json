@@ -130,14 +130,10 @@
       "grant": {
         "modifiers": [
           {
-            "selector": "roll.check.int",
+            "selector": "roll.check.spell.abjuration",
             "op": "add",
             "value": "pb",
-            "mode": "suggested",
-            "label": "Improved Abjuration",
-            "when": {
-              "text": "ability check made as part of an abjuration spell (Counterspell, Dispel Magic)"
-            }
+            "label": "Improved Abjuration"
           }
         ]
       }
