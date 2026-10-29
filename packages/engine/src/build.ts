@@ -326,7 +326,7 @@ export function choiceOptions(ch: ChoiceDef, reg: ContentRegistry, slotMax?: num
         .list("feat")
         .filter((f) => !from || from.includes(f.id))
         .sort((a, b) => a.name.localeCompare(b.name))
-        .map((f) => ({ value: f.id, label: f.name, ...(f.summary ? { detail: f.summary } : {}) }));
+        .map((f) => ({ value: f.id, label: f.name, ...(f.summary || f.prerequisite ? { detail: `${f.prerequisite ? `Prerequisite: ${f.prerequisite.text}. ` : ""}${f.summary ?? ""}`.trim() } : {}) }));
   }
 }
 

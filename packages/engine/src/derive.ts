@@ -2420,6 +2420,29 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     r.effect = a.heal ? `heals ${amt.text}` : a.tempHp ? `${amt.text} temporary HP` : `${amt.text} ${a.roll!.label}`;
   }
 
+  // Feats' prerequisites (a feat picked through Human Above All, at a level, or by the race): warned, never blocked.
+  {
+    const race = reg.find(c.race, "race");
+    const raceNames = race ? [race.id, race.name, race.group ?? ""].map((x) => x.toLowerCase()) : [];
+    const martial = new Set(reg.list("item").filter((i) => i.weapon?.category === "martial").map((i) => i.name.toLowerCase()));
+    for (const s of sources) {
+      if (!s.id.startsWith("feat:")) continue;
+      const pre = reg.find(s.id, "feat")?.prerequisite;
+      if (!pre) continue;
+      const missing: string[] = [];
+      if (pre.races || pre.small) {
+        const byRace = (pre.races ?? []).some((r) => raceNames.includes(r.toLowerCase()));
+        const bySize = !!pre.small && sizeNow.base.toLowerCase() === "small";
+        if (!byRace && !bySize) missing.push("race");
+      }
+      if (pre.abilities && !Object.entries(pre.abilities).some(([ab, min]) => abilities[ab as Ability].score.total >= min)) missing.push("score");
+      if (pre.armor && !profs.armor.has(pre.armor)) missing.push("armor");
+      if (pre.martialWeapon && !profs.weapon.has("martial") && ![...profs.weapon].some((w) => martial.has(w.toLowerCase()))) missing.push("weapon");
+      if (pre.spellcasting && !spellcasting.length && !spellDefs.size) missing.push("spells");
+      if (missing.length) warnings.push(`${s.label}: needs ${pre.text}, which this character doesn't meet. Kept; your DM's call.`);
+    }
+  }
+
   const sheet: DerivedSheet = {
     toggles,
     featureTags,

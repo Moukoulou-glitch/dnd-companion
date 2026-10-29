@@ -78,6 +78,7 @@ import { filesIn, useCharacters } from "./useCharacters";
 import { backupDue, daysSince, lastBackup, snoozeBackup, snoozedUntil } from "./backup";
 import { formatMinutes } from "./time";
 import { DiePick } from "./components/DiePick";
+import { DeathSavePanel } from "./components/DeathSave";
 import { vibrateFor, type HpState } from "./vibrate";
 
 type Tab = "play" | "actions" | "spells" | "sheet" | "inventory" | "story";
@@ -611,36 +612,28 @@ export function App() {
     else close();
   };
 
-  /** A death saving throw: what the d20 shows decides it. */
+  /** A death saving throw: what the d20 shows decides it (with Adama, two d20s added: exactly 20 is a natural 20). */
   const openDeathSave = () => {
-    const decide = (n: number) => {
+    const decide = (n: number, sum?: [number, number]) => {
       let prompts: unknown;
+      if (sum) {
+        live.current.act("spendResource", { resource: "adama", amount: 1 }, "Adama used.");
+        const said = `Death save (Adama): ${sum[0]} + ${sum[1]} = ${n}`;
+        if (n === 20) prompts = s.act("deathSave", { result: "critSuccess" }, `${said}, counts as a natural 20.`);
+        else if (n >= 10) prompts = s.act("deathSave", { result: "success" }, `${said}, a success.`);
+        else prompts = s.act("deathSave", { result: "failure" }, `${said}, a failure.`);
+        return afterDeathSave(prompts);
+      }
       if (n === 20) prompts = s.act("deathSave", { result: "critSuccess" }, "Death save: natural 20.");
       else if (n === 1) prompts = s.act("deathSave", { result: "critFailure" }, "Death save: natural 1, two failures.");
       else if (n >= 10) prompts = s.act("deathSave", { result: "success" }, `Death save: ${n}, a success.`);
       else prompts = s.act("deathSave", { result: "failure" }, `Death save: ${n}, a failure.`);
       afterDeathSave(prompts);
     };
+    const adama = live.current.sheet?.resources.find((r) => r.id === "adama");
     open(
       "Death saving throw",
-      <>
-        <p className="note">Tap what your d20 shows, or let the app roll. 10 or higher succeeds; 1 counts as two failures; 20 brings you back with 1 HP.</p>
-        {live.current.character?.effects.some((e) => e.effect === "effect:beacon-of-hope") && (
-          <p className="note">Beacon of Hope: advantage. Roll two d20s and tap the higher one; the app rolls two for you.</p>
-        )}
-        <div className="keys d20" style={{ marginTop: 10 }}>
-          {Array.from({ length: 20 }, (_, i) => (
-            <button key={i} className="key" onClick={() => decide(i + 1)}>
-              {i + 1}
-            </button>
-          ))}
-        </div>
-        <button className="big" style={{ width: "100%", marginTop: 10 }} onClick={() =>
-            void rollOrThrow(live.current.character?.effects.some((e) => e.effect === "effect:beacon-of-hope") ? "2d20kh1" : "1d20", true, undefined, { source: "Death saving throw", quick: true }).then((r) => decide(r.total))
-          }>
-          Roll for me
-        </button>
-      </>,
+      <DeathSavePanel beacon={!!live.current.character?.effects.some((e) => e.effect === "effect:beacon-of-hope")} {...(adama ? { adama: adama.remaining } : {})} onDecide={decide} />,
     );
   };
 

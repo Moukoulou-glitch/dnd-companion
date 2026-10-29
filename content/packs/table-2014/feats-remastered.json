@@ -403,6 +403,10 @@
             }
           }
         ]
+      },
+      "prerequisite": {
+        "text": "spellcasting",
+        "spellcasting": true
       }
     },
     {
@@ -426,6 +430,12 @@
             }
           }
         ]
+      },
+      "prerequisite": {
+        "text": "Strength 13",
+        "abilities": {
+          "str": 13
+        }
       }
     },
     {
@@ -484,6 +494,10 @@
             "target": "shields"
           }
         ]
+      },
+      "prerequisite": {
+        "text": "proficiency with medium armor",
+        "armor": "medium"
       }
     },
     {
@@ -692,6 +706,13 @@
             }
           },
           "progression": "none"
+        }
+      },
+      "prerequisite": {
+        "text": "Intelligence or Wisdom 13",
+        "abilities": {
+          "int": 13,
+          "wis": 13
         }
       }
     },

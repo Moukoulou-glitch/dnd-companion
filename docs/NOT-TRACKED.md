@@ -445,8 +445,8 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 - Eladrin: pick the season (Slumberfall, Nocter, Titanspring, Heammer) in Choices; a long rest reminds you that you can change it. From 3rd level Fey Step shows the season's effect and its DC. The charm, fright, swap and damage themselves are yours to apply.
 - Heritage features (homebrew), from character level 10: Thinking Stone, Human Above All, Unbridled Seasons, Adama.
   - Thinking Stone: the stored objects and who holds them aren't tracked; each spell's slot-free cast is counted per long rest (a warning past one, never blocked). "Not prepared" isn't enforced: the slot buttons still show.
-  - Human Above All: the feat's prerequisites aren't checked.
-  - Unbridled Seasons: the season spells are cast with Charisma (an assumption to confirm). Nocter's Ice Storm ending when you start a turn outside it, and Catnap's 1 round, are notes. Heammer's and Nocter's weapon damage is an option you tick (fire or radiant; cold or necrotic). Fey Step's 60 ft is a note.
-  - Adama: an option on attack rolls, saves and checks; it counts only with advantage or disadvantage. Death saves aren't covered (they don't go through the roll screen).
+  - Human Above All: the feat's prerequisites are checked and warned about (16b), for every feat that has one: race, a score, an armor or martial weapon proficiency, spellcasting. Kept either way.
+  - Unbridled Seasons: the season spells are cast with Charisma (confirmed, and in the text). Nocter's spell is Sleet Storm (16b); it ending when you start a turn outside it, and Catnap's 1 round, are notes. Heammer's and Nocter's weapon damage is an option you tick (fire or radiant; cold or necrotic). Fey Step's 60 ft is a note.
+  - Adama: an option on attack rolls, saves and checks, and a tick on the death save (two taps, or the app rolls both; 16b); it counts only with advantage or disadvantage, which is yours to say.
 - Animations: Zone of Truth (the five lines, when you cast it or put its tag on you), Preserve Life (a waterfall rising), Fey Step (by season).
 

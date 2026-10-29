@@ -204,6 +204,25 @@ export const FeatDef = z
     features: z.array(DefId).default([]),
     grant: Grant.optional(),
     choices: z.array(ChoiceDef).optional(),
+    /**
+     * What a character needs to take it (warned about, never blocked). Everything listed must hold, except that
+     * `races` and `small` are alternatives ("Dwarf or a Small race"); `abilities` needs any one of the scores.
+     */
+    prerequisite: z
+      .object({
+        text: z.string(),
+        /** A race id, or a race's name or group ("Dragonborn", "Elf"). */
+        races: z.array(z.string()).optional(),
+        small: z.boolean().optional(),
+        abilities: z.record(z.enum(["str", "dex", "con", "int", "wis", "cha"]), z.number().int()).optional(),
+        /** Proficiency with this armor ("light", "medium", "heavy"). */
+        armor: z.string().optional(),
+        martialWeapon: z.boolean().optional(),
+        /** Spellcasting or Pact Magic, or any spell to cast. */
+        spellcasting: z.boolean().optional(),
+      })
+      .strict()
+      .optional(),
   })
   .strict();
 export type FeatDef = z.infer<typeof FeatDef>;

@@ -51,6 +51,12 @@
             "infoOnly": true
           }
         ]
+      },
+      "prerequisite": {
+        "text": "Halfling",
+        "races": [
+          "Halfling"
+        ]
       }
     },
     {
@@ -213,7 +219,13 @@
             "cha"
           ]
         }
-      ]
+      ],
+      "prerequisite": {
+        "text": "Dragonborn",
+        "races": [
+          "Dragonborn"
+        ]
+      }
     },
     {
       "kind": "feat",
@@ -265,7 +277,13 @@
             "cha"
           ]
         }
-      ]
+      ],
+      "prerequisite": {
+        "text": "Dragonborn",
+        "races": [
+          "Dragonborn"
+        ]
+      }
     },
     {
       "kind": "feat",
@@ -339,6 +357,12 @@
             "note": "Once per long rest without a slot."
           }
         ]
+      },
+      "prerequisite": {
+        "text": "Elf (drow)",
+        "races": [
+          "race:drow"
+        ]
       }
     },
     {
@@ -364,6 +388,12 @@
             "note": "When you Dodge in combat: spend one Hit Die, regain the roll + Constitution modifier (at least 1).",
             "infoOnly": true
           }
+        ]
+      },
+      "prerequisite": {
+        "text": "Dwarf",
+        "races": [
+          "Dwarf"
         ]
       }
     },
@@ -420,7 +450,11 @@
             "feature:invocation-eldritch-mind"
           ]
         }
-      ]
+      ],
+      "prerequisite": {
+        "text": "Spellcasting or Pact Magic",
+        "spellcasting": true
+      }
     },
     {
       "kind": "feat",
@@ -453,7 +487,14 @@
             "cha"
           ]
         }
-      ]
+      ],
+      "prerequisite": {
+        "text": "Elf or Half-Elf",
+        "races": [
+          "Elf",
+          "Half-Elf"
+        ]
+      }
     },
     {
       "kind": "feat",
@@ -502,7 +543,13 @@
             "int"
           ]
         }
-      ]
+      ],
+      "prerequisite": {
+        "text": "Gnome",
+        "races": [
+          "Gnome"
+        ]
+      }
     },
     {
       "kind": "feat",
@@ -571,7 +618,13 @@
             "cha"
           ]
         }
-      ]
+      ],
+      "prerequisite": {
+        "text": "Elf (high)",
+        "races": [
+          "race:high-elf"
+        ]
+      }
     },
     {
       "kind": "feat",
@@ -604,7 +657,11 @@
             "feature:style-unarmed-fighting"
           ]
         }
-      ]
+      ],
+      "prerequisite": {
+        "text": "proficiency with a martial weapon",
+        "martialWeapon": true
+      }
     },
     {
       "kind": "feat",
@@ -657,7 +714,13 @@
             "cha"
           ]
         }
-      ]
+      ],
+      "prerequisite": {
+        "text": "Tiefling",
+        "races": [
+          "Tiefling"
+        ]
+      }
     },
     {
       "kind": "feat",
@@ -759,6 +822,10 @@
             }
           }
         ]
+      },
+      "prerequisite": {
+        "text": "proficiency with heavy armor",
+        "armor": "heavy"
       }
     },
     {
@@ -796,6 +863,12 @@
             }
           }
         ]
+      },
+      "prerequisite": {
+        "text": "Tiefling",
+        "races": [
+          "Tiefling"
+        ]
       }
     },
     {
@@ -819,6 +892,12 @@
             "tempHp": "level + mod.cha"
           }
         ]
+      },
+      "prerequisite": {
+        "text": "Charisma 13",
+        "abilities": {
+          "cha": 13
+        }
       }
     },
     {
@@ -1021,7 +1100,11 @@
             "Twinned Spell"
           ]
         }
-      ]
+      ],
+      "prerequisite": {
+        "text": "Spellcasting or Pact Magic",
+        "spellcasting": true
+      }
     },
     {
       "kind": "feat",
@@ -1083,7 +1166,11 @@
             "dex"
           ]
         }
-      ]
+      ],
+      "prerequisite": {
+        "text": "proficiency with light armor",
+        "armor": "light"
+      }
     },
     {
       "kind": "feat",
@@ -1208,7 +1295,13 @@
             "con"
           ]
         }
-      ]
+      ],
+      "prerequisite": {
+        "text": "Half-Orc",
+        "races": [
+          "Half-Orc"
+        ]
+      }
     },
     {
       "kind": "feat",
@@ -1347,7 +1440,15 @@
           "kind": "skill",
           "count": 1
         }
-      ]
+      ],
+      "prerequisite": {
+        "text": "Half-Elf, Half-Orc or Human",
+        "races": [
+          "Half-Elf",
+          "Half-Orc",
+          "Human"
+        ]
+      }
     },
     {
       "kind": "feat",
@@ -1439,7 +1540,13 @@
             "cha"
           ]
         }
-      ]
+      ],
+      "prerequisite": {
+        "text": "Halfling",
+        "races": [
+          "Halfling"
+        ]
+      }
     },
     {
       "kind": "feat",
@@ -1629,7 +1736,13 @@
         "book": "PHB",
         "page": 170
       },
-      "features": []
+      "features": [],
+      "prerequisite": {
+        "text": "Dexterity 13",
+        "abilities": {
+          "dex": 13
+        }
+      }
     },
     {
       "kind": "feat",
@@ -1738,7 +1851,14 @@
             "athletics"
           ]
         }
-      ]
+      ],
+      "prerequisite": {
+        "text": "Dwarf or a Small race",
+        "races": [
+          "Dwarf"
+        ],
+        "small": true
+      }
     },
     {
       "kind": "feat",
@@ -1921,6 +2041,10 @@
             "infoOnly": true
           }
         ]
+      },
+      "prerequisite": {
+        "text": "the ability to cast at least one spell",
+        "spellcasting": true
       }
     },
     {
@@ -2086,7 +2210,13 @@
             "level": 0
           }
         }
-      ]
+      ],
+      "prerequisite": {
+        "text": "Elf (wood)",
+        "races": [
+          "race:wood-elf"
+        ]
+      }
     }
   ]
 }

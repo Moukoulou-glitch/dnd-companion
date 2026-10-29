@@ -174,14 +174,15 @@
         "pack": "table-2014",
         "book": "Homebrew (Heritage)"
       },
-      "summary": "From 10th level: your season's gifts (below), and Fey Step also as a reaction when you take damage, with a 60-foot range.",
+      "summary": "From 10th level: your season's gifts (below; Charisma is the spellcasting ability for their spells), and Fey Step also as a reaction when you take damage, with a 60-foot range.",
       "text": [
         "To you, the seasons are not merely the passage of time, but living forces that change, clash, and are reborn. Within you dwell the exuberance and vitality of Titanspring, the ferocity and brilliance of Heammer, the decay and tranquility of Slumberfall, and the silent threat and certainty of Nocter.",
         "Depending on the season you represent, you gain the following benefits:",
         "Titanspring. You can cast Aura of Vitality without requiring concentration, once per long rest. Additionally, you can use the Fighter's Action Surge feature one additional time beyond the number of times you can normally use it.",
         "Heammer. You can cast Beacon of Hope without requiring concentration, once per long rest. In addition, all your weapon attacks deal an extra 2 magical fire or radiant damage (your choice). The damage rolls of your spells that deal fire or radiant damage also increase by the same amount.",
         "Slumberfall. You can cast Short Rest with a duration of 1 combat round instead of 10 minutes, once per long rest. Additionally, when you score a critical hit against a creature, it has disadvantage on attack rolls and ability checks until the end of your next turn.",
-        "Nocter. You can cast Ice Storm without requiring concentration, once per long rest. When you cast the spell in this way, you are unaffected by the spell and its heavily obscured area. However, if you are not within the spell's area of effect at the start of one of your turns, the spell ends. In addition, all your weapon attacks deal an extra 4 magical cold or necrotic damage (your choice). The damage rolls of your spells that deal cold or necrotic damage also increase by the same amount.",
+        "Nocter. You can cast Sleet Storm without requiring concentration, once per long rest. When you cast the spell in this way, you are unaffected by the spell and its heavily obscured area. However, if you are not within the spell's area of effect at the start of one of your turns, the spell ends. In addition, all your weapon attacks deal an extra 4 magical cold or necrotic damage (your choice). The damage rolls of your spells that deal cold or necrotic damage also increase by the same amount.",
+        "Charisma is your spellcasting ability for the spells you cast with this feature.",
         "Finally, you can also use your Fey Step as a reaction when you take damage, and its range permanently increases to 60 feet."
       ],
       "heritage": {
@@ -218,7 +219,7 @@
         "pack": "table-2014",
         "book": "Homebrew (Heritage)"
       },
-      "summary": "Aura of Vitality once per long rest without concentration; one more Action Surge use (if you have the feature).",
+      "summary": "Aura of Vitality once per long rest (Charisma) without concentration; one more Action Surge use (if you have the feature).",
       "heritage": {
         "races": [
           "race:eladrin"
@@ -270,7 +271,7 @@
         "pack": "table-2014",
         "book": "Homebrew (Heritage)"
       },
-      "summary": "Beacon of Hope once per long rest without concentration; +2 magical fire or radiant damage on weapon attacks, and +2 on spell damage rolls of those types.",
+      "summary": "Beacon of Hope once per long rest (Charisma) without concentration; +2 magical fire or radiant damage on weapon attacks, and +2 on spell damage rolls of those types.",
       "heritage": {
         "races": [
           "race:eladrin"
@@ -353,7 +354,7 @@
         "pack": "table-2014",
         "book": "Homebrew (Heritage)"
       },
-      "summary": "Catnap once per long rest, lasting 1 round instead of 10 minutes; a creature you crit has disadvantage on attack rolls and ability checks until the end of your next turn.",
+      "summary": "Catnap once per long rest (Charisma), lasting 1 round instead of 10 minutes; a creature you crit has disadvantage on attack rolls and ability checks until the end of your next turn.",
       "heritage": {
         "races": [
           "race:eladrin"
@@ -410,7 +411,7 @@
         "pack": "table-2014",
         "book": "Homebrew (Heritage)"
       },
-      "summary": "Ice Storm once per long rest without concentration, which doesn't affect you (it ends if you start a turn outside it); +4 magical cold or necrotic damage on weapon attacks, and +4 on spell damage rolls of those types.",
+      "summary": "Sleet Storm once per long rest without concentration (Charisma), which doesn't affect you (it ends if you start a turn outside it); +4 magical cold or necrotic damage on weapon attacks, and +4 on spell damage rolls of those types.",
       "heritage": {
         "races": [
           "race:eladrin"
@@ -431,18 +432,19 @@
         "resources": [
           {
             "id": "unbridled-seasons-spell",
-            "name": "Unbridled Seasons: Ice Storm",
+            "name": "Unbridled Seasons: Sleet Storm",
             "max": 1,
             "reset": "long"
           }
         ],
         "spells": [
           {
-            "spell": "spell:ice-storm",
-            "name": "Ice Storm",
-            "casting": "once per long rest, no slot; you're unaffected by it and its obscured area; it ends if you start a turn outside it",
+            "spell": "spell:sleet-storm",
+            "name": "Sleet Storm",
+            "casting": "once per long rest, no slot; no concentration; you're unaffected by it and its obscured area; it ends if you start a turn outside it",
             "resource": "unbridled-seasons-spell",
-            "list": "unbridled-seasons"
+            "list": "unbridled-seasons",
+            "noConcentration": true
           }
         ],
         "modifiers": [

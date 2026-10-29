@@ -66,3 +66,24 @@ describe("heritage features at 10th level (homebrew)", () => {
     expect(s.saves.dex.suggestions.find((x) => x.label === "Adama")).toMatchObject({ apply: { sumD20: 20 }, spends: { resource: "adama", amount: 1 } });
   });
 });
+
+describe("16b: prerequisites, Sleet Storm", () => {
+  it("Human Above All: a feat whose prerequisite isn't met is kept with a warning; one that is met, no warning", () => {
+    const low = pc("race:variant-human", "class:fighter", 10, { "feature:heritage-human-above-all": { feat: ["feat:skulker"] } }, { abilities: { str: 14, dex: 12, con: 14, int: 12, wis: 10, cha: 16 } });
+    expect(low.warnings.some((w) => /Skulker: needs Dexterity 13/.test(w))).toBe(true);
+    expect(low.features.some((f) => f.id === "feat:skulker")).toBe(true);
+    const ok = pc("race:variant-human", "class:fighter", 10, { "feature:heritage-human-above-all": { feat: ["feat:skulker"] } });
+    expect(ok.warnings.some((w) => /Skulker: needs/.test(w))).toBe(false);
+    const elf = pc("race:variant-human", "class:fighter", 10, { "feature:heritage-human-above-all": { feat: ["feat:elven-accuracy"] } });
+    expect(elf.warnings.some((w) => /Elven Accuracy: needs Elf or Half-Elf/.test(w))).toBe(true);
+    const ch = reg.get("feature:heritage-human-above-all", "feature").choices![0]!;
+    expect(choiceOptions(ch, reg).find((o) => o.value === "feat:inspiring-leader")?.detail).toMatch(/^Prerequisite: Charisma 13\./);
+  });
+  it("Nocter's spell is Sleet Storm, free once per long rest without concentration, cast with Charisma", () => {
+    const s = eladrin(10, "Nocter");
+    const sleet = s.spells.find((x) => x.id === "spell:sleet-storm" && x.list.id === "unbridled-seasons")!;
+    expect(sleet.cast.free).toMatchObject({ noConcentration: true });
+    expect(s.spellcasting.find((x) => x.id === "unbridled-seasons")?.ability).toBe("cha");
+    expect(s.spells.some((x) => x.id === "spell:ice-storm" && x.list.id === "unbridled-seasons")).toBe(false);
+  });
+});
