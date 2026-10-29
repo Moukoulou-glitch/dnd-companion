@@ -1267,13 +1267,13 @@
             },
             "roll": {
               "dice": "2d8",
-              "label": "lightning or thunder damage",
+              "label": "damage",
               "types": [
                 "lightning",
                 "thunder"
               ]
             },
-            "note": "Attacker within 5 ft: Dex save, 2d8 lightning or thunder (half on success)."
+            "note": "Attacker within 5 ft: Dexterity save, 2d8 lightning or thunder damage (your pick), half on a success."
           }
         ]
       }

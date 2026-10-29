@@ -1816,6 +1816,24 @@
       "initiative": "own",
       "halfHp": true,
       "note": "An icy duplicate of a beast or humanoid within 10 ft for the whole casting: the creature's statistics with half its hit point maximum, no equipment. It's friendly and obeys you, can't learn or grow stronger, and doesn't regain spell slots. Repair it in an alchemical lab (100 gp per hit point). Casting Simulacrum again destroys the one you have. A copy of a character: make it as a companion of your own (half that character's hit points)."
+    },
+    {
+      "kind": "summon",
+      "id": "summon:heammer-wisps",
+      "name": "Heammer Wisps",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (Circle of the Heammer)"
+      },
+      "creatures": [
+        "creature:heammer-wisp"
+      ],
+      "countByClass": {
+        "class": "class:druid",
+        "divide": 2
+      },
+      "initiative": "shared",
+      "note": "Theros: half your druid level of Heammer Wisps, in unoccupied spaces within 30 ft. They obey your spoken commands and vanish if they leave Plant Growth's mile."
     }
   ]
 }

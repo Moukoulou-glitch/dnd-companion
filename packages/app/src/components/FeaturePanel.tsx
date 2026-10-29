@@ -70,13 +70,16 @@ export function FeaturePanel({
   const [target, setTarget] = useState(a.spendAmount?.heals ? "me" : "other");
   const me = pickable ? target === "me" : a.others || a.gives ? onMe : undefined;
   const useWith = (rolled?: number, free?: boolean, check?: string, choice?: string, spend?: { amount: number; healSelf: boolean }, onMeArg?: boolean) =>
-    onUse(rolled, free, check, choice, spend, onMeArg, pickable ? target : undefined);
+    onUse(rolled, free, check, choice ?? (types.length > 1 ? dtype : undefined), spend, onMeArg, pickable ? target : undefined);
   const targetName = targets?.find((t) => t.id === target)?.name ?? "them";
   const none = a.cost && a.cost.remaining < a.cost.amount;
 
   const [throwing, setThrowing] = useState(false);
   // Destructive Wrath on this roll: its dice at their maximum.
   const [maxOn, setMaxOn] = useState(false);
+  // Its damage type, when it can be one of several (Wrath of the Storm: lightning or thunder).
+  const types = a.roll?.types ?? [];
+  const [dtype, setDtype] = useState(types[0]);
   // Rolled more than once, keeping one (Controlled Chaos, Controlled Surge): the faces, then the pick.
   const times = a.roll?.times ?? 1;
   const [faces, setFaces] = useState<number[] | null>(null);
@@ -241,6 +244,15 @@ export function FeaturePanel({
                 </div>
               ))}
               {faces.length > 1 && faces.every((f) => f === faces[0]) && a.choose && <p className="note">Both the same: pick any.</p>}
+            </div>
+          )}
+          {types.length > 1 && (
+            <div className="types wrap" role="radiogroup" aria-label="Damage type">
+              {types.map((t) => (
+                <button key={t} className="switch" role="radio" aria-checked={dtype === t} aria-pressed={dtype === t} onClick={() => setDtype(t)} style={{ textTransform: "capitalize" }}>
+                  {t}
+                </button>
+              ))}
             </div>
           )}
           {a.roll?.maxWith && amount.dice.length > 0 && (

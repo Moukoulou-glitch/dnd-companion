@@ -612,7 +612,10 @@ export const SummonDef = z
   .object({
     ...base,
     kind: z.literal("summon"),
-    spell: DefId,
+    /** The spell that summons them; none for a feature's summons (Theros' Heammer Wisps, through `opensSummon`). */
+    spell: DefId.optional(),
+    /** How many: a class level divided (Theros: half your druid level). */
+    countByClass: z.object({ class: DefId, divide: z.number().int().min(1) }).strict().optional(),
     /** Creatures to choose from; or `type` (with `tiers` or a CR equal to the slot level). */
     creatures: z.array(DefId).optional(),
     type: z.array(z.string()).optional(),

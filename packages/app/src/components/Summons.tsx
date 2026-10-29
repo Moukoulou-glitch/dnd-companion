@@ -14,7 +14,7 @@ const roundsText = (r: number) => (r < 10 ? `${r} rd` : r < 600 ? `${Math.round(
 const crText = (n: number) => (n === 0.125 ? "1/8" : n === 0.25 ? "1/4" : n === 0.5 ? "1/2" : String(n));
 
 /** After casting a summoning spell: which creatures, and how many (warned past the limit, never blocked). */
-export function SummonPicker({ reg, summon, slot, caster, onSummon }: { reg: ContentRegistry; summon: string; slot: number; caster?: { attack: number; dc: number }; onSummon: (creatures: { creature: string; count: number }[]) => void }) {
+export function SummonPicker({ reg, summon, slot, caster, onSummon, countOverride }: { reg: ContentRegistry; summon: string; slot: number; caster?: { attack: number; dc: number }; onSummon: (creatures: { creature: string; count: number }[]) => void; countOverride?: number }) {
   const def = reg.find(summon, "summon");
   const opts = useMemo(() => summonOptions(reg, summon, slot, caster), [reg, summon, slot, caster]);
   const [tier, setTier] = useState(0);
@@ -22,7 +22,7 @@ export function SummonPicker({ reg, summon, slot, caster, onSummon }: { reg: Con
   const [q, setQ] = useState("");
   if (!def || !opts) return <p className="note">Nothing to summon.</p>;
   const t = opts.tiers[tier];
-  const limit = t ? t.count : opts.count ?? 1;
+  const limit = countOverride ?? (t ? t.count : opts.count ?? 1);
   const maxCr = t?.maxCr ?? opts.maxCr ?? (def.crBySlot ? slot : Infinity);
   const total = Object.values(counts).reduce((a, b) => a + b, 0);
   const list = opts.creatures.filter((d) => d.cr <= maxCr || counts[d.id]).filter((d) => d.name.toLowerCase().includes(q.trim().toLowerCase()));
@@ -177,7 +177,7 @@ export function SummonGroupPanel({
 }) {
   const members = character.summons.filter((s) => s.group === group);
   if (!members.length) return <p className="note">They're gone.</p>;
-  const sumDef = reg.list("summon").find((s) => s.spell === members[0]!.spell);
+  const sumDef = reg.list("summon").find((s) => (s.spell ?? s.id) === members[0]!.spell);
   const shared = sumDef?.initiative !== "own";
   const kinds = [...new Set(members.map((m) => m.creature))];
   return (

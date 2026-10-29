@@ -5942,6 +5942,114 @@
       "reminders": [
         "A curse, or a reduction to an ability score or your hit point maximum: end that tag, or undo the change, by hand."
       ]
+    },
+    {
+      "kind": "effect",
+      "id": "other:floar",
+      "name": "Floar",
+      "category": "other",
+      "summary": "The Methic flame is lit in you: resistance to fire and radiant, +1d10 to your spells' fire and radiant damage, and an aura.",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (Circle of the Heammer)"
+      },
+      "modifiers": [],
+      "minutes": 10,
+      "choice": {
+        "label": "The aura's damage",
+        "options": [
+          "Fire",
+          "Radiant"
+        ]
+      },
+      "reminders": [
+        "Hostile creatures that start their turn within 10 ft of you, or enter it for the first time on a turn, take {pb} damage of the aura's type.",
+        "Fire and radiant swap on your spells' damage rolls; Fire Bolt is yours as a druid spell.",
+        "From 14th level (Zenith): bright sunlight in 5 ft, dim 5 ft more.",
+        "It ends if you change form (Wild Shape, Polymorph), become incapacitated or use Floar again; end it here any time."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "other:untamed-flame-ac",
+      "name": "Untamed Flame (Zenith)",
+      "category": "other",
+      "summary": "+2 AC until the start of your next turn.",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (Circle of the Heammer)"
+      },
+      "modifiers": [
+        {
+          "selector": "stat.ac",
+          "op": "add",
+          "value": 2,
+          "label": "Untamed Flame (Zenith)"
+        }
+      ],
+      "rounds": 1,
+      "selfOnly": true
+    },
+    {
+      "kind": "effect",
+      "id": "other:theros",
+      "name": "Theros",
+      "category": "other",
+      "summary": "A phenomenon over your Plant Growth's mile, for 1d10 days or until the next full moon.",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (Circle of the Heammer)"
+      },
+      "modifiers": [],
+      "choice": {
+        "label": "Phenomenon",
+        "options": [
+          "Fair Weather",
+          "Heammer Wisps",
+          "Thawing Cold",
+          "Radiant Passage"
+        ]
+      },
+      "reminders": [
+        "Roll 1d10 for the days; it also ends at the next full moon. End the tag when it's over.",
+        "Fair Weather: clear skies and mild warmth in the mile (not against other magic).",
+        "Heammer Wisps: they obey your spoken commands and vanish if they leave the mile.",
+        "Thawing Cold: cold damage in the mile is 1d10 lower (at least 1).",
+        "Radiant Passage: bonus action, teleport into bright light you've seen, within half a mile of the area."
+      ],
+      "selfOnly": true
+    },
+    {
+      "kind": "effect",
+      "id": "other:zenith-ward",
+      "name": "Zenith: warded",
+      "category": "other",
+      "summary": "The next cold or necrotic damage to you is halved.",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (Circle of the Heammer)"
+      },
+      "modifiers": [
+        {
+          "selector": "defense.resist.cold",
+          "op": "resist",
+          "label": "Zenith"
+        },
+        {
+          "selector": "defense.resist.necrotic",
+          "op": "resist",
+          "label": "Zenith"
+        }
+      ],
+      "rounds": 1,
+      "onDamage": {
+        "text": "Zenith: the ward is spent.",
+        "endsAfter": true
+      },
+      "reminders": [
+        "Enter the cold or necrotic damage now: it's halved, and this tag ends."
+      ],
+      "selfOnly": true
     }
   ]
 }

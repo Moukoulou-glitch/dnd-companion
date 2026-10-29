@@ -371,7 +371,7 @@ export function turnOrder(character: Character, sheet: DerivedSheet, reg?: Conte
   for (const m of character.summons) if (m.hp > 0) groups.set(m.group, [...(groups.get(m.group) ?? []), m]);
   for (const ms of groups.values()) {
     const first = ms[0]!;
-    const sum = reg?.list("summon").find((x) => x.spell === first.spell);
+    const sum = reg?.list("summon").find((x) => (x.spell ?? x.id) === first.spell);
     const base = first.name ?? reg?.find(first.creature, "creature")?.name ?? first.creature.replace(/^creature:/, "").replace(/-/g, " ");
     const name = ms.length > 1 && !first.name ? `${base} ×${ms.length}` : base;
     if (sum?.initiative === "yours") you.with.push(name);

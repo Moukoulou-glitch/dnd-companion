@@ -1731,6 +1731,450 @@
         "book": "TCoE",
         "page": 41
       }
+    },
+    {
+      "kind": "subclass",
+      "id": "subclass:circle-of-the-heammer",
+      "name": "Circle of the Heammer",
+      "class": "class:druid",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (Circle of the Heammer)"
+      },
+      "summary": "Methic druids of fire and light who guard the land from the Nighton, the bitter frost and darkness.",
+      "text": [
+        "Dedicated to protecting the land from the Nighton and the bitter frost, the Druids of this Circle weave the magic of fire and light in a way unmatched by others. Their powers and abilities follow the Shamanic Trails, and they are often known as Methic Druids.",
+        "A Methic Druid will never allow the otherworldly cold to prevail, a disease to spread, or darkness to seep into the world. The Eternal Metheus is reflected deep within their eyes, and the gentle warmth of hope and salvation lives in their touch.",
+        "In a clearing where night never falls, deep within an ancient forest, or atop a solitary peak that always shines, one might find a Druid of the Heammer gazing toward the heavens, their hair dancing mysteriously in the colors of flame."
+      ],
+      "features": [
+        {
+          "level": 2,
+          "feature": "feature:circle-of-the-heammer-spells-2"
+        },
+        {
+          "level": 3,
+          "feature": "feature:circle-of-the-heammer-spells-3"
+        },
+        {
+          "level": 5,
+          "feature": "feature:circle-of-the-heammer-spells-5"
+        },
+        {
+          "level": 7,
+          "feature": "feature:circle-of-the-heammer-spells-7"
+        },
+        {
+          "level": 9,
+          "feature": "feature:circle-of-the-heammer-spells-9"
+        },
+        {
+          "level": 2,
+          "feature": "feature:circle-of-the-heammer-floar"
+        },
+        {
+          "level": 6,
+          "feature": "feature:circle-of-the-heammer-untamed-flame"
+        },
+        {
+          "level": 10,
+          "feature": "feature:circle-of-the-heammer-theros"
+        },
+        {
+          "level": 14,
+          "feature": "feature:circle-of-the-heammer-zenith"
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:circle-of-the-heammer-spells-2",
+      "name": "Circle Spells",
+      "summary": "Always prepared, not counted against your prepared spells, and druid spells for you: Burning Hands, Guiding Bolt.",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (Circle of the Heammer)"
+      },
+      "text": [
+        "You have become an instrument of hope and salvation, a beacon capable of protecting the land from dark annihilation. Your connection to Methic light and flame grants you access to certain spells when you reach specific Druid levels, as shown in the Circle of the Heammer Spells table.",
+        "Once you gain access to one of these spells, you always have it prepared, and it doesn't count against the number of spells you can prepare each day. If you gain access to a spell that doesn't appear on the Druid spell list, the spell is nonetheless a Druid spell for you."
+      ],
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:burning-hands",
+            "name": "Burning Hands",
+            "casting": "always prepared",
+            "list": "druid"
+          },
+          {
+            "spell": "spell:guiding-bolt",
+            "name": "Guiding Bolt",
+            "casting": "always prepared",
+            "list": "druid"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:circle-of-the-heammer-spells-3",
+      "name": "Circle Spells (3rd)",
+      "summary": "Always prepared, not counted against your prepared spells, and druid spells for you: Flaming Sphere, Lesser Restoration.",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (Circle of the Heammer)"
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:flaming-sphere",
+            "name": "Flaming Sphere",
+            "casting": "always prepared",
+            "list": "druid"
+          },
+          {
+            "spell": "spell:lesser-restoration",
+            "name": "Lesser Restoration",
+            "casting": "always prepared",
+            "list": "druid"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:circle-of-the-heammer-spells-5",
+      "name": "Circle Spells (5th)",
+      "summary": "Always prepared, not counted against your prepared spells, and druid spells for you: Daylight, Plant Growth.",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (Circle of the Heammer)"
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:daylight",
+            "name": "Daylight",
+            "casting": "always prepared",
+            "list": "druid"
+          },
+          {
+            "spell": "spell:plant-growth",
+            "name": "Plant Growth",
+            "casting": "always prepared",
+            "list": "druid"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:circle-of-the-heammer-spells-7",
+      "name": "Circle Spells (7th)",
+      "summary": "Always prepared, not counted against your prepared spells, and druid spells for you: Fire Shield, Guardian of Faith.",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (Circle of the Heammer)"
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:fire-shield",
+            "name": "Fire Shield",
+            "casting": "always prepared",
+            "list": "druid"
+          },
+          {
+            "spell": "spell:guardian-of-faith",
+            "name": "Guardian of Faith",
+            "casting": "always prepared",
+            "list": "druid"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:circle-of-the-heammer-spells-9",
+      "name": "Circle Spells (9th)",
+      "summary": "Always prepared, not counted against your prepared spells, and druid spells for you: Flame Strike, Greater Restoration.",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (Circle of the Heammer)"
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:flame-strike",
+            "name": "Flame Strike",
+            "casting": "always prepared",
+            "list": "druid"
+          },
+          {
+            "spell": "spell:greater-restoration",
+            "name": "Greater Restoration",
+            "casting": "always prepared",
+            "list": "druid"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:circle-of-the-heammer-floar",
+      "name": "Floar",
+      "summary": "Bonus action, one Wild Shape use: 10 minutes of Methic flame. Resistance to fire and radiant; your spells' fire and radiant damage +1d10 and swappable between the two; hostile creatures near you take your proficiency bonus in fire or radiant damage; Fire Bolt as a druid spell.",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (Circle of the Heammer)"
+      },
+      "text": [
+        "You have learned to rekindle the Methic Flame within yourself. As a bonus action on your turn, you can expend one use of your Wild Shape. Your body then undergoes temporary changes that reflect this transformation. You decide what these changes look like. For example, your eyes might begin to glow, or your hair might become incandescent and start waving like a flame.",
+        "These changes last for 10 minutes, until you change form (such as by using your Wild Shape feature or the Polymorph spell), until you choose to end them (no action required), until you become incapacitated, until you use this feature again, or until you die.",
+        "While these changes are active, you gain the following benefits:",
+        "- You have resistance to fire and radiant damage.",
+        "- Whenever you deal damage with a spell, you can change fire damage to radiant damage, or radiant damage to fire damage. For example, you can change the damage type of Burning Hands to radiant damage.",
+        "- The fire and radiant damage you deal with spells increases by 1d10.",
+        "- Hostile creatures that start their turn within 10 feet of you, or enter that area for the first time on a turn, take fire or radiant damage (your choice when you activate Floar) equal to your proficiency bonus.",
+        "- While Floar is active, you gain access to the Fire Bolt cantrip. You can cast it as a Druid spell."
+      ],
+      "grant": {
+        "actions": [
+          {
+            "id": "floar",
+            "name": "Floar",
+            "economy": "bonus",
+            "cost": {
+              "resource": "wild-shape"
+            },
+            "toggles": [
+              "floar"
+            ],
+            "selfEffect": "other:floar",
+            "duration": {
+              "minutes": 10
+            },
+            "choose": {
+              "label": "The aura's damage",
+              "options": [
+                "Fire",
+                "Radiant"
+              ]
+            },
+            "note": "10 minutes: resistance to fire and radiant, +1d10 to your spells' fire and radiant damage (swap one for the other on the roll), an aura of {pb} damage, and Fire Bolt. It ends if you change form, become incapacitated, use it again, or end it."
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "defense.resist.fire",
+            "op": "resist",
+            "label": "Floar",
+            "when": {
+              "toggle": "floar"
+            }
+          },
+          {
+            "selector": "defense.resist.radiant",
+            "op": "resist",
+            "label": "Floar",
+            "when": {
+              "toggle": "floar"
+            }
+          },
+          {
+            "selector": "roll.damage.spell.cantrip",
+            "op": "add",
+            "value": "1d10",
+            "label": "Floar",
+            "forTypes": [
+              "fire",
+              "radiant"
+            ],
+            "when": {
+              "toggle": "floar"
+            }
+          },
+          {
+            "selector": "roll.damage.spell.leveled",
+            "op": "add",
+            "value": "1d10",
+            "label": "Floar",
+            "forTypes": [
+              "fire",
+              "radiant"
+            ],
+            "when": {
+              "toggle": "floar",
+              "notFeature": "feature:circle-of-the-heammer-zenith"
+            }
+          }
+        ],
+        "damageTypeSwap": {
+          "types": [
+            "fire",
+            "radiant"
+          ],
+          "toggle": "floar",
+          "label": "Floar"
+        },
+        "spells": [
+          {
+            "spell": "spell:fire-bolt",
+            "name": "Fire Bolt",
+            "casting": "while Floar is on, as a druid spell",
+            "list": "druid",
+            "whileToggle": "floar"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:circle-of-the-heammer-untamed-flame",
+      "name": "Untamed Flame",
+      "summary": "A Circle spell with a casting time of 1 action can be cast as a bonus action, if its level and the slot's are no greater than your proficiency bonus. Then roll a d10: on a 10, the slot isn't spent.",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (Circle of the Heammer)"
+      },
+      "text": [
+        "You now draw your magic from Metheus, weaving your spells in a way that allows no compromise. As a bonus action on your turn, you can cast a Circle spell that has a casting time of 1 action, provided the spell's level is no greater than your proficiency bonus. The spell slot you expend must also be of a level no greater than your proficiency bonus.",
+        "Additionally, when you cast a Circle spell in this way, you can roll a d10. If the result is 10, the spell slot you expended isn't consumed."
+      ],
+      "grant": {
+        "altCast": {
+          "label": "Untamed Flame",
+          "time": "1 bonus action",
+          "spellsOf": [
+            "feature:circle-of-the-heammer-spells-2",
+            "feature:circle-of-the-heammer-spells-3",
+            "feature:circle-of-the-heammer-spells-5",
+            "feature:circle-of-the-heammer-spells-7",
+            "feature:circle-of-the-heammer-spells-9"
+          ],
+          "fromTime": "1 action",
+          "maxLevel": "pb",
+          "keepSlotOn": 10,
+          "effect": "other:untamed-flame-ac",
+          "effectFrom": "feature:circle-of-the-heammer-zenith"
+        }
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:circle-of-the-heammer-theros",
+      "name": "Theros",
+      "summary": "Once per long rest, casting Plant Growth over 8 hours, invoke a phenomenon for 1d10 days or until the next full moon: Fair Weather, Heammer Wisps (half your druid level of them), Thawing Cold (cold damage in the area −1d10, at least 1) or Radiant Passage (bonus action: teleport within half a mile into bright light you've seen).",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (Circle of the Heammer)"
+      },
+      "text": [
+        "Your existence is now intertwined with the Heammer, fair weather, and the fertility of the land. Once per long rest, when you cast Plant Growth using its 8-hour casting time, you can also invoke one of the following phenomena. The chosen phenomenon lasts for 1d10 days or until the next full moon, whichever comes first.",
+        "- Fair Weather. The weather within the spell's one-mile area becomes clear, with sunshine during the day or a starry sky at night, and the temperature becomes mild to warm. This phenomenon cannot override other magical effects.",
+        "- Heammer Wisps. You can summon a number of Heammer Wisps equal to half your Druid level in unoccupied spaces within 30 feet of you. These creatures obey your verbal commands, but disappear if they leave the spell's one-mile area.",
+        "- Thawing Cold. Cold damage from spells and other phenomena, both magical and nonmagical, within the spell's one-mile area is reduced by 1d10, to a minimum of 1.",
+        "- Radiant Passage. As a bonus action, you can teleport to any unoccupied space within half a mile of the spell's area. You must have seen the destination at least once before, and it must be within an area of bright light."
+      ],
+      "grant": {
+        "resources": [
+          {
+            "id": "theros",
+            "name": "Theros",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "theros",
+            "name": "Theros",
+            "economy": "free",
+            "cost": {
+              "resource": "theros"
+            },
+            "toggles": [],
+            "selfEffect": "other:theros",
+            "choose": {
+              "label": "Phenomenon",
+              "options": [
+                "Fair Weather",
+                "Heammer Wisps",
+                "Thawing Cold",
+                "Radiant Passage"
+              ]
+            },
+            "opensSummon": {
+              "summon": "summon:heammer-wisps",
+              "onChoice": "Heammer Wisps"
+            },
+            "note": "When your Plant Growth cast over 8 hours ends: invoke one phenomenon for 1d10 days (roll it) or until the next full moon. Heammer Wisps: half your druid level of them."
+          }
+        ],
+        "castReminder": {
+          "text": "you can invoke a phenomenon now (Actions → Theros), once per long rest.",
+          "minLevel": 0,
+          "spells": [
+            "spell:plant-growth"
+          ],
+          "time": "8 hours"
+        }
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:circle-of-the-heammer-zenith",
+      "name": "Zenith",
+      "summary": "Floar sheds sunlight (bright 5 ft, dim 5 ft more). While it's on: your leveled spells' fire and radiant damage +1d10 per spell level (in place of Floar's 1d10); advantage on attacks against creatures in your sunlight; a reaction to halve cold or necrotic damage to you or a creature in it; Untamed Flame gives +2 AC until your next turn.",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (Circle of the Heammer)"
+      },
+      "text": [
+        "Your Floar transformation knows no compromise. When you activate Floar, you emit bright sunlight in a 5-foot radius and dim sunlight for an additional 5 feet. While Floar is active, you also gain the following benefits:",
+        "- The fire and radiant damage you deal with spells of 1st level or higher increases by 1d10 for each level of the spell.",
+        "- The sunlight you emit becomes an extension of yourself and your senses. You have advantage on attack rolls against creatures within the radius of the sunlight emitted by your Floar.",
+        "- When you or a creature within the radius of your Floar's sunlight takes cold or necrotic damage, you can use your reaction to halve that damage for the chosen creature. You must make this decision before the damage is rolled.",
+        "- When you use Untamed Flame, your AC increases by 2 until the start of your next turn."
+      ],
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.damage.spell.leveled",
+            "op": "add",
+            "value": "slotLeveld10",
+            "label": "Zenith",
+            "forTypes": [
+              "fire",
+              "radiant"
+            ],
+            "when": {
+              "toggle": "floar"
+            }
+          },
+          {
+            "selector": "roll.attack.*",
+            "op": "advantage",
+            "mode": "suggested",
+            "label": "Zenith",
+            "when": {
+              "toggle": "floar",
+              "text": "the target is in your Floar's sunlight (within 10 ft)"
+            }
+          }
+        ],
+        "actions": [
+          {
+            "id": "zenith-ward",
+            "name": "Zenith: ward against the cold",
+            "economy": "reaction",
+            "toggles": [],
+            "selfEffect": "other:zenith-ward",
+            "note": "Before cold or necrotic damage is rolled against you or a creature in your sunlight: halve it. On you, enter the damage next; on someone else, they halve it."
+          }
+        ]
+      }
     }
   ]
 }

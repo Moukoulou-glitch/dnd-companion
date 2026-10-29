@@ -16,7 +16,7 @@ export interface ComposerBase {
     effect: string;
     reason?: string;
     /** critAt: a critical hit on this or more while ticked (Hexblade's Curse: 19, against the cursed target). */
-    apply: { flat: number; dice: string[]; damageType?: string; mode?: "advantage" | "disadvantage"; weaponDice?: string; critAt?: number; rerollAtOrBelow?: number; minD20?: number; maximize?: boolean; tripleAdvantage?: string };
+    apply: { flat: number; dice: string[]; damageType?: string; mode?: "advantage" | "disadvantage"; weaponDice?: string; critAt?: number; rerollAtOrBelow?: number; minD20?: number; maximize?: boolean; tripleAdvantage?: string; diceBySlot?: Record<number, string[]> };
     /** Ticking it spends this (a superiority die). */
     spends?: { resource: string; amount: number };
     /** One of a group per roll. */

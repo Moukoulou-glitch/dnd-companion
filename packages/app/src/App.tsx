@@ -1096,10 +1096,18 @@ export function App() {
         summon={summonId}
         slot={slot}
         {...(caster ? { caster } : {})}
+        {...(() => {
+          // How many by a class level (Theros: half your druid level of Heammer Wisps).
+          const by = registry.find(summonId, "summon")?.countByClass;
+          if (!by) return {};
+          const lvl = live.current.character?.classes.find((x) => x.class === by.class)?.level ?? 0;
+          return { countOverride: Math.max(1, Math.floor(lvl / by.divide)) };
+        })()}
         onSummon={(creatures) => {
           const def = registry.find(summonId, "summon")!;
           const group = crypto.randomUUID().slice(0, 8);
-          live.current.act("summon", { spell: def.spell, group, creatures, ...(def.concentration ? { concentration: true } : {}) }, `${def.name}.`);
+          // A feature's summons (Theros) have no spell: the summon itself names the group.
+          live.current.act("summon", { spell: def.spell ?? def.id, group, creatures, ...(def.concentration ? { concentration: true } : {}) }, `${def.name}.`);
           openSummonGroup(group);
         }}
       />
@@ -1474,6 +1482,8 @@ export function App() {
             };
             const label = spend
               ? `${a.name}: ${spend.amount} ${spend.healSelf ? "hit points to yourself" : "points spent"}.`
+              : choice && current.roll?.types?.includes(choice) && rolled !== undefined
+              ? `${a.name}: ${rolled} ${choice} damage.`
               : choice && current.untilTurnStart
               ? `${a.name}: ${choice}. Use your reaction when the trigger happens.`
               : choice
@@ -1508,6 +1518,8 @@ export function App() {
                   flashForFeature(current.id);
                   // Hound of Ill Omen: straight to the companion it brought out.
                   if (current.summons) return openCompanion(current.summons.companion);
+                  // Theros' Heammer Wisps: the summon's picker.
+                  if (current.opensSummon && (!current.opensSummon.onChoice || current.opensSummon.onChoice === choice)) return openSummon(current.opensSummon.summon, 1);
                   const sk = check as Skill | undefined;
                   const base = sk && live.current.sheet?.skills[sk];
                   const grows = GROWING_AREAS[current.id];
@@ -1815,7 +1827,7 @@ export function App() {
       const groups = new Map<string, NonNullable<typeof live.current.character>["summons"]>();
       for (const m of live.current.character?.summons ?? []) if (m.hp > 0) groups.set(m.group, [...(groups.get(m.group) ?? []), m]);
       for (const [group, ms] of groups) {
-        const how = registry.list("summon").find((x) => x.spell === ms[0]!.spell)?.initiative;
+        const how = registry.list("summon").find((x) => (x.spell ?? x.id) === ms[0]!.spell)?.initiative;
         const name = (m: (typeof ms)[number]) => m.name ?? registry.find(m.creature, "creature")?.name ?? "Summoned";
         if (how === "yours") continue;
         if (how === "own") for (const m of ms) who.push({ label: name(m), set: (r) => setSummonInit(group, r, m.id) });
@@ -3359,6 +3371,16 @@ export function App() {
                 // A spirit's attacks use your spell attack and DC (the spellcasting this spell is cast with).
                 const sc = live.current.sheet?.spellcasting.find((x) => x.id === sp.list.id) ?? live.current.sheet?.spellcasting[0];
                 openSummon(sum.id, level, sc ? { attack: sc.attack.total, dc: sc.saveDc.total } : undefined);
+              }
+              // Untamed Flame: cast as a bonus action through a feature; its d10 for the slot, and Zenith's AC.
+              const alt = sp.altCasts?.find((x) => castingTime === `${x.time} (${x.label})`);
+              if (alt) {
+                if (alt.effect) live.current.act("addEffect", { instanceId: crypto.randomUUID(), effect: alt.effect, rounds: 1, untilTurnStart: true }, `${alt.label}: ${effReg().find(alt.effect, "effect")?.name ?? "effect"} until your next turn.`);
+                if (alt.keepSlotOn && using === "slot")
+                  void rollOrThrow("1d10", true, undefined, { source: alt.label }).then((r) => {
+                    if (r.total >= alt.keepSlotOn!) live.current.act("restoreSlot", { level, pact: false }, `${alt.label}: d10 shows ${r.total}, the level ${level} slot isn't spent.`);
+                    else live.current.setToast({ id: Date.now(), text: `${alt.label}: d10 shows ${r.total}, the slot is spent.`, canUndo: false });
+                  });
               }
               // Counterspell, Dispel Magic: is the spell higher than the slot? Then the check.
               if (sp.check) {

@@ -52,6 +52,8 @@ export const Condition = z
     minScore: z.record(Ability, z.number().int()).optional(),
     /** From this level in a class (Elemental Gift's resistance: warlock 6th). */
     classLevel: z.object({ class: DefId, min: z.number().int().min(1).max(20) }).strict().optional(),
+    /** Not once you have this feature (Floar's 1d10 on leveled spells: replaced by Zenith's dice at 14th). */
+    notFeature: DefId.optional(),
     /** A named on/off state on the character, e.g. "raging", "sharpshooter". */
     toggle: z.string().optional(),
     /** On unless the player switches this state on (a rune you know: "rune-fire-off" when its object isn't with you). */
@@ -285,6 +287,8 @@ export const GrantedSpell = z
      * (or `castAt`), and with `perLevel` one more charge for each level above, up to `maxLevel`.
      */
     charges: z.object({ cost: z.number().int().min(1), perLevel: z.boolean().optional(), maxLevel: z.number().int().min(1).max(9).optional() }).strict().optional(),
+    /** Only while this switch is on (Floar's Fire Bolt). */
+    whileToggle: z.string().optional(),
     /** Always cast at this level (Staff of Power's fireball: 5th). */
     castAt: z.number().int().min(1).max(9).optional(),
     /** Its own save DC instead of yours (Wand of Fireballs: 15). */
@@ -440,6 +444,8 @@ export const ActionDef = z
     choose: z.object({ label: z.string(), options: z.array(z.string()).min(1) }).strict().optional(),
     /** Nothing to record: the panel only explains, and points to where it's done (Attack: the weapons above). */
     infoOnly: z.boolean().optional(),
+    /** Then opens this summon's picker (Theros: Heammer Wisps), when the pick from `choose` is `onChoice` (or always). */
+    opensSummon: z.object({ summon: DefId, onChoice: z.string().optional() }).strict().optional(),
     /**
      * Brings out a companion of the same feature (Hound of Ill Omen) with all its
      * hit points and these temporary HP; it stays while the action's timer runs.
@@ -629,6 +635,29 @@ export const Grant = z
     initiativeRegain: z.object({ resource: z.string(), amount: z.number().int().min(1).default(1) }).strict().optional(),
     /** An effect put on you when you finish a long rest (Tranquility: Sanctuary), for `minutes` or until the next long rest, with its save DC when it has one. */
     afterLongRest: z.object({ effect: DefId, minutes: z.number().int().min(1).optional(), dc: ValueExpr.optional() }).strict().optional(),
+    /**
+     * While `toggle` is on, a spell dealing one of `types` can deal another of them instead, picked on the roll
+     * (Floar: fire or radiant).
+     */
+    damageTypeSwap: z.object({ types: z.array(z.string()).min(2), toggle: z.string(), label: z.string() }).strict().optional(),
+    /**
+     * Another casting time for some spells (Untamed Flame: a Circle spell of 1 action as a bonus action): the spells the
+     * listed features grant, up to `maxLevel`; `keepSlotOn`: a d10 rolled after, and on this or more the slot comes back;
+     * `effect`: put on you when you cast this way, from `effectFrom` (Zenith: +2 AC until your next turn).
+     */
+    altCast: z
+      .object({
+        label: z.string(),
+        time: z.string(),
+        spellsOf: z.array(DefId).min(1),
+        fromTime: z.string().optional(),
+        maxLevel: ValueExpr.optional(),
+        keepSlotOn: z.number().int().min(1).max(10).optional(),
+        effect: DefId.optional(),
+        effectFrom: DefId.optional(),
+      })
+      .strict()
+      .optional(),
     /** A reminder each time you cast a spell of `minLevel` or higher (Voice of Authority: an ally you target can attack with its reaction). */
     castReminder: z
       .object({
@@ -638,6 +667,9 @@ export const Grant = z
         damageTypes: z.array(z.string()).optional(),
         /** "{value}" in the text, worked out (Heart of the Storm: half your sorcerer level). */
         value: ValueExpr.optional(),
+        /** Only for these spells, and with `time`, only cast with that casting time (Theros: Plant Growth over 8 hours). */
+        spells: z.array(DefId).optional(),
+        time: z.string().optional(),
       })
       .strict()
       .optional(),

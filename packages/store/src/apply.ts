@@ -700,7 +700,7 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         const mighty = hasFeature("feature:circle-of-the-shepherd-mighty-summoner") && /^(beast|fey)/i.test(d.type ?? "") ? 2 * Number(/^(\d+)d/.exec(d.hitDice ?? "")?.[1] ?? 0) : 0;
         const durable = hasFeature("feature:conjuration-durable-summons") && reg.find(spell, "spell")?.school.toLowerCase() === "conjuration";
         // Simulacrum: half the creature's hit point maximum.
-        const half = reg.list("summon").some((s) => s.spell === spell && s.halfHp) ? Math.ceil(d.hp / 2) : 0;
+        const half = reg.list("summon").some((s) => (s.spell ?? s.id) === spell && s.halfHp) ? Math.ceil(d.hp / 2) : 0;
         if (half) notes.push(`${d.name}'s simulacrum: half its hit points (${d.hp - half}).`);
         for (let i = 0; i < x.count; i++)
           c.summons.push({
@@ -1674,6 +1674,9 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       for (const r of sheet.castReminders) {
         if (level < r.minLevel) continue;
         if (r.damageTypes && !r.damageTypes.some((t) => castTypes.has(t))) continue;
+        // Theros: only Plant Growth cast over its 8 hours.
+        if (r.spells && !r.spells.includes(sp.id)) continue;
+        if (r.time && !(op.payload.castingTime ?? sp.castingTime).toLowerCase().includes(r.time.toLowerCase())) continue;
         const ifRetyped = r.damageTypes && !(sp.damage?.type && r.damageTypes.includes(sp.damage.type)) ? ` (if you make its damage ${r.damageTypes.join(" or ")})` : "";
         notes.push(`${r.from}${ifRetyped}: ${r.text}`);
       }

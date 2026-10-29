@@ -26,6 +26,12 @@ function withHealBonus<T extends { total: number; parts: { label: string; value:
   return { ...bonus, parts: [...bonus.parts, ...flat], dice: [...bonus.dice, ...dice], total: bonus.total + flat.reduce((n, x) => n + x.value, 0) };
 }
 
+/** Options worked out by the slot level (Zenith: 1d10 per level of the spell): the dice for this one. */
+function bySlot<T extends { suggestions: { apply: { dice: string[]; diceBySlot?: Record<number, string[]> } }[] }>(bonus: T, key: number): T {
+  if (!bonus.suggestions.some((x) => x.apply.diceBySlot)) return bonus;
+  return { ...bonus, suggestions: bonus.suggestions.map((x) => (x.apply.diceBySlot?.[key] ? { ...x, apply: { ...x.apply, dice: x.apply.diceBySlot[key]! } } : x)) };
+}
+
 /** A spell shaped like a weapon attack, so the roll composer can roll its attack and damage. */
 export function spellAsAttack(sp: SpellResult, level: number, alt = false): WeaponAttack & { saveNote?: string } {
   const key = sp.level === 0 ? 0 : level;
@@ -39,7 +45,7 @@ export function spellAsAttack(sp: SpellResult, level: number, alt = false): Weap
     ability: "int",
     proficient: true,
     attack: sp.attack ?? emptyRoll,
-    damage: { dice, type: sp.damage?.type ?? (sp.heal ? "healing" : ""), bonus: withHealBonus(sp, key, withParts(sp, key, sp.damageBonus ?? emptyRoll)), onCrit: [], critExtraDice: [] },
+    damage: { dice, type: sp.damage?.type ?? (sp.heal ? "healing" : ""), bonus: withHealBonus(sp, key, withParts(sp, key, bySlot(sp.damageBonus ?? emptyRoll, key))), onCrit: [], critExtraDice: [] },
     properties: [],
   };
   if (sp.save) {
@@ -315,8 +321,10 @@ export function SpellPanel({
   const [onMe, setOnMe] = useState(selfDefault ?? (hasSelfEffect && /self/i.test(sp.range)));
   const [onComps, setOnComps] = useState<string[]>([]);
   // "1 action or 8 hours" (Plant Growth): which one.
-  const times = sp.castingTime.split(/\s+or\s+/i).filter(Boolean);
+  // Another casting time a feature gives (Untamed Flame: "1 bonus action (Untamed Flame)").
+  const times = [...sp.castingTime.split(/\s+or\s+/i).filter(Boolean), ...(sp.altCasts ?? []).map((x) => `${x.time} (${x.label})`)];
   const [time, setTime] = useState(times[0]!);
+  const altNow = (sp.altCasts ?? []).find((x) => time === `${x.time} (${x.label})`);
   const slotsLeft = (lvl: number) => {
     const s = sheet.spellSlots.find((x) => x.level === lvl);
     return s ? s.total - s.used : 0;
@@ -385,6 +393,12 @@ export function SpellPanel({
                 </button>
               ))}
             </div>
+          )}
+          {altNow && (
+            <p className={altNow.maxLevel !== undefined && (cast ?? sp.level) > altNow.maxLevel ? "warn" : "note"}>
+              {altNow.label}: {altNow.maxLevel !== undefined ? `the spell and the slot of level ${altNow.maxLevel} or lower` : "as a bonus action"}
+              {altNow.keepSlotOn ? `; then a d10, and on a ${altNow.keepSlotOn} the slot isn't spent` : ""}.
+            </p>
           )}
           {casterSide && !readying && <p className="note">Its tag goes on you to track it{casterDamage ? ": the extra damage is offered on your attacks" : ""}.</p>}
           {hasSelfEffect && !casterSide && !readying && (

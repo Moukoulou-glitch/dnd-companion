@@ -157,6 +157,8 @@ export interface SpellResult {
   placeholder: boolean;
   source: string;
   list: { id: string; label: string };
+  /** Other casting times a feature gives it (Untamed Flame: 1 bonus action), up to a slot level, with what follows. */
+  altCasts?: { label: string; time: string; maxLevel?: number; keepSlotOn?: number; effect?: string }[];
   /** An ability check against a higher-level spell (Counterspell, Dispel Magic): DC 10 + its level; Improved Abjuration adds. */
   check?: { ability: Ability; roll: RollBreakdown; text: string };
   /** Feature, feat or race it comes from, when not a class list (Infernal Legacy, Fey Touched). */
@@ -226,7 +228,7 @@ export interface ActionResult {
   /** The feature or feat this comes from, for showing its text. */
   featureId?: string;
   /** Dice rolled when used and what the number means (Spirit Shield: damage prevented). */
-  roll?: Amount & { label: string; table?: string[]; times?: number; maxWith?: { label: string; spends?: { resource: string; amount: number } } };
+  roll?: Amount & { label: string; table?: string[]; times?: number; types?: string[]; maxWith?: { label: string; spends?: { resource: string; amount: number } } };
   /** Writes a spellbook spell onto a scroll (Master Scrivener): the pick is the spell, written `higher` levels up. */
   scribesScroll?: { list: string; maxLevel: number; higher: number };
   duration?: { rounds?: number; minutes?: number; fromRoll?: "rounds" | "minutes" | "hours" };
@@ -250,6 +252,8 @@ export interface ActionResult {
   endsConditions?: string[];
   /** Healing typed in rather than rolled, and what the number is (Keeper of Souls). */
   healEntered?: string;
+  /** Then a summon's picker (Theros: Heammer Wisps), on this pick or always. */
+  opensSummon?: { summon: string; onChoice?: string };
   /** Spells this use casts for free (Haunted: Invisibility): using it opens the spell. */
   spells?: { id: string; list: string }[];
   tempHp?: Amount;
@@ -498,7 +502,7 @@ export interface DerivedSheet {
   /** Effects put on you when you finish a long rest (Tranquility: Sanctuary), with their save DC. */
   afterLongRest: { effect: string; minutes?: number; dc?: number; from: string }[];
   /** Reminders when you cast a spell of `minLevel` or higher (Voice of Authority). */
-  castReminders: { text: string; minLevel: number; from: string; damageTypes?: string[] }[];
+  castReminders: { text: string; minLevel: number; from: string; damageTypes?: string[]; spells?: string[]; time?: string }[];
   /** Uses back at the end of a short rest (Sorcerous Restoration). */
   shortRestRegains: { resource: string; amount: number; from: string }[];
   /**
@@ -896,6 +900,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     }
     if (when.classLevel && (c.classes.find((k) => k.class === when.classLevel!.class)?.level ?? 0) < when.classLevel.min) return "fail";
     if (when.toggle && !c.toggles.includes(when.toggle)) return "fail";
+    if (when.notFeature && sources.some((x) => x.id === when.notFeature)) return "fail";
     if (when.toggleOff && c.toggles.includes(when.toggleOff)) return "fail";
     if (when.attackAction && !(c.combat && c.combat.attacks > 0)) return "fail";
     if (when.text || when.hands) return "unknown";
@@ -1040,17 +1045,32 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       if (!["add", "advantage", "disadvantage"].includes(mod.op)) continue;
       const state = conditionState(mod.when);
       if (state === "fail") continue;
-      if (state === "unknown" || mod.mode === "suggested") {
+      // For some damage types only, or by the slot it's cast with (Floar's 1d10, Zenith's d10 per level): an option on the
+      // roll, ticked by default, so the roll can tell the type and the level.
+      // (Only with no level of its own: an effect cast at a level, Spirit Shroud, already knows it.)
+      const bySlot = typeof mod.value === "string" && /slotLevel/.test(mod.value) && ctxFor(a.source).slotLevel === undefined;
+      const asOption = mod.mode !== "suggested" && state === "pass" && (!!mod.forTypes || bySlot);
+      if (state === "unknown" || mod.mode === "suggested" || asOption) {
         const apply: Suggestion["apply"] = { flat: 0, dice: [] };
         if (mod.op === "advantage" || mod.op === "disadvantage") apply.mode = mod.op;
-        else if (mod.value !== undefined) {
+        else if (mod.value !== undefined && bySlot) {
+          // Worked out for each slot level; the roll picks its own (1st level until then).
+          const at = (l: number) => evalExpr(mod.value!, { ...ctxFor(a.source), slotLevel: l });
+          apply.diceBySlot = {};
+          for (let l = 1; l <= 9; l++) apply.diceBySlot[l] = at(l).flatMap((t) => (t.kind === "dice" ? [t.dice] : []));
+          for (const term of at(1)) {
+            if (term.kind === "dice") apply.dice.push(term.dice);
+            else apply.flat += term.value;
+          }
+        } else if (mod.value !== undefined) {
           for (const term of evalExpr(mod.value, ctxFor(a.source))) {
             if (term.kind === "dice") apply.dice.push(term.dice);
             else apply.flat += term.value;
           }
         }
         if (mod.damageType) apply.damageType = mod.damageType;
-        const s: Suggestion = { label: labelOf(a), effect: describeEffect(a), apply };
+        const s: Suggestion = { label: labelOf(a), effect: bySlot ? `+${String(mod.value).replace(/slotLevel/, "N")} (N: the spell's level)` : describeEffect(a), apply };
+        if (asOption) s.preset = "always";
         // "{spelldc}", and "{dc:con}" for 8 + proficiency + that ability (a rune's save).
         if (mod.when?.text) s.reason = mod.when.text.replace(/\{spelldc\}/g, spellDcText).replace(/\{dc:(str|dex|con|int|wis|cha)\}/g, (_, ab: Ability) => `DC ${8 + pb + mods[ab]}`);
         if (mod.oncePerTurn) s.oncePerTurn = true;
@@ -1665,6 +1685,8 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
   for (const s of sources) {
     const ownList = s.grant.spellcasting?.id;
     for (const g of s.grant.spells ?? []) {
+      // Only while a switch is on (Floar's Fire Bolt).
+      if (g.whileToggle && !c.toggles.includes(g.whileToggle)) continue;
       const list = g.list ?? ownList ?? casters[0]?.id ?? "innate";
       const granted: GrantedSpellRef = { from: s.label };
       if (g.resource) granted.resource = g.resource;
@@ -1783,6 +1805,11 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
         break;
       }
     }
+    // Floar: fire or radiant, swapped on the roll while it's on.
+    for (const src of sources) {
+      const sw = src.grant.damageTypeSwap;
+      if (sw && type && sw.types.includes(type) && c.toggles.includes(sw.toggle)) out.push({ kind: "spell", label: sw.label, options: sw.types.filter((t) => t !== type) });
+    }
     if (hasTransmuted && type && TRANSMUTABLE.includes(type)) {
       const pts = resources.find((r) => r.id === "sorcery-points") ?? resources.find((r) => /metamagic/i.test(r.name));
       out.push({ kind: "transmuted", label: "Transmuted Spell, 1 sorcery point", options: TRANSMUTABLE, ...(pts ? { cost: { resource: pts.id, amount: 1 } } : {}) });
@@ -1847,6 +1874,16 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       if (elvenAccuracy && sc.ability !== "str") r.attack.tripleAdvantage = "Elven Accuracy";
     }
     if (sc && def.save) r.save = { ability: def.save.ability, dc: granted?.dc ?? sc.saveDc.total, onSuccess: def.save.onSuccess };
+    // Untamed Flame: the Circle spells of 1 action can be cast as a bonus action, up to a slot level.
+    for (const src of sources) {
+      const ac = src.grant.altCast;
+      if (!ac || def.level === 0) continue;
+      if (ac.fromTime && def.castingTime.toLowerCase() !== ac.fromTime.toLowerCase()) continue;
+      const granting = new Set(ac.spellsOf.flatMap((f) => (reg.has(f) ? (reg.get(f, "feature").grant?.spells ?? []).map((g) => g.spell) : [])));
+      if (!granting.has(def.id)) continue;
+      const fx = ac.effect && (!ac.effectFrom || sources.some((x) => x.id === ac.effectFrom)) ? ac.effect : undefined;
+      (r.altCasts ??= []).push({ label: ac.label, time: ac.time, ...(ac.maxLevel !== undefined ? { maxLevel: evalFlat(ac.maxLevel, ctxFor(src)) } : {}), ...(ac.keepSlotOn ? { keepSlotOn: ac.keepSlotOn } : {}), ...(fx ? { effect: fx } : {}) });
+    }
     if (sc && SPELL_CHECKS[def.id])
       r.check = {
         ability: sc.ability,
@@ -1889,7 +1926,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       const tcs = r.damage ? damageTypeChoices(def, r.damage.type, list) : [];
       const canChange = tcs.length > 0;
       r.damageBonus = roll(
-        ["roll.damage.spell", `roll.damage.spell.${def.id.replace(/^spell:/, "")}`, ...(def.level === 0 ? ["roll.damage.spell.cantrip"] : []), `roll.damage.spell.school.${def.school.toLowerCase()}`, `roll.damage.spell.level.${def.level}`, ...(def.damage?.type && !canChange ? [`roll.damage.spell.type.${def.damage.type}`] : []), `roll.damage.spell.list.${list}`],
+        ["roll.damage.spell", `roll.damage.spell.${def.id.replace(/^spell:/, "")}`, ...(def.level === 0 ? ["roll.damage.spell.cantrip"] : ["roll.damage.spell.leveled"]), `roll.damage.spell.school.${def.school.toLowerCase()}`, `roll.damage.spell.level.${def.level}`, ...(def.damage?.type && !canChange ? [`roll.damage.spell.type.${def.damage.type}`] : []), `roll.damage.spell.list.${list}`],
         [],
       );
       if (canChange) {
@@ -2012,7 +2049,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     for (const a of s.grant.actions ?? []) {
       const entry: ActionResult = { id: a.id, name: a.name, economy: a.economy, source: s.label, toggles: a.toggles };
       if (/^(feature|feat|race|background):/.test(s.id)) entry.featureId = s.id;
-      if (a.roll) entry.roll = { ...amountOf(a.roll.dice, s), label: a.roll.label, ...(a.roll.table ? { table: a.roll.table } : {}), ...(a.roll.times ? { times: a.roll.times } : {}) };
+      if (a.roll) entry.roll = { ...amountOf(a.roll.dice, s), label: a.roll.label, ...(a.roll.table ? { table: a.roll.table } : {}), ...(a.roll.times ? { times: a.roll.times } : {}), ...(a.roll.types ? { types: a.roll.types } : {}) };
       // Its damage can be maximized by an option for its types (Destructive Wrath on Wrath of the Storm's 2d8).
       if (a.roll?.types && entry.roll) {
         const mx = active.find((x) => x.mod.op === "maximize" && x.mod.forTypes?.some((t) => a.roll!.types!.includes(t)) && conditionState(x.mod.when) !== "fail");
@@ -2061,6 +2098,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
         if (only && / spell \(free\)$/.test(a.name)) entry.name = `${only.name} (free)`;
       }
       if (a.stopsMovement) entry.stopsMovement = true;
+      if (a.opensSummon) entry.opensSummon = a.opensSummon;
       if (a.summons) entry.summons = { companion: a.summons.companion, tempHp: a.summons.tempHp !== undefined ? Math.max(0, evalFlat(a.summons.tempHp, ctxFor(s))) : 0 };
       // "{dc:wis}" (a ki save DC) and "{spelldc}" in the note, worked out.
       if (a.note) entry.note = fillTag(a.note).replace(/\{spelldc\}/g, spellDcText).replace(/\{dc:(str|dex|con|int|wis|cha)\}/g, (_, ab: Ability) => `DC ${8 + pb + mods[ab]}`);
@@ -2492,7 +2530,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       const r = s.grant.castReminder;
       if (!r) return [];
       const text = r.value !== undefined ? r.text.replace("{value}", String(evalFlat(r.value, ctxFor(s)))) : r.text;
-      return [{ text, minLevel: r.minLevel, from: s.label, ...(r.damageTypes ? { damageTypes: r.damageTypes } : {}) }];
+      return [{ text, minLevel: r.minLevel, from: s.label, ...(r.damageTypes ? { damageTypes: r.damageTypes } : {}), ...(r.spells ? { spells: r.spells } : {}), ...(r.time ? { time: r.time } : {}) }];
     }),
     breath: (() => {
       const base = Math.max(5, (1 + mods.con) * 10);
