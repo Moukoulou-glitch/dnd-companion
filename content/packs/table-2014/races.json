@@ -4,7 +4,7 @@
       "kind": "race",
       "id": "race:eladrin",
       "name": "Eladrin",
-      "summary": "Fey elf tied to the seasons. Darkvision, trance, and a short-range teleport.",
+      "summary": "Fey elf tied to a season (Slumberfall, Nocter, Titanspring or Heammer). Darkvision, trance, and a short-range teleport that gains the season's effect from 3rd level.",
       "source": {
         "pack": "table-2014",
         "book": "MToF",
@@ -37,7 +37,27 @@
         "feature:trance",
         "feature:fey-step"
       ],
-      "group": "Elf"
+      "group": "Elf",
+      "choices": [
+        {
+          "id": "season",
+          "label": "Season (you can change it when you finish a long rest)",
+          "kind": "option",
+          "count": 1,
+          "from": [
+            "Slumberfall",
+            "Nocter",
+            "Titanspring",
+            "Heammer"
+          ],
+          "grants": {
+            "Slumberfall": "feature:eladrin-season-slumberfall",
+            "Nocter": "feature:eladrin-season-nocter",
+            "Titanspring": "feature:eladrin-season-titanspring",
+            "Heammer": "feature:eladrin-season-heammer"
+          }
+        }
+      ]
     },
     {
       "kind": "feature",
@@ -95,8 +115,8 @@
     {
       "kind": "feature",
       "id": "feature:fey-step",
-      "name": "Fey Step (Summer)",
-      "summary": "Bonus action: teleport up to 30 ft. From 3rd level, Summer adds fire damage equal to your Charisma modifier (minimum 1) to creatures of your choice within 5 ft after the step.",
+      "name": "Fey Step",
+      "summary": "Bonus action: teleport up to 30 ft to an unoccupied space you can see. Once per short or long rest. From 3rd level your season adds an effect.",
       "source": {
         "pack": "table-2014",
         "book": "MToF",
@@ -119,7 +139,102 @@
             "cost": {
               "resource": "fey-step"
             },
-            "note": "Teleport up to 30 ft. Summer: then fire damage equal to your Charisma modifier (minimum 1) to creatures you choose within 5 ft."
+            "note": "Teleport up to 30 ft to an unoccupied space you can see."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:eladrin-season-slumberfall",
+      "name": "Season: Slumberfall (autumn)",
+      "summary": "From 3rd level, after your Fey Step up to two creatures you can see within 10 ft make a Wisdom save (8 + proficiency + Charisma) or are charmed by you for 1 minute, or until you or your companions damage them.",
+      "source": {
+        "pack": "table-2014",
+        "book": "MToF",
+        "page": 62
+      },
+      "grant": {
+        "actionNotes": [
+          {
+            "action": "fey-step",
+            "text": "right after it, up to two creatures you choose and can see within 10 ft: Wisdom save or charmed by you for 1 minute (ends early if you or your companions damage it).",
+            "minLevel": 3,
+            "dc": {
+              "save": "Wisdom",
+              "by": [
+                "cha"
+              ],
+              "name": "Fey Step DC"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:eladrin-season-nocter",
+      "name": "Season: Nocter (winter)",
+      "summary": "From 3rd level, when you Fey Step one creature you can see within 5 ft before you go makes a Wisdom save (8 + proficiency + Charisma) or is frightened of you until the end of your next turn.",
+      "source": {
+        "pack": "table-2014",
+        "book": "MToF",
+        "page": 62
+      },
+      "grant": {
+        "actionNotes": [
+          {
+            "action": "fey-step",
+            "text": "one creature you choose and can see within 5 ft before you go: Wisdom save or frightened of you until the end of your next turn.",
+            "minLevel": 3,
+            "dc": {
+              "save": "Wisdom",
+              "by": [
+                "cha"
+              ],
+              "name": "Fey Step DC"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:eladrin-season-titanspring",
+      "name": "Season: Titanspring (spring)",
+      "summary": "From 3rd level, your Fey Step can send a willing creature you touch within 5 ft instead of you, to a space you can see within range.",
+      "source": {
+        "pack": "table-2014",
+        "book": "MToF",
+        "page": 62
+      },
+      "grant": {
+        "actionNotes": [
+          {
+            "action": "fey-step",
+            "text": "you can touch a willing creature within 5 ft: it teleports instead of you, to an unoccupied space you can see within range.",
+            "minLevel": 3
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:eladrin-season-heammer",
+      "name": "Season: Heammer (summer)",
+      "summary": "From 3rd level, right after your Fey Step each creature you choose and can see within 5 ft takes fire damage equal to your Charisma modifier (minimum 1).",
+      "source": {
+        "pack": "table-2014",
+        "book": "MToF",
+        "page": 62
+      },
+      "grant": {
+        "actionNotes": [
+          {
+            "action": "fey-step",
+            "text": "right after it, each creature you choose and can see within 5 ft takes {value} fire damage.",
+            "minLevel": 3,
+            "value": "mod1.cha"
           }
         ]
       }

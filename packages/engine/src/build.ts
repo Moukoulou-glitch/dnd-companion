@@ -313,8 +313,20 @@ export function choiceOptions(ch: ChoiceDef, reg: ContentRegistry, slotMax?: num
       }
       const lvl = ch.spells?.level;
       const max = Math.min(ch.spells?.maxLevel ?? 9, ch.spells?.upToSlots && slotMax !== undefined ? slotMax : 9);
-      return spellOptions(reg, ch.spells?.classes, lvl ?? ch.spells?.minLevel ?? 0, lvl ?? max, ch.spells?.schools, ch.spells?.ritual);
+      const opts = spellOptions(reg, ch.spells?.classes, lvl ?? ch.spells?.minLevel ?? 0, lvl ?? max, ch.spells?.schools, ch.spells?.ritual);
+      // 1 action, bonus action or reaction, and no concentration (Thinking Stone).
+      if (!ch.spells?.quick) return opts;
+      return opts.filter((o) => {
+        const d = reg.find(o.value, "spell");
+        return !!d && !d.concentration && /^1 (action|bonus action|reaction)\b/i.test(d.castingTime);
+      });
     }
+    case "feat":
+      return reg
+        .list("feat")
+        .filter((f) => !from || from.includes(f.id))
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .map((f) => ({ value: f.id, label: f.name, ...(f.summary ? { detail: f.summary } : {}) }));
   }
 }
 

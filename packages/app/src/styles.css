@@ -4183,3 +4183,80 @@ html.fx-shake-strong .app > .strip, html.fx-shake-strong .app > main, html.fx-sh
 @media (prefers-reduced-motion: reduce) {
   .fx-floar-tongue, .fx-floar-ember, .fx-floar-ring, .fx-zenith-sun, .fx-theros-arc, .fx-theros-mote, .fx-theros-land, .fx-theros-sky { animation: none; opacity: 0.6; }
 }
+
+/* Dice added by hand in a roll: a bonus or a penalty die. */
+.hand-dice {
+  display: grid;
+  gap: 6px;
+  margin: 8px 0 4px;
+}
+
+.hand-dice-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.hand-dice-sign {
+  min-width: 64px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.hand-dice .chip {
+  min-height: 36px;
+  padding: 0 10px;
+}
+
+
+/* Zone of Truth: a column of white-gold light from above, a halo, and the words of the truth spoken one line
+   at a time, as if by a celestial voice. The last line rings out larger. */
+.fx-truth { position: absolute; inset: 0; overflow: hidden; background: radial-gradient(ellipse at 50% 0%, rgba(255, 246, 214, 0.3), rgba(10, 12, 26, 0.94) 65%); animation: fx-truth-veil var(--fx-ms, 10000ms) ease-in-out forwards; }
+.fx-truth-beam { position: absolute; left: 50%; top: -10%; width: 46%; height: 120%; margin-left: -23%; background: linear-gradient(to bottom, rgba(255, 250, 230, 0.75), rgba(255, 230, 160, 0.25) 55%, transparent); filter: blur(10px); clip-path: polygon(38% 0, 62% 0, 100% 100%, 0 100%); animation: fx-truth-beam var(--fx-ms, 10000ms) ease-out forwards; }
+.fx-truth-halo { position: absolute; left: 50%; top: 13%; width: 120px; height: 120px; margin: -60px; border-radius: 50%; border: 2px solid rgba(255, 240, 200, 0.9); box-shadow: 0 0 30px 8px rgba(255, 225, 150, 0.6), inset 0 0 22px rgba(255, 240, 200, 0.7); animation: fx-truth-halo 4000ms ease-in-out infinite alternate; }
+.fx-truth-mote { position: absolute; top: 100%; width: 4px; height: 4px; border-radius: 50%; background: #fff6da; box-shadow: 0 0 8px rgba(255, 230, 160, 0.9); opacity: 0; animation: fx-truth-mote 3800ms ease-out infinite; }
+.fx-truth-words { position: absolute; left: 6%; right: 6%; top: 30%; display: grid; gap: 14px; justify-items: center; text-align: center; font: 500 21px/1.35 var(--font); letter-spacing: 0.02em; color: #fff7e2; text-shadow: 0 0 14px rgba(255, 215, 130, 0.95), 0 0 3px rgba(0, 0, 0, 0.8); }
+.fx-truth-line { opacity: 0; filter: blur(6px); transform: translateY(8px); animation: fx-truth-line 1600ms ease-out forwards; }
+.fx-truth-line.last { margin-top: 10px; font-size: 1.45em; font-weight: 700; letter-spacing: 0.06em; color: #fffaf0; }
+@keyframes fx-truth-veil { 0% { opacity: 0; } 8% { opacity: 1; } 90% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes fx-truth-beam { 0% { transform: scaleY(0); transform-origin: 50% 0; opacity: 0; } 12% { transform: scaleY(1); opacity: 1; } 100% { transform: scaleY(1); opacity: 0.85; } }
+@keyframes fx-truth-halo { from { transform: scale(0.94); opacity: 0.75; } to { transform: scale(1.06); opacity: 1; } }
+@keyframes fx-truth-mote { 0% { opacity: 0; transform: translateY(0); } 20% { opacity: 1; } 100% { opacity: 0; transform: translateY(-90vh); } }
+@keyframes fx-truth-line { 0% { opacity: 0; filter: blur(6px); transform: translateY(8px); } 100% { opacity: 1; filter: blur(0); transform: translateY(0); } }
+
+/* Preserve Life: a waterfall running upward, from a glowing pool at the bottom to a crest of spray at the top. */
+.fx-preserve { position: absolute; inset: 0; overflow: hidden; animation: fx-floar-veil var(--fx-ms, 2800ms) ease-out forwards; }
+.fx-preserve-pool { position: absolute; left: -10%; right: -10%; bottom: -6%; height: 22%; border-radius: 50% 50% 0 0; background: radial-gradient(ellipse at 50% 30%, rgba(200, 245, 255, 0.95), rgba(80, 180, 230, 0.7) 45%, rgba(30, 90, 160, 0) 75%); filter: blur(4px); animation: fx-preserve-pool var(--fx-ms, 2800ms) ease-out forwards; }
+.fx-preserve-stream { position: absolute; bottom: 0; width: var(--w, 14px); height: 0; border-radius: 40% 40% 10px 10px; background: linear-gradient(to top, rgba(120, 210, 255, 0.6), rgba(200, 245, 255, 0.55) 40%, rgba(230, 252, 255, 0.2) 85%, transparent); box-shadow: 0 0 18px rgba(140, 220, 255, 0.45); filter: blur(2.5px); animation: fx-preserve-rise var(--fx-ms, 2800ms) cubic-bezier(0.3, 0.7, 0.4, 1) forwards; }
+.fx-preserve-stream::after { content: ""; position: absolute; inset: 0; border-radius: inherit; background: repeating-linear-gradient(to top, rgba(255, 255, 255, 0.28) 0 3px, transparent 3px 26px); animation: fx-preserve-flow 420ms linear infinite; }
+.fx-preserve-drop { position: absolute; bottom: 8%; width: 6px; height: 9px; border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%; background: #e8fbff; box-shadow: 0 0 8px rgba(160, 230, 255, 0.9); opacity: 0; animation: fx-preserve-drop 1500ms ease-out forwards; }
+.fx-preserve-crest { position: absolute; left: -5%; right: -5%; top: -4%; height: 16%; background: radial-gradient(ellipse at 50% 0%, rgba(240, 252, 255, 0.95), rgba(150, 220, 255, 0.4) 50%, transparent 72%); filter: blur(6px); opacity: 0; animation: fx-preserve-crest var(--fx-ms, 2800ms) ease-out forwards; }
+.fx-preserve .fx-label { color: #eafcff; text-shadow: 0 0 12px rgba(120, 210, 255, 0.95), 0 0 2px #000; font-size: 1.2em; }
+@keyframes fx-preserve-pool { 0% { transform: translateY(60%); opacity: 0; } 25% { transform: translateY(0); opacity: 1; } 100% { opacity: 0.8; } }
+@keyframes fx-preserve-rise { 0% { height: 0; opacity: 0.4; } 45% { height: 100%; opacity: 1; } 85% { height: 100%; opacity: 0.9; } 100% { height: 100%; opacity: 0; } }
+@keyframes fx-preserve-flow { from { background-position: 0 0; } to { background-position: 0 -26px; } }
+@keyframes fx-preserve-drop { 0% { opacity: 0; transform: translateY(0); } 15% { opacity: 1; } 100% { opacity: 0; transform: translateY(-80vh) translateX(6px); } }
+@keyframes fx-preserve-crest { 0%, 35% { opacity: 0; transform: scaleX(0.6); } 55% { opacity: 1; transform: scaleX(1); } 100% { opacity: 0; transform: scaleX(1.15); } }
+
+/* Fey Step: two rings snap open where you vanish, and the season's pieces scatter (leaves, frost, petals, sparks). */
+.fx-fey { position: absolute; inset: 0; overflow: hidden; --fy1: 200, 170, 255; --fy2: 245, 235, 255; animation: fx-floar-veil var(--fx-ms, 1700ms) ease-out forwards; background: radial-gradient(circle at 50% 50%, rgba(var(--fy1), 0.22), transparent 55%); }
+.fx-fey-autumn { --fy1: 214, 120, 60; --fy2: 255, 210, 150; }
+.fx-fey-winter { --fy1: 120, 190, 255; --fy2: 235, 248, 255; }
+.fx-fey-spring { --fy1: 120, 210, 120; --fy2: 255, 210, 235; }
+.fx-fey-summer { --fy1: 255, 170, 60; --fy2: 255, 240, 180; }
+.fx-fey-ring { position: absolute; left: 50%; top: 48%; width: 60px; height: 60px; margin: -30px; border-radius: 50%; border: 3px solid rgba(var(--fy2), 0.95); box-shadow: 0 0 22px rgba(var(--fy1), 0.9), inset 0 0 14px rgba(var(--fy1), 0.7); opacity: 0; animation: fx-fey-ring 900ms ease-out forwards; }
+.fx-fey-ring.b { animation-delay: 380ms; top: 30%; }
+.fx-fey-bit { position: absolute; left: 50%; top: 48%; width: 10px; height: 10px; margin: -5px; opacity: 0; background: rgb(var(--fy2)); box-shadow: 0 0 10px rgba(var(--fy1), 0.9); border-radius: 50%; animation: fx-fey-bit 1300ms ease-out forwards; }
+.fx-fey-autumn .fx-fey-bit { width: 14px; height: 9px; border-radius: 0 80% 0 80%; background: linear-gradient(135deg, #f0a24a, #b5482a); }
+.fx-fey-winter .fx-fey-bit { width: 3px; height: 14px; border-radius: 2px; background: #eaf7ff; }
+.fx-fey-spring .fx-fey-bit { width: 11px; height: 11px; border-radius: 60% 0 60% 0; background: radial-gradient(circle, #fff, #ffb7d5 70%); }
+.fx-fey-summer .fx-fey-bit { width: 6px; height: 6px; background: #fff3c4; box-shadow: 0 0 12px 3px rgba(255, 170, 60, 0.9); }
+.fx-fey .fx-label { color: rgb(var(--fy2)); text-shadow: 0 0 12px rgba(var(--fy1), 0.95), 0 0 2px #000; font-size: 1.15em; }
+@keyframes fx-fey-ring { 0% { transform: scale(0.1); opacity: 0; } 30% { opacity: 1; } 100% { transform: scale(5); opacity: 0; } }
+@keyframes fx-fey-bit { 0% { opacity: 0; transform: rotate(var(--a)) translateY(0) rotate(0deg); } 20% { opacity: 1; } 100% { opacity: 0; transform: rotate(var(--a)) translateY(-38vw) rotate(220deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .fx-truth-beam, .fx-truth-halo, .fx-truth-mote, .fx-preserve-stream, .fx-preserve-stream::after, .fx-preserve-drop, .fx-fey-ring, .fx-fey-bit { animation: none; opacity: 0.6; }
+  .fx-preserve-stream { height: 100%; }
+  .fx-truth-line { animation-duration: 1ms; }
+}

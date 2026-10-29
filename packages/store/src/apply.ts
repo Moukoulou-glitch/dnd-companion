@@ -1220,6 +1220,11 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       if (kind === "long") {
         const dawn = c.inventory.filter((i) => (i.chargesUsed ?? 0) > 0 && reg.find(i.item, "item")?.charges?.regain);
         if (dawn.length) notes.push(`At dawn, charges come back: ${dawn.map((i) => `${i.name ?? reg.find(i.item, "item")!.name} (${reg.find(i.item, "item")!.charges!.regain})`).join(", ")}; roll it on the item.`);
+        // An eladrin can change season after a long rest.
+        if (c.race === "race:eladrin") {
+          const season = c.choices["race:eladrin"]?.season?.[0];
+          notes.push(season ? `Eladrin: your season is ${season}; you can change it now (Choices).` : "Eladrin: choose your season (Choices).");
+        }
         // Things that last until your next long rest (Master Scrivener's scroll).
         const fading = c.inventory.filter((i) => i.untilLongRest);
         if (fading.length) {
@@ -1626,11 +1631,14 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
 
     case "castSpell": {
       const { spell, list, level, using, selfEffect } = op.payload;
-      const sp = sheet.spells.find((x) => x.id === spell && x.list.id === list);
-      if (!sp) {
+      const found = sheet.spells.find((x) => x.id === spell && x.list.id === list);
+      if (!found) {
         notes.push("That spell isn't on this character's lists.");
         break;
       }
+      // Its free cast without concentration (Unbridled Seasons: Beacon of Hope).
+      const sp = using === "free" && found.cast.free?.noConcentration && found.concentration ? { ...found, concentration: false } : found;
+      if (sp !== found) notes.push(`${sp.name}: no concentration this time.`);
       if (using === "slot") {
         const total = sheet.spellSlots.find((x) => x.level === level)?.total ?? 0;
         const used = c.slotsUsed[String(level)] ?? 0;

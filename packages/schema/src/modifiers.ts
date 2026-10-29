@@ -111,6 +111,11 @@ export const ModifierOp = z.enum([
   "immune",
   /** Rolls: a reminder shown with the roll; `label` is the text (Ancestral Protectors on your first hit). */
   "note",
+  /**
+   * d20 rolls with advantage or disadvantage: both dice are added together instead of keeping one,
+   * and a total of exactly `value` counts as a natural 20 (Adama: 20). A tick-box on the roll.
+   */
+  "sumD20",
   /** Checks: a total below this ability's score counts as the score (`value`: "str"; Indomitable Might). */
   "atLeastScore",
   /**
@@ -257,6 +262,8 @@ export const SpellcastingDef = z
     progression: Progression,
     /** A subclass's spellcasting (Eldritch Knight): its slots follow this class's levels. */
     levelsOf: DefId.optional(),
+    /** No spellcasting ability: the DC is 8 + proficiency and the attack is the proficiency bonus (Thinking Stone). `ability` is then ignored. */
+    noAbility: z.boolean().optional(),
   })
   .strict();
 export type SpellcastingDef = z.infer<typeof SpellcastingDef>;
@@ -289,6 +296,8 @@ export const GrantedSpell = z
     charges: z.object({ cost: z.number().int().min(1), perLevel: z.boolean().optional(), maxLevel: z.number().int().min(1).max(9).optional() }).strict().optional(),
     /** Only while this switch is on (Floar's Fire Bolt). */
     whileToggle: z.string().optional(),
+    /** Its free cast needs no concentration (Unbridled Seasons: Beacon of Hope once per long rest). */
+    noConcentration: z.boolean().optional(),
     /** Always cast at this level (Staff of Power's fireball: 5th). */
     castAt: z.number().int().min(1).max(9).optional(),
     /** Its own save DC instead of yours (Wand of Fireballs: 15). */
@@ -690,10 +699,16 @@ export const Grant = z
             value: ValueExpr.optional(),
             /** Its roll is made this many times, keeping one you pick (Controlled Surge: the Wild Surge twice). */
             rollTimes: z.number().int().min(2).max(3).optional(),
+            /** Only from this character level (the eladrin's season on Fey Step: 3rd). */
+            minLevel: z.number().int().min(1).max(20).optional(),
+            /** A save it adds, 8 + proficiency + the best of these abilities (Fey Step's season: Wisdom against Charisma). */
+            dc: z.object({ save: z.string(), by: z.array(Ability).min(1), name: z.string() }).strict().optional(),
           })
           .strict(),
       )
       .optional(),
+    /** More uses of a resource another feature gives (Unbridled Seasons: one more Action Surge). */
+    resourceAdds: z.array(z.object({ resource: z.string(), amount: z.number().int().min(1) }).strict()).optional(),
   })
   .strict();
 export type Grant = z.infer<typeof Grant>;
@@ -704,7 +719,7 @@ export const ChoiceDef = z
     id: z.string(),
     label: z.string(),
     /** "feature": each chosen value is a feature id that becomes active (Fighting Style, Magic Initiate class). */
-    kind: z.enum(["skill", "ability", "language", "tool", "option", "spell", "feature"]),
+    kind: z.enum(["skill", "ability", "language", "tool", "option", "spell", "feature", "feat"]),
     count: z.number().int().positive().default(1),
     /** Allowed values; empty means any of that kind. */
     from: z.array(z.string()).optional(),
@@ -734,6 +749,8 @@ export const ChoiceDef = z
         classesFrom: z.string().optional(),
         /** No higher than half the character's level, rounded up (Ritual Caster). */
         upToHalfLevel: z.boolean().optional(),
+        /** A casting time of 1 action, bonus action or reaction, and no concentration (Thinking Stone). */
+        quick: z.boolean().optional(),
         /**
          * Most picks must come from these schools; `freeBy` names the class
          * table of how many may come from any school (Eldritch Knight: 1 at 3rd, +1 at 8th, 14th, 20th).
@@ -748,6 +765,8 @@ export const ChoiceDef = z
     optionLevels: z.record(z.string(), z.number().int().min(1).max(20)).optional(),
     /** Option choices: the feature each picked value brings with it (Rune Carver: "Fire Rune" → the Fire Rune's passive and invoke). */
     grants: z.record(z.string(), DefId).optional(),
+    /** Spell choices: each picked spell is cast without a slot, counted per rest under this tag (Thinking Stone: once per long rest each). */
+    extra: z.string().optional(),
     /** Spell choices: cast at will at the spell's own level, slots still work for higher levels (Spell Mastery). */
     atWill: z.boolean().optional(),
     /** Spell choices: the spells should be in your spellbook (Spell Mastery, Signature Spells); a picked one that isn't is warned about. */

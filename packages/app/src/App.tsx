@@ -77,6 +77,7 @@ import { SpellPanel, SpellsTab, spellAsAttack, type ClassList } from "./componen
 import { filesIn, useCharacters } from "./useCharacters";
 import { backupDue, daysSince, lastBackup, snoozeBackup, snoozedUntil } from "./backup";
 import { formatMinutes } from "./time";
+import { DiePick } from "./components/DiePick";
 import { vibrateFor, type HpState } from "./vibrate";
 
 type Tab = "play" | "actions" | "spells" | "sheet" | "inventory" | "story";
@@ -3400,11 +3401,27 @@ export function App() {
               const alt = sp.altCasts?.find((x) => castingTime === `${x.time} (${x.label})`);
               if (alt) {
                 if (alt.effect) live.current.act("addEffect", { instanceId: crypto.randomUUID(), effect: alt.effect, rounds: 1, untilTurnStart: true }, `${alt.label}: ${effReg().find(alt.effect, "effect")?.name ?? "effect"} until your next turn.`);
-                if (alt.keepSlotOn && using === "slot")
-                  void rollOrThrow("1d10", true, undefined, { source: alt.label }).then((r) => {
-                    if (r.total >= alt.keepSlotOn!) live.current.act("restoreSlot", { level, pact: false }, `${alt.label}: d10 shows ${r.total}, the level ${level} slot isn't spent.`);
-                    else live.current.setToast({ id: Date.now(), text: `${alt.label}: d10 shows ${r.total}, the slot is spent.`, canUndo: false });
-                  });
+                if (alt.keepSlotOn && using === "slot") {
+                  const settle = (face: number) => {
+                    if (face >= alt.keepSlotOn!) live.current.act("restoreSlot", { level, pact: false }, `${alt.label}: d10 shows ${face}, the level ${level} slot isn't spent.`);
+                    else live.current.setToast({ id: Date.now(), text: `${alt.label}: d10 shows ${face}, the slot is spent.`, canUndo: false });
+                  };
+                  // Your own dice: the d10 is yours to roll.
+                  if (live.current.character?.settings.physicalDice ?? true) {
+                    transformed = true;
+                    open(alt.label, () => (
+                      <DiePick
+                        sides={10}
+                        source={alt.label}
+                        what={`${sp.name} cast through ${alt.label}: on a ${alt.keepSlotOn} the level ${level} slot isn't spent.`}
+                        onPick={(face) => {
+                          settle(face);
+                          openSpell(sp, level);
+                        }}
+                      />
+                    ));
+                  } else void rollOrThrow("1d10", true, undefined, { source: alt.label }).then((r) => settle(r.total));
+                }
               }
               // Theros after Plant Growth over 8 hours: offered now.
               if (offerAfterCast(sp.id, level, castingTime ?? sp.castingTime)) transformed = true;

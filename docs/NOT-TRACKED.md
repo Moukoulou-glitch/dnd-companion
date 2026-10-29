@@ -438,3 +438,15 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 - Rolling your own dice: a feature's dice (a breath weapon, Second Wind), healing from a slot, falling and Give Life now offer "My dice | App rolls" for that roll; the character's setting stays as it is.
 - The picked casting time (1 action, a bonus action through Untamed Flame, 8 hours), and every other two- or three-way switch, is filled in teal like the picked spell slot.
 
+## Round 16a: own dice, hand dice, heritage features, seasons
+
+- Untamed Flame's d10 asks for your own die when you roll your own dice (or rolls it for you).
+- Any roll: add bonus or penalty dice by hand (d4 to d12). With your own dice, after the d20 the app asks for the other dice's total (this also fixes Bless and similar dice, which failed before).
+- Eladrin: pick the season (Slumberfall, Nocter, Titanspring, Heammer) in Choices; a long rest reminds you that you can change it. From 3rd level Fey Step shows the season's effect and its DC. The charm, fright, swap and damage themselves are yours to apply.
+- Heritage features (homebrew), from character level 10: Thinking Stone, Human Above All, Unbridled Seasons, Adama.
+  - Thinking Stone: the stored objects and who holds them aren't tracked; each spell's slot-free cast is counted per long rest (a warning past one, never blocked). "Not prepared" isn't enforced: the slot buttons still show.
+  - Human Above All: the feat's prerequisites aren't checked.
+  - Unbridled Seasons: the season spells are cast with Charisma (an assumption to confirm). Nocter's Ice Storm ending when you start a turn outside it, and Catnap's 1 round, are notes. Heammer's and Nocter's weapon damage is an option you tick (fire or radiant; cold or necrotic). Fey Step's 60 ft is a note.
+  - Adama: an option on attack rolls, saves and checks; it counts only with advantage or disadvantage. Death saves aren't covered (they don't go through the roll screen).
+- Animations: Zone of Truth (the five lines, when you cast it or put its tag on you), Preserve Life (a waterfall rising), Fey Step (by season).
+

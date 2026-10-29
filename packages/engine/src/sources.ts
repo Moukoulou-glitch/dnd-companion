@@ -36,6 +36,17 @@ export function collectSources(c: Character, baseReg: ContentRegistry, duplicate
   /** Activates the features the player picked for any "feature" choice on a definition. */
   const pushChosenFeatures = (defId: string, choiceDefs: ChoiceDef[] | undefined) => {
     for (const ch of choiceDefs ?? []) {
+      // A feat picked through a feature (Human Above All): applied like any feat.
+      if (ch.kind === "feat") {
+        for (const value of choicesFor(defId)[ch.id] ?? []) {
+          const def = reg.find(value, "feat");
+          if (!def || out.some((s) => s.id === def.id)) continue;
+          out.push({ id: def.id, label: def.name, grant: def.grant ?? {}, choices: choicesFor(def.id) });
+          def.features.forEach(pushFeature);
+          pushChosenFeatures(def.id, def.choices);
+        }
+        continue;
+      }
       if (ch.kind !== "feature" && !(ch.kind === "option" && ch.grants)) continue;
       for (const value of choicesFor(defId)[ch.id] ?? []) {
         // An option that brings a feature (Rune Carver's "Fire Rune"); a plain option brings nothing.
@@ -64,6 +75,14 @@ export function collectSources(c: Character, baseReg: ContentRegistry, duplicate
   race.features.forEach(pushFeature);
   // Picks a race makes among features (Fizban's dragonborn: ancestry, how the ability scores go up).
   pushChosenFeatures(race.id, race.choices);
+  // The table's heritage features (homebrew): from a character level, for these races (and a pick on the race).
+  const charLevel = c.classes.reduce((t, x) => t + x.level, 0);
+  for (const f of reg.list("feature")) {
+    const h = (f as { heritage?: { races: string[]; level: number; when?: { choice: string; value: string } } }).heritage;
+    if (!h || !h.races.includes(race.id) || charLevel < h.level) continue;
+    if (h.when && !(choicesFor(race.id)[h.when.choice] ?? []).includes(h.when.value)) continue;
+    if (!out.some((s) => s.id === f.id)) pushFeature(f.id);
+  }
 
   if (c.background) {
     const bg = reg.get(c.background, "background");

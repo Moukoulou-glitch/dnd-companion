@@ -30,7 +30,7 @@ export interface Suggestion {
   /** Why it is only suggested, e.g. "target is within 5 ft". */
   reason?: string;
   /** What the roll composer applies when the player turns it on. */
-  apply: { flat: number; dice: string[]; damageType?: string; mode?: "advantage" | "disadvantage"; weaponDice?: string; critAt?: number; rerollAtOrBelow?: number; minD20?: number; maximize?: boolean; tripleAdvantage?: string; diceBySlot?: Record<number, string[]> };
+  apply: { flat: number; dice: string[]; damageType?: string; mode?: "advantage" | "disadvantage"; weaponDice?: string; critAt?: number; rerollAtOrBelow?: number; minD20?: number; maximize?: boolean; tripleAdvantage?: string; diceBySlot?: Record<number, string[]>; sumD20?: number };
   /** Once per turn (Sneak Attack). */
   oncePerTurn?: boolean;
   /** Only with the weapon in one hand, or in two (Dueling, Great Weapon Fighting). */

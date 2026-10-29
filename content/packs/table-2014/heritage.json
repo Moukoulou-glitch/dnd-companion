@@ -1,0 +1,488 @@
+{
+  "definitions": [
+    {
+      "kind": "feature",
+      "id": "feature:heritage-thinking-stone",
+      "name": "Thinking Stone",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (Heritage)"
+      },
+      "summary": "From 10th level: four 1st-level and three 2nd-level wizard spells (1 action, bonus action or reaction; no concentration), each stored in a nonmagical object once per long rest without a slot. DC 8 + proficiency, attack + proficiency.",
+      "text": [
+        "Your ingenuity and artistic nature surpass the limits of an ordinary mind. As the first stones to speak in Asleza declared, \"There is nothing that stone cannot create.\" To create, and to be created.",
+        "Choose four 1st-level spells and three 2nd-level spells from the Sophist spell list. Each spell must have a casting time of 1 action, 1 bonus action, or 1 reaction, and must not require concentration. These spells are not considered prepared for you, and they do not require a spellcasting ability. The saving throw DC for these spells equals 8 + your proficiency bonus, and your proficiency bonus serves as your spell attack modifier for them.",
+        "Using any artisan's tool with which you are proficient or have expertise, you can store these spells inside nonmagical objects. To do so, you must cast the spells normally (spells with a casting time of 1 reaction do not need to be triggered for this purpose). You can store each of these spells in a nonmagical object only once per long rest. However, you do not expend a spell slot when casting them for this purpose.",
+        "A creature that can understand you and has an Intelligence score of 7 or higher can also activate the spell stored in an object, provided you spend 1 minute explaining how to do so and the creature has the object in its possession when it wishes to activate the spell."
+      ],
+      "heritage": {
+        "races": [
+          "race:rock-gnome"
+        ],
+        "level": 10
+      },
+      "choices": [
+        {
+          "id": "spells-1",
+          "label": "1st-level spells (wizard list)",
+          "kind": "spell",
+          "count": 4,
+          "spells": {
+            "classes": [
+              "wizard"
+            ],
+            "level": 1,
+            "quick": true
+          },
+          "extra": "Thinking Stone: stored, once per long rest"
+        },
+        {
+          "id": "spells-2",
+          "label": "2nd-level spells (wizard list)",
+          "kind": "spell",
+          "count": 3,
+          "spells": {
+            "classes": [
+              "wizard"
+            ],
+            "level": 2,
+            "quick": true
+          },
+          "extra": "Thinking Stone: stored, once per long rest"
+        }
+      ],
+      "grant": {
+        "spellcasting": {
+          "id": "thinking-stone",
+          "label": "Thinking Stone",
+          "ability": "int",
+          "noAbility": true,
+          "progression": "none"
+        }
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:heritage-human-above-all",
+      "name": "Human Above All",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (Heritage)"
+      },
+      "summary": "From 10th level: one feat of your choice whose prerequisites you meet.",
+      "text": [
+        "Perhaps these were the words most misunderstood by the human race. Yet their meaning is not diminished by their misinterpretation.",
+        "Transcendence, adaptability, and the ability to surpass your own limits are the very essence of humanity. Where others are constrained by their nature, you discover new paths and become something greater than you once were.",
+        "You gain one feat of your choice for which you meet all the prerequisites."
+      ],
+      "heritage": {
+        "races": [
+          "race:variant-human"
+        ],
+        "level": 10
+      },
+      "choices": [
+        {
+          "id": "feat",
+          "label": "Feat",
+          "kind": "feat",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:heritage-adama",
+      "name": "Adama",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (Heritage)"
+      },
+      "summary": "From 10th level, proficiency bonus times per long rest: with advantage or disadvantage, add both d20s together instead of keeping one; a total of exactly 20 counts as a natural 20. Decide before rolling; nothing changes either die.",
+      "text": [
+        "Your heritage allows you to understand both what separates elves from other creatures and what can bring them together. You belong wholly to neither of these worlds; instead, you can bridge the divide between them.",
+        "Most importantly, as someone once said for the first time: \"I am not two halves, but two wholes.\"",
+        "When you make a roll with advantage or disadvantage, you can add the results of the dice together instead of choosing one of them. A total of 20 counts as a natural 20 on an attack roll or a death saving throw.",
+        "You can use this feature a number of times equal to your proficiency bonus per long rest. You must decide to use it before rolling the dice. Nothing can influence or alter either of these two dice rolls, positively or negatively."
+      ],
+      "heritage": {
+        "races": [
+          "race:half-elf"
+        ],
+        "level": 10
+      },
+      "grant": {
+        "resources": [
+          {
+            "id": "adama",
+            "name": "Adama",
+            "max": "pb",
+            "reset": "long"
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.attack.*",
+            "op": "sumD20",
+            "value": "20",
+            "mode": "suggested",
+            "label": "Adama",
+            "spends": {
+              "resource": "adama",
+              "amount": 1
+            },
+            "when": {
+              "text": "only with advantage or disadvantage: both d20s are added (a total of exactly 20 is a natural 20). Decide before rolling."
+            }
+          },
+          {
+            "selector": "roll.save.*",
+            "op": "sumD20",
+            "value": "20",
+            "mode": "suggested",
+            "label": "Adama",
+            "spends": {
+              "resource": "adama",
+              "amount": 1
+            },
+            "when": {
+              "text": "only with advantage or disadvantage: both d20s are added (a total of exactly 20 is a natural 20). Decide before rolling."
+            }
+          },
+          {
+            "selector": "roll.check.*",
+            "op": "sumD20",
+            "value": "20",
+            "mode": "suggested",
+            "label": "Adama",
+            "spends": {
+              "resource": "adama",
+              "amount": 1
+            },
+            "when": {
+              "text": "only with advantage or disadvantage: both d20s are added (a total of exactly 20 is a natural 20). Decide before rolling."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:heritage-unbridled-seasons",
+      "name": "Unbridled Seasons",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (Heritage)"
+      },
+      "summary": "From 10th level: your season's gifts (below), and Fey Step also as a reaction when you take damage, with a 60-foot range.",
+      "text": [
+        "To you, the seasons are not merely the passage of time, but living forces that change, clash, and are reborn. Within you dwell the exuberance and vitality of Titanspring, the ferocity and brilliance of Heammer, the decay and tranquility of Slumberfall, and the silent threat and certainty of Nocter.",
+        "Depending on the season you represent, you gain the following benefits:",
+        "Titanspring. You can cast Aura of Vitality without requiring concentration, once per long rest. Additionally, you can use the Fighter's Action Surge feature one additional time beyond the number of times you can normally use it.",
+        "Heammer. You can cast Beacon of Hope without requiring concentration, once per long rest. In addition, all your weapon attacks deal an extra 2 magical fire or radiant damage (your choice). The damage rolls of your spells that deal fire or radiant damage also increase by the same amount.",
+        "Slumberfall. You can cast Short Rest with a duration of 1 combat round instead of 10 minutes, once per long rest. Additionally, when you score a critical hit against a creature, it has disadvantage on attack rolls and ability checks until the end of your next turn.",
+        "Nocter. You can cast Ice Storm without requiring concentration, once per long rest. When you cast the spell in this way, you are unaffected by the spell and its heavily obscured area. However, if you are not within the spell's area of effect at the start of one of your turns, the spell ends. In addition, all your weapon attacks deal an extra 4 magical cold or necrotic damage (your choice). The damage rolls of your spells that deal cold or necrotic damage also increase by the same amount.",
+        "Finally, you can also use your Fey Step as a reaction when you take damage, and its range permanently increases to 60 feet."
+      ],
+      "heritage": {
+        "races": [
+          "race:eladrin"
+        ],
+        "level": 10
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "fey-step-reaction",
+            "name": "Fey Step (reaction)",
+            "economy": "reaction",
+            "cost": {
+              "resource": "fey-step"
+            },
+            "note": "When you take damage: teleport up to 60 ft to an unoccupied space you can see (Unbridled Seasons)."
+          }
+        ],
+        "actionNotes": [
+          {
+            "action": "fey-step",
+            "text": "its range is 60 ft, and it can also be used as a reaction when you take damage."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:heritage-unbridled-titanspring",
+      "name": "Unbridled Seasons: Titanspring",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (Heritage)"
+      },
+      "summary": "Aura of Vitality once per long rest without concentration; one more Action Surge use (if you have the feature).",
+      "heritage": {
+        "races": [
+          "race:eladrin"
+        ],
+        "level": 10,
+        "when": {
+          "choice": "season",
+          "value": "Titanspring"
+        }
+      },
+      "grant": {
+        "spellcasting": {
+          "id": "unbridled-seasons",
+          "label": "Unbridled Seasons",
+          "ability": "cha",
+          "progression": "none"
+        },
+        "resources": [
+          {
+            "id": "unbridled-seasons-spell",
+            "name": "Unbridled Seasons: Aura of Vitality",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "spells": [
+          {
+            "spell": "spell:aura-of-vitality",
+            "name": "Aura of Vitality",
+            "casting": "once per long rest, no slot; no concentration",
+            "resource": "unbridled-seasons-spell",
+            "list": "unbridled-seasons",
+            "noConcentration": true
+          }
+        ],
+        "resourceAdds": [
+          {
+            "resource": "action-surge",
+            "amount": 1
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:heritage-unbridled-heammer",
+      "name": "Unbridled Seasons: Heammer",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (Heritage)"
+      },
+      "summary": "Beacon of Hope once per long rest without concentration; +2 magical fire or radiant damage on weapon attacks, and +2 on spell damage rolls of those types.",
+      "heritage": {
+        "races": [
+          "race:eladrin"
+        ],
+        "level": 10,
+        "when": {
+          "choice": "season",
+          "value": "Heammer"
+        }
+      },
+      "grant": {
+        "spellcasting": {
+          "id": "unbridled-seasons",
+          "label": "Unbridled Seasons",
+          "ability": "cha",
+          "progression": "none"
+        },
+        "resources": [
+          {
+            "id": "unbridled-seasons-spell",
+            "name": "Unbridled Seasons: Beacon of Hope",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "spells": [
+          {
+            "spell": "spell:beacon-of-hope",
+            "name": "Beacon of Hope",
+            "casting": "once per long rest, no slot; no concentration",
+            "resource": "unbridled-seasons-spell",
+            "list": "unbridled-seasons",
+            "noConcentration": true
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.damage.weapon.*",
+            "op": "add",
+            "value": "2",
+            "damageType": "fire",
+            "mode": "suggested",
+            "group": "Unbridled Seasons (Heammer)",
+            "label": "Heammer: +2 fire",
+            "when": {
+              "text": "magical fire or radiant damage on every weapon attack: tick one."
+            },
+            "preset": "always"
+          },
+          {
+            "selector": "roll.damage.weapon.*",
+            "op": "add",
+            "value": "2",
+            "damageType": "radiant",
+            "mode": "suggested",
+            "group": "Unbridled Seasons (Heammer)",
+            "label": "Heammer: +2 radiant",
+            "when": {
+              "text": "magical fire or radiant damage on every weapon attack: tick one."
+            }
+          },
+          {
+            "selector": "roll.damage.spell",
+            "op": "add",
+            "value": "2",
+            "forTypes": [
+              "fire",
+              "radiant"
+            ],
+            "label": "Heammer: +2 to fire or radiant spell damage"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:heritage-unbridled-slumberfall",
+      "name": "Unbridled Seasons: Slumberfall",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (Heritage)"
+      },
+      "summary": "Catnap once per long rest, lasting 1 round instead of 10 minutes; a creature you crit has disadvantage on attack rolls and ability checks until the end of your next turn.",
+      "heritage": {
+        "races": [
+          "race:eladrin"
+        ],
+        "level": 10,
+        "when": {
+          "choice": "season",
+          "value": "Slumberfall"
+        }
+      },
+      "grant": {
+        "spellcasting": {
+          "id": "unbridled-seasons",
+          "label": "Unbridled Seasons",
+          "ability": "cha",
+          "progression": "none"
+        },
+        "resources": [
+          {
+            "id": "unbridled-seasons-spell",
+            "name": "Unbridled Seasons: Catnap",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "spells": [
+          {
+            "spell": "spell:catnap",
+            "name": "Catnap",
+            "casting": "once per long rest, no slot; it lasts 1 round instead of 10 minutes",
+            "resource": "unbridled-seasons-spell",
+            "list": "unbridled-seasons"
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.damage.weapon.*",
+            "op": "note",
+            "label": "Slumberfall: on a critical hit, the creature has disadvantage on attack rolls and ability checks until the end of your next turn."
+          },
+          {
+            "selector": "roll.damage.spell",
+            "op": "note",
+            "label": "Slumberfall: on a critical hit, the creature has disadvantage on attack rolls and ability checks until the end of your next turn."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "feature",
+      "id": "feature:heritage-unbridled-nocter",
+      "name": "Unbridled Seasons: Nocter",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (Heritage)"
+      },
+      "summary": "Ice Storm once per long rest without concentration, which doesn't affect you (it ends if you start a turn outside it); +4 magical cold or necrotic damage on weapon attacks, and +4 on spell damage rolls of those types.",
+      "heritage": {
+        "races": [
+          "race:eladrin"
+        ],
+        "level": 10,
+        "when": {
+          "choice": "season",
+          "value": "Nocter"
+        }
+      },
+      "grant": {
+        "spellcasting": {
+          "id": "unbridled-seasons",
+          "label": "Unbridled Seasons",
+          "ability": "cha",
+          "progression": "none"
+        },
+        "resources": [
+          {
+            "id": "unbridled-seasons-spell",
+            "name": "Unbridled Seasons: Ice Storm",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "spells": [
+          {
+            "spell": "spell:ice-storm",
+            "name": "Ice Storm",
+            "casting": "once per long rest, no slot; you're unaffected by it and its obscured area; it ends if you start a turn outside it",
+            "resource": "unbridled-seasons-spell",
+            "list": "unbridled-seasons"
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.damage.weapon.*",
+            "op": "add",
+            "value": "4",
+            "damageType": "cold",
+            "mode": "suggested",
+            "group": "Unbridled Seasons (Nocter)",
+            "label": "Nocter: +4 cold",
+            "when": {
+              "text": "magical cold or necrotic damage on every weapon attack: tick one."
+            },
+            "preset": "always"
+          },
+          {
+            "selector": "roll.damage.weapon.*",
+            "op": "add",
+            "value": "4",
+            "damageType": "necrotic",
+            "mode": "suggested",
+            "group": "Unbridled Seasons (Nocter)",
+            "label": "Nocter: +4 necrotic",
+            "when": {
+              "text": "magical cold or necrotic damage on every weapon attack: tick one."
+            }
+          },
+          {
+            "selector": "roll.damage.spell",
+            "op": "add",
+            "value": "4",
+            "forTypes": [
+              "cold",
+              "necrotic"
+            ],
+            "label": "Nocter: +4 to cold or necrotic spell damage"
+          }
+        ]
+      }
+    }
+  ]
+}

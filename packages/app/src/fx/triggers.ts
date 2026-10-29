@@ -34,6 +34,12 @@ export type FxEvent =
   | { kind: "floar"; radiant: boolean; zenith: boolean }
   /** Theros: a phenomenon over the land, for so many days. */
   | { kind: "theros"; phenomenon: string; days?: number }
+  /** Zone of Truth cast (or put on you): a celestial voice speaks the table's words. */
+  | { kind: "truth" }
+  /** Channel Divinity: Preserve Life, a waterfall rising upward. */
+  | { kind: "preserve-life" }
+  /** Fey Step, by the eladrin's season (Slumberfall, Nocter, Titanspring, Heammer). */
+  | { kind: "fey-step"; season?: string }
   | { kind: "concentration"; kept: boolean }
   | { kind: "death-save"; result: "success" | "failure"; final: boolean }
   | { kind: "inspiration"; gained: boolean }
@@ -123,6 +129,13 @@ export function opFx(type: string, payload: unknown, before: Character, after: C
     const druid = after.classes?.find((x) => x.class === "class:druid");
     out.push({ kind: "floar", radiant: p.choice === "Radiant", zenith: !!druid && druid.level >= 14 && druid.subclass === "subclass:circle-of-the-heammer" });
   }
+  // Zone of Truth: cast by you, or its tag put on you (someone else's).
+  if ((type === "castSpell" && p.spell === "spell:zone-of-truth") || (type === "addEffect" && p.effect === "other:zone-of-truth")) out.push({ kind: "truth" });
+  if (type === "useAction" && p.action === "preserve-life") out.push({ kind: "preserve-life" });
+  if (type === "useAction" && (p.action === "fey-step" || p.action === "fey-step-reaction")) {
+    const season = after.choices?.["race:eladrin"]?.season?.[0];
+    out.push({ kind: "fey-step", ...(typeof season === "string" ? { season } : {}) });
+  }
   if (type === "useAction" && p.action === "theros" && typeof p.choice === "string") out.push({ kind: "theros", phenomenon: p.choice, ...(typeof p.rolled === "number" ? { days: p.rolled } : {}) });
   // Damage and healing on a summoned creature or companion aren't yours.
   const onYou = !p.companion && !p.summon;
@@ -166,7 +179,8 @@ export function opFx(type: string, payload: unknown, before: Character, after: C
 
   // A ritual or long casting takes effect when it's finished: its cast look plays then, never when it's started.
   const cast = type === "castSpell" ? p : type === "finishTimed" && before.timed?.cast ? (before.timed.cast as Record<string, unknown>) : undefined;
-  if (cast && typeof cast.spell === "string") {
+  // Zone of Truth has its own (the celestial words): no cast look on top.
+  if (cast && typeof cast.spell === "string" && cast.spell !== "spell:zone-of-truth") {
     // A spell with its own cast look plays that; any other gets the arcane circle in its school's colour.
     const def = spellFxOf(cast.spell);
     // The mode picked when casting (Control Water: Whirlpool), or the casting time picked (Plant Growth: 8 hours);

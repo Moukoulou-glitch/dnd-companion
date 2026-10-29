@@ -193,7 +193,7 @@ export interface SpellResult {
     slotLevels: number[];
     pact?: { level: number; remaining: number };
     /** `level`: cast at this level with it (Call to the Wave: create or destroy water as a 2nd-level spell). */
-    free?: { resource: string; name: string; remaining: number; level?: number };
+    free?: { resource: string; name: string; remaining: number; level?: number; noConcentration?: boolean };
     /** Cast by spending points instead of a slot (Eyes of the Dark: Darkness for 2 sorcery points). */
     points?: { resource: string; name: string; amount: number; remaining: number };
     /** Cast without a slot whenever you like (an invocation's at-will spell). */
@@ -1032,6 +1032,14 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
         suggestions.push(s);
         continue;
       }
+      // Adama: with advantage or disadvantage, both d20s added together (a total of exactly 20 is a natural 20).
+      if (mod.op === "sumD20" && conditionState(mod.when) !== "fail") {
+        const s: Suggestion = { label: labelOf(a), effect: "add both d20s", apply: { flat: 0, dice: [], sumD20: flatOf(a) || 20 } };
+        if (mod.when?.text) s.reason = mod.when.text;
+        if (mod.spends) s.spends = mod.spends;
+        suggestions.push(s);
+        continue;
+      }
       // Great Weapon Fighting: a tick-box on the damage roll (the player knows whether the weapon is held in two hands).
       if (mod.op === "reroll" && mod.value !== undefined && conditionState(mod.when) !== "fail") {
         const v = flatOf(a);
@@ -1568,7 +1576,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
   }
 
   // Spellcasting: classes that have reached their casting level, plus feats and features.
-  const casters: { id: string; label: string; ability: Ability }[] = [];
+  const casters: { id: string; label: string; ability: Ability; noAbility?: boolean }[] = [];
   const casterLevels: { progression: SpellcastingDef["progression"]; level: number }[] = [];
   const resolveAbility = (sc: SpellcastingDef, s?: Source): Ability | undefined => {
     if (typeof sc.ability === "string") return sc.ability;
@@ -1588,19 +1596,22 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
   for (const s of sources) {
     const sc = s.grant.spellcasting;
     if (!sc || casters.some((x) => x.id === sc.id)) continue;
-    const ability = resolveAbility(sc, s);
-    if (ability) casters.push({ id: sc.id, label: sc.label, ability });
+    const ability = sc.noAbility ? "int" : resolveAbility(sc, s);
+    if (ability) casters.push({ id: sc.id, label: sc.label, ability, ...(sc.noAbility ? { noAbility: true } : {}) });
     // A subclass caster (Eldritch Knight, Arcane Trickster): slots from its class's levels.
     const lvl = sc.levelsOf ? c.classes.find((x) => x.class === sc.levelsOf)?.level : undefined;
     if (lvl) casterLevels.push({ progression: sc.progression, level: lvl });
   }
+  // No spellcasting ability (Thinking Stone): nothing added for one.
+  const noAbilityLists = new Set(casters.filter((x) => x.noAbility).map((x) => x.id));
+  const castingPart = (sc: { id: string; ability: Ability }): Part => (noAbilityLists.has(sc.id) ? { label: "No spellcasting ability", value: 0 } : abilityPart(sc.ability));
   const spellcasting: SpellcastingResult[] = casters.map((sc) => ({
     id: sc.id,
     label: sc.label,
     ability: sc.ability,
-    saveDc: sum([{ label: "Base", value: 8 }, pbPart(), abilityPart(sc.ability), ...statAdds(["stat.spell.dc", `stat.spell.dc.${sc.id}`])]),
+    saveDc: sum([{ label: "Base", value: 8 }, pbPart(), castingPart(sc), ...statAdds(["stat.spell.dc", `stat.spell.dc.${sc.id}`])]),
     // A focus for one class's spells (Rod of the Pact Keeper: "stat.spell.attack.warlock").
-    attack: sum([pbPart(), abilityPart(sc.ability), ...statAdds(["stat.spell.attack", `stat.spell.attack.${sc.id}`])]),
+    attack: sum([pbPart(), castingPart(sc), ...statAdds(["stat.spell.attack", `stat.spell.attack.${sc.id}`])]),
   }));
   const slots = spellSlots(casterLevels);
   /** A custom action's DC, by its feature id. */
@@ -1647,6 +1658,14 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       resources.push(entry);
     }
   }
+  // More uses from another feature (Unbridled Seasons: one more Action Surge).
+  for (const s of sources)
+    for (const add of s.grant.resourceAdds ?? []) {
+      const r = resources.find((x) => x.id === add.resource);
+      if (!r) continue;
+      r.max += add.amount;
+      r.remaining = r.max - r.used;
+    }
 
   // Spells: class lists from the character, plus spells features grant or let the player pick.
   const spellDefs = new Map<string, { def: ReturnType<typeof reg.get<"spell">> | undefined; list: string; prepared: boolean; granted?: GrantedSpellRef; notInBook?: boolean }>();
@@ -1662,6 +1681,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     charges?: { instanceId: string; item: string; remaining: number; cost: number; perLevel?: boolean; maxLevel?: number };
     castAt?: number;
     dc?: number;
+    noConcentration?: boolean;
   };
   for (const inst of c.spells) {
     spellDefs.set(`${inst.list}|${inst.spell}`, { def: reg.has(inst.spell) ? reg.get(inst.spell, "spell") : undefined, list: inst.list, prepared: inst.prepared, ...(inst.notInBook ? { notInBook: true } : {}) });
@@ -1693,6 +1713,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       if (g.atWill) granted.atWill = true;
       if (g.pointCost) granted.pointCost = g.pointCost;
       if (g.extra) granted.extra = g.extra;
+      if (g.noConcentration) granted.noConcentration = true;
       if (g.scroll) granted.scroll = g.scroll;
       if (g.castAt) granted.castAt = g.castAt;
       if (g.dc !== undefined) granted.dc = g.dc;
@@ -1710,7 +1731,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     }
     // Spells picked through a feature's spell choices (Magic Initiate, Fey Touched).
     if (reg.has(s.id) && /^(feature|feat):/.test(s.id)) {
-      const d = reg.get(s.id, s.id.startsWith("feat:") ? "feat" : "feature") as { choices?: { id: string; kind: string; resource?: string; list?: string; atWill?: boolean; spellbook?: boolean; whileEffect?: string }[] };
+      const d = reg.get(s.id, s.id.startsWith("feat:") ? "feat" : "feature") as { choices?: { id: string; kind: string; resource?: string; list?: string; atWill?: boolean; spellbook?: boolean; whileEffect?: string; extra?: string }[] };
       for (const ch of d.choices ?? []) {
         if (ch.kind !== "spell") continue;
         // Spirit Session: the spell only while its tag is on (until the long rest).
@@ -1734,6 +1755,8 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
             const res = resources.find((r) => r.id === ch.resource);
             if (res) res.name = `${res.name.split(":")[0]}: ${def.name}`;
           }
+          // Thinking Stone: each one cast without a slot, counted per rest.
+          if (def && ch.extra) granted.extra = ch.extra;
           // Spell Mastery: at will at its own level; slots still cast it higher.
           if (def && def.level > 0 && ch.atWill) {
             granted.atWill = true;
@@ -1769,7 +1792,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
   const slotsTotal = slots.slots.map((n, i) => n + (c.extraSlots[String(i + 1)] ?? 0));
   const modFor = (list: string) => {
     const sc = spellcasting.find((x) => x.id === list);
-    return sc ? mods[sc.ability] : 0;
+    return sc && !noAbilityLists.has(sc.id) ? mods[sc.ability] : 0;
   };
   const pickByLevel = (table: Record<string, string>, level: number) => {
     const keys = Object.keys(table).map(Number).filter((k) => k <= level).sort((a, b) => a - b);
@@ -1870,7 +1893,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     const timer = durationTimer(def.duration);
     if (timer) r.timer = timer;
     if (sc && def.attack) {
-      r.attack = roll([`roll.attack.spell.${def.attack}`, `roll.attack.spell.${def.id.replace(/^spell:/, "")}`], [pbPart(), abilityPart(sc.ability), ...statAdds(["stat.spell.attack", `stat.spell.attack.${sc.id}`])]);
+      r.attack = roll([`roll.attack.spell.${def.attack}`, `roll.attack.spell.${def.id.replace(/^spell:/, "")}`], [pbPart(), castingPart(sc), ...statAdds(["stat.spell.attack", `stat.spell.attack.${sc.id}`])]);
       if (elvenAccuracy && sc.ability !== "str") r.attack.tripleAdvantage = "Elven Accuracy";
     }
     if (sc && def.save) r.save = { ability: def.save.ability, dc: granted?.dc ?? sc.saveDc.total, onSuccess: def.save.onSuccess };
@@ -1997,7 +2020,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     }
     if (granted?.resource) {
       const res = resources.find((x) => x.id === granted.resource);
-      if (res) r.cast.free = { resource: res.id, name: res.name, remaining: res.remaining, ...(granted.castAt ? { level: granted.castAt } : {}) };
+      if (res) r.cast.free = { resource: res.id, name: res.name, remaining: res.remaining, ...(granted.castAt ? { level: granted.castAt } : {}), ...(granted.noConcentration ? { noConcentration: true } : {}) };
     }
     if (granted?.extra) {
       const n = c.extraCasts?.[`${list}|${def.id}`];
@@ -2173,11 +2196,16 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
   // Lines other features add to an action's note (Arcane Charge on Action Surge), and rolls made twice (Controlled Surge).
   for (const src of sources)
     for (const n of src.grant.actionNotes ?? []) {
+      if (n.minLevel && level < n.minLevel) continue;
       const targets = actions.filter((x) => x.id === n.action);
       const text = n.value !== undefined ? n.text.replace("{value}", String(evalFlat(n.value, ctxFor(src)))) : n.text;
       for (const t of targets) {
         t.note = `${t.note ? `${t.note} ` : ""}${src.label}: ${text}`;
         if (n.rollTimes && t.roll) t.roll = { ...t.roll, times: n.rollTimes };
+        if (n.dc && !t.dc) {
+          const dc = dcOf(n.dc);
+          if (dc) t.dc = dc;
+        }
       }
     }
 

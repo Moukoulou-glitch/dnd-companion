@@ -24,6 +24,8 @@ export interface DiceTerm {
   rerollAtOrBelow?: number;
   min?: number;
   critAtOrAbove?: number;
+  /** Both dice added, none dropped; a total of exactly this counts as a natural 20 (Adama). */
+  critOnSum?: number;
   label?: string;
 }
 

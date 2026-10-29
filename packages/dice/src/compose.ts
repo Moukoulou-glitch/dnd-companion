@@ -16,7 +16,7 @@ export interface ComposerBase {
     effect: string;
     reason?: string;
     /** critAt: a critical hit on this or more while ticked (Hexblade's Curse: 19, against the cursed target). */
-    apply: { flat: number; dice: string[]; damageType?: string; mode?: "advantage" | "disadvantage"; weaponDice?: string; critAt?: number; rerollAtOrBelow?: number; minD20?: number; maximize?: boolean; tripleAdvantage?: string; diceBySlot?: Record<number, string[]> };
+    apply: { flat: number; dice: string[]; damageType?: string; mode?: "advantage" | "disadvantage"; weaponDice?: string; critAt?: number; rerollAtOrBelow?: number; minD20?: number; maximize?: boolean; tripleAdvantage?: string; diceBySlot?: Record<number, string[]>; sumD20?: number };
     /** Ticking it spends this (a superiority die). */
     spends?: { resource: string; amount: number };
     /** One of a group per roll. */
@@ -54,6 +54,8 @@ export interface ComposerChoices {
   manual: "none" | "advantage" | "disadvantage";
   /** Flat bonus or penalty typed by hand. */
   extra: number;
+  /** Dice added by hand as a bonus or a penalty ("+1d4", "-1d6"): a DM's ruling, a bard's die not tracked here. */
+  extraDice?: string[];
   /**
    * The player's final say on the d20: overrides what the sources add up to
    * (the composer starts from the sources' result and the player can change it).
@@ -111,16 +113,26 @@ export function composeD20(base: ComposerBase, choices: ComposerChoices = noChoi
   const triple = mode === "advantage" && !!tripleFrom;
   const d20: Term = { kind: "dice", sign: 1, count: mode === "normal" ? 1 : triple ? 3 : 2, sides: 20 };
   if (mode !== "normal") d20.keep = { which: mode === "advantage" ? "highest" : "lowest", n: 1 };
-  const critAt = Math.min(base.critAt ?? 20, ...on.map((s) => s.apply.critAt ?? 20));
-  if (critAt < 20) d20.critAtOrAbove = critAt;
-  // Reliable Talent always; Stroke of Luck (treat the d20 as a 20) when ticked.
-  const minD20 = Math.max(base.minD20 ?? 0, ...on.map((s) => s.apply.minD20 ?? 0));
-  if (minD20 > 0) d20.min = minD20;
-  // Halfling Lucky: a d20 showing this or lower is rolled again once, and the new roll counts.
-  const reroll = Math.max(0, ...on.map((s) => s.apply.rerollAtOrBelow ?? 0));
-  if (reroll > 0) d20.rerollAtOrBelow = reroll;
+  // Adama: with advantage or disadvantage, both dice count (no third die, nothing kept or dropped).
+  const sumOn = mode !== "normal" ? on.find((s) => s.apply.sumD20) : undefined;
+  if (sumOn) {
+    delete d20.keep;
+    d20.count = 2;
+    d20.critOnSum = sumOn.apply.sumD20!;
+  }
+  // Adama's dice: nothing changes either of them (no crit range, minimum or reroll).
+  if (!sumOn) {
+    const critAt = Math.min(base.critAt ?? 20, ...on.map((s) => s.apply.critAt ?? 20));
+    if (critAt < 20) d20.critAtOrAbove = critAt;
+    // Reliable Talent always; Stroke of Luck (treat the d20 as a 20) when ticked.
+    const minD20 = Math.max(base.minD20 ?? 0, ...on.map((s) => s.apply.minD20 ?? 0));
+    if (minD20 > 0) d20.min = minD20;
+    // Halfling Lucky: a d20 showing this or lower is rolled again once, and the new roll counts.
+    const reroll = Math.max(0, ...on.map((s) => s.apply.rerollAtOrBelow ?? 0));
+    if (reroll > 0) d20.rerollAtOrBelow = reroll;
+  }
   out.terms.push(d20);
-  out.sources.push(mode === "normal" ? "d20" : triple ? `d20, advantage (${tripleFrom}: three dice)` : `d20, ${mode}`);
+  out.sources.push(sumOn ? `2d20 added (${sumOn.label})` : mode === "normal" ? "d20" : triple ? `d20, advantage (${tripleFrom}: three dice)` : `d20, ${mode}`);
 
   for (const p of base.parts) pushFlat(out, p.value, p.label);
   for (const d of base.dice) pushDice(out, d.dice, d.label);
@@ -129,6 +141,7 @@ export function composeD20(base: ComposerBase, choices: ComposerChoices = noChoi
     for (const d of s.apply.dice) pushDice(out, d, s.label);
   }
   pushFlat(out, choices.extra, "Added by hand");
+  for (const d of choices.extraDice ?? []) pushDice(out, d, "Added by hand");
   if (base.minTotal) {
     out.minTotal = base.minTotal.value;
     out.minTotalLabel = base.minTotal.label;
@@ -171,6 +184,7 @@ export function composeDamage(
     for (const d of s.apply.dice) pushDice(out, d, s.label, s.apply.damageType ?? damageType);
   }
   pushFlat(out, choices.extra, "Added by hand");
+  for (const d of choices.extraDice ?? []) pushDice(out, d, "Added by hand", damageType);
   // Dice taken away (Potion of Diminution: 1d4 less): the damage stays at least 1.
   if (out.terms.some((t) => t.kind === "dice" && t.sign < 0)) out.minTotal = 1;
   // Great Weapon Fighting: each damage die of the attack showing this or lower is rolled once more, and the new roll counts.

@@ -60,7 +60,7 @@ function tags(sp: SpellResult): string {
   const t: string[] = [sp.castingTime];
   if (sp.concentration) t.push("concentration");
   if (sp.ritual) t.push("ritual");
-  if (sp.cast.free && sp.cast.free.remaining > 0) t.push("free use");
+  if (sp.cast.free && sp.cast.free.remaining > 0) t.push(sp.cast.free.noConcentration && sp.concentration ? "free use without concentration" : "free use");
   return t.join(", ");
 }
 
@@ -483,7 +483,9 @@ export function SpellPanel({
             {sp.cast.free && (
               <button className={sp.cast.free.remaining > 0 ? "big" : "big damage"} onClick={() => doCast(sp.cast.free!.level ?? sp.level, "free")}>
                 Free use
-                <span className="sub">{sp.cast.free.remaining} left</span>
+                <span className="sub">
+                  {sp.cast.free.remaining} left{sp.cast.free.noConcentration && sp.concentration ? ", no concentration" : ""}
+                </span>
               </button>
             )}
             {sp.cast.extra && (

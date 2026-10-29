@@ -52,6 +52,14 @@ export const FeatureDef = z
     grant: Grant.optional(),
     choices: z.array(ChoiceDef).optional(),
     scaling: z.record(z.string(), Scaling).optional(),
+    /**
+     * The table's heritage features (homebrew): every character of these races gets it from this
+     * character level, and with `when`, only with that pick on the race (an eladrin's season).
+     */
+    heritage: z
+      .object({ races: z.array(DefId).min(1), level: z.number().int().min(1).max(20), when: z.object({ choice: z.string(), value: z.string() }).strict().optional() })
+      .strict()
+      .optional(),
   })
   .strict();
 export type FeatureDef = z.infer<typeof FeatureDef>;

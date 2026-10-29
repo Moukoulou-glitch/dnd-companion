@@ -41,6 +41,18 @@ export interface FxSpec {
 
 const SCHOOLS = ["evocation", "abjuration", "necromancy", "conjuration"];
 
+/** Zone of Truth's words at this table (Giorgos's world), spoken by a celestial voice. */
+export const TRUTH_LINES = [
+  "Παροῦσα εἶναι ἡ Ἀλήθεια",
+  "Συνδημιουργοί Της ἡ Ἐβέλ, ὁ Νάκαβαρ καὶ ὁ Σουλες",
+  "Πεδία Της ἡ Πραγματικότητα, ἡ Ἀντικειμενικότητα, ἡ Ἀπολυτότητα καὶ ἡ Ἀναζήτηση",
+  "Πεδία Μαγείας Της ἡ Γνώση, ἡ Εἰρήνη καὶ ἡ Τάξη",
+  "Οὐδεὶς δὲν ψεύδεται",
+];
+
+/** The eladrin's seasons in this world, and their looks. */
+const FEY_SEASONS: Record<string, string> = { Slumberfall: "autumn", Nocter: "winter", Titanspring: "spring", Heammer: "summer" };
+
 export function specOf(e: FxEvent): FxSpec {
   switch (e.kind) {
     case "crit":
@@ -64,6 +76,15 @@ export function specOf(e: FxEvent): FxSpec {
     case "theros": {
       const motif = { "Fair Weather": "sun", "Heammer Wisps": "wisps", "Thawing Cold": "thaw", "Radiant Passage": "passage" }[e.phenomenon] ?? "sun";
       return { at: "edge", ms: 2800, buzz: [20, 60, 20, 60, 40], look: `fx-theros fx-theros-${motif}`, label: `Theros: ${e.phenomenon}${e.days ? ` · ${e.days} day${e.days === 1 ? "" : "s"}` : ""}`, skippable: true };
+    }
+    // Zone of Truth: the table's words, spoken by a celestial voice, one line at a time.
+    case "truth":
+      return { at: "edge", ms: 1200 + TRUTH_LINES.length * 1700 + 2200, buzz: [10, 80, 10], look: "fx-truth", words: TRUTH_LINES, skippable: true };
+    case "preserve-life":
+      return { at: "edge", ms: 2800, buzz: [15, 30, 15, 30, 60], look: "fx-preserve", label: "Preserve Life", skippable: true };
+    case "fey-step": {
+      const season = e.season && FEY_SEASONS[e.season] ? e.season : undefined;
+      return { at: "edge", ms: 1700, buzz: [20, 30, 40], look: `fx-fey${season ? ` fx-fey-${FEY_SEASONS[season]}` : ""}`, label: season ? `Fey Step · ${season}` : "Fey Step", skippable: true };
     }
     case "wrath":
       return { at: "edge", ms: 1400, buzz: [60, 40, 120], look: "fx-wrath", label: "Destructive Wrath · maximum", shake: 450 };
@@ -417,6 +438,43 @@ export function FxLayer({ school, spell, feature, character }: { school: (spell:
                 <span className="fx-theros-land" />
                 {Array.from({ length: 12 }, (_, i) => (
                   <span key={i} className="fx-theros-mote" style={{ left: `${(i * 29 + 7) % 100}%`, top: `${40 + ((i * 17) % 40)}%`, animationDelay: `${600 + (i % 6) * 140}ms` }} />
+                ))}
+              </>
+            )}
+            {spec.look === "fx-truth" && spec.words && (
+              <>
+                <span className="fx-truth-beam" />
+                <span className="fx-truth-halo" />
+                {Array.from({ length: 14 }, (_, i) => (
+                  <span key={`m${i}`} className="fx-truth-mote" style={{ left: `${(i * 31 + 9) % 100}%`, animationDelay: `${(i % 7) * 260}ms` }} />
+                ))}
+                <span className="fx-truth-words" lang="grc">
+                  {spec.words.map((w, i) => (
+                    <span key={i} className={`fx-truth-line${i === spec.words!.length - 1 ? " last" : ""}`} style={{ animationDelay: `${1200 + i * 1700}ms` }}>
+                      {w}
+                    </span>
+                  ))}
+                </span>
+              </>
+            )}
+            {spec.look === "fx-preserve" && (
+              <>
+                <span className="fx-preserve-pool" />
+                {Array.from({ length: 9 }, (_, i) => (
+                  <span key={`s${i}`} className="fx-preserve-stream" style={{ left: `${6 + i * 10.8 + ((i * 13) % 5) - 2}%`, animationDelay: `${(i % 4) * 110}ms`, ["--w" as string]: `${14 + ((i * 7) % 4) * 9}px` }} />
+                ))}
+                {Array.from({ length: 18 }, (_, i) => (
+                  <span key={`d${i}`} className="fx-preserve-drop" style={{ left: `${(i * 23 + 5) % 100}%`, animationDelay: `${300 + (i % 9) * 120}ms` }} />
+                ))}
+                <span className="fx-preserve-crest" />
+              </>
+            )}
+            {spec.look.startsWith("fx-fey") && (
+              <>
+                <span className="fx-fey-ring a" />
+                <span className="fx-fey-ring b" />
+                {Array.from({ length: 16 }, (_, i) => (
+                  <span key={i} className="fx-fey-bit" style={{ ["--a" as string]: `${i * 22.5}deg`, animationDelay: `${(i % 4) * 60}ms` }} />
                 ))}
               </>
             )}

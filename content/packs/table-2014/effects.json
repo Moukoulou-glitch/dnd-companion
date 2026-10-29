@@ -6053,6 +6053,22 @@
         "Enter the cold or necrotic damage now: it's halved, and this tag ends."
       ],
       "selfOnly": true
+    },
+    {
+      "kind": "effect",
+      "id": "other:zone-of-truth",
+      "name": "Zone of Truth",
+      "category": "spell",
+      "summary": "Someone's Zone of Truth: while you're in its 15-foot sphere and failed the Charisma save, you can't speak a deliberate lie (you can still be evasive).",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "modifiers": [],
+      "minutes": 10,
+      "reminders": [
+        "A Charisma save when you first enter it on a turn or start your turn there; the caster knows whether you succeeded."
+      ]
     }
   ]
 }

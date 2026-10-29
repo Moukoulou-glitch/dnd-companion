@@ -232,7 +232,40 @@ function Options({
           </button>
         </div>
       </div>
+      <HandDice dice={choices.extraDice ?? []} onChange={(d) => setChoices({ ...choices, extraDice: d })} />
     </>
+  );
+}
+
+const HAND_SIDES = [4, 6, 8, 10, 12] as const;
+
+/** Dice added by hand, as a bonus or a penalty: "+1d4" from a ruling, "−1d6" from a curse the app doesn't know. */
+function HandDice({ dice, onChange }: { dice: string[]; onChange: (dice: string[]) => void }) {
+  // "+1d4", "+1d4", "-1d6" → "+2d4", "−1d6", each with its own remove.
+  const groups = [...new Set(dice)].map((d) => ({ d, n: dice.filter((x) => x === d).length }));
+  return (
+    <div className="hand-dice" aria-label="Dice added by hand">
+      {(["+", "-"] as const).map((sign) => (
+        <div className="hand-dice-row" key={sign}>
+          <span className="hand-dice-sign">{sign === "+" ? "Bonus" : "Penalty"}</span>
+          {HAND_SIDES.map((s) => (
+            <button key={s} className="chip" aria-label={`${sign === "+" ? "Add" : "Take away"} a d${s}`} onClick={() => onChange([...dice, `${sign}1d${s}`])}>
+              {sign === "+" ? "+" : "−"}d{s}
+            </button>
+          ))}
+        </div>
+      ))}
+      {groups.length > 0 && (
+        <div className="hand-dice-row">
+          {groups.map(({ d, n }) => (
+            <button key={d} className="chip on" aria-label={`Remove ${d.replace("1d", `${n}d`)}`} onClick={() => onChange(dice.filter((x) => x !== d))}>
+              {d.startsWith("-") ? "−" : "+"}
+              {n}d{d.replace(/^[+-]1d/, "")} ✕
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -285,13 +318,22 @@ function D20Entry({ count, reroll = 0, onDone }: { count: number; reroll?: numbe
 }
 
 /** Type the total showing on all the damage dice. */
-function TotalEntry({ prompt, onDone }: { prompt: string; onDone: (n: number) => void }) {
+function TotalEntry({ prompt, onDone, allowNegative }: { prompt: string; onDone: (n: number) => void; allowNegative?: boolean }) {
   const [v, setV] = useState("");
+  const [minus, setMinus] = useState(false);
   const press = (d: string) => setV((x) => (x.length >= 3 ? x : (x + d).replace(/^0+/, "")));
   return (
     <>
       <p className="note">{prompt}</p>
-      <div className={`pad-display${v ? "" : " empty"}`}>{v || "0"}</div>
+      <div className={`pad-display${v ? "" : " empty"}`}>
+        {minus ? "−" : ""}
+        {v || "0"}
+      </div>
+      {allowNegative && (
+        <button className="big wide" style={{ marginBottom: 8 }} onClick={() => setMinus(!minus)} aria-pressed={minus}>
+          {minus ? "Below zero: tap for a positive total" : "The total is below zero"}
+        </button>
+      )}
       <div className="keys">
         {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((d) => (
           <button key={d} className="key" onClick={() => press(d)}>
@@ -304,7 +346,7 @@ function TotalEntry({ prompt, onDone }: { prompt: string; onDone: (n: number) =>
         <button className="key" onClick={() => press("0")}>
           0
         </button>
-        <button className="key ok" disabled={!v} onClick={() => onDone(Number(v))}>
+        <button className="key ok" disabled={!v} onClick={() => onDone(minus ? -Number(v) : Number(v))}>
           OK
         </button>
       </div>
@@ -402,6 +444,8 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
   const [rerolledOne, setRerolledOne] = useState(false);
   const [stage, setStage] = useState<Stage>(damageOnly ? { step: "damage-setup", crit: false } : { step: "setup" });
   const [entering, setEntering] = useState(false);
+  /** Your own d20s are in; the roll's other dice (Bless's d4, a die added by hand) wait for their total. */
+  const [otherFor, setOtherFor] = useState<{ values: number[]; composed: Composed } | null>(null);
 
   const d20 = useMemo(() => composeD20(base, choices), [base, choices]);
 
@@ -520,6 +564,11 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
   };
 
   const rollD20 = (values?: number[], composed = d20, done?: ComposedRoll, thrown = false) => {
+    // Your own dice with more dice than the d20 on the roll: their total is asked for next.
+    if (values && !done && composed.terms.some((t, i) => i > 0 && t.kind === "dice")) {
+      setOtherFor({ values, composed });
+      return;
+    }
     const rec = recordOf(dc ? `${title} (DC ${dc})` : title, "d20", done ?? rollComposed(composed, values));
     if (thrown) rec.thrown = true;
     if (attack) rec.attack = true;
@@ -693,7 +742,21 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
             ))}
           </div>
         )}
-        {physical ? (
+        {physical && otherFor ? (
+          <TotalEntry
+            prompt={`d20: ${otherFor.values.join(", ")}. Now roll ${diceToRoll({ ...otherFor.composed, terms: otherFor.composed.terms.filter((t, i) => i > 0 && t.kind === "dice") })} and type the total.`}
+            allowNegative={otherFor.composed.terms.some((t, i) => i > 0 && t.kind === "dice" && t.sign < 0)}
+            onDone={(n) => {
+              const c = otherFor.composed;
+              const idx = c.terms.map((_, i) => i).filter((i) => i === 0 || c.terms[i]!.kind !== "dice");
+              const dice = diceToRoll({ ...c, terms: c.terms.filter((t, i) => i > 0 && t.kind === "dice") });
+              const flat = { ...c, terms: [...idx.map((i) => c.terms[i]!), ...(n !== 0 ? [{ kind: "flat" as const, sign: (n < 0 ? -1 : 1) as 1 | -1, value: Math.abs(n) }] : [])], sources: [...idx.map((i) => c.sources[i]!), ...(n !== 0 ? [`Your dice (${dice})`] : [])] };
+              const values = otherFor.values;
+              setOtherFor(null);
+              rollD20(values, flat);
+            }}
+          />
+        ) : physical ? (
           <D20Entry key={`${d20Count(d20)}-${d20Reroll(d20)}`} count={d20Count(d20)} reroll={d20Reroll(d20)} onDone={rollD20} />
         ) : (
           <button className="big primary wide" disabled={throwing} onClick={() => (throwing3d ? throwThen(d20, (r, t) => rollD20(undefined, d20, r, t)) : rollD20())}>
