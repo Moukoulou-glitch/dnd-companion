@@ -30,7 +30,7 @@ export interface BookReport {
   kept: string[];
   /** How many third-party entries (Grim Hollow and other publishers) were left out. */
   excluded: number;
-  /** Subclasses the table doesn't use (Sword Coast Adventurer's Guide and the DMG), left out. */
+  /** Subclasses the table doesn't use (Sword Coast Adventurer's Guide, the DMG, Explorer's Guide to Wildemount), left out. */
   leftOut?: string[];
 }
 
@@ -137,8 +137,8 @@ function namesOf(def: Definition): string[] {
 /** Official books whose subclasses a class page may add (third-party ones are never loaded). */
 const OFFICIAL_BOOKS = new Set(["PHB'14", "PHB", "XGE", "TCE", "SCAG", "DMG'14", "DMG", "EGW", "VRGR", "FTD", "MOT", "GGR", "ERLW", "SCC", "AAG", "BMT", "MTF", "VGM", "AI", "LLK", "SatO", "TDCSR"].filter((b) => b !== "TDCSR"));
 
-/** Books whose subclasses the table leaves out (Oct 25): Sword Coast Adventurer's Guide and the DMG. */
-const LEFT_OUT_BOOKS = new Set(["SCAG", "DMG'14", "DMG"]);
+/** Books whose subclasses the table leaves out: Sword Coast Adventurer's Guide and the DMG (Oct 25), Explorer's Guide to Wildemount (Echo Knight, Oct 29). */
+const LEFT_OUT_BOOKS = new Set(["SCAG", "DMG'14", "DMG", "EGW"]);
 
 const BOOK_NAMES: Record<string, string> = { "PHB'14": "PHB", XGE: "XGE", TCE: "TCE", SCAG: "SCAG", EGW: "EGW", VRGR: "VRGR" };
 const bookName = (tag?: string) => (tag ? BOOK_NAMES[tag] ?? tag : "Book");

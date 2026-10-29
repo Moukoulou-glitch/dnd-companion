@@ -477,11 +477,13 @@ describe("book files in one file", () => {
     expect(bundleBookFiles([{ name: "all.md", text: b.text }], reg).kept).toEqual(["spells.md", "feats.md", "rogue.txt"]);
     expect(splitBookFiles({ name: "x.md", text: FEATS })).toEqual([{ name: "x.md", text: FEATS }]);
   });
-  it("the table's ruling: Sword Coast Adventurer's Guide and DMG subclasses stay out", () => {
+  it("the table's ruling: Sword Coast Adventurer's Guide, DMG and Wildemount subclasses stay out", () => {
     const reg = tableRegistry();
     const { pack, report } = bookPack([{ name: "bard.txt", text: BARD_SCAG }], reg);
     expect(pack.definitions.some((d) => d.kind === "subclass" && d.name === "College of Testing")).toBe(false);
     expect(report.leftOut).toEqual(["College of Testing"]);
     expect(pack.definitions.some((d) => d.kind === "subclass" && d.name === "College of Echoes")).toBe(true);
+    const egw = bookPack([{ name: "bard.txt", text: BARD_SCAG.replace(/SCAG/g, "EGW") }], reg).report;
+    expect(egw.leftOut).toEqual(["College of Testing"]);
   });
 });

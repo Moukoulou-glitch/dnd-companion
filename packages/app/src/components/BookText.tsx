@@ -113,7 +113,7 @@ export function BooksPanel({ report }: { report: BookReport | undefined }) {
             <div className="row">
               <div className="row-main">
                 <div className="row-title">Subclasses your table doesn't use</div>
-                <div className="row-sub">{report.leftOut.join(", ")} (Sword Coast Adventurer's Guide and the DMG)</div>
+                <div className="row-sub">{report.leftOut.join(", ")} (Sword Coast Adventurer's Guide, the DMG, Explorer's Guide to Wildemount)</div>
               </div>
             </div>
           )}

@@ -430,6 +430,6 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 ## Book files: one file
 
 - Characters → Book text → "Combine into one file" saves every loaded book file as one ("D&D book files.md"): the same text, read the same way. Identical files and a second page for the same class are left out (it says which). "Keep only the combined file here" swaps the separate files for it.
-- Sword Coast Adventurer's Guide and DMG subclasses on a class page are left out (the table's ruling); the Book text page lists them. Echo Knight (Explorer's Guide to Wildemount) is still added.
+- Sword Coast Adventurer's Guide, DMG and Explorer's Guide to Wildemount subclasses (Echo Knight) on a class page are left out (the table's rulings); the Book text page lists them.
 - Not in your files yet, so these have only the app's summaries: the actions list, a bestiary (Barlgura, Chasme, Goristro, Manes, Peryton, Shadow Demon, Yochlol), Fizban's Treasury (Drakewarden, Way of the Ascendant Dragon, its 7 spells, the Gift feats, the three dragonborn, Potion of Dragon's Majesty), and most races beyond your races file (PHB subraces, Volo's, Mordenkainen's, Genasi, Van Richten's).
 
