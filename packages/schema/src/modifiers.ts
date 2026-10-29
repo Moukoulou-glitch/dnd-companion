@@ -371,6 +371,8 @@ export const ActionDef = z
         table: z.array(z.string()).optional(),
         /** Rolled this many times, keeping one you pick (Controlled Chaos: the surge table twice). */
         times: z.number().int().min(2).max(3).optional(),
+        /** Rolled after the pick from `choose`, and recorded with it (Theros: the phenomenon, then 1d10 days). */
+        afterChoice: z.boolean().optional(),
         /** The damage types it can deal (Wrath of the Storm: lightning or thunder): options for those types are offered (Destructive Wrath). */
         types: z.array(z.string()).optional(),
       })
@@ -386,7 +388,7 @@ export const ActionDef = z
      * duration (Psychic Whispers: hours).
      */
     duration: z
-      .object({ rounds: z.number().int().min(1).optional(), minutes: z.number().int().min(1).optional(), fromRoll: z.enum(["rounds", "minutes", "hours"]).optional() })
+      .object({ rounds: z.number().int().min(1).optional(), minutes: z.number().int().min(1).optional(), fromRoll: z.enum(["rounds", "minutes", "hours", "days"]).optional() })
       .strict()
       .optional(),
     /** Gives back uses of another resource (Psionic Power: regain one die). */
@@ -670,6 +672,8 @@ export const Grant = z
         /** Only for these spells, and with `time`, only cast with that casting time (Theros: Plant Growth over 8 hours). */
         spells: z.array(DefId).optional(),
         time: z.string().optional(),
+        /** Then this action is offered, while it has uses (Theros: "use it now?"). */
+        offers: z.string().optional(),
       })
       .strict()
       .optional(),

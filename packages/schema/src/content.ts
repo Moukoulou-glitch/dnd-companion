@@ -504,6 +504,11 @@ export const CreatureAction = z
       })
       .strict()
       .optional(),
+    /**
+     * It gives its own life to a creature at 0 hit points (a Heammer Wisp's Give Life):
+     * the target regains `dice` hit points, and its current and maximum hit points drop by as much.
+     */
+    lifeTransfer: z.object({ dice: z.string() }).strict().optional(),
   })
   .strict();
 export type CreatureAction = z.infer<typeof CreatureAction>;

@@ -30,6 +30,10 @@ export type FxEvent =
   | { kind: "sneak" }
   /** Destructive Wrath: the storm answers (its lightning and thunder dice at their maximum). */
   | { kind: "wrath" }
+  /** Floar (Circle of the Heammer): the Methic flame lights; with Zenith, a sun rises in it too. */
+  | { kind: "floar"; radiant: boolean; zenith: boolean }
+  /** Theros: a phenomenon over the land, for so many days. */
+  | { kind: "theros"; phenomenon: string; days?: number }
   | { kind: "concentration"; kept: boolean }
   | { kind: "death-save"; result: "success" | "failure"; final: boolean }
   | { kind: "inspiration"; gained: boolean }
@@ -114,6 +118,12 @@ const level = (c: Character) => c.classes.reduce((t, k) => t + k.level, 0);
 export function opFx(type: string, payload: unknown, before: Character, after: Character, school?: (spell: string) => string | undefined, info?: SpellLookup, feature?: FeatureLookup): FxEvent[] {
   const out: FxEvent[] = [];
   const p = (payload ?? {}) as Record<string, unknown>;
+  // Circle of the Heammer: Floar's flame (and Zenith's sun from 14th level), Theros' phenomenon.
+  if (type === "useAction" && p.action === "floar") {
+    const druid = after.classes?.find((x) => x.class === "class:druid");
+    out.push({ kind: "floar", radiant: p.choice === "Radiant", zenith: !!druid && druid.level >= 14 && druid.subclass === "subclass:circle-of-the-heammer" });
+  }
+  if (type === "useAction" && p.action === "theros" && typeof p.choice === "string") out.push({ kind: "theros", phenomenon: p.choice, ...(typeof p.rolled === "number" ? { days: p.rolled } : {}) });
   // Damage and healing on a summoned creature or companion aren't yours.
   const onYou = !p.companion && !p.summon;
   const hb = before.hp ?? { current: 0, temp: 0 };

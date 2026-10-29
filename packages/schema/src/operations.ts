@@ -81,6 +81,12 @@ export const OPERATION_PAYLOADS = {
   summonEffectEdit: z
     .object({ id: z.string(), instance: z.string(), rounds: z.number().int().min(0).nullable().optional(), slotLevel: z.number().int().min(1).max(9).optional(), choice: z.string().optional() })
     .strict(),
+  /**
+   * A summoned creature gives its life to someone at 0 hit points (a Heammer Wisp's Give Life):
+   * `target` ("me", or absent for a creature you don't track) regains `amount`, the creature's
+   * current and maximum hit points drop by as much, and its bonus action and the recharge are marked.
+   */
+  giveLife: z.object({ summon: z.string(), action: z.string(), amount: z.number().int().min(0), target: z.literal("me").optional(), targetName: z.string().optional() }).strict(),
   /** A summoned creature's maximum hit points changed by hand. */
   summonMaxHpAdjust: z.object({ id: z.string(), reduce: z.number().int().min(0).optional(), increase: z.number().int().min(0).optional() }).strict(),
   /** Inspiration on hand. */
@@ -519,6 +525,7 @@ export const Operation = z.discriminatedUnion("type", [
   OperationBase.extend({ type: z.literal("summonEffectEdit"), payload: OPERATION_PAYLOADS.summonEffectEdit }),
   OperationBase.extend({ type: z.literal("setInspiration"), payload: OPERATION_PAYLOADS.setInspiration }),
   OperationBase.extend({ type: z.literal("summonMaxHpAdjust"), payload: OPERATION_PAYLOADS.summonMaxHpAdjust }),
+  OperationBase.extend({ type: z.literal("giveLife"), payload: OPERATION_PAYLOADS.giveLife }),
   OperationBase.extend({ type: z.literal("setMaxHpAdjust"), payload: OPERATION_PAYLOADS.setMaxHpAdjust }),
   OperationBase.extend({ type: z.literal("setAbilityAdjust"), payload: OPERATION_PAYLOADS.setAbilityAdjust }),
   OperationBase.extend({ type: z.literal("setHpRoll"), payload: OPERATION_PAYLOADS.setHpRoll }),

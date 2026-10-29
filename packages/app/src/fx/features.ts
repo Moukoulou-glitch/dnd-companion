@@ -100,7 +100,7 @@ export interface FeatureSheet {
  * Uses with their own look already (fx/triggers.ts, components/Fx.tsx): Flurry of Blows' afterimages, Way of
  * Mercy's hands, Rage's veins, the transformations' forms. They keep theirs and get nothing more.
  */
-const OWN_LOOK = new Set(["flurry-of-blows", "hand-of-healing", "hand-of-harm", "destructive-wrath", "transmuted-spell"]);
+const OWN_LOOK = new Set(["flurry-of-blows", "hand-of-healing", "hand-of-harm", "destructive-wrath", "transmuted-spell", "floar", "theros"]);
 const OWN_TOGGLES = new Set(["raging", ...Object.keys(FORM_FX)]);
 
 /**

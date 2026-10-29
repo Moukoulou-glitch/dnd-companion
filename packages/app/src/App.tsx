@@ -703,6 +703,26 @@ export function App() {
     };
   };
 
+  /**
+   * After a cast: a feature that can follow it, offered while it has uses (Theros after Plant Growth over 8 hours).
+   * True when its panel was opened.
+   */
+  const offerAfterCast = (spellId: string, level: number, castingTime: string): boolean => {
+    const sh = live.current.sheet;
+    for (const r of sh?.castReminders ?? []) {
+      if (!r.offers || level < r.minLevel) continue;
+      if (r.spells && !r.spells.includes(spellId)) continue;
+      if (r.time && !castingTime.toLowerCase().includes(r.time.toLowerCase())) continue;
+      const a = sh?.actions.find((x) => x.id === r.offers);
+      if (!a || (a.cost && a.cost.remaining < a.cost.amount)) continue;
+      open(`Use ${a.name}?`, () => (
+        <Confirm question={`Use ${a.name}?`} detail={`${r.from}: ${r.text}`} no="Not now" yes={`Use ${a.name}`} onNo={close} onYes={() => openFeature(a)} />
+      ));
+      return true;
+    }
+    return false;
+  };
+
   /** The action an option spent on a roll belongs to (Destructive Wrath's Channel Divinity), for its look. */
   const forUse = (label: string): { for?: string } => {
     const a = live.current.sheet?.actions.find((x) => x.name === label && !x.common);
@@ -1051,6 +1071,8 @@ export function App() {
             ))
           }
           onSpell={(spell, source) => openSummonSpell(id, spell, source)}
+          me={{ name: cur.name, hp: cur.hp.current }}
+          physical={cur.settings.physicalDice ?? true}
           openAttack={(a) => {
             const kind = a.action === "bonus" ? "bonus" : "attack";
             openRoll(a.name, a.attack, a, {
@@ -1482,6 +1504,8 @@ export function App() {
             };
             const label = spend
               ? `${a.name}: ${spend.amount} ${spend.healSelf ? "hit points to yourself" : "points spent"}.`
+              : choice && current.roll?.afterChoice && rolled !== undefined
+              ? `${a.name}: ${choice}, ${rolled} ${current.roll.label}.`
               : choice && current.roll?.types?.includes(choice) && rolled !== undefined
               ? `${a.name}: ${rolled} ${choice} damage.`
               : choice && current.untilTurnStart
@@ -3382,6 +3406,8 @@ export function App() {
                     else live.current.setToast({ id: Date.now(), text: `${alt.label}: d10 shows ${r.total}, the slot is spent.`, canUndo: false });
                   });
               }
+              // Theros after Plant Growth over 8 hours: offered now.
+              if (offerAfterCast(sp.id, level, castingTime ?? sp.castingTime)) transformed = true;
               // Counterspell, Dispel Magic: is the spell higher than the slot? Then the check.
               if (sp.check) {
                 transformed = true;
@@ -3435,6 +3461,8 @@ export function App() {
     if (sum) return openSummon(sum.id, t.cast.level);
     const check = prompts.find((p) => p.kind === "concentration");
     if (check) return openConcentrationCheck(check.dc);
+    // Theros after Plant Growth's 8 hours: offered now.
+    if (offerAfterCast(sp.id, t.cast.level, t.cast.castingTime ?? sp.castingTime)) return;
     openSpell(sp, t.cast.level);
   };
   /** Broken off: nothing is cast or spent; the player says how many minutes did pass. */

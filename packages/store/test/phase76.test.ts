@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { newCharacter } from "@dnd/engine";
+import { newCharacter, summonBlock } from "@dnd/engine";
 import { tableRegistry } from "../../engine/test/helpers.js";
 import { CharacterLog } from "../src/log.js";
 import { HybridClock } from "../src/clock.js";
@@ -35,5 +35,33 @@ describe("Circle of the Heammer in play", () => {
     l.record("summon", { spell: "summon:heammer-wisps", group: "g", creatures: [{ creature: "creature:heammer-wisp", count: 5 }] });
     expect(l.character.summons.filter((m) => m.creature === "creature:heammer-wisp")).toHaveLength(5);
     expect(l.character.summons[0]!.hp).toBe(40);
+  });
+});
+
+describe("Circle of the Heammer: 15c", () => {
+  it("Theros: the phenomenon and its 1d10 days go on the tag (days × 24 hours)", () => {
+    const l = heammer(10);
+    expect(l.record("useAction", { action: "theros", choice: "Fair Weather", rolled: 7 })).toContain("Theros: Fair Weather, 7 days.");
+    expect(l.character.effects.find((e) => e.effect === "other:theros")).toMatchObject({ choice: "Fair Weather", minutes: 7 * 1440 });
+    expect(l.character.resourcesUsed["theros"]).toBe(1);
+  });
+  it("Give Life: you regain the roll at 0 HP, the wisp loses as much from its current and maximum HP, its bonus action and the recharge are marked", () => {
+    const l = heammer(10);
+    l.record("summon", { spell: "summon:heammer-wisps", group: "g", creatures: [{ creature: "creature:heammer-wisp", count: 1 }] });
+    const w = l.character.summons[0]!;
+    expect(summonBlock(reg, w)?.actions.find((a) => a.name.startsWith("Give Life"))?.lifeTransfer).toEqual({ dice: "3d6" });
+    l.record("summonConcentration", { id: w.id, spell: "Invisibility" });
+    l.record("damage", { amount: 40 });
+    expect(l.character.hp.current).toBe(0);
+    const notes = l.record("giveLife", { summon: w.id, action: "Give Life (Recharge 6) (bonus action)", amount: 12, target: "me" }).join(" ");
+    expect(l.character.hp.current).toBe(12);
+    const after = l.character.summons[0]!;
+    expect(after).toMatchObject({ hp: 28, maxHpAdjust: { reduce: 12, increase: 0 }, recharge: ["Give Life (Recharge 6) (bonus action)"] });
+    expect(after.used?.bonus).toBe(true);
+    expect(after.concentrating).toBeUndefined();
+    expect(notes).toMatch(/28 of 28 HP/);
+    // A second one on someone you don't track: the maximum keeps dropping.
+    l.record("giveLife", { summon: w.id, action: "Give Life (Recharge 6) (bonus action)", amount: 30, targetName: "Mira" });
+    expect(l.character.summons[0]).toMatchObject({ hp: 0, maxHpAdjust: { reduce: 42 } });
   });
 });

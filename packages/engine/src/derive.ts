@@ -228,10 +228,10 @@ export interface ActionResult {
   /** The feature or feat this comes from, for showing its text. */
   featureId?: string;
   /** Dice rolled when used and what the number means (Spirit Shield: damage prevented). */
-  roll?: Amount & { label: string; table?: string[]; times?: number; types?: string[]; maxWith?: { label: string; spends?: { resource: string; amount: number } } };
+  roll?: Amount & { label: string; table?: string[]; times?: number; types?: string[]; afterChoice?: boolean; maxWith?: { label: string; spends?: { resource: string; amount: number } } };
   /** Writes a spellbook spell onto a scroll (Master Scrivener): the pick is the spell, written `higher` levels up. */
   scribesScroll?: { list: string; maxLevel: number; higher: number };
-  duration?: { rounds?: number; minutes?: number; fromRoll?: "rounds" | "minutes" | "hours" };
+  duration?: { rounds?: number; minutes?: number; fromRoll?: "rounds" | "minutes" | "hours" | "days" };
   /** The effect it puts on you, the pick as its choice (Chromatic Infusion). */
   selfEffect?: string;
   /** Rolls this spell's attack and damage (Spiritual Weapon), at the level of the effect it comes from. */
@@ -502,7 +502,7 @@ export interface DerivedSheet {
   /** Effects put on you when you finish a long rest (Tranquility: Sanctuary), with their save DC. */
   afterLongRest: { effect: string; minutes?: number; dc?: number; from: string }[];
   /** Reminders when you cast a spell of `minLevel` or higher (Voice of Authority). */
-  castReminders: { text: string; minLevel: number; from: string; damageTypes?: string[]; spells?: string[]; time?: string }[];
+  castReminders: { text: string; minLevel: number; from: string; damageTypes?: string[]; spells?: string[]; time?: string; offers?: string }[];
   /** Uses back at the end of a short rest (Sorcerous Restoration). */
   shortRestRegains: { resource: string; amount: number; from: string }[];
   /**
@@ -2049,7 +2049,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     for (const a of s.grant.actions ?? []) {
       const entry: ActionResult = { id: a.id, name: a.name, economy: a.economy, source: s.label, toggles: a.toggles };
       if (/^(feature|feat|race|background):/.test(s.id)) entry.featureId = s.id;
-      if (a.roll) entry.roll = { ...amountOf(a.roll.dice, s), label: a.roll.label, ...(a.roll.table ? { table: a.roll.table } : {}), ...(a.roll.times ? { times: a.roll.times } : {}), ...(a.roll.types ? { types: a.roll.types } : {}) };
+      if (a.roll) entry.roll = { ...amountOf(a.roll.dice, s), label: a.roll.label, ...(a.roll.table ? { table: a.roll.table } : {}), ...(a.roll.times ? { times: a.roll.times } : {}), ...(a.roll.types ? { types: a.roll.types } : {}), ...(a.roll.afterChoice ? { afterChoice: true } : {}) };
       // Its damage can be maximized by an option for its types (Destructive Wrath on Wrath of the Storm's 2d8).
       if (a.roll?.types && entry.roll) {
         const mx = active.find((x) => x.mod.op === "maximize" && x.mod.forTypes?.some((t) => a.roll!.types!.includes(t)) && conditionState(x.mod.when) !== "fail");
@@ -2540,7 +2540,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       const r = s.grant.castReminder;
       if (!r) return [];
       const text = r.value !== undefined ? r.text.replace("{value}", String(evalFlat(r.value, ctxFor(s)))) : r.text;
-      return [{ text, minLevel: r.minLevel, from: s.label, ...(r.damageTypes ? { damageTypes: r.damageTypes } : {}), ...(r.spells ? { spells: r.spells } : {}), ...(r.time ? { time: r.time } : {}) }];
+      return [{ text, minLevel: r.minLevel, from: s.label, ...(r.damageTypes ? { damageTypes: r.damageTypes } : {}), ...(r.spells ? { spells: r.spells } : {}), ...(r.time ? { time: r.time } : {}), ...(r.offers ? { offers: r.offers } : {}) }];
     }),
     breath: (() => {
       const base = Math.max(5, (1 + mods.con) * 10);

@@ -2005,8 +2005,7 @@
               "radiant"
             ],
             "when": {
-              "toggle": "floar",
-              "notFeature": "feature:circle-of-the-heammer-zenith"
+              "toggle": "floar"
             }
           }
         ],
@@ -2109,16 +2108,25 @@
               "summon": "summon:heammer-wisps",
               "onChoice": "Heammer Wisps"
             },
-            "note": "When your Plant Growth cast over 8 hours ends: invoke one phenomenon for 1d10 days (roll it) or until the next full moon. Heammer Wisps: half your druid level of them."
+            "note": "When your Plant Growth cast over 8 hours ends: invoke one phenomenon. The 1d10 days are rolled when you pick it; it also ends at the next full moon. Heammer Wisps: half your druid level of them.",
+            "roll": {
+              "dice": "1d10",
+              "label": "days",
+              "afterChoice": true
+            },
+            "duration": {
+              "fromRoll": "days"
+            }
           }
         ],
         "castReminder": {
-          "text": "you can invoke a phenomenon now (Actions → Theros), once per long rest.",
+          "text": "you can invoke a phenomenon now, once per long rest.",
           "minLevel": 0,
           "spells": [
             "spell:plant-growth"
           ],
-          "time": "8 hours"
+          "time": "8 hours",
+          "offers": "theros"
         }
       }
     },
@@ -2126,7 +2134,7 @@
       "kind": "feature",
       "id": "feature:circle-of-the-heammer-zenith",
       "name": "Zenith",
-      "summary": "Floar sheds sunlight (bright 5 ft, dim 5 ft more). While it's on: your leveled spells' fire and radiant damage +1d10 per spell level (in place of Floar's 1d10); advantage on attacks against creatures in your sunlight; a reaction to halve cold or necrotic damage to you or a creature in it; Untamed Flame gives +2 AC until your next turn.",
+      "summary": "Floar sheds sunlight (bright 5 ft, dim 5 ft more). While it's on: your leveled spells' fire and radiant damage +1d10 per spell level, on top of Floar's 1d10; advantage on attacks against creatures in your sunlight; a reaction to halve cold or necrotic damage to you or a creature in it; Untamed Flame gives +2 AC until your next turn.",
       "source": {
         "pack": "table-2014",
         "book": "Homebrew (Circle of the Heammer)"

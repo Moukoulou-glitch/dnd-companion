@@ -111,6 +111,27 @@ export function FeaturePanel({
   const healedId = pickable ? target : me === false ? "other" : "me";
   const beacon = !!a.heal && !!beaconIds?.includes(healedId);
   const maxOfAmount = amount ? amount.flat + amount.dice.reduce((t, d) => t + (/^(\d*)d(\d+)$/.test(d) ? Number(/^(\d*)/.exec(d)![1] || 1) * Number(/d(\d+)$/.exec(d)![1]) : 0), 0) : 0;
+  // Theros: the pick first, then its dice (1d10 days), recorded together.
+  const rollAfter = async (choice: string) => {
+    if (!amount) return useWith(undefined, false, undefined, choice);
+    if (physical) return useWith(Number(entry) + amount.flat, false, undefined, choice);
+    setThrowing(true);
+    inAir.current = true;
+    try {
+      let total = amount.flat;
+      for (const d of amount.dice) {
+        const m = /^(\d*)d(\d+)$/.exec(d);
+        if (!m) continue;
+        const faces = await facesOrRoll(Number(m[1] || 1), Number(m[2]), true, { source: a.name });
+        total += faces.reduce((x, f) => x + f, 0);
+      }
+      inAir.current = false;
+      if (alive.current) useWith(total, false, undefined, choice);
+    } finally {
+      inAir.current = false;
+      if (alive.current) setThrowing(false);
+    }
+  };
   const useNow = async (free = false) => {
     if (!amount) return useWith(undefined, free, undefined, undefined, undefined, me);
     if (maxOn && a.roll?.maxWith) {
@@ -318,7 +339,12 @@ export function FeaturePanel({
           <p className="sub-head">{a.choose.label}</p>
           <div className="choice-grid">
             {a.choose.options.map((o) => (
-              <button key={o} className="big" onClick={() => useWith(undefined, false, undefined, o)}>
+              <button
+                key={o}
+                className="big"
+                disabled={throwing || (!!a.roll?.afterChoice && physical && !!amount && amount.dice.length > 0 && !entry)}
+                onClick={() => (a.roll?.afterChoice ? void rollAfter(o) : useWith(undefined, false, undefined, o))}
+              >
                 {o}
               </button>
             ))}

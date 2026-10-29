@@ -6014,7 +6014,7 @@
         ]
       },
       "reminders": [
-        "Roll 1d10 for the days; it also ends at the next full moon. End the tag when it's over.",
+        "It lasts the days rolled, or until the next full moon if that comes first: end the tag then.",
         "Fair Weather: clear skies and mild warmth in the mile (not against other magic).",
         "Heammer Wisps: they obey your spoken commands and vanish if they leave the mile.",
         "Thawing Cold: cold damage in the mile is 1d10 lower (at least 1).",

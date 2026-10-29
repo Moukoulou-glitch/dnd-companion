@@ -376,9 +376,10 @@ export function TextList({
   onUse,
   recharging = [],
   onRecharge,
+  onLifeTransfer,
 }: {
   title: string;
-  items: { name: string; text: string }[];
+  items: { name: string; text: string; lifeTransfer?: { dice: string } }[];
   onRoll?: (name: string, dice: string, type?: string) => void;
   /** Use it: marks the action, bonus action or reaction. */
   onUse?: (name: string, economy: "action" | "bonus" | "reaction") => void;
@@ -386,6 +387,8 @@ export function TextList({
   recharging?: string[];
   /** Marks a recharge action used (true) or ready again (false). */
   onRecharge?: (name: string, used: boolean) => void;
+  /** Gives its life to someone at 0 hit points (Give Life): opens that, in place of a plain use. */
+  onLifeTransfer?: (name: string, dice: string) => void;
 }): ReactNode {
   const [lastRoll, setLastRoll] = useState<Record<string, number>>({});
   if (!items.length) return null;
@@ -393,10 +396,11 @@ export function TextList({
     <>
       <h2 className="sub-head">{title}</h2>
       {items.map((t) => {
-        const d = onRoll ? traitDice(t.text) : undefined;
+        const life = onLifeTransfer && t.lifeTransfer ? t.lifeTransfer : undefined;
+        const d = onRoll && !life ? traitDice(t.text) : undefined;
         const dc = /DC (\d+) (\w+) saving throw/i.exec(t.text);
         const economy = actionEconomy(t.name);
-        const usable = onUse && !/^multiattack/i.test(t.name);
+        const usable = onUse && !life && !/^multiattack/i.test(t.name);
         const at = onRecharge ? rechargeAt(t.name) : undefined;
         const waiting = at !== undefined && recharging.includes(t.name);
         const rollRecharge = () => {
@@ -409,8 +413,13 @@ export function TextList({
             <p className="note">
               <b>{t.name}.</b> <RichText text={t.text} />
             </p>
-            {(d || usable || dc || waiting) && (
+            {(d || usable || dc || waiting || life) && (
               <div className="choice-row">
+                {life && !waiting && (
+                  <button className="tag use" onClick={() => onLifeTransfer!(t.name, life.dice)}>
+                    {t.name.replace(/\s*\([^)]*\)/g, "")} · {life.dice}
+                  </button>
+                )}
                 {usable && !waiting && (
                   <button
                     className="tag use"

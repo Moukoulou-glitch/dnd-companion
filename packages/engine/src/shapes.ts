@@ -104,7 +104,7 @@ export interface ShapeResult {
   languages?: string;
   defenses: { resist: string[]; immune: string[]; vulnerable: string[]; conditions: string[] };
   traits: { name: string; text: string }[];
-  actions: { name: string; text: string }[];
+  actions: { name: string; text: string; lifeTransfer?: { dice: string } }[];
   attacks: (WeaponAttack & { note?: string })[];
   /** Attacks per Attack action, from its Multiattack. */
   attacksPerAction: number;
@@ -444,7 +444,7 @@ export function deriveShape(
     skills,
     defenses: { resist: d.resist ?? [], immune: d.immune ?? [], vulnerable: d.vulnerable ?? [], conditions: d.conditionImmune ?? [] },
     traits: d.traits,
-    actions: [...d.actions, ...(d.bonusActions ?? []).map((a) => ({ ...a, name: `${a.name} (bonus action)` })), ...(d.reactions ?? []).map((a) => ({ ...a, name: `${a.name} (reaction)` }))].map((a) => ({ name: a.name, text: a.text })),
+    actions: [...d.actions, ...(d.bonusActions ?? []).map((a) => ({ ...a, name: `${a.name} (bonus action)` })), ...(d.reactions ?? []).map((a) => ({ ...a, name: `${a.name} (reaction)` }))].map((a) => ({ name: a.name, text: a.text, ...(a.lifeTransfer ? { lifeTransfer: a.lifeTransfer } : {}) })),
     attacks,
     attacksPerAction: multiattackCount(d),
     notes,

@@ -942,6 +942,38 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       break;
     }
 
+    case "giveLife": {
+      const { summon, action, amount, target, targetName } = op.payload;
+      const x = c.summons.find((s) => s.id === summon);
+      if (!x) break;
+      const who = x.name ?? reg.find(x.creature, "creature")?.name ?? "It";
+      if (target === "me") {
+        const before = c.hp.current;
+        if (before > 0) notes.push(`You're at ${before} HP, not 0: Give Life is for a creature at 0 hit points.`);
+        c.hp.current = Math.min(maxHp, before + amount);
+        if (before === 0 && c.hp.current > 0) {
+          c.deathSaves = { successes: 0, failures: 0 };
+          notes.push("Back on your feet: death saves cleared.");
+        }
+        notes.push(`You regain ${amount} HP (${c.hp.current} of ${maxHp}).`);
+      } else notes.push(`${targetName ?? "The creature"} regains ${amount} HP.`);
+      // Its current and maximum hit points drop by as much.
+      const adj = (x.maxHpAdjust ??= { reduce: 0, increase: 0 });
+      adj.reduce += amount;
+      const max = (reg.find(x.creature, "creature")?.hp ?? x.hp) + summonHpBonus(x, reg);
+      x.hp = Math.max(0, Math.min(max, x.hp - amount));
+      notes.push(`${who}: ${x.hp} of ${max} HP${x.hp === 0 ? ", it drops to 0" : ""}.`);
+      // Using it ends its Invisibility.
+      if (x.concentrating && /invisib/i.test(x.concentrating)) {
+        delete x.concentrating;
+        notes.push(`${who} is visible again.`);
+      }
+      const u = (x.used ??= { action: false, bonus: false, reaction: false, attacks: 0, moved: 0, dashes: 0 });
+      u.bonus = true;
+      x.recharge = [...new Set([...(x.recharge ?? []), action])];
+      break;
+    }
+
     case "summonMaxHpAdjust": {
       const x = c.summons.find((s) => s.id === op.payload.id);
       if (!x) break;
@@ -1432,9 +1464,14 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
           // Until a rest, not timed (Spirit Session: the hour is the ritual, the spell lasts until the long rest).
           const d = a.duration;
           const byChar = roundsFromSheet(def);
+          const rolledN = op.payload.rolled;
           if (byChar === null) notes.push(`${def.name}: no time limit for you.`);
           else if (byChar !== undefined) entry.rounds = byChar;
-          else if (!def.untilRest) {
+          // From the roll (Theros: 1d10 days).
+          else if (d?.fromRoll && rolledN !== undefined) {
+            if (d.fromRoll === "rounds") entry.rounds = rolledN;
+            else entry.minutes = d.fromRoll === "days" ? rolledN * 1440 : d.fromRoll === "hours" ? rolledN * 60 : rolledN;
+          } else if (!def.untilRest) {
             if (d?.rounds) entry.rounds = d.rounds;
             else if (d?.minutes) entry.minutes = d.minutes;
             else if (def.rounds) entry.rounds = def.rounds;
@@ -1443,7 +1480,7 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
           // Its switches go with the tag (Spirit Totem's aura while Guardian Spirit's tag is on).
           if (a.toggles.length || a.choiceToggles) entry.toggles = [...a.toggles, ...Object.values(a.choiceToggles ?? {}).flat()];
           c.effects.push(entry);
-          notes.push(`${def.name}${entry.choice ? `: ${entry.choice}` : ""}.`);
+          notes.push(`${def.name}${entry.choice ? `: ${entry.choice}` : ""}${entry.choice && byChar === undefined && d?.fromRoll && rolledN !== undefined ? `, ${rolledN} ${d.fromRoll}` : ""}.`);
         }
       }
       // A roll with a table (Nathair's Mischief's surge): what the face means.
@@ -1471,7 +1508,7 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         const entry: Character["effects"][number] = { id: `${op.id}-timer`, effect: "custom", custom: { name: a.name, modifiers: [] }, from: a.source };
         if (d.fromRoll && rolledN !== undefined) {
           if (d.fromRoll === "rounds") entry.rounds = rolledN;
-          else entry.minutes = d.fromRoll === "hours" ? rolledN * 60 : rolledN;
+          else entry.minutes = d.fromRoll === "days" ? rolledN * 1440 : d.fromRoll === "hours" ? rolledN * 60 : rolledN;
         } else if (d.rounds) entry.rounds = d.rounds;
         else if (d.minutes) entry.minutes = d.minutes;
         if (a.toggles.length || a.choiceToggles) entry.toggles = [...a.toggles, ...Object.values(a.choiceToggles ?? {}).flat()];

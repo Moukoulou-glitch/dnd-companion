@@ -5,6 +5,7 @@ import { ABILITIES, ABILITY_NAMES, SKILL_NAMES, type Character, type CreatureDef
 import { RichText } from "./Conditions";
 import { TextList } from "./Shapes";
 import { TurnTracker } from "./TurnTracker";
+import { facesOrRoll } from "../dice/quick";
 
 type Act = (type: OperationType, payload: unknown, label: string) => unknown;
 
@@ -122,7 +123,8 @@ export function SummonsCard({ character, reg, onOpen }: { character: Character; 
       <div className="group">
         {groups.map((g) => {
           const members = character.summons.filter((s) => s.group === g);
-          const spell = reg.find(members[0]!.spell, "spell")?.name ?? "Spell";
+          // A feature's summons (Theros) carry the summon's id, not a spell's.
+          const spell = reg.find(members[0]!.spell, "spell")?.name ?? reg.find(members[0]!.spell, "summon")?.name ?? "Spell";
           const names = [...new Set(members.map((m) => reg.find(m.creature, "creature")?.name ?? m.creature))];
           const hp = members.reduce((t, m) => t + m.hp, 0);
           const max = members.reduce((t, m) => t + (summonBlock(reg, m)?.hp.max ?? reg.find(m.creature, "creature")?.hp ?? m.hp), 0);
@@ -391,6 +393,92 @@ function SpellSearch({
   );
 }
 
+/**
+ * Give Life (a Heammer Wisp): roll its dice (or enter your own), pick who at 0 hit points
+ * gets them, and the creature loses as much from its current and maximum hit points.
+ */
+function GiveLife({
+  action,
+  dice,
+  who,
+  hp,
+  me,
+  physical,
+  close,
+  give,
+}: {
+  action: string;
+  dice: string;
+  who: string;
+  hp: number;
+  me?: { name: string; hp: number };
+  physical: boolean;
+  close: () => void;
+  give: (amount: number, target: string) => void;
+}) {
+  const [rolled, setRolled] = useState<number | null>(null);
+  const [entry, setEntry] = useState("");
+  const [other, setOther] = useState("");
+  const [throwing, setThrowing] = useState(false);
+  const m = /^(\d*)d(\d+)$/.exec(dice);
+  const n = m ? Number(m[1] || 1) : 0;
+  const sides = m ? Number(m[2]) : 0;
+  const amount = physical ? (entry.trim() !== "" && Number.isFinite(Number(entry)) ? Math.max(0, Math.round(Number(entry))) : null) : rolled;
+  const roll = async () => {
+    setThrowing(true);
+    try {
+      const faces = await facesOrRoll(n, sides, true, { source: action });
+      setRolled(faces.reduce((a, f) => a + f, 0));
+    } finally {
+      setThrowing(false);
+    }
+  };
+  const label = action.replace(/\s*\([^)]*\)/g, "");
+  return (
+    <div className="pick-inline" aria-label={label}>
+      <p className="note">
+        <b>{label}.</b> A living creature within 5 ft at 0 HP regains {dice} hit points (not a construct or undead). {who}'s current and maximum hit points drop by as much. Its bonus action; then it recharges on a 6.
+      </p>
+      {physical ? (
+        <label className="row">
+          <span className="row-main">Your {dice} total</span>
+          <input className="init-input" inputMode="numeric" value={entry} onChange={(e) => setEntry(e.target.value.replace(/[^0-9]/g, ""))} aria-label={`Your ${dice} total`} />
+        </label>
+      ) : rolled === null ? (
+        <button className="big wide primary" disabled={throwing || !n} onClick={() => void roll()}>
+          Roll {dice}
+        </button>
+      ) : (
+        <p className="note">
+          Rolled <b>{rolled}</b> on {dice}.
+        </p>
+      )}
+      {amount !== null && (
+        <>
+          {amount > hp && <p className="note danger-text">That's more than its {hp} HP: it drops to 0.</p>}
+          <p className="sub-head small">Who regains {amount} HP?</p>
+          <div className="choice-grid">
+            {me && (
+              <button className="big" onClick={() => give(amount, "me")}>
+                {me.name} (you){me.hp > 0 ? ` · ${me.hp} HP, not 0` : " · 0 HP"}
+              </button>
+            )}
+          </div>
+          <div className="row">
+            <input className="row-main" placeholder="Someone else: their name" value={other} onChange={(e) => setOther(e.target.value)} aria-label="Someone else's name" />
+            <button className="chip" disabled={!other.trim()} onClick={() => give(amount, other.trim())}>
+              Give
+            </button>
+          </div>
+        </>
+      )}
+      <button className="link" onClick={close}>
+        Not now
+      </button>
+    </div>
+  );
+}
+
 const COMMON_SKIP = /^(Attack|Cast a Spell|Opportunity Attack|Two-Weapon Fighting|Don or Doff a Shield|End Concentration|Other Activity)$/;
 
 /** One summoned creature: its own turn, initiative, effects, concentration, spells, attacks and actions. */
@@ -407,6 +495,8 @@ export function SummonMemberPanel({
   onRollInitiative,
   onSpell,
   back,
+  me,
+  physical = false,
 }: {
   member: Member;
   reg: ContentRegistry;
@@ -421,7 +511,12 @@ export function SummonMemberPanel({
   onRollInitiative: () => void;
   onSpell: (spell: { name: string; id?: string }, source: SpellSource) => void;
   back: () => void;
+  /** You, for Give Life: your name and hit points now. */
+  me?: { name: string; hp: number };
+  /** You roll your own dice: Give Life asks for the total. */
+  physical?: boolean;
 }) {
+  const [life, setLife] = useState<{ action: string; dice: string } | null>(null);
   const [common, setCommon] = useState<string | null>(null);
   const [init, setInit] = useState<string>(m.initiative !== undefined ? String(m.initiative) : "");
   const def = reg.find(m.creature, "creature");
@@ -736,6 +831,29 @@ export function SummonMemberPanel({
           onUse={(n, kind) => tryUse(kind, n, () => act("summonEconomy", { id: m.id, kind, used: true }, `${name}: ${n}.`))}
           recharging={m.recharge ?? []}
           onRecharge={(n, used) => act("recharge", { summon: m.id, name: n, used }, used ? `${name}: ${n} used.` : `${name}: ${n} is ready again.`)}
+          onLifeTransfer={(n, dice) => setLife(life?.action === n ? null : { action: n, dice })}
+        />
+      )}
+      {life && (
+        <GiveLife
+          key={life.action}
+          action={life.action}
+          dice={life.dice}
+          who={name}
+          hp={m.hp}
+          {...(me ? { me } : {})}
+          physical={physical}
+          close={() => setLife(null)}
+          give={(amount, target) =>
+            tryUse("bonus", life.action, () => {
+              act(
+                "giveLife",
+                { summon: m.id, action: life.action, amount, ...(target === "me" ? { target: "me" } : { targetName: target }) },
+                `${name}: Give Life, ${amount} HP to ${target === "me" ? me?.name ?? "you" : target}.`,
+              );
+              setLife(null);
+            })
+          }
         />
       )}
 

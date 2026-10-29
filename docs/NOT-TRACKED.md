@@ -412,9 +412,17 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 ## Round 15b: Wrath of the Storm, Circle of the Heammer (homebrew), more interactions
 
 - Wrath of the Storm: pick lightning or thunder before rolling; it's named in the log.
-- Circle of the Heammer: Floar is a tag (10 minutes, a Wild Shape use) with its switch: the resistances, the fire↔radiant swap on spell damage rolls, Fire Bolt and the +1d10 (every damage roll) follow it. From 14th level Zenith's d10 per spell level replaces Floar's d10 on leveled spells (cantrips keep the d10). The aura's damage to hostile creatures, the end when you change form or become incapacitated, and Zenith's sunlight are reminders on the tag; Zenith's advantage is an option on attack rolls (the target in your sunlight is yours to say).
+- Circle of the Heammer: Floar is a tag (10 minutes, a Wild Shape use) with its switch: the resistances, the fire↔radiant swap on spell damage rolls, Fire Bolt and the +1d10 (every damage roll) follow it. From 14th level Zenith adds a d10 per spell level on leveled spells, on top of Floar's d10 (15c: the user's correction). The aura's damage to hostile creatures, the end when you change form or become incapacitated, and Zenith's sunlight are reminders on the tag; Zenith's advantage is an option on attack rolls (the target in your sunlight is yours to say).
 - Untamed Flame: Circle spells of 1 action show a "1 bonus action (Untamed Flame)" casting time; above your proficiency bonus the note turns into a warning (not blocked). After casting with a slot, the d10 is rolled: on a 10 the slot comes back. With Zenith, +2 AC until your next turn.
-- Theros: a reminder when Plant Growth is cast over 8 hours; the action picks the phenomenon (a tag; roll the 1d10 days yourself). Heammer Wisps opens the summon with half your druid level of them; leaving the mile is yours to track.
-- Heammer Wisp: in the bestiary. Give Life's healing and its own hit point loss, and Ephemeral, are its text.
+- Theros: a reminder when Plant Growth is cast over 8 hours; the action picks the phenomenon (a tag) and rolls the 1d10 days (15c). Heammer Wisps opens the summon with half your druid level of them; leaving the mile is yours to track.
+- Heammer Wisp: in the bestiary. Give Life works from the wisp's page (15c); Ephemeral is its text.
 - Extra damage now carries its own type: Divine Favor (radiant), and Elemental Weapon, Spirit Shroud and Absorb Elements (the type picked on their tag; pick it there first). So Destructive Wrath maxes Elemental Weapon or Absorb Elements thunder or lightning.
 - Goodberry with Disciple of Life: a second "Eat a berry" button adds 2 + the spell's level; tables rule this differently, so it's your call.
+
+## Round 15c: Give Life, Theros' days, Floar and Zenith on screen
+
+- Zenith's dice are extra: Guiding Bolt at 1st level with Floar on, at druid 14, rolls 4d6 + 1d10 (Floar) + 1d10 (Zenith).
+- Theros: casting Plant Growth over 8 hours (cast now, or finished later) asks "Use Theros?" while it has a use. Picking the phenomenon rolls the 1d10 days (or takes your own dice), and the tag lasts that many days. The next full moon ending it sooner is a reminder on the tag: end the tag yourself then.
+- Give Life: on the wisp's page, roll 3d6 (or enter your own), then pick who gets them: you (a warning if you aren't at 0 HP), or someone else by name. The wisp loses the same amount from its current and maximum hit points, and its bonus action and the recharge are marked. Its Invisibility ends if it was concentrating on it.
+- Not tracked for Give Life: a companion or another summon at 0 HP (in the app they're dead at 0, so they aren't offered); whether the target is a construct or undead, within 5 ft, or one it can see (in the text, yours to check).
+- Animations: Floar (a flame, gold when Radiant; Zenith's sun from 14th level) and Theros (sky, sun and land, in a look for each phenomenon, with the days). Both can be skipped and respect reduced motion.

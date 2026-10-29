@@ -59,6 +59,12 @@ export function specOf(e: FxEvent): FxSpec {
       return { at: "tap", ms: 700, look: `fx-cast${e.school && SCHOOLS.includes(e.school.toLowerCase()) ? ` fx-${e.school.toLowerCase()}` : ""}` };
     case "sneak":
       return { at: "result", ms: 450, look: "fx-sneak", label: "Sneak Attack" };
+    case "floar":
+      return { at: "edge", ms: e.zenith ? 2200 : 1600, buzz: e.zenith ? [30, 50, 30, 50, 90] : [25, 40, 60], look: `fx-floar${e.radiant ? " fx-floar-radiant" : ""}${e.zenith ? " fx-zenith" : ""}`, label: e.zenith ? "Floar · Zenith" : "Floar", skippable: true };
+    case "theros": {
+      const motif = { "Fair Weather": "sun", "Heammer Wisps": "wisps", "Thawing Cold": "thaw", "Radiant Passage": "passage" }[e.phenomenon] ?? "sun";
+      return { at: "edge", ms: 2800, buzz: [20, 60, 20, 60, 40], look: `fx-theros fx-theros-${motif}`, label: `Theros: ${e.phenomenon}${e.days ? ` · ${e.days} day${e.days === 1 ? "" : "s"}` : ""}`, skippable: true };
+    }
     case "wrath":
       return { at: "edge", ms: 1400, buzz: [60, 40, 120], look: "fx-wrath", label: "Destructive Wrath · maximum", shake: 450 };
     case "concentration":
@@ -384,6 +390,36 @@ export function FxLayer({ school, spell, feature, character }: { school: (spell:
               </svg>
             )}
             {spec.look.includes("fx-form-dread") && Array.from({ length: 8 }, (_, i) => <span key={i} className="fx-tatter" style={{ ["--i" as string]: String(i) }} />)}
+            {spec.look.startsWith("fx-floar") && (
+              <>
+                {Array.from({ length: 11 }, (_, i) => (
+                  <span key={`t${i}`} className="fx-floar-tongue" style={{ left: `${(i * 9.6) % 100}%`, ["--i" as string]: String(i), animationDelay: `${(i % 5) * 70}ms` }} />
+                ))}
+                {Array.from({ length: 16 }, (_, i) => (
+                  <span key={`e${i}`} className="fx-floar-ember" style={{ left: `${(i * 37 + 11) % 100}%`, animationDelay: `${200 + (i % 8) * 90}ms` }} />
+                ))}
+                <span className="fx-floar-ring" />
+                {spec.look.includes("fx-zenith") && (
+                  <span className="fx-zenith-sun">
+                    {Array.from({ length: 12 }, (_, i) => (
+                      <span key={i} className="fx-zenith-ray" style={{ transform: `rotate(${i * 30}deg)` }} />
+                    ))}
+                  </span>
+                )}
+              </>
+            )}
+            {spec.look.startsWith("fx-theros") && (
+              <>
+                <span className="fx-theros-sky" />
+                <span className="fx-theros-arc">
+                  <span className="fx-theros-sun" />
+                </span>
+                <span className="fx-theros-land" />
+                {Array.from({ length: 12 }, (_, i) => (
+                  <span key={i} className="fx-theros-mote" style={{ left: `${(i * 29 + 7) % 100}%`, top: `${40 + ((i * 17) % 40)}%`, animationDelay: `${600 + (i % 6) * 140}ms` }} />
+                ))}
+              </>
+            )}
             {spec.look === "fx-wrath" && (
               <svg className="fx-wrath-bolts" viewBox="0 0 390 844" preserveAspectRatio="none">
                 <path className="b1" pathLength={1} d="M200,0 L176,150 L214,170 L168,330 L206,346 L150,560" />

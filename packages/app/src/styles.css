@@ -4127,3 +4127,43 @@ html.fx-shake-strong .app > .strip, html.fx-shake-strong .app > main, html.fx-sh
   .fx-wrath { animation: fx-wrath-sky 900ms linear forwards; }
   .fx-wrath-bolts path { stroke-dashoffset: 0; }
 }
+
+/* Floar (Circle of the Heammer): the Methic flame rises from below, embers lift, a warm ring opens; Radiant burns gold-white.
+   With Zenith a small sun rises in the middle and its rays turn. */
+.fx-floar { position: absolute; inset: 0; overflow: hidden; --fl1: 255, 120, 40; --fl2: 255, 200, 90; animation: fx-floar-veil var(--fx-ms, 1600ms) ease-out forwards; background: linear-gradient(to top, rgba(var(--fl1), 0.35), rgba(var(--fl1), 0.08) 40%, transparent 70%); }
+.fx-floar-radiant { --fl1: 255, 214, 120; --fl2: 255, 250, 225; }
+.fx-floar-tongue { position: absolute; bottom: -12%; width: 16%; height: 46%; margin-left: -8%; border-radius: 50% 50% 40% 40% / 70% 70% 30% 30%; background: radial-gradient(ellipse at 50% 85%, rgba(var(--fl2), 0.95), rgba(var(--fl1), 0.75) 40%, rgba(var(--fl1), 0) 72%); filter: blur(2px); transform-origin: 50% 100%; animation: fx-floar-lick var(--fx-ms, 1600ms) ease-out forwards; }
+.fx-floar-ember { position: absolute; bottom: 4%; width: 5px; height: 5px; border-radius: 50%; background: rgb(var(--fl2)); box-shadow: 0 0 8px rgba(var(--fl1), 0.9); opacity: 0; animation: fx-floar-rise calc(var(--fx-ms, 1600ms) * 0.8) ease-out forwards; }
+.fx-floar-ring { position: absolute; left: 50%; top: 50%; width: 40px; height: 40px; margin: -20px; border-radius: 50%; border: 3px solid rgba(var(--fl2), 0.9); box-shadow: 0 0 22px rgba(var(--fl1), 0.8), inset 0 0 18px rgba(var(--fl1), 0.6); animation: fx-floar-open var(--fx-ms, 1600ms) ease-out forwards; }
+.fx-floar .fx-label { color: rgb(var(--fl2)); text-shadow: 0 0 12px rgba(var(--fl1), 0.95), 0 0 2px #000; font-size: 1.25em; }
+.fx-zenith-sun { position: absolute; left: 50%; top: 42%; width: 70px; height: 70px; margin: -35px; border-radius: 50%; background: radial-gradient(circle, #fffbe8, #ffe08a 45%, rgba(255, 190, 70, 0.6) 70%, transparent 72%); box-shadow: 0 0 40px 16px rgba(255, 220, 120, 0.55); animation: fx-zenith-rise var(--fx-ms, 2200ms) ease-out forwards; }
+.fx-zenith-ray { position: absolute; left: 50%; top: 50%; width: 4px; height: 70px; margin-left: -2px; transform-origin: 50% 0; background: linear-gradient(to bottom, rgba(255, 240, 190, 0.9), transparent); }
+.fx-zenith-sun { animation: fx-zenith-rise var(--fx-ms, 2200ms) ease-out forwards, fx-zenith-turn var(--fx-ms, 2200ms) linear forwards; }
+@keyframes fx-floar-veil { 0% { opacity: 0; } 15% { opacity: 1; } 75% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes fx-floar-lick { 0% { transform: scaleY(0.2) scaleX(0.8); opacity: 0; } 25% { transform: scaleY(1.1) scaleX(1); opacity: 1; } 55% { transform: scaleY(0.85) scaleX(1.05); } 80% { transform: scaleY(1) scaleX(0.95); opacity: 0.9; } 100% { transform: scaleY(0.6); opacity: 0; } }
+@keyframes fx-floar-rise { 0% { opacity: 0; transform: translateY(0); } 15% { opacity: 1; } 100% { opacity: 0; transform: translateY(-60vh) translateX(10px); } }
+@keyframes fx-floar-open { 0% { transform: scale(0.2); opacity: 0; } 30% { opacity: 1; } 100% { transform: scale(9); opacity: 0; } }
+@keyframes fx-zenith-rise { 0% { transform: translateY(40px) scale(0.3); opacity: 0; } 35% { transform: translateY(0) scale(1.15); opacity: 1; } 55% { transform: scale(1); } 85% { opacity: 1; } 100% { transform: scale(1.4); opacity: 0; } }
+@keyframes fx-zenith-turn { from { rotate: 0deg; } to { rotate: 60deg; } }
+
+/* Theros: the sky over your Plant Growth's mile. A day passes in a breath: a sun arcs over a waking green land,
+   and the phenomenon shows in it (warm light, wisps of fire, frost melting to drops, a pillar of light). */
+.fx-theros { position: absolute; inset: 0; overflow: hidden; animation: fx-floar-veil var(--fx-ms, 2800ms) ease-out forwards; }
+.fx-theros-sky { position: absolute; inset: 0; background: linear-gradient(to bottom, #1b2a55, #3b5b9a 45%, #f6c27a 80%); opacity: 0.55; animation: fx-theros-day var(--fx-ms, 2800ms) ease-in-out forwards; }
+.fx-theros-land { position: absolute; left: -10%; right: -10%; bottom: -8%; height: 26%; border-radius: 50% 50% 0 0; background: radial-gradient(ellipse at 50% 0%, #6fbf5a, #2f6b34 60%, #183d22); opacity: 0.8; animation: fx-theros-grow var(--fx-ms, 2800ms) ease-out forwards; }
+.fx-theros-arc { position: absolute; left: 50%; top: 78%; width: 0; height: 0; animation: fx-theros-arc var(--fx-ms, 2800ms) ease-in-out forwards; }
+.fx-theros-sun { position: absolute; left: -26px; top: -40vh; width: 52px; height: 52px; border-radius: 50%; background: radial-gradient(circle, #fffbe8, #ffd76a 55%, rgba(255, 190, 70, 0.4) 72%, transparent 74%); box-shadow: 0 0 30px 10px rgba(255, 215, 120, 0.6); }
+.fx-theros-mote { position: absolute; width: 8px; height: 8px; border-radius: 50%; opacity: 0; background: #ffe7a8; box-shadow: 0 0 10px rgba(255, 220, 140, 0.9); animation: fx-theros-mote 1400ms ease-out forwards; }
+.fx-theros-wisps .fx-theros-mote { width: 12px; height: 12px; background: radial-gradient(circle, #fff, #ffb257 60%, transparent 70%); box-shadow: 0 0 16px 4px rgba(255, 150, 60, 0.85); }
+.fx-theros-thaw .fx-theros-mote { border-radius: 2px; background: #d9f2ff; box-shadow: 0 0 8px rgba(160, 220, 255, 0.9); animation-name: fx-theros-melt; }
+.fx-theros-passage .fx-theros-mote { width: 3px; height: 26px; border-radius: 2px; background: linear-gradient(to top, rgba(255, 245, 200, 0), #fff6d6); }
+.fx-theros-passage .fx-theros-sky { background: linear-gradient(to bottom, #2a2450, #5d4f9c 45%, #ffe6a6 85%); }
+.fx-theros .fx-label { color: #fff3d0; text-shadow: 0 0 12px rgba(255, 200, 90, 0.9), 0 0 2px #000; font-size: 1.15em; }
+@keyframes fx-theros-day { 0% { filter: brightness(0.6); } 50% { filter: brightness(1.25); } 100% { filter: brightness(0.9); } }
+@keyframes fx-theros-grow { 0% { transform: translateY(40%); } 60% { transform: translateY(0); } 100% { transform: translateY(0); } }
+@keyframes fx-theros-arc { 0% { rotate: -75deg; } 100% { rotate: 75deg; } }
+@keyframes fx-theros-mote { 0% { opacity: 0; transform: translateY(10px) scale(0.6); } 30% { opacity: 1; } 100% { opacity: 0; transform: translateY(-50px) scale(1.1); } }
+@keyframes fx-theros-melt { 0% { opacity: 0; transform: rotate(45deg) scale(1); } 30% { opacity: 1; } 70% { border-radius: 50%; background: #9fd6ff; } 100% { opacity: 0; transform: translateY(40px) scale(0.5); border-radius: 50%; } }
+@media (prefers-reduced-motion: reduce) {
+  .fx-floar-tongue, .fx-floar-ember, .fx-floar-ring, .fx-zenith-sun, .fx-theros-arc, .fx-theros-mote, .fx-theros-land, .fx-theros-sky { animation: none; opacity: 0.6; }
+}
