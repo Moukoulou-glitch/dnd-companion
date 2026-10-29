@@ -1669,7 +1669,14 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         }
       }
       // Reminders on casting (Voice of Authority: an ally you target can attack with its reaction).
-      for (const r of sheet.castReminders) if (level >= r.minLevel) notes.push(`${r.from}: ${r.text}`);
+      // Heart of the Storm: only spells that can deal lightning or thunder (their own type, a type they let you pick, or Transmuted Spell's).
+      const castTypes = new Set([sp.damage?.type, ...(sp.damage?.also ?? []).map((x) => x.type), ...(sp.typeChoices ?? []).flatMap((t) => [...t.options, ...Object.values(t.byLevel ?? {}).flat()])].filter((t): t is string => !!t));
+      for (const r of sheet.castReminders) {
+        if (level < r.minLevel) continue;
+        if (r.damageTypes && !r.damageTypes.some((t) => castTypes.has(t))) continue;
+        const ifRetyped = r.damageTypes && !(sp.damage?.type && r.damageTypes.includes(sp.damage.type)) ? ` (if you make its damage ${r.damageTypes.join(" or ")})` : "";
+        notes.push(`${r.from}${ifRetyped}: ${r.text}`);
+      }
       if (op.payload.readied) {
         // Cast now, held with concentration until released with your reaction (PHB p. 193).
         if (castingEconomy(sp.castingTime) !== "action") notes.push(`${sp.name} isn't cast with 1 action: only those can be readied.`);

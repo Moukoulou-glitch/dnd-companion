@@ -1267,7 +1267,11 @@
             },
             "roll": {
               "dice": "2d8",
-              "label": "lightning or thunder damage"
+              "label": "lightning or thunder damage",
+              "types": [
+                "lightning",
+                "thunder"
+              ]
             },
             "note": "Attacker within 5 ft: Dex save, 2d8 lightning or thunder (half on success)."
           }
@@ -1428,7 +1432,43 @@
             "cost": {
               "resource": "channel-divinity"
             },
-            "note": "Your lightning or thunder damage roll counts as the maximum."
+            "note": "Your lightning or thunder damage deals the maximum instead of rolling: tick it on the damage roll (spells and weapons, Transmuted Spell's new type too). Use it here for a roll made elsewhere."
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.damage.spell",
+            "op": "maximize",
+            "mode": "suggested",
+            "label": "Destructive Wrath",
+            "forTypes": [
+              "lightning",
+              "thunder"
+            ],
+            "spends": {
+              "resource": "channel-divinity",
+              "amount": 1
+            },
+            "when": {
+              "text": "Channel Divinity: the lightning and thunder dice deal their maximum"
+            }
+          },
+          {
+            "selector": "roll.damage.weapon.*",
+            "op": "maximize",
+            "mode": "suggested",
+            "label": "Destructive Wrath",
+            "forTypes": [
+              "lightning",
+              "thunder"
+            ],
+            "spends": {
+              "resource": "channel-divinity",
+              "amount": 1
+            },
+            "when": {
+              "text": "Channel Divinity: the lightning and thunder dice deal their maximum"
+            }
           }
         ]
       }
@@ -1442,6 +1482,26 @@
         "pack": "table-2014",
         "book": "PHB",
         "page": 63
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.damage.spell",
+            "op": "note",
+            "forTypes": [
+              "lightning"
+            ],
+            "label": "Thunderbolt Strike: lightning damage to a Large or smaller creature can push it up to 10 ft away from you."
+          },
+          {
+            "selector": "roll.damage.weapon.*",
+            "op": "note",
+            "forTypes": [
+              "lightning"
+            ],
+            "label": "Thunderbolt Strike: lightning damage to a Large or smaller creature can push it up to 10 ft away from you."
+          }
+        ]
       }
     },
     {

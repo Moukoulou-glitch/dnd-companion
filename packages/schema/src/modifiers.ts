@@ -155,6 +155,11 @@ export const Modifier = z
     ifAlready: z.number().int().min(1).optional(),
     /** Ticking it on a roll spends this (a superiority die). */
     spends: z.object({ resource: z.string(), amount: z.number().int().min(1).default(1) }).strict().optional(),
+    /**
+     * On a damage roll: only when it has dice of these types, after Transmuted Spell or a type you pick
+     * (Destructive Wrath: lightning or thunder; maximize then maxes only those dice). A note: shown only then.
+     */
+    forTypes: z.array(z.string()).optional(),
     /** Only one option of a group per roll (one maneuver per attack). */
     group: z.string().optional(),
     /** Starts ticked: always (a smite waiting for the next hit), or on a reaction attack (Riposte, Brace). */
@@ -362,6 +367,8 @@ export const ActionDef = z
         table: z.array(z.string()).optional(),
         /** Rolled this many times, keeping one you pick (Controlled Chaos: the surge table twice). */
         times: z.number().int().min(2).max(3).optional(),
+        /** The damage types it can deal (Wrath of the Storm: lightning or thunder): options for those types are offered (Destructive Wrath). */
+        types: z.array(z.string()).optional(),
       })
       .strict()
       .optional(),
@@ -623,7 +630,17 @@ export const Grant = z
     /** An effect put on you when you finish a long rest (Tranquility: Sanctuary), for `minutes` or until the next long rest, with its save DC when it has one. */
     afterLongRest: z.object({ effect: DefId, minutes: z.number().int().min(1).optional(), dc: ValueExpr.optional() }).strict().optional(),
     /** A reminder each time you cast a spell of `minLevel` or higher (Voice of Authority: an ally you target can attack with its reaction). */
-    castReminder: z.object({ text: z.string(), minLevel: z.number().int().min(0).max(9).default(1) }).strict().optional(),
+    castReminder: z
+      .object({
+        text: z.string(),
+        minLevel: z.number().int().min(0).max(9).default(1),
+        /** Only for spells that can deal one of these types (Heart of the Storm: lightning or thunder; after Transmuted Spell too). */
+        damageTypes: z.array(z.string()).optional(),
+        /** "{value}" in the text, worked out (Heart of the Storm: half your sorcerer level). */
+        value: ValueExpr.optional(),
+      })
+      .strict()
+      .optional(),
     /**
      * A line added to another action's note, about how this feature changes it (Arcane Charge on Action Surge,
      * Instinctive Pounce on Rage). "{value}" in the text is `value` worked out (Guardian Spirit: half your druid level).

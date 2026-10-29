@@ -3501,6 +3501,45 @@
       "text": [
         "Beginning at 11th level, you can enter a special meditation that surrounds you with an aura of peace. At the end of a long rest, you gain the effect of a sanctuary spell that lasts until the start of your next long rest (the spell can end early as normal). The saving throw DC for the spell equals 8 + your Wisdom modifier + your proficiency bonus."
       ]
+    },
+    {
+      "kind": "feature",
+      "id": "feature:metamagic-empowered-spell",
+      "name": "Metamagic: Empowered Spell",
+      "summary": "When you roll damage for a spell, you can spend 1 sorcery point to reroll a number of the damage dice up to your Charisma modifier (minimum of one).",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "text": [
+        "When you roll damage for a spell, you can spend 1 sorcery point to reroll a number of the damage dice up to your Charisma modifier (minimum of one). You must use the new rolls.",
+        "You can use Empowered Spell even if you have already used a different Metamagic option during the casting of the spell."
+      ],
+      "grant": {
+        "actions": [
+          {
+            "id": "empowered-spell",
+            "name": "Empowered Spell",
+            "economy": "free",
+            "cost": {
+              "resource": "sorcery-points"
+            },
+            "note": "After a spell's damage roll: \"Empowered Spell: roll damage dice again\" on the result (1 sorcery point, up to your Charisma modifier dice). Works with other Metamagic."
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.damage.spell",
+            "op": "rerollOneDie",
+            "value": "mod1.cha",
+            "label": "Empowered Spell",
+            "spends": {
+              "resource": "sorcery-points",
+              "amount": 1
+            }
+          }
+        ]
+      }
     }
   ]
 }

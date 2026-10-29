@@ -28,6 +28,8 @@ export type FxEvent =
   | { kind: "defend"; how: "prevented" | "reduced" | "absorbed"; amount: number }
   | { kind: "cast"; school?: string }
   | { kind: "sneak" }
+  /** Destructive Wrath: the storm answers (its lightning and thunder dice at their maximum). */
+  | { kind: "wrath" }
   | { kind: "concentration"; kept: boolean }
   | { kind: "death-save"; result: "success" | "failure"; final: boolean }
   | { kind: "inspiration"; gained: boolean }
@@ -66,9 +68,14 @@ export function rollFx(r: RollRecord, c?: Character, info?: SpellLookup): FxEven
     return reckless;
   }
   const out: FxEvent[] = r.lines.some((l) => /sneak attack/i.test(l.source) && l.detail !== "") ? [{ kind: "sneak" }] : [];
+  if (r.options?.includes("Destructive Wrath")) out.unshift({ kind: "wrath" });
   // A spell's damage: right after casting it resolves; from the concentration chip it's a later use.
   const phase: SpellPhase = r.again ? "again" : "resolve";
-  const sdef = spellFxOf(r.spell);
+  // Its damage type changed (Transmuted Spell: Fireball as thunder): the spell's own look is for its own type, so the
+  // generated one plays, in the colour of the type rolled.
+  const own = r.spell ? info?.(r.spell)?.damage?.type : undefined;
+  const retyped = !!own && !!r.byType && Object.keys(r.byType).length > 0 && !Object.keys(r.byType).some((k) => damageKey(k) === damageKey(own));
+  const sdef = retyped ? undefined : spellFxOf(r.spell);
   if (r.spell && sdef?.[phase]) {
     const mode = sdef.byAlignment ? alignmentSide(c?.alignment) : undefined;
     out.push({ kind: "spell", spell: r.spell, phase, ...(mode ? { mode } : {}) });

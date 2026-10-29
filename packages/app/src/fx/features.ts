@@ -100,7 +100,7 @@ export interface FeatureSheet {
  * Uses with their own look already (fx/triggers.ts, components/Fx.tsx): Flurry of Blows' afterimages, Way of
  * Mercy's hands, Rage's veins, the transformations' forms. They keep theirs and get nothing more.
  */
-const OWN_LOOK = new Set(["flurry-of-blows", "hand-of-healing", "hand-of-harm"]);
+const OWN_LOOK = new Set(["flurry-of-blows", "hand-of-healing", "hand-of-harm", "destructive-wrath", "transmuted-spell"]);
 const OWN_TOGGLES = new Set(["raging", ...Object.keys(FORM_FX)]);
 
 /**
@@ -126,7 +126,8 @@ export function featureFor(sheet: FeatureSheet | undefined, type: string, payloa
   };
   if (type === "useAction" && typeof p.action === "string" && !p.free) return ofAction(sheet.actions.find((a) => a.id === p.action));
   if ((type === "spendResource" || type === "usePool") && typeof p.resource === "string") {
-    const act = sheet.actions.find((a) => a.cost?.resource === p.resource);
+    // Spent for a named use (a sorcery point for Transmuted Spell): that use, not the first one that spends it.
+    const act = typeof p.for === "string" ? sheet.actions.find((a) => a.id === p.for) : sheet.actions.find((a) => a.cost?.resource === p.resource);
     if (act) return ofAction(act);
     const r = sheet.resources.find((x) => x.id === p.resource);
     return r ? byFeature(r.source, r.name) : undefined;

@@ -13,6 +13,8 @@ import {
   d20Count,
   d20Reroll,
   diceToRoll,
+  damageTypesIn,
+  isMaxed,
   formatFormula,
   physicalDamageTotal,
   rerollDie,
@@ -407,8 +409,6 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
   const [chosenHands, setChosenHands] = useState<Hands>(() => (attack && isVersatile(attack) ? defaultHands(attack.attackId, attack.damage.bonus) : "one"));
   const hands: Hands = attack ? handsOf(attack, chosenHands) : "one";
   const damageBase = useMemo(() => (attack ? forHands(withoutUsedUp(attack.damage.bonus, usedUp), hands) : undefined), [attack, usedUp, hands]);
-  // Beacon of Hope (or Overchannel): every die at its maximum.
-  const maxed = !!damageBase?.suggestions.some((x) => damageChoices.enabled.includes(x.label) && x.apply.maximize);
   const beaconRolled = damageChoices.enabled.includes(BEACON);
   // Smites: the slot picked decides the dice (Divine Smite with a 3rd-level slot: 4d8).
   const [slotPick, setSlotPick] = useState<Record<string, { key: string; extra: boolean }>>({});
@@ -431,6 +431,11 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [attack, damageBase, stage, damageChoices, slotPick, optionInfo, typePick, chosenHands, hands]);
 
+  // Beacon of Hope (or Overchannel): every die at its maximum, nothing to roll.
+  const maxed = !!damage && damage.terms.some((t) => t.kind === "dice") && damage.terms.every((t) => t.kind !== "dice" || t.sign < 0 || isMaxed(t));
+  // The damage types in the roll now (after Transmuted Spell or a picked type): options for other types aren't offered.
+  const present = damage ? damageTypesIn(damage, typePick?.type ?? attack?.damage.type) : new Set<string>();
+  const fits = (x: { forTypes?: string[] }) => !x.forTypes || x.forTypes.some((t) => present.has(t));
   const [attackMode, setAttackMode] = useState<string | undefined>();
 
   const startDamage = (crit: boolean, attackRecord?: RollRecord) => {
@@ -480,7 +485,9 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
     const opt = [...base.suggestions, ...(damageBase?.suggestions ?? [])].find((x) => x.label === source);
     // Beacon of Hope: the healing dice in its emerald-gold.
     const beacon = damageChoices.enabled.includes(BEACON) ? ["name:Beacon of Hope"] : [];
-    return [...beacon, ...(opt?.spends ? [`resource:${opt.spends.resource}`] : []), ...(diceSource ? [diceSource] : [])];
+    // A spell whose damage type was changed (Transmuted Spell: Fireball as thunder): its dice in the new type's look, not the spell's own.
+    const retyped = !!typePick && typePick.type !== attack?.damage.type;
+    return [...beacon, ...(opt?.spends ? [`resource:${opt.spends.resource}`] : []), ...(diceSource && !retyped ? [diceSource] : [])];
   };
   /**
    * Throws the dice for `c`, then `done` with the roll. Skipped, or the 3D dice can't be drawn or fail:
@@ -556,9 +563,12 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
     onDamageOptions?.(damageChoices.enabled);
     // A maneuver's die is spent once (not again if it was ticked on the attack); a smite is used up.
     const spentOnAttack = choices.enabled;
-    onSpend?.(damage.terms.length ? (damageBase?.suggestions ?? []).filter((x) => damageChoices.enabled.includes(x.label) && (x.endsEffect || (x.spends && !spentOnAttack.includes(x.label)))) : []);
+    onSpend?.(damage.terms.length ? (damageBase?.suggestions ?? []).filter((x) => damageChoices.enabled.includes(x.label) && fits(x) && (x.endsEffect || (x.spends && !spentOnAttack.includes(x.label)))) : []);
     const usedNow = damage.terms.length ? usedUpBy(damageBase?.suggestions ?? [], damageChoices.enabled) : [];
     if (usedNow.length) setUsedUp((u) => [...u, ...usedNow]);
+    // The options that applied to this damage (Destructive Wrath's own look plays with it).
+    const applied = (damageBase?.suggestions ?? []).filter((x) => damageChoices.enabled.includes(x.label) && fits(x)).map((x) => x.label);
+    if (applied.length) rec.options = [...new Set([...(rec.options ?? []), ...applied])];
     onRolled(rec);
     setEntering(false);
     const next: Stage = { step: "damage-result", record: rec, crit: stage.crit };
@@ -832,12 +842,12 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
           </p>
         )}
         {dc === undefined && attack?.saveNote && <p className="note">{attack.saveNote}</p>}
-        {(damageBase.notes ?? []).map((n) => (
+        {[...(damageBase.notes ?? []), ...(damageBase.typedNotes ?? []).filter((n) => n.types.some((t) => present.has(t))).map((n) => n.text)].map((n) => (
           <p className="note reminder" key={n}>
             <RichText text={n} />
           </p>
         ))}
-        {damageBase.minDie && (
+        {damageBase.minDie && damageBase.minDie.types.some((t) => present.has(t)) && (
           <p className="note reminder">
             {damageBase.minDie.label}: every {damageBase.minDie.types.join("/")} die counts as at least {damageBase.minDie.value}
             {physical ? ". Rolling your own dice: count any lower die as that before you add them up." : " (the app does it)."}
@@ -863,7 +873,7 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
             {tc.note && <p className="note">{tc.note}</p>}
           </div>
         ))}
-        <Options base={damageBase} choices={damageChoices} setChoices={setDamageChoices} withManual={false} {...(stage.usedGroups ? { usedGroups: stage.usedGroups } : {})} {...(stage.carried ? { carried: stage.carried } : {})} />
+        <Options base={{ ...damageBase, suggestions: damageBase.suggestions.filter(fits) }} choices={damageChoices} setChoices={setDamageChoices} withManual={false} {...(stage.usedGroups ? { usedGroups: stage.usedGroups } : {})} {...(stage.carried ? { carried: stage.carried } : {})} />
         {smites.map(([label, info]) => {
           const p = pickFor(label);
           const s = info.slots!;
@@ -898,7 +908,12 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
             {x.warning}
           </p>
         ))}
-        <p className="formula">{formatFormula(damage.terms).replace(/\[[^\]]*\]/g, "")}</p>
+        <p className="formula">
+          {formatFormula(damage.terms)
+            .replace(/\[[^\]]*\]/g, "")
+            // Dice at their maximum (Destructive Wrath, Overchannel): said in words.
+            .replace(/(\d*)d(\d+)min(\d+)/g, (m, n: string, sides: string, min: string) => (min === sides ? `${n}d${sides} at maximum` : m))}
+        </p>
         {physical && maxed ? (
           // Every die at its maximum: nothing to roll.
           <button className="big primary wide beacon" onClick={() => rollDamage()}>
@@ -938,9 +953,13 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
             total={stage.record.total}
             onDone={(next, detail) => {
               setRerolledOne(true);
+              const ro = attack.damage.bonus.rerollOne!;
+              const again = (ro.count ?? 1) > 1 ? "dice again" : "one die again";
+              // Empowered Spell's sorcery point.
+              if (ro.spends) onSpend?.([{ label: ro.label, spends: ro.spends }]);
               const rec: RollRecord = next
-                ? { ...recordOf(`${stage.record.title}, ${attack.damage.bonus.rerollOne!.label}: one die again`, "damage", next), ...(stage.record.thrown ? { thrown: true } : {}) }
-                : { ...stage.record, id: crypto.randomUUID(), at: Date.now(), title: `${stage.record.title}, ${attack.damage.bonus.rerollOne!.label}: one die again`, total: detail!.total, lines: [...stage.record.lines, { source: `${attack.damage.bonus.rerollOne!.label}: a ${detail!.from} rolled again`, detail: `${detail!.from}→${detail!.to}`, total: detail!.to - detail!.from }] };
+                ? { ...recordOf(`${stage.record.title}, ${ro.label}: ${again}`, "damage", next), ...(stage.record.thrown ? { thrown: true } : {}) }
+                : { ...stage.record, id: crypto.randomUUID(), at: Date.now(), title: `${stage.record.title}, ${ro.label}: ${again}`, total: detail!.total, lines: [...stage.record.lines, { source: `${ro.label}: ${(ro.count ?? 1) > 1 ? `dice showing ${detail!.from} in all` : `a ${detail!.from}`} rolled again`, detail: `${detail!.from}→${detail!.to}`, total: detail!.to - detail!.from }] };
               if (stage.record.options) rec.options = stage.record.options;
               onRolled(rec);
               setStage({ ...stage, record: rec });
@@ -978,19 +997,65 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
  * total follows. Dice rolled by the app (or thrown): tap the die. Your own dice typed in as
  * one total: what the die showed and what it shows now.
  */
-function RerollOne({ what, roll, total, onDone }: { what: { label: string; oncePerTurn?: boolean }; roll: ComposedRoll | undefined; total: number; onDone: (next: ComposedRoll | undefined, typed?: { from: number; to: number; total: number }) => void }) {
+function RerollOne({ what, roll, total, onDone }: { what: { label: string; oncePerTurn?: boolean; count?: number }; roll: ComposedRoll | undefined; total: number; onDone: (next: ComposedRoll | undefined, typed?: { from: number; to: number; total: number }) => void }) {
   const [open, setOpen] = useState(false);
   const [from, setFrom] = useState<number | undefined>();
   const [to, setTo] = useState("");
+  // Empowered Spell: up to this many dice (Piercer: one).
+  const count = what.count ?? 1;
+  const [picked, setPicked] = useState<string[]>([]);
+  const [fromSum, setFromSum] = useState("");
+  // Dice already at their maximum (Destructive Wrath) aren't worth rolling again: not offered.
   const dice = roll
-    ? roll.result.terms.flatMap((t, ti) => (t.term.kind === "dice" && t.term.sign > 0 ? t.dice.map((d, di) => ({ ti, di, sides: (t.term as { sides: number }).sides, face: d.value, source: roll.composed.sources[ti] ?? "", dropped: d.dropped })) : [])).filter((d) => !d.dropped)
+    ? roll.result.terms
+        .flatMap((t, ti) => (t.term.kind === "dice" && t.term.sign > 0 && (t.term.min ?? 0) < t.term.sides ? t.dice.map((d, di) => ({ ti, di, sides: (t.term as { sides: number }).sides, face: d.value, source: roll.composed.sources[ti] ?? "", dropped: d.dropped })) : []))
+        .filter((d) => !d.dropped)
     : [];
+  const word = count > 1 ? `up to ${count} damage dice` : "one damage die";
   if (!open)
     return (
       <button className="big wide" onClick={() => setOpen(true)}>
-        {what.label}: roll one damage die again{what.oncePerTurn ? " (once per turn)" : ""}
+        {what.label}: roll {word} again{what.oncePerTurn ? " (once per turn)" : ""}
       </button>
     );
+  if (roll && count > 1) {
+    const rerollPicked = () => {
+      let next = roll;
+      for (const key of picked) {
+        const [ti, di] = key.split("-").map(Number) as [number, number];
+        const sides = (roll.result.terms[ti]!.term as { sides: number }).sides;
+        next = rerollDie(next, ti, di, secureRng(sides));
+      }
+      onDone(next);
+    };
+    return (
+      <div className="group reroll-one">
+        <p className="note">Pick up to {count} dice to roll again. The new rolls count, even if they're lower.</p>
+        <div className="keys" style={{ gridTemplateColumns: "repeat(4, 1fr)" }}>
+          {dice.map((d) => {
+            const key = `${d.ti}-${d.di}`;
+            const on = picked.includes(key);
+            return (
+              <button
+                key={key}
+                className={`key${on ? " on" : ""}`}
+                aria-pressed={on}
+                title={d.source}
+                disabled={!on && picked.length >= count}
+                onClick={() => setPicked(on ? picked.filter((x) => x !== key) : [...picked, key])}
+              >
+                {d.face}
+                <small> d{d.sides}</small>
+              </button>
+            );
+          })}
+        </div>
+        <button className="big primary wide" disabled={!picked.length} onClick={rerollPicked}>
+          Roll {picked.length || ""} again
+        </button>
+      </div>
+    );
+  }
   if (roll)
     return (
       <div className="group reroll-one">
@@ -1006,6 +1071,20 @@ function RerollOne({ what, roll, total, onDone }: { what: { label: string; onceP
       </div>
     );
   const n = Number(to);
+  // Your own dice, several rolled again: what they showed together, and what they show now.
+  if (count > 1) {
+    const was = Number(fromSum);
+    return (
+      <div className="group reroll-one">
+        <p className="note">Roll up to {count} of your damage dice again. Add up what they showed, and what they show now.</p>
+        <input className="search" inputMode="numeric" placeholder="They showed (total)" value={fromSum} onChange={(e) => setFromSum(e.target.value.replace(/\D/g, ""))} aria-label="What the dice showed" />
+        <input className="search" inputMode="numeric" placeholder="They show now (total)" value={to} onChange={(e) => setTo(e.target.value.replace(/\D/g, ""))} aria-label="What they show now" />
+        <button className="big primary wide" disabled={!was || !n} onClick={() => onDone(undefined, { from: was, to: n, total: total - was + n })}>
+          New total: {was && n ? total - was + n : "…"}
+        </button>
+      </div>
+    );
+  }
   return (
     <div className="group reroll-one">
       <p className="note">Roll one of your damage dice again. What did it show, and what does it show now?</p>

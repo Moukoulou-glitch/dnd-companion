@@ -226,7 +226,7 @@ export interface ActionResult {
   /** The feature or feat this comes from, for showing its text. */
   featureId?: string;
   /** Dice rolled when used and what the number means (Spirit Shield: damage prevented). */
-  roll?: Amount & { label: string; table?: string[]; times?: number };
+  roll?: Amount & { label: string; table?: string[]; times?: number; maxWith?: { label: string; spends?: { resource: string; amount: number } } };
   /** Writes a spellbook spell onto a scroll (Master Scrivener): the pick is the spell, written `higher` levels up. */
   scribesScroll?: { list: string; maxLevel: number; higher: number };
   duration?: { rounds?: number; minutes?: number; fromRoll?: "rounds" | "minutes" | "hours" };
@@ -498,7 +498,7 @@ export interface DerivedSheet {
   /** Effects put on you when you finish a long rest (Tranquility: Sanctuary), with their save DC. */
   afterLongRest: { effect: string; minutes?: number; dc?: number; from: string }[];
   /** Reminders when you cast a spell of `minLevel` or higher (Voice of Authority). */
-  castReminders: { text: string; minLevel: number; from: string }[];
+  castReminders: { text: string; minLevel: number; from: string; damageTypes?: string[] }[];
   /** Uses back at the end of a short rest (Sorcerous Restoration). */
   shortRestRegains: { resource: string; amount: number; from: string }[];
   /**
@@ -963,13 +963,18 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     let minD20: number | undefined;
     const autoFail: string[] = [];
     const notes: string[] = [];
+    const typedNotes: { text: string; types: string[] }[] = [];
     let minTotal: { value: number; label: string } | undefined;
     let rerollOne: RollBreakdown["rerollOne"];
     for (const a of modsFor(keys, itemInstanceId)) {
       const { mod } = a;
       // Piercer: after the damage roll, one die rolled again.
       if (mod.op === "rerollOneDie") {
-        if (conditionState(mod.when) !== "fail") rerollOne = { label: labelOf(a), ...(mod.oncePerTurn ? { oncePerTurn: true } : {}) };
+        if (conditionState(mod.when) !== "fail") {
+          // Empowered Spell: up to your Charisma modifier (at least one), for a sorcery point.
+          const count = mod.value !== undefined ? Math.max(1, flatOf(a)) : 1;
+          rerollOne = { label: labelOf(a), ...(mod.oncePerTurn ? { oncePerTurn: true } : {}), ...(count > 1 ? { count } : {}), ...(mod.spends ? { spends: mod.spends } : {}) };
+        }
         continue;
       }
       if (mod.op === "autoFail") {
@@ -1000,7 +1005,10 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
         continue;
       }
       if (mod.op === "note") {
-        if (conditionState(mod.when) !== "fail" && mod.label) notes.push(mod.label);
+        if (conditionState(mod.when) !== "fail" && mod.label) {
+          if (mod.forTypes) typedNotes.push({ text: mod.label, types: mod.forTypes });
+          else notes.push(mod.label);
+        }
         continue;
       }
       // Indomitable Might: a total below your Strength score counts as the score.
@@ -1012,9 +1020,10 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       }
       // Overchannel: a tick-box that makes the damage dice deal their maximum.
       if (mod.op === "maximize" && conditionState(mod.when) !== "fail") {
-        const s: Suggestion = { label: labelOf(a), effect: "maximum damage", apply: { flat: 0, dice: [], maximize: true } };
+        const s: Suggestion = { label: labelOf(a), effect: mod.forTypes ? `maximum ${mod.forTypes.join(" and ")} damage` : "maximum damage", apply: { flat: 0, dice: [], maximize: true } };
         if (mod.when?.text) s.reason = mod.when.text;
         if (mod.spends) s.spends = mod.spends;
+        if (mod.forTypes) s.forTypes = mod.forTypes;
         suggestions.push(s);
         continue;
       }
@@ -1047,6 +1056,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
         if (mod.oncePerTurn) s.oncePerTurn = true;
         if (mod.when?.hands) s.hands = mod.when.hands;
         if (mod.spends) s.spends = mod.spends;
+        if (mod.forTypes) s.forTypes = mod.forTypes;
         if (mod.group) s.group = mod.group;
         if (mod.preset) s.preset = mod.preset;
         if (a.source.effectInstanceId && mod.preset === "always") s.endsEffect = a.source.effectInstanceId;
@@ -1080,6 +1090,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     if (minD20 !== undefined && minD20 > 1) result.minD20 = minD20;
     if (autoFail.length) result.autoFail = autoFail;
     if (notes.length) result.notes = notes;
+    if (typedNotes.length) result.typedNotes = typedNotes;
     if (minTotal) {
       result.minTotal = minTotal;
       notes.push(`${minTotal.label}: a total below ${minTotal.value} counts as ${minTotal.value}.`);
@@ -1873,10 +1884,26 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       // Cantrips too: "roll.damage.spell.cantrip" (Blessed Strikes, Potent Spellcasting).
       // By school and level too: "roll.damage.spell.school.evocation" (Empowered Evocation), "roll.damage.spell.level.3" (Overchannel: 1st to 5th);
       // by damage type: "roll.damage.spell.type.fire" (Flames of Phlegethos).
+      // A type that can change on the roll (Transmuted Spell, a spell's own choice): what goes with each type is an
+      // option for that type only (Flames of Phlegethos on fire, Elemental Affinity on its type), offered when it's the one rolled.
+      const tcs = r.damage ? damageTypeChoices(def, r.damage.type, list) : [];
+      const canChange = tcs.length > 0;
       r.damageBonus = roll(
-        ["roll.damage.spell", `roll.damage.spell.${def.id.replace(/^spell:/, "")}`, ...(def.level === 0 ? ["roll.damage.spell.cantrip"] : []), `roll.damage.spell.school.${def.school.toLowerCase()}`, `roll.damage.spell.level.${def.level}`, ...(def.damage?.type ? [`roll.damage.spell.type.${def.damage.type}`] : []), `roll.damage.spell.list.${list}`],
+        ["roll.damage.spell", `roll.damage.spell.${def.id.replace(/^spell:/, "")}`, ...(def.level === 0 ? ["roll.damage.spell.cantrip"] : []), `roll.damage.spell.school.${def.school.toLowerCase()}`, `roll.damage.spell.level.${def.level}`, ...(def.damage?.type && !canChange ? [`roll.damage.spell.type.${def.damage.type}`] : []), `roll.damage.spell.list.${list}`],
         [],
       );
+      if (canChange) {
+        const types = [...new Set([def.damage?.type, ...tcs.flatMap((x) => [...x.options, ...Object.values(x.byLevel ?? {}).flat()])].filter((t): t is string => !!t))];
+        for (const t of types) {
+          const tb = roll([`roll.damage.spell.type.${t}`], []);
+          const only = [t];
+          for (const p of tb.parts) if (p.value) r.damageBonus.suggestions.push({ label: p.label, effect: `${p.value > 0 ? "+" : ""}${p.value} (${t})`, apply: { flat: p.value, dice: [] }, preset: "always", forTypes: only });
+          for (const d of tb.dice) r.damageBonus.suggestions.push({ label: d.label, effect: `+${d.dice} (${t})`, apply: { flat: 0, dice: [d.dice], ...(d.damageType ? { damageType: d.damageType } : {}) }, preset: "always", forTypes: only });
+          for (const sg of tb.suggestions) r.damageBonus.suggestions.push({ ...sg, forTypes: sg.forTypes ?? only });
+          for (const n of tb.notes ?? []) (r.damageBonus.typedNotes ??= []).push({ text: n, types: only });
+          for (const n of tb.typedNotes ?? []) (r.damageBonus.typedNotes ??= []).push(n);
+        }
+      }
       // Overchannel: what it costs this time (free the first time after a long rest, then 2d12, 3d12… necrotic per spell level).
       const oc = resources.find((x) => x.id === "overchannel");
       for (const sg of r.damageBonus.suggestions)
@@ -1884,7 +1911,8 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
           sg.reason = oc.used === 0 ? "a wizard spell of 1st to 5th level; the first time since your long rest costs nothing" : `a wizard spell of 1st to 5th level; this time you take ${oc.used + 1}d12 necrotic per spell level (ignores resistance and immunity)`;
       // Elemental Adept (remastered): dice of the chosen type count as at least your proficiency bonus.
       const adeptTypes = sources.filter((x) => x.id === "feat:elemental-adept").flatMap((x) => x.choices.type ?? []);
-      if (adeptTypes.length && def.damage?.type && adeptTypes.includes(def.damage.type)) r.damageBonus.minDie = { value: pb, types: adeptTypes, label: "Elemental Adept" };
+      // Its dice are matched by type on the roll, so a type changed to one of yours counts too (Transmuted Spell, Chromatic Orb).
+      if (adeptTypes.length && def.damage?.type && (adeptTypes.includes(def.damage.type) || canChange)) r.damageBonus.minDie = { value: pb, types: adeptTypes, label: "Elemental Adept" };
     }
     if (def.heal) {
       r.heal = { byLevel: levelsFor(def.heal.atSlot)! };
@@ -1985,6 +2013,11 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       const entry: ActionResult = { id: a.id, name: a.name, economy: a.economy, source: s.label, toggles: a.toggles };
       if (/^(feature|feat|race|background):/.test(s.id)) entry.featureId = s.id;
       if (a.roll) entry.roll = { ...amountOf(a.roll.dice, s), label: a.roll.label, ...(a.roll.table ? { table: a.roll.table } : {}), ...(a.roll.times ? { times: a.roll.times } : {}) };
+      // Its damage can be maximized by an option for its types (Destructive Wrath on Wrath of the Storm's 2d8).
+      if (a.roll?.types && entry.roll) {
+        const mx = active.find((x) => x.mod.op === "maximize" && x.mod.forTypes?.some((t) => a.roll!.types!.includes(t)) && conditionState(x.mod.when) !== "fail");
+        if (mx) entry.roll.maxWith = { label: labelOf(mx), ...(mx.mod.spends ? { spends: mx.mod.spends } : {}) };
+      }
       // Master Scrivener: the spells in your spellbook it can write.
       if (a.scribesScroll) {
         const sc = a.scribesScroll;
@@ -2455,7 +2488,12 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       if (!g) return [];
       return [{ effect: g.effect, ...(g.minutes ? { minutes: g.minutes } : {}), ...(g.dc !== undefined ? { dc: evalFlat(g.dc, ctxFor(s)) } : {}), from: s.label }];
     }),
-    castReminders: sources.flatMap((s) => (s.grant.castReminder ? [{ ...s.grant.castReminder, from: s.label }] : [])),
+    castReminders: sources.flatMap((s) => {
+      const r = s.grant.castReminder;
+      if (!r) return [];
+      const text = r.value !== undefined ? r.text.replace("{value}", String(evalFlat(r.value, ctxFor(s)))) : r.text;
+      return [{ text, minLevel: r.minLevel, from: s.label, ...(r.damageTypes ? { damageTypes: r.damageTypes } : {}) }];
+    }),
     breath: (() => {
       const base = Math.max(5, (1 + mods.con) * 10);
       let out: { rounds?: number; label: string; notes: string[] } = { rounds: base, label: `${Math.max(0.5, 1 + mods.con)} minute${1 + mods.con === 1 ? "" : "s"} (1 + Constitution modifier)`, notes: [] };

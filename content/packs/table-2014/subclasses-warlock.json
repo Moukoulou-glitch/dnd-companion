@@ -643,8 +643,12 @@
             "mode": "suggested",
             "label": "Radiant Soul",
             "when": {
-              "text": "spell deals radiant or fire damage; one target only"
-            }
+              "text": "one target only"
+            },
+            "forTypes": [
+              "radiant",
+              "fire"
+            ]
           }
         ]
       }

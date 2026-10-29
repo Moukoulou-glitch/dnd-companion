@@ -971,7 +971,11 @@
             "economy": "bonus",
             "note": "Right before or after a leveled spell: fly up to 10 ft, no opportunity attacks."
           }
-        ]
+        ],
+        "castReminder": {
+          "text": "right before or after this spell, a bonus action lets you fly up to 10 ft without provoking opportunity attacks.",
+          "minLevel": 1
+        }
       }
     },
     {
@@ -1047,7 +1051,16 @@
             },
             "note": "Casting a leveled lightning or thunder spell: chosen creatures within 10 ft take this much lightning or thunder damage."
           }
-        ]
+        ],
+        "castReminder": {
+          "text": "as you start casting it, creatures you choose within 10 ft that you can see take {value} lightning or thunder damage (your pick each time).",
+          "minLevel": 1,
+          "damageTypes": [
+            "lightning",
+            "thunder"
+          ],
+          "value": "scale.half"
+        }
       }
     },
     {

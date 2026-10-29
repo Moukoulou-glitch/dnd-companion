@@ -899,6 +899,18 @@
             "when": {
               "toggle": "elemental-affinity-resistance"
             }
+          },
+          {
+            "selector": "roll.damage.spell.type.acid",
+            "op": "add",
+            "value": "mod.cha",
+            "label": "Elemental Affinity",
+            "when": {
+              "classLevel": {
+                "class": "class:sorcerer",
+                "min": 6
+              }
+            }
           }
         ]
       }
@@ -924,6 +936,18 @@
             "label": "Elemental Affinity",
             "when": {
               "toggle": "elemental-affinity-resistance"
+            }
+          },
+          {
+            "selector": "roll.damage.spell.type.lightning",
+            "op": "add",
+            "value": "mod.cha",
+            "label": "Elemental Affinity",
+            "when": {
+              "classLevel": {
+                "class": "class:sorcerer",
+                "min": 6
+              }
             }
           }
         ]
@@ -951,6 +975,18 @@
             "when": {
               "toggle": "elemental-affinity-resistance"
             }
+          },
+          {
+            "selector": "roll.damage.spell.type.fire",
+            "op": "add",
+            "value": "mod.cha",
+            "label": "Elemental Affinity",
+            "when": {
+              "classLevel": {
+                "class": "class:sorcerer",
+                "min": 6
+              }
+            }
           }
         ]
       }
@@ -976,6 +1012,18 @@
             "label": "Elemental Affinity",
             "when": {
               "toggle": "elemental-affinity-resistance"
+            }
+          },
+          {
+            "selector": "roll.damage.spell.type.lightning",
+            "op": "add",
+            "value": "mod.cha",
+            "label": "Elemental Affinity",
+            "when": {
+              "classLevel": {
+                "class": "class:sorcerer",
+                "min": 6
+              }
             }
           }
         ]
@@ -1003,6 +1051,18 @@
             "when": {
               "toggle": "elemental-affinity-resistance"
             }
+          },
+          {
+            "selector": "roll.damage.spell.type.acid",
+            "op": "add",
+            "value": "mod.cha",
+            "label": "Elemental Affinity",
+            "when": {
+              "classLevel": {
+                "class": "class:sorcerer",
+                "min": 6
+              }
+            }
           }
         ]
       }
@@ -1028,6 +1088,18 @@
             "label": "Elemental Affinity",
             "when": {
               "toggle": "elemental-affinity-resistance"
+            }
+          },
+          {
+            "selector": "roll.damage.spell.type.fire",
+            "op": "add",
+            "value": "mod.cha",
+            "label": "Elemental Affinity",
+            "when": {
+              "classLevel": {
+                "class": "class:sorcerer",
+                "min": 6
+              }
             }
           }
         ]
@@ -1055,6 +1127,18 @@
             "when": {
               "toggle": "elemental-affinity-resistance"
             }
+          },
+          {
+            "selector": "roll.damage.spell.type.poison",
+            "op": "add",
+            "value": "mod.cha",
+            "label": "Elemental Affinity",
+            "when": {
+              "classLevel": {
+                "class": "class:sorcerer",
+                "min": 6
+              }
+            }
           }
         ]
       }
@@ -1080,6 +1164,18 @@
             "label": "Elemental Affinity",
             "when": {
               "toggle": "elemental-affinity-resistance"
+            }
+          },
+          {
+            "selector": "roll.damage.spell.type.fire",
+            "op": "add",
+            "value": "mod.cha",
+            "label": "Elemental Affinity",
+            "when": {
+              "classLevel": {
+                "class": "class:sorcerer",
+                "min": 6
+              }
             }
           }
         ]
@@ -1107,6 +1203,18 @@
             "when": {
               "toggle": "elemental-affinity-resistance"
             }
+          },
+          {
+            "selector": "roll.damage.spell.type.cold",
+            "op": "add",
+            "value": "mod.cha",
+            "label": "Elemental Affinity",
+            "when": {
+              "classLevel": {
+                "class": "class:sorcerer",
+                "min": 6
+              }
+            }
           }
         ]
       }
@@ -1132,6 +1240,18 @@
             "label": "Elemental Affinity",
             "when": {
               "toggle": "elemental-affinity-resistance"
+            }
+          },
+          {
+            "selector": "roll.damage.spell.type.cold",
+            "op": "add",
+            "value": "mod.cha",
+            "label": "Elemental Affinity",
+            "when": {
+              "classLevel": {
+                "class": "class:sorcerer",
+                "min": 6
+              }
             }
           }
         ]

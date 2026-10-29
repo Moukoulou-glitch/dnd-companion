@@ -27,7 +27,11 @@ export interface ComposerBase {
     preset?: "always" | "reaction";
     /** Ticking it uses up this effect (a smite). */
     endsEffect?: string;
+    /** Only when the roll has dice of these damage types (Destructive Wrath: lightning or thunder); a maximum then maxes only those dice. */
+    forTypes?: string[];
   }[];
+  /** Reminders for some damage types only (Thunderbolt Strike: lightning), shown when the roll has them. */
+  typedNotes?: { text: string; types: string[] }[];
   critAt?: number;
   minD20?: number;
   /** A total below this counts as this (Indomitable Might: the Strength score). */
@@ -154,7 +158,15 @@ export function composeDamage(
     pushDice(out, d.dice, d.label, d.damageType ?? damageType);
     if (d.save) (out.saves ??= []).push({ source: d.label, ...d.save });
   }
-  for (const s of base.suggestions.filter((x) => choices.enabled.includes(x.label))) {
+  const on = base.suggestions.filter((x) => choices.enabled.includes(x.label));
+  for (const s of on.filter((x) => !x.forTypes)) {
+    pushFlat(out, s.apply.flat, s.label);
+    for (const d of s.apply.dice) pushDice(out, d, s.label, s.apply.damageType ?? damageType);
+  }
+  // Options for some damage types only: when the roll has dice of one of them (after Transmuted Spell or a picked type).
+  const present = damageTypesIn(out, damageType);
+  const typed = on.filter((x) => x.forTypes && x.forTypes.some((t) => present.has(t)));
+  for (const s of typed) {
     pushFlat(out, s.apply.flat, s.label);
     for (const d of s.apply.dice) pushDice(out, d, s.label, s.apply.damageType ?? damageType);
   }
@@ -164,8 +176,11 @@ export function composeDamage(
   // Great Weapon Fighting: each damage die of the attack showing this or lower is rolled once more, and the new roll counts.
   const reroll = Math.max(0, ...base.suggestions.filter((x) => choices.enabled.includes(x.label)).map((x) => x.apply.rerollAtOrBelow ?? 0));
   if (reroll > 0) out.terms = out.terms.map((t) => (t.kind === "dice" && t.sign > 0 ? { ...t, rerollAtOrBelow: Math.max(t.rerollAtOrBelow ?? 0, reroll) } : t));
-  // Overchannel: every damage die deals its maximum.
-  if (base.suggestions.some((x) => choices.enabled.includes(x.label) && x.apply.maximize)) out.terms = out.terms.map((t) => (t.kind === "dice" && t.sign > 0 ? { ...t, min: t.sides } : t));
+  // Overchannel: every damage die deals its maximum; Destructive Wrath: every lightning and thunder die.
+  const maxAll = on.some((x) => x.apply.maximize && !x.forTypes);
+  const maxTypes = new Set(typed.filter((x) => x.apply.maximize).flatMap((x) => x.forTypes!));
+  if (maxAll || maxTypes.size)
+    out.terms = out.terms.map((t) => (t.kind === "dice" && t.sign > 0 && (maxAll || (!!t.label && maxTypes.has(t.label.toLowerCase()))) ? { ...t, min: t.sides } : t));
   // Elemental Adept: each die of the chosen type counts as at least the minimum.
   if (base.minDie) {
     const md = base.minDie;
@@ -175,6 +190,19 @@ export function composeDamage(
       return { ...t, min: Math.max(t.min ?? 0, md.value) };
     });
   }
+  return out;
+}
+
+/** A positive die term that deals its maximum (Overchannel, Destructive Wrath): nothing to roll. */
+export function isMaxed(t: Term): boolean {
+  return t.kind === "dice" && t.sign > 0 && (t.min ?? 0) >= t.sides;
+}
+
+/** The damage types a roll's dice have (their labels), and the roll's own type. */
+export function damageTypesIn(c: Composed, damageType?: string): Set<string> {
+  const out = new Set<string>();
+  if (damageType) out.add(damageType.toLowerCase());
+  for (const t of c.terms) if (t.kind === "dice" && t.label) out.add(t.label.toLowerCase());
   return out;
 }
 
@@ -238,7 +266,9 @@ export function rollComposed(c: Composed, physical?: number[], rng: Rng = secure
  * table. This adds the flat modifiers to that total.
  */
 export function physicalDamageTotal(c: Composed, diceTotal: number): number {
-  const total = c.terms.reduce((sum, t) => sum + (t.kind === "flat" ? t.sign * t.value : 0), diceTotal);
+  // Dice at their maximum (Destructive Wrath's thunder dice) aren't rolled: their maximum is added here.
+  const fixed = c.terms.reduce((sum, t) => sum + (isMaxed(t) && t.kind === "dice" ? t.count * t.sides : 0), 0);
+  const total = c.terms.reduce((sum, t) => sum + (t.kind === "flat" ? t.sign * t.value : 0), diceTotal + fixed);
   return c.minTotal !== undefined ? Math.max(c.minTotal, total) : total;
 }
 
@@ -258,7 +288,7 @@ export function d20Reroll(c: Composed): number {
 export function diceToRoll(c: Composed): string {
   const counts = new Map<number, number>();
   const minus = new Map<number, number>();
-  for (const t of c.terms) if (t.kind === "dice") (t.sign < 0 ? minus : counts).set(t.sides, ((t.sign < 0 ? minus : counts).get(t.sides) ?? 0) + t.count);
+  for (const t of c.terms) if (t.kind === "dice" && !isMaxed(t)) (t.sign < 0 ? minus : counts).set(t.sides, ((t.sign < 0 ? minus : counts).get(t.sides) ?? 0) + t.count);
   const list = (m: Map<number, number>) => [...m.entries()].sort((a, b) => b[0] - a[0]).map(([sides, n]) => `${n}d${sides}`);
   // Dice taken away (Diminution): "1d8 − 1d4", the total typed with the small die subtracted.
   return [list(counts).join(" + "), ...list(minus).map((d) => `− ${d}`)].filter(Boolean).join(" ");

@@ -4110,3 +4110,20 @@ html.fx-shake-strong .app > .strip, html.fx-shake-strong .app > main, html.fx-sh
   .name-image { animation: none !important; transform: translate(calc((var(--i) - 1) * 6px), 0); opacity: 0.35; }
   .name-blur .name-real { animation: none !important; filter: blur(0.8px); }
 }
+
+/* Destructive Wrath: the storm answers. The sky darkens, three bolts strike down with a double flash, and the thunder shakes the screen. */
+.fx-wrath { position: absolute; inset: 0; overflow: hidden; background: radial-gradient(ellipse at 50% 0%, rgba(40, 52, 120, 0.6), rgba(12, 14, 44, 0.4) 55%, transparent 85%); animation: fx-wrath-sky var(--fx-ms, 1400ms) ease-out forwards; }
+.fx-wrath::after { content: ""; position: absolute; inset: 0; background: rgba(205, 225, 255, 0.85); opacity: 0; animation: fx-wrath-flash var(--fx-ms, 1400ms) linear forwards; }
+.fx-wrath-bolts { position: absolute; inset: 0; width: 100%; height: 100%; }
+.fx-wrath-bolts path { fill: none; stroke: #eef4ff; stroke-width: 4; stroke-linejoin: round; stroke-linecap: round; filter: drop-shadow(0 0 6px #8fbcff) drop-shadow(0 0 18px #4f7dff); stroke-dasharray: 1; stroke-dashoffset: 1; animation: fx-wrath-strike var(--fx-ms, 1400ms) ease-out forwards; }
+.fx-wrath-bolts path.b2 { animation-delay: 110ms; stroke-width: 3; }
+.fx-wrath-bolts path.b3 { animation-delay: 220ms; stroke-width: 2.5; }
+.fx-wrath .fx-label { color: #e4edff; text-shadow: 0 0 12px #4f7dff, 0 0 2px #000; font-size: 1.25em; letter-spacing: 0.02em; }
+@keyframes fx-wrath-sky { 0% { opacity: 0; } 10% { opacity: 1; } 75% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes fx-wrath-flash { 0%, 16% { opacity: 0; } 19% { opacity: 0.75; } 25% { opacity: 0; } 32% { opacity: 0.5; } 38%, 100% { opacity: 0; } }
+@keyframes fx-wrath-strike { 0% { stroke-dashoffset: 1; opacity: 1; } 18% { stroke-dashoffset: 0; opacity: 1; } 60% { opacity: 1; } 100% { stroke-dashoffset: 0; opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .fx-wrath, .fx-wrath::after, .fx-wrath-bolts path { animation-duration: 1ms; }
+  .fx-wrath { animation: fx-wrath-sky 900ms linear forwards; }
+  .fx-wrath-bolts path { stroke-dashoffset: 0; }
+}

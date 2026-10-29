@@ -703,6 +703,12 @@ export function App() {
     };
   };
 
+  /** The action an option spent on a roll belongs to (Destructive Wrath's Channel Divinity), for its look. */
+  const forUse = (label: string): { for?: string } => {
+    const a = live.current.sheet?.actions.find((x) => x.name === label && !x.common);
+    return a ? { for: a.id } : {};
+  };
+
   /** Options ticked in the composer that are also features used on your turn (Steady Aim) get recorded. */
   const recordOptions = (labels: string[]) => {
     const cur = live.current;
@@ -813,7 +819,7 @@ export function App() {
           for (const u of used) {
             if (u.spends) {
               const r = live.current.sheet?.resources.find((x) => x.id === u.spends!.resource);
-              live.current.act("spendResource", { resource: u.spends.resource, amount: u.spends.amount }, `${u.label}: ${r?.name ?? "die"} spent${r && r.remaining - u.spends.amount < 0 ? " (none were left)" : ""}.`);
+              live.current.act("spendResource", { resource: u.spends.resource, amount: u.spends.amount, ...forUse(u.label) }, `${u.label}: ${r?.name ?? "die"} spent${r && r.remaining - u.spends.amount < 0 ? " (none were left)" : ""}.`);
             }
             if (u.endsEffect) {
               // The smite's "next hit" tag goes. Concentration stays for the lasting part (Searing's fire, Wrathful's fear,
@@ -1407,6 +1413,13 @@ export function App() {
             ...(live.current.sheet?.selfMaxHealing ? ["me"] : []),
           ]}
           {...(live.current.sheet?.selfMaxHealing && !live.current.character?.effects.some((e) => e.effect === BEACON_EFFECT) ? { maxLabels: { me: live.current.sheet.selfMaxHealing } } : {})}
+          onMaxWith={(label, spends) => {
+            if (spends) {
+              const r = live.current.sheet?.resources.find((x) => x.id === spends.resource);
+              live.current.act("spendResource", { resource: spends.resource, amount: spends.amount }, `${label}: ${r?.name ?? "use"} spent.`);
+            }
+            if (label === "Destructive Wrath") playFx({ kind: "wrath" });
+          }}
           {...(fromResource
             ? {
                 onJustSpend: () => {
@@ -2926,6 +2939,9 @@ export function App() {
     if (relevant) sgs.push({ label: "Beacon of Hope", effect: "maximum healing", reason: "the creature you heal is under Beacon of Hope", apply: { flat: 0, dice: [], maximize: true } });
     // Gift of the Ever-Living Ones: healing yourself, with your familiar within 100 ft.
     if (gift && !meUnder && all.some((t) => t.id === "me")) sgs.push({ label: gift, effect: "maximum healing", reason: "healing yourself, with your familiar within 100 ft", apply: { flat: 0, dice: [], maximize: true } });
+    // Circle of Mortality (Grave Domain): healing a creature at 0 hit points is the maximum.
+    if (live.current.sheet?.features.some((f) => f.id === "feature:grave-domain-circle-of-mortality"))
+      sgs.push({ label: "Circle of Mortality", effect: "maximum healing", reason: "the creature you heal has 0 hit points", apply: { flat: 0, dice: [], maximize: true } });
     if (!sgs.length) return { attack, optionInfo: {} };
     return {
       attack: { ...attack, damage: { ...attack.damage, bonus: { ...attack.damage.bonus, suggestions: [...attack.damage.bonus.suggestions, ...sgs] } } },
@@ -3062,7 +3078,7 @@ export function App() {
               label: tc.label,
               options,
               ...(tc.kind === "awakened" ? { note: "A damage type from another spell of this slot's level in your spellbook." } : {}),
-              ...(tc.cost ? { onUse: () => live.current.act("spendResource", { resource: tc.cost!.resource, amount: tc.cost!.amount }, `${tc.label.split(",")[0]}: ${tc.cost!.amount} point spent.`) } : {}),
+              ...(tc.cost ? { onUse: () => live.current.act("spendResource", { resource: tc.cost!.resource, amount: tc.cost!.amount, ...(tc.kind === "transmuted" ? { for: "transmuted-spell" } : {}) }, `${tc.label.split(",")[0]}: ${tc.cost!.amount} point spent.`) } : {}),
             },
           ];
         })}
@@ -3078,7 +3094,7 @@ export function App() {
           for (const u of used) {
             if (!u.spends) continue;
             const r = live.current.sheet?.resources.find((x) => x.id === u.spends!.resource);
-            live.current.act("spendResource", { resource: u.spends.resource, amount: u.spends.amount }, `${u.label}: ${r?.name ?? "use"} spent.`);
+            live.current.act("spendResource", { resource: u.spends.resource, amount: u.spends.amount, ...forUse(u.label) }, `${u.label}: ${r?.name ?? "use"} spent.`);
             // Overchannel after its free use: roll the backlash and ask before it's taken.
             if (u.spends.resource === "overchannel" && r && r.used > 0) {
               const perLevel = r.used + 1;

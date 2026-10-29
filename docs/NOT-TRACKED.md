@@ -9,7 +9,7 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 ## Per class (summary only, or partly tracked)
 - **Barbarian**: Totem Warrior Wolf spirit/aspect, Bear and Eagle attunement; Shielding Storm; Warrior of the Gods.
 - **Bard**: Blade Flourish +10 ft speed; Magical Inspiration and Bardic Versatility (summary).
-- **Cleric**: Blessed Strikes, Improved Flare, Thunderbolt Strike, Stormborn, Improved Duplicity, Order's Wrath, Circle of Mortality's maximized healing; Several conditional bonuses are tick-boxes, not automatic (Soul of the Forge, Avatar of Battle, Saint of Forge and Fire).
+- **Cleric**: Blessed Strikes, Improved Flare, Thunderbolt Strike, Stormborn, Improved Duplicity, Order's Wrath; Several conditional bonuses are tick-boxes, not automatic (Soul of the Forge, Avatar of Battle, Saint of Forge and Fire).
 - **Druid**: Moon druid features rely on the app's Wild Shape handling; Twinkling Constellations, Fungal Body, Primal Strike.
 - **Fighter**: Arcane Shot effects and their 18th-level increase; Cavalier/Samurai "or a language" alternatives; Samurai's alternate save; Know Your Enemy, Relentless, Weapon Bond's no-disarm, Rapid Strike; Martial Versatility.
 - **Monk**: Four Elements discipline effects; Astral Self's Wisdom-for-attacks and three-attack rule; Kensei's one-melee-one-ranged rule; Dedicated Weapon.
@@ -399,3 +399,12 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 - Goodberry: ten berries on a tag for 24 hours; "Eat a berry" heals 1 and counts one off. Berries you give away: take them off with −.
 - Lesser and Greater Restoration on you: the condition you pick (or one exhaustion level) ends; nothing stays as a tag. A curse or a reduced score or maximum is yours to undo.
 - A casting that takes minutes ("Cast it now"): fixed in 14d; it used to stop after starting.
+
+## Damage types, Transmuted Spell and the storm (round 15a)
+
+- Options for some damage types only (Destructive Wrath: lightning or thunder; Radiant Soul: radiant or fire; Elemental Affinity: your dragon's type) are offered when the roll has dice of that type, after Transmuted Spell or any type you pick. Destructive Wrath maxes only those dice (on a weapon, Divine Strike's thunder, not the mace's).
+- Destructive Wrath on a roll made elsewhere (a reaction from the DM's turn): its action still spends the use by hand.
+- Thunderbolt Strike is a reminder on lightning damage rolls; the push is yours.
+- Heart of the Storm and Tempestuous Magic are reminders when you cast; the burst's damage is its own action (Heart of the Storm burst), rolled by you.
+- Empowered Spell: after a spell's damage roll, pick up to your Charisma modifier dice to roll again (1 sorcery point). With your own dice, enter what they showed and show now, in all.
+- Circle of Mortality: "maximum healing" on healing rolls; whether the creature is at 0 hit points is yours to tick.

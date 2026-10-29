@@ -32,7 +32,10 @@ export function FeaturePanel({
   beaconIds,
   maxLabels,
   onJustSpend,
+  onMaxWith,
 }: {
+  /** Its damage at the maximum by an option (Destructive Wrath on Wrath of the Storm): spend what the option costs. */
+  onMaxWith?: (label: string, spends?: { resource: string; amount: number }) => void;
   /** From Play's Features: spend its use without doing anything else. */
   onJustSpend?: () => void;
   /** Who is under Beacon of Hope ("me", a companion's id, "summon:<id>"): healing them is the maximum. */
@@ -72,6 +75,8 @@ export function FeaturePanel({
   const none = a.cost && a.cost.remaining < a.cost.amount;
 
   const [throwing, setThrowing] = useState(false);
+  // Destructive Wrath on this roll: its dice at their maximum.
+  const [maxOn, setMaxOn] = useState(false);
   // Rolled more than once, keeping one (Controlled Chaos, Controlled Surge): the faces, then the pick.
   const times = a.roll?.times ?? 1;
   const [faces, setFaces] = useState<number[] | null>(null);
@@ -105,6 +110,14 @@ export function FeaturePanel({
   const maxOfAmount = amount ? amount.flat + amount.dice.reduce((t, d) => t + (/^(\d*)d(\d+)$/.test(d) ? Number(/^(\d*)/.exec(d)![1] || 1) * Number(/d(\d+)$/.exec(d)![1]) : 0), 0) : 0;
   const useNow = async (free = false) => {
     if (!amount) return useWith(undefined, free, undefined, undefined, undefined, me);
+    if (maxOn && a.roll?.maxWith) {
+      const top = amount.dice.reduce((n, d) => {
+        const m = /^(\d*)d(\d+)$/.exec(d);
+        return n + (m ? Number(m[1] || 1) * Number(m[2]) : 0);
+      }, amount.flat);
+      onMaxWith?.(a.roll.maxWith.label, a.roll.maxWith.spends);
+      return useWith(top, free, undefined, undefined, undefined, me);
+    }
     // Healing typed in (Keeper of Souls: the creature's Hit Dice), not rolled.
     if (a.healEntered) return useWith(Number(entry), free, undefined, undefined, undefined, me);
     if (beacon && physical) return useWith(maxOfAmount, free, undefined, undefined, undefined, me);
@@ -230,7 +243,16 @@ export function FeaturePanel({
               {faces.length > 1 && faces.every((f) => f === faces[0]) && a.choose && <p className="note">Both the same: pick any.</p>}
             </div>
           )}
-          {physical && !beacon && !a.healEntered && amount.dice.length > 0 && (
+          {a.roll?.maxWith && amount.dice.length > 0 && (
+            <label className="row check" style={{ padding: "8px 0" }}>
+              <input type="checkbox" checked={maxOn} onChange={() => setMaxOn(!maxOn)} />
+              <div className="row-main">
+                <div className="row-title">{a.roll.maxWith.label}: maximum damage</div>
+                <div className="row-sub">Every die at its maximum instead of rolling{a.roll.maxWith.spends ? "; spends a use" : ""}.</div>
+              </div>
+            </label>
+          )}
+          {physical && !beacon && !a.healEntered && !maxOn && amount.dice.length > 0 && (
             <label className="entry">
               <span>{times > 1 ? `Roll ${amount.dice.join(" + ")} ${times} times and type the one you keep` : `Roll ${amount.dice.join(" + ")} and type the dice total`}</span>
               <input inputMode="numeric" pattern="[0-9]*" value={entry} onChange={(e) => setEntry(e.target.value.replace(/\D/g, "").slice(0, 3))} />
@@ -307,7 +329,7 @@ export function FeaturePanel({
           </button>
         </>
       ) : (
-      <button className={`big wide ${none ? "damage" : "primary"}${beacon ? " beacon" : ""}`} disabled={throwing || (!!a.healEntered && !Number(entry)) || (!!amount && physical && !beacon && amount.dice.length > 0 && !entry)} onClick={() => void useNow()}>
+      <button className={`big wide ${none ? "damage" : "primary"}${beacon ? " beacon" : ""}`} disabled={throwing || (!!a.healEntered && !Number(entry)) || (!!amount && physical && !beacon && !maxOn && amount.dice.length > 0 && !entry)} onClick={() => void useNow()}>
         {throwing ? "Throwing…" : none ? `Use ${a.name} anyway` : a.roll && !physical ? `Roll and use ${a.name}` : `Use ${a.name}`}
       </button>
       )}

@@ -59,6 +59,8 @@ export function specOf(e: FxEvent): FxSpec {
       return { at: "tap", ms: 700, look: `fx-cast${e.school && SCHOOLS.includes(e.school.toLowerCase()) ? ` fx-${e.school.toLowerCase()}` : ""}` };
     case "sneak":
       return { at: "result", ms: 450, look: "fx-sneak", label: "Sneak Attack" };
+    case "wrath":
+      return { at: "edge", ms: 1400, buzz: [60, 40, 120], look: "fx-wrath", label: "Destructive Wrath · maximum", shake: 450 };
     case "concentration":
       return { at: "conc", ms: 600, look: e.kept ? "fx-conc-kept" : "fx-conc-lost", label: e.kept ? "Concentration held" : "Concentration lost" };
     case "death-save":
@@ -382,6 +384,13 @@ export function FxLayer({ school, spell, feature, character }: { school: (spell:
               </svg>
             )}
             {spec.look.includes("fx-form-dread") && Array.from({ length: 8 }, (_, i) => <span key={i} className="fx-tatter" style={{ ["--i" as string]: String(i) }} />)}
+            {spec.look === "fx-wrath" && (
+              <svg className="fx-wrath-bolts" viewBox="0 0 390 844" preserveAspectRatio="none">
+                <path className="b1" pathLength={1} d="M200,0 L176,150 L214,170 L168,330 L206,346 L150,560" />
+                <path className="b2" pathLength={1} d="M70,0 L92,110 L60,130 L96,260 L72,272 L104,420" />
+                <path className="b3" pathLength={1} d="M330,0 L306,96 L338,112 L298,230 L322,240 L290,360" />
+              </svg>
+            )}
             {spec.look === "fx-charmed" && (
               <svg className="fx-charm-swirl" viewBox="-50 -50 100 100">
                 <path pathLength={1} d="M0,0 C6,-2 8,6 2,9 C-8,13 -14,2 -10,-8 C-4,-20 16,-20 20,-4 C26,16 4,30 -14,24 C-34,16 -36,-14 -18,-30 C0,-44 30,-38 40,-14" />

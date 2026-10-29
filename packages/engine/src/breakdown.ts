@@ -45,6 +45,8 @@ export interface Suggestion {
   endsEffect?: string;
   /** Ammunition: the inventory instance shot. */
   ammo?: string;
+  /** Only on a damage roll with dice of these types (Destructive Wrath: lightning or thunder). */
+  forTypes?: string[];
 }
 
 /** A computed number and every source that contributed to it. */
@@ -63,12 +65,15 @@ export interface RollBreakdown extends Breakdown {
   autoFail?: string[];
   /** Reminders shown with the roll (Ancestral Protectors on your first hit while raging). */
   notes?: string[];
+  /** Reminders for some damage types only (Thunderbolt Strike: lightning), shown when the roll has them. */
+  typedNotes?: { text: string; types: string[] }[];
   /** Damage dice of these types count as at least `value` each (Elemental Adept). */
   minDie?: { value: number; types: string[]; label: string };
   /** A total below this counts as this (Indomitable Might: your Strength score). */
   minTotal?: { value: number; label: string };
   /** Damage: after the roll, one die of your choice can be rolled again (Piercer: once per turn). */
-  rerollOne?: { label: string; oncePerTurn?: boolean };
+  /** After the damage roll: dice rolled again, one (Piercer) or up to `count` (Empowered Spell), and what it spends. */
+  rerollOne?: { label: string; oncePerTurn?: boolean; count?: number; spends?: { resource: string; amount: number } };
   /** With advantage, three d20s instead of two (Elven Accuracy: attacks with Dexterity, Intelligence, Wisdom or Charisma). */
   tripleAdvantage?: string;
   dice: DicePart[];

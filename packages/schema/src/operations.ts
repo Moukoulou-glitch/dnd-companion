@@ -44,7 +44,8 @@ export const OPERATION_PAYLOADS = {
   setTempHp: z.object({ amount: z.number().int().min(0), companion: z.string().optional() }).strict(),
   /** Set current HP directly (DM ruling, correction). Clamped to 0..max. */
   setHp: z.object({ current: z.number().int() }).strict(),
-  spendResource: z.object({ resource: z.string(), amount: z.number().int().min(1).default(1) }).strict(),
+  /** `for`: the action it's spent on, when the resource is shared (a sorcery point for Transmuted Spell): for its look. */
+  spendResource: z.object({ resource: z.string(), amount: z.number().int().min(1).default(1), for: z.string().optional() }).strict(),
   restoreResource: z.object({ resource: z.string(), amount: z.number().int().min(1).default(1) }).strict(),
   /** Spend a spell slot of `level`, or a Pact Magic slot. */
   spendSlot: z.object({ level: z.number().int().min(1).max(9), pact: z.boolean().default(false) }).strict(),
