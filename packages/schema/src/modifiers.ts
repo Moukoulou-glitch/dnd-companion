@@ -264,6 +264,8 @@ export const SpellcastingDef = z
     levelsOf: DefId.optional(),
     /** No spellcasting ability: the DC is 8 + proficiency and the attack is the proficiency bonus (Thinking Stone). `ability` is then ignored. */
     noAbility: z.boolean().optional(),
+    /** Its spells get a list of their own on the Spells page, by this name (Thinking Stone spells), and stay out of the others. */
+    tab: z.string().optional(),
   })
   .strict();
 export type SpellcastingDef = z.infer<typeof SpellcastingDef>;
@@ -303,7 +305,20 @@ export const GrantedSpell = z
     /** Its own save DC instead of yours (Wand of Fireballs: 15). */
     dc: z.number().int().optional(),
     /** Written on a spell scroll in the inventory: read it to cast it (used up). */
-    scroll: z.object({ instanceId: z.string(), level: z.number().int().min(0).max(9), caster: z.string().optional() }).strict().optional(),
+    scroll: z
+      .object({
+        instanceId: z.string(),
+        level: z.number().int().min(0).max(9),
+        caster: z.string().optional(),
+        /** Written or stored by someone else with these numbers (another wizard's Master Scrivener scroll, a gnome's Thinking Stone object). */
+        dc: z.number().int().optional(),
+        attack: z.number().int().optional(),
+        /** A spell stored in an object (Thinking Stone): anyone who knows how can use it; no class list, no check. */
+        stored: z.boolean().optional(),
+        by: z.string().optional(),
+      })
+      .strict()
+      .optional(),
   })
   .strict();
 export type GrantedSpell = z.infer<typeof GrantedSpell>;
@@ -767,6 +782,8 @@ export const ChoiceDef = z
     grants: z.record(z.string(), DefId).optional(),
     /** Spell choices: each picked spell is cast without a slot, counted per rest under this tag (Thinking Stone: once per long rest each). */
     extra: z.string().optional(),
+    /** With `extra`: how many times each per long rest (more warns, never blocks). */
+    extraPerLong: z.number().int().min(1).optional(),
     /** Spell choices: cast at will at the spell's own level, slots still work for higher levels (Spell Mastery). */
     atWill: z.boolean().optional(),
     /** Spell choices: the spells should be in your spellbook (Spell Mastery, Signature Spells); a picked one that isn't is warned about. */

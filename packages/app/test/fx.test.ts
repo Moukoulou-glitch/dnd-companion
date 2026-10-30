@@ -35,7 +35,7 @@ describe("Effect triggers", () => {
   });
 
   it("Sneak Attack only when its dice are in the damage", () => {
-    expect(rollFx(roll({ kind: "damage", lines: [{ source: "Weapon", detail: "4", total: 4 }, { source: "Sneak Attack", detail: "3+5", total: 8 }] }))).toEqual([{ kind: "sneak" }]);
+    expect(rollFx(roll({ kind: "damage", lines: [{ source: "Weapon", detail: "4", total: 4 }, { source: "Sneak Attack", detail: "3+5", total: 8 }] }))).toEqual([{ kind: "sneak", total: 0 }]);
     expect(rollFx(roll({ kind: "damage", lines: [{ source: "Weapon", detail: "4", total: 4 }] }))).toEqual([]);
   });
 

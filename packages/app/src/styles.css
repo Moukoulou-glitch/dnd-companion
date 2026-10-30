@@ -4355,3 +4355,44 @@ html.fx-shake-strong .app > .strip, html.fx-shake-strong .app > main, html.fx-sh
   .fx-cd-sigil, .fx-cd-ring, .fx-cd-ray, .fx-cd-bracket, .fx-cd-p, .fx-cd-twin, .fx-her-tablet, .fx-her-column, .fx-her-chevron, .fx-her-mote, .fx-her-dust, .fx-her-wheel, .fx-her-half, .fx-her-whole { animation: none; opacity: 0.7; }
   .fx-cd-sigil circle, .fx-cd-glyph path, .fx-her-runes path { animation: none; stroke-dashoffset: 0; }
 }
+
+/* Sneak Attack by the hit's damage. 1–10: one slash. 11–20: a cross. 21–30: three cuts across the screen in a dim
+   veil. 31–50: four, darker, a jolt. 51–80: shadow daggers converge, six cuts. 81–100: a crimson moon, ten cuts.
+   101+: night falls, sixteen cuts, the screen splits apart. */
+.fx-sneak-2 .fx-slash { width: 170px; height: 170px; }
+.fx-sneak-2 .fx-slash .cross { animation-delay: 140ms; stroke: rgba(220, 150, 255, 0.95); }
+.fx-sneak-2 .fx-label { font-size: 1.1rem; }
+.fx-sa { position: absolute; inset: 0; overflow: hidden; --sa: 190, 120, 255; --sa2: 60, 10, 90; animation: fx-floar-veil var(--fx-ms, 1400ms) ease-out forwards; }
+.fx-sa-5 { --sa: 214, 120, 255; }
+.fx-sa-6, .fx-sa-7 { --sa: 255, 70, 90; --sa2: 70, 0, 20; }
+.fx-sa-veil { position: absolute; inset: 0; background: radial-gradient(circle at 50% 48%, rgba(var(--sa2), 0.2), rgba(4, 2, 10, 0.75)); opacity: 0.6; }
+.fx-sa-4 .fx-sa-veil { opacity: 0.75; }
+.fx-sa-5 .fx-sa-veil { opacity: 0.85; }
+.fx-sa-6 .fx-sa-veil { opacity: 0.92; }
+.fx-sa-7 .fx-sa-veil { opacity: 1; background: radial-gradient(circle at 50% 30%, rgba(90, 0, 20, 0.5), rgba(0, 0, 0, 0.96) 60%); }
+.fx-sa-cuts { position: absolute; inset: 0; width: 100%; height: 100%; fill: none; stroke-linecap: round; }
+.fx-sa-cuts path { stroke: rgb(var(--sa)); stroke-width: 5; stroke-dasharray: 1; stroke-dashoffset: 1; filter: drop-shadow(0 0 6px rgba(var(--sa), 0.9)) drop-shadow(0 0 2px #000); animation: fx-sa-cut 520ms ease-out forwards; }
+.fx-sa-6 .fx-sa-cuts path, .fx-sa-7 .fx-sa-cuts path { stroke-width: 6; stroke: #ffe1e6; filter: drop-shadow(0 0 8px rgba(var(--sa), 1)) drop-shadow(0 0 16px rgba(var(--sa), 0.8)); }
+.fx-sa-dagger { position: absolute; left: 50%; top: 48%; width: 8px; height: 46px; margin: -23px -4px; border-radius: 4px 4px 1px 1px; background: linear-gradient(to bottom, #f4e9ff, rgb(var(--sa)) 60%, #1a0624); box-shadow: 0 0 10px rgba(var(--sa), 0.9); opacity: 0; transform: rotate(var(--a)) translateY(-46vh); animation: fx-sa-dagger 520ms cubic-bezier(0.5, 0, 0.9, 0.4) forwards; }
+.fx-sa-moon { position: absolute; left: 50%; top: 14%; width: 120px; height: 120px; margin-left: -60px; border-radius: 50%; background: radial-gradient(circle at 30% 30%, rgba(0, 0, 0, 0.25) 0 8%, transparent 9%), radial-gradient(circle at 62% 58%, rgba(0, 0, 0, 0.22) 0 11%, transparent 12%), radial-gradient(circle at 40% 40%, #ff8a8a, #b0102a 60%, #4a0010); box-shadow: 0 0 50px 16px rgba(220, 30, 60, 0.6); opacity: 0; animation: fx-sa-moon var(--fx-ms) ease-out forwards; }
+.fx-sa-7 .fx-sa-moon { width: 180px; height: 180px; margin-left: -90px; box-shadow: 0 0 80px 30px rgba(220, 30, 60, 0.7); }
+.fx-sa-half { position: absolute; left: -5%; right: -5%; height: 50%; opacity: 0; background: rgba(0, 0, 0, 0.92); border: 0 solid rgb(var(--sa)); animation: fx-sa-split var(--fx-ms) ease-in-out forwards; }
+.fx-sa-half.top { top: 0; border-bottom-width: 3px; transform-origin: 50% 100%; }
+.fx-sa-half.bottom { bottom: 0; border-top-width: 3px; --dir: 1; }
+.fx-sa .fx-label { color: #f2dcff; text-shadow: 0 0 14px rgba(var(--sa), 1), 0 0 2px #000; font-size: 1.25em; }
+.fx-sa-5 .fx-label { font-size: 1.45em; }
+.fx-sa-6 .fx-label, .fx-sa-7 .fx-label { color: #fff0f2; font-size: 1.7em; letter-spacing: 0.04em; }
+.fx-sa-7 .fx-label { font-size: 2.1em; }
+@keyframes fx-sa-cut { 0% { stroke-dashoffset: 1; opacity: 1; } 35% { stroke-dashoffset: 0; opacity: 1; } 100% { stroke-dashoffset: 0; opacity: 0.35; } }
+.fx-sa-5 .fx-sa-cuts path, .fx-sa-6 .fx-sa-cuts path, .fx-sa-7 .fx-sa-cuts path { animation-duration: 900ms; }
+.fx-sa-flash { position: absolute; inset: 0; background: radial-gradient(circle at 50% 48%, rgba(255, 240, 245, 0.9), rgba(var(--sa), 0.5) 40%, transparent 75%); opacity: 0; animation: fx-sa-flash var(--fx-ms) ease-out forwards; }
+@keyframes fx-sa-flash { 0%, 48% { opacity: 0; } 52% { opacity: 1; } 70% { opacity: 0; } 100% { opacity: 0; } }
+@keyframes fx-sa-dagger { 0% { opacity: 0; } 20% { opacity: 1; } 90% { opacity: 1; transform: rotate(var(--a)) translateY(-30px); } 100% { opacity: 0; transform: rotate(var(--a)) translateY(-18px) scale(1.4); } }
+@keyframes fx-sa-moon { 0% { opacity: 0; transform: translateY(30px) scale(0.6); } 25% { opacity: 1; transform: translateY(0) scale(1); } 80% { opacity: 1; } 100% { opacity: 0; transform: scale(1.1); } }
+@keyframes fx-sa-split { 0%, 54% { opacity: 0; transform: translateY(0); } 58% { opacity: 1; transform: translateY(0); } 72% { transform: translateY(calc(var(--dir, -1) * 4%)) rotate(calc(var(--dir, -1) * -1.5deg)); } 100% { opacity: 0.4; transform: translateY(calc(var(--dir, -1) * 70%)); } }
+@keyframes fx-sa-title { 0%, 50% { transform: scale(0.8); } 62% { transform: scale(1.15); } 100% { transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) {
+  .fx-sa-cuts path { animation: none; stroke-dashoffset: 0; opacity: 0.7; }
+  .fx-sa-dagger, .fx-sa-moon, .fx-sa-half, .fx-sa-flash { animation: none; opacity: 0.6; }
+  .fx-sa-flash, .fx-sa-half { opacity: 0; }
+}

@@ -37,6 +37,8 @@ function itemTags(inst: Inst, def: ItemDef): string[] {
 
 /** A spell scroll (DMG p. 200), by its id or name. */
 export const isScroll = (def: ItemDef) => def.id.startsWith("item:spell-scroll") || /spell scroll/i.test(def.name);
+/** An object holding a spell a Rock Gnome stored in it (Thinking Stone). */
+export const isStoredObject = (def: ItemDef) => def.id === "item:thinking-stone-object";
 
 /** The level a scroll is written at, from its name ("Spell Scroll (3rd Level)"); undefined when it doesn't say. */
 const scrollLevel = (def: ItemDef) => {
@@ -48,7 +50,9 @@ const scrollLevel = (def: ItemDef) => {
 function ScrollSpell({ inst, def, act, spells, onRead, onCopy, onCustom }: { inst: Inst; def: ItemDef; act: Act; spells: { id: string; name: string; level: number }[]; onRead?: () => void; onCopy?: () => void; onCustom: () => void }) {
   const [picking, setPicking] = useState(!inst.scroll);
   const [q, setQ] = useState("");
-  const lvl = scrollLevel(def);
+  const stored = isStoredObject(def);
+  // A Thinking Stone holds 1st- and 2nd-level spells.
+  const lvl = stored ? 2 : scrollLevel(def);
   const written = inst.scroll ? spells.find((x) => x.id === inst.scroll!.spell) : undefined;
   // A scroll's level: its spell can't be of a higher level (a lower one is written upcast).
   const found = spells
@@ -63,7 +67,12 @@ function ScrollSpell({ inst, def, act, spells, onRead, onCopy, onCustom }: { ins
           <div className="row">
             <div className="row-main">
               <div className="row-title">{written?.name ?? inst.scroll.spell}</div>
-              <div className="row-sub">{written ? (written.level === 0 ? "Cantrip" : `Level ${written.level} spell`) : "Spell not found"}{lvl !== undefined && written && lvl > written.level ? `, written at level ${lvl}` : ""}</div>
+              <div className="row-sub">
+                {written ? (written.level === 0 ? "Cantrip" : `Level ${written.level} spell`) : "Spell not found"}
+                {!stored && lvl !== undefined && written && lvl > written.level ? `, written at level ${lvl}` : ""}
+                {inst.scroll.dc !== undefined ? ` · DC ${inst.scroll.dc}, ${(inst.scroll.attack ?? inst.scroll.dc - 8) >= 0 ? "+" : ""}${inst.scroll.attack ?? inst.scroll.dc - 8} to hit` : ""}
+                {inst.scroll.by ? ` · by ${inst.scroll.by}` : ""}
+              </div>
             </div>
             <button className="link" onClick={() => setPicking(true)}>
               Change
@@ -71,9 +80,10 @@ function ScrollSpell({ inst, def, act, spells, onRead, onCopy, onCustom }: { ins
           </div>
         </div>
       )}
+      {inst.scroll && !picking && <MakerNumbers inst={inst} act={act} stored={stored} />}
       {inst.scroll && !picking && onRead && (
         <button className="big primary wide" style={{ marginTop: 10 }} onClick={onRead}>
-          Read the scroll
+          {stored ? "Use the object" : "Read the scroll"}
         </button>
       )}
       {inst.scroll && !picking && onCopy && (
@@ -93,7 +103,8 @@ function ScrollSpell({ inst, def, act, spells, onRead, onCopy, onCustom }: { ins
                 key={x.id}
                 className="row"
                 onClick={() => {
-                  act("setItem", { instanceId: inst.id, scroll: { spell: x.id } }, `${displayName(inst, def)}: ${x.name}.`);
+                  const keep = inst.scroll && inst.scroll.dc !== undefined ? { dc: inst.scroll.dc, ...(inst.scroll.attack !== undefined ? { attack: inst.scroll.attack } : {}), ...(inst.scroll.by ? { by: inst.scroll.by } : {}) } : {};
+                  act("setItem", { instanceId: inst.id, scroll: { spell: x.id, ...(stored ? { level: x.level, stored: true } : {}), ...(stored && inst.scroll?.dc === undefined ? { dc: 12, attack: 4 } : {}), ...keep }, ...(stored ? { name: `Thinking Stone: ${x.name}` } : {}) }, `${displayName(inst, def)}: ${x.name}.`);
                   setPicking(false);
                 }}
               >
@@ -104,13 +115,87 @@ function ScrollSpell({ inst, def, act, spells, onRead, onCopy, onCustom }: { ins
               </button>
             ))}
           </div>
-          <button className="big wide" style={{ marginTop: 10 }} onClick={onCustom}>
-            Write your own spell
-          </button>
-          <p className="note">Your own spell joins your spells too; once saved, pick it here.</p>
+          {!stored && (
+            <>
+              <button className="big wide" style={{ marginTop: 10 }} onClick={onCustom}>
+                Write your own spell
+              </button>
+              <p className="note">Your own spell joins your spells too; once saved, pick it here.</p>
+            </>
+          )}
         </>
       )}
     </section>
+  );
+}
+
+/**
+ * Whose numbers the spell uses. A Thinking Stone object: the Rock Gnome's proficiency bonus (DC 8 + it, + it to hit).
+ * A scroll written by another wizard (Master Scrivener): their spell save DC and attack bonus; otherwise the scroll's own.
+ */
+function MakerNumbers({ inst, act, stored }: { inst: Inst; act: Act; stored: boolean }) {
+  const sc = inst.scroll!;
+  const [by, setBy] = useState(sc.by ?? "");
+  const [dc, setDc] = useState(sc.dc !== undefined ? String(sc.dc) : "");
+  const [atk, setAtk] = useState(sc.attack !== undefined ? String(sc.attack) : "");
+  const pb = sc.dc !== undefined ? sc.dc - 8 : 4;
+  const save = (next: { dc?: number; attack?: number; by?: string }, label: string) =>
+    act("setItem", { instanceId: inst.id, scroll: { spell: sc.spell, ...(sc.level !== undefined ? { level: sc.level } : {}), ...(sc.stored ? { stored: true } : {}), ...next } }, label);
+  if (stored)
+    return (
+      <div className="group" style={{ marginTop: 10 }}>
+        <div className="row">
+          <div className="row-main">
+            <div className="row-title">The Rock Gnome's proficiency bonus</div>
+            <div className="row-sub">
+              DC {8 + pb}, +{pb} to hit{sc.by ? ` · stored by ${sc.by}` : ""}
+            </div>
+          </div>
+          <div className="stepper">
+            {[-1, 1].map((d) => (
+              <button key={d} aria-label={d < 0 ? "Lower" : "Higher"} onClick={() => save({ dc: 8 + Math.max(2, Math.min(6, pb + d)), attack: Math.max(2, Math.min(6, pb + d)), ...(sc.by ? { by: sc.by } : {}) }, `Proficiency bonus +${Math.max(2, Math.min(6, pb + d))}.`)}>
+                {d < 0 ? "−" : "+"}
+              </button>
+            ))}
+          </div>
+        </div>
+        <label className="row">
+          <span className="row-main">Stored by</span>
+          <input className="search" style={{ maxWidth: 160 }} value={by} placeholder="the gnome's name" onChange={(e) => setBy(e.target.value)} onBlur={() => save({ dc: 8 + pb, attack: pb, ...(by.trim() ? { by: by.trim() } : {}) }, by.trim() ? `Stored by ${by.trim()}.` : "Saved.")} />
+        </label>
+      </div>
+    );
+  const other = sc.dc !== undefined;
+  return (
+    <div className="group" style={{ marginTop: 10 }}>
+      <label className="row check">
+        <input
+          type="checkbox"
+          checked={other}
+          onChange={() => (other ? save({}, "The scroll's own DC and attack bonus.") : save({ dc: 15, attack: 7 }, "Written by another wizard: set their DC and attack bonus."))}
+        />
+        <div className="row-main">
+          <div className="row-title">Written by another wizard (Master Scrivener)</div>
+          <div className="row-sub">Cast with their spell save DC and spell attack bonus, not the scroll's.</div>
+        </div>
+      </label>
+      {other && (
+        <>
+          <label className="row">
+            <span className="row-main">Their spell save DC</span>
+            <input className="init-input" inputMode="numeric" value={dc} onChange={(e) => setDc(e.target.value.replace(/[^0-9]/g, ""))} onBlur={() => Number(dc) > 0 && save({ dc: Number(dc), ...(atk !== "" ? { attack: Number(atk) } : {}), ...(sc.by ? { by: sc.by } : {}) }, `DC ${dc}.`)} aria-label="Their spell save DC" />
+          </label>
+          <label className="row">
+            <span className="row-main">Their spell attack bonus</span>
+            <input className="init-input" inputMode="numeric" value={atk} onChange={(e) => setAtk(e.target.value.replace(/[^0-9-]/g, ""))} onBlur={() => atk !== "" && save({ dc: sc.dc!, attack: Number(atk), ...(sc.by ? { by: sc.by } : {}) }, `+${atk} to hit.`)} aria-label="Their spell attack bonus" />
+          </label>
+          <label className="row">
+            <span className="row-main">Written by</span>
+            <input className="search" style={{ maxWidth: 160 }} value={by} placeholder="the wizard's name" onChange={(e) => setBy(e.target.value)} onBlur={() => save({ dc: sc.dc!, ...(sc.attack !== undefined ? { attack: sc.attack } : {}), ...(by.trim() ? { by: by.trim() } : {}) }, by.trim() ? `Written by ${by.trim()}.` : "Saved.")} />
+          </label>
+        </>
+      )}
+    </div>
   );
 }
 
@@ -222,7 +307,7 @@ export function ItemPanel({
           </select>
         </label>
       )}
-      {isScroll(def) && <ScrollSpell inst={inst} def={def} act={act} spells={spells} {...(onRead ? { onRead } : {})} {...(onCopy ? { onCopy } : {})} onCustom={onCustomSpell ?? (() => {})} />}
+      {(isScroll(def) || isStoredObject(def)) && <ScrollSpell inst={inst} def={def} act={act} spells={spells} {...(onRead ? { onRead } : {})} {...(onCopy ? { onCopy } : {})} onCustom={onCustomSpell ?? (() => {})} />}
       <div className="group">
         <div className="row">
           <div className="row-main row-title">Quantity</div>

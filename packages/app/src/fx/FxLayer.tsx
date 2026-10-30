@@ -46,6 +46,13 @@ export interface FxSpec {
 
 const SCHOOLS = ["evocation", "abjuration", "necromancy", "conjuration"];
 
+/** Sneak Attack's tier by the hit's total damage: 1 (1–10) to 7 (101 and more). */
+export function sneakTier(total?: number): number {
+  if (total === undefined) return 1;
+  return total <= 10 ? 1 : total <= 20 ? 2 : total <= 30 ? 3 : total <= 50 ? 4 : total <= 80 ? 5 : total <= 100 ? 6 : 7;
+}
+const SA_SLASHES = [0, 1, 2, 3, 4, 6, 10, 16];
+
 /** Zone of Truth's words at this table (Giorgos's world), spoken by a celestial voice. */
 export const TRUTH_LINES = [
   "Παροῦσα εἶναι ἡ Ἀλήθεια",
@@ -74,8 +81,22 @@ export function specOf(e: FxEvent): FxSpec {
       return { at: "hp", ms: 600, look: `fx-shield fx-${e.how}`, label: e.how === "prevented" ? "Blocked" : e.how === "absorbed" ? `Temp HP took ${e.amount}` : `${e.amount} less` };
     case "cast":
       return { at: "tap", ms: 700, look: `fx-cast${e.school && SCHOOLS.includes(e.school.toLowerCase()) ? ` fx-${e.school.toLowerCase()}` : ""}` };
-    case "sneak":
-      return { at: "result", ms: 450, look: "fx-sneak", label: "Sneak Attack" };
+    case "sneak": {
+      // The bigger the hit, the darker and wilder it gets: 1–10, 11–20, 21–30, 31–50, 51–80, 81–100, 101 and up.
+      const t = sneakTier(e.total);
+      const label = e.total !== undefined ? `Sneak Attack · ${e.total}` : "Sneak Attack";
+      if (t <= 1) return { at: "result", ms: 450, look: "fx-sneak", label };
+      if (t === 2) return { at: "result", ms: 650, look: "fx-sneak fx-sneak-2", label, buzz: [20, 30, 20] };
+      return {
+        at: "edge",
+        ms: [0, 0, 0, 1100, 1400, 1900, 2400, 3200][t]!,
+        look: `fx-sa fx-sa-${t}`,
+        label,
+        buzz: t >= 6 ? [40, 30, 60, 30, 120] : [30, 30, 60],
+        ...(t >= 4 ? { shake: [0, 0, 0, 0, 200, 320, 480, 700][t]! } : {}),
+        skippable: true,
+      };
+    }
     case "floar":
       return { at: "edge", ms: e.zenith ? 2200 : 1600, buzz: e.zenith ? [30, 50, 30, 50, 90] : [25, 40, 60], look: `fx-floar${e.radiant ? " fx-floar-radiant" : ""}${e.zenith ? " fx-zenith" : ""}`, label: e.zenith ? "Floar · Zenith" : "Floar", skippable: true };
     case "theros": {
@@ -573,6 +594,33 @@ export function FxLayer({ school, spell, feature, character }: { school: (spell:
                 ))}
               </>
             )}
+            {spec.look.startsWith("fx-sa ") && (() => {
+              const t = Number(/fx-sa-(\d)/.exec(spec.look)?.[1] ?? 3);
+              const n = SA_SLASHES[t]!;
+              return (
+                <>
+                  <span className="fx-sa-veil" />
+                  {t >= 6 && <span className="fx-sa-moon" />}
+                  {t >= 5 && Array.from({ length: t >= 7 ? 10 : 6 }, (_, i) => <span key={`d${i}`} className="fx-sa-dagger" style={{ ["--a" as string]: `${i * (360 / (t >= 7 ? 10 : 6)) + 15}deg`, animationDelay: `${120 + i * 70}ms` }} />)}
+                  <svg className="fx-sa-cuts" viewBox="0 0 390 844" preserveAspectRatio="none" aria-hidden="true">
+                    {Array.from({ length: n }, (_, i) => {
+                      const a = (i * 137.5) % 180;
+                      const cx = 195 + (((i * 53) % 9) - 4) * 18;
+                      const cy = 400 + (((i * 31) % 9) - 4) * 40;
+                      const len = 170 + ((i * 41) % 4) * 45 + t * 12;
+                      return <path key={i} pathLength={1} d={`M${-len},0 Q0,-${12 + (i % 3) * 8} ${len},0`} transform={`translate(${cx} ${cy}) rotate(${a - 60})`} style={{ animationDelay: `${(i * (t >= 7 ? 70 : t >= 6 ? 90 : 120)) % 1300}ms` }} />;
+                    })}
+                  </svg>
+                  {t >= 6 && <span className="fx-sa-flash" />}
+                  {t >= 7 && (
+                    <>
+                      <span className="fx-sa-half top" />
+                      <span className="fx-sa-half bottom" />
+                    </>
+                  )}
+                </>
+              );
+            })()}
             {spec.look === "fx-wrath" && (
               <svg className="fx-wrath-bolts" viewBox="0 0 390 844" preserveAspectRatio="none">
                 <path className="b1" pathLength={1} d="M200,0 L176,150 L214,170 L168,330 L206,346 L150,560" />
@@ -611,10 +659,11 @@ export function FxLayer({ school, spell, feature, character }: { school: (spell:
                 <path d="M0,0 L-8,-14 L-20,-22" />
               </svg>
             )}
-            {spec.look === "fx-sneak" && (
+            {spec.look.startsWith("fx-sneak") && (
               <svg className="fx-slash" viewBox="-60 -60 120 120">
                 <path className="ghost" pathLength={1} d="M-46,40 Q0,4 46,-44" />
                 <path pathLength={1} d="M-40,46 Q4,8 50,-38" />
+                {spec.look.includes("fx-sneak-2") && <path className="cross" pathLength={1} d="M-44,-40 Q0,-4 44,44" />}
               </svg>
             )}
             {spec.look.startsWith("fx-unarmed") && (

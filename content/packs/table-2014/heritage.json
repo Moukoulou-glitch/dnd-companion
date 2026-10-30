@@ -8,7 +8,7 @@
         "pack": "table-2014",
         "book": "Homebrew (Heritage)"
       },
-      "summary": "From 10th level: four 1st-level and three 2nd-level wizard spells (1 action, bonus action or reaction; no concentration), each stored in a nonmagical object once per long rest without a slot. DC 8 + proficiency, attack + proficiency.",
+      "summary": "From 10th level: four 1st-level and three 2nd-level wizard spells (1 action, bonus action or reaction; no concentration), each cast once per long rest without a slot to store it in a nonmagical object (it goes to your inventory, to use or give away). DC 8 + proficiency, attack + proficiency.",
       "text": [
         "Your ingenuity and artistic nature surpass the limits of an ordinary mind. As the first stones to speak in Asleza declared, \"There is nothing that stone cannot create.\" To create, and to be created.",
         "Choose four 1st-level spells and three 2nd-level spells from the Sophist spell list. Each spell must have a casting time of 1 action, 1 bonus action, or 1 reaction, and must not require concentration. These spells are not considered prepared for you, and they do not require a spellcasting ability. The saving throw DC for these spells equals 8 + your proficiency bonus, and your proficiency bonus serves as your spell attack modifier for them.",
@@ -34,7 +34,8 @@
             "level": 1,
             "quick": true
           },
-          "extra": "Thinking Stone: stored, once per long rest"
+          "extra": "Thinking Stone: stored, once per long rest",
+          "extraPerLong": 1
         },
         {
           "id": "spells-2",
@@ -48,7 +49,8 @@
             "level": 2,
             "quick": true
           },
-          "extra": "Thinking Stone: stored, once per long rest"
+          "extra": "Thinking Stone: stored, once per long rest",
+          "extraPerLong": 1
         }
       ],
       "grant": {
@@ -57,7 +59,8 @@
           "label": "Thinking Stone",
           "ability": "int",
           "noAbility": true,
-          "progression": "none"
+          "progression": "none",
+          "tab": "Thinking Stone spells"
         }
       }
     },
@@ -485,6 +488,17 @@
           }
         ]
       }
+    },
+    {
+      "kind": "item",
+      "id": "item:thinking-stone-object",
+      "name": "Thinking Stone object",
+      "summary": "A nonmagical object holding a spell a Rock Gnome stored in it (Thinking Stone). Whoever holds it and was shown how (1 minute; Intelligence 7 or higher) can release the spell; its DC is 8 + the gnome's proficiency bonus and its attack bonus is that proficiency bonus. Used up once used.",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (Heritage)"
+      },
+      "category": "gear"
     }
   ]
 }

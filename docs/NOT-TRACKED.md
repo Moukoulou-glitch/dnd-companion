@@ -455,3 +455,9 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 - Every Channel Divinity option has its own animation: a sigil in its colours, its symbol, and its own motion. It plays when the option is used (not on "Just activate").
 - Heritage: Thinking Stone (a spell cast without a slot), the season spells, Adama (on a roll or a death save) and Fey Step as a reaction each have their own. Reaching 10th level plays your heritage's animation. Human Above All has nothing to use, so it shows only then.
 
+## Round 17a: Thinking Stone objects, scrolls from others, Sneak Attack tiers
+
+- Thinking Stone spells have their own list on the Spells page, each once per long rest (more warns, never blocks), with no slots. Casting one stores it in an object in your inventory (DC 8 + your proficiency bonus, + it to hit). Anyone can add a "Thinking Stone object", pick the spell and the gnome's proficiency bonus. The object shows on Actions ("<spell> (stored)") and is used up when used. Whether the holder was shown how (1 minute, Intelligence 7+) is yours to say.
+- A spell scroll can be marked "Written by another wizard (Master Scrivener)" with their DC and attack bonus. Its fading at the end of the writer's next long rest is yours to track (remove it then).
+- Sneak Attack's animation follows the hit's total damage (the whole damage roll with Sneak Attack in it), in seven tiers.
+

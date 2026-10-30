@@ -55,6 +55,13 @@ export const ItemInstance = z
         level: z.number().int().min(0).max(9).optional(),
         /** Cast with this spellcasting's save DC and attack bonus, whoever reads it (Master Scrivener: your wizard's). */
         caster: z.string().optional(),
+        /** Someone else's numbers: another wizard's Master Scrivener scroll, a Rock Gnome's Thinking Stone object (8 + their proficiency, + their proficiency). */
+        dc: z.number().int().min(1).max(40).optional(),
+        attack: z.number().int().min(-5).max(30).optional(),
+        /** A spell stored in an object (Thinking Stone): no class list or level check; used up when used. */
+        stored: z.boolean().optional(),
+        /** Who wrote or stored it. */
+        by: z.string().max(80).optional(),
       })
       .strict()
       .optional(),

@@ -1590,8 +1590,9 @@ export function App() {
     });
 
   /** A wizard can copy a wizard spell (1st level or higher) from a scroll into the spellbook. */
-  const copyable = (inst: { scroll?: { spell: string } | undefined }) => {
-    const d = inst.scroll ? registry.find(inst.scroll.spell, "spell") : undefined;
+  const copyable = (inst: { scroll?: { spell: string; stored?: boolean } | undefined }) => {
+    // A Thinking Stone object isn't writing: nothing to copy.
+    const d = inst.scroll && !inst.scroll.stored ? registry.find(inst.scroll.spell, "spell") : undefined;
     return !!d && d.level > 0 && d.classes.includes("wizard") && !!live.current.character?.classes.some((k) => k.class === "class:wizard");
   };
   const openCopyScroll = (instanceId: string) => {

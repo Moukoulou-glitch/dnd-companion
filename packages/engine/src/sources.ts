@@ -144,8 +144,26 @@ export function collectSources(c: Character, baseReg: ContentRegistry, duplicate
     const level = inst.scroll.level ?? (named ? Number(named[1]) : /cantrip/i.test(reg.find(inst.item, "item")?.name ?? "") ? 0 : sp?.level ?? 1);
     out.push({
       id: `scroll:${inst.id}`,
-      label: "Spell scroll",
-      grant: { spells: [{ spell: inst.scroll.spell, name: sp?.name ?? inst.scroll.spell, casting: "scroll", list: `scroll-${inst.id}`, scroll: { instanceId: inst.id, level, ...(inst.scroll.caster ? { caster: inst.scroll.caster } : {}) } }] },
+      label: inst.scroll.stored ? "Stored spell" : "Spell scroll",
+      grant: {
+        spells: [
+          {
+            spell: inst.scroll.spell,
+            name: sp?.name ?? inst.scroll.spell,
+            casting: inst.scroll.stored ? "stored object" : "scroll",
+            list: `scroll-${inst.id}`,
+            scroll: {
+              instanceId: inst.id,
+              level,
+              ...(inst.scroll.caster ? { caster: inst.scroll.caster } : {}),
+              ...(inst.scroll.dc !== undefined ? { dc: inst.scroll.dc } : {}),
+              ...(inst.scroll.attack !== undefined ? { attack: inst.scroll.attack } : {}),
+              ...(inst.scroll.stored ? { stored: true } : {}),
+              ...(inst.scroll.by ? { by: inst.scroll.by } : {}),
+            },
+          },
+        ],
+      },
       choices: {},
     });
   }

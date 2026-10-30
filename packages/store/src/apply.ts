@@ -1597,7 +1597,14 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         inst.base = base;
       }
       if (scroll === null) delete inst.scroll;
-      else if (scroll) inst.scroll = scroll.level === undefined ? { spell: scroll.spell } : { spell: scroll.spell, level: scroll.level };
+      else if (scroll) {
+        inst.scroll = { spell: scroll.spell };
+        if (scroll.level !== undefined) inst.scroll.level = scroll.level;
+        if (scroll.dc !== undefined) inst.scroll.dc = scroll.dc;
+        if (scroll.attack !== undefined) inst.scroll.attack = scroll.attack;
+        if (scroll.stored) inst.scroll.stored = true;
+        if (scroll.by) inst.scroll.by = scroll.by;
+      }
       if (equipped !== undefined) {
         inst.equipped = equipped;
         // Only one suit of armor and one shield at a time: wearing a new one takes the old one off.
@@ -1670,7 +1677,24 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         const key = `${list}|${spell}`;
         const n = c.extraCasts[key] ?? { short: 0, long: 0 };
         c.extraCasts[key] = { short: n.short + 1, long: n.long + 1 };
-        notes.push(`${sp.name} without a slot (${sp.cast.extra?.tag ?? "beyond the rules"}): ${n.short + 1} since your short rest, ${n.long + 1} since your long rest.`);
+        const per = sp.cast.extra?.perLong;
+        if (per !== undefined) {
+          notes.push(n.long >= per ? `${sp.name}: already cast ${n.long} time${n.long === 1 ? "" : "s"} since your long rest (${per} allowed). Cast anyway: your DM's call.` : `${sp.name} without a slot (${sp.cast.extra?.tag}).`);
+        } else notes.push(`${sp.name} without a slot (${sp.cast.extra?.tag ?? "beyond the rules"}): ${n.short + 1} since your short rest, ${n.long + 1} since your long rest.`);
+        // Thinking Stone: casting it stores it in a nonmagical object, in your inventory to use or give away.
+        if (list === "thinking-stone") {
+          const sc = sheet.spellcasting.find((x) => x.id === "thinking-stone");
+          c.inventory.push({
+            id: `${op.id}-stone`,
+            item: "item:thinking-stone-object",
+            quantity: 1,
+            equipped: false,
+            attuned: false,
+            name: `Thinking Stone: ${sp.name}`,
+            scroll: { spell: sp.id, level, stored: true, by: c.name, ...(sc ? { dc: sc.saveDc.total, attack: sc.attack.total } : {}) },
+          } as Character["inventory"][number]);
+          notes.push(`${sp.name} is stored in an object: it's in your inventory, to use or give away.`);
+        }
       } else if (using === "charges") {
         // A wand or staff: its charges at this level (Wand of Fireballs at 4th: 4).
         const ch = sp.cast.charges;
@@ -1691,7 +1715,7 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
           // Read: the words fade and the scroll crumbles to dust, cast or not.
           inst.quantity -= 1;
           if (inst.quantity <= 0) c.inventory = c.inventory.filter((i) => i !== inst);
-          notes.push(inst.quantity > 0 ? `The scroll crumbles to dust: ${inst.quantity} left.` : "The scroll crumbles to dust.");
+          notes.push(sc.stored ? `${sp.name} is released from the object: its magic is spent.` : inst.quantity > 0 ? `The scroll crumbles to dust: ${inst.quantity} left.` : "The scroll crumbles to dust.");
         }
         if (sc && !sc.onList) notes.push(`${sp.name} isn't on your class's spell list: the scroll is unintelligible unless your DM says otherwise.`);
         if (op.payload.failed) {

@@ -124,6 +124,10 @@ export interface SpellcastingResult {
   attack: Breakdown;
   /** Prepared casters: how many spells are prepared and the most allowed. */
   prepared?: { count: number; max: number };
+  /** Its spells have a list of their own on the Spells page, by this name (Thinking Stone spells). */
+  tab?: string;
+  /** No spellcasting ability: the DC is 8 + proficiency and the attack the proficiency bonus (Thinking Stone). */
+  noAbility?: boolean;
 }
 
 /** A spell this character can cast, with every number already worked out. */
@@ -199,12 +203,12 @@ export interface SpellResult {
     /** Cast without a slot whenever you like (an invocation's at-will spell). */
     atWill?: boolean;
     /** Given by the table beyond the rules: castable without a slot, with how often it's been cast since each rest. */
-    extra?: { tag: string; sinceShort: number; sinceLong: number };
+    extra?: { tag: string; sinceShort: number; sinceLong: number; perLong?: number };
     /**
      * Read from a spell scroll (used up): its level, the save DC and attack bonus the scroll sets,
      * whether the spell is on one of your class lists, and the check to cast one above your level.
      */
-    scroll?: { instanceId: string; level: number; dc: number; attack: number; onList: boolean; check?: { dc: number; ability: Ability; bonus: number } };
+    scroll?: { instanceId: string; level: number; dc: number; attack: number; onList: boolean; check?: { dc: number; ability: Ability; bonus: number }; stored?: boolean; by?: string };
     /** Cast with an item's charges (Wand of Magic Missiles: 1 at 1st, one more a level): the levels it can be cast at, and what each costs. */
     charges?: { instanceId: string; item: string; remaining: number; options: { level: number; cost: number }[] };
   };
@@ -1576,7 +1580,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
   }
 
   // Spellcasting: classes that have reached their casting level, plus feats and features.
-  const casters: { id: string; label: string; ability: Ability; noAbility?: boolean }[] = [];
+  const casters: { id: string; label: string; ability: Ability; noAbility?: boolean; tab?: string }[] = [];
   const casterLevels: { progression: SpellcastingDef["progression"]; level: number }[] = [];
   const resolveAbility = (sc: SpellcastingDef, s?: Source): Ability | undefined => {
     if (typeof sc.ability === "string") return sc.ability;
@@ -1597,7 +1601,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     const sc = s.grant.spellcasting;
     if (!sc || casters.some((x) => x.id === sc.id)) continue;
     const ability = sc.noAbility ? "int" : resolveAbility(sc, s);
-    if (ability) casters.push({ id: sc.id, label: sc.label, ability, ...(sc.noAbility ? { noAbility: true } : {}) });
+    if (ability) casters.push({ id: sc.id, label: sc.label, ability, ...(sc.noAbility ? { noAbility: true } : {}), ...(sc.tab ? { tab: sc.tab } : {}) });
     // A subclass caster (Eldritch Knight, Arcane Trickster): slots from its class's levels.
     const lvl = sc.levelsOf ? c.classes.find((x) => x.class === sc.levelsOf)?.level : undefined;
     if (lvl) casterLevels.push({ progression: sc.progression, level: lvl });
@@ -1612,6 +1616,8 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     saveDc: sum([{ label: "Base", value: 8 }, pbPart(), castingPart(sc), ...statAdds(["stat.spell.dc", `stat.spell.dc.${sc.id}`])]),
     // A focus for one class's spells (Rod of the Pact Keeper: "stat.spell.attack.warlock").
     attack: sum([pbPart(), castingPart(sc), ...statAdds(["stat.spell.attack", `stat.spell.attack.${sc.id}`])]),
+    ...(sc.tab ? { tab: sc.tab } : {}),
+    ...(sc.noAbility ? { noAbility: true } : {}),
   }));
   const slots = spellSlots(casterLevels);
   /** A custom action's DC, by its feature id. */
@@ -1675,13 +1681,14 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     atWill?: boolean;
     withSlots?: boolean;
     extra?: string;
-    scroll?: { instanceId: string; level: number; caster?: string };
+    scroll?: { instanceId: string; level: number; caster?: string; dc?: number; attack?: number; stored?: boolean; by?: string };
     pointCost?: { resource: string; amount: number };
     /** Cast with an item's charges (a wand), at `castAt` or the spell's level and up. */
     charges?: { instanceId: string; item: string; remaining: number; cost: number; perLevel?: boolean; maxLevel?: number };
     castAt?: number;
     dc?: number;
     noConcentration?: boolean;
+    extraPerLong?: number;
   };
   for (const inst of c.spells) {
     spellDefs.set(`${inst.list}|${inst.spell}`, { def: reg.has(inst.spell) ? reg.get(inst.spell, "spell") : undefined, list: inst.list, prepared: inst.prepared, ...(inst.notInBook ? { notInBook: true } : {}) });
@@ -1731,7 +1738,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     }
     // Spells picked through a feature's spell choices (Magic Initiate, Fey Touched).
     if (reg.has(s.id) && /^(feature|feat):/.test(s.id)) {
-      const d = reg.get(s.id, s.id.startsWith("feat:") ? "feat" : "feature") as { choices?: { id: string; kind: string; resource?: string; list?: string; atWill?: boolean; spellbook?: boolean; whileEffect?: string; extra?: string }[] };
+      const d = reg.get(s.id, s.id.startsWith("feat:") ? "feat" : "feature") as { choices?: { id: string; kind: string; resource?: string; list?: string; atWill?: boolean; spellbook?: boolean; whileEffect?: string; extra?: string; extraPerLong?: number }[] };
       for (const ch of d.choices ?? []) {
         if (ch.kind !== "spell") continue;
         // Spirit Session: the spell only while its tag is on (until the long rest).
@@ -1756,7 +1763,10 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
             if (res) res.name = `${res.name.split(":")[0]}: ${def.name}`;
           }
           // Thinking Stone: each one cast without a slot, counted per rest.
-          if (def && ch.extra) granted.extra = ch.extra;
+          if (def && ch.extra) {
+            granted.extra = ch.extra;
+            if (ch.extraPerLong) granted.extraPerLong = ch.extraPerLong;
+          }
           // Spell Mastery: at will at its own level; slots still cast it higher.
           if (def && def.level > 0 && ch.atWill) {
             granted.atWill = true;
@@ -2024,13 +2034,21 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     }
     if (granted?.extra) {
       const n = c.extraCasts?.[`${list}|${def.id}`];
-      r.cast.extra = { tag: granted.extra, sinceShort: n?.short ?? 0, sinceLong: n?.long ?? 0 };
+      r.cast.extra = { tag: granted.extra, sinceShort: n?.short ?? 0, sinceLong: n?.long ?? 0, ...(granted.extraPerLong ? { perLong: granted.extraPerLong } : {}) };
+      // Counted per long rest (Thinking Stone): not prepared, so no slots for it.
+      if (granted.extraPerLong) {
+        r.cast.slotLevels = [];
+        delete r.cast.pact;
+      }
     }
     if (granted?.scroll) {
       // The scroll sets the DC and attack bonus by its level (DMG p. 200), not your spellcasting;
       // unless it's written with yours (Master Scrivener: your wizard spell save DC and attack bonus).
       const writer = granted.scroll.caster ? spellcasting.find((x) => x.id === granted.scroll!.caster) : undefined;
-      const [dc, attack] = writer ? [writer.saveDc.total, writer.attack.total] : SCROLL_DC[granted.scroll.level] ?? [13, 5];
+      // Someone else's numbers (another wizard's Master Scrivener scroll, a gnome's Thinking Stone object).
+      const given = granted.scroll.dc !== undefined ? ([granted.scroll.dc, granted.scroll.attack ?? granted.scroll.dc - 8] as const) : undefined;
+      const stored = !!granted.scroll.stored;
+      const [dc, attack] = given ?? (writer ? [writer.saveDc.total, writer.attack.total] : SCROLL_DC[granted.scroll.level] ?? [13, 5]);
       const myLists = c.classes.flatMap((cl) => {
         const d = reg.find(cl.class, "class");
         return d?.spellcasting && onClassList(def, [d.id.replace(/^class:/, "")], expanded) ? [d] : [];
@@ -2041,12 +2059,14 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
         .map((d) => spellcasting.find((x) => x.id === d!.spellcasting!.id)?.ability)
         .filter((a): a is Ability => !!a);
       const ability = abilities.reduce<Ability | undefined>((b, a) => (b === undefined || mods[a] > mods[b] ? a : b), undefined) ?? "int";
-      r.cast = { slotLevels: [], scroll: { instanceId: granted.scroll.instanceId, level: granted.scroll.level, dc, attack, onList: myLists.length > 0 } };
-      if (def.level > highest && !writer) r.cast.scroll!.check = { dc: 10 + def.level, ability, bonus: mods[ability] };
-      r.list = { id: list, label: "Spell scroll" };
+      r.cast = { slotLevels: [], scroll: { instanceId: granted.scroll.instanceId, level: granted.scroll.level, dc, attack, onList: stored || myLists.length > 0, ...(stored ? { stored: true } : {}), ...(granted.scroll.by ? { by: granted.scroll.by } : {}) } };
+      if (def.level > highest && !writer && !given && !stored) r.cast.scroll!.check = { dc: 10 + def.level, ability, bonus: mods[ability] };
+      r.list = { id: list, label: stored ? "Stored spell" : "Spell scroll" };
       r.ready = "always";
-      r.fromFeature = `Spell scroll (${granted.scroll.level === 0 ? "cantrip" : `level ${granted.scroll.level}`})`;
-      if (def.attack) r.attack = roll([`roll.attack.spell.${def.attack}`], [{ label: writer ? `Spell attack (${writer.label})` : "Spell scroll", value: attack }]);
+      r.fromFeature = stored
+        ? `Thinking Stone object${granted.scroll.by ? ` (${granted.scroll.by})` : ""}`
+        : `Spell scroll (${granted.scroll.level === 0 ? "cantrip" : `level ${granted.scroll.level}`}${granted.scroll.by ? `, by ${granted.scroll.by}` : ""})`;
+      if (def.attack) r.attack = roll([`roll.attack.spell.${def.attack}`], [{ label: writer ? `Spell attack (${writer.label})` : given ? `Spell attack (${granted.scroll.by ?? "its maker"})` : "Spell scroll", value: attack }]);
       if (def.save) r.save = { ability: def.save.ability, dc, onSuccess: def.save.onSuccess };
     }
     spells.push(r);
@@ -2208,6 +2228,24 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
         }
       }
     }
+
+  // Spells stored in objects (Thinking Stone): using one is an action, bonus action or reaction like the spell's own,
+  // on the Actions page and in combat; it opens the spell, and the object is used up.
+  for (const sp of spells) {
+    const st = sp.cast.scroll;
+    if (!st?.stored) continue;
+    const t = sp.castingTime.toLowerCase();
+    const economy = t.startsWith("1 bonus action") ? "bonus" : t.startsWith("1 reaction") ? "reaction" : "action";
+    actions.push({
+      id: `stored-${st.instanceId}`,
+      name: `${sp.name} (stored)`,
+      economy,
+      source: sp.fromFeature ?? "Thinking Stone object",
+      toggles: [],
+      spells: [{ id: sp.id, list: sp.list.id }],
+      note: `Use the object: ${sp.name}${sp.save ? `, DC ${st.dc}` : ""}${sp.attack ? `, ${st.attack >= 0 ? "+" : ""}${st.attack} to hit` : ""}. It's used up.`,
+    });
+  }
 
   // Defenses and senses.
   const defenses: DerivedSheet["defenses"] = { resist: [], immune: [], vulnerable: [] };

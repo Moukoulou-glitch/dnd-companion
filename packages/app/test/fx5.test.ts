@@ -46,7 +46,7 @@ describe("Damage types", () => {
 
   it("a spell's own look or Sneak Attack wins over the type's (one effect per roll)", () => {
     expect(rollFx(dmg({ spell: "spell:moonbeam", byType: { radiant: 10 } }))).toEqual([{ kind: "spell", spell: "spell:moonbeam", phase: "resolve" }]);
-    expect(rollFx(dmg({ byType: { piercing: 9 }, lines: [{ source: "Sneak Attack", detail: "3+3", total: 6 }] }))).toEqual([{ kind: "sneak" }]);
+    expect(rollFx(dmg({ byType: { piercing: 9 }, lines: [{ source: "Sneak Attack", detail: "3+3", total: 6 }] }))).toEqual([{ kind: "sneak", total: 0 }]);
   });
 
   it("taking typed damage that all got through plays its type on the HP box; untyped or stopped damage doesn't", () => {

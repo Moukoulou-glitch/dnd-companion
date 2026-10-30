@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { CopyAsk } from "./CopySpell";
 import { roll } from "@dnd/dice";
 import {
@@ -55,6 +55,35 @@ export function pickBlocks<T>(items: T[], group: (item: T) => string | undefined
     else blocks.push(g ? { name: g, items: [it] } : { items: [it] });
   }
   return blocks;
+}
+
+const LEVEL_NAMES = ["Cantrips", "1st level", "2nd level", "3rd level", "4th level", "5th level", "6th level", "7th level", "8th level", "9th level"];
+
+/** Spells to pick from, under a heading for each level ("1st level · 2 picked"); anything else as one group. */
+function ByLevel<T extends { value: string }>({ options, reg, picked, row, spells }: { options: T[]; reg: ContentRegistry; picked: string[]; row: (o: T) => ReactNode; spells: boolean }) {
+  if (!spells) return <div className="group">{options.map(row)}</div>;
+  const blocks = pickBlocks(options, (o) => {
+    const l = reg.find(o.value, "spell")?.level;
+    return l === undefined ? undefined : LEVEL_NAMES[l];
+  });
+  return (
+    <>
+      {blocks.map((b, i) => {
+        const n = b.items.filter((o) => picked.includes(o.value)).length;
+        return (
+          <Fragment key={`${b.name ?? "other"}-${i}`}>
+            {b.name && (
+              <p className="sub-head small">
+                {b.name}
+                {n ? ` · ${n} picked` : ""}
+              </p>
+            )}
+            <div className="group">{b.items.map(row)}</div>
+          </Fragment>
+        );
+      })}
+    </>
+  );
 }
 
 /** One step's list of things to pick from, as rows. */
@@ -699,8 +728,12 @@ function ChoiceEditor({ item, c, reg, act, back, note }: { item: BuildItem; c: C
       {!open && picked.length > item.need && <OverBanner item={item} count={picked.length} />}
       {!open && picked.length > item.need && note && <ExtraBox note={note} />}
       {options.length > 12 && <input className="search" type="search" placeholder="Search" value={q} onChange={(e) => setQ(e.target.value)} />}
-      <div className="group">
-        {shown.map((o) => {
+      <ByLevel
+        options={shown}
+        reg={reg}
+        picked={picked}
+        spells={item.choice?.kind === "spell"}
+        row={(o) => {
           const have = owned.get(o.value);
           const on = picked.includes(o.value);
           return (
@@ -718,9 +751,13 @@ function ChoiceEditor({ item, c, reg, act, back, note }: { item: BuildItem; c: C
               </div>
             </label>
           );
-        })}
-        {options.length === 0 && <div className="row row-sub">Nothing to pick from here: load your book files for more options.</div>}
-      </div>
+        }}
+      />
+      {options.length === 0 && (
+        <div className="group">
+          <div className="row row-sub">Nothing to pick from here: load your book files for more options.</div>
+        </div>
+      )}
       {!open && picked.length > item.need ? (
         <div className="over-save">
           <ExtraNoteForm
@@ -950,8 +987,12 @@ function SpellsEditor({ item, reg, act, c, note }: { item: BuildItem; reg: Conte
         {item.spellKind !== "cantrips" ? `, up to level ${item.maxLevel}` : ""}. Tap to add or take away.
       </p>
       <input className="search" type="search" placeholder="Search spells" value={q} onChange={(e) => setQ(e.target.value)} />
-      <div className="group">
-        {shown.map((o) => {
+      <ByLevel
+        options={shown}
+        reg={reg}
+        picked={item.picked}
+        spells
+        row={(o) => {
           const on = item.picked.includes(o.value);
           return (
             <label className="row check" key={o.value}>
@@ -970,8 +1011,8 @@ function SpellsEditor({ item, reg, act, c, note }: { item: BuildItem; reg: Conte
               </div>
             </label>
           );
-        })}
-      </div>
+        }}
+      />
     </>
   );
 }

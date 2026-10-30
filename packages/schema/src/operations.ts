@@ -225,7 +225,18 @@ export const OPERATION_PAYLOADS = {
       attuned: z.boolean().optional(),
       name: z.string().optional(),
       /** The spell written on a spell scroll; null clears it. */
-      scroll: z.object({ spell: z.string(), level: z.number().int().min(0).max(9).optional() }).strict().nullable().optional(),
+      scroll: z
+        .object({
+          spell: z.string(),
+          level: z.number().int().min(0).max(9).optional(),
+          dc: z.number().int().min(1).max(40).optional(),
+          attack: z.number().int().min(-5).max(30).optional(),
+          stored: z.boolean().optional(),
+          by: z.string().max(80).optional(),
+        })
+        .strict()
+        .nullable()
+        .optional(),
       /** Which weapon or armor it is (Frost Brand: item:greatsword); null: back to its own. */
       base: z.string().nullable().optional(),
     })

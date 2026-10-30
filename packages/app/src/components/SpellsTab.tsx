@@ -110,12 +110,16 @@ export function SpellsTab({
     { id: "ready", label: anyPrepared ? "Prepared today" : "Known spells" },
     ...(wizard ? [{ id: "book", label: "Whole spellbook" }] : []),
     ...classLists.map((l) => ({ id: `list:${l.id}`, label: l.listName })),
+    // A feature's spells with a list of their own (Thinking Stone spells).
+    ...sheet.spellcasting.filter((sc) => sc.tab && sheet.spells.some((s) => s.list.id === sc.id)).map((sc) => ({ id: `own:${sc.id}`, label: sc.tab! })),
   ];
+  const ownTabs = new Set(sheet.spellcasting.filter((sc) => sc.tab).map((sc) => sc.id));
   const current = views.some((v) => v.id === view) ? view : "ready";
   const listOf = current.startsWith("list:") ? classLists.find((l) => `list:${l.id}` === current) : undefined;
 
   const rows: ListRow[] = useMemo(() => {
-    if (current === "ready") return sheet.spells.filter((s) => s.ready !== "not prepared").map((sp) => ({ sp }));
+    if (current === "ready") return sheet.spells.filter((s) => s.ready !== "not prepared" && !ownTabs.has(s.list.id)).map((sp) => ({ sp }));
+    if (current.startsWith("own:")) return sheet.spells.filter((s) => s.list.id === current.slice(4)).map((sp) => ({ sp }));
     if (current === "book") return sheet.spells.filter((s) => s.list.id === wizard?.id && !s.notInBook).map((sp) => ({ sp }));
     if (!listOf) return [];
     const mine = new Map(sheet.spells.filter((s) => s.list.id === listOf.id).map((s) => [s.id, s]));
@@ -167,7 +171,7 @@ export function SpellsTab({
               <div className="row-main">
                 <div className="row-title">{sc.label}</div>
                 <div className="row-sub">
-                  {ABILITY_NAMES[sc.ability]}
+                  {sc.noAbility ? "No spellcasting ability" : ABILITY_NAMES[sc.ability]}
                   {sc.prepared ? `, ${sc.prepared.count} of ${sc.prepared.max} prepared` : ""}
                 </div>
               </div>
@@ -224,11 +228,16 @@ export function SpellsTab({
                       {r.sp.ready === "prepared" && <span className="tag adv">prepared</span>}
                       {r.sp.notInBook && <span className="tag dis">not in your spellbook</span>}
                       {r.sp.fromFeature && <span className="tag">{r.sp.fromFeature}</span>}
-                      {r.sp.cast.extra && (
-                        <span className="tag" title="Cast without a slot since your last short rest and since your last long rest">
-                          {r.sp.cast.extra.sinceShort} short · {r.sp.cast.extra.sinceLong} long
-                        </span>
-                      )}
+                      {r.sp.cast.extra &&
+                        (r.sp.cast.extra.perLong !== undefined ? (
+                          <span className={`tag ${r.sp.cast.extra.sinceLong >= r.sp.cast.extra.perLong ? "fail" : "adv"}`}>
+                            {Math.max(0, r.sp.cast.extra.perLong - r.sp.cast.extra.sinceLong)} of {r.sp.cast.extra.perLong} left
+                          </span>
+                        ) : (
+                          <span className="tag" title="Cast without a slot since your last short rest and since your last long rest">
+                            {r.sp.cast.extra.sinceShort} short · {r.sp.cast.extra.sinceLong} long
+                          </span>
+                        ))}
                     </span>
                     <span className="num spell-num">{r.sp.attack ? signed(r.sp.attack.total) : r.sp.save ? `DC ${r.sp.save.dc} ${r.sp.save.ability.toUpperCase()}` : ""}</span>
                   </button>
@@ -492,14 +501,19 @@ export function SpellPanel({
               </button>
             )}
             {sp.cast.extra && (
-              <button className={`big${sp.cast.slotLevels.length ? "" : " primary"}`} onClick={() => doCast(sp.level, "extra")}>
+              <button
+                className={`big${sp.cast.extra.perLong !== undefined && sp.cast.extra.sinceLong >= sp.cast.extra.perLong ? " damage" : sp.cast.slotLevels.length ? "" : " primary"}`}
+                onClick={() => doCast(sp.level, "extra")}
+              >
                 Without a slot
-                <span className="sub">{sp.cast.extra.tag}</span>
+                <span className="sub">
+                  {sp.cast.extra.perLong !== undefined ? `${Math.max(0, sp.cast.extra.perLong - sp.cast.extra.sinceLong)} of ${sp.cast.extra.perLong} left this long rest` : sp.cast.extra.tag}
+                </span>
               </button>
             )}
             {sp.cast.scroll && (
               <button className="big primary" onClick={() => doCast(Math.max(sp.level, sp.cast.scroll!.level), "scroll")}>
-                Read the scroll
+                {sp.cast.scroll.stored ? "Use the object" : "Read the scroll"}
                 <span className="sub">
                   {sp.cast.scroll.check ? `${ABILITY_NAMES[sp.cast.scroll.check.ability]} check DC ${sp.cast.scroll.check.dc} first · ` : ""}used up
                 </span>
@@ -512,7 +526,7 @@ export function SpellPanel({
               </button>
             )}
           </div>
-          {sp.cast.extra && (
+          {sp.cast.extra && sp.cast.extra.perLong === undefined && (
             <p className="note">
               Cast without a slot {sp.cast.extra.sinceShort} {sp.cast.extra.sinceShort === 1 ? "time" : "times"} since your last short rest, {sp.cast.extra.sinceLong} since your last long rest.
               {sp.cast.slotLevels.length ? " Or spend a slot: your call." : ""}
@@ -520,7 +534,9 @@ export function SpellPanel({
           )}
           {sp.cast.scroll && (
             <p className={`note${sp.cast.scroll.onList ? "" : " danger-text"}`}>
-              From a spell scroll: save DC {sp.cast.scroll.dc}, attack +{sp.cast.scroll.attack}, no material components; it crumbles once read.
+              {sp.cast.scroll.stored
+                ? `Stored in an object${sp.cast.scroll.by ? ` by ${sp.cast.scroll.by}` : ""} (Thinking Stone): save DC ${sp.cast.scroll.dc}, attack +${sp.cast.scroll.attack}; anyone shown how can use it. It's used up.`
+                : `From a spell scroll${sp.cast.scroll.by ? ` written by ${sp.cast.scroll.by}` : ""}: save DC ${sp.cast.scroll.dc}, attack +${sp.cast.scroll.attack}, no material components; it crumbles once read.`}
               {sp.cast.scroll.onList ? "" : " It isn't on your class's spell list: the scroll is unintelligible to you unless your DM says otherwise."}
             </p>
           )}
