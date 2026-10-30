@@ -4487,3 +4487,18 @@ html.fx-shake-strong .app > .strip, html.fx-shake-strong .app > main, html.fx-sh
 .pet-perch { position: absolute; right: 70px; top: 4px; pointer-events: none; }
 .critter.cr-panther .cr-eyes circle:nth-child(2) { filter: drop-shadow(0 0 1.5px #3fb8ff); }
 .critter.cr-panther svg { filter: drop-shadow(0 0 1px rgba(160, 200, 255, 0.45)); }
+
+/* Spell pickers: a clear heading for each level ("1st level · 11 picked"). */
+.level-head {
+  margin: 20px 0 6px;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: 0.01em;
+}
+.level-head:first-of-type { margin-top: 10px; }
+.level-head .level-picked {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--teal);
+}

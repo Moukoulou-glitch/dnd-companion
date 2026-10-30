@@ -1673,6 +1673,14 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         }
       } else if (using === "ritual" && !sp.ritual) {
         notes.push(`${sp.name} isn't a ritual.`);
+      } else if (using === "ritual" && op.payload.fastRitual) {
+        const fr = sp.cast.fastRitual;
+        if (!fr) notes.push(`${sp.name}: no way to cast it as a ritual at its normal time here. Cast anyway.`);
+        else {
+          const max = sheet.resources.find((r) => r.id === fr.resource)?.max ?? 0;
+          notes.push(fr.remaining <= 0 ? `${fr.name}: already used since your long rest. Cast anyway: your DM's call.` : `${fr.name}: ritual at its normal casting time.`);
+          c.resourcesUsed[fr.resource] = Math.min(max, (c.resourcesUsed[fr.resource] ?? 0) + 1);
+        }
       } else if (using === "extra") {
         const key = `${list}|${spell}`;
         const n = c.extraCasts[key] ?? { short: 0, long: 0 };
@@ -1780,7 +1788,8 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         if (sp.timer?.rounds) c.concentration.rounds = sp.timer.rounds;
         if (sp.timer?.minutes) c.concentration.minutes = sp.timer.minutes;
       }
-      const economy = using === "ritual" ? "free" : castingEconomy(op.payload.castingTime ?? sp.castingTime);
+      // A ritual's 10 minutes are done before it's cast; one at its normal time (Awakened Spellbook) takes that time's action.
+      const economy = using === "ritual" && !op.payload.fastRitual ? "free" : castingEconomy(op.payload.castingTime ?? sp.castingTime);
       spendTurn(economy, (cb) => {
         if (economy === "bonus") cb.bonusSpell = true;
         if (economy === "action" && sp.level > 0) cb.leveledActionSpell = true;

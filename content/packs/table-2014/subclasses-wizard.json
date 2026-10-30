@@ -1366,7 +1366,7 @@
             "cost": {
               "resource": "awakened-spellbook"
             },
-            "note": "Cast a ritual spell at its normal casting time rather than as a ritual."
+            "note": "Cast a wizard ritual at its normal casting time instead of 10 minutes longer. Easiest from the spell itself: \"As a ritual, at its normal time\" spends this use."
           }
         ]
       }

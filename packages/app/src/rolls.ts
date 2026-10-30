@@ -28,6 +28,35 @@ export interface RollRecord {
   saves?: { label: string; type?: string; total: number; dc: number; ability: string; half: boolean }[];
   /** Damage only: the first damage type in it (the weapon's or the spell's), kept even when you entered your own dice's total. */
   mainType?: string;
+  /** One roll for several darts (Magic Missile): how many, what each deals, and the one roll's own lines. */
+  darts?: { count: number; each: number; what: string; lines: { source: string; detail: string; total: number }[] };
+}
+
+/**
+ * One damage roll that every dart deals (Magic Missile, as the table rules it):
+ * the total is the roll times the darts, with a line for each dart.
+ */
+export function withDarts(rec: RollRecord, count: number, what = "darts"): RollRecord {
+  const each = rec.total;
+  const one = what.replace(/s$/, "");
+  const Name = one.charAt(0).toUpperCase() + one.slice(1);
+  const first = rec.lines[0]?.source;
+  const detail = rec.lines
+    .map((l, i) => {
+      const v = l.detail || (i === 0 ? String(l.total) : `${l.total < 0 ? "−" : "+"}${Math.abs(l.total)}`);
+      const named = i > 0 && l.source && l.source !== first ? ` ${l.source}` : "";
+      return i === 0 || v.startsWith("+") || v.startsWith("−") ? `${v}${named}` : `+ ${v}${named}`;
+    })
+    .join(" ");
+  const out: RollRecord = {
+    ...rec,
+    total: each * count,
+    lines: Array.from({ length: count }, (_, i) => ({ source: `${Name} ${i + 1}`, detail: i === 0 ? `${detail} = ${each}` : "same roll", total: each })),
+    darts: { count, each, what, lines: rec.lines },
+  };
+  if (rec.byType) out.byType = Object.fromEntries(Object.entries(rec.byType).map(([t, n]) => [t, n * count]));
+  if (rec.saves) out.saves = rec.saves.map((s) => (s.total < 0 ? s : { ...s, total: s.total * count }));
+  return out;
 }
 
 export const MAX_ROLLS = 200;

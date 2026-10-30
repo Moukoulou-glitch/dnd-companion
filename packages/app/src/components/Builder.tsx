@@ -1,4 +1,5 @@
 import { Fragment, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { spellMatches } from "../spellSearch";
 import { CopyAsk } from "./CopySpell";
 import { roll } from "@dnd/dice";
 import {
@@ -57,6 +58,13 @@ export function pickBlocks<T>(items: T[], group: (item: T) => string | undefined
   return blocks;
 }
 
+/** A spell is searched by name, level and school ("2nd evocation"); anything else by its name. */
+function optionMatches(reg: ContentRegistry, q: string, o: { value: string; label: string }): boolean {
+  const d = reg.find(o.value, "spell");
+  if (d) return spellMatches(q, { name: o.label, level: d.level, school: d.school, ritual: d.ritual, concentration: d.concentration });
+  return o.label.toLowerCase().includes(q.trim().toLowerCase());
+}
+
 const LEVEL_NAMES = ["Cantrips", "1st level", "2nd level", "3rd level", "4th level", "5th level", "6th level", "7th level", "8th level", "9th level"];
 
 /** Spells to pick from, under a heading for each level ("1st level · 2 picked"); anything else as one group. */
@@ -73,10 +81,10 @@ function ByLevel<T extends { value: string }>({ options, reg, picked, row, spell
         return (
           <Fragment key={`${b.name ?? "other"}-${i}`}>
             {b.name && (
-              <p className="sub-head small">
+              <h3 className="level-head">
                 {b.name}
-                {n ? ` · ${n} picked` : ""}
-              </p>
+                {n ? <span className="level-picked"> · {n} picked</span> : ""}
+              </h3>
             )}
             <div className="group">{b.items.map(row)}</div>
           </Fragment>
@@ -707,7 +715,7 @@ function ChoiceEditor({ item, c, reg, act, back, note }: { item: BuildItem; c: C
   const lim = item.choice!.spells?.schoolLimit;
   const outside = lim ? picked.filter((id) => !lim.schools.includes(reg.find(id, "spell")?.school.toLowerCase() ?? "")).length : 0;
   const [q, setQ] = useState("");
-  const shown = options.filter((o) => o.label.toLowerCase().includes(q.trim().toLowerCase()));
+  const shown = options.filter((o) => optionMatches(reg, q, o));
   // Feats (and single picks like a fighting style) keep their numbers; skills, languages, tools and spells can go over.
   // An open list (a ritual book) takes as many as you have; the count is only where it starts.
   const open = !!item.choice?.open;
@@ -727,7 +735,7 @@ function ChoiceEditor({ item, c, reg, act, back, note }: { item: BuildItem; c: C
       )}
       {!open && picked.length > item.need && <OverBanner item={item} count={picked.length} />}
       {!open && picked.length > item.need && note && <ExtraBox note={note} />}
-      {options.length > 12 && <input className="search" type="search" placeholder="Search" value={q} onChange={(e) => setQ(e.target.value)} />}
+      {options.length > 12 && <input className="search" type="search" placeholder={item.choice?.kind === "spell" ? "Search by name, level or school" : "Search"} value={q} onChange={(e) => setQ(e.target.value)} />}
       <ByLevel
         options={shown}
         reg={reg}
@@ -951,7 +959,7 @@ function SpellsEditor({ item, reg, act, c, note }: { item: BuildItem; reg: Conte
   const [copying, setCopying] = useState<{ spell: string; label: string } | null>(null);
   const over = item.spellKind !== "spellbook" && item.picked.length > item.need;
   const options = useMemo(() => classSpellOptions(reg, item.class!, item.spellKind!, item.maxLevel ?? 1, c), [reg, item.class, item.spellKind, item.maxLevel, c]);
-  const shown = options.filter((o) => o.label.toLowerCase().includes(q.trim().toLowerCase()));
+  const shown = options.filter((o) => optionMatches(reg, q, o));
   if (copying)
     return (
       <CopyAsk
@@ -986,7 +994,7 @@ function SpellsEditor({ item, reg, act, c, note }: { item: BuildItem; reg: Conte
         {item.picked.length} of {item.need} {item.spellKind === "cantrips" ? "cantrips" : item.spellKind === "spellbook" ? "spells in your spellbook" : "spells known"}
         {item.spellKind !== "cantrips" ? `, up to level ${item.maxLevel}` : ""}. Tap to add or take away.
       </p>
-      <input className="search" type="search" placeholder="Search spells" value={q} onChange={(e) => setQ(e.target.value)} />
+      <input className="search" type="search" placeholder="Search by name, level or school" aria-label="Search spells" value={q} onChange={(e) => setQ(e.target.value)} />
       <ByLevel
         options={shown}
         reg={reg}

@@ -289,6 +289,7 @@ export const OPERATION_PAYLOADS = {
           choice: z.string().optional(),
           castingTime: z.string().optional(),
           consumeComponent: z.boolean().optional(),
+          fastRitual: z.boolean().optional(),
         })
         .strict()
         .optional(),
@@ -330,6 +331,8 @@ export const OPERATION_PAYLOADS = {
       readied: z.boolean().optional(),
       /** The costly or consumed material component is used up by this cast. */
       consumeComponent: z.boolean().optional(),
+      /** A ritual at its normal casting time (Awakened Spellbook): spends that once-per-long-rest use. */
+      fastRitual: z.boolean().optional(),
     })
     .strict(),
   endConcentration: z.object({}).strict(),

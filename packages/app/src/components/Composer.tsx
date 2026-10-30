@@ -27,7 +27,7 @@ import {
   type ComposedRoll,
 } from "@dnd/dice";
 import { signed, type WeaponAttack } from "@dnd/engine";
-import { recordOf, type RollRecord } from "../rolls";
+import { recordOf, withDarts, type RollRecord } from "../rolls";
 import { usedUpBy, withoutUsedUp, type UsedUp } from "../oneTime";
 import { damageFor } from "../crit";
 import { defaultHands, forHands, handsOf, isVersatile, rememberHands, weaponDiceFor, type Hands } from "../hands";
@@ -82,6 +82,8 @@ interface Props {
   onCommit?: (n: number) => void;
   /** Several separate attacks in a row (Eldritch Blast beams, Extra Attack). */
   repeat?: { count: number; what: string };
+  /** One damage roll dealt by each of several darts (Magic Missile): the total is the roll times the darts. */
+  darts?: { count: number; what: string };
   /** The damage options used, when damage is rolled (marks once-per-turn ones like Sneak Attack). */
   onDamageOptions?: (labels: string[]) => void;
   /** The optional modifiers that were on when the d20 was rolled (Steady Aim spends its bonus action). */
@@ -370,6 +372,11 @@ export function ResultView({ r }: { r: RollRecord }) {
               .join(", ")}
           </small>
         )}
+        {r.darts && (
+          <small>
+            {r.darts.count} {r.darts.what} × {r.darts.each} each: one roll for all of them
+          </small>
+        )}
         {r.physical && <small>From your dice</small>}
         {r.thrown && <small>From the 3D dice</small>}
       </div>
@@ -397,7 +404,7 @@ export function ResultView({ r }: { r: RollRecord }) {
   );
 }
 
-export function Composer({ title, base: baseIn, attack, physical, onPhysicalChange, onRolled, onResolved, damageOnly, healing, onHealSelf, healTargets, dc, dcLabel, reaction, onSpend, onCheck, notes, header, typeChoices, portent, onOptionsUsed, optionInfo, onCommit, repeat, onDamageOptions, afterRoll, onDone, diceSource, afterD20 }: Props) {
+export function Composer({ title, base: baseIn, attack, physical, onPhysicalChange, onRolled, onResolved, damageOnly, healing, onHealSelf, healTargets, dc, dcLabel, reaction, onSpend, onCheck, notes, header, typeChoices, portent, onOptionsUsed, optionInfo, onCommit, repeat, darts, onDamageOptions, afterRoll, onDone, diceSource, afterD20 }: Props) {
   const [typePick, setTypePick] = useState<{ via: number; type: string } | null>(null);
   // A smite used on an earlier hit (Extra Attack's first attack, or this one rolled again) is gone: it can't be ticked again.
   const [usedUp, setUsedUp] = useState<UsedUp[]>([]);
@@ -592,7 +599,7 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
     lastDamage.current = damage;
     lastDamageRoll.current = diceTotal === undefined ? result : undefined;
     setRerolledOne(false);
-    const rec =
+    let rec =
       diceTotal === undefined
         ? recordOf(label, "damage", result)
         : recordOf(label, "damage", { ...result, physical: true }, physicalDamageTotal(damage, diceTotal));
@@ -603,6 +610,8 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
         ...damage.terms.flatMap((t, i) => (t.kind === "flat" ? [{ source: damage.sources[i]!, detail: "", total: t.sign * t.value }] : [])),
       ];
     }
+    // Magic Missile: the one roll goes on every dart.
+    if (darts && darts.count > 1) rec = withDarts(rec, darts.count, darts.what);
     commit();
     for (const [label, info] of smites) {
       const p = pickFor(label);
@@ -1013,16 +1022,26 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
           <RerollOne
             what={attack.damage.bonus.rerollOne}
             roll={lastDamageRoll.current}
-            total={stage.record.total}
+            total={stage.record.darts?.each ?? stage.record.total}
             onDone={(next, detail) => {
               setRerolledOne(true);
               const ro = attack.damage.bonus.rerollOne!;
               const again = (ro.count ?? 1) > 1 ? "dice again" : "one die again";
               // Empowered Spell's sorcery point.
               if (ro.spends) onSpend?.([{ label: ro.label, spends: ro.spends }]);
-              const rec: RollRecord = next
+              const dt = stage.record.darts;
+              let rec: RollRecord = next
                 ? { ...recordOf(`${stage.record.title}, ${ro.label}: ${again}`, "damage", next), ...(stage.record.thrown ? { thrown: true } : {}) }
-                : { ...stage.record, id: crypto.randomUUID(), at: Date.now(), title: `${stage.record.title}, ${ro.label}: ${again}`, total: detail!.total, lines: [...stage.record.lines, { source: `${ro.label}: ${(ro.count ?? 1) > 1 ? `dice showing ${detail!.from} in all` : `a ${detail!.from}`} rolled again`, detail: `${detail!.from}→${detail!.to}`, total: detail!.to - detail!.from }] };
+                : { ...stage.record, id: crypto.randomUUID(), at: Date.now(), title: `${stage.record.title}, ${ro.label}: ${again}`, total: detail!.total, lines: [...(dt?.lines ?? stage.record.lines), { source: `${ro.label}: ${(ro.count ?? 1) > 1 ? `dice showing ${detail!.from} in all` : `a ${detail!.from}`} rolled again`, detail: `${detail!.from}→${detail!.to}`, total: detail!.to - detail!.from }] };
+              // Magic Missile: the new roll goes on every dart again.
+              if (dt) {
+                const types = Object.keys(stage.record.byType ?? {});
+                if (!next) {
+                  delete rec.byType;
+                  if (types.length === 1) rec.byType = { [types[0]!]: detail!.total };
+                }
+                rec = withDarts(rec, dt.count, dt.what);
+              }
               if (stage.record.options) rec.options = stage.record.options;
               onRolled(rec);
               setStage({ ...stage, record: rec });

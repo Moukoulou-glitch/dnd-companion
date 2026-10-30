@@ -1,8 +1,11 @@
 import { RichText, TextBlocks } from "./Conditions";
+import { spellMatches } from "../spellSearch";
 import { useMemo, useState, type ReactNode } from "react";
 import { ABILITY_NAMES } from "@dnd/schema";
 import { signed, type ContentRegistry, type DerivedSheet, type SpellResult, type WeaponAttack } from "@dnd/engine";
 
+/** Where objects holding a spell sort, after 9th level. */
+const STORED_LEVEL = 100;
 const LEVEL_NAME = ["Cantrips", "1st level", "2nd level", "3rd level", "4th level", "5th level", "6th level", "7th level", "8th level", "9th level"];
 
 export const ordinal = (n: number) => ["", "1st", "2nd", "3rd"][n] ?? `${n}th`;
@@ -35,7 +38,8 @@ function bySlot<T extends { suggestions: { apply: { dice: string[]; diceBySlot?:
 /** A spell shaped like a weapon attack, so the roll composer can roll its attack and damage. */
 export function spellAsAttack(sp: SpellResult, level: number, alt = false): WeaponAttack & { saveNote?: string } {
   const key = sp.level === 0 ? 0 : level;
-  const dice = (alt ? sp.damage?.alt?.byLevel[key] : undefined) ?? sp.damage?.byLevel[key] ?? sp.heal?.byLevel[key] ?? "0";
+  // Magic Missile: one dart's dice, rolled once for all of them.
+  const dice = (sp.darts ? sp.darts.dice : undefined) ?? (alt ? sp.damage?.alt?.byLevel[key] : undefined) ?? sp.damage?.byLevel[key] ?? sp.heal?.byLevel[key] ?? "0";
   const emptyRoll = { total: 0, parts: [], dice: [], advantage: [], disadvantage: [], suggestions: [] };
   const a: WeaponAttack & { saveNote?: string } = {
     attackId: sp.id,
@@ -78,7 +82,7 @@ export interface ClassList {
   extra?: string[];
 }
 
-type ListRow = { sp: SpellResult; info?: undefined } | { sp?: undefined; info: { id: string; name: string; level: number; school: string; castingTime: string; ritual: boolean; concentration: boolean } };
+type ListRow = { sp: SpellResult; info?: undefined; stored?: boolean } | { sp?: undefined; stored?: undefined; info: { id: string; name: string; level: number; school: string; castingTime: string; ritual: boolean; concentration: boolean } };
 
 export function SpellsTab({
   sheet,
@@ -114,12 +118,19 @@ export function SpellsTab({
     ...sheet.spellcasting.filter((sc) => sc.tab && sheet.spells.some((s) => s.list.id === sc.id)).map((sc) => ({ id: `own:${sc.id}`, label: sc.tab! })),
   ];
   const ownTabs = new Set(sheet.spellcasting.filter((sc) => sc.tab).map((sc) => sc.id));
+  // Objects holding a spell (Thinking Stone): on the Thinking Stone tab when you have it, not with your prepared spells.
+  const stoneTab = sheet.spellcasting.some((sc) => sc.id === "thinking-stone" && sc.tab) && sheet.spells.some((s) => s.list.id === "thinking-stone");
+  const isStored = (s: SpellResult) => !!s.cast.scroll?.stored;
   const current = views.some((v) => v.id === view) ? view : "ready";
   const listOf = current.startsWith("list:") ? classLists.find((l) => `list:${l.id}` === current) : undefined;
 
   const rows: ListRow[] = useMemo(() => {
-    if (current === "ready") return sheet.spells.filter((s) => s.ready !== "not prepared" && !ownTabs.has(s.list.id)).map((sp) => ({ sp }));
-    if (current.startsWith("own:")) return sheet.spells.filter((s) => s.list.id === current.slice(4)).map((sp) => ({ sp }));
+    if (current === "ready") return sheet.spells.filter((s) => s.ready !== "not prepared" && !ownTabs.has(s.list.id) && !(stoneTab && isStored(s))).map((sp) => ({ sp }));
+    if (current.startsWith("own:"))
+      return [
+        ...sheet.spells.filter((s) => s.list.id === current.slice(4)).map((sp) => ({ sp })),
+        ...(current === "own:thinking-stone" ? sheet.spells.filter(isStored).map((sp) => ({ sp, stored: true })) : []),
+      ];
     if (current === "book") return sheet.spells.filter((s) => s.list.id === wizard?.id && !s.notInBook).map((sp) => ({ sp }));
     if (!listOf) return [];
     const mine = new Map(sheet.spells.filter((s) => s.list.id === listOf.id).map((s) => [s.id, s]));
@@ -134,15 +145,14 @@ export function SpellsTab({
       });
   }, [current, sheet, reg, listOf, wizard]);
 
-  const levelOf = (r: ListRow) => (r.sp ? r.sp.level : r.info!.level);
+  // Objects come last, under their own heading.
+  const levelOf = (r: ListRow) => (r.stored ? STORED_LEVEL : r.sp ? r.sp.level : r.info!.level);
   // Search by name, school, or words like "ritual" and "concentration".
   const needle = q.trim().toLowerCase();
   const shownRows = needle
     ? rows.filter((r) => {
-        const hay = r.sp
-          ? `${r.sp.name} ${tags(r.sp)} ${reg.find(r.sp.id, "spell")?.school ?? ""}`
-          : `${r.info!.name} ${r.info!.school ?? ""} ${r.info!.ritual ? "ritual" : ""} ${r.info!.concentration ? "concentration" : ""}`;
-        return hay.toLowerCase().includes(needle);
+        if (!r.sp) return spellMatches(needle, r.info!);
+        return spellMatches(needle, { name: r.sp.name, level: r.sp.level, school: r.sp.school, ritual: r.sp.ritual, concentration: r.sp.concentration }) || tags(r.sp).toLowerCase().includes(needle);
       })
     : rows;
   const levels = [...new Set(shownRows.map(levelOf))].sort((a, b) => a - b);
@@ -195,7 +205,7 @@ export function SpellsTab({
         </div>
       )}
       {rows.length > 0 && (
-        <input className="search" type="search" placeholder={`Search ${views.find((v) => v.id === current)?.label.toLowerCase() ?? "spells"}`} value={q} onChange={(e) => setQ(e.target.value)} aria-label="Search spells" />
+        <input className="search" type="search" placeholder="Search by name, level or school" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Search spells" />
       )}
       {needle && !shownRows.length && <p className="note">No spell matches “{q.trim()}”.</p>}
       {current === "book" && backup}
@@ -208,15 +218,15 @@ export function SpellsTab({
       {levels.map((lvl) => (
         <section key={lvl}>
           <h2>
-            {LEVEL_NAME[lvl]}
-            {lvl > 0 && sheet.spellSlots.some((x) => x.level === lvl) ? `, ${slotsLeft(lvl)} slots left` : ""}
+            {lvl === STORED_LEVEL ? "Stored in objects" : LEVEL_NAME[lvl]}
+            {lvl > 0 && lvl !== STORED_LEVEL && sheet.spellSlots.some((x) => x.level === lvl) ? `, ${slotsLeft(lvl)} slots left` : ""}
           </h2>
           <div className="group">
             {shownRows
               .filter((r) => levelOf(r) === lvl)
               .map((r) =>
                 r.sp ? (
-                  <button className={`row${r.sp.ready === "not prepared" ? " dim" : ""}`} key={`${r.sp.list.id}-${r.sp.id}`} onClick={() => openSpell(r.sp!)}>
+                  <button className={`row${r.sp.ready === "not prepared" ? " dim" : ""}`} key={`${r.sp.list.id}-${r.sp.id}-${r.sp.cast.scroll?.instanceId ?? ""}`} onClick={() => openSpell(r.sp!)}>
                     <div className="row-main">
                       <div className="row-title">{r.sp.name}</div>
                       <div className="row-sub">{tags(r.sp)}</div>
@@ -319,7 +329,7 @@ export function SpellPanel({
   casterSide?: boolean;
   /** That tag adds damage to your attacks (Hex), so the note can say so. */
   casterDamage?: boolean;
-  onCast: (level: number, using: "slot" | "pact" | "free" | "ritual" | "none" | "extra" | "scroll" | "points" | "charges", selfEffect: boolean, castingTime?: string, onCompanions?: string[]) => void;
+  onCast: (level: number, using: "slot" | "pact" | "free" | "ritual" | "fast-ritual" | "none" | "extra" | "scroll" | "points" | "charges", selfEffect: boolean, castingTime?: string, onCompanions?: string[]) => void;
   /** Your companions here now: its effect can go on them too (Bless on your wolf). */
   companions?: { id: string; name: string; warnings?: string[]; already?: boolean }[];
   /** Opens already cast at this level (after a turn warning was confirmed). */
@@ -362,7 +372,7 @@ export function SpellPanel({
       : []),
   ];
 
-  const doCast = (level: number, using: "slot" | "pact" | "free" | "ritual" | "none" | "extra" | "scroll" | "points" | "charges") => {
+  const doCast = (level: number, using: "slot" | "pact" | "free" | "ritual" | "fast-ritual" | "none" | "extra" | "scroll" | "points" | "charges") => {
     onCast(level, using, casterSide ? true : onMe, times.length > 1 ? time : undefined, casterSide ? [] : onComps);
     setCast(level);
   };
@@ -525,6 +535,14 @@ export function SpellPanel({
                 <span className="sub">+10 minutes, no slot</span>
               </button>
             )}
+            {sp.ritual && sp.cast.fastRitual && (
+              <button className={sp.cast.fastRitual.remaining > 0 ? "big" : "big damage"} onClick={() => doCast(sp.level, "fast-ritual")}>
+                As a ritual, at its normal time
+                <span className="sub">
+                  {sp.cast.fastRitual.name} · {sp.cast.fastRitual.remaining > 0 ? "once per long rest" : "used: your DM's call"}
+                </span>
+              </button>
+            )}
           </div>
           {sp.cast.extra && sp.cast.extra.perLong === undefined && (
             <p className="note">
@@ -558,6 +576,7 @@ export function SpellPanel({
             {(sp.damage || sp.heal) && !sp.attack && !sp.damage?.alt && (
               <button className="big primary" onClick={() => onRollDamage(cast)}>
                 {sp.heal ? "Roll healing" : "Roll damage"}
+                {sp.darts && <span className="sub">{sp.darts.dice} once, for all {sp.darts.byLevel[cast || sp.level]} {sp.darts.what}</span>}
               </button>
             )}
             {sp.damage?.alt && !sp.attack && (

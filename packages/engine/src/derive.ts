@@ -175,6 +175,8 @@ export interface SpellResult {
   typeChoices?: { kind: "spell" | "transmuted" | "awakened"; label: string; options: string[]; byLevel?: Record<number, string[]>; cost?: { resource: string; amount: number } }[];
   /** Separate attacks per cast (Eldritch Blast beams by character level, Scorching Ray rays by slot). */
   beams?: { byLevel: Record<number, number>; what: string };
+  /** One damage roll that every dart deals (Magic Missile, as the table rules it): one dart's dice, and the darts per slot level. */
+  darts?: { dice: string; byLevel: Record<number, number>; what: string };
   /** The spell's duration as a timer: rounds up to 1 minute, minutes beyond. */
   timer?: { rounds?: number; minutes?: number };
   /** "always": cantrips, known casters and granted spells; otherwise whether it is prepared today. */
@@ -198,6 +200,8 @@ export interface SpellResult {
     pact?: { level: number; remaining: number };
     /** `level`: cast at this level with it (Call to the Wave: create or destroy water as a 2nd-level spell). */
     free?: { resource: string; name: string; remaining: number; level?: number; noConcentration?: boolean };
+    /** A ritual cast at its normal casting time instead of 10 minutes longer (Awakened Spellbook, once per long rest). */
+    fastRitual?: { resource: string; name: string; remaining: number };
     /** Cast by spending points instead of a slot (Eyes of the Dark: Darkness for 2 sorcery points). */
     points?: { resource: string; name: string; amount: number; remaining: number };
     /** Cast without a slot whenever you like (an invocation's at-will spell). */
@@ -1813,13 +1817,25 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
   const DAMAGE_TYPES = ["acid", "bludgeoning", "cold", "fire", "force", "lightning", "necrotic", "piercing", "poison", "psychic", "radiant", "slashing", "thunder"];
   const TRANSMUTABLE = ["acid", "cold", "fire", "lightning", "poison", "thunder"];
   const hasTransmuted = sources.some((s) => s.id === "feature:metamagic-transmuted-spell");
+  /** The spell's own choice of damage type, read from its text: a list of three or more types joined with "or", where the caster chooses. */
+  const textTypeChoice = (def: { text: string[]; summary?: string }): string[] | undefined => {
+    const T = DAMAGE_TYPES.join("|");
+    const re = new RegExp(`\\b((?:${T})(?:(?:,\\s+(?:or\\s+)?|\\s+or\\s+)(?:${T})){2,})\\b`, "i");
+    for (const p of [...def.text, ...(def.summary ? [def.summary] : [])]) {
+      const m = re.exec(p);
+      // "(acid, cold, fire...)" in a summary reads the same.
+      if (m && /choose|choice|of your choosing/i.test(p)) return m[1]!.split(/,\s+(?:or\s+)?|\s+or\s+/).map((x) => x.toLowerCase()).filter(Boolean);
+    }
+    return undefined;
+  };
   const hasAwakened = sources.some((s) => /awakened spellbook/i.test(s.label));
   const awakenedByLevel: Record<number, string[]> = {};
   if (hasAwakened) {
     for (const x of c.spells.filter((x) => x.list === "wizard")) {
       const d = reg.find(x.spell, "spell");
-      const t = d?.damage?.type;
-      if (d && t && d.level > 0) awakenedByLevel[d.level] = [...new Set([...(awakenedByLevel[d.level] ?? []), t])];
+      // Every damage type that appears in it: its own, its other parts (Ice Storm), its choices (Chromatic Orb).
+      const types = d?.damage ? [d.damage.type, ...(d.damage.also ?? []).map((a) => a.type), ...(d.damage.typeOptions ?? []), ...(textTypeChoice(d) ?? [])].filter((t): t is string => !!t).map((t) => t.toLowerCase()) : [];
+      if (d && types.length && d.level > 0) awakenedByLevel[d.level] = [...new Set([...(awakenedByLevel[d.level] ?? []), ...types])];
     }
   }
   const damageTypeChoices = (def: { id: string; text: string[]; summary?: string; level: number }, type: string | undefined, list: string): NonNullable<SpellResult["typeChoices"]> => {
@@ -1828,16 +1844,8 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     const listed = (reg.find(def.id, "spell") as { damage?: { typeOptions?: string[] } } | undefined)?.damage?.typeOptions;
     if (listed?.length) return [{ kind: "spell", label: "the spell's choice", options: listed }];
     // The spell's own choice: a list of three or more damage types joined with "or", where the caster chooses.
-    const T = DAMAGE_TYPES.join("|");
-    const re = new RegExp(`\\b((?:${T})(?:(?:,\\s+(?:or\\s+)?|\\s+or\\s+)(?:${T})){2,})\\b`, "i");
-    for (const p of [...def.text, ...(def.summary ? [def.summary] : [])]) {
-      const m = re.exec(p);
-      if (m && /choose|choice|of your choosing/i.test(p)) {
-        // "(acid, cold, fire...)" in a summary reads the same.
-        out.push({ kind: "spell", label: "the spell's choice", options: m[1]!.split(/,\s+(?:or\s+)?|\s+or\s+/).map((x) => x.toLowerCase()).filter(Boolean) });
-        break;
-      }
-    }
+    const own = textTypeChoice(def);
+    if (own) out.push({ kind: "spell", label: "the spell's choice", options: own });
     // Floar: fire or radiant, swapped on the roll while it's on.
     for (const src of sources) {
       const sw = src.grant.damageTypeSwap;
@@ -1899,6 +1907,12 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       if (beams.byCharacterLevel) byLevel[0] = beams.byCharacterLevel(level);
       else for (let l = def.level; l <= 9; l++) byLevel[l] = beams.bySlot!(l);
       r.beams = { byLevel, what: beams.what };
+    }
+    const darts = DARTS[def.id];
+    if (darts) {
+      const byLevel: Record<number, number> = {};
+      for (let l = def.level; l <= 9; l++) byLevel[l] = darts.bySlot(l);
+      r.darts = { dice: darts.dice, byLevel, what: darts.what };
     }
     const timer = durationTimer(def.duration);
     if (timer) r.timer = timer;
@@ -2027,6 +2041,11 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     if (granted?.pointCost) {
       const res = resources.find((x) => x.id === granted.pointCost!.resource);
       if (res) r.cast.points = { resource: res.id, name: res.name, amount: granted.pointCost.amount, remaining: res.remaining };
+    }
+    // Awakened Spellbook: a wizard ritual at its normal casting time, once per long rest.
+    if (def.ritual && list === "wizard" && !granted) {
+      const res = resources.find((x) => x.id === "awakened-spellbook");
+      if (res) r.cast.fastRitual = { resource: res.id, name: "Awakened Spellbook", remaining: res.remaining };
     }
     if (granted?.resource) {
       const res = resources.find((x) => x.id === granted.resource);
@@ -2779,6 +2798,14 @@ export const componentCount = (v: boolean | number | undefined): number => (v ==
 
 /** Sorcery points to create a spell slot (PHB p. 101). */
 export const FLEX_COST: Record<number, number> = { 1: 2, 2: 3, 3: 5, 4: 6, 5: 7 };
+
+/**
+ * Spells whose darts all deal one roll's damage (the table's ruling, as the
+ * designers read it: roll 1d4 + 1 once, and every dart deals that).
+ */
+const DARTS: Record<string, { dice: string; what: string; bySlot: (slot: number) => number }> = {
+  "spell:magic-missile": { dice: "1d4 + 1", what: "darts", bySlot: (s) => s + 2 },
+};
 
 /** Spells that make several separate attacks. */
 const BEAMS: Record<string, { what: string; byCharacterLevel?: (lvl: number) => number; bySlot?: (slot: number) => number }> = {

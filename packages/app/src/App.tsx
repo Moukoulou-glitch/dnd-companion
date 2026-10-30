@@ -158,6 +158,10 @@ export function App() {
   const live = useRef(s);
   /** Companions the spell being cast also goes on (picked on the spell's panel), used when it's cast. */
   const castOnCompanions = useRef<string[]>([]);
+  /** How the spell was last cast (Awakened Spellbook changes a damage type only when a slot was spent). */
+  const lastCastUsing = useRef<{ spell: string; using: string } | null>(null);
+  /** The ritual being cast is at its normal casting time (Awakened Spellbook). */
+  const fastRitual = useRef(false);
   const growJoin = useRef(0);
   live.current = s;
   // 3D dice follow the class this character has the most levels in.
@@ -3075,24 +3079,14 @@ export function App() {
   };
 
   const rollSpell = (spIn: SpellResult, level: number, damageOnly: boolean, again = false, alt = false) => {
-    // Magic Missile rolls once for all its darts: Empowered Evocation's bonus goes on every dart (one per slot level + 2).
-    const darts = level + 2;
-    const sp: SpellResult =
-      spIn.id === "spell:magic-missile" && spIn.damageBonus?.suggestions.some((x) => x.label === "Empowered Evocation")
-        ? {
-            ...spIn,
-            damageBonus: {
-              ...spIn.damageBonus,
-              suggestions: spIn.damageBonus.suggestions.map((x) =>
-                x.label === "Empowered Evocation" ? { ...x, apply: { ...x.apply, flat: x.apply.flat * darts }, effect: `+${x.apply.flat * darts}`, reason: `Magic Missile's one roll covers all ${darts} darts: +${x.apply.flat} on each` } : x,
-              ),
-            },
-          }
-        : spIn;
+    // Magic Missile: one roll of a dart's damage, dealt by every dart (Empowered Evocation's bonus is in that roll, so on each dart).
+    const sp: SpellResult = spIn;
+    const dartCount = sp.darts?.byLevel[level];
     // Healing spells: Beacon of Hope's maximum, ticked when you're under it.
     const healB = sp.heal && !sp.damage ? withBeacon(spellAsAttack(sp, level, alt), friendlyTargets(live.current.character!, live.current.sheet!, registry)) : undefined;
     const beams = sp.beams?.byLevel[sp.level === 0 ? 0 : level];
     const notes = beams && beams > 1 ? [`${beams} ${sp.beams!.what}, each its own attack: they can hit the same target or different ones. The app takes you through them one by one.`] : [];
+    if (sp.darts && dartCount) notes.push(`${dartCount} ${sp.darts.what}: ${sp.darts.dice} is rolled once and every ${sp.darts.what.replace(/s$/, "")} deals that. They can hit one creature or several.`);
     const portent = portentFor();
     open(sp.name, () => (
       <Composer
@@ -3101,8 +3095,11 @@ export function App() {
         attack={healB?.attack ?? spellAsAttack(sp, level, alt)}
         damageOnly={damageOnly}
         notes={notes}
+        {...(sp.darts && dartCount ? { darts: { count: dartCount, what: sp.darts.what } } : {})}
         typeChoices={(sp.typeChoices ?? []).flatMap((tc) => {
-          const options = tc.kind === "awakened" ? tc.byLevel?.[level] ?? [] : tc.options;
+          // Awakened Spellbook: only when the spell was cast with a slot (not as a ritual, from a scroll or for free).
+          const noSlot = tc.kind === "awakened" && lastCastUsing.current?.spell === sp.id && !["slot", "pact"].includes(lastCastUsing.current.using);
+          const options = tc.kind === "awakened" ? (noSlot ? [] : tc.byLevel?.[level] ?? []) : tc.options;
           if (!options.length) return [];
           return [
             {
@@ -3275,7 +3272,9 @@ export function App() {
     choice?: string,
     castingTime?: string,
   ) => {
-    const comp = consume ? { consumeComponent: true } : {};
+    const fast = using === "ritual" && fastRitual.current;
+    fastRitual.current = false;
+    const comp = { ...(consume ? { consumeComponent: true } : {}), ...(fast ? { fastRitual: true } : {}) };
     if (readying)
       return guard(
         { name: `Ready ${sp.name}`, economy: "action", spell: { level: sp.level, concentration: true } },
@@ -3286,16 +3285,17 @@ export function App() {
       );
     let transformed = false;
     // A ritual (+10 minutes) or a casting of minutes or hours takes its time: started now, cast when it's done.
-    const minutes = castingMinutes(castingTime ?? sp.castingTime, using === "ritual");
+    const minutes = castingMinutes(castingTime ?? sp.castingTime, using === "ritual" && !fast);
     if (minutes >= 1) {
       const payload = { spell: sp.id, list: sp.list.id, level, using, selfEffect, ...comp, ...(choice ? { choice } : {}), ...(castingTime ? { castingTime } : {}) };
-      const name = `${sp.name}${using === "ritual" ? " (ritual)" : ""}`;
+      const name = `${sp.name}${using === "ritual" ? (fast ? " (ritual, Awakened Spellbook)" : " (ritual)") : ""}`;
       return open(name, () => (
         <TimedPanel
           name={name}
           minutes={minutes}
           inCombat={!!live.current.character?.combat}
-          ritual={using === "ritual"}
+          ritual={using === "ritual" && !fast}
+          {...(fast ? { fast: true } : {})}
           onNow={() => {
             live.current.act("startTimed", { name, minutes, cast: payload }, `${name} started.`);
             finishTimed();
@@ -3313,7 +3313,7 @@ export function App() {
         "cast",
         () =>
           guard(
-            { name: sp.name, economy: using === "ritual" ? "free" : castingEconomy(castingTime ?? sp.castingTime), spell: { level: sp.level, concentration: sp.concentration } },
+            { name: sp.name, economy: using === "ritual" && !fast ? "free" : castingEconomy(castingTime ?? sp.castingTime), spell: { level: sp.level, concentration: sp.concentration } },
             () => {
               castSeq.current += 1;
               live.current.act(
@@ -3513,7 +3513,10 @@ export function App() {
             .map((t) => ({ id: t.id, name: t.name, warnings: targetWarnings(t, SPELL_TARGETS[sp.id], sp.name), ...(t.effects.includes(sp.id.replace(/^spell:/, "effect:")) ? { already: true } : {}) }))}
           onCast={(level, using, selfEffect, castingTime, onCompanions) => {
             castOnCompanions.current = onCompanions ?? [];
-            castFlow(sp, level, using, selfEffect, readying, asReaction ? WAR_CASTER_TIME : castingTime);
+            lastCastUsing.current = { spell: sp.id, using };
+            // Awakened Spellbook's ritual at its normal time: a ritual (no slot) that spends that use.
+            fastRitual.current = using === "fast-ritual";
+            castFlow(sp, level, using === "fast-ritual" ? "ritual" : using, selfEffect, readying, asReaction ? WAR_CASTER_TIME : castingTime);
           }}
           onPrepare={(prepared) => live.current.act("setPrepared", { spell: sp.id, list: sp.list.id, prepared }, `${sp.name} ${prepared ? "prepared" : "unprepared"}.`)}
           bookChecks={wizardListId && sp.list.id === wizardListId ? bookChecksFor(sp.id, sp.list.id) : undefined}
@@ -3967,14 +3970,14 @@ function ConcentrationPanel({
 const hoursText = (m: number) => (m >= 60 ? `${+(m / 60).toFixed(1)} hour${m === 60 ? "" : "s"}` : `${m} minute${m === 1 ? "" : "s"}`);
 
 /** A casting that takes time: how long, before anything is spent; cast it now (the time passes) or start it and finish later. */
-function TimedPanel({ name, minutes, inCombat, ritual, onNow, onLater, onCancel }: { name: string; minutes: number; inCombat: boolean; ritual: boolean; onNow: () => void; onLater: () => void; onCancel: () => void }) {
+function TimedPanel({ name, minutes, inCombat, ritual, fast, onNow, onLater, onCancel }: { name: string; minutes: number; inCombat: boolean; ritual: boolean; fast?: boolean; onNow: () => void; onLater: () => void; onCancel: () => void }) {
   return (
     <>
       <p className="question">
         {name} takes {hoursText(minutes)}.
       </p>
       <p className="note">
-        {ritual ? "As a ritual: its casting time plus 10 minutes, and no slot. " : "The slot is spent when the casting is done, not now. "}
+        {ritual ? "As a ritual: its casting time plus 10 minutes, and no slot. " : fast ? "As a ritual at its normal casting time (Awakened Spellbook): no slot, and that once-per-long-rest use is spent when it's done. " : "The slot is spent when the casting is done, not now. "}
         It takes effect when the casting ends; if it's interrupted, nothing is spent.
       </p>
       {inCombat && <p className="warn">You're in combat: that's {minutes * 10} rounds. Finishing it moves every timer on by that much.</p>}
