@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { ACTION_TARGETS, SPELL_TARGETS, friendlyTargets, targetWarnings, backupCost, copyCost, buildItems, shapeKindOf, customCompanionId, customItemId, customSpellId, withCustom, castingEconomy, castingMinutes, creatureSpellRoll, formatBonus, summonBlock, materialNeed, maxSpellLevel, newCharacter, spellListOf, signed, turnWarnings, type TurnIntent, type RollBreakdown } from "@dnd/engine";
 import { ABILITIES, ABILITY_NAMES, SKILL_NAMES, type Character, type OperationType, type Skill } from "@dnd/schema";
-import { roll as rollDice, type ComposerBase } from "@dnd/dice";
+import { roll as rollDice, secureRng, type ComposerBase } from "@dnd/dice";
+import type { RollRecord } from "./rolls";
 import { ShapePanel, TextList, TransformPanel } from "./components/Shapes";
 import { SummonGroupPanel, SummonMemberPanel, SummonPicker, SummonSpellPanel, type SpellSource } from "./components/Summons";
 import type { ShapeKind } from "@dnd/engine";
@@ -35,7 +36,7 @@ import { HP_TIER_WORDS, hpBlinks, hpTier } from "./hp";
 import { strikeFx } from "./fx/triggers";
 import { CustomActionForm, CustomItemForm, CustomSpellForm } from "./components/CustomForms";
 import { CompanionBuilder } from "./components/CompanionBuilder";
-import { Crest, CrestSigil, crestFor } from "./fx/crest";
+import { CREST_LEVEL, Crest, CrestSigil, GLIMPSE_MS, characterLevel, crestFor, raceCrest, rollsGlimpse } from "./fx/crest";
 import { RollAdjustPanel } from "./components/RollAdjust";
 import { DurablePanel } from "./components/Durable";
 import { StablePanel } from "./components/Stable";
@@ -229,6 +230,27 @@ export function App() {
     return () => window.removeEventListener("dnd-op", h);
   }, []);
 
+  // Below level 10, a natural 20 may show the race's crest for a moment: 5% per character level.
+  const [glimpse, setGlimpse] = useState(0);
+  useEffect(() => {
+    let t: ReturnType<typeof setTimeout> | undefined;
+    const h = (e: Event) => {
+      const r = (e as CustomEvent<RollRecord>).detail;
+      const ch = live.current.character;
+      if (!ch || r.kind !== "d20" || r.natural !== 20) return;
+      const level = characterLevel(ch);
+      if (level >= CREST_LEVEL || !rollsGlimpse(level, (secureRng(100) - 1) / 100)) return;
+      if (t) clearTimeout(t);
+      setGlimpse((n) => n + 1);
+      t = setTimeout(() => setGlimpse(0), GLIMPSE_MS);
+    };
+    window.addEventListener("dnd-roll", h);
+    return () => {
+      window.removeEventListener("dnd-roll", h);
+      if (t) clearTimeout(t);
+    };
+  }, []);
+
   // A fight over with ammunition shot: offer to pick half of it up.
   useEffect(() => {
     const h = (e: Event) => {
@@ -324,7 +346,9 @@ export function App() {
   const openChoices = buildItems(c, registry).filter((i) => !i.done).length;
   const hpPct = Math.round((hpNow / sheet.hpMax.total) * 100);
   // From character level 10: the race's crest round the HP box and the name.
-  const crest = crestFor(c, registry.find(c.race, "race")?.name);
+  const crest = crestFor(c, registry.find(c.race, "race")?.name) ?? (glimpse ? raceCrest(c, registry.find(c.race, "race")?.name) : undefined);
+  // A glimpse after a natural 20 (below level 10): it fades in and out, and plays again on the next one.
+  const crestKey = crest && glimpse ? `glimpse-${glimpse}` : "crest";
 
   const openHp = () =>
     open("Hit points", () => (
@@ -3671,16 +3695,17 @@ export function App() {
       <FxLayer school={spellSchool} spell={spellLook} feature={featureUsed} character={c} />
       <DiceStrip />
       {grey > 0 && <div className="grey-veil" aria-hidden="true" style={{ backdropFilter: `grayscale(${grey})`, WebkitBackdropFilter: `grayscale(${grey})` }} />}
-      <header className={`strip${crest ? " has-crest" : ""}`}>
+      {/* A glimpse doesn't make room above the name: the page doesn't jump for a moment's crest. */}
+      <header className={`strip${crest && !glimpse ? " has-crest" : ""}${crest && glimpse ? " crest-glimpse" : ""}`}>
         <button className={`who${crest ? " has-crest" : ""}`} onClick={openRoster} aria-label={`${c.name}. Switch character`}>
           <NameFx name={c.name} sheet={sheet} />
-          {crest && <CrestSigil spec={crest} />}
+          {crest && !glimpse && <CrestSigil key={crestKey} spec={crest} />}
           <span className="who-class">{s.roster.find((r) => r.id === s.selectedId)?.summary}</span>
         </button>
 
         <div className="vitals">
           <div className={`hp-wrap${crest ? " has-crest" : ""}`}>
-          {crest && <Crest spec={crest} layer="back" />}
+          {crest && <Crest key={`${crestKey}-b`} spec={crest} layer="back" />}
           <button
             className={`hp tier-${hpTier(sheet.shape ? sheet.shape.hp.current : hpNow, sheet.shape ? sheet.shape.hp.max : sheet.hpMax.total)}${hpBlinks(hpNow, sheet.hpMax.total, !!sheet.shape) ? " critical" : ""}`}
             onClick={openHp}
@@ -3697,7 +3722,7 @@ export function App() {
               </div>
             </div>
           </button>
-          {crest && <Crest spec={crest} layer="front" />}
+          {crest && <Crest key={`${crestKey}-f`} spec={crest} layer="front" />}
           </div>
           <button className="stat" onClick={() => (sheet.shape ? openShape() : open("Armor Class", <BreakdownLines b={sheet.ac} totalLabel="AC" />))}>
             <b>{sheet.shape ? sheet.shape.ac : sheet.ac.total}</b>

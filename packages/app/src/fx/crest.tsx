@@ -149,9 +149,24 @@ const SEASONS: Record<string, CrestSpec> = {
  * level): its race's (or subrace's), coloured by a dragonborn's ancestry or
  * an eladrin's season. Undefined below level 10.
  */
-export function crestFor(c: { race: string; classes: { level: number }[]; choices?: Record<string, Record<string, string[]>> }, raceName?: string): CrestSpec | undefined {
-  const level = c.classes.reduce((t, x) => t + x.level, 0);
-  if (level < CREST_LEVEL) return undefined;
+type CrestChar = { race: string; classes: { level: number }[]; choices?: Record<string, Record<string, string[]>> };
+export const characterLevel = (c: { classes: { level: number }[] }) => c.classes.reduce((t, x) => t + x.level, 0);
+
+export function crestFor(c: CrestChar, raceName?: string): CrestSpec | undefined {
+  return characterLevel(c) < CREST_LEVEL ? undefined : raceCrest(c, raceName);
+}
+
+/** How long a glimpse of the crest lasts, below level 10. */
+export const GLIMPSE_MS = 1500;
+
+/** Below level 10, the chance a natural 20 shows the crest for a moment: 5% per character level (45% at 9th). */
+export const glimpseChance = (level: number) => (level >= CREST_LEVEL || level < 1 ? 0 : Math.min(1, 0.05 * level));
+
+/** Whether this natural 20 shows the crest; `rand` is a number from 0 up to 1. */
+export const rollsGlimpse = (level: number, rand: number) => rand < glimpseChance(level);
+
+/** The race's crest whatever the level (a glimpse of it below 10th). */
+export function raceCrest(c: CrestChar, raceName?: string): CrestSpec {
   const picks = c.choices?.[c.race] ?? {};
   if (c.race === "race:eladrin") {
     const season = picks.season?.[0];

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { crestFor, drawCrest, RACE_CRESTS, PAD, type Motif } from "../src/fx/crest";
+import { crestFor, drawCrest, glimpseChance, raceCrest, rollsGlimpse, RACE_CRESTS, PAD, type Motif } from "../src/fx/crest";
 
 const ch = (race: string, levels: number[], choices: Record<string, Record<string, string[]>> = {}) => ({ race, classes: levels.map((level) => ({ level })), choices });
 
@@ -35,5 +35,24 @@ describe("heritage crest", () => {
         expect(parts.back).toBeTruthy();
       }
     expect(motifs.size).toBeGreaterThan(15);
+  });
+});
+
+describe("a glimpse of the crest after a natural 20, below level 10", () => {
+  it("5% per character level, none from 10th", () => {
+    expect(glimpseChance(1)).toBeCloseTo(0.05);
+    expect(glimpseChance(9)).toBeCloseTo(0.45);
+    expect(glimpseChance(10)).toBe(0);
+    expect(glimpseChance(15)).toBe(0);
+  });
+  it("shows when the random number is under the chance", () => {
+    // A d100 as 0.00–0.99: a 1st-level character shows it on 0.00–0.04, five in a hundred.
+    const shows = (level: number) => Array.from({ length: 100 }, (_, i) => rollsGlimpse(level, i / 100)).filter(Boolean).length;
+    expect(shows(1)).toBe(5);
+    expect(shows(9)).toBe(45);
+    expect(shows(10)).toBe(0);
+  });
+  it("the glimpse is the race's own crest", () => {
+    expect(raceCrest(ch("race:shadar-kai", [3]))).toMatchObject({ motif: "wings", variant: "raven" });
   });
 });
