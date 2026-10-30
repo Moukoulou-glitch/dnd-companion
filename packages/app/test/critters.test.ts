@@ -22,3 +22,13 @@ describe("summoned creatures on Play", () => {
     expect(generatedCritter({ name: "Fire Elemental", type: "elemental", size: "Large", speed: { walk: 50 } })).toMatchObject({ plan: "flame" });
   });
 });
+
+describe("a hidden one", () => {
+  it("only a Beast of the Land named exactly Gwestel", async () => {
+    const { hiddenCompanionCritter, GWESTEL } = await import("../src/fx/critters.js");
+    expect(hiddenCompanionCritter("Gwestel", "Beast of the Land")).toBe(GWESTEL);
+    expect(GWESTEL).toMatchObject({ plan: "quad", eye: "#3fb8ff" });
+    expect(hiddenCompanionCritter("gwestel", "Beast of the Land")).toBeUndefined();
+    expect(hiddenCompanionCritter("Gwestel", "Beast of the Sky")).toBeUndefined();
+  });
+});

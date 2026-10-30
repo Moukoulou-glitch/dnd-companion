@@ -4482,3 +4482,8 @@ html.fx-shake-strong .app > .strip, html.fx-shake-strong .app > main, html.fx-sh
   .critter, .critter * { animation: none !important; }
 }
 .critter .cr-trick-thread { opacity: 0; }
+/* A companion's own little figure, inside its row (Gwestel). */
+.row.companion.has-pet { position: relative; padding-top: 44px; }
+.pet-perch { position: absolute; right: 70px; top: 4px; pointer-events: none; }
+.critter.cr-panther .cr-eyes circle:nth-child(2) { filter: drop-shadow(0 0 1.5px #3fb8ff); }
+.critter.cr-panther svg { filter: drop-shadow(0 0 1px rgba(160, 200, 255, 0.45)); }

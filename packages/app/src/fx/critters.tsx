@@ -103,6 +103,12 @@ export const CRITTERS: Record<string, CritterSpec> = {
   "creature:animated-object-huge": s("construct", "#5a4a3a", "#a8946a", ["cube", "huge"], "stomp", "#5affd2"),
 };
 
+/** A hidden one: a Primal Companion's Beast of the Land named exactly "Gwestel" is a black panther with blue eyes. */
+export const GWESTEL: CritterSpec = s("quad", "#15151b", "#2b2b35", ["longtail", "panther", "big"], "lick", "#3fb8ff");
+export function hiddenCompanionCritter(name: string, formName?: string): CritterSpec | undefined {
+  return name === "Gwestel" && formName === "Beast of the Land" ? GWESTEL : undefined;
+}
+
 /** The Summon spirits, by spell and variant. */
 export const SPIRIT_CRITTERS: Record<string, CritterSpec> = {
   "summon-beast/air": s("bird", "#5a8ac8", "#d8ecff", ["beak", "glow"], "flutter", "#fff"),
@@ -217,7 +223,8 @@ function body(sp: CritterSpec): ReactNode {
           {["cr-leg a", "cr-leg b", "cr-leg c", "cr-leg d"].map((c, i) => (
             <rect key={c} className={c} x={[15, 21, 34, 40][i]} y={by + (flat ? 2 : 3)} width={flat ? 3 : 3.4} height={48 - by - (flat ? 2 : 3)} rx={1.5} fill={i % 2 ? c1 : c2} />
           ))}
-          <ellipse className="cr-body" cx={28} cy={by} rx={horse ? 17 : 15} ry={flat ? 5 : horse ? 8 : 7} fill={c1} />
+          <ellipse className="cr-body" cx={28} cy={by} rx={horse ? 17 : has(sp, "panther") ? 18 : 15} ry={flat ? 5 : horse ? 8 : has(sp, "panther") ? 6 : 7} fill={c1} />
+          {has(sp, "panther") && <path d={`M14 ${by - 3} Q28 ${by - 9} 42 ${by - 4}`} stroke="#3a3a48" strokeWidth={0.8} fill="none" opacity={0.7} />}
           {has(sp, "hump") && <ellipse cx={26} cy={by - 8} rx={7} ry={5} fill={c1} />}
           {has(sp, "stripes") && [20, 26, 32].map((x) => <path key={x} d={`M${x} ${by - 6} q2 4 0 9`} stroke={c2} strokeWidth={1.6} fill="none" />)}
           {has(sp, "wings") && <path className="cr-wing" d={`M24 ${by - 4} Q18 ${by - 22} 34 ${by - 26} Q32 ${by - 14} 36 ${by - 6} Z`} fill={c2} stroke={c1} strokeWidth={0.8} />}
@@ -233,6 +240,12 @@ function body(sp: CritterSpec): ReactNode {
               <>
                 <circle cx={46} cy={by - 6} r={dog ? 6.5 : 6} fill={c1} />
                 <ellipse cx={51} cy={by - 4} rx={dog ? 4 : 3} ry={2.6} fill={c2} />
+                {has(sp, "panther") && (
+                  <>
+                    <path d={`M41 ${by - 10} q0 -5 4 -3 Z M48 ${by - 12} q4 -3 4 2 Z`} fill={c1} />
+                    <path d={`M51 ${by - 3} l3 1`} stroke="#555" strokeWidth={0.5} />
+                  </>
+                )}
                 {has(sp, "ears") && <path className="cr-ears" d={dog ? `M41 ${by - 10} l-3 7 l5 -2 Z M49 ${by - 11} l3 7 l-5 -2 Z` : `M41 ${by - 9} l1 -8 l5 5 Z M47 ${by - 11} l4 -7 l2 7 Z`} fill={c1} />}
                 {has(sp, "horn") && <path d={`M52 ${by - 7} l5 -8 l-1 9 Z`} fill="#e8e0c8" />}
                 {has(sp, "antlers") && <path d={`M44 ${by - 11} l-3 -8 m3 8 l3 -9`} stroke="#d8c8a0" strokeWidth={1.4} fill="none" />}
@@ -532,7 +545,7 @@ export function Critter({ spec, down, label, seed = 0 }: { spec: CritterSpec; do
   const size = has(spec, "huge") ? 1.35 : has(spec, "big") ? 1.15 : has(spec, "tiny") ? 0.75 : has(spec, "small") ? 0.88 : 1;
   return (
     <span
-      className={`critter cr-${spec.plan}${spec.trick ? ` tr-${spec.trick}` : ""}${has(spec, "glow") ? " cr-glow" : ""}${down ? " down" : ""}`}
+      className={`critter cr-${spec.plan}${spec.trick ? ` tr-${spec.trick}` : ""}${has(spec, "glow") ? " cr-glow" : ""}${has(spec, "panther") ? " cr-panther" : ""}${down ? " down" : ""}`}
       style={{ ["--cr-scale" as string]: String(size), ["--cr-delay" as string]: `${-((seed * 1.7) % 9)}s` }}
       role="img"
       aria-label={down ? `${label}, down` : label}

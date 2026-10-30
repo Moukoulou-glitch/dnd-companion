@@ -1,4 +1,5 @@
 import { Markdown } from "./Markdown";
+import { Critter, hiddenCompanionCritter } from "../fx/critters";
 import { hpTier } from "../hp";
 import { RichText } from "./Conditions";
 import { ABILITIES, ABILITY_NAMES, SKILL_ABILITY, SKILL_NAMES, type Character, type OperationType, type Skill } from "@dnd/schema";
@@ -273,8 +274,14 @@ function JumpSection({ sheet, left }: { sheet: DerivedSheet; left?: number }) {
 export function CompanionCard({ comp, onOpen }: { comp: CompanionResult; onOpen: () => void }) {
   const f = comp.form;
   const pct = f ? Math.round((f.hp.current / f.hpMax.total) * 100) : 0;
+  const pet = f && !comp.away ? hiddenCompanionCritter(comp.name, f.name) : undefined;
   return (
-    <button className="row companion" onClick={onOpen}>
+    <button className={`row companion${pet ? " has-pet" : ""}`} onClick={onOpen}>
+      {pet && (
+        <span className="pet-perch">
+          <Critter spec={pet} down={f!.hp.current === 0} label={comp.name} seed={3} />
+        </span>
+      )}
       <div className="row-main">
         <div className="row-title">{comp.name}</div>
         <div className="row-sub">{comp.away ? "Away: dismissed until you summon it again" : f ? `${f.name}, AC ${f.ac.total}${f.hp.current === 0 && comp.summon ? " · gone until summoned" : ""}` : comp.summon || comp.summonedBy ? "Not summoned" : "Choose its form"}</div>
