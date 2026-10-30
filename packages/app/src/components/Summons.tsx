@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { Critter, critterFor } from "../fx/critters";
 import { hpTier } from "../hp";
 import { creatureBlock, creatureCasting, summonBlock, creatureSpells, formatBonus, signed, summonOptions, type ContentRegistry, type CreatureSpellGroup, type CreatureSpells, type RollBreakdown, type WeaponAttack } from "@dnd/engine";
 import { ABILITIES, ABILITY_NAMES, SKILL_NAMES, type Character, type CreatureDef, type OperationType, type Skill, type SpellDef } from "@dnd/schema";
@@ -121,16 +122,31 @@ export function SummonsCard({ character, reg, onOpen }: { character: Character; 
   return (
     <section>
       <h2>Summoned</h2>
-      <div className="group">
+      <div className="perched-list">
         {groups.map((g) => {
           const members = character.summons.filter((s) => s.group === g);
           // A feature's summons (Theros) carry the summon's id, not a spell's.
-          const spell = reg.find(members[0]!.spell, "spell")?.name ?? reg.find(members[0]!.spell, "summon")?.name ?? "Spell";
+          const spell =
+            reg.find(members[0]!.spell, "spell")?.name ??
+            reg.find(members[0]!.spell, "summon")?.name ??
+            reg.list("summon").find((x) => x.spell === members[0]!.spell)?.name ??
+            "Spell";
           const names = [...new Set(members.map((m) => reg.find(m.creature, "creature")?.name ?? m.creature))];
           const hp = members.reduce((t, m) => t + m.hp, 0);
           const max = members.reduce((t, m) => t + (summonBlock(reg, m)?.hp.max ?? reg.find(m.creature, "creature")?.hp ?? m.hp), 0);
           return (
-            <button key={g} className="row companion" onClick={() => onOpen(g)}>
+            <button key={g} className="row companion perched group" onClick={() => onOpen(g)}>
+              {/* The creatures themselves, sitting on the row: up to three, one of each kind first. */}
+              <span className="perch" aria-hidden="false">
+                {[...members.filter((m, i) => members.findIndex((x) => x.creature === m.creature) === i), ...members]
+                  .filter((m, i, all) => all.indexOf(m) === i)
+                  .slice(0, 3)
+                  .map((m, i) => {
+                    const d = reg.find(m.creature, "creature");
+                    const spec = critterFor(m.creature, d);
+                    return spec ? <Critter key={m.id} spec={spec} down={m.hp <= 0} label={m.name ?? d?.name ?? "creature"} seed={i + m.id.length} /> : null;
+                  })}
+              </span>
               <div className="row-main">
                 <div className="row-title">
                   {members.length > 1 ? `${members.length} × ` : ""}

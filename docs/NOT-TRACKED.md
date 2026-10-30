@@ -461,3 +461,8 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 - A spell scroll can be marked "Written by another wizard (Master Scrivener)" with their DC and attack bonus. Its fading at the end of the writer's next long rest is yours to track (remove it then).
 - Sneak Attack's animation follows the hit's total damage (the whole damage roll with Sneak Attack in it), in seven tiers.
 
+## Round 17b: summoned creatures on Play
+
+- Each summoning on Play is its own card, with its creatures (up to three, one of each kind first) sitting on top, breathing, blinking, looking around and doing their own thing now and then. A creature at 0 HP lies down.
+- Hand-made: every familiar form (and the imp, pseudodragon, quasit and sprite), every steed, Animate Dead and Create Undead, Giant Insect, Animate Objects, the Heammer Wisp, and each Summon spirit variant. Any other creature (Conjure Animals' beasts, demons, devils, a book's creatures) gets a look worked out from its type, size and whether it flies or swims.
+
