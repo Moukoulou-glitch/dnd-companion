@@ -60,7 +60,8 @@
           "ability": "int",
           "noAbility": true,
           "progression": "none",
-          "tab": "Thinking Stone spells"
+          "tab": "Thinking Stone spells",
+          "stores": true
         }
       }
     },

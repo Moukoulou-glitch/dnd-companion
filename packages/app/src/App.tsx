@@ -3348,7 +3348,13 @@ export function App() {
                 { spell: sp.id, list: sp.list.id, level, using, selfEffect, ...comp, ...(choice ? { choice } : {}), ...(castingTime ? { castingTime } : {}) },
                 `${sp.name} cast${castingTime ? ` (${castingTime})` : ""}${choice ? `: ${ABILITY_NAMES[choice as keyof typeof ABILITY_NAMES] ?? choice}` : ""}.`,
               );
-              flashForSpell(sp.id, level);
+              if (!sp.stores) flashForSpell(sp.id, level);
+              // Stored in an object (Thinking Stone): nothing more happens now; the object is used later.
+              if (sp.stores) {
+                castOnCompanions.current = [];
+                openSpell(sp, level);
+                return;
+              }
               // Its effect on companions too (Bless on your wolf), for as long as it lasts; with your concentration.
               const onComps = castOnCompanions.current;
               castOnCompanions.current = [];

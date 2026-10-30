@@ -373,7 +373,8 @@ export function SpellPanel({
   ];
 
   const doCast = (level: number, using: "slot" | "pact" | "free" | "ritual" | "fast-ritual" | "none" | "extra" | "scroll" | "points" | "charges") => {
-    onCast(level, using, casterSide ? true : onMe, times.length > 1 ? time : undefined, casterSide ? [] : onComps);
+    // Stored in an object (Thinking Stone): no effect on anyone now.
+    onCast(level, using, sp.stores ? false : casterSide ? true : onMe, times.length > 1 ? time : undefined, casterSide || sp.stores ? [] : onComps);
     setCast(level);
   };
 
@@ -422,8 +423,9 @@ export function SpellPanel({
               {altNow.keepSlotOn ? `; then a d10, and on a ${altNow.keepSlotOn} the slot isn't spent` : ""}.
             </p>
           )}
-          {casterSide && !readying && <p className="note">Its tag goes on you to track it{casterDamage ? ": the extra damage is offered on your attacks" : ""}.</p>}
-          {hasSelfEffect && !casterSide && !readying && (
+          {sp.stores && <p className="note">Casting it stores it in an object (Thinking Stone). Nothing takes effect now: the effect and any dice come when someone uses the object.</p>}
+          {casterSide && !readying && !sp.stores && <p className="note">Its tag goes on you to track it{casterDamage ? ": the extra damage is offered on your attacks" : ""}.</p>}
+          {hasSelfEffect && !casterSide && !readying && !sp.stores && (
             <label className="row check" style={{ padding: "8px 0" }}>
               <input type="checkbox" checked={onMe} onChange={() => setOnMe(!onMe)} />
               <div className="row-main">
@@ -432,7 +434,7 @@ export function SpellPanel({
               </div>
             </label>
           )}
-          {hasSelfEffect && !casterSide && !readying && (companions?.length ?? 0) > 0 && (
+          {hasSelfEffect && !casterSide && !readying && !sp.stores && (companions?.length ?? 0) > 0 && (
             <div className="switches" aria-label="Put its effect on a companion" style={{ padding: "4px 0 8px" }}>
               <span className="row-sub" style={{ marginRight: 6 }}>
                 On a companion too:
@@ -561,6 +563,14 @@ export function SpellPanel({
           {sp.level > 0 && sp.cast.slotLevels.length === 0 && !sp.cast.pact && !sp.cast.free && !sp.cast.points && !sp.cast.charges && !sp.ritual && !sp.cast.extra && !sp.cast.scroll && (
             <p className="note">No slots of this level. Use your feature or ask your DM.</p>
           )}
+        </>
+      ) : sp.stores ? (
+        <>
+          <p className="pass">{sp.name} is stored in an object.</p>
+          <p className="note">Its effect comes when someone uses the object: it's in Items, and under "Stored in objects" on the Thinking Stone spells tab. Whoever holds it can use it once you've shown them how (1 minute).</p>
+          <button className="link" onClick={() => setCast(null)}>
+            Store it again
+          </button>
         </>
       ) : (
         <>

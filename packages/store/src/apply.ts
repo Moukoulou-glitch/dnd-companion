@@ -1690,7 +1690,7 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
           notes.push(n.long >= per ? `${sp.name}: already cast ${n.long} time${n.long === 1 ? "" : "s"} since your long rest (${per} allowed). Cast anyway: your DM's call.` : `${sp.name} without a slot (${sp.cast.extra?.tag}).`);
         } else notes.push(`${sp.name} without a slot (${sp.cast.extra?.tag ?? "beyond the rules"}): ${n.short + 1} since your short rest, ${n.long + 1} since your long rest.`);
         // Thinking Stone: casting it stores it in a nonmagical object, in your inventory to use or give away.
-        if (list === "thinking-stone") {
+        if (list === "thinking-stone" || sp.stores) {
           const sc = sheet.spellcasting.find((x) => x.id === "thinking-stone");
           c.inventory.push({
             id: `${op.id}-stone`,
@@ -1701,7 +1701,7 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
             name: `Thinking Stone: ${sp.name}`,
             scroll: { spell: sp.id, level, stored: true, by: c.name, ...(sc ? { dc: sc.saveDc.total, attack: sc.attack.total } : {}) },
           } as Character["inventory"][number]);
-          notes.push(`${sp.name} is stored in an object: it's in your inventory, to use or give away.`);
+          notes.push(`${sp.name} is stored in an object: it's in your inventory, to use or give away. Its effect comes when the object is used.`);
         }
       } else if (using === "charges") {
         // A wand or staff: its charges at this level (Wand of Fireballs at 4th: 4).
@@ -1779,6 +1779,14 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
           if (sp.level > 0) cb.leveledActionSpell = true;
         });
         notes.push(`${sp.name} is readied: release it with your reaction when the trigger happens, before your next turn starts.`);
+        break;
+      }
+      // Cast to store it in an object (Thinking Stone): it takes its casting time, but nothing takes effect until the object is used.
+      if (sp.stores && using === "extra") {
+        spendTurn(castingEconomy(op.payload.castingTime ?? sp.castingTime), (cb) => {
+          if (castingEconomy(sp.castingTime) === "bonus") cb.bonusSpell = true;
+          if (castingEconomy(sp.castingTime) === "action" && sp.level > 0) cb.leveledActionSpell = true;
+        });
         break;
       }
       if (sp.concentration) {

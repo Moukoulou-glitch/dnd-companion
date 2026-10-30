@@ -266,6 +266,8 @@ export const SpellcastingDef = z
     noAbility: z.boolean().optional(),
     /** Its spells get a list of their own on the Spells page, by this name (Thinking Stone spells), and stay out of the others. */
     tab: z.string().optional(),
+    /** Its spells are cast only to store them in an object (Thinking Stone): their effect comes when the object is used, not now. */
+    stores: z.boolean().optional(),
   })
   .strict();
 export type SpellcastingDef = z.infer<typeof SpellcastingDef>;

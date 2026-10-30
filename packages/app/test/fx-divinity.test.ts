@@ -49,6 +49,8 @@ describe("heritage features on screen", () => {
     const c = pc("race:eladrin", 10, { "race:eladrin": { season: ["Titanspring"] } });
     expect(opFx("spendResource", { resource: "adama", amount: 1 }, c, c)).toContainEqual({ kind: "heritage", motif: "adama", label: "Adama · two wholes" });
     expect(opFx("castSpell", { spell: "spell:shield", list: "thinking-stone", level: 1, using: "extra" }, c, c)).toContainEqual({ kind: "heritage", motif: "stone", label: "Thinking Stone" });
+    // Storing it plays the stone's look only: the spell's own plays when the object is used.
+    expect(opFx("castSpell", { spell: "spell:misty-step", list: "thinking-stone", level: 2, using: "extra" }, c, c).map((x) => x.kind)).toEqual(["heritage"]);
     const e = opFx("castSpell", { spell: "spell:aura-of-vitality", list: "unbridled-seasons", level: 3, using: "free" }, c, c).find((x) => x.kind === "heritage")!;
     expect(specOf(e)).toMatchObject({ look: "fx-her fx-her-seasons fx-her-spring", label: "Unbridled Seasons · Titanspring", heritage: { motif: "seasons", season: "spring" } });
   });

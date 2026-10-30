@@ -63,3 +63,37 @@ describe("18a: Magic Missile and Awakened Spellbook", () => {
     expect(s.spells.filter((x) => x.ritual).every((x) => !x.cast.fastRitual)).toBe(true);
   });
 });
+
+describe("18d: Thinking Stone stores the spell; its effect comes when the object is used", () => {
+  const gnome = () => {
+    const c = newCharacter({ id: "g", name: "Rock", race: "race:rock-gnome", class: "class:wizard", abilities: { str: 10, dex: 14, con: 14, int: 16, wis: 14, cha: 10 } }, reg);
+    c.classes = [{ class: "class:wizard", level: 10 }];
+    c.hp = { current: 60, temp: 0 };
+    c.choices["feature:heritage-thinking-stone"] = { "spells-1": ["spell:longstrider", "spell:shield", "spell:magic-missile", "spell:sleep"], "spells-2": ["spell:misty-step", "spell:mirror-image", "spell:scorching-ray"] };
+    return new CharacterLog(c, reg, new HybridClock("t", () => (t += 1000)), "player");
+  };
+  it("storing: the object goes to the inventory, the casting time is spent, no effect on you", () => {
+    const l = gnome();
+    const sp = derive(l.character, reg).spells.find((x) => x.id === "spell:longstrider" && x.list.id === "thinking-stone")!;
+    expect(sp.stores).toBe(true);
+    l.record("startCombat", {});
+    l.record("startTurn", {});
+    const notes = l.record("castSpell", { spell: "spell:longstrider", list: "thinking-stone", level: 1, using: "extra", selfEffect: true });
+    expect(notes.join(" ")).toMatch(/stored in an object.*Its effect comes when the object is used/);
+    expect(l.character.effects.some((e) => e.effect === "effect:longstrider")).toBe(false);
+    expect(l.character.inventory.some((i) => i.scroll?.stored && i.scroll.spell === "spell:longstrider")).toBe(true);
+    expect(l.character.combat!.action).toBe(1);
+    // Using the object: now Longstrider takes effect.
+    const obj = derive(l.character, reg).spells.find((x) => x.id === "spell:longstrider" && x.cast.scroll?.stored)!;
+    l.record("castSpell", { spell: "spell:longstrider", list: obj.list.id, level: 1, using: "scroll", selfEffect: true });
+    expect(l.character.effects.some((e) => e.effect === "effect:longstrider")).toBe(true);
+    expect(l.character.inventory.some((i) => i.scroll?.stored && i.scroll.spell === "spell:longstrider")).toBe(false);
+  });
+  it("storing Mirror Image or Shield puts nothing on you either", () => {
+    const l = gnome();
+    l.record("castSpell", { spell: "spell:mirror-image", list: "thinking-stone", level: 2, using: "extra", selfEffect: true });
+    l.record("castSpell", { spell: "spell:shield", list: "thinking-stone", level: 1, using: "extra", selfEffect: true });
+    expect(l.character.effects).toEqual([]);
+    expect(l.character.inventory.filter((i) => i.scroll?.stored).length).toBe(2);
+  });
+});

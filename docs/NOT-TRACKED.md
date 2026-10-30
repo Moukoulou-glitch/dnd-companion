@@ -466,3 +466,7 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 - Each summoning on Play is its own card, with its creatures (up to three, one of each kind first) sitting on top, breathing, blinking, looking around and doing their own thing now and then. A creature at 0 HP lies down.
 - Hand-made: every familiar form (and the imp, pseudodragon, quasit and sprite), every steed, Animate Dead and Create Undead, Giant Insect, Animate Objects, the Heammer Wisp, and each Summon spirit variant. Any other creature (Conjure Animals' beasts, demons, devils, a book's creatures) gets a look worked out from its type, size and whether it flies or swims.
 
+
+## Round 18d: Thinking Stone effects wait for the object
+- Storing a Thinking Stone spell takes its casting time (action, bonus action or reaction) and its once-per-long-rest use, and puts the object in your inventory. Nothing takes effect then: no effect on you, no dice, no concentration, and only the stone's own animation. The spell's effect, dice and animation come when someone uses the object.
+- Objects stored before this change keep whatever effect they put on you then; remove it by hand if it's still showing.

@@ -175,6 +175,8 @@ export interface SpellResult {
   typeChoices?: { kind: "spell" | "transmuted" | "awakened"; label: string; options: string[]; byLevel?: Record<number, string[]>; cost?: { resource: string; amount: number } }[];
   /** Separate attacks per cast (Eldritch Blast beams by character level, Scorching Ray rays by slot). */
   beams?: { byLevel: Record<number, number>; what: string };
+  /** Cast only to store it in an object (Thinking Stone): nothing happens now, the object holds the spell. */
+  stores?: boolean;
   /** One damage roll that every dart deals (Magic Missile, as the table rules it): one dart's dice, and the darts per slot level. */
   darts?: { dice: string; byLevel: Record<number, number>; what: string };
   /** The spell's duration as a timer: rounds up to 1 minute, minutes beyond. */
@@ -1584,7 +1586,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
   }
 
   // Spellcasting: classes that have reached their casting level, plus feats and features.
-  const casters: { id: string; label: string; ability: Ability; noAbility?: boolean; tab?: string }[] = [];
+  const casters: { id: string; label: string; ability: Ability; noAbility?: boolean; tab?: string; stores?: boolean }[] = [];
   const casterLevels: { progression: SpellcastingDef["progression"]; level: number }[] = [];
   const resolveAbility = (sc: SpellcastingDef, s?: Source): Ability | undefined => {
     if (typeof sc.ability === "string") return sc.ability;
@@ -1605,7 +1607,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     const sc = s.grant.spellcasting;
     if (!sc || casters.some((x) => x.id === sc.id)) continue;
     const ability = sc.noAbility ? "int" : resolveAbility(sc, s);
-    if (ability) casters.push({ id: sc.id, label: sc.label, ability, ...(sc.noAbility ? { noAbility: true } : {}), ...(sc.tab ? { tab: sc.tab } : {}) });
+    if (ability) casters.push({ id: sc.id, label: sc.label, ability, ...(sc.noAbility ? { noAbility: true } : {}), ...(sc.tab ? { tab: sc.tab } : {}), ...(sc.stores ? { stores: true } : {}) });
     // A subclass caster (Eldritch Knight, Arcane Trickster): slots from its class's levels.
     const lvl = sc.levelsOf ? c.classes.find((x) => x.class === sc.levelsOf)?.level : undefined;
     if (lvl) casterLevels.push({ progression: sc.progression, level: lvl });
@@ -2060,6 +2062,8 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
         delete r.cast.pact;
       }
     }
+    // Cast only to store it in an object (Thinking Stone): its effect waits for the object to be used.
+    if (casters.find((x) => x.id === list)?.stores) r.stores = true;
     if (granted?.scroll) {
       // The scroll sets the DC and attack bonus by its level (DMG p. 200), not your spellcasting;
       // unless it's written with yours (Master Scrivener: your wizard spell save DC and attack bonus).

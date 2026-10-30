@@ -196,7 +196,9 @@ export function opFx(type: string, payload: unknown, before: Character, after: C
   // A ritual or long casting takes effect when it's finished: its cast look plays then, never when it's started.
   const cast = type === "castSpell" ? p : type === "finishTimed" && before.timed?.cast ? (before.timed.cast as Record<string, unknown>) : undefined;
   // Zone of Truth has its own (the celestial words): no cast look on top.
-  if (cast && typeof cast.spell === "string" && cast.spell !== "spell:zone-of-truth") {
+  // Stored in an object (Thinking Stone): the stone's own look, not the spell's; that plays when the object is used.
+  const storing = type === "castSpell" && p.list === "thinking-stone" && p.using === "extra";
+  if (cast && typeof cast.spell === "string" && cast.spell !== "spell:zone-of-truth" && !storing) {
     // A spell with its own cast look plays that; any other gets the arcane circle in its school's colour.
     const def = spellFxOf(cast.spell);
     // The mode picked when casting (Control Water: Whirlpool), or the casting time picked (Plant Growth: 8 hours);
