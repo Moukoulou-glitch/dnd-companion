@@ -4572,6 +4572,6 @@ html.fx-shake-strong .app > .strip, html.fx-shake-strong .app > main, html.fx-sh
   .crest .cs-tongue { transform: scaleX(0); }
 }
 
-/* A glimpse of the crest after a natural 20, below level 10: in, held, gone in 1.5 seconds. */
-.strip.crest-glimpse .crest { animation: cs-glimpse 1.5s ease-in-out both; }
-@keyframes cs-glimpse { 0% { opacity: 0; transform: translateY(6px) scale(0.96); } 18% { opacity: 1; transform: none; } 75% { opacity: 1; } 100% { opacity: 0; } }
+/* A glimpse of the crest after a natural 20, below level 10: in, held, gone in 5 seconds. */
+.strip.crest-glimpse .crest { animation: cs-glimpse 5s ease-in-out both; }
+@keyframes cs-glimpse { 0% { opacity: 0; transform: translateY(6px) scale(0.96); } 7% { opacity: 1; transform: none; } 88% { opacity: 1; } 100% { opacity: 0; } }

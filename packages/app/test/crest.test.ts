@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { crestFor, drawCrest, glimpseChance, raceCrest, rollsGlimpse, RACE_CRESTS, PAD, type Motif } from "../src/fx/crest";
+import { GLIMPSE_MS, crestFor, drawCrest, glimpseChance, raceCrest, rollsGlimpse, RACE_CRESTS, PAD, type Motif } from "../src/fx/crest";
 
 const ch = (race: string, levels: number[], choices: Record<string, Record<string, string[]>> = {}) => ({ race, classes: levels.map((level) => ({ level })), choices });
 
@@ -54,6 +54,9 @@ describe("a glimpse of the crest after a natural 20, below level 10", () => {
     expect(shows(1)).toBe(5);
     expect(shows(9)).toBe(45);
     expect(shows(10)).toBe(0);
+  });
+  it("lasts 5 seconds", () => {
+    expect(GLIMPSE_MS).toBe(5000);
   });
   it("the glimpse is the race's own crest", () => {
     expect(raceCrest(ch("race:shadar-kai", [3]))).toMatchObject({ motif: "wings", variant: "raven" });

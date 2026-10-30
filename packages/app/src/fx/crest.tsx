@@ -158,7 +158,7 @@ export function crestFor(c: CrestChar, raceName?: string): CrestSpec | undefined
 }
 
 /** How long a glimpse of the crest lasts, below level 10. */
-export const GLIMPSE_MS = 1500;
+export const GLIMPSE_MS = 5000;
 
 /** Below level 10, the chance a natural 20 shows the crest for a moment: 5% per character level (45% at 9th). */
 export const glimpseChance = (level: number) => (level >= CREST_LEVEL || level < 1 ? 0 : Math.min(1, 0.05 * level));
