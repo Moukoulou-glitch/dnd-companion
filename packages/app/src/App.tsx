@@ -35,6 +35,7 @@ import { HP_TIER_WORDS, hpBlinks, hpTier } from "./hp";
 import { strikeFx } from "./fx/triggers";
 import { CustomActionForm, CustomItemForm, CustomSpellForm } from "./components/CustomForms";
 import { CompanionBuilder } from "./components/CompanionBuilder";
+import { Crest, CrestSigil, crestFor } from "./fx/crest";
 import { RollAdjustPanel } from "./components/RollAdjust";
 import { DurablePanel } from "./components/Durable";
 import { StablePanel } from "./components/Stable";
@@ -322,6 +323,8 @@ export function App() {
   const grey = greyLevel(c);
   const openChoices = buildItems(c, registry).filter((i) => !i.done).length;
   const hpPct = Math.round((hpNow / sheet.hpMax.total) * 100);
+  // From character level 10: the race's crest round the HP box and the name.
+  const crest = crestFor(c, registry.find(c.race, "race")?.name);
 
   const openHp = () =>
     open("Hit points", () => (
@@ -3668,13 +3671,16 @@ export function App() {
       <FxLayer school={spellSchool} spell={spellLook} feature={featureUsed} character={c} />
       <DiceStrip />
       {grey > 0 && <div className="grey-veil" aria-hidden="true" style={{ backdropFilter: `grayscale(${grey})`, WebkitBackdropFilter: `grayscale(${grey})` }} />}
-      <header className="strip">
-        <button className="who" onClick={openRoster} aria-label={`${c.name}. Switch character`}>
+      <header className={`strip${crest ? " has-crest" : ""}`}>
+        <button className={`who${crest ? " has-crest" : ""}`} onClick={openRoster} aria-label={`${c.name}. Switch character`}>
           <NameFx name={c.name} sheet={sheet} />
+          {crest && <CrestSigil spec={crest} />}
           <span className="who-class">{s.roster.find((r) => r.id === s.selectedId)?.summary}</span>
         </button>
 
         <div className="vitals">
+          <div className={`hp-wrap${crest ? " has-crest" : ""}`}>
+          {crest && <Crest spec={crest} layer="back" />}
           <button
             className={`hp tier-${hpTier(sheet.shape ? sheet.shape.hp.current : hpNow, sheet.shape ? sheet.shape.hp.max : sheet.hpMax.total)}${hpBlinks(hpNow, sheet.hpMax.total, !!sheet.shape) ? " critical" : ""}`}
             onClick={openHp}
@@ -3691,6 +3697,8 @@ export function App() {
               </div>
             </div>
           </button>
+          {crest && <Crest spec={crest} layer="front" />}
+          </div>
           <button className="stat" onClick={() => (sheet.shape ? openShape() : open("Armor Class", <BreakdownLines b={sheet.ac} totalLabel="AC" />))}>
             <b>{sheet.shape ? sheet.shape.ac : sheet.ac.total}</b>
             <small>AC</small>
