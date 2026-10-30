@@ -30,7 +30,8 @@ export type Motif =
   | "clover"
   | "thorns"
   | "wisps"
-  | "frost";
+  | "frost"
+  | "adama";
 
 export interface CrestSpec {
   motif: Motif;
@@ -61,7 +62,7 @@ export const RACE_CRESTS: Record<string, CrestSpec> = {
   "race:reborn": W("wisps", "#9fb3b8", "#d9e4e6", "#bff6ff", "Stitches and wisps"),
   "race:human": W("laurel", "#c9a646", "#7d6a2c", "#fff1b0", "Laurel"),
   "race:variant-human": W("laurel", "#c9a646", "#7d6a2c", "#fff1b0", "Laurel"),
-  "race:half-elf": W("laurel", "#9fbf6a", "#c9a646", "#f4ffd0", "Laurel and leaf", "leaf"),
+  "race:half-elf": W("adama", "#8fe0bd", "#ffb877", "#fff6e4", "Two wholes"),
   "race:high-elf": W("stars", "#cfd8ff", "#7d8cd6", "#ffffff", "Moon and stars"),
   "race:wood-elf": W("vines", "#4f7d3a", "#2f5a2a", "#c8ff9a", "Vines", "leaf"),
   "race:sea-elf": W("waves", "#3fa7c9", "#1d5f80", "#c9f4ff", "Sea foam"),
@@ -917,6 +918,56 @@ export function drawCrest(spec: CrestSpec, g: Geo): { back: ReactNode; front: Re
         ),
       };
     }
+    case "adama": {
+      // Adama's look: two whole rings, elven green and human amber, linked; a ribbon of each rises from a corner of the box.
+      const r = 19;
+      const cy = top - 28;
+      // Over the box's right part, clear of the name.
+      const cx = L + g.w * 0.66;
+      const lc: Pt = [cx - 12, cy];
+      const rc: Pt = [cx + 12, cy];
+      // Each ribbon runs along the box's top from its own corner and rises into its ring.
+      const left = `M${pt([L + 6, top + 3])} C${pt([L + 16, top - 6])} ${pt([lc[0] - r - 16, cy + 22])} ${pt([lc[0] - r, cy + 3])}`;
+      const right = `M${pt([R - 6, top + 3])} C${pt([R + 12, top - 12])} ${pt([rc[0] + r + 14, cy - 22])} ${pt([rc[0] + r * 0.72, cy - r * 0.7])}`;
+      // Where the rings cross: the lens between them, the "two wholes" glow.
+      const h = Math.sqrt(r * r - 12 * 12);
+      const lens = `M${pt([cx, cy - h])} A${r} ${r} 0 0 1 ${pt([cx, cy + h])} A${r} ${r} 0 0 1 ${pt([cx, cy - h])} Z`;
+      return {
+        back: (
+          <>
+            <circle className="cs-glow" cx={lc[0] - 4} cy={cy} r={r + 10} fill={c1} opacity={0.12} />
+            <circle className="cs-glow" cx={rc[0] + 4} cy={cy} r={r + 10} fill={c2} opacity={0.12} style={delay(1.8)} />
+            <path d={left} stroke="#4f9e7c" strokeWidth={6} fill="none" strokeLinecap="round" />
+            <path d={left} stroke={c1} strokeWidth={3.5} fill="none" strokeLinecap="round" />
+            <path d={right} stroke="#c9763a" strokeWidth={6} fill="none" strokeLinecap="round" />
+            <path d={right} stroke={c2} strokeWidth={3.5} fill="none" strokeLinecap="round" />
+            <path className="cs-glow" d={lens} fill={glow} opacity={0.75} />
+            <circle cx={rc[0]} cy={rc[1]} r={r} fill="none" stroke="#c9763a" strokeWidth={5.5} />
+            <circle cx={rc[0]} cy={rc[1]} r={r} fill="none" stroke={c2} strokeWidth={3.5} />
+            <circle cx={lc[0]} cy={lc[1]} r={r} fill="none" stroke="#4f9e7c" strokeWidth={5.5} />
+            <circle cx={lc[0]} cy={lc[1]} r={r} fill="none" stroke={c1} strokeWidth={3.5} />
+            {/* Linked, not stacked: the amber ring passes over the green one where they cross below. */}
+            <circle cx={rc[0]} cy={rc[1]} r={r} fill="none" stroke="#c9763a" strokeWidth={5.5} pathLength={100} strokeDasharray="0 31 9 100" />
+            <circle cx={rc[0]} cy={rc[1]} r={r} fill="none" stroke={c2} strokeWidth={3.5} pathLength={100} strokeDasharray="0 31.5 8 100" />
+            {/* A spark of each crosses to the other's ring. */}
+            <g className="cs-spin" style={origin(lc)}>
+              <circle cx={lc[0]} cy={lc[1] - r} r={2.4} fill={c2} />
+            </g>
+            <g className="cs-spin-back" style={origin(rc)}>
+              <circle cx={rc[0]} cy={rc[1] + r} r={2.4} fill={c1} />
+            </g>
+            <path className="cs-twinkle" style={origin([cx, cy])} d={star4([cx, cy], 4.5)} fill="#ffffff" />
+          </>
+        ),
+        // The ribbons wind over the box's top corners.
+        front: (
+          <>
+            <path d={left} stroke={c1} strokeWidth={3.5} fill="none" strokeLinecap="round" pathLength={100} strokeDasharray="0 1 7 100" />
+            <path d={right} stroke={c2} strokeWidth={3.5} fill="none" strokeLinecap="round" pathLength={100} strokeDasharray="0 1 14 100" />
+          </>
+        ),
+      };
+    }
     case "frost": {
       const flake = (c: Pt, r: number) => (
         <g>
@@ -1060,6 +1111,12 @@ export function CrestSigil({ spec }: { spec: CrestSpec }) {
       </g>
     ),
     wisps: <path d="M3 3 L15 15 M15 3 L3 15 M9 1 L9 17" stroke={c1} strokeWidth={1.2} strokeLinecap="round" />,
+    adama: (
+      <g fill="none" strokeWidth={1.8}>
+        <circle cx={6.5} cy={9} r={4.6} stroke={c1} />
+        <circle cx={11.5} cy={9} r={4.6} stroke={c2} />
+      </g>
+    ),
     frost: (
       <g stroke={c1} strokeWidth={1.1} strokeLinecap="round">
         {[0, 60, 120].map((a) => (

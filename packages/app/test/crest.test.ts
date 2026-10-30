@@ -15,6 +15,9 @@ describe("heritage crest", () => {
     expect(crestFor(ch("race:high-elf", [10]))?.motif).toBe("stars");
     expect(crestFor(ch("race:rock-gnome", [10]))?.motif).toBe("gears");
     expect(crestFor(ch("race:deep-gnome", [10]))?.motif).toBe("crystals");
+    // Half-elf: Adama's two whole rings, not the human laurel.
+    expect(crestFor(ch("race:half-elf", [10]))).toMatchObject({ motif: "adama", label: "Two wholes" });
+    expect(crestFor(ch("race:human", [10]))?.motif).toBe("laurel");
   });
   it("an eladrin's season, a dragonborn's ancestry colour", () => {
     expect(crestFor(ch("race:eladrin", [10], { "race:eladrin": { season: ["Nocter"] } }))?.motif).toBe("frost");
