@@ -2457,6 +2457,22 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
   // Channel Divinity from two classes (2014 multiclassing): taking the feature again gives that class's options, not
   // more uses. One pool, with the uses of whichever class grants more; the other class's actions spend it.
   const resourceAliases: Record<string, string> = {};
+  // The same feature from two classes (Harness Divine Power, cleric and paladin): one pool and one action, the larger
+  // number of uses; like Channel Divinity, getting it again gives no extra pool.
+  for (let i = resources.length - 1; i >= 0; i--) {
+    const r = resources[i]!;
+    const first = resources.find((x) => x.id === r.id);
+    if (!first || first === r) continue;
+    first.max = Math.max(first.max, r.max);
+    first.used = Math.min(first.max, c.resourcesUsed[first.id] ?? 0);
+    first.remaining = first.max - first.used;
+    if (r.source && r.source !== first.source && !first.source.includes(r.source)) first.source = `${first.source} and ${r.source}`;
+    resources.splice(i, 1);
+    for (let j = actions.length - 1; j >= 0; j--) {
+      const a = actions[j]!;
+      if (a.id === r.id && actions.findIndex((x) => x.id === a.id) !== j) actions.splice(j, 1);
+    }
+  }
   for (const [main = "", ...others] of SHARED_POOLS) {
     const m = resources.find((r) => r.id === main);
     for (const o of others) {

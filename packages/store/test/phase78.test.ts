@@ -97,3 +97,30 @@ describe("18d: Thinking Stone stores the spell; its effect comes when the object
     expect(l.character.inventory.filter((i) => i.scroll?.stored).length).toBe(2);
   });
 });
+
+describe("18g: Harness Divine Power once for a cleric/paladin, like Channel Divinity", () => {
+  const multi = (cl: number, pal: number) => {
+    const c = newCharacter({ id: "m", name: "Both", race: "race:human", class: "class:cleric", abilities: { str: 14, dex: 10, con: 14, int: 10, wis: 16, cha: 16 } }, reg);
+    c.classes = [
+      { class: "class:cleric", level: cl, subclass: "subclass:light-domain" },
+      { class: "class:paladin", level: pal, subclass: "subclass:oath-of-the-ancients" },
+    ];
+    c.hp = { current: 40, temp: 0 };
+    return new CharacterLog(c, reg, new HybridClock("t", () => (t += 1000)), "player");
+  };
+  it("one pool and one action, with the larger number of uses", () => {
+    const s = derive(multi(6, 3).character, reg);
+    expect(s.resources.filter((r) => r.id === "harness-divine-power")).toHaveLength(1);
+    expect(s.resources.find((r) => r.id === "harness-divine-power")!.max).toBe(2);
+    expect(s.actions.filter((a) => a.id === "harness-divine-power")).toHaveLength(1);
+    expect(s.resources.filter((r) => /channel-divinity/.test(r.id))).toHaveLength(1);
+  });
+  it("used, and back after a long rest", () => {
+    const l = multi(2, 3);
+    l.record("castSpell", { spell: "spell:bless", list: "cleric", level: 1, using: "slot" });
+    l.record("useAction", { action: "harness-divine-power", choice: "Level 1 slot" });
+    expect(derive(l.character, reg).resources.find((r) => r.id === "harness-divine-power")!.remaining).toBe(0);
+    l.record("rest", { kind: "long" });
+    expect(derive(l.character, reg).resources.find((r) => r.id === "harness-divine-power")!.remaining).toBe(1);
+  });
+});
