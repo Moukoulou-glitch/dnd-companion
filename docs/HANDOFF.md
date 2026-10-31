@@ -325,3 +325,4 @@ Remaining plan (each a sub-phase, stop after each): 2a crits (done) · 2b Relent
 - 18f (on fixes-2): the glimpse below level 10 now lasts 5 seconds (`GLIMPSE_MS` 5000; `cs-glimpse` 5s: in over 0.35 s, held, out over the last 0.6 s).
 - 18f merged to main with approval (Oct 31; run 41152230260).
 - 18g (on fixes-2): the same resource from two classes (Harness Divine Power from cleric and paladin, both "harness-divine-power") is one pool and one action: the larger number of uses, one counter (derive.ts, before SHARED_POOLS). The Sheet still lists each class's feature text, as with Channel Divinity.
+- 18g merged to main with approval (Oct 31; run 41152732178 passed).
