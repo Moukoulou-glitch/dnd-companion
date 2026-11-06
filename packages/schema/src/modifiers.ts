@@ -258,7 +258,13 @@ export const SpellcastingDef = z
      * Fixed, or the ability the player picked on the granting feat ({ choice: "ability" }),
      * or read from another pick through `map` (Ritual Caster: the class → its ability).
      */
-    ability: z.union([Ability, ChoiceRef, z.object({ choice: z.string(), map: z.record(z.string(), Ability) }).strict()]),
+    ability: z.union([
+      Ability,
+      ChoiceRef,
+      z.object({ choice: z.string(), map: z.record(z.string(), Ability) }).strict(),
+      /** Your own, from the first of these spellcastings you have (Necklace of Prayer Beads: your cleric, druid or paladin spell save DC). */
+      z.object({ from: z.array(z.string()).min(1) }).strict(),
+    ]),
     progression: Progression,
     /** A subclass's spellcasting (Eldritch Knight): its slots follow this class's levels. */
     levelsOf: DefId.optional(),
@@ -304,6 +310,8 @@ export const GrantedSpell = z
     noConcentration: z.boolean().optional(),
     /** Always cast at this level (Staff of Power's fireball: 5th). */
     castAt: z.number().int().min(1).max(9).optional(),
+    /** Its own casting time from this source (a prayer bead's spell: 1 bonus action). */
+    castingTime: z.string().optional(),
     /** Its own save DC instead of yours (Wand of Fireballs: 15). */
     dc: z.number().int().optional(),
     /** Written on a spell scroll in the inventory: read it to cast it (used up). */
@@ -318,6 +326,9 @@ export const GrantedSpell = z
         /** A spell stored in an object (Thinking Stone): anyone who knows how can use it; no class list, no check. */
         stored: z.boolean().optional(),
         by: z.string().optional(),
+        /** Stored in an item that holds several (Ring of Spell Storing): which one, and the item's name; casting it frees that space. */
+        entry: z.string().optional(),
+        from: z.string().optional(),
       })
       .strict()
       .optional(),

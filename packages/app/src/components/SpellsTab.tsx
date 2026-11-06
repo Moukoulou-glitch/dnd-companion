@@ -120,7 +120,7 @@ export function SpellsTab({
   const ownTabs = new Set(sheet.spellcasting.filter((sc) => sc.tab).map((sc) => sc.id));
   // Objects holding a spell (Thinking Stone): on the Thinking Stone tab when you have it, not with your prepared spells.
   const stoneTab = sheet.spellcasting.some((sc) => sc.id === "thinking-stone" && sc.tab) && sheet.spells.some((s) => s.list.id === "thinking-stone");
-  const isStored = (s: SpellResult) => !!s.cast.scroll?.stored;
+  const isStored = (s: SpellResult) => !!s.cast.scroll?.stored && !s.cast.scroll.from;
   const current = views.some((v) => v.id === view) ? view : "ready";
   const listOf = current.startsWith("list:") ? classLists.find((l) => `list:${l.id}` === current) : undefined;
 
@@ -525,9 +525,9 @@ export function SpellPanel({
             )}
             {sp.cast.scroll && (
               <button className="big primary" onClick={() => doCast(Math.max(sp.level, sp.cast.scroll!.level), "scroll")}>
-                {sp.cast.scroll.stored ? "Use the object" : "Read the scroll"}
+                {sp.cast.scroll.from ? `Cast it from ${sp.cast.scroll.from}` : sp.cast.scroll.stored ? "Use the object" : "Read the scroll"}
                 <span className="sub">
-                  {sp.cast.scroll.check ? `${ABILITY_NAMES[sp.cast.scroll.check.ability]} check DC ${sp.cast.scroll.check.dc} first · ` : ""}used up
+                  {sp.cast.scroll.check ? `${ABILITY_NAMES[sp.cast.scroll.check.ability]} check DC ${sp.cast.scroll.check.dc} first · ` : ""}{sp.cast.scroll.from ? "frees its space" : "used up"}
                 </span>
               </button>
             )}
@@ -554,7 +554,9 @@ export function SpellPanel({
           )}
           {sp.cast.scroll && (
             <p className={`note${sp.cast.scroll.onList ? "" : " danger-text"}`}>
-              {sp.cast.scroll.stored
+              {sp.cast.scroll.from
+                ? `Stored in ${sp.cast.scroll.from}${sp.cast.scroll.by ? ` by ${sp.cast.scroll.by}` : ""}: level ${sp.cast.scroll.level}, save DC ${sp.cast.scroll.dc}, attack +${sp.cast.scroll.attack}. Casting it frees its space.`
+                : sp.cast.scroll.stored
                 ? `Stored in an object${sp.cast.scroll.by ? ` by ${sp.cast.scroll.by}` : ""} (Thinking Stone): save DC ${sp.cast.scroll.dc}, attack +${sp.cast.scroll.attack}; anyone shown how can use it. It's used up.`
                 : `From a spell scroll${sp.cast.scroll.by ? ` written by ${sp.cast.scroll.by}` : ""}: save DC ${sp.cast.scroll.dc}, attack +${sp.cast.scroll.attack}, no material components; it crumbles once read.`}
               {sp.cast.scroll.onList ? "" : " It isn't on your class's spell list: the scroll is unintelligible to you unless your DM says otherwise."}

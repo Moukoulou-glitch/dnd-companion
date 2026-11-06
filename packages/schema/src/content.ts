@@ -266,6 +266,15 @@ export const ArmorStats = z
   .strict();
 export type ArmorStats = z.infer<typeof ArmorStats>;
 
+/** One part an item can have (a prayer bead), with what it gives. Typed by hand: the inferred type is too big otherwise. */
+export interface PickOption {
+  id: string;
+  name: string;
+  summary?: string | undefined;
+  grant: z.infer<typeof Grant>;
+}
+const PickOption: z.ZodType<PickOption, z.ZodTypeDef, unknown> = z.object({ id: z.string(), name: z.string(), summary: z.string().optional(), grant: Grant }).strict();
+
 export const ItemDef = z
   .object({
     ...base,
@@ -298,6 +307,21 @@ export const ItemDef = z
     requiresAttunement: z.boolean().default(false),
     /** The weapons or armor it can be (Frost Brand: any sword): picked on the item, its stats taken from that one. */
     baseFrom: z.array(DefId).optional(),
+    /**
+     * Parts picked on each copy, the same one more than once if you like (Necklace of Prayer Beads: its beads, up to 6):
+     * each part picked gives its grant; a resource in it counts once per copy of that part.
+     */
+    picks: z
+      .object({
+        label: z.string(),
+        max: z.number().int().min(1).optional(),
+        note: z.string().optional(),
+        options: z.array(PickOption).min(1),
+      })
+      .strict()
+      .optional(),
+    /** Holds spells cast into it, up to this many levels in all (Ring of Spell Storing: 5); each is cast from it once. */
+    storesSpells: z.object({ maxLevels: z.number().int().min(1).max(20) }).strict().optional(),
     /** Applies while equipped (and attuned, if attunement is required). */
     grant: Grant.optional(),
     cost: z.object({ amount: z.number(), unit: z.enum(["cp", "sp", "ep", "gp", "pp"]) }).strict().optional(),

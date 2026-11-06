@@ -519,6 +519,14 @@ Wondrous Item, Very Rare (Requires Attunement)
 
 You gain a +1 bonus to saving throws while you wear it.
 
+#### Hauberk of Ember Warding
+
+Armor (*Chain Mail*), Rare (Requires Attunement)
+
+---
+
+You have resistance to fire damage while you wear this armor.
+
 #### +2 Wand of the War Mage
 
 Wand, Rare (Requires Attunement By a Spellcaster)
@@ -540,6 +548,9 @@ Invented text for the wand.
   it("a focus for one class's spells, and saves while worn", () => {
     expect(get("item:lantern-of-quiet-stars").grant.modifiers.map((m: any) => m.selector)).toEqual(["stat.spell.attack.artificer", "stat.spell.dc.artificer"]);
     expect(get("item:mantle-of-dusk").grant.modifiers).toEqual([expect.objectContaining({ selector: "roll.save.*", value: 1 })]);
+  });
+  it("armor that gives a resistance while worn", () => {
+    expect(get("item:hauberk-of-ember-warding").grant.modifiers).toEqual([expect.objectContaining({ selector: "defense.resist.fire", op: "resist" })]);
   });
   it("+2 Wand of the War Mage works like the app's Wand of the War Mage +2", () => {
     const w = get("item:2-wand-of-the-war-mage");

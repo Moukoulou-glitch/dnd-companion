@@ -32,6 +32,19 @@ export const FeatInstance = z
   .strict();
 export type FeatInstance = z.infer<typeof FeatInstance>;
 
+/** A spell cast into an item that holds it (Ring of Spell Storing), with the original caster's numbers. */
+export const StoredSpell = z
+  .object({
+    id: z.string(),
+    spell: DefId,
+    level: z.number().int().min(1).max(9),
+    dc: z.number().int().min(1).max(40).optional(),
+    attack: z.number().int().min(-5).max(30).optional(),
+    by: z.string().max(80).optional(),
+  })
+  .strict();
+export type StoredSpell = z.infer<typeof StoredSpell>;
+
 export const ItemInstance = z
   .object({
     id: z.string(),
@@ -67,6 +80,10 @@ export const ItemInstance = z
       .optional(),
     /** Gone at the end of your next long rest (Master Scrivener's scroll). */
     untilLongRest: z.boolean().optional(),
+    /** The parts picked on this one (Necklace of Prayer Beads: ["blessing", "curing", "curing"]). */
+    picks: z.array(z.string()).optional(),
+    /** Spells cast into it (Ring of Spell Storing): the slot level, and the caster's DC and attack bonus. */
+    storedSpells: z.array(StoredSpell).optional(),
   })
   .strict();
 export type ItemInstance = z.infer<typeof ItemInstance>;

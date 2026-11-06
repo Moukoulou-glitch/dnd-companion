@@ -1583,7 +1583,7 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
     }
 
     case "setItem": {
-      const { instanceId, quantity, equipped, attuned, name, scroll, base } = op.payload;
+      const { instanceId, quantity, equipped, attuned, name, scroll, base, picks, storedSpells } = op.payload;
       const inst = c.inventory.find((i) => i.id === instanceId);
       if (!inst) {
         notes.push("That item is no longer in the inventory.");
@@ -1607,6 +1607,23 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       else if (base) {
         if (def.baseFrom && !def.baseFrom.includes(base)) notes.push(`${def.name} isn't usually a ${reg.find(base, "item")?.name ?? base}. Kept, beyond the rules.`);
         inst.base = base;
+      }
+      // The parts picked on it (prayer beads): more than it can have is warned, never blocked.
+      if (picks === null) delete inst.picks;
+      else if (picks) {
+        const known = def.picks?.options.map((o) => o.id) ?? [];
+        const kept = picks.filter((p) => known.includes(p));
+        if (def.picks?.max && kept.length > def.picks.max) notes.push(`${def.name} usually has at most ${def.picks.max} ${def.picks.label.toLowerCase()}: ${kept.length} kept, beyond the rules.`);
+        if (kept.length) inst.picks = kept;
+        else delete inst.picks;
+      }
+      // The spells it holds (Ring of Spell Storing): more levels than it holds is warned, never blocked.
+      if (storedSpells === null) delete inst.storedSpells;
+      else if (storedSpells) {
+        const levels = storedSpells.reduce((n, x) => n + x.level, 0);
+        if (def.storesSpells && levels > def.storesSpells.maxLevels) notes.push(`${def.name} holds up to ${def.storesSpells.maxLevels} levels of spells: ${levels} kept, beyond the rules.`);
+        if (storedSpells.length) inst.storedSpells = storedSpells.map((x) => ({ ...x }));
+        else delete inst.storedSpells;
       }
       if (scroll === null) delete inst.scroll;
       else if (scroll) {
@@ -1731,7 +1748,13 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         const sc = sp.cast.scroll;
         const inst = sc && c.inventory.find((i) => i.id === sc.instanceId);
         if (!inst) notes.push("That scroll is no longer in the inventory.");
-        else {
+        else if (sc.entry) {
+          // Cast from an item that holds several (Ring of Spell Storing): that space is free again, the item stays.
+          const before = inst.storedSpells?.length ?? 0;
+          inst.storedSpells = (inst.storedSpells ?? []).filter((x) => x.id !== sc.entry);
+          if (!inst.storedSpells.length) delete inst.storedSpells;
+          notes.push(before ? `${sp.name} is cast from ${sc.from ?? "the item"}: its space is free again.` : `${sp.name} is no longer stored in ${sc.from ?? "the item"}.`);
+        } else {
           // Read: the words fade and the scroll crumbles to dust, cast or not.
           inst.quantity -= 1;
           if (inst.quantity <= 0) c.inventory = c.inventory.filter((i) => i !== inst);

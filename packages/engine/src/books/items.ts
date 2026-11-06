@@ -168,6 +168,9 @@ export function bonusModifiers(text: string, label: string): Mod[] {
   }
   const saves = /you (?:gain|have) a \+(\d) bonus to saving throws while you (?:wear|hold)/i.exec(text);
   if (saves) out.push({ selector: "roll.save.*", op: "add", value: Number(saves[1]), label } as Mod);
+  // "You have resistance to fire damage while you wear this armor" (Breastplate of Fire Resistance).
+  const resist = /you have resistance to (acid|cold|fire|force|lightning|necrotic|poison|psychic|radiant|thunder|bludgeoning|piercing|slashing) damage while you (?:wear|hold)/i.exec(text);
+  if (resist) out.push({ selector: `defense.resist.${resist[1]!.toLowerCase()}`, op: "resist", label } as Mod);
   return out;
 }
 

@@ -66,3 +66,45 @@ describe("19a: Primal Companion: Dodge unless commanded", () => {
     expect(l.record("endTurn", {}).join(" ")).not.toMatch(/Dodge action/);
   });
 });
+
+describe("19b: items whose spells you pick", () => {
+  const cleric = (inv: any[]) => {
+    const c = newCharacter({ id: "c", name: "Cleric", race: "race:human", class: "class:cleric", abilities: { str: 10, dex: 12, con: 14, int: 10, wis: 16, cha: 10 } }, reg);
+    c.classes = [{ class: "class:cleric", level: 5, subclass: "subclass:light-domain" }];
+    c.hp = { current: 30, temp: 0 };
+    c.inventory.push(...inv);
+    return new CharacterLog(c, reg, new HybridClock("t", () => (t += 1000)), "player");
+  };
+  it("Necklace of Prayer Beads: the beads picked give their spells, each bead once until dawn, with your DC, as a bonus action", () => {
+    const l = cleric([{ id: "neck", item: "item:necklace-of-prayer-beads", quantity: 1, equipped: true, attuned: true }]);
+    expect(derive(l.character, reg).spells.filter((x) => x.list.id === "prayer-beads")).toEqual([]);
+    l.record("setItem", { instanceId: "neck", picks: ["blessing", "curing", "curing", "smiting"] });
+    const s = derive(l.character, reg);
+    const beads = s.spells.filter((x) => x.list.id === "prayer-beads");
+    expect(beads.map((x) => x.name).sort()).toEqual(["Bless", "Branding Smite", "Cure Wounds", "Lesser Restoration"]);
+    expect(beads.every((x) => x.castingTime === "1 bonus action")).toBe(true);
+    expect(s.resources.find((r) => r.id === "bead-curing")).toMatchObject({ max: 2, reset: "dawn" });
+    expect(beads.find((x) => x.name === "Cure Wounds")!.cast.free).toMatchObject({ resource: "bead-curing", level: 2 });
+    // From the bead only: not with your slots.
+    expect(beads.every((x) => x.cast.slotLevels.length === 0)).toBe(true);
+    const dc = s.spellcasting.find((x) => x.id === "cleric")!.saveDc.total;
+    expect(s.spellcasting.find((x) => x.id === "prayer-beads")!.saveDc.total).toBe(dc);
+    // The cleric's own Bless stays a cleric spell too.
+    expect(s.spells.some((x) => x.id === "spell:bless" && x.list.id === "cleric")).toBe(true);
+    // More than six beads: warned, kept.
+    expect(l.record("setItem", { instanceId: "neck", picks: ["blessing", "blessing", "blessing", "favor", "favor", "summons", "wind-walking"] }).join(" ")).toMatch(/at most 6 beads/);
+  });
+  it("Ring of Spell Storing: the spells it holds, cast once each with the caster's numbers; the ring stays", () => {
+    const l = cleric([{ id: "ring", item: "item:ring-of-spell-storing", quantity: 1, equipped: true, attuned: true }]);
+    l.record("setItem", { instanceId: "ring", storedSpells: [{ id: "a", spell: "spell:shield-of-faith", level: 1, dc: 15, attack: 7, by: "Mira" }, { id: "b", spell: "spell:hold-person", level: 2, dc: 15, attack: 7 }] });
+    const sp = derive(l.character, reg).spells.find((x) => x.id === "spell:hold-person" && x.cast.scroll?.entry === "b")!;
+    expect(sp.cast.scroll).toMatchObject({ dc: 15, level: 2, from: "Ring of Spell Storing" });
+    expect(sp.save?.dc).toBe(15);
+    l.record("castSpell", { spell: "spell:hold-person", list: sp.list.id, level: 2, using: "scroll" });
+    const ring = l.character.inventory.find((i) => i.id === "ring")!;
+    expect(ring.quantity).toBe(1);
+    expect(ring.storedSpells?.map((x) => x.id)).toEqual(["a"]);
+    // Over 5 levels: warned, kept.
+    expect(l.record("setItem", { instanceId: "ring", storedSpells: [{ id: "c", spell: "spell:fireball", level: 3 }, { id: "d", spell: "spell:fireball", level: 3 }] }).join(" ")).toMatch(/up to 5 levels/);
+  });
+});

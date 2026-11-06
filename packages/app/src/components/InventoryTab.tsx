@@ -129,6 +129,173 @@ function ScrollSpell({ inst, def, act, spells, onRead, onCopy, onCustom }: { ins
   );
 }
 
+/** The parts picked on this copy (Necklace of Prayer Beads: its beads), each kind with how many. */
+function PicksBox({ inst, def, act }: { inst: Inst; def: ItemDef; act: Act }) {
+  const pk = def.picks!;
+  const picks = inst.picks ?? [];
+  const count = (id: string) => picks.filter((x) => x === id).length;
+  const set = (next: string[], label: string) => act("setItem", { instanceId: inst.id, picks: next.length ? next : null }, label);
+  const name = displayName(inst, def);
+  return (
+    <section className="picks-box">
+      <h2 className="sub-head">
+        {pk.label}: {picks.length}
+        {pk.max ? ` of up to ${pk.max}` : ""}
+      </h2>
+      {pk.note && <p className="note">{pk.note}</p>}
+      <div className="group">
+        {pk.options.map((o) => {
+          const n = count(o.id);
+          return (
+            <div className={`row${n ? "" : " dim"}`} key={o.id}>
+              <div className="row-main">
+                <div className="row-title">{o.name}</div>
+                {o.summary && <div className="row-sub">{o.summary}</div>}
+              </div>
+              <div className="stepper">
+                <button aria-label={`One ${o.name} fewer`} disabled={!n} onClick={() => set(picks.filter((x, i) => !(x === o.id && i === picks.lastIndexOf(o.id))), `${name}: one ${o.name} fewer.`)}>
+                  −
+                </button>
+                <span>{n}</span>
+                <button aria-label={`One ${o.name} more`} onClick={() => set([...picks, o.id], `${name}: ${o.name} added.`)}>
+                  +
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      {pk.max && picks.length > pk.max && <p className="warn">More than {pk.max}: kept, beyond the rules.</p>}
+      <p className="note">{inst.equipped && (!def.requiresAttunement || inst.attuned) ? "Their spells are on your Spells page, each once until the next dawn." : `Their spells show on your Spells page while you wear it${def.requiresAttunement ? " and are attuned" : ""}.`}</p>
+    </section>
+  );
+}
+
+/** The spells an item holds (Ring of Spell Storing): add one cast into it, with its slot level and its caster's numbers. */
+function StoredSpellsBox({ inst, def, act, spells, mine }: { inst: Inst; def: ItemDef; act: Act; spells: { id: string; name: string; level: number }[]; mine?: { dc: number; attack: number; name: string } }) {
+  const max = def.storesSpells!.maxLevels;
+  const held = inst.storedSpells ?? [];
+  const used = held.reduce((n, x) => n + x.level, 0);
+  const [adding, setAdding] = useState(false);
+  const [q, setQ] = useState("");
+  const [pick, setPick] = useState<{ id: string; name: string; level: number } | null>(null);
+  const [level, setLevel] = useState(1);
+  const [dc, setDc] = useState(String(mine?.dc ?? 13));
+  const [atk, setAtk] = useState(String(mine?.attack ?? 5));
+  const [by, setBy] = useState(mine?.name ?? "");
+  const name = displayName(inst, def);
+  const nameOf = (id: string) => spells.find((x) => x.id === id)?.name ?? id;
+  const save = (next: typeof held, label: string) => act("setItem", { instanceId: inst.id, storedSpells: next.length ? next : null }, label);
+  const found = spells
+    .filter((x) => x.level >= 1 && x.level <= max && x.name.toLowerCase().includes(q.trim().toLowerCase()))
+    .sort((a, b) => a.level - b.level || a.name.localeCompare(b.name))
+    .slice(0, 30);
+  return (
+    <section className="stored-box">
+      <h2 className="sub-head">
+        Spells it holds: {used} of {max} levels
+      </h2>
+      {held.length > 0 && (
+        <div className="group">
+          {held.map((x) => (
+            <div className="row" key={x.id}>
+              <div className="row-main">
+                <div className="row-title">{nameOf(x.spell)}</div>
+                <div className="row-sub">
+                  Level {x.level}
+                  {x.dc !== undefined ? ` · DC ${x.dc}, ${(x.attack ?? x.dc - 8) >= 0 ? "+" : ""}${x.attack ?? x.dc - 8} to hit` : ""}
+                  {x.by ? ` · by ${x.by}` : ""}
+                </div>
+              </div>
+              <button className="link" onClick={() => save(held.filter((y) => y.id !== x.id), `${name}: ${nameOf(x.spell)} taken out.`)}>
+                Remove
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+      {used > max && <p className="warn">More than {max} levels: kept, beyond the rules.</p>}
+      {!adding ? (
+        <button className="big wide" style={{ marginTop: 8 }} onClick={() => setAdding(true)}>
+          Store a spell in it
+          <span className="sub">{Math.max(0, max - used)} levels free</span>
+        </button>
+      ) : !pick ? (
+        <>
+          <input className="search" type="search" placeholder={`Search spells (level 1 to ${max})`} value={q} onChange={(e) => setQ(e.target.value)} />
+          <div className="group">
+            {found.map((x) => (
+              <button
+                key={x.id}
+                className="row"
+                onClick={() => {
+                  setPick(x);
+                  setLevel(x.level);
+                }}
+              >
+                <div className="row-main">
+                  <div className="row-title">{x.name}</div>
+                  <div className="row-sub">Level {x.level}</div>
+                </div>
+              </button>
+            ))}
+          </div>
+          <button className="link" onClick={() => setAdding(false)}>
+            Cancel
+          </button>
+        </>
+      ) : (
+        <>
+          <p className="note">
+            {pick.name}: the slot level it was cast with, and its caster's spell save DC and attack bonus (yours to start with).
+          </p>
+          <div className="group">
+            <div className="row">
+              <div className="row-main row-title">Slot level</div>
+              <div className="stepper">
+                <button aria-label="Lower" onClick={() => setLevel(Math.max(pick.level, level - 1))}>−</button>
+                <span>{level}</span>
+                <button aria-label="Higher" onClick={() => setLevel(Math.min(9, level + 1))}>+</button>
+              </div>
+            </div>
+            <label className="row">
+              <div className="row-main row-title">Spell save DC</div>
+              <input className="init-input" inputMode="numeric" value={dc} onChange={(e) => setDc(e.target.value.replace(/[^0-9]/g, ""))} aria-label="Spell save DC" />
+            </label>
+            <label className="row">
+              <div className="row-main row-title">Spell attack bonus</div>
+              <input className="init-input" inputMode="numeric" value={atk} onChange={(e) => setAtk(e.target.value.replace(/[^0-9-]/g, ""))} aria-label="Spell attack bonus" />
+            </label>
+            <label className="row">
+              <div className="row-main row-title">Cast into it by</div>
+              <input value={by} maxLength={80} onChange={(e) => setBy(e.target.value)} aria-label="Who cast it into the item" />
+            </label>
+          </div>
+          {used + level > max && <p className="warn">That's {used + level} levels: more than it holds ({max}). It can still be kept, beyond the rules.</p>}
+          <div className="big-actions">
+            <button className="big" onClick={() => setPick(null)}>
+              Back
+            </button>
+            <button
+              className="big primary"
+              onClick={() => {
+                const entry = { id: crypto.randomUUID().slice(0, 8), spell: pick.id, level, ...(dc ? { dc: Number(dc) } : {}), ...(atk !== "" && atk !== "-" ? { attack: Number(atk) } : {}), ...(by.trim() ? { by: by.trim() } : {}) };
+                save([...held, entry], `${name}: ${pick.name} stored at level ${level}.`);
+                setPick(null);
+                setAdding(false);
+                setQ("");
+              }}
+            >
+              Store it
+            </button>
+          </div>
+        </>
+      )}
+      <p className="note">{inst.equipped && (!def.requiresAttunement || inst.attuned) ? "Cast them from your Spells page: casting one frees its space." : `Cast them from your Spells page while you wear it${def.requiresAttunement ? " and are attuned" : ""}.`}</p>
+    </section>
+  );
+}
+
 /**
  * Whose numbers the spell uses. A Thinking Stone object: the Rock Gnome's proficiency bonus (DC 8 + it, + it to hit).
  * A scroll written by another wizard (Master Scrivener): their spell save DC and attack bonus; otherwise the scroll's own.
@@ -213,7 +380,10 @@ export function ItemPanel({
   onEditCustom,
   onUse,
   bases = [],
+  mine,
 }: {
+  /** Your own spell save DC, attack bonus and name: the starting numbers for a spell you store in an item. */
+  mine?: { dc: number; attack: number; name: string };
   inst: Inst;
   def: ItemDef;
   /** The weapons or armors it can be (Frost Brand: any sword), to pick which one this is. */
@@ -307,6 +477,8 @@ export function ItemPanel({
           </select>
         </label>
       )}
+      {def.picks && <PicksBox inst={inst} def={def} act={act} />}
+      {def.storesSpells && <StoredSpellsBox inst={inst} def={def} act={act} spells={spells} {...(mine ? { mine } : {})} />}
       {(isScroll(def) || isStoredObject(def)) && <ScrollSpell inst={inst} def={def} act={act} spells={spells} {...(onRead ? { onRead } : {})} {...(onCopy ? { onCopy } : {})} onCustom={onCustomSpell ?? (() => {})} />}
       <div className="group">
         <div className="row">

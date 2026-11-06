@@ -170,9 +170,40 @@ export function collectSources(c: Character, baseReg: ContentRegistry, duplicate
 
   for (const inst of c.inventory) {
     const def = reg.get(inst.item, "item");
-    // Ammunition's changes go on the roll it's picked for, never on everything.
-    if (!def.grant || !inst.equipped || def.category === "ammunition") continue;
-    if (def.requiresAttunement && !inst.attuned) continue;
+    if (!inst.equipped || def.category === "ammunition" || (def.requiresAttunement && !inst.attuned)) continue;
+    // The parts picked on it (prayer beads): each kind once, its resources counted once per copy picked.
+    if (def.picks && inst.picks?.length) {
+      const counts = new Map<string, number>();
+      for (const p of inst.picks) counts.set(p, (counts.get(p) ?? 0) + 1);
+      for (const [pid, n] of counts) {
+        const opt = def.picks.options.find((o) => o.id === pid);
+        if (!opt) continue;
+        const grant: Grant = { ...opt.grant };
+        if (grant.resources) grant.resources = grant.resources.map((r) => (typeof r.max === "number" ? { ...r, max: r.max * n, name: n > 1 ? `${r.name} (${n})` : r.name } : r));
+        out.push({ id: `${def.id}#${pid}`, label: `${inst.name ?? def.name}: ${opt.name}${n > 1 ? ` ×${n}` : ""}`, grant, choices: {}, itemInstanceId: inst.id });
+      }
+    }
+    // Spells cast into it (Ring of Spell Storing): each cast once from it, with its caster's numbers.
+    for (const st of def.storesSpells ? inst.storedSpells ?? [] : []) {
+      const sp = reg.find(st.spell, "spell");
+      out.push({
+        id: `stored:${inst.id}:${st.id}`,
+        label: inst.name ?? def.name,
+        grant: {
+          spells: [
+            {
+              spell: st.spell,
+              name: sp?.name ?? st.spell,
+              casting: "stored",
+              list: `stored-${inst.id}-${st.id}`,
+              scroll: { instanceId: inst.id, level: st.level, stored: true, entry: st.id, from: inst.name ?? def.name, ...(st.dc !== undefined ? { dc: st.dc } : {}), ...(st.attack !== undefined ? { attack: st.attack } : {}), ...(st.by ? { by: st.by } : {}) },
+            },
+          ],
+        },
+        choices: {},
+      });
+    }
+    if (!def.grant) continue;
     out.push({
       id: def.id,
       label: inst.name ?? def.name,

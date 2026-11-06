@@ -475,3 +475,7 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 - Zenith: whether a target is inside your Floar's area (for the 2d10) or its sunlight (for advantage) is yours to tick; difficult terrain for hostile creatures is a reminder.
 - Primal Companion and the drake: a beast you don't command takes the Dodge action when your turn ends (shown as its Dodge tag). Actions it takes without a command are warned, never blocked. When you're incapacitated it acts as it likes.
 - Items from book files: bonuses read from their wording are applied while the item is equipped (attuned when it needs it). Bonuses that depend on something more (Rod of Alertness' light, a talisman's alignment) are applied as written or left to you.
+
+## Round 19b
+- Necklace of Prayer Beads: you pick which beads yours has (the DM decides or rolls them); each bead's spell is used once until the next dawn. Removing a bead from the necklace isn't tracked.
+- Ring of Spell Storing, Ioun Stone of Reserve: you add each spell when it's cast into the item, with its slot level and its caster's DC and attack bonus; the level limit warns, never blocks.

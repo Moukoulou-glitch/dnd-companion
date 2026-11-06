@@ -214,7 +214,7 @@ export interface SpellResult {
      * Read from a spell scroll (used up): its level, the save DC and attack bonus the scroll sets,
      * whether the spell is on one of your class lists, and the check to cast one above your level.
      */
-    scroll?: { instanceId: string; level: number; dc: number; attack: number; onList: boolean; check?: { dc: number; ability: Ability; bonus: number }; stored?: boolean; by?: string };
+    scroll?: { instanceId: string; level: number; dc: number; attack: number; onList: boolean; check?: { dc: number; ability: Ability; bonus: number }; stored?: boolean; by?: string; entry?: string; from?: string };
     /** Cast with an item's charges (Wand of Magic Missiles: 1 at 1st, one more a level): the levels it can be cast at, and what each costs. */
     charges?: { instanceId: string; item: string; remaining: number; options: { level: number; cost: number }[] };
   };
@@ -1590,6 +1590,15 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
   const casterLevels: { progression: SpellcastingDef["progression"]; level: number }[] = [];
   const resolveAbility = (sc: SpellcastingDef, s?: Source): Ability | undefined => {
     if (typeof sc.ability === "string") return sc.ability;
+    // Your own spellcasting's ability, from the first of these you have (Necklace of Prayer Beads: cleric, druid or paladin).
+    if ("from" in sc.ability) {
+      for (const id of sc.ability.from) {
+        const cl = c.classes.map((x) => reg.find(x.class, "class")).find((d) => d?.spellcasting?.id === id);
+        const a = cl?.spellcasting && typeof cl.spellcasting.ability === "string" ? cl.spellcasting.ability : undefined;
+        if (a) return a;
+      }
+      return "wis";
+    }
     const picked = s?.choices[sc.ability.choice]?.[0];
     if (!picked) warnings.push(`${s?.label ?? sc.label}: choose the spellcasting ability ("${sc.ability.choice}").`);
     // Ritual Caster: the class picked gives the ability.
@@ -1687,8 +1696,12 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     atWill?: boolean;
     withSlots?: boolean;
     extra?: string;
-    scroll?: { instanceId: string; level: number; caster?: string; dc?: number; attack?: number; stored?: boolean; by?: string };
+    scroll?: { instanceId: string; level: number; caster?: string; dc?: number; attack?: number; stored?: boolean; by?: string; entry?: string; from?: string };
     pointCost?: { resource: string; amount: number };
+    /** Its own casting time from this source (a prayer bead: 1 bonus action). */
+    castingTime?: string;
+    /** Cast only through the item's own uses (a prayer bead), never with your slots. */
+    noSlots?: boolean;
     /** Cast with an item's charges (a wand), at `castAt` or the spell's level and up. */
     charges?: { instanceId: string; item: string; remaining: number; cost: number; perLevel?: boolean; maxLevel?: number };
     castAt?: number;
@@ -1729,6 +1742,9 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       if (g.noConcentration) granted.noConcentration = true;
       if (g.scroll) granted.scroll = g.scroll;
       if (g.castAt) granted.castAt = g.castAt;
+      if (g.castingTime) granted.castingTime = g.castingTime;
+      // An item's own once-a-day spell (a prayer bead): cast from the item, not with your slots.
+      if (s.itemInstanceId && g.resource) granted.noSlots = true;
       if (g.dc !== undefined) granted.dc = g.dc;
       // An item's charges (Wand of Fireballs): how many are left on this one.
       if (g.charges && s.itemInstanceId) {
@@ -1881,7 +1897,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       name: def.name,
       level: def.level,
       school: def.school,
-      castingTime: def.castingTime,
+      castingTime: granted?.castingTime ?? def.castingTime,
       range: def.range,
       components: def.components,
       duration: def.duration,
@@ -2062,6 +2078,10 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
         delete r.cast.pact;
       }
     }
+    if (granted?.noSlots) {
+      r.cast.slotLevels = [];
+      delete r.cast.pact;
+    }
     // Cast only to store it in an object (Thinking Stone): its effect waits for the object to be used.
     if (casters.find((x) => x.id === list)?.stores) r.stores = true;
     if (granted?.scroll) {
@@ -2082,11 +2102,26 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
         .map((d) => spellcasting.find((x) => x.id === d!.spellcasting!.id)?.ability)
         .filter((a): a is Ability => !!a);
       const ability = abilities.reduce<Ability | undefined>((b, a) => (b === undefined || mods[a] > mods[b] ? a : b), undefined) ?? "int";
-      r.cast = { slotLevels: [], scroll: { instanceId: granted.scroll.instanceId, level: granted.scroll.level, dc, attack, onList: stored || myLists.length > 0, ...(stored ? { stored: true } : {}), ...(granted.scroll.by ? { by: granted.scroll.by } : {}) } };
+      r.cast = {
+        slotLevels: [],
+        scroll: {
+          instanceId: granted.scroll.instanceId,
+          level: granted.scroll.level,
+          dc,
+          attack,
+          onList: stored || myLists.length > 0,
+          ...(stored ? { stored: true } : {}),
+          ...(granted.scroll.by ? { by: granted.scroll.by } : {}),
+          ...(granted.scroll.entry ? { entry: granted.scroll.entry } : {}),
+          ...(granted.scroll.from ? { from: granted.scroll.from } : {}),
+        },
+      };
       if (def.level > highest && !writer && !given && !stored) r.cast.scroll!.check = { dc: 10 + def.level, ability, bonus: mods[ability] };
-      r.list = { id: list, label: stored ? "Stored spell" : "Spell scroll" };
+      r.list = { id: list, label: granted.scroll.from ?? (stored ? "Stored spell" : "Spell scroll") };
       r.ready = "always";
-      r.fromFeature = stored
+      r.fromFeature = granted.scroll.from
+        ? `${granted.scroll.from}${granted.scroll.by ? ` (${granted.scroll.by})` : ""}`
+        : stored
         ? `Thinking Stone object${granted.scroll.by ? ` (${granted.scroll.by})` : ""}`
         : `Spell scroll (${granted.scroll.level === 0 ? "cantrip" : `level ${granted.scroll.level}`}${granted.scroll.by ? `, by ${granted.scroll.by}` : ""})`;
       if (def.attack) r.attack = roll([`roll.attack.spell.${def.attack}`], [{ label: writer ? `Spell attack (${writer.label})` : given ? `Spell attack (${granted.scroll.by ?? "its maker"})` : "Spell scroll", value: attack }]);
@@ -2259,14 +2294,17 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     if (!st?.stored) continue;
     const t = sp.castingTime.toLowerCase();
     const economy = t.startsWith("1 bonus action") ? "bonus" : t.startsWith("1 reaction") ? "reaction" : "action";
+    // A ring holding several (Ring of Spell Storing): one action each, and casting one frees its space.
     actions.push({
-      id: `stored-${st.instanceId}`,
-      name: `${sp.name} (stored)`,
+      id: st.entry ? `stored-${st.instanceId}-${st.entry}` : `stored-${st.instanceId}`,
+      name: `${sp.name} (${st.from ? `from ${st.from}` : "stored"})`,
       economy,
       source: sp.fromFeature ?? "Thinking Stone object",
       toggles: [],
       spells: [{ id: sp.id, list: sp.list.id }],
-      note: `Use the object: ${sp.name}${sp.save ? `, DC ${st.dc}` : ""}${sp.attack ? `, ${st.attack >= 0 ? "+" : ""}${st.attack} to hit` : ""}. It's used up.`,
+      note: st.from
+        ? `Cast it from ${st.from}: ${sp.name} at level ${st.level}${sp.save ? `, DC ${st.dc}` : ""}${sp.attack ? `, ${st.attack >= 0 ? "+" : ""}${st.attack} to hit` : ""}. Its space is free again.`
+        : `Use the object: ${sp.name}${sp.save ? `, DC ${st.dc}` : ""}${sp.attack ? `, ${st.attack >= 0 ? "+" : ""}${st.attack} to hit` : ""}. It's used up.`,
     });
   }
 

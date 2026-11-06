@@ -241,6 +241,13 @@ export const OPERATION_PAYLOADS = {
         .optional(),
       /** Which weapon or armor it is (Frost Brand: item:greatsword); null: back to its own. */
       base: z.string().nullable().optional(),
+      /** The parts picked on it (Necklace of Prayer Beads' beads); null clears them. */
+      picks: z.array(z.string()).nullable().optional(),
+      /** The spells it holds (Ring of Spell Storing); null empties it. */
+      storedSpells: z
+        .array(z.object({ id: z.string(), spell: z.string(), level: z.number().int().min(1).max(9), dc: z.number().int().min(1).max(40).optional(), attack: z.number().int().min(-5).max(30).optional(), by: z.string().max(80).optional() }).strict())
+        .nullable()
+        .optional(),
     })
     .strict(),
   adjustCurrency: z.object({ coin: z.enum(["cp", "sp", "ep", "gp", "pp"]), delta: z.number().int() }).strict(),

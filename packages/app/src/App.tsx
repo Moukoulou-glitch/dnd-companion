@@ -1667,6 +1667,11 @@ export function App() {
           act={live.current.act}
           close={close}
           spells={spells}
+          {...(() => {
+            // Your best spellcasting's numbers, for a spell you store in an item (Ring of Spell Storing).
+            const sc = [...(live.current.sheet?.spellcasting ?? [])].sort((a, b) => b.saveDc.total - a.saveDc.total)[0];
+            return sc ? { mine: { dc: sc.saveDc.total, attack: sc.attack.total, name: live.current.character?.name ?? "" } } : {};
+          })()}
           {...(scrollSpell ? { onRead: () => openSpell(scrollSpell) } : {})}
           {...(copyable(inst) ? { onCopy: () => openCopyScroll(inst.id) } : {})}
           onCustomSpell={() => openCustomSpell(undefined, () => openItem(inst.id))}

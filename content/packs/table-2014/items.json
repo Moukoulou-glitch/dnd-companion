@@ -2492,7 +2492,263 @@
             "name": "Ring of Spell Storing",
             "economy": "action",
             "infoOnly": true,
-            "note": "Cast a spell stored in it: its slot level, DC, attack bonus and ability are the original caster's. Write what it holds in the ring's notes."
+            "note": "Its spells are on your Spells page: cast one from there (its slot level, DC and attack bonus are the original caster's) and its space is free again. Add what it holds on the ring in Items."
+          }
+        ]
+      },
+      "storesSpells": {
+        "maxLevels": 5
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:necklace-of-prayer-beads",
+      "name": "Necklace of Prayer Beads",
+      "summary": "1d4 + 2 magic beads among plain ones: pick which beads yours has. While you wear it, each bead casts its spell as a bonus action with your spell save DC, once until the next dawn.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "rare"
+      },
+      "requiresAttunement": true,
+      "picks": {
+        "label": "Beads",
+        "max": 6,
+        "note": "Your necklace has 1d4 + 2 magic beads (3 to 6); the DM decides or rolls which kinds. A kind can appear more than once: each bead is used once until the next dawn.",
+        "options": [
+          {
+            "id": "blessing",
+            "name": "Bead of Blessing",
+            "summary": "Bless",
+            "grant": {
+              "spellcasting": {
+                "id": "prayer-beads",
+                "label": "Necklace of Prayer Beads",
+                "ability": {
+                  "from": [
+                    "cleric",
+                    "druid",
+                    "paladin"
+                  ]
+                },
+                "progression": "none"
+              },
+              "resources": [
+                {
+                  "id": "bead-blessing",
+                  "name": "Bead of Blessing",
+                  "max": 1,
+                  "reset": "dawn"
+                }
+              ],
+              "spells": [
+                {
+                  "spell": "spell:bless",
+                  "name": "Bless",
+                  "casting": "from the bead, as a bonus action",
+                  "resource": "bead-blessing",
+                  "list": "prayer-beads",
+                  "castingTime": "1 bonus action"
+                }
+              ]
+            }
+          },
+          {
+            "id": "curing",
+            "name": "Bead of Curing",
+            "summary": "Cure Wounds (2nd level) or Lesser Restoration",
+            "grant": {
+              "spellcasting": {
+                "id": "prayer-beads",
+                "label": "Necklace of Prayer Beads",
+                "ability": {
+                  "from": [
+                    "cleric",
+                    "druid",
+                    "paladin"
+                  ]
+                },
+                "progression": "none"
+              },
+              "resources": [
+                {
+                  "id": "bead-curing",
+                  "name": "Bead of Curing",
+                  "max": 1,
+                  "reset": "dawn"
+                }
+              ],
+              "spells": [
+                {
+                  "spell": "spell:cure-wounds",
+                  "name": "Cure Wounds",
+                  "castAt": 2,
+                  "casting": "from the bead, as a bonus action",
+                  "resource": "bead-curing",
+                  "list": "prayer-beads",
+                  "castingTime": "1 bonus action"
+                },
+                {
+                  "spell": "spell:lesser-restoration",
+                  "name": "Lesser Restoration",
+                  "casting": "from the bead, as a bonus action",
+                  "resource": "bead-curing",
+                  "list": "prayer-beads",
+                  "castingTime": "1 bonus action"
+                }
+              ]
+            }
+          },
+          {
+            "id": "favor",
+            "name": "Bead of Favor",
+            "summary": "Greater Restoration",
+            "grant": {
+              "spellcasting": {
+                "id": "prayer-beads",
+                "label": "Necklace of Prayer Beads",
+                "ability": {
+                  "from": [
+                    "cleric",
+                    "druid",
+                    "paladin"
+                  ]
+                },
+                "progression": "none"
+              },
+              "resources": [
+                {
+                  "id": "bead-favor",
+                  "name": "Bead of Favor",
+                  "max": 1,
+                  "reset": "dawn"
+                }
+              ],
+              "spells": [
+                {
+                  "spell": "spell:greater-restoration",
+                  "name": "Greater Restoration",
+                  "casting": "from the bead, as a bonus action",
+                  "resource": "bead-favor",
+                  "list": "prayer-beads",
+                  "castingTime": "1 bonus action"
+                }
+              ]
+            }
+          },
+          {
+            "id": "smiting",
+            "name": "Bead of Smiting",
+            "summary": "Branding Smite",
+            "grant": {
+              "spellcasting": {
+                "id": "prayer-beads",
+                "label": "Necklace of Prayer Beads",
+                "ability": {
+                  "from": [
+                    "cleric",
+                    "druid",
+                    "paladin"
+                  ]
+                },
+                "progression": "none"
+              },
+              "resources": [
+                {
+                  "id": "bead-smiting",
+                  "name": "Bead of Smiting",
+                  "max": 1,
+                  "reset": "dawn"
+                }
+              ],
+              "spells": [
+                {
+                  "spell": "spell:branding-smite",
+                  "name": "Branding Smite",
+                  "casting": "from the bead, as a bonus action",
+                  "resource": "bead-smiting",
+                  "list": "prayer-beads",
+                  "castingTime": "1 bonus action"
+                }
+              ]
+            }
+          },
+          {
+            "id": "summons",
+            "name": "Bead of Summons",
+            "summary": "Planar Ally",
+            "grant": {
+              "spellcasting": {
+                "id": "prayer-beads",
+                "label": "Necklace of Prayer Beads",
+                "ability": {
+                  "from": [
+                    "cleric",
+                    "druid",
+                    "paladin"
+                  ]
+                },
+                "progression": "none"
+              },
+              "resources": [
+                {
+                  "id": "bead-summons",
+                  "name": "Bead of Summons",
+                  "max": 1,
+                  "reset": "dawn"
+                }
+              ],
+              "spells": [
+                {
+                  "spell": "spell:planar-ally",
+                  "name": "Planar Ally",
+                  "casting": "from the bead, as a bonus action",
+                  "resource": "bead-summons",
+                  "list": "prayer-beads",
+                  "castingTime": "1 bonus action"
+                }
+              ]
+            }
+          },
+          {
+            "id": "wind-walking",
+            "name": "Bead of Wind Walking",
+            "summary": "Wind Walk",
+            "grant": {
+              "spellcasting": {
+                "id": "prayer-beads",
+                "label": "Necklace of Prayer Beads",
+                "ability": {
+                  "from": [
+                    "cleric",
+                    "druid",
+                    "paladin"
+                  ]
+                },
+                "progression": "none"
+              },
+              "resources": [
+                {
+                  "id": "bead-wind-walking",
+                  "name": "Bead of Wind Walking",
+                  "max": 1,
+                  "reset": "dawn"
+                }
+              ],
+              "spells": [
+                {
+                  "spell": "spell:wind-walk",
+                  "name": "Wind Walk",
+                  "casting": "from the bead, as a bonus action",
+                  "resource": "bead-wind-walking",
+                  "list": "prayer-beads",
+                  "castingTime": "1 bonus action"
+                }
+              ]
+            }
           }
         ]
       }
@@ -2965,7 +3221,7 @@
       "kind": "item",
       "id": "item:ioun-stone-reserve",
       "name": "Ioun Stone of Reserve",
-      "summary": "Orbits your head: Stores up to 3 levels of spells, like a Ring of Spell Storing.",
+      "summary": "Orbits your head: stores up to 3 levels of spells cast into it, like a Ring of Spell Storing; pick them on the stone in Items, cast them from your Spells page.",
       "source": {
         "pack": "table-2014",
         "book": "SRD 5.1"
@@ -2974,7 +3230,10 @@
       "magic": {
         "rarity": "rare"
       },
-      "requiresAttunement": true
+      "requiresAttunement": true,
+      "storesSpells": {
+        "maxLevels": 3
+      }
     },
     {
       "kind": "item",
