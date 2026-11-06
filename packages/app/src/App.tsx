@@ -1667,6 +1667,7 @@ export function App() {
           act={live.current.act}
           close={close}
           spells={spells}
+          resources={live.current.sheet?.resources ?? []}
           {...(() => {
             // Your best spellcasting's numbers, for a spell you store in an item (Ring of Spell Storing).
             const sc = [...(live.current.sheet?.spellcasting ?? [])].sort((a, b) => b.saveDc.total - a.saveDc.total)[0];

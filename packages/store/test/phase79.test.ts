@@ -94,6 +94,21 @@ describe("19b: items whose spells you pick", () => {
     // More than six beads: warned, kept.
     expect(l.record("setItem", { instanceId: "neck", picks: ["blessing", "blessing", "blessing", "favor", "favor", "summons", "wind-walking"] }).join(" ")).toMatch(/at most 6 beads/);
   });
+  it("beads used are tracked: casting one uses that bead until dawn; the last one used warns; a long rest brings them back", () => {
+    const l = cleric([{ id: "neck", item: "item:necklace-of-prayer-beads", quantity: 1, equipped: true, attuned: true, picks: ["curing", "curing"] }]);
+    const bead = () => derive(l.character, reg).resources.find((r) => r.id === "bead-curing")!;
+    l.record("castSpell", { spell: "spell:cure-wounds", list: "prayer-beads", level: 2, using: "free" });
+    expect(bead()).toMatchObject({ used: 1, max: 2, remaining: 1 });
+    // Lesser Restoration shares the Curing beads.
+    l.record("castSpell", { spell: "spell:lesser-restoration", list: "prayer-beads", level: 2, using: "free" });
+    expect(bead().remaining).toBe(0);
+    expect(l.record("castSpell", { spell: "spell:cure-wounds", list: "prayer-beads", level: 2, using: "free" }).join(" ")).toMatch(/none left/);
+    // Marked by hand on the necklace, and back again.
+    l.record("restoreResource", { resource: "bead-curing", amount: 1 });
+    expect(bead().remaining).toBe(1);
+    l.record("rest", { kind: "long" });
+    expect(bead().remaining).toBe(2);
+  });
   it("Ring of Spell Storing: the spells it holds, cast once each with the caster's numbers; the ring stays", () => {
     const l = cleric([{ id: "ring", item: "item:ring-of-spell-storing", quantity: 1, equipped: true, attuned: true }]);
     l.record("setItem", { instanceId: "ring", storedSpells: [{ id: "a", spell: "spell:shield-of-faith", level: 1, dc: 15, attack: 7, by: "Mira" }, { id: "b", spell: "spell:hold-person", level: 2, dc: 15, attack: 7 }] });

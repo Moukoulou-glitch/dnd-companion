@@ -130,8 +130,9 @@ function ScrollSpell({ inst, def, act, spells, onRead, onCopy, onCustom }: { ins
 }
 
 /** The parts picked on this copy (Necklace of Prayer Beads: its beads), each kind with how many. */
-function PicksBox({ inst, def, act }: { inst: Inst; def: ItemDef; act: Act }) {
+function PicksBox({ inst, def, act, uses = {} }: { inst: Inst; def: ItemDef; act: Act; uses?: Record<string, { used: number; max: number }> }) {
   const pk = def.picks!;
+  const live = inst.equipped && (!def.requiresAttunement || inst.attuned);
   const picks = inst.picks ?? [];
   const count = (id: string) => picks.filter((x) => x === id).length;
   const set = (next: string[], label: string) => act("setItem", { instanceId: inst.id, picks: next.length ? next : null }, label);
@@ -146,11 +147,36 @@ function PicksBox({ inst, def, act }: { inst: Inst; def: ItemDef; act: Act }) {
       <div className="group">
         {pk.options.map((o) => {
           const n = count(o.id);
+          // Each bead of this kind: used until the next dawn, or ready (its resource counts them).
+          const rid = o.grant.resources?.[0]?.id;
+          const u = rid ? uses[rid] : undefined;
+          const spent = Math.min(n, u?.used ?? 0);
           return (
             <div className={`row${n ? "" : " dim"}`} key={o.id}>
               <div className="row-main">
                 <div className="row-title">{o.name}</div>
                 {o.summary && <div className="row-sub">{o.summary}</div>}
+                {n > 0 && rid && live && (
+                  <div className="bead-pips" role="group" aria-label={`${o.name}: ${n - spent} of ${n} ready`}>
+                    {Array.from({ length: n }, (_, i) => {
+                      const used = i < spent;
+                      return (
+                        <button
+                          key={i}
+                          className={`bead-pip${used ? " used" : ""}`}
+                          aria-pressed={used}
+                          aria-label={used ? `${o.name} ${i + 1}: used, tap to get it back` : `${o.name} ${i + 1}: ready, tap to mark it used`}
+                          onClick={() =>
+                            used
+                              ? act("restoreResource", { resource: rid, amount: 1 }, `${o.name}: one ready again.`)
+                              : act("spendResource", { resource: rid, amount: 1 }, `${o.name}: one used until the next dawn.`)
+                          }
+                        />
+                      );
+                    })}
+                    <span className="bead-pips-label">{spent ? `${spent} of ${n} used until dawn` : n > 1 ? "all ready" : "ready"}</span>
+                  </div>
+                )}
               </div>
               <div className="stepper">
                 <button aria-label={`One ${o.name} fewer`} disabled={!n} onClick={() => set(picks.filter((x, i) => !(x === o.id && i === picks.lastIndexOf(o.id))), `${name}: one ${o.name} fewer.`)}>
@@ -381,7 +407,10 @@ export function ItemPanel({
   onUse,
   bases = [],
   mine,
+  resources = [],
 }: {
+  /** Your resources, for the uses an item's parts have left (a prayer bead used until dawn). */
+  resources?: { id: string; used: number; max: number }[];
   /** Your own spell save DC, attack bonus and name: the starting numbers for a spell you store in an item. */
   mine?: { dc: number; attack: number; name: string };
   inst: Inst;
@@ -477,7 +506,7 @@ export function ItemPanel({
           </select>
         </label>
       )}
-      {def.picks && <PicksBox inst={inst} def={def} act={act} />}
+      {def.picks && <PicksBox inst={inst} def={def} act={act} uses={Object.fromEntries(resources.map((r) => [r.id, { used: r.used, max: r.max }]))} />}
       {def.storesSpells && <StoredSpellsBox inst={inst} def={def} act={act} spells={spells} {...(mine ? { mine } : {})} />}
       {(isScroll(def) || isStoredObject(def)) && <ScrollSpell inst={inst} def={def} act={act} spells={spells} {...(onRead ? { onRead } : {})} {...(onCopy ? { onCopy } : {})} onCustom={onCustomSpell ?? (() => {})} />}
       <div className="group">

@@ -4580,3 +4580,9 @@ html.fx-shake-strong .app > .strip, html.fx-shake-strong .app > main, html.fx-sh
 .note.command-state { border-left: 3px solid var(--line); padding-left: 8px; }
 .note.command-state.on { border-left-color: var(--teal); color: var(--text); }
 .big-actions .big.on { border-color: var(--teal); background: var(--teal-soft); }
+
+/* A prayer bead per pip: filled while ready, hollow once used until the next dawn. */
+.bead-pips { display: flex; align-items: center; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+.bead-pip { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--teal); background: radial-gradient(circle at 35% 35%, #e9fffb, var(--teal) 70%); padding: 0; }
+.bead-pip.used { background: transparent; border-color: var(--muted); opacity: 0.7; }
+.bead-pips-label { font-size: 13px; color: var(--muted); }
