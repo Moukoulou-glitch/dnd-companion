@@ -333,3 +333,4 @@ Remaining plan (each a sub-phase, stop after each): 2a crits (done) · 2b Relent
   - Firbolg crest: variant "lavender" — lavender stalks swaying on the boughs, petals drifting.
   - Primal Companion (and the drake: companions commanded with a bonus action): `CompanionState.commanded` ("any" | "attack", optional), set by the Command / Attack-instead buttons via `companionEconomy {commanded}`, cleared when your turn starts. Not commanded at the end of your turn (and you're not incapacitated): it takes the Dodge action (Dodge tag until your next turn, its action used). Its other actions warn (never block) when not commanded, or commanded only to attack. The panel shows the command state; the buttons light up.
   - Floar lights the flashlight 4 s, 6 s with Zenith (`lightFor`, `hasZenith` in flash.ts).
+- 19a merged to main with approval (Nov 6; run 42279673771 passed). Zenith's sunlight line stays (the user corrected only the bullets).
