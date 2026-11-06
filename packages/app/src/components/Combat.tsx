@@ -1,5 +1,5 @@
 import { Markdown } from "./Markdown";
-import { Critter, hiddenCompanionCritter } from "../fx/critters";
+import { Critter, companionCritter } from "../fx/critters";
 import { hpTier } from "../hp";
 import { RichText } from "./Conditions";
 import { ABILITIES, ABILITY_NAMES, SKILL_ABILITY, SKILL_NAMES, type Character, type OperationType, type Skill } from "@dnd/schema";
@@ -271,10 +271,11 @@ function JumpSection({ sheet, left }: { sheet: DerivedSheet; left?: number }) {
 }
 
 /** A companion on the Play tab: name, form and hit points at a glance. */
-export function CompanionCard({ comp, onOpen }: { comp: CompanionResult; onOpen: () => void }) {
+export function CompanionCard({ comp, onOpen, rangerLevel = 0 }: { comp: CompanionResult; onOpen: () => void; rangerLevel?: number }) {
   const f = comp.form;
   const pct = f ? Math.round((f.hp.current / f.hpMax.total) * 100) : 0;
-  const pet = f && !comp.away ? hiddenCompanionCritter(comp.name, f.name) : undefined;
+  // Its little creature on the card (the drake, growing with the ranger): only while it's here.
+  const pet = f && !comp.away ? companionCritter(comp, rangerLevel) : undefined;
   return (
     <button className={`row companion${pet ? " has-pet" : ""}`} onClick={onOpen}>
       {pet && (
@@ -413,7 +414,7 @@ const TURN_WORDS: Record<CompanionResult["turn"], string> = {
 };
 
 /** A companion's initiative (when it rolls its own) and its turn: action, bonus action, reaction, movement. */
-function CompanionTurn({ comp, character, act, onRollInitiative }: { comp: CompanionResult; character: Character; act: Act; onRollInitiative: () => void }) {
+function CompanionTurn({ comp, character, act, onRollInitiative, youIncapacitated = false }: { comp: CompanionResult; character: Character; act: Act; onRollInitiative: () => void; youIncapacitated?: boolean }) {
   const f = comp.form!;
   const used = comp.used;
   const [init, setInit] = useState(comp.initiative !== undefined ? String(comp.initiative) : "");
@@ -422,7 +423,13 @@ function CompanionTurn({ comp, character, act, onRollInitiative }: { comp: Compa
   const [pending, setPending] = useState<{ what: string; why: string; run: () => void } | null>(null);
   const name = comp.name;
   const per = f.attacksPerAction;
+  // Primal Companion, the drake: it takes the Dodge action unless you command it (warned, never blocked).
+  const dodgesUnlessCommanded = comp.command?.economy === "bonus" && !!character.combat && !youIncapacitated;
   const busy = (kind: TurnKind | "attack"): string | undefined => {
+    if (dodgesUnlessCommanded && (kind === "action" || kind === "attack")) {
+      if (!comp.commanded) return `It wasn't commanded: it takes the Dodge action unless you spend a bonus action to command it${comp.command?.attackInstead ? " (or give up one of your attacks for it to attack)" : ""}.`;
+      if (comp.commanded === "attack" && kind === "action") return "It was commanded to attack in place of one of your attacks, not to take another action.";
+    }
     if (kind === "attack") {
       if (used.action && used.attacks === 0) return "Its action is already used this turn.";
       if (used.attacks >= per) return `It has made ${used.attacks} of ${per} attacks for its Attack action.`;
@@ -447,6 +454,17 @@ function CompanionTurn({ comp, character, act, onRollInitiative }: { comp: Compa
     <>
       <h2 className="sub-head">Its turn</h2>
       <p className="note">{TURN_WORDS[comp.turn]}</p>
+      {comp.command?.economy === "bonus" && character.combat && (
+        <p className={`note command-state${comp.commanded ? " on" : ""}`}>
+          {youIncapacitated
+            ? "You're incapacitated: it takes any action it likes."
+            : comp.commanded === "any"
+              ? "Commanded: it can take any action this turn (one from its stat block or another)."
+              : comp.commanded === "attack"
+                ? "Commanded to attack in place of one of your attacks: it can take the Attack action."
+                : "Not commanded yet: it takes the Dodge action when your turn ends, unless you command it."}
+        </p>
+      )}
       {comp.turn === "own" ? (
         <label className="roll-entry">
           <span>Initiative</span>
@@ -655,7 +673,7 @@ export function CompanionPanel({
         </button>
       </div>
       <p className="note">{[f.speed, f.senses, f.languages].filter(Boolean).map((x) => `${x!.replace(/\.$/, "")}.`).join(" ")}</p>
-      {!dead && <CompanionTurn comp={comp} character={character} act={act} onRollInitiative={onRollInitiative} />}
+      {!dead && <CompanionTurn comp={comp} character={character} act={act} onRollInitiative={onRollInitiative} youIncapacitated={sheet.effects.some((e) => [e.id, ...e.includes.map((x) => x.id)].some((id) => /(incapacitated|paralyzed|petrified|stunned|unconscious)$/.test(id))) || character.hp.current === 0} />}
 
       {dead && comp.summon && (
         <>
@@ -701,13 +719,13 @@ export function CompanionPanel({
       {/* Your own companions act on their own (or as your DM says); a feature's companion (or your Ranger's Companion) takes commands. */}
       {character.combat && !dead && comp.command && (
         <div className="big-actions">
-          <button className="big" onClick={onCommand}>
-            Command it
-            <span className="sub">{comp.command.economy === "action" ? "your action" : "bonus action"}</span>
+          <button className={`big${comp.commanded === "any" ? " on" : ""}`} aria-pressed={comp.commanded === "any"} onClick={onCommand}>
+            {comp.commanded === "any" ? "Commanded" : "Command it"}
+            <span className="sub">{comp.commanded === "any" ? "any action this turn" : comp.command.economy === "action" ? "your action" : "bonus action"}</span>
           </button>
           {comp.command.attackInstead && (
-            <button className="big" onClick={onAttackInstead}>
-              Attack instead of me
+            <button className={`big${comp.commanded === "attack" ? " on" : ""}`} aria-pressed={comp.commanded === "attack"} onClick={onAttackInstead}>
+              {comp.commanded === "attack" ? "Attacking for you" : "Attack instead of me"}
               <span className="sub">one of your attacks</span>
             </button>
           )}

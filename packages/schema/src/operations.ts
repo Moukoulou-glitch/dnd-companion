@@ -137,6 +137,8 @@ export const OPERATION_PAYLOADS = {
       move: z.number().int().optional(),
       dash: z.boolean().optional(),
       mode: z.string().optional(),
+      /** You commanded it (any action, or to attack in place of one of your attacks), or that's taken back. */
+      commanded: z.enum(["any", "attack", "none"]).optional(),
     })
     .strict(),
   /** A summoned creature's turn: use or give back its action, bonus action, reaction or an attack; `newTurn` resets them. */

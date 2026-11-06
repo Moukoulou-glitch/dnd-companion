@@ -136,6 +136,13 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
   };
 
   /** Companions' Dodge and Ready end at the start of their next turn (yours, for one that acts with you). */
+  /** You're incapacitated (or at 0 HP): a commanded beast acts as it likes. */
+  const youIncapacitated = () => {
+    const states = sheet.effects.flatMap((e) => [e.id, ...e.includes.map((x) => x.id)]);
+    return states.some((id) => /(incapacitated|paralyzed|petrified|stunned|unconscious)$/.test(id)) || c.hp.current === 0;
+  };
+  /** Takes the Dodge action unless you command it (Primal Companion, the drake: commanded with a bonus action). */
+  const dodgesUnlessCommanded = (comp: { command?: { economy: string } }) => comp.command?.economy === "bonus";
   const clearCompanionStates = (which: (x: { outOfCombat?: boolean | undefined }, companion: string) => boolean) => {
     for (const [id, st] of Object.entries(c.companions)) {
       const gone = (st.states ?? []).filter((x) => which(x, id));
@@ -785,6 +792,11 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         }
         if (comp?.turn === "own") countDownCompanion(op.payload.companion);
         break;
+      }
+      if (op.payload.commanded) {
+        if (op.payload.commanded === "none") delete st.commanded;
+        // Commanded to take any action wins over commanded to attack.
+        else if (!(st.commanded === "any" && op.payload.commanded === "attack")) st.commanded = op.payload.commanded;
       }
       const u = (st.used ??= { ...NO_TURN_USED });
       if (op.payload.move !== undefined) {
@@ -2126,6 +2138,18 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       // Dodge or Ready taken outside combat: no next turn to wait for, so they end now.
       endTurnStartEffects(c.effects.filter((e) => e.untilTurnStart && (e.outOfCombat || !c.combat)), "your turn is over");
       clearCompanionStates((x) => !!x.outOfCombat || !c.combat);
+      // Not commanded this turn (and you're not incapacitated): the beast took the Dodge action (Primal Companion, the drake).
+      if (c.combat && !youIncapacitated())
+        for (const comp of sheet.companions) {
+          const st = c.companions[comp.id];
+          if (!dodgesUnlessCommanded(comp) || !comp.form || comp.away || comp.form.hp.current <= 0 || st?.commanded) continue;
+          const u = st?.used;
+          if (u?.action || (u?.attacks ?? 0) > 0) continue;
+          const state = (c.companions[comp.id] ??= { states: [] });
+          state.used = { ...NO_TURN_USED, ...state.used, action: true };
+          state.states = [...(state.states ?? []).filter((x) => x.name !== "Dodge"), { id: `${op.id}-${comp.id}-dodge`, name: "Dodge" }];
+          notes.push(`${comp.name} wasn't commanded: it takes the Dodge action until your next turn.`);
+        }
       const conc = c.concentration;
       if (conc?.rounds !== undefined) {
         conc.rounds -= 1;
@@ -2179,6 +2203,8 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       for (const comp of sheet.companions) {
         if (comp.turn === "own" && c.combat) continue;
         if (c.companions[comp.id]?.used) delete c.companions[comp.id]!.used;
+        // A command lasts for the turn it's given.
+        if (c.companions[comp.id]?.commanded) delete c.companions[comp.id]!.commanded;
         if (c.combat) countDownCompanion(comp.id);
       }
       const round = !prev ? 1 : prev.hadTurn && !prev.myTurn ? prev.round + 1 : prev.round;
@@ -2330,6 +2356,12 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       const name = choice ? `${a.name}: ${choice}` : a.name;
       // It takes the action on its turn: its action, bonus action, reaction, or one of its attacks (Grapple, Shove).
       const kind = a.asAttack ? "attack" : a.economy === "free" ? undefined : a.economy;
+      // A beast that Dodges unless commanded (Primal Companion, the drake): warned, never blocked.
+      const cs = c.companions[companion];
+      if (c.combat && dodgesUnlessCommanded(comp) && !youIncapacitated() && (kind === "action" || kind === "attack") && a.id !== "common-dodge") {
+        if (!cs?.commanded) notes.push(`${comp.name} wasn't commanded: it takes the Dodge action unless you spend a bonus action to command it${comp.command?.attackInstead ? " (or give up one of your attacks for it to attack)" : ""}. Used anyway.`);
+        else if (cs.commanded === "attack" && kind !== "attack" && a.id !== "common-attack") notes.push(`${comp.name} was commanded to attack (in place of one of your attacks), not to take another action. Used anyway.`);
+      }
       if (kind) {
         const st = (c.companions[companion] ??= { states: [] });
         const u = (st.used ??= { ...NO_TURN_USED });

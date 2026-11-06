@@ -5968,7 +5968,7 @@
       "reminders": [
         "Hostile creatures that start their turn within 10 ft of you, or enter it for the first time on a turn, take {pb} damage of the aura's type.",
         "Fire and radiant swap on your spells' damage rolls; Fire Bolt is yours as a druid spell.",
-        "From 14th level (Zenith): bright sunlight in 5 ft, dim 5 ft more.",
+        "From 14th level (Zenith): bright sunlight in 5 ft, dim 5 ft more; this area is difficult terrain for hostile creatures, and your spells' fire and radiant damage to creatures in it is +2d10 instead of +1d10.",
         "It ends if you change form (Wild Shape, Polymorph), become incapacitated or use Floar again; end it here any time."
       ]
     },

@@ -524,6 +524,16 @@ export function bookPack(files: BookFile[], base: ContentRegistry): { pack: Cont
         if (item.text) attach(existing, item.text);
         continue;
       }
+      // "+1 Rod of the Pact Keeper" is the app's "Rod of the Pact Keeper +1": it works the same, with this book's text.
+      const plus = /^\+(\d) (.+)$/.exec(item.name);
+      const same = plus ? (known.get(slug(`${plus[2]} +${plus[1]}`)) as ItemDef | undefined) : undefined;
+      if (same) {
+        if (item.text) attach(same, item.text);
+        if (same.grant) item.grant = same.grant;
+        if (same.magic) item.magic = { ...item.magic, ...same.magic };
+        if (same.weapon && !item.weapon) item.weapon = same.weapon;
+        item.category = same.category;
+      }
       if (out.has(item.id)) continue;
       out.set(item.id, item);
       added("item");

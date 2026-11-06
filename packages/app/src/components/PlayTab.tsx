@@ -296,7 +296,7 @@ export function PlayTab({
           <h2>{sheet.companions.length > 1 ? "Companions" : "Companion"}</h2>
           <div className="group">
             {sheet.companions.map((comp) => (
-              <CompanionCard key={comp.id} comp={comp} onOpen={() => openCompanion(comp.id)} />
+              <CompanionCard key={comp.id} comp={comp} onOpen={() => openCompanion(comp.id)} rangerLevel={character.classes.find((x) => x.class === "class:ranger")?.level ?? 0} />
             ))}
           </div>
           <button className="link" onClick={openCompanionBuilder}>

@@ -58,3 +58,28 @@ describe("Magic Missile: one roll, every dart", () => {
     expect(r.total).toBe(21);
   });
 });
+
+import { FLOAR_HOLD, hasZenith, lightFor } from "../src/flash";
+import { companionCritter, drakeCritter } from "../src/fx/critters";
+import { crestFor } from "../src/fx/crest";
+
+describe("19a: Floar's light, the drake, the firbolg's lavender", () => {
+  it("Floar lights the torch for 4 seconds, 6 with Zenith", () => {
+    expect(lightFor("floar")).toEqual({ hold: 4000 });
+    expect(lightFor("floar", { zenith: true })).toEqual({ hold: 6000 });
+    expect(FLOAR_HOLD).toEqual({ plain: 4000, zenith: 6000 });
+    expect(hasZenith({ classes: [{ class: "class:druid", level: 14, subclass: "subclass:circle-of-the-heammer" }] })).toBe(true);
+    expect(hasZenith({ classes: [{ class: "class:druid", level: 13, subclass: "subclass:circle-of-the-heammer" }] })).toBe(false);
+  });
+  it("the drake grows with the ranger: small and wingless, winged from 7th, large and glowing from 15th", () => {
+    expect(drakeCritter("fire", 3).f).toEqual(["horns", "small"]);
+    expect(drakeCritter("fire", 7).f).toEqual(["wings", "horns"]);
+    expect(drakeCritter("fire", 15).f).toEqual(["wings", "horns", "big", "glow"]);
+    expect(drakeCritter("cold", 3).c1).not.toBe(drakeCritter("fire", 3).c1);
+    expect(companionCritter({ id: "drake", name: "Drake", form: { id: "acid", name: "Acid drake" } }, 9)?.plan).toBe("drake");
+    expect(companionCritter({ id: "primal-beast", name: "Rex", form: { id: "land", name: "Beast of the Land" } }, 9)).toBeUndefined();
+  });
+  it("the firbolg's crest has lavender", () => {
+    expect(crestFor({ race: "race:firbolg", classes: [{ level: 10 }] })).toMatchObject({ motif: "vines", variant: "lavender" });
+  });
+});

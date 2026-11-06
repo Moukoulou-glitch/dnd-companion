@@ -90,7 +90,7 @@ export const RACE_CRESTS: Record<string, CrestSpec> = {
   "race:lizardfolk": W("spikes", "#e6dcc4", "#4f6a3a", "#d7ffb0", "Teeth and reeds", "teeth"),
   "race:yuan-ti-pureblood": W("serpent", "#3f6a3a", "#c9b04a", "#d7ff7a", "Serpent"),
   "race:tabaxi": W("tail", "#b0803a", "#3a2a1a", "#ffd07a", "Cat's tail"),
-  "race:firbolg": W("vines", "#5e8a5a", "#8a6a4a", "#d9ffd0", "Forest boughs", "leaf"),
+  "race:firbolg": W("vines", "#5e8a5a", "#8a6a4a", "#e6d6ff", "Forest boughs and lavender", "lavender"),
   "race:triton": W("waves", "#2f8fb0", "#1a4f70", "#bff0ff", "Deep waves"),
   "race:air-genasi": W("wind", "#bfe3ff", "#7fb3d9", "#ffffff", "Winds"),
   "race:earth-genasi": W("shards", "#8a6f4f", "#5a4a36", "#ffd08a", "Floating stones"),
@@ -425,6 +425,35 @@ export function drawCrest(spec: CrestSpec, g: Geo): { back: ReactNode; front: Re
                 const p: Pt = [L + g.w * (0.45 + i * 0.18), top - 44 + i * 6];
                 return <path key={`f${i}`} className="cs-fall" style={{ ...origin(p), ...delay(i * 2.1) }} d={blade(p, 60, 11, 7)} fill={[c1, c2, "#8a3a1a"][i]} />;
               })}
+            {v === "lavender" && (
+              <>
+                {/* Lavender: stalks of small violet buds rising from the bough, swaying; a petal drifts now and then. */}
+                {[
+                  [L + g.w * 0.12, 38, -104],
+                  [L + g.w * 0.24, 50, -92],
+                  [L + g.w * 0.36, 44, -80],
+                  [L + g.w * 0.5, 36, -70],
+                  [L - 2, 32, -122],
+                ].map(([x, h, deg], i) => {
+                  const base: Pt = [x!, i === 4 ? top + 6 : top - 2];
+                  const tip = at(base, deg!, h!);
+                  return (
+                    <g key={`lv${i}`} className="cs-sway" style={{ ...origin(base), ...delay(i * 0.6) }}>
+                      <path d={`M${pt(base)} Q${pt(at(base, deg! + 8, h! * 0.5))} ${pt(tip)}`} stroke="#6f8f5a" strokeWidth={1.6} fill="none" />
+                      {Array.from({ length: 8 }, (_, k) => {
+                        const p = at(base, deg! + 3, h! * (0.4 + k * 0.08));
+                        return <ellipse key={k} cx={p[0] + (k % 2 ? 2 : -2)} cy={p[1]} rx={2.9 - k * 0.2} ry={3.6 - k * 0.25} fill={k % 2 ? "#9a7ad6" : "#b89ae8"} stroke="#6f55a8" strokeWidth={0.4} />;
+                      })}
+                    </g>
+                  );
+                })}
+                {[0, 1, 2].map((i) => {
+                  const p: Pt = [L + g.w * (0.22 + i * 0.16), top - 40 + i * 4];
+                  return <ellipse key={`lp${i}`} className="cs-fall" style={{ ...origin(p), ...delay(i * 1.9) }} cx={p[0]} cy={p[1]} rx={1.8} ry={2.6} fill="#c3a8f0" />;
+                })}
+                <ellipse className="cs-glow" cx={L + g.w * 0.3} cy={top - 22} rx={44} ry={20} fill="#c9a8ff" opacity={0.1} />
+              </>
+            )}
             {laurel && <circle className="cs-twinkle" style={origin(pts[n]!)} cx={pts[n]![0]} cy={pts[n]![1]} r={2.4} fill={glow} />}
           </>
         ),

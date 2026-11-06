@@ -19,7 +19,10 @@ export const LIGHT_SPELLS = new Set([
   "spell:create-bonfire",
 ]);
 /** Features that make light: blinks like a spell of that level, or one steady light for `hold` ms (a Flame Tongue igniting). */
-export const LIGHT_FEATURES: Record<string, number | { hold: number }> = { "charm-of-sunlight": 5, "charm-of-sunlight-join": 5, "ignite-flame-tongue": { hold: 2000 }, "sacred-weapon": { hold: 1500 } };
+export const LIGHT_FEATURES: Record<string, number | { hold: number }> = { "charm-of-sunlight": 5, "charm-of-sunlight-join": 5, "ignite-flame-tongue": { hold: 2000 }, "sacred-weapon": { hold: 1500 }, floar: { hold: 4000 } };
+
+/** Floar's flame: 4 seconds of light, 6 with Zenith's sunlight (14th level). */
+export const FLOAR_HOLD = { plain: 4000, zenith: 6000 };
 
 const KEY = "flash-light-spells";
 
@@ -81,10 +84,21 @@ export function flashForSpell(spellId: string, level: number) {
   if (flashEnabled() && LIGHT_SPELLS.has(spellId)) void flashTorch(level);
 }
 
-/** After using a feature that makes light (Charm of Sunlight). */
-export function flashForFeature(actionId: string) {
-  const light = LIGHT_FEATURES[actionId];
+/** How a feature lights the torch: blinks like a spell of that level, or one steady light for so long. `zenith`: Floar with Zenith's sun. */
+export function lightFor(actionId: string, opts: { zenith?: boolean } = {}): number | { hold: number } | undefined {
+  if (actionId === "floar") return { hold: opts.zenith ? FLOAR_HOLD.zenith : FLOAR_HOLD.plain };
+  return LIGHT_FEATURES[actionId];
+}
+
+/** After using a feature that makes light (Charm of Sunlight, Floar). */
+export function flashForFeature(actionId: string, opts: { zenith?: boolean } = {}) {
+  const light = lightFor(actionId, opts);
   if (light === undefined || !flashEnabled()) return;
   if (typeof light === "number") void flashTorch(light);
   else void flashTorch(0, light.hold);
+}
+
+/** A Circle of the Heammer druid of 14th level or higher: Floar comes with Zenith's sunlight. */
+export function hasZenith(c: { classes: { class: string; level: number; subclass?: string }[] } | undefined): boolean {
+  return !!c?.classes.some((x) => x.class === "class:druid" && x.subclass === "subclass:circle-of-the-heammer" && x.level >= 14);
 }

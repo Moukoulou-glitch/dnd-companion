@@ -109,6 +109,34 @@ export function hiddenCompanionCritter(name: string, formName?: string): Critter
   return name === "Gwestel" && formName === "Beast of the Land" ? GWESTEL : undefined;
 }
 
+/** The Drakewarden's drake by its essence. */
+const DRAKE_ESSENCE: Record<string, [string, string, string]> = {
+  acid: ["#5f9a34", "#c9e86a", "#eaff7a"],
+  cold: ["#8ec4e8", "#eef8ff", "#ffffff"],
+  fire: ["#c4402e", "#ffb06a", "#ffe066"],
+  lightning: ["#3a62c4", "#a8d0ff", "#fff27a"],
+  poison: ["#3f6e34", "#9fc062", "#d6ff5a"],
+};
+
+/**
+ * The Drakewarden's drake, growing with the ranger: a small wingless drake at 3rd, wings from 7th (Bond of
+ * Fang and Scale), and from 15th (Perfected Bond) a large one, glowing with its essence.
+ */
+export function drakeCritter(essence: string | undefined, rangerLevel: number): CritterSpec {
+  const [c1, c2, eye] = DRAKE_ESSENCE[essence ?? ""] ?? ["#8a6a4a", "#d8b88a", "#ffe066"];
+  if (rangerLevel >= 15) return s("drake", c1, c2, ["wings", "horns", "big", "glow"], "flutter", eye);
+  if (rangerLevel >= 7) return s("drake", c1, c2, ["wings", "horns"], "flutter", eye);
+  return s("drake", c1, c2, ["horns", "small"], "stomp", eye);
+}
+
+/** A companion's own little creature on its card: the drake; a hidden one for some names. */
+export function companionCritter(comp: { id: string; name: string; form?: { id: string; name: string } }, rangerLevel: number): CritterSpec | undefined {
+  const hidden = hiddenCompanionCritter(comp.name, comp.form?.name);
+  if (hidden) return hidden;
+  if (comp.id === "drake" && comp.form) return drakeCritter(comp.form.id, rangerLevel);
+  return undefined;
+}
+
 /** The Summon spirits, by spell and variant. */
 export const SPIRIT_CRITTERS: Record<string, CritterSpec> = {
   "summon-beast/air": s("bird", "#5a8ac8", "#d8ecff", ["beak", "glow"], "flutter", "#fff"),
@@ -473,7 +501,7 @@ function body(sp: CritterSpec): ReactNode {
       return (
         <>
           <path className="cr-tail" d="M16 38 Q4 36 6 26 Q8 22 11 24" stroke={sp.c1} strokeWidth={3.4} fill="none" strokeLinecap="round" />
-          <path className="cr-wing" d="M24 32 L18 14 L28 22 L32 12 L34 26 Z" fill={sp.c2} stroke={sp.c1} strokeWidth={0.8} />
+          {has(sp, "wings") && <path className="cr-wing" d="M24 32 L18 14 L28 22 L32 12 L34 26 Z" fill={sp.c2} stroke={sp.c1} strokeWidth={0.8} />}
           <path className="cr-leg a" d="M22 40 v8 M36 40 v8" stroke={sp.c1} strokeWidth={3.2} strokeLinecap="round" />
           <ellipse className="cr-body" cx={29} cy={37} rx={12} ry={7.5} fill={sp.c1} />
           <path d="M22 40 Q29 45 36 40" stroke={sp.c2} strokeWidth={2.4} fill="none" />

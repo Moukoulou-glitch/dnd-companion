@@ -470,3 +470,8 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 ## Round 18d: Thinking Stone effects wait for the object
 - Storing a Thinking Stone spell takes its casting time (action, bonus action or reaction) and its once-per-long-rest use, and puts the object in your inventory. Nothing takes effect then: no effect on you, no dice, no concentration, and only the stone's own animation. The spell's effect, dice and animation come when someone uses the object.
 - Objects stored before this change keep whatever effect they put on you then; remove it by hand if it's still showing.
+
+## Round 19a
+- Zenith: whether a target is inside your Floar's area (for the 2d10) or its sunlight (for advantage) is yours to tick; difficult terrain for hostile creatures is a reminder.
+- Primal Companion and the drake: a beast you don't command takes the Dodge action when your turn ends (shown as its Dodge tag). Actions it takes without a command are warned, never blocked. When you're incapacitated it acts as it likes.
+- Items from book files: bonuses read from their wording are applied while the item is equipped (attuned when it needs it). Bonuses that depend on something more (Rod of Alertness' light, a talisman's alignment) are applied as written or left to you.

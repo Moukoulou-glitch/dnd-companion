@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { bookFileKind, bookPack, bundleBookFiles, derive, newCharacter, splitBookFiles } from "../src/index.js";
-import { tableRegistry } from "./helpers.js";
+import { loadPackDir, tableRegistry } from "./helpers.js";
+import { ContentRegistry } from "../src/registry.js";
 
 // Invented sample text in the same layout as the files a player loads; no book text is used here.
 const SPELLS = `#### Frost Needle
@@ -485,5 +486,75 @@ describe("book files in one file", () => {
     expect(pack.definitions.some((d) => d.kind === "subclass" && d.name === "College of Echoes")).toBe(true);
     const egw = bookPack([{ name: "bard.txt", text: BARD_SCAG.replace(/SCAG/g, "EGW") }], reg).report;
     expect(egw.leftOut).toEqual(["College of Testing"]);
+  });
+});
+
+describe("19a: magic items from a book file read their bonuses", () => {
+  // Invented items, worded like the books.
+  const ITEMS = `#### Staff of the Hollow Elm
+
+Staff, Weapon, Rare (Requires Attunement By a Druid), Simple Weapon, Melee Weapon, 4 lb.
+
+1d6 Bludgeoning
+
+versatile (1d8)
+
+---
+
+This staff can be wielded as a magic quarterstaff that grants a +2 bonus to attack and damage rolls made with it. While holding it, you have a +2 bonus to spell attack rolls.
+
+#### Lantern of Quiet Stars
+
+Wondrous Item, Spellcasting Focus, Rare (Requires Attunement By an Artificer)
+
+---
+
+While holding this lantern, you gain a +2 bonus to the spell attack rolls and the saving throw DCs of your artificer spells.
+
+#### Mantle of Dusk
+
+Wondrous Item, Very Rare (Requires Attunement)
+
+---
+
+You gain a +1 bonus to saving throws while you wear it.
+
+#### +2 Wand of the War Mage
+
+Wand, Rare (Requires Attunement By a Spellcaster)
+
+---
+
+Invented text for the wand.
+`;
+  const reg = tableRegistry();
+  const { pack } = bookPack([{ name: "items-sublist.md", text: ITEMS }], reg);
+  const get = (id: string) => pack.definitions.find((d) => d.id === id) as any;
+  it("a staff that's a quarterstaff: a +2 weapon, quarterstaff proficiency, +2 spell attacks", () => {
+    const s = get("item:staff-of-the-hollow-elm");
+    expect(s.category).toBe("weapon");
+    expect(s.weapon).toMatchObject({ group: "quarterstaff", damage: "1d6", versatileDamage: "1d8" });
+    expect(s.magic.bonus).toBe(2);
+    expect(s.grant.modifiers).toEqual([expect.objectContaining({ selector: "stat.spell.attack", value: 2 })]);
+  });
+  it("a focus for one class's spells, and saves while worn", () => {
+    expect(get("item:lantern-of-quiet-stars").grant.modifiers.map((m: any) => m.selector)).toEqual(["stat.spell.attack.artificer", "stat.spell.dc.artificer"]);
+    expect(get("item:mantle-of-dusk").grant.modifiers).toEqual([expect.objectContaining({ selector: "roll.save.*", value: 1 })]);
+  });
+  it("+2 Wand of the War Mage works like the app's Wand of the War Mage +2", () => {
+    const w = get("item:2-wand-of-the-war-mage");
+    expect(w.grant.modifiers).toEqual([expect.objectContaining({ selector: "stat.spell.attack", value: 2 })]);
+  });
+  it("on a druid holding the staff: its attack and damage +2, spell attacks +2", () => {
+    const all = new ContentRegistry([loadPackDir("content/packs/srd-5.1"), loadPackDir("content/packs/table-2014"), pack]);
+    const c = newCharacter({ id: "d", name: "D", race: "race:human", class: "class:druid", abilities: { str: 10, dex: 12, con: 14, int: 10, wis: 16, cha: 10 } }, all);
+    c.classes = [{ class: "class:druid", level: 5 }];
+    c.inventory.push({ id: "st", item: "item:staff-of-the-hollow-elm", quantity: 1, equipped: true, attuned: true } as any);
+    const s = derive(c, all);
+    const base = derive({ ...c, inventory: c.inventory.filter((i) => i.id !== "st") }, all);
+    expect(s.spellcasting.find((x) => x.id === "druid")!.attack.total).toBe(base.spellcasting.find((x) => x.id === "druid")!.attack.total + 2);
+    const atk = s.attacks.find((a) => /hollow elm/i.test(a.name))!;
+    expect(atk.proficient).toBe(true);
+    expect(atk.attack.parts.some((p) => p.value === 2)).toBe(true);
   });
 });

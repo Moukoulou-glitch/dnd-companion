@@ -2134,31 +2134,34 @@
       "kind": "feature",
       "id": "feature:circle-of-the-heammer-zenith",
       "name": "Zenith",
-      "summary": "Floar sheds sunlight (bright 5 ft, dim 5 ft more). While it's on: your leveled spells' fire and radiant damage +1d10 per spell level, on top of Floar's 1d10; advantage on attacks against creatures in your sunlight; a reaction to halve cold or necrotic damage to you or a creature in it; Untamed Flame gives +2 AC until your next turn.",
+      "summary": "Floar sheds sunlight (bright 5 ft, dim 5 ft more). While it's on: its area is difficult terrain for hostile creatures; your spells' fire and radiant damage to creatures in its area is +2d10 instead of +1d10; advantage on attacks against creatures in your sunlight; a reaction to halve cold or necrotic damage to you or a creature in it; Untamed Flame gives +2 AC until your next turn.",
       "source": {
         "pack": "table-2014",
         "book": "Homebrew (Circle of the Heammer)"
       },
       "text": [
         "Your Floar transformation knows no compromise. When you activate Floar, you emit bright sunlight in a 5-foot radius and dim sunlight for an additional 5 feet. While Floar is active, you also gain the following benefits:",
-        "- The fire and radiant damage you deal with spells of 1st level or higher increases by 1d10 for each level of the spell.",
-        "- The sunlight you emit becomes an extension of yourself and your senses. You have advantage on attack rolls against creatures within the radius of the sunlight emitted by your Floar.",
-        "- When you or a creature within the radius of your Floar's sunlight takes cold or necrotic damage, you can use your reaction to halve that damage for the chosen creature. You must make this decision before the damage is rolled.",
+        "- The area of effect of your Floar is considered difficult terrain for hostile creatures.",
+        "- The fire and radiant damage you deal with your spells to creatures within the area of effect of your Floar increases by 2d10 instead of 1d10.",
+        "- The sunlight you emit is an extension of yourself and your senses. You have advantage on attack rolls against creatures within the range of your Floar's sunlight.",
+        "- When you or a creature within the range of your Floar's sunlight takes cold or necrotic damage, you can use your reaction to reduce that damage by half, but only for the creature you choose. You must decide to use this reaction before the damage roll is made.",
         "- When you use Untamed Flame, your AC increases by 2 until the start of your next turn."
       ],
       "grant": {
         "modifiers": [
           {
-            "selector": "roll.damage.spell.leveled",
+            "selector": "roll.damage.spell",
             "op": "add",
-            "value": "slotLeveld10",
+            "value": "1d10",
+            "mode": "suggested",
             "label": "Zenith",
             "forTypes": [
               "fire",
               "radiant"
             ],
             "when": {
-              "toggle": "floar"
+              "toggle": "floar",
+              "text": "the target is in your Floar's area (within 10 ft): 2d10 in all instead of Floar's 1d10"
             }
           },
           {

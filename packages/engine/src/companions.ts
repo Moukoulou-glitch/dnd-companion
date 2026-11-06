@@ -42,6 +42,8 @@ export interface CompanionResult {
   summon?: { resource: string; slotMin: number; note: string };
   /** What commanding it costs you, when it can be commanded (Primal Companion: bonus action; Ranger's Companion: action). */
   command?: { economy: "action" | "bonus"; attackInstead: boolean };
+  /** Commanded this turn: any action (your bonus action) or the Attack action (one of your attacks). */
+  commanded?: "any" | "attack";
   /** Missing until the player picks a form. */
   form?: {
     id: string;
@@ -114,6 +116,7 @@ export function deriveCompanion(
     used: { ...NO_TURN_USED, ...state?.used },
   };
   if (state?.initiative !== undefined) r.initiative = state.initiative;
+  if (state?.commanded) r.commanded = state.commanded;
   if (def.combatNote) r.combatNote = def.combatNote;
   if (def.revive) r.reviveNote = def.revive.note;
   if (def.summon) r.summon = def.summon;

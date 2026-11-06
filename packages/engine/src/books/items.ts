@@ -49,7 +49,8 @@ function weaponStats(r: RawItem): WeaponStats | undefined {
   const w: WeaponStats = {
     category: /Martial Weapon/i.test(r.type) ? "martial" : "simple",
     kind: /Ranged Weapon/i.test(r.type) ? "ranged" : "melee",
-    group: slug(r.base ?? r.name).replace(/-/g, " "),
+    // A staff is a quarterstaff unless it says otherwise (DMG), a rod that works as a mace a mace: proficiency with that weapon covers it.
+    group: (/^Staff\b/i.test(r.type) || /magic quarterstaff|as a quarterstaff/i.test(r.text.join(" ")) ? "quarterstaff" : /functions as a magic mace/i.test(r.text.join(" ")) ? "mace" : slug(r.base ?? r.name)).replace(/-/g, " "),
     damage: dmg[1]!,
     damageType: dmg[2]!.toLowerCase() as WeaponStats["damageType"],
     properties,
@@ -72,7 +73,8 @@ function armorStats(r: RawItem): ArmorStats | undefined {
 }
 
 function category(type: string): ItemDef["category"] {
-  if (/^Weapon/i.test(type)) return "weapon";
+  // "Staff, Weapon, Rare": a staff that's also a quarterstaff (Staff of the Woodlands).
+  if (/^Weapon|^(?:Staff|Rod|Wand), Weapon\b/i.test(type)) return "weapon";
   if (/Shield/i.test(type)) return "shield";
   if (/^(Light|Medium|Heavy) Armor/i.test(type)) return "armor";
   if (/^Ammunition/i.test(type)) return "ammunition";
@@ -110,7 +112,7 @@ export function parseItems(texts: string[], pack: string, known: Map<string, Ite
     if (cat === "weapon") {
       const w = weaponStats(r) ?? baseDef?.weapon;
       if (w) def.weapon = w;
-      else cat = def.category = "gear";
+      else cat = def.category = /^(Staff|Rod|Wand)\b/i.test(r.type) ? "wondrous" : "gear";
     }
     if (cat === "armor") {
       const a = armorStats(r) ?? baseDef?.armor;
@@ -122,12 +124,14 @@ export function parseItems(texts: string[], pack: string, known: Map<string, Ite
     const lower = r.type.toLowerCase();
     const rarity = RARITIES.find((x) => new RegExp(`(^|, |\\()${x}\\b`).test(lower));
     const all = r.text.join(" ");
-    const bonus = /\+(\d) bonus to (?:attack and damage rolls|AC)/i.exec(all);
+    const bonus = /\+(\d) bonus to (?:attack and damage rolls?|AC)/i.exec(all);
     if (rarity || bonus) {
       def.magic = {};
       if (rarity) def.magic.rarity = rarity;
       if (bonus && (def.weapon || def.armor || def.category === "shield")) def.magic.bonus = Number(bonus[1]);
     }
+    const mods = bonusModifiers(all, r.name);
+    if (mods.length) def.grant = { modifiers: mods };
     if (r.text.length) def.text = r.text;
     return def;
   };
@@ -141,6 +145,29 @@ export function parseItems(texts: string[], pack: string, known: Map<string, Ite
     if (!r.base) bases.set(slug(r.name), def);
     out.push(def);
   }
+  return out;
+}
+
+type Mod = NonNullable<NonNullable<ItemDef["grant"]>["modifiers"]>[number];
+
+/**
+ * Bonuses an item's text gives while it's held or worn, read from its wording:
+ * "+2 bonus to spell attack rolls" (Staff of the Woodlands), "...and the saving throw DCs of your artificer spells"
+ * (All-Purpose Tool), "+1 bonus to saving throws while you wear it" (Robe of Stars). Bonuses that need
+ * something more (a friend in the light) are left to the player.
+ */
+export function bonusModifiers(text: string, label: string): Mod[] {
+  const out: Mod[] = [];
+  const spell = /\+(\d) bonus to (?:the |your )?spell attack rolls(?: and (?:to )?the (?:spell )?saving throw DCs)?(?: of your (\w+) spells)?/i.exec(text);
+  if (spell) {
+    const n = Number(spell[1]);
+    const cls = spell[2]?.toLowerCase();
+    const suffix = cls ? `.${cls}` : "";
+    out.push({ selector: `stat.spell.attack${suffix}`, op: "add", value: n, label } as Mod);
+    if (/saving throw DCs/i.test(spell[0])) out.push({ selector: `stat.spell.dc${suffix}`, op: "add", value: n, label } as Mod);
+  }
+  const saves = /you (?:gain|have) a \+(\d) bonus to saving throws while you (?:wear|hold)/i.exec(text);
+  if (saves) out.push({ selector: "roll.save.*", op: "add", value: Number(saves[1]), label } as Mod);
   return out;
 }
 

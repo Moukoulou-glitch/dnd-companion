@@ -61,7 +61,7 @@ import { everyDaysNote } from "./everyDays";
 import { WishPanel } from "./components/Wish";
 import { FallPanel } from "./components/Fall";
 import { BuildPanel, LevelUpPanel, NewCharacterPanel, type NewCharacterInput } from "./components/Builder";
-import { flashEnabled, flashForFeature, flashForSpell, flashTorch, setFlashEnabled } from "./flash";
+import { flashEnabled, flashForFeature, flashForSpell, flashTorch, hasZenith, setFlashEnabled } from "./flash";
 import { PlayTab, type PlayPrompts } from "./components/PlayTab";
 import { liveAttack } from "./oneTime";
 import { NumberStep } from "./components/Adjust";
@@ -1504,7 +1504,7 @@ export function App() {
                       : `${current.name}: a level ${p.slot} slot for ${p.rolled ?? 0} hit points.`;
                     live.current.act("useAction", { action: current.id, ...(p.slots ? { slots: p.slots } : {}), ...(p.slot ? { slot: p.slot } : {}), ...(p.rolled !== undefined ? { rolled: p.rolled } : {}) }, label);
                     if (p.slot && p.rolled) live.current.act("heal", { amount: p.rolled }, `Healed ${p.rolled}.`);
-                    flashForFeature(current.id);
+                    flashForFeature(current.id, { zenith: hasZenith(live.current.character) });
                     close();
                   }),
               }
@@ -1564,7 +1564,7 @@ export function App() {
                     if (current.gives) giveEffectTo(target, current.gives.effect, die, current.name);
                     if (healed !== undefined && (current.heal || current.spendAmount?.heals)) healTarget(target, healed, current.name);
                   }
-                  flashForFeature(current.id);
+                  flashForFeature(current.id, { zenith: hasZenith(live.current.character) });
                   // Hound of Ill Omen: straight to the companion it brought out.
                   if (current.summons) return openCompanion(current.summons.companion);
                   // Theros' Heammer Wisps: the summon's picker.
@@ -2259,17 +2259,22 @@ export function App() {
           onCommand={() =>
             guard(
               { name: `Command ${comp.name}`, economy },
-              () =>
-                command
-                  ? live.current.act("useAction", { action: command.id }, `${comp.name} commanded.`)
-                  : live.current.act("useEconomy", { kind: economy }, `${comp.name} commanded.`),
+              () => {
+                if (command) live.current.act("useAction", { action: command.id }, `${comp.name} commanded.`);
+                else live.current.act("useEconomy", { kind: economy }, `${comp.name} commanded.`);
+                // It can take any action this turn (not only Dodge).
+                live.current.act("companionEconomy", { companion: comp.id, commanded: "any" }, `${comp.name} can take any action this turn.`);
+              },
               { cancelled: () => openCompanion(id), done: () => openCompanion(id) },
             )
           }
           onAttackInstead={() =>
             guard(
               { name: `${comp.name} attacks`, economy: "action", attack: true },
-              () => live.current.act("useEconomy", { kind: "attack" }, `${comp.name} attacks in place of one of your attacks.`),
+              () => {
+                live.current.act("useEconomy", { kind: "attack" }, `${comp.name} attacks in place of one of your attacks.`);
+                live.current.act("companionEconomy", { companion: comp.id, commanded: "attack" }, `${comp.name} can take the Attack action this turn.`);
+              },
               { cancelled: () => openCompanion(id), done: () => openCompanion(id) },
             )
           }

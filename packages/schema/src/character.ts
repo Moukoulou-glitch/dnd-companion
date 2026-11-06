@@ -471,6 +471,8 @@ export const CompanionState = z
       .default([]),
     /** Dismissed until you summon it again (it keeps its hit points). */
     away: z.boolean().optional(),
+    /** Commanded this turn (Primal Companion): "any" action, with your bonus action; "attack", in place of one of your attacks. */
+    commanded: z.enum(["any", "attack"]).optional(),
     /** Conditions, spells and other effects on it (Bless, Poisoned), with rounds when timed. */
     effects: z
       .array(

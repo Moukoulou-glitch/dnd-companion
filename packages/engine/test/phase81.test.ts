@@ -26,14 +26,19 @@ describe("Circle of the Heammer (homebrew)", () => {
     expect(sp(on, "Burning Hands")?.typeChoices).toEqual([{ kind: "spell", label: "Floar", options: ["radiant"] }]);
     expect(sp(on, "Guiding Bolt")?.typeChoices).toEqual([{ kind: "spell", label: "Floar", options: ["fire"] }]);
   });
-  it("Floar's 1d10 on fire and radiant spell damage, every roll; Zenith's d10 per spell level on top of it on leveled spells", () => {
+  it("Floar's 1d10 on fire and radiant spell damage, every roll; Zenith: 2d10 instead against creatures in Floar's area", () => {
     const opt = (s: ReturnType<typeof derive>, name: string, label: string) => sp(s, name)!.damageBonus!.suggestions.find((x) => x.label === label);
     expect(opt(heammer(2, ["floar"]), "Burning Hands", "Floar")).toMatchObject({ apply: { dice: ["1d10"] }, forTypes: ["fire", "radiant"], preset: "always" });
     const z = heammer(14, ["floar"]);
-    // Guiding Bolt at 1st level: 4d6 + 1d10 (Floar) + 1d10 (Zenith).
+    // Guiding Bolt against a creature in the area: 4d6 + 1d10 (Floar) + 1d10 (Zenith) = 2d10 in all; ticked by the player.
     expect(opt(z, "Guiding Bolt", "Floar")).toMatchObject({ apply: { dice: ["1d10"] } });
-    expect(opt(z, "Guiding Bolt", "Zenith")?.apply.diceBySlot?.[1]).toEqual(["1d10"]);
-    expect(opt(z, "Burning Hands", "Zenith")?.apply.diceBySlot).toMatchObject({ 1: ["1d10"], 3: ["3d10"], 9: ["9d10"] });
+    const zen = opt(z, "Guiding Bolt", "Zenith")!;
+    expect(zen.apply.dice).toEqual(["1d10"]);
+    expect(zen.apply.diceBySlot).toBeUndefined();
+    expect(zen.preset).toBeUndefined();
+    expect(zen.reason).toMatch(/Floar's area/);
+    // Cantrips too (Fire Bolt), not per spell level any more.
+    expect(opt(z, "Fire Bolt", "Zenith")?.apply.dice).toEqual(["1d10"]);
     expect(opt(z, "Fire Bolt", "Floar")).toMatchObject({ apply: { dice: ["1d10"] } });
     expect(opt(heammer(14), "Burning Hands", "Zenith")).toBeUndefined();
   });
