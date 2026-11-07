@@ -36,6 +36,7 @@ import { HP_TIER_WORDS, hpBlinks, hpTier } from "./hp";
 import { strikeFx } from "./fx/triggers";
 import { CustomActionForm, CustomItemForm, CustomSpellForm } from "./components/CustomForms";
 import { CompanionBuilder } from "./components/CompanionBuilder";
+import { RosterList } from "./components/Roster";
 import { CREST_LEVEL, Crest, CrestSigil, GLIMPSE_MS, characterLevel, crestFor, raceCrest, rollsGlimpse } from "./fx/crest";
 import { RollAdjustPanel } from "./components/RollAdjust";
 import { DurablePanel } from "./components/Durable";
@@ -3654,25 +3655,15 @@ export function App() {
     open(
       "Characters",
       () => <>
-        <div className="group">
-          {s.roster.map((r) => (
-            <button
-              className="row"
-              key={r.id}
-              aria-current={r.id === s.selectedId}
-              onClick={() => {
-                s.select(r.id);
-                close();
-              }}
-            >
-              <div className="row-main">
-                <div className="row-title">{r.name}</div>
-                <div className="row-sub">{r.summary}</div>
-              </div>
-              {r.id === s.selectedId && <span className="tag adv">open</span>}
-            </button>
-          ))}
-        </div>
+        <RosterList
+          roster={s.roster}
+          selectedId={s.selectedId}
+          reg={effReg()}
+          onSelect={(id) => {
+            s.select(id);
+            close();
+          }}
+        />
         <div className="big-actions" style={{ marginTop: 12 }}>
           <button className="big primary" onClick={openNewCharacter}>
             New character

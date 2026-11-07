@@ -159,7 +159,7 @@ export function useCharacters() {
   }, []);
 
   const roster = useMemo(
-    () => [...logs.current.entries()].map(([id, l]) => ({ id, name: l.character.name, summary: summarize(l.character) })),
+    () => [...logs.current.entries()].map(([id, l]) => ({ id, name: l.character.name, summary: summarize(l.character), character: l.character })),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [ready, version],
   );

@@ -4586,3 +4586,11 @@ html.fx-shake-strong .app > .strip, html.fx-shake-strong .app > main, html.fx-sh
 .bead-pip { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--teal); background: radial-gradient(circle at 35% 35%, #e9fffb, var(--teal) 70%); padding: 0; }
 .bead-pip.used { background: transparent; border-color: var(--muted); opacity: 0.7; }
 .bead-pips-label { font-size: 13px; color: var(--muted); }
+
+/* The Characters page: a token for each, with its race's mark. */
+.roster-row { gap: 12px; align-items: center; }
+.char-token { position: relative; flex: none; display: inline-block; }
+.char-token > svg { display: block; }
+.char-token-race { position: absolute; right: -3px; bottom: -3px; width: 20px; height: 20px; border-radius: 50%; background: var(--panel); border: 1.5px solid var(--line); display: flex; align-items: center; justify-content: center; }
+.char-token-race .crest-sigil { width: 14px; height: 14px; margin: 0; animation: none; }
+.roster-race { font-size: 13px; }
