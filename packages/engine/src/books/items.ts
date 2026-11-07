@@ -104,7 +104,18 @@ function category(type: string): ItemDef["category"] {
  * is any variant of a base item that isn't an official one.
  */
 export function parseItems(texts: string[], pack: string, known: Map<string, ItemDef> = new Map(), excluded: string[] = []): ItemDef[] {
-  const all = texts.flatMap(rawItems).filter((r) => !/^Generic Variant/i.test(r.type));
+  const every = texts.flatMap(rawItems);
+  // A generic variant ("Frost Brand", "Sword of Sharpness") lists the items made from it: "- *Greatsword* (*Frost Brand Greatsword*)".
+  // Each of those works like the app's own item of that name, when there is one.
+  const variantOf = new Map<string, string>();
+  for (const g of every.filter((r) => /^Generic Variant/i.test(r.type)))
+    for (const m of g.raw.matchAll(/^\s*[-*] \*[^*]+\* \(\*([^*]+)\*\)/gm)) variantOf.set(slug(m[1]!), g.name);
+  const knownList = [...known.values()];
+  const appItem = (generic: string): ItemDef | undefined => {
+    const s = slug(generic);
+    return known.get(s) ?? knownList.find((d) => d.id === `item:${s}` || d.id.startsWith(`item:${s}-`));
+  };
+  const all = every.filter((r) => !/^Generic Variant/i.test(r.type));
   const thirdParty = all.filter((r) => isThirdParty(r.raw));
   excluded.push(...thirdParty.map((r) => r.name));
   const official = all.filter((r) => !isThirdParty(r.raw));
@@ -143,8 +154,16 @@ export function parseItems(texts: string[], pack: string, known: Map<string, Ite
       if (rarity) def.magic.rarity = rarity;
       if (bonus && (def.weapon || def.armor || def.category === "shield")) def.magic.bonus = Number(bonus[1]);
     }
-    const mods = bonusModifiers(all, r.name);
+    const mods = [...bonusModifiers(all, r.name), ...(def.weapon ? weaponModifiers(r.text, r.name) : [])];
     if (mods.length) def.grant = { modifiers: mods };
+    // Made from a generic variant the app has (Frost Brand Greatsword, Vorpal Longsword): it works like that one.
+    const generic = variantOf.get(slug(r.name));
+    const same = generic ? appItem(generic) : undefined;
+    if (same && def.weapon && same.weapon) {
+      if (same.grant) def.grant = same.grant;
+      if (same.magic?.bonus !== undefined) def.magic = { ...def.magic, bonus: same.magic.bonus };
+      def.requiresAttunement = same.requiresAttunement;
+    }
     if (r.text.length) def.text = r.text;
     return def;
   };
@@ -181,9 +200,41 @@ export function bonusModifiers(text: string, label: string): Mod[] {
   }
   const saves = /you (?:gain|have) a \+(\d) bonus to saving throws while you (?:wear|hold)/i.exec(text);
   if (saves) out.push({ selector: "roll.save.*", op: "add", value: Number(saves[1]), label } as Mod);
-  // "You have resistance to fire damage while you wear this armor" (Breastplate of Fire Resistance).
-  const resist = /you have resistance to (acid|cold|fire|force|lightning|necrotic|poison|psychic|radiant|thunder|bludgeoning|piercing|slashing) damage while you (?:wear|hold)/i.exec(text);
+  // "You have resistance to fire damage while you wear this armor" (Breastplate of Fire Resistance),
+  // or "while you hold the sword, you have resistance to fire damage" (Frost Brand).
+  const resist =
+    /you have resistance to (acid|cold|fire|force|lightning|necrotic|poison|psychic|radiant|thunder|bludgeoning|piercing|slashing) damage while you (?:wear|hold)/i.exec(text) ??
+    /while you (?:wear|hold) [^,.]{1,40}, you have resistance to (acid|cold|fire|force|lightning|necrotic|poison|psychic|radiant|thunder|bludgeoning|piercing|slashing) damage/i.exec(text);
   if (resist) out.push({ selector: `defense.resist.${resist[1]!.toLowerCase()}`, op: "resist", label } as Mod);
+  return out;
+}
+
+/**
+ * What a magic weapon's text adds to its attacks:
+ * - "When you hit with an attack using this magic sword, the target takes an extra 1d6 cold damage" (Frost Brand): on every hit.
+ * - "When you hit an undead with it, that target takes an extra 1d8 radiant damage": a tick-box on the damage roll.
+ * - "roll a 20 on the attack roll, that target takes an extra 14 slashing damage" (Sword of Sharpness, Vicious): added on a
+ *   critical hit; the rest of what a 20 does is shown with it, and "Then roll another d20. If you roll a 20, ..." offers that d20.
+ */
+export function weaponModifiers(paras: string[], label: string): Mod[] {
+  const out: Mod[] = [];
+  const text = paras.join(" ");
+  const onHit = /When you hit with an attack using this (?:magic )?[\w-]+, the target takes an extra (\d+d\d+) (\w+) damage/i.exec(text);
+  if (onHit && DAMAGE_TYPES.includes(onHit[2]!.toLowerCase())) out.push({ selector: "item.damage", op: "add", value: onHit[1]!, damageType: onHit[2]!.toLowerCase(), label } as Mod);
+  for (const m of text.matchAll(/When you hit (an? [\w -]{2,30}?) with (?:it|this (?:magic )?[\w-]+), (?:that|the) target takes an extra (\d+d\d+) (\w+) damage/gi))
+    if (DAMAGE_TYPES.includes(m[3]!.toLowerCase()))
+      out.push({ selector: "item.damage", op: "add", value: m[2]!, damageType: m[3]!.toLowerCase(), label, mode: "suggested", when: { text: `against ${m[1]!}` } } as Mod);
+  const twenty = paras.find((p) => /\broll a 20\b/i.test(p) && !/^\*?Note:/i.test(p));
+  if (twenty) {
+    const flat = /roll a 20\b[^.]*?,? (?:that |the )?target takes an extra (\d+) (\w+) damage/i.exec(twenty);
+    if (flat) out.push({ selector: "item.damage", op: "critBonusDamage", value: Number(flat[1]), label: `${label} (a 20)` } as Mod);
+    const again = /Then roll another d20\. If you roll a 20, (.+)$/i.exec(twenty);
+    if (again) out.push({ selector: "item.damage", op: "critD20", value: again[1]!.charAt(0).toUpperCase() + again[1]!.slice(1), label } as Mod);
+    // Anything more a 20 does (temporary hit points, a head cut off, who it doesn't work on): shown with it.
+    const sentences = twenty.split(/(?<=\.)\s+/);
+    const plain = flat && !again && sentences.length === 1 && /damage\.$/.test(twenty.trim());
+    if (!again && !plain) out.push({ selector: "item.damage", op: "critNote", value: twenty, label } as Mod);
+  }
   return out;
 }
 

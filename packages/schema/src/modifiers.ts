@@ -96,6 +96,10 @@ export const ModifierOp = z.enum([
   "extraCritDice",
   /** Extra flat damage added only on a natural 20 (Vicious weapon). */
   "critBonusDamage",
+  /** Weapons: what else a natural 20 does, shown with the critical hit's damage; `value` is the text (Sword of Life Stealing's temporary hit points). */
+  "critNote",
+  /** Weapons: on a natural 20, roll another d20; on a 20, `value` happens (Sword of Sharpness: a limb is cut off). */
+  "critD20",
   /** Raise the Dexterity cap of medium armor to `value` (Medium Armor Master: 3). Selector stat.ac. */
   "mediumArmorDexCap",
   /** Stats: the value becomes at most `value` (Grappled: speed 0). */

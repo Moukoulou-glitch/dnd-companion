@@ -404,6 +404,56 @@ export function ResultView({ r }: { r: RollRecord }) {
   );
 }
 
+/**
+ * What else a natural 20 does with this weapon: its notes (Sword of Life Stealing's temporary HP), and a second d20
+ * to roll (Sword of Sharpness: on a 20, a limb). With your own dice you say what it showed.
+ */
+export function CritRiders({ riders, physical }: { riders: { label: string; text: string; d20?: boolean }[]; physical: boolean }) {
+  const [shown, setShown] = useState<Record<number, number>>({});
+  return (
+    <div className="crit-riders">
+      {riders.map((r, i) =>
+        !r.d20 ? (
+          <p key={i} className="note">
+            <b>{r.label}, on a 20:</b> {r.text}
+          </p>
+        ) : (
+          <div key={i} className="crit-d20">
+            <p className="note">
+              <b>{r.label}:</b> roll another d20. On a 20, {r.text.charAt(0).toLowerCase() + r.text.slice(1)}
+            </p>
+            {shown[i] === undefined ? (
+              physical ? (
+                <div className="big-actions">
+                  <button className="big primary" onClick={() => setShown({ ...shown, [i]: 20 })}>
+                    My d20 shows 20
+                  </button>
+                  <button className="big" onClick={() => setShown({ ...shown, [i]: 0 })}>
+                    Not a 20
+                  </button>
+                </div>
+              ) : (
+                <button className="big primary wide" onClick={() => setShown({ ...shown, [i]: secureRng(20) })}>
+                  Roll the d20
+                  <span className="sub">{r.label}</span>
+                </button>
+              )
+            ) : shown[i] === 20 ? (
+              <p className="over-banner" role="alert">
+                <strong>{physical ? "A 20!" : "The d20 shows 20!"}</strong> {r.text}
+              </p>
+            ) : (
+              <p className="note" role="status">
+                {physical ? "Not a 20" : `The d20 shows ${shown[i]}`}: nothing more this time.
+              </p>
+            )}
+          </div>
+        ),
+      )}
+    </div>
+  );
+}
+
 export function Composer({ title, base: baseIn, attack, physical, onPhysicalChange, onRolled, onResolved, damageOnly, healing, onHealSelf, healTargets, dc, dcLabel, reaction, onSpend, onCheck, notes, header, typeChoices, portent, onOptionsUsed, optionInfo, onCommit, repeat, darts, onDamageOptions, afterRoll, onDone, diceSource, afterD20 }: Props) {
   const [typePick, setTypePick] = useState<{ via: number; type: string } | null>(null);
   // A smite used on an earlier hit (Extra Attack's first attack, or this one rolled again) is gone: it can't be ticked again.
@@ -906,6 +956,7 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
             Critical hit: every damage die is rolled twice
             {attack!.damage.critExtraDice.length ? `, plus ${attack!.damage.critExtraDice.map((p) => `${p.value} more weapon ${p.value === 1 ? "die" : "dice"} (${p.label})`).join(", ")}` : ""}
             {attack!.damage.onCrit.length ? `; ${attack!.damage.onCrit.map((p) => `${p.label} +${p.value}`).join(", ")}` : ""}.
+            {attack!.damage.critRiders?.some((r) => r.d20) ? ` Then ${attack!.damage.critRiders.filter((r) => r.d20).map((r) => r.label).join(", ")}: another d20, after the damage.` : ""}
           </p>
         )}
         {usedUp.length > 0 && (
@@ -1048,6 +1099,7 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
             }}
           />
         )}
+        {stage.crit && attack?.damage.critRiders?.length ? <CritRiders riders={attack.damage.critRiders} physical={physical} /> : null}
         {healing && healTargets && (
           <HealTargets
             targets={healTargets.targets}

@@ -4167,6 +4167,67 @@
     },
     {
       "kind": "item",
+      "id": "item:mace-of-smiting",
+      "name": "Mace of Smiting",
+      "summary": "A +1 mace, +3 against constructs. On a natural 20: 7 bludgeoning damage more (14 against a construct); a construct left at 25 hit points or fewer is destroyed.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "weapon",
+      "magic": {
+        "rarity": "rare",
+        "bonus": 1
+      },
+      "requiresAttunement": false,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "item.attack",
+            "op": "add",
+            "value": 2,
+            "label": "Mace of Smiting (construct)",
+            "mode": "suggested",
+            "when": {
+              "text": "against a construct"
+            }
+          },
+          {
+            "selector": "item.damage",
+            "op": "add",
+            "value": 2,
+            "label": "Mace of Smiting (construct)",
+            "mode": "suggested",
+            "when": {
+              "text": "against a construct"
+            }
+          },
+          {
+            "selector": "item.damage",
+            "op": "critBonusDamage",
+            "value": 7,
+            "label": "Mace of Smiting (a 20)"
+          },
+          {
+            "selector": "item.damage",
+            "op": "critNote",
+            "value": "Against a construct it's 14 instead of 7 (add 7 more), and a construct left at 25 hit points or fewer is destroyed.",
+            "label": "Mace of Smiting"
+          }
+        ]
+      },
+      "weight": 4,
+      "weapon": {
+        "category": "simple",
+        "kind": "melee",
+        "group": "mace",
+        "damage": "1d6",
+        "damageType": "bludgeoning",
+        "properties": []
+      }
+    },
+    {
+      "kind": "item",
       "id": "item:dwarven-thrower",
       "name": "Dwarven Thrower",
       "summary": "A +3 warhammer that can be thrown (20/60) and flies back to you; thrown, 1d8 more damage (2d8 against giants).",
@@ -4263,6 +4324,113 @@
         "item:greatsword",
         "item:longsword",
         "item:scimitar"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:sword-of-sharpness",
+      "name": "Sword of Sharpness",
+      "summary": "On a natural 20 against a creature: 14 slashing damage more, and another d20: on a 20 it loses a limb (or part of its body). Weapon dice deal their maximum against objects; sheds light on command. Any sword that deals slashing damage: pick which on the item (a longsword until then).",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "weapon",
+      "magic": {
+        "rarity": "very rare"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "item.damage",
+            "op": "critBonusDamage",
+            "value": 14,
+            "label": "Sword of Sharpness (a 20)"
+          },
+          {
+            "selector": "item.damage",
+            "op": "critD20",
+            "value": "You cut off one of its limbs; what that does is up to the DM. A creature with no limbs loses a part of its body instead.",
+            "label": "Sword of Sharpness"
+          },
+          {
+            "selector": "item.damage",
+            "op": "maximize",
+            "label": "Sword of Sharpness",
+            "mode": "suggested",
+            "when": {
+              "text": "against an object"
+            }
+          }
+        ]
+      },
+      "weight": 3,
+      "weapon": {
+        "category": "martial",
+        "kind": "melee",
+        "group": "longsword",
+        "damage": "1d8",
+        "damageType": "slashing",
+        "properties": [
+          "versatile"
+        ],
+        "versatileDamage": "1d10"
+      },
+      "baseFrom": [
+        "item:greatsword",
+        "item:longsword",
+        "item:scimitar"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:sword-of-life-stealing",
+      "name": "Sword of Life Stealing",
+      "summary": "On a natural 20 against a creature that isn't a construct or undead: 10 necrotic damage more, and you gain 10 temporary hit points. Any sword: pick which on the item (a longsword until then).",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "weapon",
+      "magic": {
+        "rarity": "rare"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "item.damage",
+            "op": "critBonusDamage",
+            "value": 10,
+            "label": "Sword of Life Stealing (a 20, necrotic)"
+          },
+          {
+            "selector": "item.damage",
+            "op": "critNote",
+            "value": "Not against a construct or an undead. You gain 10 temporary hit points.",
+            "label": "Sword of Life Stealing"
+          }
+        ]
+      },
+      "weight": 3,
+      "weapon": {
+        "category": "martial",
+        "kind": "melee",
+        "group": "longsword",
+        "damage": "1d8",
+        "damageType": "slashing",
+        "properties": [
+          "versatile"
+        ],
+        "versatileDamage": "1d10"
+      },
+      "baseFrom": [
+        "item:greatsword",
+        "item:longsword",
+        "item:rapier",
+        "item:scimitar",
+        "item:shortsword"
       ]
     },
     {

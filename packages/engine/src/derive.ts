@@ -81,6 +81,8 @@ export interface WeaponAttack {
     onCrit: Part[];
     /** Extra weapon dice rolled on a critical hit, e.g. Brutal Critical. */
     critExtraDice: Part[];
+    /** What else a critical hit does (Sword of Life Stealing's temporary HP), or a second d20 to roll (Sword of Sharpness: on a 20, a limb). */
+    critRiders?: { label: string; text: string; d20?: boolean }[];
   };
   properties: string[];
   range?: [number, number];
@@ -1448,6 +1450,9 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       const critMods = modsFor(damageKeys, o.itemInstanceId).filter((a) => conditionState(a.mod.when) === "pass");
       const onCrit = critMods.filter((a) => a.mod.op === "critBonusDamage").map((a) => ({ label: labelOf(a), value: flatOf(a) }));
       const critExtraDice = critMods.filter((a) => a.mod.op === "extraCritDice").map((a) => ({ label: labelOf(a), value: flatOf(a) }));
+      const critRiders = critMods
+        .filter((a) => (a.mod.op === "critNote" || a.mod.op === "critD20") && typeof a.mod.value === "string")
+        .map((a) => ({ label: labelOf(a), text: a.mod.value as string, ...(a.mod.op === "critD20" ? { d20: true } : {}) }));
 
       const entry: WeaponAttack = {
         attackId: o.attackId,
@@ -1457,7 +1462,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
         ability,
         proficient: o.proficient,
         attack,
-        damage: { dice: w.damage, type: w.damageType, bonus, onCrit, critExtraDice },
+        damage: { dice: w.damage, type: w.damageType, bonus, onCrit, critExtraDice, ...(critRiders.length ? { critRiders } : {}) },
         properties: w.properties,
       };
       if (o.itemInstanceId) entry.itemInstanceId = o.itemInstanceId;
