@@ -383,8 +383,7 @@ export function SheetTab({
 }
 
 /**
- * Features and traits in sections: each class (its subclass's features marked), race, background, feats, beyond the
- * rules; by the level they come at, a pick under the feature it was picked in. A search across all of them.
+ * Features and traits in sections: race, each class and then its subclass, background, feats, beyond the rules; by the level they come at, a pick under the feature it was picked in. A search across all of them.
  */
 function FeatureSections({ sheet, openTrait, featTag }: { sheet: DerivedSheet; openTrait: (id: string) => void; featTag: (id: string) => string | undefined }) {
   const [q, setQ] = useState("");
@@ -420,14 +419,8 @@ function FeatureSections({ sheet, openTrait, featTag }: { sheet: DerivedSheet; o
                       <div className="row-title">{f.name}</div>
                       <div className="row-sub">
                         {f.group?.level !== undefined && <span className="lvl">Level {f.group.level}</span>}
-                        {f.group?.subclass && (
-                          <>
-                            {f.group.level !== undefined ? " · " : ""}
-                            <span className="sub-tag">{f.group.subclass}</span>
-                          </>
-                        )}
-                        {f.group?.pickedIn && `${f.group.level !== undefined || f.group.subclass ? " · " : ""}picked in ${f.group.pickedIn}`}
-                        {(f.group?.level !== undefined || f.group?.subclass || f.group?.pickedIn) && (f.summary || !f.group) ? " · " : ""}
+                        {f.group?.pickedIn && `${f.group.level !== undefined ? " · " : ""}picked in ${f.group.pickedIn}`}
+                        {(f.group?.level !== undefined || f.group?.pickedIn) && (f.summary || !f.group) ? " · " : ""}
                         {f.summary ?? (!f.group ? KIND_LABEL[f.kind] : "")}
                       </div>
                     </div>

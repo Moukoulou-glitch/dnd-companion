@@ -358,7 +358,7 @@ export interface FeatureEntry {
 export interface FeatureGroup {
   key: string;
   label: string;
-  /** Sections in this order (classes first, by levels; then race, background, feats, beyond the rules, other). */
+  /** Sections in this order: race; each class, then its subclass (more levels first); background, feats, beyond the rules, other. */
   order: number;
   level?: number;
   subclass?: string;
@@ -2921,13 +2921,15 @@ export function featureGroups(c: Character, reg: ContentRegistry, sources: Sourc
     if (!def) return;
     const sub = cl.subclass ? reg.find(cl.subclass, "subclass") : undefined;
     const pool = [...def.features, ...(sub?.features ?? [])];
-    const g = { key: cl.class, label: `${def.name} ${cl.level}`, order: 10 + i };
+    const g = { key: cl.class, label: `${def.name} ${cl.level}`, order: 10 + i * 2 };
     for (const f of activeFeatures(def.features, cl.level, c.optionalOff, pool, c.optionalBoth)) if (!out.has(f.feature)) out.set(f.feature, { ...g, level: f.level });
-    if (sub) for (const f of activeFeatures(sub.features, cl.level, c.optionalOff, pool, c.optionalBoth)) if (!out.has(f.feature)) out.set(f.feature, { ...g, level: f.level, subclass: sub.name });
+    // Its subclass's features: a section of their own, right after the class's.
+    const sg = sub ? { key: sub.id, label: `${sub.name} (${def.name})`, order: 11 + i * 2 } : undefined;
+    if (sub && sg) for (const f of activeFeatures(sub.features, cl.level, c.optionalOff, pool, c.optionalBoth)) if (!out.has(f.feature)) out.set(f.feature, { ...sg, level: f.level, subclass: sub.name });
   });
   const race = reg.find(c.race, "race");
   if (race) {
-    const g = { key: "race", label: `Race: ${race.name}`, order: 40 };
+    const g = { key: "race", label: `Race: ${race.name}`, order: 0 };
     out.set(race.id, g);
     for (const f of race.features) if (!out.has(f)) out.set(f, g);
   }

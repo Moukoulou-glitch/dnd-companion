@@ -38,11 +38,15 @@ const ITEM_FILTERS: [ItemFilter, string][] = [
 ];
 
 /** The Items page's sections, in this order: each item goes in the first that takes it. */
+/** A magic item: it has a rarity or a magic bonus, needs attunement, or is a wondrous item or ring. */
+const isMagic = (d: ItemDef) => !!d.magic || d.requiresAttunement || d.category === "wondrous";
 const ITEM_GROUPS: { key: string; label: string; of: (d: ItemDef) => boolean }[] = [
+  { key: "magic-weapons", label: "Magic weapons", of: (d) => d.category === "weapon" && isMagic(d) },
+  { key: "magic-armor", label: "Magic armor and shields", of: (d) => (d.category === "armor" || d.category === "shield") && isMagic(d) },
+  { key: "magic", label: "Magic items", of: (d) => isMagic(d) && d.category !== "consumable" && d.category !== "ammunition" },
+  { key: "consumables", label: "Potions and scrolls", of: (d) => d.category === "consumable" },
   { key: "weapons", label: "Weapons", of: (d) => d.category === "weapon" },
   { key: "armor", label: "Armor and shields", of: (d) => d.category === "armor" || d.category === "shield" },
-  { key: "magic", label: "Wondrous items and rings", of: (d) => d.category === "wondrous" },
-  { key: "consumables", label: "Potions and scrolls", of: (d) => d.category === "consumable" },
   { key: "ammo", label: "Ammunition", of: (d) => d.category === "ammunition" },
   { key: "focus", label: "Spellcasting focuses", of: (d) => d.category === "focus" },
   { key: "tools", label: "Tools and instruments", of: (d) => d.category === "tool" },
