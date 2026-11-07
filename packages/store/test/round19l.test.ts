@@ -93,7 +93,8 @@ describe("19l: homebrew items", () => {
   it("Staff of the Tinker, Unlocking, Empowered Essence, Pearl, Werewolf's Bane, Afternight", () => {
     const w = sheet(pc("class:wizard", 5, [{ item: "item:staff-of-the-tinker" }, { item: "item:tattoo-of-unlocking" }, { item: "item:tattoo-of-empowered-essence" }, { item: "item:pearl-of-regeneration" }, { item: "item:tattoo-of-werewolfs-bane" }, { item: "item:afternight" }]));
     expect(w.spells.some((x) => x.id === "spell:mending")).toBe(true);
-    expect(w.actions.find((x) => x.id === "tinker-reality")?.charges?.amount).toBe(4);
+    expect(w.actions.find((x) => x.id === "tinker-reality")).toMatchObject({ economy: "reaction", charges: { amount: 4 } });
+    expect(w.actions.find((x) => x.id === "tinker-clockwork")?.economy).toBe("free");
     expect(w.resources.find((r) => r.id === "tattoo-unlocking")?.max).toBe(3);
     expect(w.spells.some((x) => x.id === "spell:enhance-ability")).toBe(true);
     expect(w.actions.find((x) => x.id === "pearl-hour")?.heal?.flat).toBe(15);

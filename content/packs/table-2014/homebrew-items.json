@@ -743,7 +743,7 @@
       "kind": "item",
       "id": "item:staff-of-the-tinker",
       "name": "Staff of the Tinker",
-      "summary": "A staff (a quarterstaff) of gears and cogs, 100 lb to anyone else but 1 lb to you. Advantage on Investigation checks about mechanical or magical devices and on checks to pick locks or tinker; you know Mending. 10 charges (5 back at dawn): Clockwork (1), Grease (1), Identify (2), Dispel Magic (3), Reality Check (4), Otiluke's Resilient Sphere (5), Animate Objects (6), with your spell save DC and no material components.",
+      "summary": "A staff (a quarterstaff) of gears and cogs, 100 lb to anyone else but 1 lb to you. Advantage on Investigation checks about mechanical or magical devices and on checks to pick locks or tinker; you know Mending. 10 charges (5 back at dawn): Clockwork (1), Grease (1), Identify (2, as an action), Dispel Magic (3), Reality Check (4, a reaction), Otiluke's Resilient Sphere (5), Animate Objects (6), with your spell save DC and no material components.",
       "source": {
         "pack": "table-2014",
         "book": "Homebrew (Giorgos)"
@@ -807,12 +807,12 @@
             "name": "Staff of the Tinker: Clockwork",
             "economy": "free",
             "charges": 1,
-            "note": "On an attack roll or ability check you're about to make: don't roll the d20, it counts as a 10 (type 10 with My dice)."
+            "note": "No action required. On an attack roll or ability check you're about to make: don't roll the d20, it counts as a 10 (type 10 with My dice)."
           },
           {
             "id": "tinker-reality",
             "name": "Staff of the Tinker: Reality Check",
-            "economy": "action",
+            "economy": "reaction",
             "charges": 4,
             "note": "Just before a creature you can see within 60 ft makes an attack roll, ability check or saving throw: you give it advantage or disadvantage (your choice)."
           }
@@ -837,11 +837,12 @@
           {
             "spell": "spell:identify",
             "name": "Identify",
-            "casting": "from the staff: 2 charges, no material components",
+            "casting": "from the staff: 2 charges, as an action, no material components",
             "charges": {
               "cost": 2
             },
-            "list": "tinker-staff"
+            "list": "tinker-staff",
+            "castingTime": "1 action"
           },
           {
             "spell": "spell:dispel-magic",
@@ -875,12 +876,12 @@
       "text": [
         "This staff is crafted from a fusion of metal and wood, adorned with gears, miniature mechanisms, and tiny rotating cogs along its length. At its peak, it terminates in an intricate metallic sphere from which small whirring sounds occasionally emanate.",
         "This staff normally weighs 45 kilograms (100 lbs.), but to you, it feels 100 times lighter. You gain advantage on Intelligence (Investigation) checks related to mechanical or magical devices, as well as ability checks made for lockpicking or tinkering. You also know the mending cantrip, if you didn't already.",
-        "The staff has 10 charges. While holding it, you can use an action to expend 1 or more of its charges to cast one of the following spells from it, using your spell save DC and without the use of material components, or activate one of its effects:",
-        "Clockwork (1 charge): When you make an attack roll or ability check, you can forgo rolling the d20 to get a 10 on the die.",
+        "The staff has 10 charges. While holding it, you can expend 1 or more of its charges to cast one of the following spells from it, using your spell save DC and without the use of material components, or activate one of its effects:",
+        "Clockwork (1 charge - No action required): When you make an attack roll or ability check, you can forgo rolling the d20 to get a 10 on the die.",
         "Grease (1 charge). You can cast grease.",
-        "Identify (2 charge). You can cast identify.",
+        "Identify (2 charge). You can cast identify as an action.",
         "Dispel Magic (3 charges). You can cast dispel magic.",
-        "Reality Check (4 charges). Just before a creature that you can see within 60 feet, makes an attack roll, ability check or saving throw, you can impose advantage or disadvantage on the roll (your choice).",
+        "Reality Check (4 charges - Reaction). Just before a creature that you can see within 60 feet, makes an attack roll, ability check or saving throw, you can impose advantage or disadvantage on the roll (your choice).",
         "Otiluke's Resilient Sphere (5 charges). You can cast Otiluke's resilient sphere.",
         "Animate Objects (6 charges). You can cast animate objects.",
         "The staff regains 5 expended charges daily at dawn."

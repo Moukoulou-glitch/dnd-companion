@@ -499,7 +499,7 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 ## Round 19l (homebrew items)
 - Tome of Wound Forbidding: the 48 hours of study and the class requirement are yours; its bonus is added to leveled healing spells and to class features' healing (in the roll, or on the amount you enter). Healing from other features you enter by hand doesn't get it.
 - Ring of the Great Pine Cone: "in a forest" is a switch; its 1d6 more on healing is rolled and added by you; dawn charges (1d6 + 1 or 1d4) are rolled on the item; Nature's Embrace's dryads are added as summons by hand.
-- Tattoo of Last Hope: the allies' temporary HP are said, not given (you're not counted among them); it works automatically when damage would drop you to 0.
-- Feathertide's three extra attacks deal damage as if every die rolled 1: rolled as attacks, damage worked out by you. Staff of the Tinker's Clockwork is "type 10 with My dice"; Reality Check is an action spending 4 charges (when exactly is yours).
+- Tattoo of Last Hope: the allies' temporary HP are said, not given (you don't get them: table ruling); it works automatically when damage would drop you to 0.
+- Feathertide's three extra attacks deal damage as if every die rolled 1: rolled as attacks, damage worked out by you. Staff of the Tinker's Clockwork is "type 10 with My dice"; Reality Check is a reaction spending 4 charges; Identify from it takes an action.
 - Pearl of Regeneration's hourly 15 hit points: "Pearl of Regeneration: an hour" in Actions; Elpidora's line isn't tracked. Attunement limits (3) warn as usual.
 
