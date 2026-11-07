@@ -357,3 +357,4 @@ Remaining plan (each a sub-phase, stop after each): 2a crits (done) · 2b Relent
   - An item made from a generic variant (its "Base items" list: Vorpal Greatsword, Flame Tongue Longsword, Holy Avenger Rapier) takes the app's own item's grant, magic bonus and attunement when the app has that variant.
   - New pack items (our wording): Sword of Sharpness (14 on a 20, the d20 for a limb, maximum dice against objects as a tick-box), Sword of Life Stealing (10 on a 20, the 10 temporary HP noted), Mace of Smiting (+1, +2 more against constructs as tick-boxes, 7 on a 20, the construct rule noted). The table's book values (14/10/7), not the SRD's dice.
   - Damage roll on a critical hit: `WeaponAttack.damage.critRiders` shown under the result; a d20 one has "Roll the d20" (or "My d20 shows 20" / "Not a 20" with your own dice).
+- 19g merged to main with approval (Nov 7; run 42370300540 passed).
