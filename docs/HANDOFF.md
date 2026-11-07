@@ -395,3 +395,4 @@ Remaining plan (each a sub-phase, stop after each): 2a crits (done) · 2b Relent
   - Armor of Invulnerability: new defenses "nonmagical" (resist) and, while its once-a-dawn action lasts, immune; the damage op applies them unless the damage is marked magical or from a spell; the Hit points pad offers "magical" for every type when you have them.
   - Oathbow (sworn enemy switch; advantage and 3d6 piercing as tick-boxes), Arrow and Crossbow Bolt of Slaying (6d10 piercing in their ammunition option).
   - Book +N ammunition now gets its bonus (books/items.ts).
+- 20b merged to main with approval (Nov 8; run 42422707043 passed).
