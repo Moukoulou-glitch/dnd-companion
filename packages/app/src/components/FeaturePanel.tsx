@@ -199,6 +199,13 @@ export function FeaturePanel({
           {none ? " None left; you can still use it if your DM allows." : ""}
         </p>
       )}
+      {a.charges && (
+        <p className={a.charges.remaining < a.charges.amount ? "note danger-text" : "note"}>
+          Uses {a.charges.amount} of {a.charges.item}'s charges: {a.charges.remaining} left.
+          {a.charges.remaining < a.charges.amount ? " Not enough; you can still use it if your DM allows." : ""}
+        </p>
+      )}
+      {a.healBonus && <p className="note">{a.healBonus.label}: the creature you heal regains {a.healBonus.value} more.</p>}
       {pickable && (
         <>
           <p className="sub-head">{a.gives ? "Give it to" : "On whom?"}</p>

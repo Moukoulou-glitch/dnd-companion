@@ -285,6 +285,12 @@ export interface ActionResult {
   spendAmount?: { label: string; heals?: boolean; tempHp?: boolean };
   /** Its toggles last only while you have temporary hit points (Blackrazor's devoured soul). */
   whileTempHp?: boolean;
+  /** The item it comes from (its instance), when an item gives it. */
+  itemInstanceId?: string;
+  /** Charges of that item it spends, and how many are left (Ring of the Great Pine Cone). */
+  charges?: { amount: number; item: string; remaining: number };
+  /** Healing added to what it restores (Tome of Wound Forbidding: your proficiency bonus): for one that asks how much (Lay on Hands). */
+  healBonus?: { label: string; value: number };
   flexibleCasting?: "toSlot" | "toPoints";
   asAttack?: boolean;
   dash?: boolean;
@@ -535,6 +541,8 @@ export interface DerivedSheet {
   selfMaxHealing?: string;
   /** Rule permissions: two-weapon fighting with non-light weapons (Dual Wielder), ability modifier on off-hand damage (the style). */
   rules: { twoWeaponNonLight: boolean; twoWeaponAbility: boolean; durable: boolean; heavyArmorMaster: boolean; warCaster: boolean };
+  /** When you'd drop to 0 hit points, you drop to `hp` instead, once (its resource); `allies`: temporary HP for your allies then (Tattoo of Last Hope). */
+  zeroInstead?: { label: string; hp: number; resource?: string; allies?: number };
   /** Data problems found while deriving (missing choices, too many attuned items). */
   warnings: string[];
 }
@@ -1456,6 +1464,8 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       const critRiders: NonNullable<WeaponAttack["damage"]["critRiders"]> = critMods
         .filter((a) => (a.mod.op === "critNote" || a.mod.op === "critD20") && typeof a.mod.value === "string")
         .map((a) => ({ label: labelOf(a), text: a.mod.value as string, ...(a.mod.op === "critD20" ? { d20: true } : {}) }));
+      // What any critical hit does (Cloak of Nightclaw: disadvantage on Dexterity saves).
+      for (const a of critMods.filter((x) => x.mod.op === "critHitNote" && typeof x.mod.value === "string")) critRiders.push({ label: labelOf(a), text: a.mod.value as string, anyCrit: true });
       // On any critical hit, half the target's hit point maximum (Wave: necrotic): the roll asks for that maximum.
       for (const a of critMods.filter((x) => x.mod.op === "critHalfMax" && typeof x.mod.value === "string"))
         critRiders.push({ label: labelOf(a), text: `${a.mod.value} damage equal to half the target's hit point maximum.`, halfMax: a.mod.value as string, anyCrit: true });
@@ -2267,6 +2277,22 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       }
       if (a.spendAmount) entry.spendAmount = a.spendAmount;
       if (a.whileTempHp) entry.whileTempHp = true;
+      if (s.itemInstanceId) entry.itemInstanceId = s.itemInstanceId;
+      if (a.charges && s.itemInstanceId) {
+        const inst = c.inventory.find((i) => i.id === s.itemInstanceId);
+        const idef = inst ? reg.find(inst.item, "item") : undefined;
+        if (inst && idef?.charges) entry.charges = { amount: a.charges, item: inst.name ?? idef.name, remaining: idef.charges.max - (inst.chargesUsed ?? 0) };
+      }
+      // A class feature's healing gets more (Tome of Wound Forbidding: your proficiency bonus): in its roll, or noted for one you enter.
+      if (/^feature:/.test(s.id) && (a.heal !== undefined || a.spendAmount?.heals)) {
+        const extra = active.filter((x) => x.mod.selector === "roll.heal.feature" && x.mod.op === "add" && x.mod.value !== undefined && conditionState(x.mod.when) !== "fail");
+        const value = extra.reduce((n, x) => n + flatOf(x), 0);
+        if (value) {
+          const label = extra.map((x) => labelOf(x)).join(", ");
+          if (entry.heal) entry.heal = { ...entry.heal, flat: entry.heal.flat + value, text: `${entry.heal.text} + ${value} (${label})` };
+          else entry.healBonus = { label, value };
+        }
+      }
       if (a.recoversSlots) {
         // Half the class level, or a fixed budget (Pearl of Power); an item can add to it (Arcane Grimoire: one level more on Arcane Recovery).
         const more = statAdds(`stat.recover.${a.id}`).reduce((n, p) => n + p.value, 0);
@@ -2716,6 +2742,12 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       ),
     ],
     rules,
+    ...(() => {
+      const z = active.find((x) => x.mod.selector === "hp.zero" && x.mod.op === "zeroInstead" && x.mod.value !== undefined);
+      if (!z) return {};
+      const allies = active.find((x) => x.mod.selector === "hp.zero" && x.mod.op === "zeroInsteadAllies" && x.mod.value !== undefined);
+      return { zeroInstead: { label: labelOf(z), hp: flatOf(z), ...(z.mod.spends ? { resource: z.mod.spends.resource } : {}), ...(allies ? { allies: flatOf(allies) } : {}) } };
+    })(),
     encumbrance,
     size: sizeNow,
     initiativeRegains: sources.flatMap((s) => (s.grant.initiativeRegain ? [{ ...s.grant.initiativeRegain, from: s.label }] : [])),

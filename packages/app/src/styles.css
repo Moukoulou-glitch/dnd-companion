@@ -4723,3 +4723,101 @@ html.fx-shake-strong .app > .strip, html.fx-shake-strong .app > main, html.fx-sh
 .fx-sw-eyes span { width: 22px; height: 12px; border-radius: 50%; background: #c8ff6a; box-shadow: 0 0 14px #8bff2a, 0 0 30px #4a8f10; }
 @keyframes fx-sw-eyes { 0%, 25% { opacity: 0; } 45% { opacity: 1; } 80% { opacity: 1; } 100% { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .fx-sw { animation: fx-static 900ms ease-out forwards !important; } .fx-sw > :not(.fx-label):not(.fx-sw-veil) { display: none; } }
+
+/* Homebrew items that are yours (19l): small living emblems on Play. */
+.relic-strip { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0 10px; }
+.relic { position: relative; width: 40px; height: 40px; padding: 0; border-radius: 50%; border: 1px solid var(--line); background: radial-gradient(circle at 50% 40%, rgba(var(--rc), 0.22), rgba(10, 14, 22, 0.9) 70%); display: grid; place-items: center; overflow: visible; --rc: 200, 200, 200; }
+.relic svg { width: 34px; height: 34px; overflow: visible; }
+.relic svg * { fill: none; stroke: rgb(var(--rc)); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.relic::after { content: ""; position: absolute; inset: -3px; border-radius: 50%; box-shadow: 0 0 0 0 rgba(var(--rc), 0.5); animation: relic-breathe 4s ease-in-out infinite; }
+.relic.on::after { animation-duration: 1.6s; box-shadow: 0 0 10px 2px rgba(var(--rc), 0.6); }
+@keyframes relic-breathe { 0%, 100% { box-shadow: 0 0 2px 0 rgba(var(--rc), 0.25); } 50% { box-shadow: 0 0 9px 2px rgba(var(--rc), 0.55); } }
+
+.relic-tome { --rc: 120, 220, 150; }
+.relic-tome .r-cross { stroke: #e8fff0; stroke-width: 2.6; animation: relic-pulse 2.6s ease-in-out infinite; transform-origin: 20px 22px; }
+.relic-vineyard { --rc: 150, 90, 200; }
+.relic-vineyard .r-vine, .relic-vineyard .r-leaf { stroke: #79c25a; }
+.relic-vineyard .r-grapes circle { fill: rgba(150, 90, 200, 0.75); }
+.relic-vineyard .r-grapes { animation: relic-sway 3.6s ease-in-out infinite; transform-origin: 22px 20px; }
+.relic-scribing { --rc: 170, 200, 255; }
+.relic-scribing .r-rune { fill: #d8e6ff; stroke: none; font-size: 9px; font-family: serif; opacity: 0; animation: relic-rune 3.6s ease-in-out infinite; }
+.relic-scribing .r-rune.n1 { animation-delay: 1.2s; }
+.relic-scribing .r-rune.n2 { animation-delay: 2.4s; }
+.relic-winds { --rc: 170, 235, 225; }
+.relic-winds .r-swirl { animation: relic-spin 6s linear infinite; transform-origin: 20px 20px; }
+.relic-winds.on .r-swirl { animation-duration: 1.4s; }
+.relic-werewolf { --rc: 215, 225, 240; }
+.relic-werewolf .r-chain { stroke-dasharray: 3 2; animation: relic-chain 2.4s linear infinite; }
+.relic-werewolf .r-wolf { animation: relic-glint 3.4s ease-in-out infinite; }
+.relic-pinecone { --rc: 90, 200, 120; }
+.relic-pinecone .r-cone { stroke: #b58a4a; }
+.relic-pinecone .r-gem { fill: #3be08a; stroke: none; animation: relic-pulse 2.8s ease-in-out infinite; transform-origin: 20px 14px; }
+.relic-lasthope { --rc: 255, 170, 70; }
+.relic-lasthope .r-flame { fill: rgba(255, 140, 40, 0.35); animation: relic-flicker 1.8s ease-in-out infinite; transform-origin: 20px 34px; }
+.relic-lasthope .r-wings { stroke: #ffd27a; animation: relic-flap 3s ease-in-out infinite; transform-origin: 20px 22px; }
+.relic-feathertide { --rc: 140, 200, 255; }
+.relic-feathertide .r-feather { animation: relic-drift 4.2s ease-in-out infinite; transform-origin: 20px 20px; }
+.relic-nightclaw { --rc: 180, 220, 255; }
+.relic-nightclaw .r-claw { stroke-dasharray: 30; animation: relic-rake 3.2s ease-in-out infinite; }
+.relic-nightclaw .r-snow, .relic-cychron .r-flake { fill: #fff; stroke: none; }
+.relic-nightclaw .r-snow { animation: relic-fall 2.8s linear infinite; }
+.relic-nightclaw .r-snow.n1 { animation-delay: 0.7s; }
+.relic-nightclaw .r-snow.n2 { animation-delay: 1.4s; }
+.relic-nightclaw .r-snow.n3 { animation-delay: 2.1s; }
+.relic-cychron { --rc: 235, 240, 250; }
+.relic-cychron .r-flake { stroke: #fff; animation: relic-spin 8s linear infinite; transform-origin: 20px 12px; }
+.relic-cychron .r-fur { fill: rgba(240, 245, 255, 0.25); animation: relic-glint 3.8s ease-in-out infinite; }
+.relic-essence { --rc: 140, 220, 110; }
+.relic-essence .r-trunk, .relic-essence .r-roots { stroke: #c7a26b; }
+.relic-essence .r-bud { fill: #b8f58c; stroke: none; animation: relic-pulse 2.4s ease-in-out infinite; }
+.relic-essence .r-bud.n1 { animation-delay: 0.6s; }
+.relic-essence .r-bud.n2 { animation-delay: 1.2s; }
+.relic-essence .r-bud.n3 { animation-delay: 1.8s; }
+.relic-tinker { --rc: 220, 180, 100; }
+.relic-tinker .r-cog rect { fill: rgb(var(--rc)); stroke: none; }
+.relic-tinker .r-cog.a { animation: relic-spin 5s linear infinite; transform-origin: 15px 16px; }
+.relic-tinker .r-cog.b { animation: relic-spin 4s linear infinite reverse; transform-origin: 26px 26px; }
+.relic-pearl { --rc: 255, 190, 210; }
+.relic-pearl .r-orbit { stroke-dasharray: 2 3; opacity: 0.6; }
+.relic-pearl .r-pearl { fill: #ffd6e4; stroke: none; offset-path: path("M20 12 A13 4 0 1 1 19.99 12"); animation: relic-orbit 3.2s linear infinite; }
+.relic-pearl:not(.on) .r-pearl { animation-play-state: paused; }
+.relic-unlocking { --rc: 230, 200, 120; }
+.relic-unlocking .r-lock { animation: relic-unlock 3.4s ease-in-out infinite; }
+.relic-unlocking .r-keyhole { stroke: #fff2c4; }
+
+@keyframes relic-pulse { 0%, 100% { opacity: 0.6; transform: scale(0.9); } 50% { opacity: 1; transform: scale(1.12); } }
+@keyframes relic-sway { 0%, 100% { transform: rotate(-6deg); } 50% { transform: rotate(6deg); } }
+@keyframes relic-rune { 0%, 100% { opacity: 0; } 25%, 55% { opacity: 1; } }
+@keyframes relic-spin { to { transform: rotate(360deg); } }
+@keyframes relic-chain { to { stroke-dashoffset: -10; } }
+@keyframes relic-glint { 0%, 100% { opacity: 0.75; } 50% { opacity: 1; filter: drop-shadow(0 0 3px #fff); } }
+@keyframes relic-flicker { 0%, 100% { transform: scaleY(1); } 30% { transform: scaleY(1.08) skewX(2deg); } 60% { transform: scaleY(0.94) skewX(-2deg); } }
+@keyframes relic-flap { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(0.75); } }
+@keyframes relic-drift { 0%, 100% { transform: translate(0, 0) rotate(0); } 50% { transform: translate(2px, -3px) rotate(-8deg); } }
+@keyframes relic-rake { 0%, 20% { stroke-dashoffset: 30; } 45%, 80% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: -30; } }
+@keyframes relic-fall { from { transform: translateY(0); opacity: 1; } to { transform: translateY(30px); opacity: 0; } }
+@keyframes relic-orbit { to { offset-distance: 100%; } }
+@keyframes relic-unlock { 0%, 60%, 100% { transform: translateY(0); } 70%, 90% { transform: translateY(-3px); } }
+@media (prefers-reduced-motion: reduce) { .relic *, .relic::after { animation: none !important; } }
+
+/* Απονύχτι: an amber cut with embers (the flame engravings). */
+.fx-sw-afternight .fx-label { color: #ffd08a; }
+.fx-sw-afternight .fx-sw-veil { background: radial-gradient(ellipse at 50% 50%, rgba(120, 60, 10, 0.25), rgba(14, 6, 0, 0.65)); }
+.fx-sw-amber { stroke: #ffb347; stroke-width: 7; filter: drop-shadow(0 0 10px #ff7a1a) drop-shadow(0 0 2px #000); animation: fx-tw-draw 240ms ease-out forwards; }
+.fx-sw-ember { position: absolute; width: 5px; height: 5px; border-radius: 50%; background: #ffcf6a; box-shadow: 0 0 8px #ff8a1a; opacity: 0; animation: fx-sw-mote 900ms ease-out forwards; }
+
+/* Tattoo of Last Hope: from the ash, a phoenix of radiant flame rises. */
+.fx-lh { position: absolute; inset: 0; overflow: hidden; pointer-events: none; animation: fx-tw-in var(--fx-ms) ease-out forwards; background: radial-gradient(ellipse at 50% 80%, rgba(255, 120, 20, 0.25), rgba(10, 4, 0, 0.75)); }
+.fx-lh .fx-label { color: #ffe0a0; font-size: 1.25em; text-shadow: 0 0 2px #000, 0 0 16px #ff8a1a; }
+.fx-lh-ash { position: absolute; left: 0; right: 0; bottom: 0; height: 30%; background: linear-gradient(to top, rgba(60, 50, 45, 0.8), transparent); animation: fx-lh-ash var(--fx-ms) ease-out forwards; }
+@keyframes fx-lh-ash { 0% { opacity: 1; } 40% { opacity: 0.6; } 100% { opacity: 0; } }
+.fx-lh-bird { position: absolute; left: 50%; top: 40%; width: 300px; height: 240px; margin: -120px 0 0 -150px; overflow: visible; animation: fx-lh-rise var(--fx-ms) cubic-bezier(0.2, 0.7, 0.3, 1) forwards; }
+.fx-lh-bird path { fill: rgba(255, 150, 40, 0.35); stroke: #ffd27a; stroke-width: 3; filter: drop-shadow(0 0 10px #ff8a1a); }
+.fx-lh-bird .tail { fill: none; }
+.fx-lh-bird .wing { transform-origin: 100px 85px; animation: fx-lh-flap 700ms ease-in-out infinite alternate; }
+.fx-lh-bird .wing.r { animation-delay: 0ms; }
+@keyframes fx-lh-rise { 0% { transform: translateY(260px) scale(0.3); opacity: 0; } 30% { opacity: 1; } 70% { transform: translateY(0) scale(1); opacity: 1; } 100% { transform: translateY(-80px) scale(1.1); opacity: 0; } }
+@keyframes fx-lh-flap { from { transform: scaleY(1); } to { transform: scaleY(0.55); } }
+.fx-lh-spark { position: absolute; bottom: 8%; width: 6px; height: 6px; border-radius: 50%; background: #ffd27a; box-shadow: 0 0 10px #ff8a1a; opacity: 0; animation: fx-lh-spark 1300ms ease-out forwards; }
+@keyframes fx-lh-spark { 0% { opacity: 0; transform: translateY(0); } 20% { opacity: 1; } 100% { opacity: 0; transform: translateY(-460px); } }
+@media (prefers-reduced-motion: reduce) { .fx-lh { animation: fx-static 900ms ease-out forwards !important; } .fx-lh > :not(.fx-label) { display: none; } }

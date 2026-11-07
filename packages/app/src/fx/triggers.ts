@@ -33,6 +33,8 @@ export type FxEvent =
   | { kind: "sneak"; total?: number }
   /** A sentient weapon's attack (Blackrazor, Whelm…): its look and its line, by outcome; "devour" for Blackrazor's soul. */
   | { kind: "sentient"; weapon: string; outcome: "hit" | "crit" | "miss" | "devour" }
+  /** Tattoo of Last Hope: you'd have dropped to 0, and a phoenix rises. */
+  | { kind: "last-hope"; hp: number }
   /** A weapon's natural 20 (Sword of Sharpness, Vicious, Life Stealing, Mace of Smiting), or its second 20 ("sever": a limb). */
   | { kind: "twenty"; motif: "sharp" | "vicious" | "drain" | "smite" | "edge" | "sever" | "tide"; label: string }
   /** Destructive Wrath: the storm answers (its lightning and thunder dice at their maximum). */
@@ -144,6 +146,8 @@ export function opFx(type: string, payload: unknown, before: Character, after: C
   // Zone of Truth: cast by you, or its tag put on you (someone else's).
   if ((type === "castSpell" && p.spell === "spell:zone-of-truth") || (type === "addEffect" && p.effect === "other:zone-of-truth")) out.push({ kind: "truth" });
   if (type === "useAction" && p.action === "preserve-life") out.push({ kind: "preserve-life" });
+  // Tattoo of Last Hope: its once-a-dawn use spent by damage.
+  if (type === "damage" && (after.resourcesUsed?.["tattoo-last-hope"] ?? 0) > (before.resourcesUsed?.["tattoo-last-hope"] ?? 0)) out.push({ kind: "last-hope", hp: after.hp.current });
   // Blackrazor devours a soul.
   if (type === "useAction" && p.action === "blackrazor-devour" && !p.free) out.push({ kind: "sentient", weapon: "item:blackrazor", outcome: "devour" });
   const season = after.choices?.["race:eladrin"]?.season?.[0];

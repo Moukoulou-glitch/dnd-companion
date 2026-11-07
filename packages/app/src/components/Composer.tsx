@@ -413,7 +413,7 @@ export function ResultView({ r }: { r: RollRecord }) {
  * What else a natural 20 does with this weapon: its notes (Sword of Life Stealing's temporary HP), and a second d20
  * to roll (Sword of Sharpness: on a 20, a limb). With your own dice you say what it showed.
  */
-export function CritRiders({ riders, physical, tempGiven = false }: { riders: { label: string; text: string; d20?: boolean; tempHp?: number }[]; physical: boolean; tempGiven?: boolean }) {
+export function CritRiders({ riders, physical, tempGiven = false }: { riders: { label: string; text: string; d20?: boolean; tempHp?: number; anyCrit?: boolean }[]; physical: boolean; tempGiven?: boolean }) {
   const [shown, setShown] = useState<Record<number, number>>({});
   // The second 20 (a limb comes off): its own look.
   const show = (i: number, face: number) => {
@@ -429,7 +429,10 @@ export function CritRiders({ riders, physical, tempGiven = false }: { riders: { 
           </p>
         ) : !r.d20 ? (
           <p key={i} className="note">
-            <b>{r.label}, on a 20:</b> {r.text}
+            <b>
+              {r.label}, {r.anyCrit ? "on a critical hit" : "on a 20"}:
+            </b>{" "}
+            {r.text}
           </p>
         ) : (
           <div key={i} className="crit-d20">
@@ -1150,7 +1153,11 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
             }}
           />
         )}
-        {stage.crit && stage.twenty && attack?.damage.critRiders?.some((r) => !r.halfMax) ? <CritRiders riders={attack.damage.critRiders.filter((r) => !r.halfMax)} physical={physical} tempGiven={!!onTempHp} /> : null}
+        {(() => {
+          // What any critical hit does (Cloak of Nightclaw), and what a 20 does (only when the d20 showed 20).
+          const shown = stage.crit ? (attack?.damage.critRiders ?? []).filter((r) => !r.halfMax && (r.anyCrit || stage.twenty)) : [];
+          return shown.length ? <CritRiders riders={shown} physical={physical} tempGiven={!!onTempHp} /> : null;
+        })()}
         {healing && healTargets && (
           <HealTargets
             targets={healTargets.targets}

@@ -131,6 +131,8 @@ export function specOf(e: FxEvent): FxSpec {
         skippable: true,
       };
     }
+    case "last-hope":
+      return { at: "edge", ms: 2600, buzz: [30, 40, 30, 40, 160], look: "fx-lh", label: `Tattoo of Last Hope · ${e.hp} HP`, shake: 300, skippable: true };
     // A sentient weapon: its own look and its voice, by how the attack went; Blackrazor devouring a soul.
     case "sentient": {
       const w = sentientOf(e.weapon);
@@ -652,6 +654,20 @@ export function FxLayer({ school, spell, feature, character }: { school: (spell:
                 </>
               );
             })()}
+            {spec.look === "fx-lh" && (
+              <>
+                <span className="fx-lh-ash" />
+                <svg className="fx-lh-bird" viewBox="0 0 200 160">
+                  <path className="wing l" d="M100 80 C80 50 40 40 6 50 C30 60 50 72 70 92 C50 88 32 92 18 104 C46 104 70 104 92 98" />
+                  <path className="wing r" d="M100 80 C120 50 160 40 194 50 C170 60 150 72 130 92 C150 88 168 92 182 104 C154 104 130 104 108 98" />
+                  <path className="body" d="M100 60 C108 74 108 96 100 130 C92 96 92 74 100 60 Z" />
+                  <path className="tail" d="M100 128 C90 140 86 152 80 158 M100 128 C100 142 100 150 100 160 M100 128 C110 140 114 152 120 158" />
+                </svg>
+                {Array.from({ length: 16 }, (_, i) => (
+                  <span key={i} className="fx-lh-spark" style={{ left: `${8 + ((i * 41) % 84)}%`, animationDelay: `${300 + (i % 8) * 90}ms` }} />
+                ))}
+              </>
+            )}
             {spec.look.startsWith("fx-sw ") && (
               <>
                 <span className="fx-sw-veil" />
@@ -708,6 +724,16 @@ export function FxLayer({ school, spell, feature, character }: { school: (spell:
                     </svg>
                     {Array.from({ length: 14 }, (_, i) => (
                       <span key={i} className="fx-sw-flame" style={{ left: `${8 + i * 6.5}%`, animationDelay: `${(i % 5) * 80}ms` }} />
+                    ))}
+                  </>
+                )}
+                {spec.look.includes("fx-sw-afternight") && (
+                  <>
+                    <svg className="fx-tw-svg" viewBox="0 0 390 844" preserveAspectRatio="none">
+                      <path className="fx-sw-amber" pathLength={1} d="M40,600 Q190,380 360,260" />
+                    </svg>
+                    {Array.from({ length: 10 }, (_, i) => (
+                      <span key={i} className="fx-sw-ember" style={{ left: `${20 + i * 7}%`, top: `${66 - i * 4}%`, animationDelay: `${150 + i * 40}ms` }} />
                     ))}
                   </>
                 )}

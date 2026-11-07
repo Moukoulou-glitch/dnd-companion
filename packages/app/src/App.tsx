@@ -20,6 +20,8 @@ import { DistributePanel } from "./components/Distribute";
 import { RageVeins, greyLevel, useFlourishes } from "./components/Fx";
 import { FxLayer, playFx } from "./fx/FxLayer";
 import { SENTIENT_WEAPONS, sentientDiceKey } from "./fx/sentient";
+import { relicsOf } from "./fx/relics";
+import { RelicStrip } from "./components/RelicStrip";
 import { spellInfoOf } from "./fx/generated";
 import { NameFx } from "./fx/NameFx";
 import { featureFor } from "./fx/features";
@@ -367,17 +369,19 @@ export function App() {
         sourceToggles={!!live.current.sheet?.rules.heavyArmorMaster}
         spellToggle={!!live.current.sheet?.defenses.resist.includes("spells")}
         {...(boundGuardian() ? { boundTo: boundGuardian()!.name } : {})}
+        rangedToggle={!!live.current.sheet?.defenses.resist.includes("ranged")}
         onDamage={(amount, type, src) => {
           const magical = !!src?.magical;
           const fromSpell = !!src?.spell;
           const bound = !!src?.bound;
+          const ranged = !!src?.ranged;
           // Durable: offer a Hit Die to soak the damage first (a reaction, before resistances).
           const sh = live.current.sheet;
           const ch = live.current.character;
           const diceLeft = sh?.hitDice.filter((h) => h.total - h.used > 0) ?? [];
           const reactionFree = !ch?.combat || (ch.combat.reaction ?? 0) < 1;
-          if (sh?.rules.durable && diceLeft.length && reactionFree && amount > 0) return openDurable(amount, type, magical, fromSpell, bound);
-          takeDamage(amount, type, magical, fromSpell, bound);
+          if (sh?.rules.durable && diceLeft.length && reactionFree && amount > 0) return openDurable(amount, type, magical, fromSpell, bound, ranged);
+          takeDamage(amount, type, magical, fromSpell, bound, ranged);
         }}
         onHeal={(amount) => {
           s.act("heal", { amount }, `Healed ${amount}.`);
@@ -564,8 +568,8 @@ export function App() {
     ));
 
   /** Damage to the character, then what it leads to: a concentration save, or instant death. */
-  const takeDamage = (amount: number, type?: string, magical?: boolean, fromSpell?: boolean, bound?: boolean) => {
-    const payload = { amount, ...(type ? { damageType: type } : {}), ...(magical ? { magical: true as const } : {}), ...(fromSpell ? { fromSpell: true as const } : {}), ...(bound ? { bound: true as const } : {}) };
+  const takeDamage = (amount: number, type?: string, magical?: boolean, fromSpell?: boolean, bound?: boolean, ranged?: boolean) => {
+    const payload = { amount, ...(type ? { damageType: type } : {}), ...(magical ? { magical: true as const } : {}), ...(fromSpell ? { fromSpell: true as const } : {}), ...(bound ? { bound: true as const } : {}), ...(ranged ? { ranged: true as const } : {}) };
     withZeroHp(payload, (extra) => {
       const prompts = live.current.act("damage", { ...payload, ...extra }, `Took ${amount}${type ? ` ${type}` : ""} damage${fromSpell ? " from a spell" : ""}.`) as { kind: string; dc: number; reason?: string }[];
       const dead = prompts.find((p) => p.kind === "dead");
@@ -588,19 +592,19 @@ export function App() {
       </>
     ));
   /** Durable (remastered): spend a Hit Die as a reaction to reduce damage by the die + Constitution (at least 3). */
-  const openDurable = (amount: number, type?: string, magical?: boolean, fromSpell?: boolean, bound?: boolean) =>
+  const openDurable = (amount: number, type?: string, magical?: boolean, fromSpell?: boolean, bound?: boolean, ranged?: boolean) =>
     open("Durable: spend a Hit Die?", () => (
       <DurablePanel
         amount={amount}
         con={live.current.sheet?.abilities.con.modifier ?? 0}
         dice={(live.current.sheet?.hitDice ?? []).filter((h) => h.total - h.used > 0).map((h) => ({ die: h.die, left: h.total - h.used }))}
         physical={live.current.character?.settings.physicalDice ?? true}
-        onSkip={() => takeDamage(amount, type, magical, fromSpell, bound)}
+        onSkip={() => takeDamage(amount, type, magical, fromSpell, bound, ranged)}
         onSpend={(die, roll, reduce) => {
           const left = Math.max(0, amount - reduce);
           live.current.act("spendHitDie", { die, roll, reduce: true }, `Durable: ${die} rolled ${roll}, ${reduce} less damage, ${left} left.`);
           if (live.current.character?.combat) live.current.act("useEconomy", { kind: "reaction" }, "Reaction used.");
-          if (left > 0) takeDamage(left, type, magical, fromSpell, bound);
+          if (left > 0) takeDamage(left, type, magical, fromSpell, bound, ranged);
           else close();
         }}
       />
@@ -1579,7 +1583,7 @@ export function App() {
                   if (target && target !== "me" && target !== "other") {
                     const healed = spend?.amount ?? (current.heal && rolled !== undefined ? rolled : undefined);
                     if (current.gives) giveEffectTo(target, current.gives.effect, die, current.name);
-                    if (healed !== undefined && (current.heal || current.spendAmount?.heals)) healTarget(target, healed, current.name);
+                    if (healed !== undefined && (current.heal || current.spendAmount?.heals)) healTarget(target, healed + (spend ? current.healBonus?.value ?? 0 : 0), current.name);
                   }
                   flashForFeature(current.id, { zenith: hasZenith(live.current.character) });
                   // Hound of Ill Omen: straight to the companion it brought out.
@@ -3813,6 +3817,9 @@ export function App() {
           const inst = c.effects.find((x) => x.id === e.instanceId);
           return !inst?.toggles?.length || inst.untilTurnStart;
         })} onOpen={openEffect} onAdd={openAddEffect} concentration={sheet.concentration} onConcentration={openConcentration} />
+
+        {/* The table's homebrew items that are yours now: each a small living emblem. */}
+        <RelicStrip relics={relicsOf(c)} onOpen={(r) => (r.instanceId ? openItem(r.instanceId) : r.effectId ? (() => { const e = sheet.effects.find((x) => x.instanceId === r.effectId); if (e) openEffect(e); })() : undefined)} />
 
         {sheet.featureTags.length > 0 && (
           <div className="switches" role="group" aria-label="Always-on features">

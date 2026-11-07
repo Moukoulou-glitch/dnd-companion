@@ -437,6 +437,12 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         dmg = Math.floor(dmg / 2);
         notes.push(`Resistant to all damage: ${was} halved to ${dmg}.`);
       }
+      // Resistance to the damage of ranged weapon attacks (Tattoo of Guardian Winds): not on top of another resistance.
+      if (op.payload.ranged && sheet.defenses.resist.includes("ranged") && !sheet.defenses.resist.includes("all") && dmg > 0 && !(damageType && sheet.defenses.resist.includes(damageType))) {
+        const was = dmg;
+        dmg = Math.floor(dmg / 2);
+        notes.push(`Resistant to ranged weapon attacks: ${was} halved to ${dmg}.`);
+      }
       // Resistance to damage from spells (Aura of Warding): resistances don't stack, so not on top of a typed one.
       if (op.payload.fromSpell && sheet.defenses.resist.includes("spells") && !sheet.defenses.resist.includes("all") && dmg > 0 && !(damageType && sheet.defenses.resist.includes(damageType))) {
         const was = dmg;
@@ -494,6 +500,14 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
           c.hp.current = 1;
           removeEffects([ward]);
           notes.push("Death Ward: you drop to 1 hit point instead, and the spell ends.");
+        }
+        // Once (its resource), you drop to a number of hit points instead (Tattoo of Last Hope), and your allies gain temporary HP.
+        const zi = sheet.zeroInstead;
+        const ziLeft = zi?.resource ? sheet.resources.find((r) => r.id === zi.resource)?.remaining ?? 0 : 1;
+        if (c.hp.current === 0 && zi && ziLeft > 0) {
+          c.hp.current = Math.max(1, zi.hp);
+          if (zi.resource) c.resourcesUsed[zi.resource] = (c.resourcesUsed[zi.resource] ?? 0) + 1;
+          notes.push(`${zi.label}: you drop to ${c.hp.current} hit point${c.hp.current === 1 ? "" : "s"} instead.${zi.allies ? ` Friendly creatures within 60 ft of you gain ${zi.allies} temporary hit points.` : ""}`);
         }
         // Strength of the Grave (Shadow Magic): a Charisma save, DC 5 + the damage taken; not against radiant
         // damage or a critical hit, not if killed outright; spent only on a success (once per long rest).
@@ -1388,9 +1402,23 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         c.resourcesUsed[a.cost.resource] = Math.min(max, used + amount);
         if (a.spendAmount) notes.push(`${a.cost.name}: ${Math.max(0, max - used - amount)} left.`);
       }
+      // Its item's charges (Ring of the Great Pine Cone): spent from the item, warned when there aren't enough.
+      if (a.charges && a.itemInstanceId && !free) {
+        const inst = c.inventory.find((i) => i.id === a.itemInstanceId);
+        const idef = inst ? reg.find(inst.item, "item") : undefined;
+        if (inst && idef?.charges) {
+          const used = inst.chargesUsed ?? 0;
+          const left = idef.charges.max - used;
+          if (left < a.charges.amount) notes.push(`${a.charges.item}: ${left > 0 ? `only ${left} charge${left === 1 ? "" : "s"} left` : "no charges left"}. Used anyway.`);
+          inst.chargesUsed = Math.min(idef.charges.max, used + a.charges.amount);
+          notes.push(`${a.charges.item}: ${a.charges.amount} charge${a.charges.amount === 1 ? "" : "s"} spent, ${idef.charges.max - inst.chargesUsed} left.`);
+        }
+      }
       if (a.spendAmount?.heals && op.payload.healSelf && op.payload.amount) {
         const before = c.hp.current;
-        c.hp.current = Math.min(maxHp, before + op.payload.amount);
+        // More healing from something else (Tome of Wound Forbidding: your proficiency bonus).
+        if (a.healBonus) notes.push(`${a.healBonus.label}: +${a.healBonus.value}.`);
+        c.hp.current = Math.min(maxHp, before + op.payload.amount + (a.healBonus?.value ?? 0));
         if (before === 0 && c.hp.current > 0) c.deathSaves = { successes: 0, failures: 0 };
         notes.push(`Healed ${c.hp.current - before}.`);
       }

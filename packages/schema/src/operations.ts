@@ -41,6 +41,8 @@ export const OPERATION_PAYLOADS = {
        * half the damage you take (rounded up) goes to it. Absent: nothing moves (older logs replay unchanged).
        */
       bound: z.boolean().optional(),
+      /** From a ranged weapon attack (resistance to ranged weapon attacks' damage: Tattoo of Guardian Winds). */
+      ranged: z.boolean().optional(),
     })
     .strict(),
   /** Healing, capped at maximum HP. Healing from 0 HP clears death saves. */

@@ -4,7 +4,7 @@ import type { DiceTheme } from "../dice/themes";
  * Sentient weapons: their own dice for their attacks and damage, and a look (with a line in their voice) on a hit,
  * a critical hit or a miss, from their personality. Keyed by the item's id, the app's own or a loaded book's.
  */
-export type SentientMotif = "whelm" | "wave" | "blackrazor" | "moonblade" | "kas" | "orcus";
+export type SentientMotif = "whelm" | "wave" | "blackrazor" | "moonblade" | "kas" | "orcus" | "afternight";
 
 export interface SentientWeapon {
   name: string;
@@ -56,6 +56,14 @@ export const SENTIENT_WEAPONS: Record<string, SentientWeapon> = {
     dice: { material: "tc-slashing", color: "#7d0a12", glow: 1, impact: "cut", particles: "embers", haptic: [30] },
     lines: { hit: "The Sword of Kas drinks deep.", crit: "The sword screams for more blood!", miss: "The sword seethes." },
     ink: "#ffb3b3",
+  },
+  // Απονύχτι (the table's): not sentient, but its amber, flame-engraved blade shows when you attack with it.
+  "item:afternight": {
+    name: "Απονύχτι",
+    motif: "afternight",
+    dice: { material: "tc-fire", color: "#b5651d", glow: 2, impact: "flare", particles: "embers", haptic: [18] },
+    lines: { hit: "Απονύχτι's amber flame flares.", crit: "Απονύχτι blazes like the last light before night!", miss: "Απονύχτι's glow flickers." },
+    ink: "#ffd08a",
   },
   // The demon prince of undeath's wand: grave-green smoke and a skull's glare.
   "item:wand-of-orcus": {

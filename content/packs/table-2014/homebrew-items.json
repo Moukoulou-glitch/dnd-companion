@@ -1,0 +1,1032 @@
+{
+  "definitions": [
+    {
+      "kind": "item",
+      "id": "item:tome-of-wound-forbidding",
+      "name": "Tome of Wound Forbidding",
+      "summary": "Study it for 48 hours over 6 days (Cleric, Druid or Paladin levels): from then on, your healing spells of 1st level or higher and class features that restore hit points give your proficiency bonus more. The tome then loses its magic for a century.",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (Giorgos)"
+      },
+      "category": "wondrous",
+      "weight": 5,
+      "magic": {
+        "rarity": "very rare"
+      },
+      "requiresAttunement": false,
+      "use": {
+        "economy": "action",
+        "effect": "effect:tome-of-wound-forbidding",
+        "consumed": false,
+        "note": "Study it for 48 hours over 6 days or fewer (only with levels in Cleric, Druid or Paladin). Its magic is yours for good, and the tome loses its magic for a century."
+      },
+      "text": [
+        "This tome is bound in a cover engraved with symbols of healing and rejuvenation. Its pages contain ancient wisdom and knowledge and are filled with descriptions of forgotten arcane words, prayers, and movements that can enrich the spells associated with the art of healing and restoration.",
+        "You can draw upon the lore and magic of this tome only if you have levels in the following classes: Cleric, Druid, or Paladin.",
+        "If you spend 48 hours over 6 days or fewer studying the book's contents and practicing its guidelines, your healing abilities become permanently more effective. Whenever you use a spell of 1st level or higher, or a class feature to restore hit points to a creature, the creature regains additional hit points equal to your proficiency bonus.",
+        "The manual then loses its magic, but regains it in a century."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:tattoo-of-vineyard-blessing",
+      "name": "Tattoo of Vineyard Blessing",
+      "summary": "Once a day, as an action, eat a grape from it: temporary hit points equal to your level + your Constitution modifier, and resistance to poison damage while you have them.",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (Giorgos)"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.poison",
+            "op": "resist",
+            "label": "Tattoo of Vineyard Blessing",
+            "when": {
+              "toggle": "vineyard-grape"
+            }
+          }
+        ],
+        "resources": [
+          {
+            "id": "tattoo-vineyard",
+            "name": "Tattoo of Vineyard Blessing",
+            "max": 1,
+            "reset": "dawn"
+          }
+        ],
+        "actions": [
+          {
+            "id": "tattoo-vineyard",
+            "name": "Tattoo of Vineyard Blessing: eat a grape",
+            "economy": "action",
+            "cost": {
+              "resource": "tattoo-vineyard",
+              "amount": 1
+            },
+            "tempHp": "level+mod.con",
+            "toggles": [
+              "vineyard-grape"
+            ],
+            "whileTempHp": true,
+            "note": "Temporary hit points equal to your level + your Constitution modifier; resistance to poison damage while you have them."
+          }
+        ]
+      },
+      "text": [
+        "This magical tattoo depicts intertwining vines, grape clusters, and leaves that wrap around the wearer's bicep, pulsing with verdant energy. When activated, the tattoo exudes the scent of ripening grapes and freshly tilled soil.",
+        "Once per day, as an action, you can pluck a grape from the tattoo and consume it. This way, you gain temporary hit points equal to your level plus your Constitution modifier. You also gain resistance to poison damage while you have these temporary hit points."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:tattoo-of-illusionary-scribing",
+      "name": "Tattoo of Illusionary Scribing",
+      "summary": "Once a day, cast Illusory Script with no material components.",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (Giorgos)"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "common"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "resources": [
+          {
+            "id": "tattoo-scribing",
+            "name": "Tattoo of Illusionary Scribing",
+            "max": 1,
+            "reset": "dawn"
+          }
+        ],
+        "spells": [
+          {
+            "spell": "spell:illusory-script",
+            "name": "Illusory Script",
+            "casting": "from the tattoo, once a day, with no material components",
+            "resource": "tattoo-scribing"
+          }
+        ]
+      },
+      "text": [
+        "This magical tattoo appears as a series of elegant scripts or intricate runes winding around the wearer's forearm. When activated by touch, the tattoo glows faintly for a moment, and the wearer feels a surge of arcane energy.",
+        "Once per day, you can cast the spell Illusory Script without requiring any material components."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:tattoo-of-guardian-winds",
+      "name": "Tattoo of Guardian Winds",
+      "summary": "Once a day, as an action: resistance to the damage of ranged weapon attacks for 1 minute (ends if you fall unconscious, or as a bonus action).",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (Giorgos)"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.ranged",
+            "op": "resist",
+            "label": "Tattoo of Guardian Winds",
+            "when": {
+              "toggle": "guardian-winds"
+            }
+          }
+        ],
+        "resources": [
+          {
+            "id": "tattoo-guardian-winds",
+            "name": "Tattoo of Guardian Winds",
+            "max": 1,
+            "reset": "dawn"
+          }
+        ],
+        "actions": [
+          {
+            "id": "tattoo-guardian-winds",
+            "name": "Tattoo of Guardian Winds",
+            "economy": "action",
+            "cost": {
+              "resource": "tattoo-guardian-winds",
+              "amount": 1
+            },
+            "toggles": [
+              "guardian-winds"
+            ],
+            "duration": {
+              "rounds": 10
+            },
+            "note": "For 1 minute, resistance to the damage of ranged weapon attacks (Hit points → Damage asks whether it came from one). It ends early if you fall unconscious, or as a bonus action: click it again to end it."
+          }
+        ]
+      },
+      "text": [
+        "This magical tattoo manifests as swirling patterns of air currents and intricate symbols of protection encircling your upper chest. When activated, the tattoo emits a faint, soothing breeze and emits a soft, melodious hum.",
+        "Once per day, you can activate the tattoo as an action, and gain resistance to the damage of ranged weapon attacks, for 1 minute. During this time, ethereal wisps of wind swirl around you, deflecting incoming attacks and providing a shield against harm. The effect ends early if you fall unconscious, or if you use your bonus action to dismiss it."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:tattoo-of-werewolfs-bane",
+      "name": "Tattoo of Werewolf's Bane",
+      "summary": "Once a day, as a reaction when a werewolf's bite hits you: it misses, the werewolf takes radiant damage equal to your level, reverts to its true form and can't change form until the start of your next turn.",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (Giorgos)"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "resources": [
+          {
+            "id": "tattoo-werewolf",
+            "name": "Tattoo of Werewolf's Bane",
+            "max": 1,
+            "reset": "dawn"
+          }
+        ],
+        "actions": [
+          {
+            "id": "tattoo-werewolf",
+            "name": "Tattoo of Werewolf's Bane",
+            "economy": "reaction",
+            "cost": {
+              "resource": "tattoo-werewolf",
+              "amount": 1
+            },
+            "roll": {
+              "dice": "level",
+              "label": "radiant damage to the werewolf"
+            },
+            "note": "When a werewolf's bite hits you: the bite misses, the werewolf takes radiant damage equal to your level, reverts to its true form, and can't change form until the start of your next turn."
+          }
+        ]
+      },
+      "text": [
+        "This magical tattoo depicts a snarling wolf's head surrounded by silver chains and runes of warding. Inked in shimmering silver, the tattoo radiates an aura of potent abjuration magic.",
+        "Once per day, you can activate this tattoo as a reaction when you are hit by a werewolf's bite attack. The attack misses, and the tattoo emits a brilliant burst of silver light, causing the werewolf to recoil and suffer radiant damage equal to your level. Also, the werewolf instantly reverts to its original form and can't assume a different form until the start of your next turn."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:ring-of-the-great-pine-cone",
+      "name": "Ring of the Great Pine Cone",
+      "summary": "Shillelagh and Barkskin at will; in a forest, 1d6 more whenever you regain hit points. 6 charges (1d6 + 1 back at dawn in a forest, 1d4 elsewhere): Speak with Animals (1), Speak with Plants (3), Conjure Woodland Beings (4), Whisperer of the Elements (5: immunity to a damage type and 1d8 of it on weapon attacks for 1 minute), Nature's Embrace (6, in a forest: three dryads for 10 minutes). Its spells use Wisdom or Charisma (pick one on the ring).",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (Giorgos)"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "very rare"
+      },
+      "requiresAttunement": true,
+      "charges": {
+        "max": 6,
+        "regain": "1d6+1"
+      },
+      "picks": {
+        "label": "Spellcasting ability",
+        "max": 1,
+        "note": "Chosen when you first attune to it.",
+        "options": [
+          {
+            "id": "wis",
+            "name": "Wisdom",
+            "summary": "its spells use Wisdom",
+            "grant": {
+              "spellcasting": {
+                "id": "great-pine-cone",
+                "label": "Ring of the Great Pine Cone",
+                "ability": "wis",
+                "progression": "none"
+              }
+            }
+          },
+          {
+            "id": "cha",
+            "name": "Charisma",
+            "summary": "its spells use Charisma",
+            "grant": {
+              "spellcasting": {
+                "id": "great-pine-cone",
+                "label": "Ring of the Great Pine Cone",
+                "ability": "cha",
+                "progression": "none"
+              }
+            }
+          }
+        ]
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "pine-cone-forest",
+            "name": "Ring of the Great Pine Cone: in a forest",
+            "economy": "free",
+            "toggles": [
+              "in-forest"
+            ],
+            "note": "While you're in a forest: add 1d6 to the hit points you regain (roll it and add it on the Hit points pad); its charges come back 1d6 + 1 at dawn (1d4 elsewhere); Nature's Embrace works. Click again when you leave the forest."
+          },
+          {
+            "id": "pine-cone-whisperer",
+            "name": "Ring of the Great Pine Cone: Whisperer of the Elements",
+            "economy": "action",
+            "charges": 5,
+            "choose": {
+              "label": "Damage type",
+              "options": [
+                "acid",
+                "cold",
+                "fire",
+                "lightning",
+                "thunder"
+              ]
+            },
+            "selfEffect": "effect:pine-cone-whisperer",
+            "duration": {
+              "rounds": 10
+            },
+            "note": "For 1 minute: immunity to that damage type, and your weapon attacks deal 1d8 of it more."
+          },
+          {
+            "id": "pine-cone-embrace",
+            "name": "Ring of the Great Pine Cone: Nature's Embrace",
+            "economy": "action",
+            "charges": 6,
+            "note": "Only in a forest. Three dryads appear in unoccupied spaces within 30 ft, for 10 minutes or until they drop to 0 hit points. They're allies, share your initiative and act right after you as a group, obey your spoken commands (no action), and otherwise Dodge and keep out of danger. They understand Common but can't speak it."
+          }
+        ],
+        "spells": [
+          {
+            "spell": "spell:shillelagh",
+            "name": "Shillelagh",
+            "casting": "at will, from the ring",
+            "atWill": true,
+            "list": "great-pine-cone"
+          },
+          {
+            "spell": "spell:barkskin",
+            "name": "Barkskin",
+            "casting": "at will, from the ring",
+            "atWill": true,
+            "list": "great-pine-cone"
+          },
+          {
+            "spell": "spell:speak-with-animals",
+            "name": "Speak with Animals",
+            "casting": "from the ring: 1 charge",
+            "charges": {
+              "cost": 1
+            },
+            "list": "great-pine-cone"
+          },
+          {
+            "spell": "spell:speak-with-plants",
+            "name": "Speak with Plants",
+            "casting": "from the ring: 3 charges",
+            "charges": {
+              "cost": 3
+            },
+            "list": "great-pine-cone"
+          },
+          {
+            "spell": "spell:conjure-woodland-beings",
+            "name": "Conjure Woodland Beings",
+            "casting": "from the ring: 4 charges",
+            "charges": {
+              "cost": 4
+            },
+            "list": "great-pine-cone"
+          }
+        ]
+      },
+      "text": [
+        "This ancient ring, crafted from the heartwood of a gigantic pine tree, is said to find its pulse in the power of nature. Its emerald head, a gemstone imbued with the essence of the forest, glows with ethereal light that shimmers like the beams of Mitheas filtering through a canopy of leaves.",
+        "While attuned to this ring you can cast the Shillelagh and Barkskin spells at will. Also, while you are in a forest and you regain hit points, add 1d6 to the hit points you regained.",
+        "Additionally, the ring has 6 charges for the following properties. The ring regains 1d6+1 expended charges daily at dawn, if you are in a forest, or 1d4 charges if you are not. The spellcasting ability for all the spells that the ring grants access to, is wisdom, or charisma (you choose when you attune to this item for the first time).",
+        "Voice of the Wild. By expending 1 charge you can cast the speak with animals spell and by expending 3 charges, you can cast the speak with plants spell.",
+        "Guardian of the Forest. You can expend 4 charges and cast the conjure woodland beings spell.",
+        "Whisperer of the Elements. As an action, you can expend 5 charges gain immunity to either acid, cold, fire, lightning, or thunder damage, for 1 minute. Additionally, for the same amount of time, your weapon attacks deal extra 1d8 of the selected damage type.",
+        "Nature's Embrace. While you are in a forest, you can use your action and expend 6 charges, and summon 3 Dryads in unoccupied spaces within 30 feet of you. The Dryads disappear when they drop to 0 hit points, or after 10 minutes (whichever comes first). The Dryads are allies to you and your companions. In combat, they share your initiative count, but they take their turn immediately after yours, as a group. They obey your verbal commands, which you must issue on your turn (no action required by you). If you don't issue any, they take the Dodge action and use their move to avoid danger. They understand Common, but cannot speak it."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:tattoo-of-last-hope",
+      "name": "Tattoo of Last Hope",
+      "summary": "Once a dawn, when you'd drop to 0 hit points, you drop to your Charisma modifier (at least 1) instead, and friendly creatures within 60 ft gain temporary hit points equal to your level + your Charisma modifier (at least 1).",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (Giorgos)"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "very rare"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "resources": [
+          {
+            "id": "tattoo-last-hope",
+            "name": "Tattoo of Last Hope",
+            "max": 1,
+            "reset": "dawn"
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "hp.zero",
+            "op": "zeroInstead",
+            "value": "mod1.cha",
+            "label": "Tattoo of Last Hope",
+            "spends": {
+              "resource": "tattoo-last-hope",
+              "amount": 1
+            }
+          },
+          {
+            "selector": "hp.zero",
+            "op": "zeroInsteadAllies",
+            "value": "level+mod1.cha",
+            "label": "Tattoo of Last Hope"
+          }
+        ]
+      },
+      "text": [
+        "This magical tattoo depicts a solemn design etched in somber shades, forming into a radiant phoenix rising from the ashes against a backdrop of darkened clouds. Its intricate lines and swirling patterns evoke a sense of resilience and determination.",
+        "Once per dawn, when you would be reduced to 0 hit points, you instead drop to a number of hit points equal to your Charisma modifier (minimum of 1). Additionally, when activated, the tattoo bursts into radiant flames, granting temporary hit points equal to your character level + your Charisma modifier (minimum of 1) to all friendly creatures within 60 feet of you."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:feathertide",
+      "name": "Feathertide",
+      "summary": "A +1 shortsword. While you hold it: +1 to Dexterity checks and saving throws, and 10 ft more speed. Swift Strikes (proficiency bonus times a long rest): after a hit, a bonus action for three more attacks on that target, their damage as if every die rolled 1. Wind's Grace (proficiency bonus times a long rest): a reaction to give disadvantage on a weapon attack against you.",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (Giorgos)"
+      },
+      "category": "weapon",
+      "weight": 2,
+      "weapon": {
+        "category": "martial",
+        "kind": "melee",
+        "group": "shortsword",
+        "damage": "1d6",
+        "damageType": "piercing",
+        "properties": [
+          "finesse",
+          "light"
+        ]
+      },
+      "magic": {
+        "rarity": "rare",
+        "bonus": 1
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.check.dex",
+            "op": "add",
+            "value": 1,
+            "label": "Feathertide"
+          },
+          {
+            "selector": "roll.save.dex",
+            "op": "add",
+            "value": 1,
+            "label": "Feathertide"
+          },
+          {
+            "selector": "stat.speed.walk",
+            "op": "add",
+            "value": 10,
+            "label": "Feathertide"
+          }
+        ],
+        "resources": [
+          {
+            "id": "feathertide-swift",
+            "name": "Feathertide: Swift Strikes",
+            "max": "pb",
+            "reset": "long"
+          },
+          {
+            "id": "feathertide-grace",
+            "name": "Feathertide: Wind's Grace",
+            "max": "pb",
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "feathertide-swift",
+            "name": "Feathertide: Swift Strikes",
+            "economy": "bonus",
+            "cost": {
+              "resource": "feathertide-swift",
+              "amount": 1
+            },
+            "note": "Once per turn, after you hit a target with it: three more attacks against that target. Roll only the attacks: each hit deals damage as if every die rolled 1 (no dice, nothing changes it)."
+          },
+          {
+            "id": "feathertide-grace",
+            "name": "Feathertide: Wind's Grace",
+            "economy": "reaction",
+            "cost": {
+              "resource": "feathertide-grace",
+              "amount": 1
+            },
+            "note": "When an enemy you can see targets you with a weapon attack: that attack roll has disadvantage."
+          }
+        ]
+      },
+      "text": [
+        "The Feathertide is a finely crafted shortsword with an ethereal essence reminiscent of the air and its winds. It bears a long, thin blade, forged with an otherworldly metal that gleams in shades of silver and azure. When held, the hilt seems to emit a faint, soothing breeze.",
+        "This is a +1 weapon.",
+        "Airborne Agility: While holding the Feathertide, you gain a +1 bonus to Dexterity ability checks and saving throws. Also, your movement speed increases by 10 feet.",
+        "Swift Strikes: While wielding the Feathertide, your attacks gain extra swiftness. Once per turn, when you successfully hit a target with this shortsword, you can use a bonus action to make three additional attacks against the same target. You do not roll damage for these attacks, instead you calculate the damage as if all dice rolled a 1, which can not be altered. You can use this feature a number of times equal to your proficiency bonus, regaining all expended uses after finishing a long rest.",
+        "Winds's Grace: The Feathertide is attuned to the element of wind. As a reaction, when an enemy that you can see, targets you with a weapon attack, you can invoke the power of the winds to impose disadvantage on that attack roll. You can use this feature a number of times equal to your proficiency bonus, regaining all expended uses after finishing a long rest."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:cloak-of-nightclaw",
+      "name": "Cloak of Nightclaw",
+      "summary": "Resistance to cold; 1d6 cold more with weapon attacks and unarmed strikes; advantage to hide in snow; 2d6 force more against giants; a critical hit gives the target disadvantage on Dexterity saves; a reaction to slow a creature that takes cold damage near you.",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (Giorgos)"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "very rare"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.cold",
+            "op": "resist",
+            "label": "Cloak of Nightclaw"
+          },
+          {
+            "selector": "roll.damage.weapon.*",
+            "op": "add",
+            "value": "1d6",
+            "damageType": "cold",
+            "label": "Cloak of Nightclaw"
+          },
+          {
+            "selector": "roll.check.skill.stealth",
+            "op": "advantage",
+            "mode": "suggested",
+            "label": "Cloak of Nightclaw",
+            "when": {
+              "text": "to hide in snowy terrain"
+            }
+          },
+          {
+            "selector": "roll.damage.weapon.*",
+            "op": "add",
+            "value": "2d6",
+            "damageType": "force",
+            "mode": "suggested",
+            "label": "Cloak of Nightclaw (giant)",
+            "when": {
+              "text": "against a giant"
+            }
+          },
+          {
+            "selector": "roll.damage.weapon.*",
+            "op": "critHitNote",
+            "value": "The creature has disadvantage on Dexterity saving throws until the end of your next turn.",
+            "label": "Cloak of Nightclaw"
+          }
+        ],
+        "actions": [
+          {
+            "id": "nightclaw-slow",
+            "name": "Cloak of Nightclaw: chill",
+            "economy": "reaction",
+            "note": "When a creature within 10 ft of you takes cold damage: its speed is 10 ft lower until the end of your next turn."
+          }
+        ]
+      },
+      "text": [
+        "This is a thick and heavy cloak that covers most of your body. It has a pale blue-white color that shimmers with frost. The fur is soft and warm to the touch of the wearer, but it feels cold to anyone else.",
+        "While attuned to this item you gain the following benefits:",
+        "• You have resistance to cold damage and your weapon attacks and unarmed strikes deal an extra 1d6 cold damage.",
+        "• You have advantage on Dexterity (Stealth) checks made to hide in snowy terrain.",
+        "• You deal extra 2d6 force damage with weapon attacks, when you hit a giant.",
+        "• When you score a critical hit on creature with a weapon attack, that creature has disadvantage on Dexterity saving throws until the end of your next turn.",
+        "• When a creature within 10 feet of you takes cold damage, you can use your reaction to reduce its speed by 10 feet until the end of your next turn."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:cloak-of-cychron",
+      "name": "Cloak of Cychron",
+      "summary": "Resistance to cold; advantage to hide in snow; 2d6 force more against giants; advantage on attacks against a creature that hasn't taken a turn yet, has disadvantage on Dexterity saves or has its speed reduced; you leave no scent, tracks or traces.",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (Giorgos)"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "very rare"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.cold",
+            "op": "resist",
+            "label": "Cloak of Cychron"
+          },
+          {
+            "selector": "roll.check.skill.stealth",
+            "op": "advantage",
+            "mode": "suggested",
+            "label": "Cloak of Cychron",
+            "when": {
+              "text": "to hide in snowy terrain"
+            }
+          },
+          {
+            "selector": "roll.damage.weapon.*",
+            "op": "add",
+            "value": "2d6",
+            "damageType": "force",
+            "mode": "suggested",
+            "label": "Cloak of Cychron (giant)",
+            "when": {
+              "text": "against a giant"
+            }
+          },
+          {
+            "selector": "roll.attack.*",
+            "op": "advantage",
+            "mode": "suggested",
+            "label": "Cloak of Cychron",
+            "when": {
+              "text": "against a creature that hasn't taken a turn yet, has disadvantage on Dexterity saves, or has its speed reduced"
+            }
+          }
+        ],
+        "actions": [
+          {
+            "id": "cychron-traceless",
+            "name": "Cloak of Cychron: traceless",
+            "economy": "free",
+            "infoOnly": true,
+            "note": "You have no smell and can't be tracked except by magic; you leave no tracks or other traces."
+          }
+        ]
+      },
+      "text": [
+        "This is a thin and light cloak that wraps around your shoulders and waist. Its color is pure white and blends in with the snow. The fur is sleek and smooth, but it has a faint silver sheen that reflects the light.",
+        "While attuned to this item you gain the following benefits:",
+        "• You have resistance to cold damage.",
+        "• You have advantage on Dexterity (Stealth) checks made to hide in snowy terrain.",
+        "• You deal extra 2d6 force damage with weapon attacks, when you hit a giant.",
+        "• You have advantage on attack rolls against any creature that hasn't taken a turn in the combat yet, has disadvantage on Dexterity saving throws, or has its speed reduced.",
+        "• You have no smell and you can't be tracked except by magical means. You leave behind no tracks or other traces of your passage."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:afternight",
+      "name": "Απονύχτι (Afternight)",
+      "summary": "A +1 shortsword with an amber blade. Against a creature with resistance or immunity to cold: 2d6 force more, and a DC 10 Constitution save or it can't deal cold damage until the end of its next turn (a success makes it immune for 24 hours).",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (Giorgos)"
+      },
+      "category": "weapon",
+      "weight": 2,
+      "weapon": {
+        "category": "martial",
+        "kind": "melee",
+        "group": "shortsword",
+        "damage": "1d6",
+        "damageType": "piercing",
+        "properties": [
+          "finesse",
+          "light"
+        ]
+      },
+      "magic": {
+        "rarity": "rare",
+        "bonus": 1
+      },
+      "requiresAttunement": false,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "item.damage",
+            "op": "add",
+            "value": "2d6",
+            "damageType": "force",
+            "mode": "suggested",
+            "label": "Απονύχτι (cold-resistant)",
+            "when": {
+              "text": "against a creature with resistance or immunity to cold: it also makes a DC 10 Constitution save or can't deal cold damage until the end of its next turn (immune for 24 hours once it succeeds)"
+            }
+          }
+        ]
+      },
+      "text": [
+        "Απονύχτι is a shortsword with an amber blade that shimmers with magical light. The hilt is crafted from polished wood. The blade is incredibly sharp, and adorned with engravings of flame patterns.",
+        "You gain a +1 bonus to attack and damage rolls made with this magic weapon.",
+        "When you hit with it a creature that has resistance or immunity to cold, you deal extra 2d6 force damage. Additionally, the creature must make on a DC 10 Constitution saving throw. On a failed save, it is unable to deal cold damage until the end of its next turn. Once a creature succeeds on this saving throw, it is immune to this effect for 24 hours."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:tattoo-of-empowered-essence",
+      "name": "Tattoo of Empowered Essence",
+      "summary": "Once a day, cast Enhance Ability on yourself with no material components and no concentration; it lasts 1 hour.",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (Giorgos)"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "rare"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "resources": [
+          {
+            "id": "tattoo-essence",
+            "name": "Tattoo of Empowered Essence",
+            "max": 1,
+            "reset": "dawn"
+          }
+        ],
+        "spells": [
+          {
+            "spell": "spell:enhance-ability",
+            "name": "Enhance Ability",
+            "casting": "from the tattoo, on yourself, once a day: no material components, no concentration, 1 hour",
+            "resource": "tattoo-essence",
+            "noConcentration": true
+          }
+        ]
+      },
+      "text": [
+        "This magical tattoo depicts a majestic tree of life, its roots twisting deeply into the ground and its branches reaching towards the sky. Each major branch holds the image of one of the chosen animals, representing different aspects of potential and abilities. The animals are intertwined with the branches, their forms flowing seamlessly into the tree's design.",
+        "Once per day, you can activate this tattoo to cast the enhance ability spell on yourself without requiring material components and without the need for concentration. The effects of the spell last for 1 hour, granting you the chosen ability enhancement."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:staff-of-the-tinker",
+      "name": "Staff of the Tinker",
+      "summary": "A staff (a quarterstaff) of gears and cogs, 100 lb to anyone else but 1 lb to you. Advantage on Investigation checks about mechanical or magical devices and on checks to pick locks or tinker; you know Mending. 10 charges (5 back at dawn): Clockwork (1), Grease (1), Identify (2), Dispel Magic (3), Reality Check (4), Otiluke's Resilient Sphere (5), Animate Objects (6), with your spell save DC and no material components.",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (Giorgos)"
+      },
+      "category": "weapon",
+      "weight": 1,
+      "weapon": {
+        "category": "simple",
+        "kind": "melee",
+        "group": "quarterstaff",
+        "damage": "1d6",
+        "damageType": "bludgeoning",
+        "properties": [
+          "versatile"
+        ],
+        "versatileDamage": "1d8"
+      },
+      "magic": {
+        "rarity": "very rare"
+      },
+      "requiresAttunement": true,
+      "charges": {
+        "max": 10,
+        "regain": "5"
+      },
+      "grant": {
+        "spellcasting": {
+          "id": "tinker-staff",
+          "label": "Staff of the Tinker",
+          "ability": {
+            "from": [
+              "wizard",
+              "sorcerer"
+            ]
+          },
+          "progression": "none"
+        },
+        "modifiers": [
+          {
+            "selector": "roll.check.skill.investigation",
+            "op": "advantage",
+            "mode": "suggested",
+            "label": "Staff of the Tinker",
+            "when": {
+              "text": "about mechanical or magical devices"
+            }
+          },
+          {
+            "selector": "roll.check.*",
+            "op": "advantage",
+            "mode": "suggested",
+            "label": "Staff of the Tinker (locks, tinkering)",
+            "when": {
+              "text": "to pick a lock or to tinker"
+            }
+          }
+        ],
+        "actions": [
+          {
+            "id": "tinker-clockwork",
+            "name": "Staff of the Tinker: Clockwork",
+            "economy": "free",
+            "charges": 1,
+            "note": "On an attack roll or ability check you're about to make: don't roll the d20, it counts as a 10 (type 10 with My dice)."
+          },
+          {
+            "id": "tinker-reality",
+            "name": "Staff of the Tinker: Reality Check",
+            "economy": "action",
+            "charges": 4,
+            "note": "Just before a creature you can see within 60 ft makes an attack roll, ability check or saving throw: you give it advantage or disadvantage (your choice)."
+          }
+        ],
+        "spells": [
+          {
+            "spell": "spell:mending",
+            "name": "Mending",
+            "casting": "you know it while attuned to the staff",
+            "atWill": true,
+            "list": "tinker-staff"
+          },
+          {
+            "spell": "spell:grease",
+            "name": "Grease",
+            "casting": "from the staff: 1 charge, no material components",
+            "charges": {
+              "cost": 1
+            },
+            "list": "tinker-staff"
+          },
+          {
+            "spell": "spell:identify",
+            "name": "Identify",
+            "casting": "from the staff: 2 charges, no material components",
+            "charges": {
+              "cost": 2
+            },
+            "list": "tinker-staff"
+          },
+          {
+            "spell": "spell:dispel-magic",
+            "name": "Dispel Magic",
+            "casting": "from the staff: 3 charges",
+            "charges": {
+              "cost": 3
+            },
+            "list": "tinker-staff"
+          },
+          {
+            "spell": "spell:resilient-sphere",
+            "name": "Otiluke's Resilient Sphere",
+            "casting": "from the staff: 5 charges, no material components",
+            "charges": {
+              "cost": 5
+            },
+            "list": "tinker-staff"
+          },
+          {
+            "spell": "spell:animate-objects",
+            "name": "Animate Objects",
+            "casting": "from the staff: 6 charges",
+            "charges": {
+              "cost": 6
+            },
+            "list": "tinker-staff"
+          }
+        ]
+      },
+      "text": [
+        "This staff is crafted from a fusion of metal and wood, adorned with gears, miniature mechanisms, and tiny rotating cogs along its length. At its peak, it terminates in an intricate metallic sphere from which small whirring sounds occasionally emanate.",
+        "This staff normally weighs 45 kilograms (100 lbs.), but to you, it feels 100 times lighter. You gain advantage on Intelligence (Investigation) checks related to mechanical or magical devices, as well as ability checks made for lockpicking or tinkering. You also know the mending cantrip, if you didn't already.",
+        "The staff has 10 charges. While holding it, you can use an action to expend 1 or more of its charges to cast one of the following spells from it, using your spell save DC and without the use of material components, or activate one of its effects:",
+        "Clockwork (1 charge): When you make an attack roll or ability check, you can forgo rolling the d20 to get a 10 on the die.",
+        "Grease (1 charge). You can cast grease.",
+        "Identify (2 charge). You can cast identify.",
+        "Dispel Magic (3 charges). You can cast dispel magic.",
+        "Reality Check (4 charges). Just before a creature that you can see within 60 feet, makes an attack roll, ability check or saving throw, you can impose advantage or disadvantage on the roll (your choice).",
+        "Otiluke's Resilient Sphere (5 charges). You can cast Otiluke's resilient sphere.",
+        "Animate Objects (6 charges). You can cast animate objects.",
+        "The staff regains 5 expended charges daily at dawn."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:pearl-of-regeneration",
+      "name": "Pearl of Regeneration",
+      "summary": "Toss it as an action and it orbits your head (AC 24, 10 hit points, resistance to all damage; grabbed with an attack against AC 24 or a DC 24 Acrobatics check). While it orbits you, you regain 15 hit points at the end of each hour if you have at least 1. It leaves you for a descendant of Elpidora Atharsous who comes within 10 ft.",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (Giorgos)"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "legendary"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "actions": [
+          {
+            "id": "pearl-orbit",
+            "name": "Pearl of Regeneration: orbit",
+            "economy": "action",
+            "toggles": [
+              "pearl-orbiting"
+            ],
+            "note": "Toss it: it orbits your head until someone grabs it (an attack against AC 24, or a DC 24 Acrobatics check) or you seize and stow it (an action: click again)."
+          },
+          {
+            "id": "pearl-hour",
+            "name": "Pearl of Regeneration: an hour",
+            "economy": "free",
+            "heal": "15",
+            "note": "At the end of each hour while it orbits you, if you have at least 1 hit point."
+          }
+        ]
+      },
+      "text": [
+        "When you use an action to toss this pearl into the air, the pearl orbits your head at a distance of 1d3 feet and confers a benefit to you. Thereafter, another creature must use an action to grasp or net the pearl to separate it from you, either by making a successful attack roll against AC 24 or a successful DC 24 Dexterity (Acrobatics) check. You can use an action to seize and stow the pearl, ending its effect.",
+        "The pearl has AC 24, 10 hit points, and resistance to all damage. It is considered to be an object that is being worn while it orbits your head.",
+        "While this tiny rose-shaped pearl orbits your head, you gain the following benefits:",
+        "• You regain 15 hit points at the end of each hour, provided that you have at least 1 hit point.",
+        "• If you are not a descendant of Elpidora Atharsous, and an individual with Elpidora's lineage comes within 10 feet of you while this item orbits your head, your attunement with it ends immediately. The pearl then seamlessly transfers its attunement to the Elpidora's descendant, flying towards and orbiting their head instead."
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "item:tattoo-of-unlocking",
+      "name": "Tattoo of Unlocking",
+      "summary": "Cast Knock a number of times equal to your proficiency bonus, back each dawn.",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (Giorgos)"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "resources": [
+          {
+            "id": "tattoo-unlocking",
+            "name": "Tattoo of Unlocking",
+            "max": "pb",
+            "reset": "dawn"
+          }
+        ],
+        "spells": [
+          {
+            "spell": "spell:knock",
+            "name": "Knock",
+            "casting": "from the tattoo",
+            "resource": "tattoo-unlocking"
+          }
+        ]
+      },
+      "text": [
+        "This magical tattoo appears as a series of elegant script or intricate runes winding around the wearer's index finger. Usually, it is enough to simply look at the surface on which the lock or mechanism you want to unlock is located, and simulate the sound of a click.",
+        "You can cast the spell knock, a number of times equal to your proficiency bonus per day."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "effect:tome-of-wound-forbidding",
+      "name": "Tome of Wound Forbidding",
+      "category": "other",
+      "summary": "Its lore is yours: your healing spells of 1st level or higher and class features that restore hit points give your proficiency bonus more.",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (Giorgos)"
+      },
+      "modifiers": [
+        {
+          "selector": "roll.heal.spell",
+          "op": "add",
+          "value": "pb",
+          "label": "Tome of Wound Forbidding"
+        },
+        {
+          "selector": "roll.heal.feature",
+          "op": "add",
+          "value": "pb",
+          "label": "Tome of Wound Forbidding"
+        }
+      ],
+      "selfOnly": true
+    },
+    {
+      "kind": "effect",
+      "id": "effect:pine-cone-whisperer",
+      "name": "Whisperer of the Elements",
+      "category": "other",
+      "summary": "Immunity to the chosen damage type, and 1d8 of it more on your weapon attacks.",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (Giorgos)"
+      },
+      "rounds": 10,
+      "choice": {
+        "label": "Damage type",
+        "options": [
+          "acid",
+          "cold",
+          "fire",
+          "lightning",
+          "thunder"
+        ]
+      },
+      "modifiers": [
+        {
+          "selector": "defense.immune.{choice}",
+          "op": "immune",
+          "label": "Whisperer of the Elements"
+        },
+        {
+          "selector": "roll.damage.weapon.*",
+          "op": "add",
+          "value": "1d8",
+          "damageTypeFromChoice": true,
+          "label": "Whisperer of the Elements"
+        }
+      ],
+      "selfOnly": true
+    }
+  ]
+}
