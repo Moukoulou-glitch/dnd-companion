@@ -4594,3 +4594,61 @@ html.fx-shake-strong .app > .strip, html.fx-shake-strong .app > main, html.fx-sh
 .char-token-race { position: absolute; right: -3px; bottom: -3px; width: 20px; height: 20px; border-radius: 50%; background: var(--panel); border: 1.5px solid var(--line); display: flex; align-items: center; justify-content: center; }
 .char-token-race .crest-sigil { width: 14px; height: 14px; margin: 0; animation: none; }
 .roster-race { font-size: 13px; }
+
+/* A weapon's natural 20 (19h): Sword of Sharpness, Vicious, Life Stealing, Mace of Smiting; Sharpness's second 20 severs. */
+.fx-tw { position: absolute; inset: 0; overflow: hidden; pointer-events: none; animation: fx-tw-in var(--fx-ms) ease-out forwards; }
+.fx-tw-veil { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 45%, rgba(20, 24, 36, 0.15), rgba(4, 6, 12, 0.7)); }
+.fx-tw-svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.fx-tw-svg path { fill: none; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1; stroke-dashoffset: 1; }
+.fx-tw .fx-label { font-size: 1.2em; letter-spacing: 0.02em; text-shadow: 0 0 2px #000, 0 0 14px currentColor; }
+@keyframes fx-tw-in { 0% { opacity: 0; } 8% { opacity: 1; } 78% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes fx-tw-draw { to { stroke-dashoffset: 0; } }
+
+/* Sharpness: one long, bright cut and a gleam running down it. */
+.fx-tw-sharp .fx-label { color: #e8f2ff; }
+.fx-tw-sharp .blade { stroke: rgba(170, 200, 235, 0.35); stroke-width: 26; filter: blur(6px); animation: fx-tw-draw 260ms ease-out forwards; }
+.fx-tw-sharp .edge { stroke: #f4f9ff; stroke-width: 4; filter: drop-shadow(0 0 6px #9fc8ff) drop-shadow(0 0 16px #5d8fd6); animation: fx-tw-draw 260ms ease-out forwards; }
+.fx-tw-gleam { position: absolute; width: 120px; height: 6px; left: 0; top: 0; border-radius: 6px; background: linear-gradient(90deg, transparent, #fff, transparent); filter: drop-shadow(0 0 8px #bfe0ff); opacity: 0; transform: rotate(-52deg); animation: fx-tw-gleam 700ms 260ms ease-in-out forwards; }
+@keyframes fx-tw-gleam { 0% { opacity: 0; left: 5%; top: 78%; } 20% { opacity: 1; } 100% { opacity: 0; left: 80%; top: 18%; } }
+.fx-tw-spark { position: absolute; width: 4px; height: 4px; border-radius: 50%; background: #fff; box-shadow: 0 0 8px #9fc8ff; opacity: 0; animation: fx-tw-spark 600ms ease-out forwards; }
+@keyframes fx-tw-spark { 0% { opacity: 1; transform: translate(0, 0) scale(1.4); } 100% { opacity: 0; transform: translate(14px, 22px) scale(0.3); } }
+
+/* Vicious: three ragged crimson rakes, and the spatter. */
+.fx-tw-vicious .fx-tw-veil { background: radial-gradient(ellipse at 50% 45%, rgba(90, 0, 10, 0.25), rgba(20, 0, 4, 0.8)); }
+.fx-tw-vicious .fx-label { color: #ffb0b0; }
+.fx-tw-vicious .rake { stroke: #ff3b3b; stroke-width: 7; filter: drop-shadow(0 0 6px #b00010) drop-shadow(0 0 2px #000); animation: fx-tw-draw 200ms ease-in forwards; }
+.fx-tw-vicious .rake.r1 { animation-delay: 90ms; }
+.fx-tw-vicious .rake.r2 { animation-delay: 180ms; }
+.fx-tw-drop { position: absolute; width: 7px; height: 7px; border-radius: 50% 50% 50% 0; background: #c3121e; opacity: 0; animation: fx-tw-drop 700ms ease-in forwards; }
+@keyframes fx-tw-drop { 0% { opacity: 0; transform: translateY(-6px) scale(0.6); } 20% { opacity: 1; transform: translateY(0) scale(1.2); } 100% { opacity: 0; transform: translateY(46px) scale(0.8); } }
+
+/* Life Stealing: a necrotic hollow at the middle, wisps drawn into it and up towards you. */
+.fx-tw-drain .fx-tw-veil { background: radial-gradient(ellipse at 50% 45%, rgba(20, 50, 30, 0.3), rgba(2, 8, 4, 0.85)); }
+.fx-tw-drain .fx-label { color: #b8f5c8; }
+.fx-tw-hollow { position: absolute; left: 50%; top: 45%; width: 120px; height: 120px; margin: -60px 0 0 -60px; border-radius: 50%; background: radial-gradient(circle, #000 30%, rgba(40, 140, 80, 0.55) 55%, transparent 72%); animation: fx-tw-hollow var(--fx-ms) ease-in-out forwards; }
+@keyframes fx-tw-hollow { 0% { transform: scale(0.2); opacity: 0; } 25% { transform: scale(1.1); opacity: 1; } 70% { transform: scale(0.9); opacity: 1; } 100% { transform: scale(0.1) translateY(-300px); opacity: 0; } }
+.fx-tw-wisp { position: absolute; left: 50%; top: 45%; width: 46px; height: 5px; margin-left: -23px; border-radius: 4px; background: linear-gradient(90deg, transparent, #6dffa2); filter: blur(1px); opacity: 0; transform: rotate(var(--a)) translateX(220px); animation: fx-tw-wisp 900ms ease-in forwards; }
+@keyframes fx-tw-wisp { 0% { opacity: 0; transform: rotate(var(--a)) translateX(240px); } 30% { opacity: 1; } 100% { opacity: 0; transform: rotate(calc(var(--a) + 60deg)) translateX(10px); } }
+
+/* Mace of Smiting: a bronze shock rolling out from the blow. */
+.fx-tw-smite .fx-label { color: #ffd9a0; }
+.fx-tw-ring { position: absolute; left: 50%; top: 45%; width: 80px; height: 80px; margin: -40px 0 0 -40px; border-radius: 50%; border: 6px solid #e0a050; box-shadow: 0 0 18px #ff9b3b, inset 0 0 12px #ffcf80; opacity: 0; animation: fx-tw-ring 800ms ease-out forwards; }
+@keyframes fx-tw-ring { 0% { opacity: 1; transform: scale(0.3); } 100% { opacity: 0; transform: scale(6); border-width: 1px; } }
+.fx-tw-flash { position: absolute; inset: 0; background: #fff1d6; opacity: 0; animation: fx-tw-flash 360ms ease-out forwards; }
+@keyframes fx-tw-flash { 0% { opacity: 0.8; } 100% { opacity: 0; } }
+
+/* Any other weapon's 20. */
+.fx-tw-edge .fx-label { color: #ffe08a; }
+.fx-tw-edge .edge { stroke: #ffe08a; stroke-width: 5; filter: drop-shadow(0 0 8px #d8a520); animation: fx-tw-draw 280ms ease-out forwards; }
+
+/* Sharpness's second 20: the screen is cut in two and the halves slide apart, with a red spray. */
+.fx-tw-sever .fx-tw-veil { background: rgba(0, 0, 0, 0.55); }
+.fx-tw-sever .fx-label { color: #ffe1e6; font-size: 1.35em; }
+.fx-tw-part { position: absolute; inset: 0; background: rgba(8, 8, 12, 0.9); opacity: 0; animation: fx-tw-part var(--fx-ms) ease-in-out forwards; }
+.fx-tw-part.a { clip-path: polygon(0 0, 100% 0, 100% 23.7%, 0 75.8%); --dx: -30px; --dy: -44px; }
+.fx-tw-part.b { clip-path: polygon(0 75.8%, 100% 23.7%, 100% 100%, 0 100%); --dx: 30px; --dy: 44px; }
+@keyframes fx-tw-part { 0%, 14% { opacity: 0; transform: none; } 18% { opacity: 1; transform: none; } 45% { opacity: 1; transform: translate(var(--dx), var(--dy)) rotate(calc(var(--dx) / 30 * -1.5deg)); } 80% { opacity: 1; transform: translate(var(--dx), var(--dy)) rotate(calc(var(--dx) / 30 * -1.5deg)); } 100% { opacity: 0; } }
+.fx-tw-sever .cut { stroke: #fff; stroke-width: 6; filter: drop-shadow(0 0 10px #ff5468) drop-shadow(0 0 24px #b0001c); animation: fx-tw-draw 300ms 60ms ease-in forwards; }
+.fx-tw-spray { position: absolute; left: 50%; top: 50%; width: 8px; height: 8px; border-radius: 50%; background: #d0141f; opacity: 0; animation: fx-tw-spray 900ms ease-out forwards; }
+@keyframes fx-tw-spray { 0% { opacity: 1; transform: rotate(var(--a)) translateY(0) scale(1.3); } 100% { opacity: 0; transform: rotate(var(--a)) translateY(calc(var(--d) * -1)) scale(0.4); } }
+@media (prefers-reduced-motion: reduce) { .fx-tw { animation: fx-static 900ms ease-out forwards !important; } .fx-tw > :not(.fx-label):not(.fx-tw-veil) { display: none; } }

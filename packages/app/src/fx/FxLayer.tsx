@@ -130,6 +130,18 @@ export function specOf(e: FxEvent): FxSpec {
         skippable: true,
       };
     }
+    // A weapon's natural 20 (Sword of Sharpness, Vicious, Life Stealing, Mace of Smiting), and Sharpness's second 20.
+    case "twenty": {
+      const t = {
+        sharp: { ms: 1500, buzz: [20, 30, 90], shake: 220 },
+        vicious: { ms: 1300, buzz: [40, 20, 40, 20, 60], shake: 300 },
+        drain: { ms: 1900, buzz: [15, 60, 15, 60, 40] },
+        smite: { ms: 1400, buzz: [80, 40, 120], shake: 420 },
+        edge: { ms: 1100, buzz: [30, 40, 30] },
+        sever: { ms: 2500, buzz: [60, 40, 60, 40, 180], shake: 650 },
+      }[e.motif];
+      return { at: "edge", ms: t.ms, buzz: t.buzz, look: `fx-tw fx-tw-${e.motif}`, label: e.label, skippable: true, ...("shake" in t ? { shake: t.shake } : {}) };
+    }
     case "wrath":
       return { at: "edge", ms: 1400, buzz: [60, 40, 120], look: "fx-wrath", label: "Destructive Wrath · maximum", shake: 450 };
     case "concentration":
@@ -621,6 +633,68 @@ export function FxLayer({ school, spell, feature, character }: { school: (spell:
                 </>
               );
             })()}
+            {spec.look.startsWith("fx-tw ") && (
+              <>
+                <span className="fx-tw-veil" />
+                {spec.look.includes("fx-tw-sharp") && (
+                  <>
+                    <svg className="fx-tw-svg" viewBox="0 0 390 844" preserveAspectRatio="none">
+                      <path className="blade" pathLength={1} d="M-20,690 Q190,420 410,150" />
+                      <path className="edge" pathLength={1} d="M-20,690 Q190,420 410,150" />
+                    </svg>
+                    <span className="fx-tw-gleam" />
+                    {Array.from({ length: 10 }, (_, i) => (
+                      <span key={i} className="fx-tw-spark" style={{ left: `${18 + i * 7}%`, top: `${74 - i * 6}%`, animationDelay: `${180 + i * 35}ms` }} />
+                    ))}
+                  </>
+                )}
+                {spec.look.includes("fx-tw-vicious") && (
+                  <>
+                    <svg className="fx-tw-svg" viewBox="0 0 390 844" preserveAspectRatio="none">
+                      {[0, 1, 2].map((i) => (
+                        <path key={i} className={`rake r${i}`} pathLength={1} d={`M${60 + i * 70},${200 + i * 30} L${110 + i * 70},${330 + i * 30} L${95 + i * 70},${360 + i * 30} L${170 + i * 70},${560 + i * 30}`} />
+                      ))}
+                    </svg>
+                    {Array.from({ length: 12 }, (_, i) => (
+                      <span key={i} className="fx-tw-drop" style={{ left: `${30 + ((i * 17) % 45)}%`, top: `${36 + ((i * 23) % 30)}%`, animationDelay: `${250 + (i % 6) * 60}ms` }} />
+                    ))}
+                  </>
+                )}
+                {spec.look.includes("fx-tw-drain") && (
+                  <>
+                    <span className="fx-tw-hollow" />
+                    {Array.from({ length: 14 }, (_, i) => (
+                      <span key={i} className="fx-tw-wisp" style={{ ["--a" as string]: `${i * (360 / 14)}deg`, animationDelay: `${(i % 7) * 90}ms` }} />
+                    ))}
+                  </>
+                )}
+                {spec.look.includes("fx-tw-smite") && (
+                  <>
+                    {[0, 1, 2].map((i) => (
+                      <span key={i} className="fx-tw-ring" style={{ animationDelay: `${i * 140}ms` }} />
+                    ))}
+                    <span className="fx-tw-flash" />
+                  </>
+                )}
+                {spec.look.includes("fx-tw-edge") && (
+                  <svg className="fx-tw-svg" viewBox="0 0 390 844" preserveAspectRatio="none">
+                    <path className="edge" pathLength={1} d="M40,560 Q200,420 350,300" />
+                  </svg>
+                )}
+                {spec.look.includes("fx-tw-sever") && (
+                  <>
+                    <span className="fx-tw-part a" />
+                    <span className="fx-tw-part b" />
+                    <svg className="fx-tw-svg" viewBox="0 0 390 844" preserveAspectRatio="none">
+                      <path className="cut" pathLength={1} d="M-20,640 L410,200" />
+                    </svg>
+                    {Array.from({ length: 18 }, (_, i) => (
+                      <span key={i} className="fx-tw-spray" style={{ ["--a" as string]: `${-70 + ((i * 47) % 140)}deg`, ["--d" as string]: `${60 + ((i * 29) % 120)}px`, animationDelay: `${380 + (i % 6) * 40}ms` }} />
+                    ))}
+                  </>
+                )}
+              </>
+            )}
             {spec.look === "fx-wrath" && (
               <svg className="fx-wrath-bolts" viewBox="0 0 390 844" preserveAspectRatio="none">
                 <path className="b1" pathLength={1} d="M200,0 L176,150 L214,170 L168,330 L206,346 L150,560" />

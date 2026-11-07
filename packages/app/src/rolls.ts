@@ -30,6 +30,8 @@ export interface RollRecord {
   mainType?: string;
   /** One roll for several darts (Magic Missile): how many, what each deals, and the one roll's own lines. */
   darts?: { count: number; each: number; what: string; lines: { source: string; detail: string; total: number }[] };
+  /** A weapon's natural 20 that does more (Sword of Sharpness +14): its look and words. */
+  twenty?: { motif: "sharp" | "vicious" | "drain" | "smite" | "edge"; label: string };
 }
 
 /**
@@ -91,7 +93,8 @@ export function recordOf(title: string, kind: RollRecord["kind"], r: ComposedRol
     const byType: Record<string, number> = {};
     const weaponType = r.result.terms[0]?.term.label ?? "damage";
     for (const t of r.result.terms) {
-      const type = t.term.kind === "dice" ? t.term.label ?? weaponType : weaponType;
+      // A flat with a type of its own (Sword of Life Stealing's 10 necrotic on a 20) keeps it.
+      const type = t.term.label ?? weaponType;
       byType[type] = (byType[type] ?? 0) + t.total;
     }
     if (floorUp > 0) byType[weaponType] = (byType[weaponType] ?? 0) + floorUp;

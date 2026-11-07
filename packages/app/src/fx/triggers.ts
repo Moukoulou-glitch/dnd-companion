@@ -30,6 +30,8 @@ export type FxEvent =
   | { kind: "cast"; school?: string }
   /** Sneak Attack on a damage roll: the hit's total damage picks the tier (1–10 up to 101 and more). */
   | { kind: "sneak"; total?: number }
+  /** A weapon's natural 20 (Sword of Sharpness, Vicious, Life Stealing, Mace of Smiting), or its second 20 ("sever": a limb). */
+  | { kind: "twenty"; motif: "sharp" | "vicious" | "drain" | "smite" | "edge" | "sever"; label: string }
   /** Destructive Wrath: the storm answers (its lightning and thunder dice at their maximum). */
   | { kind: "wrath" }
   /** Floar (Circle of the Heammer): the Methic flame lights; with Zenith, a sun rises in it too. */
@@ -84,6 +86,7 @@ export function rollFx(r: RollRecord, c?: Character, info?: SpellLookup): FxEven
     return reckless;
   }
   const out: FxEvent[] = r.lines.some((l) => /sneak attack/i.test(l.source) && l.detail !== "") ? [{ kind: "sneak", total: r.total }] : [];
+  if (r.twenty) out.unshift({ kind: "twenty", motif: r.twenty.motif, label: r.twenty.label });
   if (r.options?.includes("Destructive Wrath")) out.unshift({ kind: "wrath" });
   // A spell's damage: right after casting it resolves; from the concentration chip it's a later use.
   const phase: SpellPhase = r.again ? "again" : "resolve";

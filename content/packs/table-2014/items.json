@@ -76,7 +76,7 @@
             "selector": "item.damage",
             "op": "critBonusDamage",
             "value": 7,
-            "label": "Vicious (critical hit)"
+            "label": "Vicious (a 20)"
           }
         ]
       }
@@ -4206,7 +4206,8 @@
             "selector": "item.damage",
             "op": "critBonusDamage",
             "value": 7,
-            "label": "Mace of Smiting (a 20)"
+            "label": "Mace of Smiting (a 20)",
+            "damageType": "bludgeoning"
           },
           {
             "selector": "item.damage",
@@ -4346,7 +4347,8 @@
             "selector": "item.damage",
             "op": "critBonusDamage",
             "value": 14,
-            "label": "Sword of Sharpness (a 20)"
+            "label": "Sword of Sharpness (a 20)",
+            "damageType": "slashing"
           },
           {
             "selector": "item.damage",
@@ -4403,7 +4405,8 @@
             "selector": "item.damage",
             "op": "critBonusDamage",
             "value": 10,
-            "label": "Sword of Life Stealing (a 20, necrotic)"
+            "label": "Sword of Life Stealing (a 20)",
+            "damageType": "necrotic"
           },
           {
             "selector": "item.damage",

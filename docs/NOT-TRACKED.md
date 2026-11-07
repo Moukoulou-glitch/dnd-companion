@@ -484,6 +484,6 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 - Shield guardian: whether it's within 5 ft (Shield) or 60 ft (Bound) is yours to say. Its Shield stays on you until your next turn starts, so remove it once the attack it was for is resolved. Bound is asked only on the Hit points pad (falling, item and other damage you take elsewhere all goes to you), and the damage moved to it goes through its own resistances and immunities (table ruling). In Wild Shape or Polymorph your form's HP go first, as before; Bound splits only what reaches you after that.
 
 ## Round 19g
-- On a 20 (Sword of Sharpness, Life Stealing, Vicious, Mace of Smiting): the extra damage is added on any critical hit you mark, as with Vicious at this table (a Champion's 19 too). The flat damage counts as the weapon's own type in the roll (Life Stealing's necrotic shows as slashing). Its temporary HP, a construct's extra damage and the limb or head are shown for you to apply; the second d20 isn't kept in the roll history.
+- On a 20 (Sword of Sharpness, Life Stealing, Vicious, Mace of Smiting): from 19h only when the d20 showed 20 (a Champion's 19 is a critical hit without it). After "Skip to damage" the app can't see the d20: tap "The d20 showed 20". Its temporary HP, a construct's extra damage and the limb or head are shown for you to apply; the second d20 isn't kept in the roll history.
 - Book weapons are read from their wording: unusual phrasing (charges spent for damage, a hit that needs a condition the text gives in another way) stays text.
 

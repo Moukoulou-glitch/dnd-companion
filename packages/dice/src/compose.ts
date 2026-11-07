@@ -90,9 +90,9 @@ function pushDice(out: Composed, dice: string, source: string, type?: string) {
   }
 }
 
-function pushFlat(out: Composed, value: number, source: string) {
+function pushFlat(out: Composed, value: number, source: string, damageType?: string) {
   if (value === 0) return;
-  out.terms.push({ kind: "flat", sign: value < 0 ? -1 : 1, value: Math.abs(value) });
+  out.terms.push({ kind: "flat", sign: value < 0 ? -1 : 1, value: Math.abs(value), ...(damageType ? { label: damageType } : {}) });
   out.sources.push(source);
 }
 
@@ -221,9 +221,10 @@ export function damageTypesIn(c: Composed, damageType?: string): Set<string> {
 }
 
 /** Doubles damage dice for a critical hit and adds crit-only extras (Brutal Critical, Vicious). */
-export function withCrit(c: Composed, extraWeaponDice = 0, flatOnCrit: { label: string; value: number }[] = []): Composed {
+export function withCrit(c: Composed, extraWeaponDice = 0, flatOnCrit: { label: string; value: number; damageType?: string }[] = []): Composed {
   const out: Composed = { ...c, terms: critFormula(c.terms, extraWeaponDice), sources: [...c.sources] };
-  for (const f of flatOnCrit) pushFlat(out, f.value, f.label);
+  // Flat damage on a 20 keeps its own type when it has one (Sword of Life Stealing: necrotic).
+  for (const f of flatOnCrit) pushFlat(out, f.value, f.label, f.damageType);
   return out;
 }
 

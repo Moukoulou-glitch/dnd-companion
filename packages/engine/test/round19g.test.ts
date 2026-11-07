@@ -130,7 +130,7 @@ describe("19g: magic weapon text that works", () => {
   });
   it("on a 20: flat damage added, a second d20 for what more it does", () => {
     const { atk } = fighter("item:longsword-of-severing");
-    expect(atk.damage.onCrit).toEqual([{ label: "Longsword of Severing (a 20)", value: 11 }]);
+    expect(atk.damage.onCrit).toEqual([{ label: "Longsword of Severing (a 20)", value: 11, damageType: "slashing" }]);
     expect(atk.damage.critRiders).toEqual([{ label: "Longsword of Severing", text: "Its tail comes clean off.", d20: true }]);
   });
   it("on a 20 with more to it (who it doesn't work on, temporary HP): shown with the damage", () => {
@@ -151,13 +151,13 @@ describe("19g: magic weapon text that works", () => {
 describe("19g: Sword of Sharpness, Sword of Life Stealing, Mace of Smiting", () => {
   it("Sharpness: 14 more on a 20, then a d20 for a limb; maximum dice against objects", () => {
     const { atk } = fighter("item:sword-of-sharpness");
-    expect(atk.damage.onCrit).toEqual([{ label: "Sword of Sharpness (a 20)", value: 14 }]);
+    expect(atk.damage.onCrit).toEqual([{ label: "Sword of Sharpness (a 20)", value: 14, damageType: "slashing" }]);
     expect(atk.damage.critRiders).toEqual([expect.objectContaining({ label: "Sword of Sharpness", d20: true })]);
     expect(atk.damage.bonus.suggestions.some((x) => x.label === "Sword of Sharpness" && x.apply.maximize)).toBe(true);
   });
   it("Life Stealing: 10 on a 20, with its temporary hit points noted", () => {
     const { atk } = fighter("item:sword-of-life-stealing");
-    expect(atk.damage.onCrit[0]!.value).toBe(10);
+    expect(atk.damage.onCrit[0]).toMatchObject({ value: 10, damageType: "necrotic" });
     expect(atk.damage.critRiders![0]!.text).toMatch(/10 temporary hit points/);
   });
   it("Mace of Smiting: +1, +2 more against a construct as a tick-box, 7 on a 20", () => {

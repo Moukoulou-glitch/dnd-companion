@@ -77,8 +77,8 @@ export interface WeaponAttack {
     versatileDice?: string;
     type: string;
     bonus: RollBreakdown;
-    /** Flat damage only on a critical hit / natural 20, e.g. Vicious +7. */
-    onCrit: Part[];
+    /** Flat damage only on a natural 20 (the d20 shows 20), e.g. Vicious +7; with its own type when it has one (Life Stealing: necrotic). */
+    onCrit: (Part & { damageType?: string })[];
     /** Extra weapon dice rolled on a critical hit, e.g. Brutal Critical. */
     critExtraDice: Part[];
     /** What else a critical hit does (Sword of Life Stealing's temporary HP), or a second d20 to roll (Sword of Sharpness: on a 20, a limb). */
@@ -1448,7 +1448,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       const offHandAbility = !o.offHand || mods[ability] < 0 || rules.twoWeaponAbility;
       const bonus = roll(damageKeys, [...(offHandAbility ? [abilityPart(ability)] : []), ...magic], o.itemInstanceId);
       const critMods = modsFor(damageKeys, o.itemInstanceId).filter((a) => conditionState(a.mod.when) === "pass");
-      const onCrit = critMods.filter((a) => a.mod.op === "critBonusDamage").map((a) => ({ label: labelOf(a), value: flatOf(a) }));
+      const onCrit = critMods.filter((a) => a.mod.op === "critBonusDamage").map((a) => ({ label: labelOf(a), value: flatOf(a), ...(a.mod.damageType ? { damageType: a.mod.damageType } : {}) }));
       const critExtraDice = critMods.filter((a) => a.mod.op === "extraCritDice").map((a) => ({ label: labelOf(a), value: flatOf(a) }));
       const critRiders = critMods
         .filter((a) => (a.mod.op === "critNote" || a.mod.op === "critD20") && typeof a.mod.value === "string")

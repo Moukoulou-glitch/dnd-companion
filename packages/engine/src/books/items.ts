@@ -227,7 +227,10 @@ export function weaponModifiers(paras: string[], label: string): Mod[] {
   const twenty = paras.find((p) => /\broll a 20\b/i.test(p) && !/^\*?Note:/i.test(p));
   if (twenty) {
     const flat = /roll a 20\b[^.]*?,? (?:that |the )?target takes an extra (\d+) (\w+) damage/i.exec(twenty);
-    if (flat) out.push({ selector: "item.damage", op: "critBonusDamage", value: Number(flat[1]), label: `${label} (a 20)` } as Mod);
+    if (flat) {
+      const type = flat[2]!.toLowerCase();
+      out.push({ selector: "item.damage", op: "critBonusDamage", value: Number(flat[1]), label: `${label} (a 20)`, ...(DAMAGE_TYPES.includes(type) ? { damageType: type } : {}) } as Mod);
+    }
     const again = /Then roll another d20\. If you roll a 20, (.+)$/i.exec(twenty);
     if (again) out.push({ selector: "item.damage", op: "critD20", value: again[1]!.charAt(0).toUpperCase() + again[1]!.slice(1), label } as Mod);
     // Anything more a 20 does (temporary hit points, a head cut off, who it doesn't work on): shown with it.

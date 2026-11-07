@@ -29,7 +29,8 @@ import {
 import { signed, type WeaponAttack } from "@dnd/engine";
 import { recordOf, withDarts, type RollRecord } from "../rolls";
 import { usedUpBy, withoutUsedUp, type UsedUp } from "../oneTime";
-import { damageFor } from "../crit";
+import { damageFor, twentyLabel, twentyMotif } from "../crit";
+import { playFx } from "../fx/FxLayer";
 import { defaultHands, forHands, handsOf, isVersatile, rememberHands, weaponDiceFor, type Hands } from "../hands";
 
 interface Props {
@@ -122,8 +123,8 @@ type Stage =
   | { step: "setup" }
   | { step: "d20-result"; record: RollRecord; used?: string[] }
   | { step: "missed"; record: RollRecord }
-  | { step: "damage-setup"; crit: boolean; attackRecord?: RollRecord; attackMode?: string; usedGroups?: string[]; carried?: string[] }
-  | { step: "damage-result"; record: RollRecord; crit: boolean; attackRecord?: RollRecord };
+  | { step: "damage-setup"; crit: boolean; twenty?: boolean; attackRecord?: RollRecord; attackMode?: string; usedGroups?: string[]; carried?: string[] }
+  | { step: "damage-result"; record: RollRecord; crit: boolean; twenty?: boolean; attackRecord?: RollRecord };
 
 /** The lines of a composed roll before rolling: what goes in and from where. */
 function FormulaLines({ c }: { c: Composed }) {
@@ -410,6 +411,11 @@ export function ResultView({ r }: { r: RollRecord }) {
  */
 export function CritRiders({ riders, physical }: { riders: { label: string; text: string; d20?: boolean }[]; physical: boolean }) {
   const [shown, setShown] = useState<Record<number, number>>({});
+  // The second 20 (a limb comes off): its own look.
+  const show = (i: number, face: number) => {
+    setShown((m) => ({ ...m, [i]: face }));
+    if (face === 20) playFx({ kind: "twenty", motif: "sever", label: `${riders[i]!.label} · 20 again!` });
+  };
   return (
     <div className="crit-riders">
       {riders.map((r, i) =>
@@ -425,15 +431,15 @@ export function CritRiders({ riders, physical }: { riders: { label: string; text
             {shown[i] === undefined ? (
               physical ? (
                 <div className="big-actions">
-                  <button className="big primary" onClick={() => setShown({ ...shown, [i]: 20 })}>
+                  <button className="big primary" onClick={() => show(i, 20)}>
                     My d20 shows 20
                   </button>
-                  <button className="big" onClick={() => setShown({ ...shown, [i]: 0 })}>
+                  <button className="big" onClick={() => show(i, 0)}>
                     Not a 20
                   </button>
                 </div>
               ) : (
-                <button className="big primary wide" onClick={() => setShown({ ...shown, [i]: secureRng(20) })}>
+                <button className="big primary wide" onClick={() => show(i, secureRng(20))}>
                   Roll the d20
                   <span className="sub">{r.label}</span>
                 </button>
@@ -528,7 +534,7 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
     };
     const twoHanded = isVersatile(attack) && hands === "two";
     const c = composeDamage(weaponDiceFor(attack, chosenHands), typePick?.type ?? attack.damage.type, bonus, damageChoices, attack.attackId.startsWith("spell:") || attack.attackId.startsWith("item:") || attack.damage.type === "healing" ? attack.name : attack.attackId.startsWith("trait:") ? `${attack.name.replace(/^.*?: /, "")}${attack.damage.type ? ` (${attack.damage.type})` : ""}` : twoHanded ? "Weapon, two hands" : "Weapon");
-    return damageFor(c, attack, stage.crit);
+    return damageFor(c, attack, stage.crit, stage.step === "damage-setup" && !!stage.twenty);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [attack, damageBase, stage, damageChoices, slotPick, optionInfo, typePick, chosenHands, hands]);
 
@@ -549,7 +555,8 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
     ].filter((l, i, all) => all.indexOf(l) === i);
     setDamageChoices({ enabled: shared, manual: "none", extra: 0 });
     setEntering(false);
-    const next: Stage = { step: "damage-setup", crit };
+    // The d20 showed 20 (not just a critical hit): what a weapon does "when you roll a 20" (Vicious, Sharpness).
+    const next: Stage = { step: "damage-setup", crit, ...(crit && attackRecord?.natural === 20 ? { twenty: true } : {}) };
     // A maneuver used on the attack roll (ticked before, or added after seeing it): one per attack.
     const usedGroups = [
       ...base.suggestions.filter((x) => x.group && choices.enabled.includes(x.label)).map((x) => x.group!),
@@ -677,9 +684,12 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
     // The options that applied to this damage (Destructive Wrath's own look plays with it).
     const applied = (damageBase?.suggestions ?? []).filter((x) => damageChoices.enabled.includes(x.label) && fits(x)).map((x) => x.label);
     if (applied.length) rec.options = [...new Set([...(rec.options ?? []), ...applied])];
+    // A weapon's 20 (Sharpness, Vicious, Life Stealing): its own look plays with the damage.
+    const motif = stage.crit && stage.twenty && attack ? twentyMotif(attack) : undefined;
+    if (motif) rec.twenty = { motif, label: twentyLabel(attack!, rec) };
     onRolled(rec);
     setEntering(false);
-    const next: Stage = { step: "damage-result", record: rec, crit: stage.crit };
+    const next: Stage = { step: "damage-result", record: rec, crit: stage.crit, ...(stage.twenty && stage.crit ? { twenty: true } : {}) };
     if (stage.attackRecord) next.attackRecord = stage.attackRecord;
     setStage(next);
   };
@@ -955,9 +965,20 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
           <p className="note">
             Critical hit: every damage die is rolled twice
             {attack!.damage.critExtraDice.length ? `, plus ${attack!.damage.critExtraDice.map((p) => `${p.value} more weapon ${p.value === 1 ? "die" : "dice"} (${p.label})`).join(", ")}` : ""}
-            {attack!.damage.onCrit.length ? `; ${attack!.damage.onCrit.map((p) => `${p.label} +${p.value}`).join(", ")}` : ""}.
-            {attack!.damage.critRiders?.some((r) => r.d20) ? ` Then ${attack!.damage.critRiders.filter((r) => r.d20).map((r) => r.label).join(", ")}: another d20, after the damage.` : ""}
+            {stage.twenty && attack!.damage.onCrit.length ? `; ${attack!.damage.onCrit.map((p) => `${p.label} +${p.value}${p.damageType ? ` ${p.damageType}` : ""}`).join(", ")}` : ""}.
+            {stage.twenty && attack!.damage.critRiders?.some((r) => r.d20) ? ` Then ${attack!.damage.critRiders.filter((r) => r.d20).map((r) => r.label).join(", ")}: another d20, after the damage.` : ""}
           </p>
+        )}
+        {/* What a weapon does "when you roll a 20": only when the d20 showed 20 (a Champion's 19 is a critical hit, not a 20). */}
+        {stage.crit && attack && twentyMotif(attack) && (
+          <div className="segmented small" role="radiogroup" aria-label="What the d20 showed">
+            <button role="radio" aria-checked={!stage.twenty} onClick={() => setStage({ ...stage, twenty: false })}>
+              Not a 20
+            </button>
+            <button role="radio" aria-checked={!!stage.twenty} onClick={() => setStage({ ...stage, twenty: true })}>
+              The d20 showed 20
+            </button>
+          </div>
         )}
         {usedUp.length > 0 && (
           <p className="note warn">
@@ -1099,7 +1120,7 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
             }}
           />
         )}
-        {stage.crit && attack?.damage.critRiders?.length ? <CritRiders riders={attack.damage.critRiders} physical={physical} /> : null}
+        {stage.crit && stage.twenty && attack?.damage.critRiders?.length ? <CritRiders riders={attack.damage.critRiders} physical={physical} /> : null}
         {healing && healTargets && (
           <HealTargets
             targets={healTargets.targets}
