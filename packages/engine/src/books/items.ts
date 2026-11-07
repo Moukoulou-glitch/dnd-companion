@@ -12,6 +12,9 @@ export function looksLikeItems(text: string): boolean {
   );
 }
 
+/** How an item's type line starts ("Weapon (*Maul*), Uncommon", "Wondrous Item, Rare"); anything else is prose. */
+const TYPE_LINE = /^(Adventuring Gear|Weapon|Wondrous|Potion|Ring|Light Armor|Medium Armor|Heavy Armor|Armor|Shield|Treasure|Ammunition|Scroll|Wand|Rod|Staff|Generic Variant|Tool|Artisan|Gaming Set|Instrument|Mount|Vehicle|Food|Trade Good|Spellcasting Focus|Explosive|Firearm|Tack|Poison|Siege|Ship|Common|Uncommon|Rare|Very Rare|Legendary|Artifact)\b/i;
+
 interface RawItem {
   name: string;
   /** The whole entry as loaded, for spotting third-party material. */
@@ -30,6 +33,14 @@ function rawItems(text: string): RawItem[] {
     const head = (rule >= 0 ? e.lines.slice(0, rule) : e.lines).map((l) => l.trim()).filter(Boolean);
     const body = rule >= 0 ? e.lines.slice(rule + 1) : [];
     if (!head.length) continue;
+    // No type line at all, the text straight after the name (Master's Amulet, Hag Eye): the whole block is its text,
+    // and it's a wondrous item (an amulet is worn, not a shield, whatever its text mentions).
+    const first = head[0]!.trim();
+    if (!TYPE_LINE.test(first) && (/^\S.{80,}[.!?]$/.test(first) || /\*\*/.test(first))) {
+      const text = paragraphs([...(rule >= 0 ? e.lines.slice(0, rule) : e.lines), ...body]).filter((l) => !/^Mastery:/i.test(l));
+      out.push({ name: e.name, raw: e.lines.join("\n"), type: "Wondrous Item", stats: [], text });
+      continue;
+    }
     const typeRaw = head[0]!;
     const base = /\(\*([^*]+)\*\)/.exec(typeRaw)?.[1];
     const stats = head.slice(1).map(clean).filter((l) => !/^Mastery:/i.test(l));
@@ -82,6 +93,8 @@ function category(type: string): ItemDef["category"] {
   if (/Tools|^Tool|Gaming Set|Instrument/i.test(type)) return "tool";
   if (/Spellcasting Focus/i.test(type) && !/Wondrous/i.test(type)) return "focus";
   if (/^(Wondrous|Ring|Rod|Staff|Wand)/i.test(type)) return "wondrous";
+  // Only a rarity for a type ("Very Rare": Heartstone, Soul Bag): a magic item, worn or carried.
+  if (/^(common|uncommon|rare|very rare|legendary|artifact)\b/i.test(type)) return "wondrous";
   return "gear";
 }
 

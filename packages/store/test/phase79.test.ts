@@ -123,3 +123,38 @@ describe("19b: items whose spells you pick", () => {
     expect(l.record("setItem", { instanceId: "ring", storedSpells: [{ id: "c", spell: "spell:fireball", level: 3 }, { id: "d", spell: "spell:fireball", level: 3 }] }).join(" ")).toMatch(/up to 5 levels/);
   });
 });
+
+describe("19e: a shield guardian's Spell Storing, through the Master's Amulet", () => {
+  const wizard = (withGuardian: boolean, equipped = true) => {
+    const c = newCharacter({ id: "w", name: "Mage", race: "race:human", class: "class:wizard", abilities: { str: 8, dex: 14, con: 14, int: 18, wis: 12, cha: 10 } }, reg);
+    c.classes = [{ class: "class:wizard", level: 9 }];
+    c.hp = { current: 40, temp: 0 };
+    c.inventory.push({ id: "am", item: "item:masters-amulet", quantity: 1, equipped, attuned: false } as any);
+    if (withGuardian) c.customCompanions = [{ id: "g", name: "Guardian", kind: "Construct", from: "creature:shield-guardian", size: "Large", type: "construct", ac: 17, hpMax: 142, speed: "30 ft.", abilities: { str: 18, dex: 8, con: 18, int: 7, wis: 10, cha: 3 }, traits: [], attacks: [] } as any];
+    return new CharacterLog(c, reg, new HybridClock("t", () => (t += 1000)), "player");
+  };
+  const fireball = { id: "s1", spell: "spell:fireball", level: 3, dc: 16, attack: 8, by: "Mage" };
+  it("the amulet is a worn item, not a shield", () => {
+    expect(reg.find("item:masters-amulet", "item")).toMatchObject({ category: "wondrous", storesSpells: { count: 1, maxSpellLevel: 4 } });
+  });
+  it("the stored spell is the guardian's, castable only with the guardian as a companion and the amulet worn", () => {
+    for (const [g, eq, has] of [[true, true, true], [false, true, false], [true, false, false]] as const) {
+      const l = wizard(g, eq);
+      l.record("setItem", { instanceId: "am", storedSpells: [fireball] });
+      const sp = derive(l.character, reg).spells.find((x) => x.cast.scroll?.entry === "s1");
+      expect(!!sp).toBe(has);
+      if (sp) expect(sp.cast.scroll).toMatchObject({ from: "Shield Guardian", dc: 16, level: 3 });
+    }
+  });
+  it("one spell at a time; 4th level or lower; casting it loses it", () => {
+    const l = wizard(true);
+    l.record("setItem", { instanceId: "am", storedSpells: [fireball] });
+    expect(l.record("setItem", { instanceId: "am", storedSpells: [fireball, { id: "s2", spell: "spell:fly", level: 3 }] }).join(" ")).toMatch(/holds one spell at a time/);
+    expect(l.record("setItem", { instanceId: "am", storedSpells: [{ id: "s3", spell: "spell:cone-of-cold", level: 5 }] }).join(" ")).toMatch(/level 4 or lower/);
+    l.record("setItem", { instanceId: "am", storedSpells: [fireball] });
+    const sp = derive(l.character, reg).spells.find((x) => x.cast.scroll?.entry === "s1")!;
+    l.record("castSpell", { spell: "spell:fireball", list: sp.list.id, level: 3, using: "scroll" });
+    expect(l.character.inventory.find((i) => i.id === "am")!.storedSpells).toBeUndefined();
+    expect(l.character.inventory.some((i) => i.id === "am")).toBe(true);
+  });
+});

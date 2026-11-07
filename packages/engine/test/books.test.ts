@@ -527,6 +527,18 @@ Armor (*Chain Mail*), Rare (Requires Attunement)
 
 You have resistance to fire damage while you wear this armor.
 
+#### Warden's Locket
+
+Every **stone warden** has a locket linked to it, and the locket's wearer can command the warden to stand guard or to shield its wearer from a blow.
+
+#### Ember Heart
+
+Very Rare
+
+---
+
+An invented heart of glowing coal.
+
 #### +2 Wand of the War Mage
 
 Wand, Rare (Requires Attunement By a Spellcaster)
@@ -548,6 +560,11 @@ Invented text for the wand.
   it("a focus for one class's spells, and saves while worn", () => {
     expect(get("item:lantern-of-quiet-stars").grant.modifiers.map((m: any) => m.selector)).toEqual(["stat.spell.attack.artificer", "stat.spell.dc.artificer"]);
     expect(get("item:mantle-of-dusk").grant.modifiers).toEqual([expect.objectContaining({ selector: "roll.save.*", value: 1 })]);
+  });
+  it("an item with no type line (its text right after the name) is a worn wondrous item, not a shield; a rarity alone is a wondrous item", () => {
+    expect(get("item:wardens-locket")).toMatchObject({ category: "wondrous" });
+    expect(get("item:wardens-locket").text.join(" ")).toMatch(/shield its wearer/);
+    expect(get("item:ember-heart")).toMatchObject({ category: "wondrous", magic: { rarity: "very rare" } });
   });
   it("armor that gives a resistance while worn", () => {
     expect(get("item:hauberk-of-ember-warding").grant.modifiers).toEqual([expect.objectContaining({ selector: "defense.resist.fire", op: "resist" })]);

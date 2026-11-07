@@ -184,8 +184,12 @@ export function collectSources(c: Character, baseReg: ContentRegistry, duplicate
       }
     }
     // Spells cast into it (Ring of Spell Storing): each cast once from it, with its caster's numbers.
-    for (const st of def.storesSpells ? inst.storedSpells ?? [] : []) {
+    // Held by a companion (Master's Amulet: your shield guardian casts it): only while you have that companion.
+    const holder = def.storesSpells?.companion;
+    const hasHolder = !holder || c.customCompanions.some((x) => x.from === holder);
+    for (const st of def.storesSpells && hasHolder ? inst.storedSpells ?? [] : []) {
       const sp = reg.find(st.spell, "spell");
+      const from = def.storesSpells!.castBy ?? inst.name ?? def.name;
       out.push({
         id: `stored:${inst.id}:${st.id}`,
         label: inst.name ?? def.name,
@@ -196,7 +200,7 @@ export function collectSources(c: Character, baseReg: ContentRegistry, duplicate
               name: sp?.name ?? st.spell,
               casting: "stored",
               list: `stored-${inst.id}-${st.id}`,
-              scroll: { instanceId: inst.id, level: st.level, stored: true, entry: st.id, from: inst.name ?? def.name, ...(st.dc !== undefined ? { dc: st.dc } : {}), ...(st.attack !== undefined ? { attack: st.attack } : {}), ...(st.by ? { by: st.by } : {}) },
+              scroll: { instanceId: inst.id, level: st.level, stored: true, entry: st.id, from, ...(st.dc !== undefined ? { dc: st.dc } : {}), ...(st.attack !== undefined ? { attack: st.attack } : {}), ...(st.by ? { by: st.by } : {}) },
             },
           ],
         },

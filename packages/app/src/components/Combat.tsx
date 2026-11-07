@@ -531,6 +531,58 @@ function CompanionTurn({ comp, character, act, onRollInitiative, youIncapacitate
   );
 }
 
+/** A shield guardian's stored spell: only while you wear its Master's Amulet. */
+export interface SpellStoring {
+  /** The amulet you wear (equipped), if any. */
+  wearing: boolean;
+  stored?: { name: string; level: number; dc?: number; attack?: number };
+  onOpenAmulet?: () => void;
+  onCast?: () => void;
+}
+
+function SpellStoringBox({ wearing, stored, onOpenAmulet, onCast }: SpellStoring) {
+  return (
+    <section className="spell-storing">
+      <h2 className="sub-head">Spell Storing</h2>
+      {!wearing ? (
+        <p className="note">Wear its Master's Amulet (Items: add it and wear it) to store a spell of 4th level or lower in it.</p>
+      ) : stored ? (
+        <>
+          <p className="note">
+            Stored: <b>{stored.name}</b> at level {stored.level}
+            {stored.dc !== undefined ? `, DC ${stored.dc}` : ""}
+            {stored.attack !== undefined ? `, ${stored.attack >= 0 ? "+" : ""}${stored.attack} to hit` : ""}. It casts it on your command (or when the situation you set arises), with no components; then it's gone.
+          </p>
+          <div className="big-actions">
+            {onCast && (
+              <button className="big primary" onClick={onCast}>
+                Cast {stored.name}
+                <span className="sub">on your command</span>
+              </button>
+            )}
+            {onOpenAmulet && (
+              <button className="big" onClick={onOpenAmulet}>
+                Store another
+                <span className="sub">this one is lost</span>
+              </button>
+            )}
+          </div>
+        </>
+      ) : (
+        <>
+          <p className="note">Nothing stored. Cast a spell of 4th level or lower on it while you wear the amulet: it has no effect then, and it's stored.</p>
+          {onOpenAmulet && (
+            <button className="big wide" onClick={onOpenAmulet}>
+              Store a spell in it
+              <span className="sub">from the Master's Amulet</span>
+            </button>
+          )}
+        </>
+      )}
+    </section>
+  );
+}
+
 export function CompanionPanel({
   comp,
   character,
@@ -547,6 +599,7 @@ export function CompanionPanel({
   onBack,
   onClose,
   onAddEffect,
+  spellStoring,
 }: {
   /** Back to this panel (from an action's details). */
   onBack?: () => void;
@@ -570,6 +623,8 @@ export function CompanionPanel({
   openHp: () => void;
   onCommand: () => void;
   onAttackInstead: () => void;
+  /** A shield guardian's Spell Storing, through the Master's Amulet you wear. */
+  spellStoring?: SpellStoring;
 }) {
   const f = comp.form;
   const chooseForm = (
@@ -859,6 +914,7 @@ export function CompanionPanel({
         ))}
         {f.saveDc !== undefined && <p className="note">Its save DC is your spell save DC, {f.saveDc}.</p>}
       </div>
+      {spellStoring && <SpellStoringBox {...spellStoring} />}
 
       {comp.custom ? (
         <>

@@ -1669,6 +1669,10 @@ export function App() {
           close={close}
           spells={spells}
           resources={live.current.sheet?.resources ?? []}
+          holderPresent={(() => {
+            const need = itemDef(effReg(), inst.item).storesSpells?.companion;
+            return !need || !!live.current.character?.customCompanions.some((x) => x.from === need);
+          })()}
           {...(() => {
             // Your best spellcasting's numbers, for a spell you store in an item (Ring of Spell Storing).
             const sc = [...(live.current.sheet?.spellcasting ?? [])].sort((a, b) => b.saveDc.total - a.saveDc.total)[0];
@@ -2216,6 +2220,22 @@ export function App() {
           character={live.current.character!}
           sheet={live.current.sheet!}
           act={live.current.act}
+          {...(comp.custom?.from === "creature:shield-guardian"
+            ? {
+                spellStoring: (() => {
+                  // The Master's Amulet you wear: its stored spell is the guardian's.
+                  const amulet = live.current.character!.inventory.find((i) => i.item === "item:masters-amulet" && i.equipped);
+                  const st = amulet?.storedSpells?.[0];
+                  const sp = st ? live.current.sheet!.spells.find((x) => x.cast.scroll?.entry === st.id) : undefined;
+                  return {
+                    wearing: !!amulet,
+                    ...(st ? { stored: { name: sp?.name ?? registry.find(st.spell, "spell")?.name ?? st.spell, level: st.level, ...(st.dc !== undefined ? { dc: st.dc } : {}), ...(st.attack !== undefined ? { attack: st.attack } : {}) } } : {}),
+                    ...(amulet ? { onOpenAmulet: () => openItem(amulet.id) } : {}),
+                    ...(sp ? { onCast: () => openSpell(sp) } : {}),
+                  };
+                })(),
+              }
+            : {})}
           open={open}
           openRoll={(t, b, a, uses) =>
             openRoll(t, b, a, {

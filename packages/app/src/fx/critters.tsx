@@ -47,6 +47,9 @@ export interface CritterSpec {
 
 const s = (plan: Plan, c1: string, c2: string, f: string[] = [], trick?: string, eye?: string): CritterSpec => ({ plan, c1, c2, f, ...(trick ? { trick } : {}), ...(eye ? { eye } : {}) });
 
+/** A shield guardian, hand-drawn. */
+const SHIELD_GUARDIAN_SPEC: CritterSpec = s("construct", "#9aa6aa", "#8a3f2c", ["guardian", "big"], "stomp", "#7af0ff");
+
 /** Hand-tuned: familiars (and pact familiars), steeds, and the Summon spirits by variant. */
 export const CRITTERS: Record<string, CritterSpec> = {
   // Find Familiar
@@ -65,6 +68,7 @@ export const CRITTERS: Record<string, CritterSpec> = {
   "creature:sea-horse": s("fish", "#e8a83a", "#ffd88a", ["seahorse"], "spin"),
   "creature:spider": s("bug", "#2e2a30", "#7a3a3a", ["legs8"], "drop", "#ff3a3a"),
   "creature:weasel": s("quad", "#a8743e", "#f4e2c4", ["ears", "longtail", "small", "flat"], "hop"),
+  "creature:shield-guardian": SHIELD_GUARDIAN_SPEC,
   "creature:imp": s("imp", "#c8323a", "#7a141c", ["horns", "wings", "spadetail"], "juggle", "#ffe066"),
   "creature:pseudodragon": s("drake", "#c86a3a", "#f2b46a", ["wings", "horns"], "flutter", "#7affd2"),
   "creature:quasit": s("imp", "#4a8a3a", "#1e4a1a", ["horns", "spadetail", "claws"], "hop", "#ffdd33"),
@@ -109,6 +113,9 @@ export function hiddenCompanionCritter(name: string, formName?: string): Critter
   return name === "Gwestel" && formName === "Beast of the Land" ? GWESTEL : undefined;
 }
 
+/** A shield guardian (from the creature, or your own companion started from it). */
+export const SHIELD_GUARDIAN: CritterSpec = SHIELD_GUARDIAN_SPEC;
+
 /** The Drakewarden's drake by its essence. */
 const DRAKE_ESSENCE: Record<string, [string, string, string]> = {
   acid: ["#5f9a34", "#c9e86a", "#eaff7a"],
@@ -130,9 +137,10 @@ export function drakeCritter(essence: string | undefined, rangerLevel: number): 
 }
 
 /** A companion's own little creature on its card: the drake; a hidden one for some names. */
-export function companionCritter(comp: { id: string; name: string; form?: { id: string; name: string } }, rangerLevel: number): CritterSpec | undefined {
+export function companionCritter(comp: { id: string; name: string; form?: { id: string; name: string }; custom?: { from?: string } }, rangerLevel: number): CritterSpec | undefined {
   const hidden = hiddenCompanionCritter(comp.name, comp.form?.name);
   if (hidden) return hidden;
+  if (comp.custom?.from === "creature:shield-guardian") return SHIELD_GUARDIAN;
   if (comp.id === "drake" && comp.form) return drakeCritter(comp.form.id, rangerLevel);
   return undefined;
 }
@@ -531,6 +539,43 @@ function body(sp: CritterSpec): ReactNode {
       );
     case "construct": {
       const round = has(sp, "round");
+      if (has(sp, "guardian")) {
+        // A shield guardian: riveted steel plates over rust-red limbs, one great pauldron, a spiked helm with a lit T visor.
+        const steel = sp.c1;
+        const rust = sp.c2;
+        return (
+          <>
+            <g className="cr-leg a">
+              <rect x={22} y={34} width={4} height={6} fill={rust} />
+              <path d="M19 40 h9 l1 8 h-11 Z" fill={steel} stroke="#3a4448" strokeWidth={0.6} />
+            </g>
+            <g className="cr-leg b">
+              <rect x={33} y={34} width={4} height={6} fill={rust} />
+              <path d="M31 40 h9 l1 8 h-11 Z" fill={steel} stroke="#3a4448" strokeWidth={0.6} />
+            </g>
+            <g className="cr-body">
+              <rect x={19} y={30} width={22} height={5} rx={1} fill={steel} stroke="#3a4448" strokeWidth={0.6} />
+              <path d="M21 17 h18 l2 13 h-22 Z" fill={steel} stroke="#3a4448" strokeWidth={0.6} />
+              <path d="M24 20 h12 v8 h-12 Z" fill="#6fa8a0" opacity={0.45} />
+              {[23, 37].flatMap((x) => [19, 27].map((y) => <circle key={`${x}-${y}`} cx={x} cy={y} r={0.6} fill="#2a3236" />))}
+              <path d="M28 25 v4 M30 25 v4 M32 25 v4" stroke="#2a3236" strokeWidth={0.7} />
+              {/* Left arm: rust-red, a plated fist. */}
+              <rect x={15} y={19} width={4} height={10} rx={1.5} fill={rust} />
+              <rect x={13.5} y={28} width={6} height={5} rx={1} fill={steel} stroke="#3a4448" strokeWidth={0.5} />
+              {/* Right: the great pauldron and the heavy gauntlet. */}
+              <path d="M38 15 h10 l1 7 l-3 3 h-8 Z" fill={steel} stroke="#3a4448" strokeWidth={0.6} />
+              <path d="M39 16 h8 v3 h-8 Z" fill="#6fa8a0" opacity={0.5} />
+              <rect x={42} y={25} width={4} height={7} rx={1.5} fill={rust} />
+              <path d="M40 31 h8 v7 h-8 Z" fill={steel} stroke="#3a4448" strokeWidth={0.6} />
+            </g>
+            <g className="cr-head">
+              <path d="M30 4 l1 6 h-2 Z" fill={steel} />
+              <path d="M25 11 Q30 7 35 11 V17 H25 Z" fill={steel} stroke="#3a4448" strokeWidth={0.6} />
+              <path d="M27 12 h6 M30 12 v4" stroke={sp.eye ?? "#5affd2"} strokeWidth={1.2} strokeLinecap="round" />
+            </g>
+          </>
+        );
+      }
       return (
         <>
           <path className="cr-leg a" d="M23 40 v8 M37 40 v8" stroke={sp.c1} strokeWidth={4} />

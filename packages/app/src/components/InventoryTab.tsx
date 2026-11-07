@@ -198,8 +198,13 @@ function PicksBox({ inst, def, act, uses = {} }: { inst: Inst; def: ItemDef; act
 }
 
 /** The spells an item holds (Ring of Spell Storing): add one cast into it, with its slot level and its caster's numbers. */
-function StoredSpellsBox({ inst, def, act, spells, mine }: { inst: Inst; def: ItemDef; act: Act; spells: { id: string; name: string; level: number }[]; mine?: { dc: number; attack: number; name: string } }) {
-  const max = def.storesSpells!.maxLevels;
+function StoredSpellsBox({ inst, def, act, spells, mine, holderPresent = true }: { inst: Inst; def: ItemDef; act: Act; spells: { id: string; name: string; level: number }[]; mine?: { dc: number; attack: number; name: string }; holderPresent?: boolean }) {
+  const ss = def.storesSpells!;
+  const max = ss.maxLevels;
+  const top = ss.maxSpellLevel ?? max;
+  const one = ss.count === 1;
+  const who = ss.castBy ?? displayName(inst, def);
+  const [spend, setSpend] = useState(true);
   const held = inst.storedSpells ?? [];
   const used = held.reduce((n, x) => n + x.level, 0);
   const [adding, setAdding] = useState(false);
@@ -213,14 +218,14 @@ function StoredSpellsBox({ inst, def, act, spells, mine }: { inst: Inst; def: It
   const nameOf = (id: string) => spells.find((x) => x.id === id)?.name ?? id;
   const save = (next: typeof held, label: string) => act("setItem", { instanceId: inst.id, storedSpells: next.length ? next : null }, label);
   const found = spells
-    .filter((x) => x.level >= 1 && x.level <= max && x.name.toLowerCase().includes(q.trim().toLowerCase()))
+    .filter((x) => x.level >= 1 && x.level <= Math.min(max, top) && x.name.toLowerCase().includes(q.trim().toLowerCase()))
     .sort((a, b) => a.level - b.level || a.name.localeCompare(b.name))
     .slice(0, 30);
   return (
     <section className="stored-box">
-      <h2 className="sub-head">
-        Spells it holds: {used} of {max} levels
-      </h2>
+      <h2 className="sub-head">{one ? `Spell Storing: ${held.length ? "one spell stored" : "nothing stored"}` : `Spells it holds: ${used} of ${max} levels`}</h2>
+      {one && <p className="note">One spell of level {top} or lower, cast on {who.toLowerCase().startsWith("shield") ? "the guardian" : who}: it has no effect then and is stored. {who} casts it later on your command, with your numbers and no components. Storing another loses the one stored.</p>}
+      {!holderPresent && <p className="warn">{who} isn't one of your companions: add it (Play → Companions → your own, started from the {who}) for its stored spell to be castable.</p>}
       {held.length > 0 && (
         <div className="group">
           {held.map((x) => (
@@ -243,8 +248,8 @@ function StoredSpellsBox({ inst, def, act, spells, mine }: { inst: Inst; def: It
       {used > max && <p className="warn">More than {max} levels: kept, beyond the rules.</p>}
       {!adding ? (
         <button className="big wide" style={{ marginTop: 8 }} onClick={() => setAdding(true)}>
-          Store a spell in it
-          <span className="sub">{Math.max(0, max - used)} levels free</span>
+          {one ? `Store a spell in the ${who.toLowerCase().startsWith("shield") ? "guardian" : "item"}` : "Store a spell in it"}
+          <span className="sub">{one ? (held.length ? "replaces the one stored" : `level ${top} or lower`) : `${Math.max(0, max - used)} levels free`}</span>
         </button>
       ) : !pick ? (
         <>
@@ -281,7 +286,7 @@ function StoredSpellsBox({ inst, def, act, spells, mine }: { inst: Inst; def: It
               <div className="stepper">
                 <button aria-label="Lower" onClick={() => setLevel(Math.max(pick.level, level - 1))}>−</button>
                 <span>{level}</span>
-                <button aria-label="Higher" onClick={() => setLevel(Math.min(9, level + 1))}>+</button>
+                <button aria-label="Higher" onClick={() => setLevel(Math.min(one ? top : 9, level + 1))}>+</button>
               </div>
             </div>
             <label className="row">
@@ -297,7 +302,15 @@ function StoredSpellsBox({ inst, def, act, spells, mine }: { inst: Inst; def: It
               <input value={by} maxLength={80} onChange={(e) => setBy(e.target.value)} aria-label="Who cast it into the item" />
             </label>
           </div>
-          {used + level > max && <p className="warn">That's {used + level} levels: more than it holds ({max}). It can still be kept, beyond the rules.</p>}
+          <label className="row check" style={{ padding: "8px 0" }}>
+            <input type="checkbox" checked={spend} onChange={() => setSpend(!spend)} />
+            <div className="row-main">
+              <div className="row-title">I cast it into it: spend my level {level} slot</div>
+              <div className="row-sub">Leave it off when someone else cast it.</div>
+            </div>
+          </label>
+          {one && held.length > 0 && <p className="warn">{nameOf(held[0]!.spell)} is stored now: it's lost when this one is stored.</p>}
+          {!one && used + level > max && <p className="warn">That's {used + level} levels: more than it holds ({max}). It can still be kept, beyond the rules.</p>}
           <div className="big-actions">
             <button className="big" onClick={() => setPick(null)}>
               Back
@@ -306,7 +319,8 @@ function StoredSpellsBox({ inst, def, act, spells, mine }: { inst: Inst; def: It
               className="big primary"
               onClick={() => {
                 const entry = { id: crypto.randomUUID().slice(0, 8), spell: pick.id, level, ...(dc ? { dc: Number(dc) } : {}), ...(atk !== "" && atk !== "-" ? { attack: Number(atk) } : {}), ...(by.trim() ? { by: by.trim() } : {}) };
-                save([...held, entry], `${name}: ${pick.name} stored at level ${level}.`);
+                save(one ? [entry] : [...held, entry], `${name}: ${pick.name} stored at level ${level}${one && held.length ? ` (${nameOf(held[0]!.spell)} is lost)` : ""}.`);
+                if (spend) act("spendSlot", { level, pact: false }, `Level ${level} slot spent: ${pick.name} cast into ${one ? who : name}.`);
                 setPick(null);
                 setAdding(false);
                 setQ("");
@@ -408,7 +422,10 @@ export function ItemPanel({
   bases = [],
   mine,
   resources = [],
+  holderPresent = true,
 }: {
+  /** The companion an item's stored spell needs (Master's Amulet: your shield guardian) is there. */
+  holderPresent?: boolean;
   /** Your resources, for the uses an item's parts have left (a prayer bead used until dawn). */
   resources?: { id: string; used: number; max: number }[];
   /** Your own spell save DC, attack bonus and name: the starting numbers for a spell you store in an item. */
@@ -507,7 +524,7 @@ export function ItemPanel({
         </label>
       )}
       {def.picks && <PicksBox inst={inst} def={def} act={act} uses={Object.fromEntries(resources.map((r) => [r.id, { used: r.used, max: r.max }]))} />}
-      {def.storesSpells && <StoredSpellsBox inst={inst} def={def} act={act} spells={spells} {...(mine ? { mine } : {})} />}
+      {def.storesSpells && <StoredSpellsBox inst={inst} def={def} act={act} spells={spells} {...(mine ? { mine } : {})} holderPresent={holderPresent} />}
       {(isScroll(def) || isStoredObject(def)) && <ScrollSpell inst={inst} def={def} act={act} spells={spells} {...(onRead ? { onRead } : {})} {...(onCopy ? { onCopy } : {})} onCustom={onCustomSpell ?? (() => {})} />}
       <div className="group">
         <div className="row">

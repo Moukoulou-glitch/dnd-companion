@@ -321,7 +321,20 @@ export const ItemDef = z
       .strict()
       .optional(),
     /** Holds spells cast into it, up to this many levels in all (Ring of Spell Storing: 5); each is cast from it once. */
-    storesSpells: z.object({ maxLevels: z.number().int().min(1).max(20) }).strict().optional(),
+    storesSpells: z
+      .object({
+        maxLevels: z.number().int().min(1).max(20),
+        /** At most this many spells at once; a new one replaces the oldest (a shield guardian: one). */
+        count: z.number().int().min(1).optional(),
+        /** Spells of this level or lower only (a shield guardian: 4th). */
+        maxSpellLevel: z.number().int().min(1).max(9).optional(),
+        /** Who casts them, shown with the spell ("Shield Guardian"); the item's name otherwise. */
+        castBy: z.string().optional(),
+        /** Only while you have this creature as a companion (Master's Amulet: your shield guardian). */
+        companion: z.string().optional(),
+      })
+      .strict()
+      .optional(),
     /** Applies while equipped (and attuned, if attunement is required). */
     grant: Grant.optional(),
     cost: z.object({ amount: z.number(), unit: z.enum(["cp", "sp", "ep", "gp", "pp"]) }).strict().optional(),

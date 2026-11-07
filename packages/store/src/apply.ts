@@ -1621,7 +1621,10 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       if (storedSpells === null) delete inst.storedSpells;
       else if (storedSpells) {
         const levels = storedSpells.reduce((n, x) => n + x.level, 0);
-        if (def.storesSpells && levels > def.storesSpells.maxLevels) notes.push(`${def.name} holds up to ${def.storesSpells.maxLevels} levels of spells: ${levels} kept, beyond the rules.`);
+        const ss = def.storesSpells;
+        if (ss && levels > ss.maxLevels) notes.push(`${def.name} holds up to ${ss.maxLevels} levels of spells: ${levels} kept, beyond the rules.`);
+        if (ss?.count && storedSpells.length > ss.count) notes.push(`${ss.castBy ?? def.name} holds ${ss.count === 1 ? "one spell" : `${ss.count} spells`} at a time: ${storedSpells.length} kept, beyond the rules.`);
+        if (ss?.maxSpellLevel && storedSpells.some((x) => x.level > ss.maxSpellLevel!)) notes.push(`${ss.castBy ?? def.name} stores spells of level ${ss.maxSpellLevel} or lower. Kept, beyond the rules.`);
         if (storedSpells.length) inst.storedSpells = storedSpells.map((x) => ({ ...x }));
         else delete inst.storedSpells;
       }

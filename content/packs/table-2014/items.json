@@ -2755,6 +2755,25 @@
     },
     {
       "kind": "item",
+      "id": "item:masters-amulet",
+      "name": "Master's Amulet",
+      "summary": "The amulet bound to a shield guardian: worn, not a shield. Its wearer commands the guardian, and a spellcaster wearing it can store one spell of 4th level or lower in the guardian by casting it on the guardian (the slot is spent, the spell has no effect then); the guardian casts it later on command, with the caster's numbers and no components. Storing another, or casting it, loses the one stored.",
+      "source": {
+        "pack": "table-2014",
+        "book": "MM"
+      },
+      "category": "wondrous",
+      "requiresAttunement": false,
+      "storesSpells": {
+        "maxLevels": 4,
+        "count": 1,
+        "maxSpellLevel": 4,
+        "castBy": "Shield Guardian",
+        "companion": "creature:shield-guardian"
+      }
+    },
+    {
+      "kind": "item",
       "id": "item:ring-of-regeneration",
       "name": "Ring of Regeneration",
       "summary": "You regain 1d6 hit points every 10 minutes if you have at least 1; lost body parts grow back over 1d6 + 1 days.",
