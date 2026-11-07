@@ -370,6 +370,7 @@ export function App() {
         spellToggle={!!live.current.sheet?.defenses.resist.includes("spells")}
         {...(boundGuardian() ? { boundTo: boundGuardian()!.name } : {})}
         rangedToggle={!!live.current.sheet?.defenses.resist.includes("ranged")}
+        magicalAll={!!(live.current.sheet?.defenses.resist.includes("nonmagical") || live.current.sheet?.defenses.immune.includes("nonmagical"))}
         onDamage={(amount, type, src) => {
           const magical = !!src?.magical;
           const fromSpell = !!src?.spell;
@@ -2964,11 +2965,18 @@ export function App() {
           { id: "other", name: "Someone else", sub: "They track it on their own sheet", warnings: [] },
         ]}
         options={use.options}
+        verb={use.permanent ? "study" : def.category === "consumable" ? "drink" : "use"}
         onUse={(target, option) => {
           const t = all.find((x) => x.id === target);
           const who = target === "me" ? "you" : t?.name ?? "them";
-          live.current.act("useItem", { instanceId, ...(target !== "me" ? { given: true } : {}) }, target === "me" ? `${name}: drunk.` : `${name}: given to ${who}.`);
+          live.current.act("useItem", { instanceId, ...(target !== "me" ? { given: true } : {}) }, target === "me" ? `${name}: ${use.permanent ? "studied" : def.category === "consumable" ? "drunk" : "used"}.` : `${name}: given to ${who}.`);
           if (!t) return close();
+          // For good (a manual or tome): the score and its maximum go up.
+          if (use.permanent && t.kind === "me") {
+            const ab = use.permanent.ability;
+            const max = live.current.sheet?.abilities[ab].max ?? 20;
+            live.current.act("setAbilityAdjust", { ability: ab, addPermanent: { amount: use.permanent.amount, from: name, newMax: max + use.permanent.amount } }, `${name}: +${use.permanent.amount} ${ab.toUpperCase()}, and its maximum is ${max + use.permanent.amount}.`);
+          }
           const hours = use.hours ? rollDice(use.hours).total : undefined;
           const minutes = hours !== undefined ? hours * 60 : undefined;
           const choice = option ?? use.choice;

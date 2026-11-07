@@ -6570,6 +6570,862 @@
           "light"
         ]
       }
+    },
+    {
+      "kind": "item",
+      "id": "item:manual-of-bodily-health",
+      "name": "Manual of Bodily Health",
+      "summary": "Study its health and diet for 48 hours over 6 days or fewer: your Constitution score goes up by 2, and so does its maximum. It then loses its magic for a century.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "weight": 5,
+      "magic": {
+        "rarity": "very rare"
+      },
+      "requiresAttunement": false,
+      "use": {
+        "economy": "action",
+        "consumed": false,
+        "permanent": {
+          "ability": "con",
+          "amount": 2
+        },
+        "note": "48 hours of study over 6 days or fewer. Its magic is then spent for a century: once only."
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:manual-of-gainful-exercise",
+      "name": "Manual of Gainful Exercise",
+      "summary": "Study its fitness exercises for 48 hours over 6 days or fewer: your Strength score goes up by 2, and so does its maximum. It then loses its magic for a century.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "weight": 5,
+      "magic": {
+        "rarity": "very rare"
+      },
+      "requiresAttunement": false,
+      "use": {
+        "economy": "action",
+        "consumed": false,
+        "permanent": {
+          "ability": "str",
+          "amount": 2
+        },
+        "note": "48 hours of study over 6 days or fewer. Its magic is then spent for a century: once only."
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:manual-of-quickness-of-action",
+      "name": "Manual of Quickness of Action",
+      "summary": "Study its coordination and balance exercises for 48 hours over 6 days or fewer: your Dexterity score goes up by 2, and so does its maximum. It then loses its magic for a century.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "weight": 5,
+      "magic": {
+        "rarity": "very rare"
+      },
+      "requiresAttunement": false,
+      "use": {
+        "economy": "action",
+        "consumed": false,
+        "permanent": {
+          "ability": "dex",
+          "amount": 2
+        },
+        "note": "48 hours of study over 6 days or fewer. Its magic is then spent for a century: once only."
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:tome-of-clear-thought",
+      "name": "Tome of Clear Thought",
+      "summary": "Study its memory and logic exercises for 48 hours over 6 days or fewer: your Intelligence score goes up by 2, and so does its maximum. It then loses its magic for a century.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "weight": 5,
+      "magic": {
+        "rarity": "very rare"
+      },
+      "requiresAttunement": false,
+      "use": {
+        "economy": "action",
+        "consumed": false,
+        "permanent": {
+          "ability": "int",
+          "amount": 2
+        },
+        "note": "48 hours of study over 6 days or fewer. Its magic is then spent for a century: once only."
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:tome-of-leadership-and-influence",
+      "name": "Tome of Leadership and Influence",
+      "summary": "Study its guidance on influencing others for 48 hours over 6 days or fewer: your Charisma score goes up by 2, and so does its maximum. It then loses its magic for a century.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "weight": 5,
+      "magic": {
+        "rarity": "very rare"
+      },
+      "requiresAttunement": false,
+      "use": {
+        "economy": "action",
+        "consumed": false,
+        "permanent": {
+          "ability": "cha",
+          "amount": 2
+        },
+        "note": "48 hours of study over 6 days or fewer. Its magic is then spent for a century: once only."
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:tome-of-understanding",
+      "name": "Tome of Understanding",
+      "summary": "Study its intuition and insight exercises for 48 hours over 6 days or fewer: your Wisdom score goes up by 2, and so does its maximum. It then loses its magic for a century.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "weight": 5,
+      "magic": {
+        "rarity": "very rare"
+      },
+      "requiresAttunement": false,
+      "use": {
+        "economy": "action",
+        "consumed": false,
+        "permanent": {
+          "ability": "wis",
+          "amount": 2
+        },
+        "note": "48 hours of study over 6 days or fewer. Its magic is then spent for a century: once only."
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:potion-of-acid-resistance",
+      "name": "Potion of Acid Resistance",
+      "summary": "Drink it: resistance to acid damage for 1 hour.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "consumable",
+      "weight": 0.5,
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "requiresAttunement": false,
+      "use": {
+        "economy": "action",
+        "effect": "other:potion-resistance",
+        "choice": "acid",
+        "consumed": true,
+        "note": "Drinking it or giving it to another creature takes an action."
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:potion-of-cold-resistance",
+      "name": "Potion of Cold Resistance",
+      "summary": "Drink it: resistance to cold damage for 1 hour.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "consumable",
+      "weight": 0.5,
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "requiresAttunement": false,
+      "use": {
+        "economy": "action",
+        "effect": "other:potion-resistance",
+        "choice": "cold",
+        "consumed": true,
+        "note": "Drinking it or giving it to another creature takes an action."
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:potion-of-fire-resistance",
+      "name": "Potion of Fire Resistance",
+      "summary": "Drink it: resistance to fire damage for 1 hour.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "consumable",
+      "weight": 0.5,
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "requiresAttunement": false,
+      "use": {
+        "economy": "action",
+        "effect": "other:potion-resistance",
+        "choice": "fire",
+        "consumed": true,
+        "note": "Drinking it or giving it to another creature takes an action."
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:potion-of-force-resistance",
+      "name": "Potion of Force Resistance",
+      "summary": "Drink it: resistance to force damage for 1 hour.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "consumable",
+      "weight": 0.5,
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "requiresAttunement": false,
+      "use": {
+        "economy": "action",
+        "effect": "other:potion-resistance",
+        "choice": "force",
+        "consumed": true,
+        "note": "Drinking it or giving it to another creature takes an action."
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:potion-of-lightning-resistance",
+      "name": "Potion of Lightning Resistance",
+      "summary": "Drink it: resistance to lightning damage for 1 hour.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "consumable",
+      "weight": 0.5,
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "requiresAttunement": false,
+      "use": {
+        "economy": "action",
+        "effect": "other:potion-resistance",
+        "choice": "lightning",
+        "consumed": true,
+        "note": "Drinking it or giving it to another creature takes an action."
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:potion-of-necrotic-resistance",
+      "name": "Potion of Necrotic Resistance",
+      "summary": "Drink it: resistance to necrotic damage for 1 hour.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "consumable",
+      "weight": 0.5,
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "requiresAttunement": false,
+      "use": {
+        "economy": "action",
+        "effect": "other:potion-resistance",
+        "choice": "necrotic",
+        "consumed": true,
+        "note": "Drinking it or giving it to another creature takes an action."
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:potion-of-poison-resistance",
+      "name": "Potion of Poison Resistance",
+      "summary": "Drink it: resistance to poison damage for 1 hour.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "consumable",
+      "weight": 0.5,
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "requiresAttunement": false,
+      "use": {
+        "economy": "action",
+        "effect": "other:potion-resistance",
+        "choice": "poison",
+        "consumed": true,
+        "note": "Drinking it or giving it to another creature takes an action."
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:potion-of-psychic-resistance",
+      "name": "Potion of Psychic Resistance",
+      "summary": "Drink it: resistance to psychic damage for 1 hour.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "consumable",
+      "weight": 0.5,
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "requiresAttunement": false,
+      "use": {
+        "economy": "action",
+        "effect": "other:potion-resistance",
+        "choice": "psychic",
+        "consumed": true,
+        "note": "Drinking it or giving it to another creature takes an action."
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:potion-of-radiant-resistance",
+      "name": "Potion of Radiant Resistance",
+      "summary": "Drink it: resistance to radiant damage for 1 hour.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "consumable",
+      "weight": 0.5,
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "requiresAttunement": false,
+      "use": {
+        "economy": "action",
+        "effect": "other:potion-resistance",
+        "choice": "radiant",
+        "consumed": true,
+        "note": "Drinking it or giving it to another creature takes an action."
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:potion-of-thunder-resistance",
+      "name": "Potion of Thunder Resistance",
+      "summary": "Drink it: resistance to thunder damage for 1 hour.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "consumable",
+      "weight": 0.5,
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "requiresAttunement": false,
+      "use": {
+        "economy": "action",
+        "effect": "other:potion-resistance",
+        "choice": "thunder",
+        "consumed": true,
+        "note": "Drinking it or giving it to another creature takes an action."
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:potion-of-invulnerability",
+      "name": "Potion of Invulnerability",
+      "summary": "Drink it: resistance to all damage for 1 minute.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "consumable",
+      "weight": 0.5,
+      "magic": {
+        "rarity": "rare"
+      },
+      "requiresAttunement": false,
+      "use": {
+        "economy": "action",
+        "effect": "other:potion-invulnerability",
+        "consumed": true
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:oil-of-sharpness",
+      "name": "Oil of Sharpness",
+      "summary": "A minute to coat one slashing or piercing weapon (or 5 pieces of such ammunition): for 1 hour it's magical, +3 to attack and damage rolls.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "consumable",
+      "weight": 0.5,
+      "magic": {
+        "rarity": "very rare"
+      },
+      "requiresAttunement": false,
+      "use": {
+        "economy": "action",
+        "effect": "other:oil-of-sharpness",
+        "consumed": true,
+        "note": "Applying it takes 1 minute."
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:ring-of-resistance",
+      "name": "Ring of Resistance",
+      "summary": "Resistance to one damage type, set by its gem: pick it on the ring.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "rare"
+      },
+      "requiresAttunement": true,
+      "picks": {
+        "label": "Its damage type",
+        "max": 1,
+        "note": "The gem shows which: acid (pearl), cold (tourmaline), fire (garnet), force (sapphire), lightning (citrine), necrotic (jet), poison (amethyst), psychic (jade), radiant (topaz), thunder (spinel).",
+        "options": [
+          {
+            "id": "acid",
+            "name": "Acid",
+            "summary": "resistance to acid damage",
+            "grant": {
+              "modifiers": [
+                {
+                  "selector": "defense.resist.acid",
+                  "op": "resist",
+                  "label": "Ring of Resistance"
+                }
+              ]
+            }
+          },
+          {
+            "id": "cold",
+            "name": "Cold",
+            "summary": "resistance to cold damage",
+            "grant": {
+              "modifiers": [
+                {
+                  "selector": "defense.resist.cold",
+                  "op": "resist",
+                  "label": "Ring of Resistance"
+                }
+              ]
+            }
+          },
+          {
+            "id": "fire",
+            "name": "Fire",
+            "summary": "resistance to fire damage",
+            "grant": {
+              "modifiers": [
+                {
+                  "selector": "defense.resist.fire",
+                  "op": "resist",
+                  "label": "Ring of Resistance"
+                }
+              ]
+            }
+          },
+          {
+            "id": "force",
+            "name": "Force",
+            "summary": "resistance to force damage",
+            "grant": {
+              "modifiers": [
+                {
+                  "selector": "defense.resist.force",
+                  "op": "resist",
+                  "label": "Ring of Resistance"
+                }
+              ]
+            }
+          },
+          {
+            "id": "lightning",
+            "name": "Lightning",
+            "summary": "resistance to lightning damage",
+            "grant": {
+              "modifiers": [
+                {
+                  "selector": "defense.resist.lightning",
+                  "op": "resist",
+                  "label": "Ring of Resistance"
+                }
+              ]
+            }
+          },
+          {
+            "id": "necrotic",
+            "name": "Necrotic",
+            "summary": "resistance to necrotic damage",
+            "grant": {
+              "modifiers": [
+                {
+                  "selector": "defense.resist.necrotic",
+                  "op": "resist",
+                  "label": "Ring of Resistance"
+                }
+              ]
+            }
+          },
+          {
+            "id": "poison",
+            "name": "Poison",
+            "summary": "resistance to poison damage",
+            "grant": {
+              "modifiers": [
+                {
+                  "selector": "defense.resist.poison",
+                  "op": "resist",
+                  "label": "Ring of Resistance"
+                }
+              ]
+            }
+          },
+          {
+            "id": "psychic",
+            "name": "Psychic",
+            "summary": "resistance to psychic damage",
+            "grant": {
+              "modifiers": [
+                {
+                  "selector": "defense.resist.psychic",
+                  "op": "resist",
+                  "label": "Ring of Resistance"
+                }
+              ]
+            }
+          },
+          {
+            "id": "radiant",
+            "name": "Radiant",
+            "summary": "resistance to radiant damage",
+            "grant": {
+              "modifiers": [
+                {
+                  "selector": "defense.resist.radiant",
+                  "op": "resist",
+                  "label": "Ring of Resistance"
+                }
+              ]
+            }
+          },
+          {
+            "id": "thunder",
+            "name": "Thunder",
+            "summary": "resistance to thunder damage",
+            "grant": {
+              "modifiers": [
+                {
+                  "selector": "defense.resist.thunder",
+                  "op": "resist",
+                  "label": "Ring of Resistance"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:ring-of-invisibility",
+      "name": "Ring of Invisibility",
+      "summary": "An action to turn invisible, with what you wear and carry, until you attack, cast a spell, take the ring off, or end it as a bonus action.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "legendary"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "actions": [
+          {
+            "id": "ring-of-invisibility",
+            "name": "Ring of Invisibility",
+            "economy": "action",
+            "selfEffect": "condition:invisible",
+            "note": "You're invisible until you attack or cast a spell, remove the ring, or use a bonus action to be seen again (remove Invisible then)."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:ring-of-mind-shielding",
+      "name": "Ring of Mind Shielding",
+      "summary": "Magic can't read your thoughts, tell whether you lie, or know your alignment or creature type; telepathy reaches you only if you allow it. It can turn invisible (an action), and can hold your soul when you die.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "actions": [
+          {
+            "id": "ring-of-mind-shielding",
+            "name": "Ring of Mind Shielding",
+            "economy": "free",
+            "infoOnly": true,
+            "note": "Immune to magic that reads your thoughts, tells whether you're lying, or learns your alignment or creature type. Telepathy only if you allow it. An action makes the ring invisible (another makes it visible). If you die wearing it, your soul can go into it (if it holds none) and speak through it."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:periapt-of-health",
+      "name": "Periapt of Health",
+      "summary": "You can't catch a disease while you wear it; a disease you have is held off.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "requiresAttunement": false,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.immune.disease",
+            "op": "immune",
+            "label": "Periapt of Health"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:armor-of-invulnerability",
+      "name": "Armor of Invulnerability",
+      "summary": "Plate armor: resistance to nonmagical damage. Once a dawn, an action makes you immune to nonmagical damage for 10 minutes (or until you take it off).",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "armor",
+      "weight": 65,
+      "armor": {
+        "category": "heavy",
+        "base": 18,
+        "stealthDisadvantage": true,
+        "strengthRequired": 15
+      },
+      "magic": {
+        "rarity": "legendary"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "defense.resist.nonmagical",
+            "op": "resist",
+            "label": "Armor of Invulnerability"
+          },
+          {
+            "selector": "defense.immune.nonmagical",
+            "op": "immune",
+            "label": "Armor of Invulnerability",
+            "when": {
+              "toggle": "invulnerable"
+            }
+          }
+        ],
+        "resources": [
+          {
+            "id": "armor-of-invulnerability",
+            "name": "Armor of Invulnerability",
+            "max": 1,
+            "reset": "dawn"
+          }
+        ],
+        "actions": [
+          {
+            "id": "armor-of-invulnerability",
+            "name": "Armor of Invulnerability: invulnerable",
+            "economy": "action",
+            "cost": {
+              "resource": "armor-of-invulnerability",
+              "amount": 1
+            },
+            "toggles": [
+              "invulnerable"
+            ],
+            "duration": {
+              "minutes": 10
+            },
+            "note": "For 10 minutes, or until you take the armor off: immune to nonmagical damage. Hit points → Damage asks whether it was magical."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:oathbow",
+      "name": "Oathbow",
+      "summary": "A longbow that names a sworn enemy (one at a time, until it dies or seven days pass): against it you have advantage and deal 3d6 piercing more, and it gets no benefit from cover but total cover; while it lives you have disadvantage with other weapons.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "weapon",
+      "weight": 2,
+      "weapon": {
+        "category": "martial",
+        "kind": "ranged",
+        "group": "longbow",
+        "damage": "1d8",
+        "damageType": "piercing",
+        "properties": [
+          "ammunition",
+          "heavy",
+          "two-handed"
+        ],
+        "range": [
+          150,
+          600
+        ]
+      },
+      "magic": {
+        "rarity": "very rare"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "item.attack",
+            "op": "advantage",
+            "mode": "suggested",
+            "label": "Oathbow: sworn enemy",
+            "when": {
+              "text": "against your sworn enemy"
+            }
+          },
+          {
+            "selector": "item.damage",
+            "op": "add",
+            "value": "3d6",
+            "damageType": "piercing",
+            "mode": "suggested",
+            "label": "Oathbow: sworn enemy",
+            "when": {
+              "text": "against your sworn enemy"
+            }
+          }
+        ],
+        "actions": [
+          {
+            "id": "oathbow-swear",
+            "name": "Oathbow: swear an enemy",
+            "economy": "free",
+            "toggles": [
+              "oathbow-enemy"
+            ],
+            "note": "As you make a ranged attack with it, speak its command phrase: the target is your sworn enemy until it dies or until dawn seven days later (one at a time; after it dies, a new one from the next dawn). While it lives, you have disadvantage on attacks with other weapons. Click again when it dies or the oath ends."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:arrow-of-slaying",
+      "name": "Arrow of Slaying",
+      "summary": "Meant for one kind of creature (the DM's: dragons, blue dragons…): one of them it damages makes a DC 17 Constitution save or takes 6d10 piercing more (half on a success). The arrow is then plain.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "ammunition",
+      "weight": 0.05,
+      "ammoFor": [
+        "longbow",
+        "shortbow"
+      ],
+      "magic": {
+        "rarity": "very rare"
+      },
+      "requiresAttunement": false,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.damage.ammo",
+            "op": "add",
+            "value": "6d10",
+            "damageType": "piercing",
+            "label": "Arrow of Slaying (its creature: DC 17 Con for half)"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:crossbow-bolt-of-slaying",
+      "name": "Crossbow Bolt of Slaying",
+      "summary": "Meant for one kind of creature: one of them it damages makes a DC 17 Constitution save or takes 6d10 piercing more (half on a success). The bolt is then plain.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "ammunition",
+      "weight": 0.075,
+      "ammoFor": [
+        "light crossbow",
+        "heavy crossbow",
+        "hand crossbow"
+      ],
+      "magic": {
+        "rarity": "very rare"
+      },
+      "requiresAttunement": false,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.damage.ammo",
+            "op": "add",
+            "value": "6d10",
+            "damageType": "piercing",
+            "label": "Crossbow Bolt of Slaying (its creature: DC 17 Con for half)"
+          }
+        ]
+      }
     }
   ]
 }

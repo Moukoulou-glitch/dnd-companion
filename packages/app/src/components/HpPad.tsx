@@ -15,9 +15,12 @@ export function HpPad({
   spellToggle = false,
   boundTo,
   rangedToggle = false,
+  magicalAll = false,
   below,
 }: {
   onDamage: (amount: number, type?: string, src?: { magical?: boolean; silvered?: boolean; adamantine?: boolean; spell?: boolean; bound?: boolean; ranged?: boolean }) => void;
+  /** Ask whether any damage was magical (resistance to nonmagical damage of every type: Armor of Invulnerability). */
+  magicalAll?: boolean;
   /** Ask whether the damage came from a ranged weapon attack (resistance to it: Tattoo of Guardian Winds). */
   rangedToggle?: boolean;
   /** Your shield guardian's name, when it's bound to you (you wear its amulet): ask whether it's within 60 ft. */
@@ -56,7 +59,14 @@ export function HpPad({
           </button>
         ))}
       </div>
-      {sourceToggles && physical && (
+      {magicalAll && !physical && (
+        <div className="types" role="group" aria-label="Magical damage">
+          <button className="switch" aria-pressed={!!src.magical} onClick={() => setSrc({ ...src, magical: !src.magical })}>
+            magical
+          </button>
+        </div>
+      )}
+      {(sourceToggles || magicalAll) && physical && (
         <div className="types" role="group" aria-label="Where the damage came from">
           {(["magical", "silvered", "adamantine"] as const).map((k) => (
             <button key={k} className="switch" aria-pressed={!!src[k]} onClick={() => setSrc({ ...src, [k]: !src[k] })}>
@@ -103,7 +113,7 @@ export function HpPad({
         </button>
       </div>
       <div className="pad-actions">
-        <button className="big damage" disabled={!amount} onClick={() => onDamage(amount, type, { ...(physical ? src : {}), ...(spell ? { spell: true } : {}), ...(boundTo ? { bound } : {}), ...(rangedToggle && ranged ? { ranged: true } : {}) })}>
+        <button className="big damage" disabled={!amount} onClick={() => onDamage(amount, type, { ...(physical || (magicalAll && src.magical) ? src : {}), ...(spell ? { spell: true } : {}), ...(boundTo ? { bound } : {}), ...(rangedToggle && ranged ? { ranged: true } : {}) })}>
           Damage
         </button>
         <button className="big heal" disabled={!amount} onClick={() => onHeal(amount)}>

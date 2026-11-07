@@ -523,7 +523,15 @@ export function ItemPanel({
       {inst.name && inst.name !== def.name && <p className="row-sub">{def.name}</p>}
       {def.use && onUse && (
         <button className="big primary wide" style={{ marginBottom: 10 }} disabled={inst.quantity < 1} onClick={onUse}>
-          {def.use.heal ? `Drink or give: ${def.use.heal.dice}${def.use.heal.bonus ? ` + ${def.use.heal.bonus}` : ""} hit points` : def.use.effect || def.use.damage ? "Drink or give" : "Drink it"}
+          {def.use.permanent
+            ? "Study it"
+            : def.category !== "consumable"
+              ? "Use it"
+              : def.use.heal
+                ? `Drink or give: ${def.use.heal.dice}${def.use.heal.bonus ? ` + ${def.use.heal.bonus}` : ""} hit points`
+                : def.use.effect || def.use.damage
+                  ? "Drink or give"
+                  : "Drink it"}
           {def.use.note && <span className="sub">{def.use.note}</span>}
         </button>
       )}

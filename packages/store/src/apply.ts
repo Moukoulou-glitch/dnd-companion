@@ -437,6 +437,17 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         dmg = Math.floor(dmg / 2);
         notes.push(`Resistant to all damage: ${was} halved to ${dmg}.`);
       }
+      // Nonmagical damage (Armor of Invulnerability): immune while its action lasts, otherwise resistant. Not from a spell, not marked magical.
+      if (!op.payload.magical && !op.payload.fromSpell && dmg > 0) {
+        if (sheet.defenses.immune.includes("nonmagical")) {
+          notes.push(`Immune to nonmagical damage: ${dmg} prevented.`);
+          dmg = 0;
+        } else if (sheet.defenses.resist.includes("nonmagical") && !sheet.defenses.resist.includes("all") && !(damageType && sheet.defenses.resist.includes(damageType))) {
+          const was = dmg;
+          dmg = Math.floor(dmg / 2);
+          notes.push(`Resistant to nonmagical damage: ${was} halved to ${dmg} (mark it magical if it was).`);
+        }
+      }
       // Resistance to the damage of ranged weapon attacks (Tattoo of Guardian Winds): not on top of another resistance.
       if (op.payload.ranged && sheet.defenses.resist.includes("ranged") && !sheet.defenses.resist.includes("all") && dmg > 0 && !(damageType && sheet.defenses.resist.includes(damageType))) {
         const was = dmg;

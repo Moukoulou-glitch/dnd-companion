@@ -152,7 +152,7 @@ export function parseItems(texts: string[], pack: string, known: Map<string, Ite
     if (rarity || bonus) {
       def.magic = {};
       if (rarity) def.magic.rarity = rarity;
-      if (bonus && (def.weapon || def.armor || def.category === "shield")) def.magic.bonus = Number(bonus[1]);
+      if (bonus && (def.weapon || def.armor || def.category === "shield" || def.category === "ammunition")) def.magic.bonus = Number(bonus[1]);
     }
     const mods = [...bonusModifiers(all, r.name), ...(def.weapon ? weaponModifiers(r.text, r.name) : [])];
     if (mods.length) def.grant = { modifiers: mods };

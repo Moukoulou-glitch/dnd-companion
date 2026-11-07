@@ -6091,6 +6091,59 @@
       "reminders": [
         "A Charisma save when you first enter it on a turn or start your turn there; the caster knows whether you succeeded."
       ]
+    },
+    {
+      "kind": "effect",
+      "id": "other:potion-invulnerability",
+      "name": "Potion of Invulnerability",
+      "category": "other",
+      "summary": "Resistance to all damage for 1 minute.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "rounds": 10,
+      "modifiers": [
+        {
+          "selector": "defense.resist.all",
+          "op": "resist",
+          "label": "Potion of Invulnerability"
+        }
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "other:oil-of-sharpness",
+      "name": "Oil of Sharpness",
+      "category": "other",
+      "summary": "The coated weapon (or ammunition) is magical, +3 to attack and damage rolls, for 1 hour.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "minutes": 60,
+      "modifiers": [
+        {
+          "selector": "roll.attack.weapon.*",
+          "op": "add",
+          "value": 3,
+          "mode": "suggested",
+          "label": "Oil of Sharpness",
+          "when": {
+            "text": "with the coated slashing or piercing weapon or ammunition"
+          }
+        },
+        {
+          "selector": "roll.damage.weapon.*",
+          "op": "add",
+          "value": 3,
+          "mode": "suggested",
+          "label": "Oil of Sharpness",
+          "when": {
+            "text": "with the coated slashing or piercing weapon or ammunition"
+          }
+        }
+      ]
     }
   ]
 }

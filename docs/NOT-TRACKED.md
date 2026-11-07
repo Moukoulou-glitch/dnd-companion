@@ -506,3 +506,7 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 ## Round 20a
 - Book items: only what their text states plainly is applied (see HANDOFF 20a); unusual wording stays text. A spell from an item with no stated limit is at will; a gem-powered spell (Helm of Brilliance) isn't counted.
 
+## Round 20b
+- Armor of Invulnerability: damage counts as nonmagical unless you mark it magical (or it's from a spell). Slaying ammunition's 6d10 is in its option on the roll: the target's type and its DC 17 save (half) are yours. The Oathbow's disadvantage with other weapons while your sworn enemy lives is a note.
+- A manual or tome studied once: its century without magic isn't tracked (don't study it twice).
+

@@ -10,7 +10,10 @@ export function ItemUsePanel({
   targets,
   options,
   onUse,
+  verb = "drink",
 }: {
+  /** What you do with it: drink (a potion), study (a manual: only you), use (anything else). */
+  verb?: "drink" | "study" | "use";
   summary?: string | undefined;
   targets: { id: string; name: string; sub?: string; warnings: string[] }[];
   options?: { label: string; values: string[] } | undefined;
@@ -22,7 +25,7 @@ export function ItemUsePanel({
   return (
     <>
       {summary && <p>{summary}</p>}
-      <p className="sub-head">Who drinks it?</p>
+      <p className="sub-head">{verb === "drink" ? "Who drinks it?" : verb === "study" ? "Who studies it?" : "Who uses it?"}</p>
       <div className="group">
         {targets.map((t) => (
           <label className="row check" key={t.id}>
@@ -52,7 +55,7 @@ export function ItemUsePanel({
         </>
       )}
       <button className="big primary wide" style={{ marginTop: 12 }} disabled={!!options && !option} onClick={() => onUse(target, option)}>
-        {target === "me" ? "Drink it" : `Give it to ${name}`}
+        {target === "me" ? (verb === "drink" ? "Drink it" : verb === "study" ? "Study it" : "Use it") : `Give it to ${name}`}
       </button>
     </>
   );

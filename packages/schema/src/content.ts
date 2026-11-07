@@ -365,6 +365,8 @@ export const ItemDef = z
         transform: z.object({ match: z.string(), label: z.string() }).strict().optional(),
         consumed: z.boolean().default(true),
         note: z.string().optional(),
+        /** Studied or used for good (Manual of Gainful Exercise): the score goes up by `amount`, and its maximum with it. */
+        permanent: z.object({ ability: z.enum(["str", "dex", "con", "int", "wis", "cha"]), amount: z.number().int() }).strict().optional(),
       })
       .strict()
       .optional(),
