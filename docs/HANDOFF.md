@@ -351,3 +351,4 @@ Remaining plan (each a sub-phase, stop after each): 2a crits (done) · 2b Relent
 - 19f (on fixes-2): the shield guardian's amulet-linked traits.
   - Shield: the guardian's panel ("Bound to you") has "Shield me": `guardianShield` op uses its reaction and puts `effect:guardian-shield` (+2 AC, ends when your turn starts) on you; warns if the amulet isn't worn, it's away or at 0 HP, its reaction is used, or the Shield is already on you.
   - Bound: `damage.bound` (absent in older logs = nothing moves). The Hit points pad shows "<guardian> within 60 ft: half goes to it" (on by default) when you wear the amulet and the guardian is here with HP; after your own defenses, half (rounded up) goes to it, the rest to you (temp HP, concentration DC from your half); its own resistances and immunities apply to its half (table ruling). Companion damage is now `hurtCompanion` in apply.ts.
+- 19f merged to main with approval (Nov 7; run 42364682448 passed).
