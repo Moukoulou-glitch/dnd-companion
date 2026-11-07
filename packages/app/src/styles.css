@@ -4663,3 +4663,63 @@ html.fx-shake-strong .app > .strip, html.fx-shake-strong .app > main, html.fx-sh
 @keyframes fx-tw-surge { 0% { transform: translateY(100%); } 35% { transform: translateY(-8%); } 55% { transform: translateY(0); } 85% { transform: translateY(4%); opacity: 1; } 100% { transform: translateY(60%); opacity: 0; } }
 .fx-tw-bubble { position: absolute; bottom: 10%; width: 9px; height: 9px; border-radius: 50%; border: 2px solid rgba(200, 240, 255, 0.8); opacity: 0; animation: fx-tw-bubble 1100ms ease-out forwards; }
 @keyframes fx-tw-bubble { 0% { opacity: 0; transform: translateY(0) scale(0.6); } 25% { opacity: 1; } 100% { opacity: 0; transform: translateY(-380px) scale(1.3); } }
+
+/* Sentient weapons (19k): each answers its attacks in its own way, with a line in its voice. Smaller on a miss. */
+.fx-sw { position: absolute; inset: 0; overflow: hidden; pointer-events: none; animation: fx-tw-in var(--fx-ms) ease-out forwards; }
+.fx-sw-veil { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 45%, transparent 30%, rgba(4, 6, 12, 0.6)); }
+.fx-sw-miss .fx-sw-veil { opacity: 0.4; }
+.fx-sw .fx-label { font-size: 1.12em; font-style: italic; text-shadow: 0 0 2px #000, 0 0 12px currentColor; }
+.fx-sw-miss .fx-label { font-size: 0.95em; opacity: 0.85; }
+.fx-sw-miss > :not(.fx-sw-veil):not(.fx-label) { opacity: 0.35; transform: scale(0.75); }
+
+/* Whelm: the ground cracks, stone flies, a war cry. */
+.fx-sw-whelm .fx-label { color: #ffd29a; font-style: normal; font-weight: 800; letter-spacing: 0.04em; }
+.fx-sw-whelm .fx-sw-veil { background: radial-gradient(ellipse at 50% 100%, rgba(120, 70, 20, 0.35), rgba(10, 6, 2, 0.65)); }
+.fx-sw-cracks path { stroke: #ffb35c; stroke-width: 5; filter: drop-shadow(0 0 6px #c96a12); animation: fx-tw-draw 260ms ease-out forwards; }
+.fx-sw-shard { position: absolute; left: 50%; bottom: 0; width: 10px; height: 8px; background: #8a6a4a; clip-path: polygon(0 40%, 40% 0, 100% 30%, 80% 100%, 20% 90%); opacity: 0; animation: fx-sw-shard 900ms ease-out forwards; }
+@keyframes fx-sw-shard { 0% { opacity: 1; transform: rotate(var(--a)) translateY(0); } 100% { opacity: 0; transform: rotate(var(--a)) translateY(calc(var(--d) * -1)) rotate(200deg); } }
+.fx-sw-crit.fx-sw-whelm .fx-label { font-size: 1.35em; }
+
+/* Wave: ripples and a tune. */
+.fx-sw-wave .fx-label { color: #b5ecff; }
+.fx-sw-wave .fx-sw-veil { background: radial-gradient(ellipse at 50% 50%, rgba(10, 60, 90, 0.25), rgba(2, 10, 20, 0.6)); }
+.fx-sw-ripple { position: absolute; left: 50%; top: 50%; width: 90px; height: 40px; margin: -20px 0 0 -45px; border-radius: 50%; border: 3px solid rgba(160, 225, 255, 0.85); opacity: 0; animation: fx-sw-ripple 1000ms ease-out forwards; }
+@keyframes fx-sw-ripple { 0% { opacity: 1; transform: scale(0.4); } 100% { opacity: 0; transform: scale(4.5); } }
+.fx-sw-note { position: absolute; bottom: 30%; font-size: 1.8rem; color: #c8f1ff; text-shadow: 0 0 10px #39a0d6; opacity: 0; animation: fx-sw-note 1100ms ease-out forwards; }
+@keyframes fx-sw-note { 0% { opacity: 0; transform: translateY(0) rotate(-10deg); } 25% { opacity: 1; } 100% { opacity: 0; transform: translateY(-220px) rotate(14deg); } }
+
+/* Blackrazor: a hole of starry night opens and swallows. */
+.fx-sw-blackrazor .fx-label { color: #d9c8ff; font-style: normal; letter-spacing: 0.05em; }
+.fx-sw-void { position: absolute; left: 50%; top: 46%; width: 220px; height: 220px; margin: -110px 0 0 -110px; border-radius: 50%; background: radial-gradient(circle, #000 45%, #120a26 62%, rgba(80, 50, 160, 0.5) 70%, transparent 74%); box-shadow: 0 0 40px rgba(120, 80, 220, 0.5); animation: fx-sw-void var(--fx-ms) ease-in-out forwards; overflow: hidden; }
+.fx-sw-crit .fx-sw-void, .fx-sw-devour .fx-sw-void { width: 320px; height: 320px; margin: -160px 0 0 -160px; }
+@keyframes fx-sw-void { 0% { transform: scale(0) rotate(0); } 30% { transform: scale(1.05) rotate(40deg); } 75% { transform: scale(1) rotate(90deg); } 100% { transform: scale(0) rotate(200deg); } }
+.fx-sw-star { position: absolute; width: 3px; height: 3px; border-radius: 50%; background: #fff; box-shadow: 0 0 6px #b9a0ff; animation: fx-sw-twinkle 600ms ease-in-out infinite alternate; }
+@keyframes fx-sw-twinkle { from { opacity: 0.3; } to { opacity: 1; } }
+.fx-sw-soul { position: absolute; left: 50%; top: 46%; width: 14px; height: 30px; margin: -15px 0 0 -7px; border-radius: 50% 50% 40% 40%; background: radial-gradient(circle at 50% 30%, #f2ecff, rgba(170, 140, 255, 0.2)); filter: blur(1px); opacity: 0; animation: fx-sw-soul 1300ms ease-in forwards; }
+@keyframes fx-sw-soul { 0% { opacity: 0; transform: rotate(var(--a)) translateY(-300px); } 30% { opacity: 1; } 100% { opacity: 0; transform: rotate(calc(var(--a) + 120deg)) translateY(0) scale(0.2); } }
+
+/* Moonblade: a crescent, a silver arc, motes of moonlight. */
+.fx-sw-moonblade .fx-label { color: #eef2ff; }
+.fx-sw-moonblade .fx-sw-veil { background: radial-gradient(ellipse at 50% 30%, rgba(120, 140, 200, 0.2), rgba(4, 8, 20, 0.6)); }
+.fx-sw-moon { position: absolute; left: 50%; top: 22%; width: 90px; height: 90px; margin-left: -45px; border-radius: 50%; box-shadow: inset -18px 6px 0 0 #eef2ff; filter: drop-shadow(0 0 14px #b8c6ff); opacity: 0; animation: fx-sw-moon var(--fx-ms) ease-out forwards; }
+@keyframes fx-sw-moon { 0% { opacity: 0; transform: translateY(30px) rotate(-30deg); } 30% { opacity: 1; transform: none; } 80% { opacity: 1; } 100% { opacity: 0; } }
+.fx-sw-arc { stroke: #f1f4ff; stroke-width: 4; filter: drop-shadow(0 0 8px #9fb4ff); animation: fx-tw-draw 360ms 120ms ease-out forwards; }
+.fx-sw-mote { position: absolute; width: 5px; height: 5px; border-radius: 50%; background: #f4f6ff; box-shadow: 0 0 8px #aebcff; opacity: 0; animation: fx-sw-mote 1200ms ease-out forwards; }
+@keyframes fx-sw-mote { 0% { opacity: 0; transform: translateY(10px); } 30% { opacity: 1; } 100% { opacity: 0; transform: translateY(-90px); } }
+
+/* Sword of Kas: a crimson gash and dark flame. */
+.fx-sw-kas .fx-label { color: #ffb3b3; font-style: normal; }
+.fx-sw-kas .fx-sw-veil { background: radial-gradient(ellipse at 50% 50%, rgba(80, 0, 0, 0.3), rgba(10, 0, 0, 0.75)); }
+.fx-sw-gash { stroke: #ff2b2b; stroke-width: 8; filter: drop-shadow(0 0 10px #8b0000) drop-shadow(0 0 2px #000); animation: fx-tw-draw 220ms ease-in forwards; }
+.fx-sw-flame { position: absolute; bottom: -10px; width: 22px; height: 90px; border-radius: 50% 50% 20% 20%; background: linear-gradient(to top, rgba(60, 0, 0, 0.9), rgba(200, 30, 20, 0.6), transparent); filter: blur(2px); opacity: 0; animation: fx-sw-flame 1000ms ease-out forwards; }
+@keyframes fx-sw-flame { 0% { opacity: 0; transform: scaleY(0.3); transform-origin: bottom; } 30% { opacity: 1; transform: scaleY(1.2); } 100% { opacity: 0; transform: scaleY(0.6) translateY(-60px); } }
+
+/* Wand of Orcus: grave-green fumes and a glare from within them. */
+.fx-sw-orcus .fx-label { color: #c8f5a0; }
+.fx-sw-orcus .fx-sw-veil { background: radial-gradient(ellipse at 50% 50%, rgba(30, 60, 10, 0.3), rgba(2, 8, 2, 0.8)); }
+.fx-sw-fume { position: absolute; bottom: 0; width: 90px; height: 90px; margin-left: -45px; border-radius: 50%; background: radial-gradient(circle, rgba(110, 180, 60, 0.5), transparent 70%); filter: blur(4px); opacity: 0; animation: fx-sw-fume 1300ms ease-out forwards; }
+@keyframes fx-sw-fume { 0% { opacity: 0; transform: translateY(0) scale(0.6); } 30% { opacity: 1; } 100% { opacity: 0; transform: translateY(-420px) scale(1.8); } }
+.fx-sw-eyes { position: absolute; left: 50%; top: 52%; width: 90px; margin-left: -45px; display: flex; justify-content: space-between; opacity: 0; animation: fx-sw-eyes var(--fx-ms) ease-in-out forwards; }
+.fx-sw-eyes span { width: 22px; height: 12px; border-radius: 50%; background: #c8ff6a; box-shadow: 0 0 14px #8bff2a, 0 0 30px #4a8f10; }
+@keyframes fx-sw-eyes { 0%, 25% { opacity: 0; } 45% { opacity: 1; } 80% { opacity: 1; } 100% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .fx-sw { animation: fx-static 900ms ease-out forwards !important; } .fx-sw > :not(.fx-label):not(.fx-sw-veil) { display: none; } }

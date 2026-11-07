@@ -96,6 +96,8 @@ interface Props {
   afterRoll?: { label: string; sub?: string; warn?: boolean; group?: string; run: () => { value: number; detail: string } | undefined }[];
   /** Closes the roll (after a miss with no more attacks). */
   onDone?: () => void;
+  /** A sentient weapon's own dice (Blackrazor): the theme key, and its name for the dice that are its own. */
+  weaponDice?: { key: string; name: string };
   /** Temporary hit points a weapon's 20 gives you (Sword of Life Stealing: 10), when its damage is rolled. */
   onTempHp?: (amount: number, label: string) => void;
   /** Shown right after the d20 is rolled, with the options that were ticked (ammunition: count one shot?). */
@@ -466,7 +468,7 @@ export function CritRiders({ riders, physical, tempGiven = false }: { riders: { 
   );
 }
 
-export function Composer({ title, base: baseIn, attack, physical, onPhysicalChange, onRolled, onResolved, damageOnly, healing, onHealSelf, healTargets, dc, dcLabel, reaction, onSpend, onCheck, notes, header, typeChoices, portent, onOptionsUsed, optionInfo, onCommit, repeat, darts, onDamageOptions, afterRoll, onDone, diceSource, afterD20, onTempHp }: Props) {
+export function Composer({ title, base: baseIn, attack, physical, onPhysicalChange, onRolled, onResolved, damageOnly, healing, onHealSelf, healTargets, dc, dcLabel, reaction, onSpend, onCheck, notes, header, typeChoices, portent, onOptionsUsed, optionInfo, onCommit, repeat, darts, onDamageOptions, afterRoll, onDone, diceSource, afterD20, onTempHp, weaponDice }: Props) {
   const [typePick, setTypePick] = useState<{ via: number; type: string } | null>(null);
   // A smite used on an earlier hit (Extra Attack's first attack, or this one rolled again) is gone: it can't be ticked again.
   const [usedUp, setUsedUp] = useState<UsedUp[]>([]);
@@ -603,7 +605,9 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
     const beacon = damageChoices.enabled.includes(BEACON) ? ["name:Beacon of Hope"] : [];
     // A spell whose damage type was changed (Transmuted Spell: Fireball as thunder): its dice in the new type's look, not the spell's own.
     const retyped = !!typePick && typePick.type !== attack?.damage.type;
-    return [...beacon, ...(opt?.spends ? [`resource:${opt.spends.resource}`] : []), ...(diceSource && !retyped ? [diceSource] : [])];
+    // A sentient weapon's own dice: the d20 and the weapon's dice (not a Bless d4 or a smite on the same roll).
+    const own = weaponDice && source && (/^2?d20/.test(source) || source.startsWith(weaponDice.name) || source === "Weapon" || source === "Weapon, two hands") ? [weaponDice.key] : [];
+    return [...beacon, ...(opt?.spends ? [`resource:${opt.spends.resource}`] : []), ...own, ...(diceSource && !retyped ? [diceSource] : [])];
   };
   /**
    * Throws the dice for `c`, then `done` with the roll. Skipped, or the 3D dice can't be drawn or fail:

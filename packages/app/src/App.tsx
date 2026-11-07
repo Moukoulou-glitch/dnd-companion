@@ -19,6 +19,7 @@ import { DcBig, Reminders } from "./components/DcBig";
 import { DistributePanel } from "./components/Distribute";
 import { RageVeins, greyLevel, useFlourishes } from "./components/Fx";
 import { FxLayer, playFx } from "./fx/FxLayer";
+import { SENTIENT_WEAPONS, sentientDiceKey } from "./fx/sentient";
 import { spellInfoOf } from "./fx/generated";
 import { NameFx } from "./fx/NameFx";
 import { featureFor } from "./fx/features";
@@ -872,6 +873,7 @@ export function App() {
         onOptionsUsed={opts.onOptionsUsed ?? recordOptions}
         {...(opts.reaction ? { reaction: true } : {})}
         {...(attack ? { onResolved: (o: "hit" | "crit" | "miss", options: string[]) => strikeFx(attack.attackId, o, options).forEach(playFx) } : {})}
+        {...(atk && SENTIENT_WEAPONS[atk.attackId] ? { weaponDice: { key: sentientDiceKey(atk.attackId), name: atk.name.replace(/ \((?:thrown|off-hand)[^)]*\)$/, "") } } : {})}
         {...(atk && !opts.notMine ? { onTempHp: (n: number, label: string) => live.current.act("setTempHp", { amount: n }, `${label}: ${n} temporary hit points (not if the target was a construct or an undead: Undo).`) } : {})}
         onSpend={(used) => {
           for (const u of used) {
@@ -1541,7 +1543,9 @@ export function App() {
               ...(onMe !== undefined ? { onMe } : {}),
             };
             const label = spend
-              ? `${a.name}: ${spend.amount} ${spend.healSelf ? "hit points to yourself" : "points spent"}.`
+              ? a.spendAmount?.tempHp
+                ? `${a.name}.`
+                : `${a.name}: ${spend.amount} ${spend.healSelf ? "hit points to yourself" : "points spent"}.`
               : choice && current.roll?.afterChoice && rolled !== undefined
               ? `${a.name}: ${choice}, ${rolled} ${current.roll.label}.`
               : choice && current.roll?.types?.includes(choice) && rolled !== undefined

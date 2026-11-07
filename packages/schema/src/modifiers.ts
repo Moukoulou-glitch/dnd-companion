@@ -104,6 +104,8 @@ export const ModifierOp = z.enum([
   "critTempHp",
   /** Weapons: on any critical hit, damage of type `value` equal to half the target's hit point maximum (Wave: necrotic); the roll asks for that maximum. */
   "critHalfMax",
+  /** Weapons: the weapon gains a property (`value`: "finesse", or "thrown", 20/60 ft unless it has a range): a moonblade's rune. Selector item.weapon. */
+  "addProperty",
   /** Raise the Dexterity cap of medium armor to `value` (Medium Armor Master: 3). Selector stat.ac. */
   "mediumArmorDexCap",
   /** Stats: the value becomes at most `value` (Grappled: speed 0). */
@@ -482,7 +484,9 @@ export const ActionDef = z
      * Spends as many points of its cost's resource as the player says (Lay on
      * Hands), healing that much when `heals`; the panel asks for the number.
      */
-    spendAmount: z.object({ label: z.string(), heals: z.boolean().optional() }).strict().optional(),
+    spendAmount: z.object({ label: z.string(), heals: z.boolean().optional(), tempHp: z.boolean().optional() }).strict().optional(),
+    /** Its toggles last only while you have temporary hit points (Blackrazor's devoured soul): they switch off when those run out. */
+    whileTempHp: z.boolean().optional(),
     /** Its toggles last until the start of your next turn (Dodge). */
     untilTurnStart: z.boolean().optional(),
     /** Ends your concentration. */

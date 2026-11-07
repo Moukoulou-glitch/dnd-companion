@@ -4532,6 +4532,446 @@
     },
     {
       "kind": "item",
+      "id": "item:blackrazor",
+      "name": "Blackrazor",
+      "summary": "A sentient +3 greatsword like a shard of starry night (chaotic neutral; Int 17, Wis 10, Cha 19; hears, darkvision 120 ft; speaks Common, telepathic, understands your languages) that hungers for souls, anyone's. A creature you drop to 0 with it (not a construct or undead) dies and its soul is devoured: you gain temporary hit points equal to its hit point maximum for 24 hours, and while they last and you hold it you have advantage on attacks, saves and checks. Hitting an undead costs you 1d10 necrotic and heals it 1d10. While you hold it you sense creatures within 60 ft that aren't constructs or undead, and you can't be charmed or frightened. Once a day it casts Haste on you, concentrating for you. Only a non-lawful creature can attune to it; three days without a soul and it turns on you at sunset.",
+      "source": {
+        "pack": "table-2014",
+        "book": "DMG",
+        "page": 216
+      },
+      "category": "weapon",
+      "weight": 6,
+      "weapon": {
+        "category": "martial",
+        "kind": "melee",
+        "group": "greatsword",
+        "damage": "2d6",
+        "damageType": "slashing",
+        "properties": [
+          "heavy",
+          "two-handed"
+        ]
+      },
+      "magic": {
+        "rarity": "legendary",
+        "bonus": 3
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "roll.attack.*",
+            "op": "advantage",
+            "label": "Blackrazor: a devoured soul",
+            "when": {
+              "toggle": "blackrazor-soul"
+            }
+          },
+          {
+            "selector": "roll.save.*",
+            "op": "advantage",
+            "label": "Blackrazor: a devoured soul",
+            "when": {
+              "toggle": "blackrazor-soul"
+            }
+          },
+          {
+            "selector": "roll.check.*",
+            "op": "advantage",
+            "label": "Blackrazor: a devoured soul",
+            "when": {
+              "toggle": "blackrazor-soul"
+            }
+          },
+          {
+            "selector": "defense.immune.charmed",
+            "op": "immune",
+            "label": "Blackrazor"
+          },
+          {
+            "selector": "defense.immune.frightened",
+            "op": "immune",
+            "label": "Blackrazor"
+          },
+          {
+            "selector": "item.damage",
+            "op": "note",
+            "label": "Blackrazor against an undead: you take 1d10 necrotic damage and it regains 1d10 hit points (\"Blackrazor: hit an undead\" in Actions). If that drops you to 0, it devours your soul."
+          }
+        ],
+        "resources": [
+          {
+            "id": "blackrazor-haste",
+            "name": "Blackrazor: Haste",
+            "max": 1,
+            "reset": "dawn"
+          }
+        ],
+        "actions": [
+          {
+            "id": "blackrazor-devour",
+            "name": "Blackrazor: devour a soul",
+            "economy": "free",
+            "spendAmount": {
+              "label": "The slain creature's hit point maximum",
+              "tempHp": true
+            },
+            "toggles": [
+              "blackrazor-soul"
+            ],
+            "whileTempHp": true,
+            "duration": {
+              "minutes": 1440
+            },
+            "note": "When you drop a creature to 0 hit points with it (not a construct or an undead), it dies and Blackrazor devours its soul (only a Wish brings it back). You gain temporary hit points equal to its hit point maximum for 24 hours; while they last and you hold the sword, you have advantage on attack rolls, saving throws and ability checks."
+          },
+          {
+            "id": "blackrazor-undead",
+            "name": "Blackrazor: hit an undead",
+            "economy": "free",
+            "roll": {
+              "dice": "1d10",
+              "label": "necrotic damage to you (take it on Hit points); the undead regains 1d10 hit points"
+            },
+            "note": "Each time you hit an undead with it. If this damage drops you to 0 hit points, Blackrazor devours your soul."
+          },
+          {
+            "id": "blackrazor-hunter",
+            "name": "Blackrazor: soul hunter",
+            "economy": "free",
+            "infoOnly": true,
+            "note": "While you hold it, you know where every Tiny or larger creature within 60 ft is, unless it's a construct or an undead."
+          }
+        ],
+        "spells": [
+          {
+            "spell": "spell:haste",
+            "name": "Haste",
+            "casting": "Blackrazor casts it on you, once a day, when it chooses; it concentrates on it, not you",
+            "resource": "blackrazor-haste",
+            "noConcentration": true,
+            "castingTime": "1 action"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:moonblade",
+      "name": "Moonblade",
+      "summary": "An elven longsword, sentient (neutral good; Int 12, Wis 10, Cha 12; hears, darkvision 120 ft; speaks through feelings, and visions in trance or sleep) that serves one master at a time for life, chosen among elves and half-elves who share its ideals: courage, loyalty, beauty, music and life. One rune for each master it has served: the first makes it +1; each other rune gives it a property (pick them on the item). If it rejects you, you have disadvantage on ability checks, attack rolls and saving throws for 24 hours.",
+      "source": {
+        "pack": "table-2014",
+        "book": "DMG",
+        "page": 217
+      },
+      "category": "weapon",
+      "weight": 3,
+      "weapon": {
+        "category": "martial",
+        "kind": "melee",
+        "group": "longsword",
+        "damage": "1d8",
+        "damageType": "slashing",
+        "properties": [
+          "versatile"
+        ],
+        "versatileDamage": "1d10"
+      },
+      "magic": {
+        "rarity": "legendary",
+        "bonus": 1
+      },
+      "requiresAttunement": true,
+      "picks": {
+        "label": "Runes after the first",
+        "max": 6,
+        "note": "A moonblade has a rune for each master it has served (usually 1d6 + 1): the first is its +1; each other rune is a property, chosen by the DM or rolled (d100). +1 runes stop at +3 in all.",
+        "options": [
+          {
+            "id": "bonus",
+            "name": "+1 more",
+            "summary": "+1 to attack and damage rolls (at most +3 in all)",
+            "grant": {
+              "modifiers": [
+                {
+                  "selector": "item.attack",
+                  "op": "add",
+                  "value": 1,
+                  "label": "Moonblade rune"
+                },
+                {
+                  "selector": "item.damage",
+                  "op": "add",
+                  "value": 1,
+                  "label": "Moonblade rune"
+                }
+              ]
+            }
+          },
+          {
+            "id": "minor",
+            "name": "A minor property",
+            "summary": "one of the DMG's minor properties (p. 143): yours to note",
+            "grant": {}
+          },
+          {
+            "id": "finesse",
+            "name": "Finesse",
+            "summary": "it gains the finesse property",
+            "grant": {
+              "modifiers": [
+                {
+                  "selector": "item.weapon",
+                  "op": "addProperty",
+                  "value": "finesse",
+                  "label": "Moonblade rune"
+                }
+              ]
+            }
+          },
+          {
+            "id": "thrown",
+            "name": "Thrown",
+            "summary": "it gains the thrown property (20/60 ft)",
+            "grant": {
+              "modifiers": [
+                {
+                  "selector": "item.weapon",
+                  "op": "addProperty",
+                  "value": "thrown",
+                  "label": "Moonblade rune"
+                }
+              ]
+            }
+          },
+          {
+            "id": "defender",
+            "name": "Defender",
+            "summary": "it works as a defender: at the start of your turn, move some of its bonus from attack and damage to your AC",
+            "grant": {
+              "actions": [
+                {
+                  "id": "moonblade-defender",
+                  "name": "Moonblade: defender",
+                  "economy": "free",
+                  "infoOnly": true,
+                  "note": "At the start of your turn, before you attack, you can move some or all of its attack and damage bonus to your AC until the start of your next turn (add an effect for the AC, and leave those points off its rolls)."
+                }
+              ]
+            }
+          },
+          {
+            "id": "crit19",
+            "name": "Critical on 19",
+            "summary": "a critical hit on a 19 or 20",
+            "grant": {
+              "modifiers": [
+                {
+                  "selector": "item.attack",
+                  "op": "critRange",
+                  "value": 19,
+                  "label": "Moonblade rune"
+                }
+              ]
+            }
+          },
+          {
+            "id": "slashing",
+            "name": "+1d6 slashing",
+            "summary": "1d6 slashing damage more on every hit",
+            "grant": {
+              "modifiers": [
+                {
+                  "selector": "item.damage",
+                  "op": "add",
+                  "value": "1d6",
+                  "damageType": "slashing",
+                  "label": "Moonblade rune"
+                }
+              ]
+            }
+          },
+          {
+            "id": "bane-acid",
+            "name": "Bane: +1d6 acid",
+            "summary": "1d6 acid damage more against one creature type (the DM picks: dragons, fiends, undead…)",
+            "grant": {
+              "modifiers": [
+                {
+                  "selector": "item.damage",
+                  "op": "add",
+                  "value": "1d6",
+                  "damageType": "acid",
+                  "label": "Moonblade rune (acid)",
+                  "mode": "suggested",
+                  "when": {
+                    "text": "against its creature type"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "id": "bane-cold",
+            "name": "Bane: +1d6 cold",
+            "summary": "1d6 cold damage more against one creature type (the DM picks: dragons, fiends, undead…)",
+            "grant": {
+              "modifiers": [
+                {
+                  "selector": "item.damage",
+                  "op": "add",
+                  "value": "1d6",
+                  "damageType": "cold",
+                  "label": "Moonblade rune (cold)",
+                  "mode": "suggested",
+                  "when": {
+                    "text": "against its creature type"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "id": "bane-fire",
+            "name": "Bane: +1d6 fire",
+            "summary": "1d6 fire damage more against one creature type (the DM picks: dragons, fiends, undead…)",
+            "grant": {
+              "modifiers": [
+                {
+                  "selector": "item.damage",
+                  "op": "add",
+                  "value": "1d6",
+                  "damageType": "fire",
+                  "label": "Moonblade rune (fire)",
+                  "mode": "suggested",
+                  "when": {
+                    "text": "against its creature type"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "id": "bane-lightning",
+            "name": "Bane: +1d6 lightning",
+            "summary": "1d6 lightning damage more against one creature type (the DM picks: dragons, fiends, undead…)",
+            "grant": {
+              "modifiers": [
+                {
+                  "selector": "item.damage",
+                  "op": "add",
+                  "value": "1d6",
+                  "damageType": "lightning",
+                  "label": "Moonblade rune (lightning)",
+                  "mode": "suggested",
+                  "when": {
+                    "text": "against its creature type"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "id": "bane-thunder",
+            "name": "Bane: +1d6 thunder",
+            "summary": "1d6 thunder damage more against one creature type (the DM picks: dragons, fiends, undead…)",
+            "grant": {
+              "modifiers": [
+                {
+                  "selector": "item.damage",
+                  "op": "add",
+                  "value": "1d6",
+                  "damageType": "thunder",
+                  "label": "Moonblade rune (thunder)",
+                  "mode": "suggested",
+                  "when": {
+                    "text": "against its creature type"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "id": "flash",
+            "name": "Flash",
+            "summary": "a bonus action flash: DC 15 Constitution save or blinded, once a short rest",
+            "grant": {
+              "resources": [
+                {
+                  "id": "moonblade-flash",
+                  "name": "Moonblade: flash",
+                  "max": 1,
+                  "reset": "short"
+                }
+              ],
+              "actions": [
+                {
+                  "id": "moonblade-flash",
+                  "name": "Moonblade: flash",
+                  "economy": "bonus",
+                  "cost": {
+                    "resource": "moonblade-flash",
+                    "amount": 1
+                  },
+                  "note": "It flashes brightly: each creature within 30 ft that can see you makes a DC 15 Constitution save or is blinded for 1 minute (it saves again at the end of each of its turns). Back after a short rest while attuned."
+                }
+              ]
+            }
+          },
+          {
+            "id": "storing",
+            "name": "Spell storing",
+            "summary": "it works as a ring of spell storing (5 levels): add a Ring of Spell Storing to note its spells",
+            "grant": {}
+          },
+          {
+            "id": "elfshadow",
+            "name": "Elfshadow",
+            "summary": "an action to call an elfshadow (a shadow that's neutral, can't be turned and makes no shadows) within 120 ft; it serves until it drops to 0 or you dismiss it",
+            "grant": {
+              "actions": [
+                {
+                  "id": "moonblade-elfshadow",
+                  "name": "Moonblade: call the elfshadow",
+                  "economy": "action",
+                  "infoOnly": true,
+                  "note": "If none serves you now: it appears within 120 ft, uses a shadow's statistics (neutral, immune to turning, makes no new shadows), and acts as you decide. It stays until it drops to 0 hit points or you dismiss it as an action. Add it as a companion of your own from the Shadow."
+                }
+              ]
+            }
+          },
+          {
+            "id": "vorpal",
+            "name": "Vorpal",
+            "summary": "it works as a vorpal sword",
+            "grant": {
+              "modifiers": [
+                {
+                  "selector": "item.damage",
+                  "op": "add",
+                  "value": "6d8",
+                  "label": "Moonblade (vorpal)",
+                  "mode": "suggested",
+                  "when": {
+                    "text": "a natural 20, when the head can't be cut off (or the creature survives without it)"
+                  }
+                },
+                {
+                  "selector": "item.damage",
+                  "op": "critNote",
+                  "value": "Against a creature with a head: you cut it off, and it dies if it can't live without it (not one immune to slashing, without a head, with legendary actions, or too big: 6d8 slashing more instead). It also ignores resistance to slashing damage.",
+                  "label": "Moonblade (vorpal)"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
       "id": "item:vorpal-sword",
       "name": "Vorpal Sword",
       "summary": "A +3 blade that ignores resistance to slashing damage; on a natural 20 against a creature with a head it cuts it off (or 6d8 slashing more). Any sword that deals slashing damage: pick which on the item (a longsword until then).",

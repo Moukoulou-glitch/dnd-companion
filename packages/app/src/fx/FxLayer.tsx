@@ -1,3 +1,4 @@
+import { sentientOf } from "./sentient";
 import { useEffect, useRef, useState } from "react";
 import { CD_LOOKS, GLYPHS, type CdLook } from "./divinity";
 import type { Character } from "@dnd/schema";
@@ -127,6 +128,23 @@ export function specOf(e: FxEvent): FxSpec {
         look: `fx-her fx-her-${e.motif}${season ? ` fx-her-${season}` : ""}`,
         label: e.label,
         heritage: { motif: e.motif, ...(season ? { season } : {}) },
+        skippable: true,
+      };
+    }
+    // A sentient weapon: its own look and its voice, by how the attack went; Blackrazor devouring a soul.
+    case "sentient": {
+      const w = sentientOf(e.weapon);
+      if (!w) return { at: "edge", ms: 1, look: "fx-none" };
+      const devour = e.outcome === "devour";
+      const ms = devour ? 2400 : e.outcome === "crit" ? 1900 : e.outcome === "hit" ? 1250 : 850;
+      const label = devour ? "Blackrazor devours a soul" : w.lines[e.outcome as "hit" | "crit" | "miss"];
+      return {
+        at: "edge",
+        ms,
+        look: `fx-sw fx-sw-${w.motif} fx-sw-${e.outcome}`,
+        label,
+        buzz: e.outcome === "miss" ? [10] : e.outcome === "hit" ? [20, 30, 20] : [40, 30, 40, 30, 90],
+        ...(e.outcome === "crit" || devour ? { shake: 260 } : {}),
         skippable: true,
       };
     }
@@ -634,6 +652,78 @@ export function FxLayer({ school, spell, feature, character }: { school: (spell:
                 </>
               );
             })()}
+            {spec.look.startsWith("fx-sw ") && (
+              <>
+                <span className="fx-sw-veil" />
+                {spec.look.includes("fx-sw-whelm") && (
+                  <>
+                    <svg className="fx-tw-svg fx-sw-cracks" viewBox="0 0 390 844" preserveAspectRatio="none">
+                      <path pathLength={1} d="M195,844 L180,760 L214,700 L190,620 L222,560" />
+                      <path pathLength={1} d="M195,844 L120,790 L96,720 L40,690" />
+                      <path pathLength={1} d="M195,844 L270,800 L300,730 L360,700" />
+                    </svg>
+                    {Array.from({ length: 12 }, (_, i) => (
+                      <span key={i} className="fx-sw-shard" style={{ ["--a" as string]: `${-80 + i * 14}deg`, ["--d" as string]: `${140 + ((i * 37) % 160)}px`, animationDelay: `${(i % 4) * 50}ms` }} />
+                    ))}
+                  </>
+                )}
+                {spec.look.includes("fx-sw-wave") && (
+                  <>
+                    {[0, 1, 2].map((i) => (
+                      <span key={i} className="fx-sw-ripple" style={{ animationDelay: `${i * 200}ms` }} />
+                    ))}
+                    {["♪", "♫", "♩", "♬", "♪"].map((n, i) => (
+                      <span key={i} className="fx-sw-note" style={{ left: `${22 + i * 14}%`, animationDelay: `${150 + i * 140}ms` }}>
+                        {n}
+                      </span>
+                    ))}
+                  </>
+                )}
+                {spec.look.includes("fx-sw-blackrazor") && (
+                  <span className="fx-sw-void">
+                    {Array.from({ length: 22 }, (_, i) => (
+                      <span key={i} className="fx-sw-star" style={{ left: `${(i * 37) % 100}%`, top: `${(i * 53) % 100}%`, animationDelay: `${(i % 7) * 70}ms` }} />
+                    ))}
+                  </span>
+                )}
+                {spec.look.includes("fx-sw-devour") &&
+                  Array.from({ length: 10 }, (_, i) => (
+                    <span key={i} className="fx-sw-soul" style={{ ["--a" as string]: `${i * 36}deg`, animationDelay: `${200 + (i % 5) * 120}ms` }} />
+                  ))}
+                {spec.look.includes("fx-sw-moonblade") && (
+                  <>
+                    <span className="fx-sw-moon" />
+                    <svg className="fx-tw-svg" viewBox="0 0 390 844" preserveAspectRatio="none">
+                      <path className="fx-sw-arc" pathLength={1} d="M40,560 Q195,300 350,560" />
+                    </svg>
+                    {Array.from({ length: 14 }, (_, i) => (
+                      <span key={i} className="fx-sw-mote" style={{ left: `${10 + ((i * 29) % 80)}%`, top: `${40 + ((i * 17) % 30)}%`, animationDelay: `${(i % 7) * 90}ms` }} />
+                    ))}
+                  </>
+                )}
+                {spec.look.includes("fx-sw-kas") && (
+                  <>
+                    <svg className="fx-tw-svg" viewBox="0 0 390 844" preserveAspectRatio="none">
+                      <path className="fx-sw-gash" pathLength={1} d="M350,250 Q200,420 40,620" />
+                    </svg>
+                    {Array.from({ length: 14 }, (_, i) => (
+                      <span key={i} className="fx-sw-flame" style={{ left: `${8 + i * 6.5}%`, animationDelay: `${(i % 5) * 80}ms` }} />
+                    ))}
+                  </>
+                )}
+                {spec.look.includes("fx-sw-orcus") && (
+                  <>
+                    {Array.from({ length: 9 }, (_, i) => (
+                      <span key={i} className="fx-sw-fume" style={{ left: `${10 + i * 10}%`, animationDelay: `${(i % 4) * 110}ms` }} />
+                    ))}
+                    <span className="fx-sw-eyes">
+                      <span />
+                      <span />
+                    </span>
+                  </>
+                )}
+              </>
+            )}
             {spec.look.startsWith("fx-tw ") && (
               <>
                 <span className="fx-tw-veil" />

@@ -180,6 +180,8 @@ export function collectSources(c: Character, baseReg: ContentRegistry, duplicate
         if (!opt) continue;
         const grant: Grant = { ...opt.grant };
         if (grant.resources) grant.resources = grant.resources.map((r) => (typeof r.max === "number" ? { ...r, max: r.max * n, name: n > 1 ? `${r.name} (${n})` : r.name } : r));
+        // A flat bonus picked more than once adds up (a moonblade's runes: +1 more each).
+        if (grant.modifiers && n > 1) grant.modifiers = grant.modifiers.map((m) => (m.op === "add" && typeof m.value === "number" ? { ...m, value: m.value * n } : m));
         out.push({ id: `${def.id}#${pid}`, label: `${inst.name ?? def.name}: ${opt.name}${n > 1 ? ` ×${n}` : ""}`, grant, choices: {}, itemInstanceId: inst.id });
       }
     }

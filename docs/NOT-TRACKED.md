@@ -491,3 +491,8 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 - Whelm: when the open-sky curse starts (the dawn after your first attack with it) and whether you can see the daytime sky are yours: switch "Whelm: under the daytime sky" on and off. Only a dwarf can attune to it, and only a worshipper of a sea god to Wave: not checked.
 - Wave: the target's hit point maximum is typed in on the critical hit. Its cube of force regains 1d20 charges a dawn: add them back on its resource. Its sentience, personality and conflicts are in its summary, not tracked.
 
+## Round 19k
+- Blackrazor: you say when it devours a soul and enter the creature's hit point maximum; the temporary HP don't fade by themselves after 24 hours (its timer ends the advantage; clear the temporary HP on the Hit points pad). The 1d10 necrotic against an undead is rolled from "Blackrazor: hit an undead" and taken by hand; the undead's healing is the DM's. When it casts Haste is its choice; three days without a soul is the DM's.
+- Moonblade: its runes are picked on the item (the DM decides or rolls); a +1 rune past +3 isn't stopped. A minor property, defender, spell storing and the elfshadow are notes (add a Ring of Spell Storing or a companion from the Shadow to track those). Its rejection and attunement rules are the DM's.
+- Sentient weapons speak in the lines the app gives them; their wishes, conflicts and alignment aren't tracked. Their dice look only shows with 3D dice.
+

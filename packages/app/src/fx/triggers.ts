@@ -1,3 +1,4 @@
+import { sentientOf } from "./sentient";
 import type { Character } from "@dnd/schema";
 import { CD_LOOKS, HERITAGE_LEVEL, HERITAGE_LOOKS } from "./divinity";
 import type { RollRecord } from "../rolls";
@@ -30,6 +31,8 @@ export type FxEvent =
   | { kind: "cast"; school?: string }
   /** Sneak Attack on a damage roll: the hit's total damage picks the tier (1–10 up to 101 and more). */
   | { kind: "sneak"; total?: number }
+  /** A sentient weapon's attack (Blackrazor, Whelm…): its look and its line, by outcome; "devour" for Blackrazor's soul. */
+  | { kind: "sentient"; weapon: string; outcome: "hit" | "crit" | "miss" | "devour" }
   /** A weapon's natural 20 (Sword of Sharpness, Vicious, Life Stealing, Mace of Smiting), or its second 20 ("sever": a limb). */
   | { kind: "twenty"; motif: "sharp" | "vicious" | "drain" | "smite" | "edge" | "sever" | "tide"; label: string }
   /** Destructive Wrath: the storm answers (its lightning and thunder dice at their maximum). */
@@ -141,6 +144,8 @@ export function opFx(type: string, payload: unknown, before: Character, after: C
   // Zone of Truth: cast by you, or its tag put on you (someone else's).
   if ((type === "castSpell" && p.spell === "spell:zone-of-truth") || (type === "addEffect" && p.effect === "other:zone-of-truth")) out.push({ kind: "truth" });
   if (type === "useAction" && p.action === "preserve-life") out.push({ kind: "preserve-life" });
+  // Blackrazor devours a soul.
+  if (type === "useAction" && p.action === "blackrazor-devour" && !p.free) out.push({ kind: "sentient", weapon: "item:blackrazor", outcome: "devour" });
   const season = after.choices?.["race:eladrin"]?.season?.[0];
   if (type === "useAction" && (p.action === "fey-step" || p.action === "fey-step-reaction"))
     out.push({ kind: "fey-step", ...(typeof season === "string" ? { season } : {}), ...(p.action === "fey-step-reaction" ? { reaction: true } : {}) });
@@ -260,6 +265,8 @@ export const isUnarmed = (attackId: string) => attackId.startsWith("martial-arts
 /** The player's call on an attack (Hit, Critical damage or Miss): an unarmed strike gets its impact or its air-slice. */
 export function strikeFx(attackId: string, outcome: "hit" | "crit" | "miss", options: string[] = []): FxEvent[] {
   const out: FxEvent[] = isUnarmed(attackId) ? [{ kind: "unarmed", result: outcome }] : [];
+  // A sentient weapon answers in its own way.
+  if (sentientOf(attackId)) out.push({ kind: "sentient", weapon: attackId, outcome });
   // Reckless Attack: an impact only when the attack is a hit (advantage isn't a hit, and it adds no damage).
   if (outcome !== "miss" && options.includes(RECKLESS)) out.push({ kind: "reckless", hit: true });
   return out;

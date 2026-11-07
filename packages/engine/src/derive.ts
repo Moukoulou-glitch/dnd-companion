@@ -16,6 +16,7 @@ import {
   type SpellcastingDef,
   type ValueExpr,
   type ChoiceDef,
+  type WeaponStats,
 } from "@dnd/schema";
 import { sum, signed, signedDice, type Breakdown, type DicePart, type Part, type RollBreakdown, type Suggestion } from "./breakdown.js";
 import { evalExpr, evalFlat, type ExprContext } from "./expr.js";
@@ -281,7 +282,9 @@ export interface ActionResult {
   extraAction?: boolean;
   /** Its own extra action once per turn (Haste), not your action. */
   limited?: boolean;
-  spendAmount?: { label: string; heals?: boolean };
+  spendAmount?: { label: string; heals?: boolean; tempHp?: boolean };
+  /** Its toggles last only while you have temporary hit points (Blackrazor's devoured soul). */
+  whileTempHp?: boolean;
   flexibleCasting?: "toSlot" | "toPoints";
   asAttack?: boolean;
   dash?: boolean;
@@ -1576,8 +1579,14 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
 
   for (const inst of c.inventory) {
     const { def, name: itemName } = itemAs(inst);
-    const w = def.weapon;
+    let w = def.weapon;
     if (!w) continue;
+    // Properties it gains (a moonblade's runes: finesse; thrown, 20/60 ft).
+    for (const a of modsFor(["item.weapon"], inst.id).filter((x) => x.mod.op === "addProperty" && typeof x.mod.value === "string")) {
+      const p = a.mod.value as WeaponStats["properties"][number];
+      if (w.properties.includes(p)) continue;
+      w = { ...w, properties: [...w.properties, p], ...(p === "thrown" && !w.range ? { range: [20, 60] as [number, number] } : {}) };
+    }
     const proficient = profs.weapon.has(w.category) || profs.weapon.has(w.group);
     if (!proficient) warnings.push(`${itemName}: not proficient, so no proficiency bonus on attacks.`);
     const o: Parameters<typeof buildAttacks>[1] = { attackId: def.id, name: itemName, proficient, itemInstanceId: inst.id, action: "attack" };
@@ -2257,6 +2266,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
         delete entry.cost;
       }
       if (a.spendAmount) entry.spendAmount = a.spendAmount;
+      if (a.whileTempHp) entry.whileTempHp = true;
       if (a.recoversSlots) {
         // Half the class level, or a fixed budget (Pearl of Power); an item can add to it (Arcane Grimoire: one level more on Arcane Recovery).
         const more = statAdds(`stat.recover.${a.id}`).reduce((n, p) => n + p.value, 0);

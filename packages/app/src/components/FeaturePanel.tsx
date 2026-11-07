@@ -305,7 +305,8 @@ export function FeaturePanel({
         <>
           <label className="entry">
             <span>
-              {a.spendAmount.label} ({a.cost?.remaining ?? 0} left)
+              {a.spendAmount.label}
+              {a.cost ? ` (${a.cost.remaining} left)` : ""}
             </span>
             <input inputMode="numeric" pattern="[0-9]*" value={points} onChange={(e) => setPoints(e.target.value.replace(/\D/g, "").slice(0, 3))} />
           </label>
@@ -321,7 +322,7 @@ export function FeaturePanel({
               </button>
             )}
             <button className="big" disabled={!Number(points)} onClick={() => useWith(undefined, false, undefined, undefined, { amount: Number(points), healSelf: false })}>
-              {a.spendAmount.heals ? "Someone else" : `Spend ${points || ""}`}
+              {a.spendAmount.heals ? "Someone else" : a.spendAmount.tempHp ? `Gain ${points || ""} temporary HP` : `Spend ${points || ""}`}
             </button>
           </div>
           )}

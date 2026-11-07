@@ -350,6 +350,15 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
     }
   };
 
+  /** Your temporary HP ran out: what lasted only while you had them switches off (Blackrazor's devoured soul). */
+  const tempHpGone = () => {
+    if (c.hp.temp > 0) return;
+    for (const a of sheet.actions.filter((x) => x.whileTempHp && x.toggles.some((t) => c.toggles.includes(t)))) {
+      c.toggles = c.toggles.filter((t) => !a.toggles.includes(t));
+      notes.push(`${a.name}: its temporary hit points are gone, and what they gave with them.`);
+    }
+  };
+
   /** The Master's Amulet, worn: a shield guardian made from it is bound to you. */
   const wearsMastersAmulet = () => c.inventory.some((i) => i.item === "item:masters-amulet" && i.equipped);
   /** Your companion made from the Shield Guardian (Companion Builder), if any. */
@@ -460,6 +469,7 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       c.hp.temp -= absorbed;
       const rest = dmg - absorbed;
       if (absorbed > 0) notes.push(`Temporary HP absorbed ${absorbed}.`);
+      if (absorbed > 0) tempHpGone();
       damageReminders(tempBefore);
 
       if (wasAtZero && rest > 0) {
@@ -591,7 +601,10 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         break;
       }
       const { amount } = op.payload;
-      if (amount === 0) c.hp.temp = 0;
+      if (amount === 0) {
+        c.hp.temp = 0;
+        tempHpGone();
+      }
       else if (amount > c.hp.temp) c.hp.temp = amount;
       else notes.push(`Temporary HP don't stack: keeping ${c.hp.temp}, the higher value.`);
       break;
@@ -1380,6 +1393,13 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         c.hp.current = Math.min(maxHp, before + op.payload.amount);
         if (before === 0 && c.hp.current > 0) c.deathSaves = { successes: 0, failures: 0 };
         notes.push(`Healed ${c.hp.current - before}.`);
+      }
+      // A number of temporary hit points you say (Blackrazor: the devoured creature's hit point maximum).
+      if (a.spendAmount?.tempHp && op.payload.amount) {
+        if (op.payload.amount > c.hp.temp) {
+          c.hp.temp = op.payload.amount;
+          notes.push(`${op.payload.amount} temporary HP.`);
+        } else notes.push(`Temporary HP don't stack: keeping ${c.hp.temp}, the higher value.`);
       }
       if (a.toggles.length) c.toggles = [...new Set([...c.toggles, ...a.toggles])];
       // Starry Form's constellation: the pick's switch on, the others off.

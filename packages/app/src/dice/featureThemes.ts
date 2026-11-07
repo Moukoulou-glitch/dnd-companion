@@ -1,5 +1,6 @@
 import type { ContentRegistry } from "@dnd/engine";
 import { registerDiceTheme, type DiceTheme } from "./themes";
+import { SENTIENT_WEAPONS, sentientDiceKey } from "../fx/sentient";
 
 /**
  * Feature themes: a few presets (a feature's identity, not one look per
@@ -65,6 +66,8 @@ export function registerFeatureThemes(): void {
   if (registered) return;
   registered = true;
   for (const [key, p] of FEATURE_ASSIGNMENTS) registerDiceTheme(key, FEATURE_PRESETS[p]!);
+  // Sentient weapons: their own dice (Whelm, Wave, Blackrazor, Moonblade…).
+  for (const [id, w] of Object.entries(SENTIENT_WEAPONS)) registerDiceTheme(sentientDiceKey(id), { id: `content-weapon-${id.replace(/^item:/, "")}`, label: w.name, ...w.dice });
 }
 
 /** A content `diceTheme`: a preset's name, or a look of its own (built on a preset or the classic dice). */
