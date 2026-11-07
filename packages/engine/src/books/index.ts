@@ -518,7 +518,10 @@ export function bookPack(files: BookFile[], base: ContentRegistry): { pack: Cont
   // Items: existing ones get their text; the rest are added, with weapon and armor stats when the text gives them.
   if (itemTexts.length) {
     const known = new Map(base.list("item").map((d) => [slug(d.name), d as ItemDef]));
-    for (const item of parseItems(itemTexts, BOOK_PACK_ID, known, excluded)) {
+    // The spells the app knows (and the books just added), by name: an item's text can cast them.
+    const spellIds = new Map<string, string>();
+    for (const d of [...base.list("spell"), ...[...out.values()].filter((x) => x.kind === "spell")]) spellIds.set(d.name.toLowerCase(), d.id);
+    for (const item of parseItems(itemTexts, BOOK_PACK_ID, known, excluded, spellIds)) {
       const existing = base.find(item.id, "item") ?? (known.get(slug(item.name)) as ItemDef | undefined);
       if (existing) {
         if (item.text) attach(existing, item.text);

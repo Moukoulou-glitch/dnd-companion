@@ -3267,7 +3267,32 @@
       "magic": {
         "rarity": "very rare"
       },
-      "requiresAttunement": true
+      "requiresAttunement": true,
+      "grant": {
+        "resources": [
+          {
+            "id": "ioun-stone-absorption",
+            "name": "Ioun Stone of Absorption: spell levels",
+            "max": 20,
+            "reset": "manual"
+          }
+        ],
+        "actions": [
+          {
+            "id": "ioun-stone-absorption",
+            "name": "Ioun Stone of Absorption: absorb a spell",
+            "economy": "reaction",
+            "cost": {
+              "resource": "ioun-stone-absorption",
+              "amount": 1
+            },
+            "spendAmount": {
+              "label": "The spell's level"
+            },
+            "note": "While it orbits your head: a spell of 5th level or lower cast by a creature you can see and targeting only you is cancelled; its level comes off the stone's 20. When none are left, the stone burns out and turns dull gray."
+          }
+        ]
+      }
     },
     {
       "kind": "item",
@@ -3282,7 +3307,32 @@
       "magic": {
         "rarity": "legendary"
       },
-      "requiresAttunement": true
+      "requiresAttunement": true,
+      "grant": {
+        "resources": [
+          {
+            "id": "ioun-stone-greater-absorption",
+            "name": "Ioun Stone of Greater Absorption: spell levels",
+            "max": 50,
+            "reset": "manual"
+          }
+        ],
+        "actions": [
+          {
+            "id": "ioun-stone-greater-absorption",
+            "name": "Ioun Stone of Greater Absorption: absorb a spell",
+            "economy": "reaction",
+            "cost": {
+              "resource": "ioun-stone-greater-absorption",
+              "amount": 1
+            },
+            "spendAmount": {
+              "label": "The spell's level"
+            },
+            "note": "While it orbits your head: a spell of 8th level or lower cast by a creature you can see and targeting only you is cancelled; its level comes off the stone's 50. When none are left, the stone burns out and turns dull gray."
+          }
+        ]
+      }
     },
     {
       "kind": "item",
@@ -3297,7 +3347,18 @@
       "magic": {
         "rarity": "rare"
       },
-      "requiresAttunement": true
+      "requiresAttunement": true,
+      "grant": {
+        "actions": [
+          {
+            "id": "ioun-stone-sustenance",
+            "name": "Ioun Stone of Sustenance",
+            "economy": "free",
+            "infoOnly": true,
+            "note": "While it orbits your head, you don't need to eat or drink."
+          }
+        ]
+      }
     },
     {
       "kind": "item",

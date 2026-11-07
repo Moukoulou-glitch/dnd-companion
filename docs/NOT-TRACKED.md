@@ -503,3 +503,6 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 - Feathertide's three extra attacks deal damage as if every die rolled 1: rolled as attacks, damage worked out by you. Staff of the Tinker's Clockwork is "type 10 with My dice"; Reality Check is a reaction spending 4 charges; Identify from it takes an action.
 - Pearl of Regeneration's hourly 15 hit points: "Pearl of Regeneration: an hour" in Actions; Elpidora's line isn't tracked. Attunement limits (3) warn as usual.
 
+## Round 20a
+- Book items: only what their text states plainly is applied (see HANDOFF 20a); unusual wording stays text. A spell from an item with no stated limit is at will; a gem-powered spell (Helm of Brilliance) isn't counted.
+

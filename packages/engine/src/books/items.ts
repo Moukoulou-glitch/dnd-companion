@@ -103,7 +103,7 @@ function category(type: string): ItemDef["category"] {
  * item when it's in the same files. Third-party material is left out, and so
  * is any variant of a base item that isn't an official one.
  */
-export function parseItems(texts: string[], pack: string, known: Map<string, ItemDef> = new Map(), excluded: string[] = []): ItemDef[] {
+export function parseItems(texts: string[], pack: string, known: Map<string, ItemDef> = new Map(), excluded: string[] = [], spellIds: Map<string, string> = new Map()): ItemDef[] {
   const every = texts.flatMap(rawItems);
   // A generic variant ("Frost Brand", "Sword of Sharpness") lists the items made from it: "- *Greatsword* (*Frost Brand Greatsword*)".
   // Each of those works like the app's own item of that name, when there is one.
@@ -156,6 +156,19 @@ export function parseItems(texts: string[], pack: string, known: Map<string, Ite
     }
     const mods = [...bonusModifiers(all, r.name), ...(def.weapon ? weaponModifiers(r.text, r.name) : [])];
     if (mods.length) def.grant = { modifiers: mods };
+    // What else its text gives that the app can track (charges, spells, resistances, speeds, darkvision, scores, advantage).
+    const more = textMechanics(r.text, r.name, spellIds, def.id);
+    if (more.charges) def.charges = more.charges;
+    if (more.modifiers.length || more.spells.length || more.resources.length || more.abilityBonuses) {
+      const g: NonNullable<ItemDef["grant"]> = def.grant ?? {};
+      const have = new Set((g.modifiers ?? []).map((m) => `${m.selector}|${m.op}`));
+      const add = more.modifiers.filter((m) => !have.has(`${m.selector}|${m.op}`));
+      if (add.length) g.modifiers = [...(g.modifiers ?? []), ...add];
+      if (more.spells.length) g.spells = more.spells;
+      if (more.resources.length) g.resources = more.resources;
+      if (more.abilityBonuses) g.abilityBonuses = more.abilityBonuses;
+      def.grant = g;
+    }
     // Made from a generic variant the app has (Frost Brand Greatsword, Vorpal Longsword): it works like that one.
     const generic = variantOf.get(slug(r.name));
     const same = generic ? appItem(generic) : undefined;
@@ -247,4 +260,158 @@ export function weaponModifiers(paras: string[], label: string): Mod[] {
 function eval0(frac: string): number {
   const [a, b] = frac.split("/").map(Number);
   return a! / b!;
+}
+
+type Spell = NonNullable<NonNullable<ItemDef["grant"]>["spells"]>[number];
+type Res = NonNullable<NonNullable<ItemDef["grant"]>["resources"]>[number];
+const ABILITY_OF: Record<string, string> = { strength: "str", dexterity: "dex", constitution: "con", intelligence: "int", wisdom: "wis", charisma: "cha" };
+const SKILL_OF: Record<string, string> = {
+  acrobatics: "acrobatics", "animal handling": "animalHandling", arcana: "arcana", athletics: "athletics", deception: "deception", history: "history", insight: "insight", intimidation: "intimidation",
+  investigation: "investigation", medicine: "medicine", nature: "nature", perception: "perception", performance: "performance", persuasion: "persuasion", religion: "religion",
+  "sleight of hand": "sleightOfHand", stealth: "stealth", survival: "survival",
+};
+
+/**
+ * The mechanics an item's text states plainly, for book items (its text stays on the device):
+ * - charges: "has 3 charges, and it regains 1d3 expended charges daily at dawn";
+ * - spells cast from it, by the app's spell names: at will, with charges ("expend 1 charge to cast", "fireball (3 charges)"),
+ *   or once until the next dawn; its save DC when it gives one;
+ * - while worn or held: resistance or immunity to a damage type, a flying, swimming or climbing speed, darkvision,
+ *   "your Constitution score increases by 2, to a maximum of 20", "your Strength score is 19";
+ * - advantage on a check or save: a tick-box with the text's condition (always on when it has none).
+ * An activated effect (for 1 minute, until your next turn, as a reaction) isn't read as always on.
+ */
+export function textMechanics(paras: string[], label: string, spellIds: Map<string, string>, itemId: string): { modifiers: Mod[]; spells: Spell[]; resources: Res[]; charges?: NonNullable<ItemDef["charges"]>; abilityBonuses?: Record<string, number> } {
+  const modifiers: Mod[] = [];
+  const spells: Spell[] = [];
+  const resources: Res[] = [];
+  const text = paras.join(" ");
+  const sentences = text.split(/(?<=[.!?])\s+(?=[A-Z•*])|\s*•\s*/).map((x) => x.trim()).filter(Boolean);
+  // A thing you do for a while, or only in some way: not always on.
+  const activated = (t: string) => /\b(for \d+ (minute|hour|round)s?|until (the start|the end|you|it)|as an action|bonus action|reaction|when you|if you|whenever|expend|command word|can use|while (?:you are )?in (?:the )?form)/i.test(t);
+  let charges: { max: number; regain?: string } | undefined;
+  const ch = /\b(?:has|have|starts with) (\d+) charges/i.exec(text) ?? /\bexpend \d+ of its (\d+) charges/i.exec(text);
+  if (ch) {
+    charges = { max: Number(ch[1]) };
+    const back = /regains? (all|\d+d\d+(?:\s*\+\s*\d+)?|\d+) (?:of its )?(?:expended )?charges (?:daily )?at dawn/i.exec(text);
+    if (back) charges.regain = back[1]!.replace(/\s+/g, "");
+  }
+  // Spells by name: in a sentence that casts with it (not "as if you had cast", "a spell", "try to cast").
+  const names = [...spellIds.keys()].sort((a, b) => b.length - a.length);
+  const seen = new Set<string>();
+  sentences.forEach((sen, si) => {
+    // Once until the next dawn: said in this sentence or the next one. "That spell": each spell once; otherwise one use for all.
+    const limit = `${sen} ${sentences[si + 1] ?? ""}`;
+    // Or said once for the item: "you can't use it to cast that spell again until the next dawn" (Instrument of the Bards).
+    const eachAll = /cast (?:that|the same) spell (?:from it )?again until the next dawn/i.test(text);
+    const dawn = eachAll || /until the next dawn|once per day|once each day|regains? (?:this|the) (?:ability|use|property) (?:daily )?at dawn/i.test(limit);
+    const each = eachAll || (dawn && /that spell|each spell|that same spell/i.test(limit));
+    if (!/\bcast\b/i.test(sen) || /as if (?:you had|it had) cast|if you cast|try to cast|cast a spell|spells? cast (?:from|with)|when it was cast|you cast the spell|attack or cast/i.test(sen)) return;
+    const lower = sen.toLowerCase().replace(/[*_]/g, "");
+    // Only names after "cast" ("in dim light or darkness, you can cast dancing lights": not darkness).
+    const castAt = lower.search(/\bcast\b/);
+    // Longer names first; a name found is blanked out, so a shorter one inside it isn't found too ("fireball" in "delayed blast fireball").
+    let hay = lower.replace(/-/g, " ");
+    for (const n of names) {
+      // Hyphens as spaces on both sides ("Mordenkainen's faithful hound", "half-orc"), whole words only.
+      const re = new RegExp(`(?<![a-z'])${n.replace(/-/g, " ").replace(/[/\\^$*+?.()|[\]{}]/g, "\\$&")}(?![a-z'])`, "gi");
+      re.lastIndex = Math.max(0, castAt);
+      const m = re.exec(hay);
+      if (!m) continue;
+      hay = hay.slice(0, m.index) + " ".repeat(m[0].length) + hay.slice(m.index + m[0].length);
+      const id = spellIds.get(n)!;
+      if (seen.has(id)) continue;
+      seen.add(id);
+      const near = lower.slice(m.index, m.index + n.length + 40);
+      const sp: Spell = { spell: id, name: n.replace(/\b\w/g, (c) => c.toUpperCase()), casting: `from ${label}` };
+      const dc = /save dc (\d+)/.exec(lower);
+      if (dc) sp.dc = Number(dc[1]);
+      const lvl = /(\d)(?:st|nd|rd|th)[- ]level/.exec(near);
+      if (lvl) sp.castAt = Number(lvl[1]);
+      const cost = /\((\d+) charges?\b/.exec(near) ?? /expend (\d+) (?:of its \d+ )?(?:of its )?charges?/.exec(lower);
+      if (charges && cost) {
+        sp.charges = { cost: Number(cost[1]) };
+        // "1 charge per spell level, up to 4th" (Staff of Healing's cure wounds).
+        const per = /per spell level(?:, up to (\d))?/.exec(near);
+        if (per) {
+          sp.charges.perLevel = true;
+          if (per[1]) sp.charges.maxLevel = Number(per[1]);
+        }
+        sp.casting = `from ${label}: ${cost[1]} charge${cost[1] === "1" ? "" : "s"}${per ? " a level" : ""}`;
+      } else if (/at will/.test(lower)) {
+        sp.atWill = true;
+        sp.casting = `at will, from ${label}`;
+      } else if (dawn) {
+        const rid = `${itemId.replace(/^item:/, "")}-${each ? id.replace(/^spell:/, "") : "spell"}`;
+        if (!resources.some((r) => r.id === rid)) resources.push({ id: rid, name: each ? `${label}: ${sp.name}` : `${label}: its spell`, max: 1, reset: "dawn" } as Res);
+        sp.resource = rid;
+        sp.casting = `from ${label}, once until the next dawn`;
+      } else {
+        sp.atWill = true;
+        sp.casting = `from ${label}`;
+      }
+      spells.push(sp);
+    }
+  });
+  // Always on while you wear or hold it.
+  for (const sen of sentences) {
+    if (activated(sen)) continue;
+    for (const m of sen.matchAll(/(resistance|immunity) (?:to|against) ((?:\w+(?:, | or | and |, and |, or ))*\w+) damage/gi)) {
+      for (const t of m[2]!.toLowerCase().split(/, and |, or |, | and | or /)) {
+        if (!DAMAGE_TYPES.includes(t)) continue;
+        modifiers.push({ selector: `defense.${m[1]!.toLowerCase() === "immunity" ? "immune" : "resist"}.${t}`, op: m[1]!.toLowerCase() === "immunity" ? "immune" : "resist", label } as Mod);
+      }
+    }
+    for (const m of sen.matchAll(/you (?:are|become) immune to (\w+) damage/gi)) {
+      const t = m[1]!.toLowerCase();
+      if (DAMAGE_TYPES.includes(t)) modifiers.push({ selector: `defense.immune.${t}`, op: "immune", label } as Mod);
+    }
+    if (/\byou\b/i.test(sen)) {
+      for (const m of sen.matchAll(/(flying|swimming|climbing) speed (?:equal to your walking speed|of (\d+) feet)/gi)) {
+        const kind = { flying: "fly", swimming: "swim", climbing: "climb" }[m[1]!.toLowerCase() as "flying"];
+        modifiers.push({ selector: `stat.speed.${kind}`, op: "grantSpeed", value: m[2] ? Number(m[2]) : "walk", label } as Mod);
+      }
+      const dv = /you (?:have|gain) darkvision (?:out )?to a range of (\d+) feet/i.exec(sen);
+      if (dv) modifiers.push({ selector: "sense.darkvision", op: "grantSense", value: Number(dv[1]), label } as Mod);
+    }
+  }
+  // Ability scores while worn: "increases by 2, to a maximum of 20"; "your Strength score is 19" (no effect if it's already higher).
+  let abilityBonuses: Record<string, number> | undefined;
+  for (const sen of sentences) {
+    const inc = /your (strength|dexterity|constitution|intelligence|wisdom|charisma) score increases by (\d), to a maximum of 20/i.exec(sen);
+    if (inc && !/studying|practicing|consume|drink/i.test(text)) (abilityBonuses ??= {})[ABILITY_OF[inc[1]!.toLowerCase()]!] = Number(inc[2]);
+    const set = /your (strength|dexterity|constitution|intelligence|wisdom|charisma) score (?:is|becomes|changes to) (\d+)/i.exec(sen);
+    if (set && !activated(sen)) modifiers.push({ selector: `stat.ability.${ABILITY_OF[set[1]!.toLowerCase()]}`, op: "setMin", value: Number(set[2]), label } as Mod);
+  }
+  // Advantage: on a skill check, an ability's checks or saves, saves against something, initiative.
+  for (const sen of sentences) {
+    if (/\breaction|until|for \d+ (minute|hour|round)|as an action|bonus action/i.test(sen)) continue;
+    // Each "you have advantage on …" in it; "on Wisdom (Perception) checks and on rolls for initiative": each part.
+    const found = [...sen.matchAll(/you (?:have|gain) advantage on ((?:(?!,? and you\b)[^.;])+)/gi)].flatMap((m) => m[1]!.split(/,? and on /i));
+    for (const part of found) {
+    const what = part.trim().replace(/[.]$/, "").replace(/,? and you\b.*$/i, "").replace(/^rolls for initiative/i, "initiative rolls");
+    const qual = (rest: string) => rest.replace(/^\s*(checks?|saving throws?|rolls?)\b/i, "").trim();
+    let selector: string | undefined;
+    let rest = "";
+    const skill = /^(?:strength|dexterity|constitution|intelligence|wisdom|charisma) \(([a-z ]+)\) checks?(.*)$/i.exec(what);
+    const abil = /^(strength|dexterity|constitution|intelligence|wisdom|charisma) (checks?|saving throws?)(.*)$/i.exec(what);
+    if (skill && SKILL_OF[skill[1]!.toLowerCase()]) {
+      selector = `roll.check.skill.${SKILL_OF[skill[1]!.toLowerCase()]}`;
+      rest = skill[2]!;
+    } else if (abil) {
+      selector = `roll.${/sav/i.test(abil[2]!) ? "save" : "check"}.${ABILITY_OF[abil[1]!.toLowerCase()]}`;
+      rest = abil[3]!;
+    } else if (/^initiative rolls?(.*)$/i.test(what)) {
+      selector = "roll.initiative";
+      rest = /^initiative rolls?(.*)$/i.exec(what)![1]!;
+    } else if (/^saving throws? (.+)$/i.test(what)) {
+      selector = "roll.save.*";
+      rest = /^saving throws? (.+)$/i.exec(what)![1]!;
+    }
+    if (!selector) continue;
+    const cond = qual(rest).replace(/^[,\s]+/, "");
+    modifiers.push({ selector, op: "advantage", label, ...(cond ? { mode: "suggested", when: { text: cond } } : {}) } as Mod);
+    }
+  }
+  return { modifiers, spells, resources, ...(charges ? { charges } : {}), ...(abilityBonuses ? { abilityBonuses } : {}) };
 }
