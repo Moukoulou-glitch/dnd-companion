@@ -36,6 +36,11 @@ export const OPERATION_PAYLOADS = {
       grave: z.object({ saved: z.boolean(), total: z.number().int().optional(), crit: z.boolean().optional() }).strict().optional(),
       /** Relentless Rage, asked before it's recorded: the Constitution save's result. */
       rage: z.object({ saved: z.boolean(), total: z.number().int().optional() }).strict().optional(),
+      /**
+       * Bound (a shield guardian): true when your guardian is within 60 ft and you wear its Master's Amulet;
+       * half the damage you take (rounded up) goes to it. Absent: nothing moves (older logs replay unchanged).
+       */
+      bound: z.boolean().optional(),
     })
     .strict(),
   /** Healing, capped at maximum HP. Healing from 0 HP clears death saves. */
@@ -483,6 +488,8 @@ export const OPERATION_PAYLOADS = {
   /** Off the list. `keepPrepared`: a wizard's spell leaves the spellbook but stays prepared today. */
   forgetSpell: z.object({ spell: z.string(), list: z.string(), keepPrepared: z.boolean().optional() }).strict(),
   /** A companion takes one of the actions anyone can take; Dodge and Ready show as tags until your next turn starts. */
+  /** Your shield guardian's Shield reaction: +2 AC to you, the amulet's wearer, against one attack. */
+  guardianShield: z.object({ companion: z.string() }).strict(),
   companionAction: z.object({ companion: z.string(), action: z.string(), choice: z.string().optional() }).strict(),
   /** Takes a companion's tag away (the readied action was used, or it ended early). */
   endCompanionState: z.object({ companion: z.string(), id: z.string() }).strict(),
@@ -595,6 +602,7 @@ export const Operation = z.discriminatedUnion("type", [
   OperationBase.extend({ type: z.literal("learnSpell"), payload: OPERATION_PAYLOADS.learnSpell }),
   OperationBase.extend({ type: z.literal("forgetSpell"), payload: OPERATION_PAYLOADS.forgetSpell }),
   OperationBase.extend({ type: z.literal("companionAction"), payload: OPERATION_PAYLOADS.companionAction }),
+  OperationBase.extend({ type: z.literal("guardianShield"), payload: OPERATION_PAYLOADS.guardianShield }),
   OperationBase.extend({ type: z.literal("endCompanionState"), payload: OPERATION_PAYLOADS.endCompanionState }),
   OperationBase.extend({ type: z.literal("dismissCompanion"), payload: OPERATION_PAYLOADS.dismissCompanion }),
   OperationBase.extend({ type: z.literal("companionEffect"), payload: OPERATION_PAYLOADS.companionEffect }),

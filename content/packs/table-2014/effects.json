@@ -642,6 +642,28 @@
     },
     {
       "kind": "effect",
+      "id": "effect:guardian-shield",
+      "name": "Guardian's Shield",
+      "category": "other",
+      "summary": "+2 AC against one attack: your shield guardian's reaction, from beside you.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "modifiers": [
+        {
+          "selector": "stat.ac",
+          "op": "add",
+          "value": 2
+        }
+      ],
+      "reminders": [
+        "Only against the attack it was used for: remove it once that attack is resolved."
+      ],
+      "selfOnly": true
+    },
+    {
+      "kind": "effect",
       "id": "effect:shield",
       "name": "Shield",
       "category": "spell",

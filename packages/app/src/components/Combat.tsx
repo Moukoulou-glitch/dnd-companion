@@ -538,9 +538,45 @@ export interface SpellStoring {
   stored?: { name: string; level: number; dc?: number; attack?: number };
   onOpenAmulet?: () => void;
   onCast?: () => void;
+  /** Its Shield reaction: +2 AC to you against one attack. */
+  onShield?: () => void;
+  /** Its Shield is on you now. */
+  shieldOn?: boolean;
+  /** Its reaction is used this round. */
+  reactionUsed?: boolean;
 }
 
-function SpellStoringBox({ wearing, stored, onOpenAmulet, onCast }: SpellStoring) {
+/** A shield guardian bound to you: its Shield reaction and Bound, then Spell Storing. */
+function SpellStoringBox({ wearing, stored, onOpenAmulet, onCast, onShield, shieldOn, reactionUsed }: SpellStoring) {
+  return (
+    <>
+      <section className="guardian-bond">
+        <h2 className="sub-head">Bound to you</h2>
+        {!wearing ? (
+          <p className="note">While you wear its Master's Amulet, it shields you with its reaction and takes half the damage you take.</p>
+        ) : (
+          <>
+            <p className="note">
+              <b>Shield.</b> When a creature attacks you and it's within 5 ft of you, its reaction gives you +2 AC against that attack.
+            </p>
+            {onShield && (
+              <button className="big wide" onClick={onShield} disabled={shieldOn}>
+                {shieldOn ? "Its Shield is on you" : "Shield me"}
+                <span className="sub">{shieldOn ? "+2 AC until the attack is resolved" : reactionUsed ? "its reaction is already used this round" : "its reaction · +2 AC against this attack"}</span>
+              </button>
+            )}
+            <p className="note">
+              <b>Bound.</b> Within 60 ft of you, half the damage you take (rounded up) goes to it. Hit points → Damage asks whether it's within 60 ft.
+            </p>
+          </>
+        )}
+      </section>
+      <SpellStoringSection wearing={wearing} {...(stored ? { stored } : {})} {...(onOpenAmulet ? { onOpenAmulet } : {})} {...(onCast ? { onCast } : {})} />
+    </>
+  );
+}
+
+function SpellStoringSection({ wearing, stored, onOpenAmulet, onCast }: Pick<SpellStoring, "wearing" | "stored" | "onOpenAmulet" | "onCast">) {
   return (
     <section className="spell-storing">
       <h2 className="sub-head">Spell Storing</h2>

@@ -351,21 +351,32 @@ export function App() {
   // A glimpse after a natural 20 (below level 10): it fades in and out, and plays again on the next one.
   const crestKey = crest && glimpse ? `glimpse-${glimpse}` : "crest";
 
+  /** Your shield guardian, bound to you while you wear its Master's Amulet (and it's here, with hit points). */
+  const boundGuardian = () => {
+    const ch = live.current.character;
+    const g = live.current.sheet?.companions.find((x) => x.custom?.from === "creature:shield-guardian" && x.form);
+    if (!ch || !g || !ch.inventory.some((i) => i.item === "item:masters-amulet" && i.equipped)) return undefined;
+    const st = ch.companions[g.id];
+    if (st?.away || st?.hp?.current === 0) return undefined;
+    return g;
+  };
   const openHp = () =>
     open("Hit points", () => (
       <HpPad
         sourceToggles={!!live.current.sheet?.rules.heavyArmorMaster}
         spellToggle={!!live.current.sheet?.defenses.resist.includes("spells")}
+        {...(boundGuardian() ? { boundTo: boundGuardian()!.name } : {})}
         onDamage={(amount, type, src) => {
           const magical = !!src?.magical;
           const fromSpell = !!src?.spell;
+          const bound = !!src?.bound;
           // Durable: offer a Hit Die to soak the damage first (a reaction, before resistances).
           const sh = live.current.sheet;
           const ch = live.current.character;
           const diceLeft = sh?.hitDice.filter((h) => h.total - h.used > 0) ?? [];
           const reactionFree = !ch?.combat || (ch.combat.reaction ?? 0) < 1;
-          if (sh?.rules.durable && diceLeft.length && reactionFree && amount > 0) return openDurable(amount, type, magical, fromSpell);
-          takeDamage(amount, type, magical, fromSpell);
+          if (sh?.rules.durable && diceLeft.length && reactionFree && amount > 0) return openDurable(amount, type, magical, fromSpell, bound);
+          takeDamage(amount, type, magical, fromSpell, bound);
         }}
         onHeal={(amount) => {
           s.act("heal", { amount }, `Healed ${amount}.`);
@@ -552,8 +563,8 @@ export function App() {
     ));
 
   /** Damage to the character, then what it leads to: a concentration save, or instant death. */
-  const takeDamage = (amount: number, type?: string, magical?: boolean, fromSpell?: boolean) => {
-    const payload = { amount, ...(type ? { damageType: type } : {}), ...(magical ? { magical: true as const } : {}), ...(fromSpell ? { fromSpell: true as const } : {}) };
+  const takeDamage = (amount: number, type?: string, magical?: boolean, fromSpell?: boolean, bound?: boolean) => {
+    const payload = { amount, ...(type ? { damageType: type } : {}), ...(magical ? { magical: true as const } : {}), ...(fromSpell ? { fromSpell: true as const } : {}), ...(bound ? { bound: true as const } : {}) };
     withZeroHp(payload, (extra) => {
       const prompts = live.current.act("damage", { ...payload, ...extra }, `Took ${amount}${type ? ` ${type}` : ""} damage${fromSpell ? " from a spell" : ""}.`) as { kind: string; dc: number; reason?: string }[];
       const dead = prompts.find((p) => p.kind === "dead");
@@ -576,19 +587,19 @@ export function App() {
       </>
     ));
   /** Durable (remastered): spend a Hit Die as a reaction to reduce damage by the die + Constitution (at least 3). */
-  const openDurable = (amount: number, type?: string, magical?: boolean, fromSpell?: boolean) =>
+  const openDurable = (amount: number, type?: string, magical?: boolean, fromSpell?: boolean, bound?: boolean) =>
     open("Durable: spend a Hit Die?", () => (
       <DurablePanel
         amount={amount}
         con={live.current.sheet?.abilities.con.modifier ?? 0}
         dice={(live.current.sheet?.hitDice ?? []).filter((h) => h.total - h.used > 0).map((h) => ({ die: h.die, left: h.total - h.used }))}
         physical={live.current.character?.settings.physicalDice ?? true}
-        onSkip={() => takeDamage(amount, type, magical, fromSpell)}
+        onSkip={() => takeDamage(amount, type, magical, fromSpell, bound)}
         onSpend={(die, roll, reduce) => {
           const left = Math.max(0, amount - reduce);
           live.current.act("spendHitDie", { die, roll, reduce: true }, `Durable: ${die} rolled ${roll}, ${reduce} less damage, ${left} left.`);
           if (live.current.character?.combat) live.current.act("useEconomy", { kind: "reaction" }, "Reaction used.");
-          if (left > 0) takeDamage(left, type, magical, fromSpell);
+          if (left > 0) takeDamage(left, type, magical, fromSpell, bound);
           else close();
         }}
       />
@@ -2232,6 +2243,9 @@ export function App() {
                     ...(st ? { stored: { name: sp?.name ?? registry.find(st.spell, "spell")?.name ?? st.spell, level: st.level, ...(st.dc !== undefined ? { dc: st.dc } : {}), ...(st.attack !== undefined ? { attack: st.attack } : {}) } } : {}),
                     ...(amulet ? { onOpenAmulet: () => openItem(amulet.id) } : {}),
                     ...(sp ? { onCast: () => openSpell(sp) } : {}),
+                    onShield: () => live.current.act("guardianShield", { companion: id }, `${comp.name} shields you.`),
+                    shieldOn: live.current.character!.effects.some((e) => e.effect === "effect:guardian-shield"),
+                    reactionUsed: !!comp.used.reaction,
                   };
                 })(),
               }

@@ -13,9 +13,12 @@ export function HpPad({
   temp = 0,
   sourceToggles = false,
   spellToggle = false,
+  boundTo,
   below,
 }: {
-  onDamage: (amount: number, type?: string, src?: { magical?: boolean; silvered?: boolean; adamantine?: boolean; spell?: boolean }) => void;
+  onDamage: (amount: number, type?: string, src?: { magical?: boolean; silvered?: boolean; adamantine?: boolean; spell?: boolean; bound?: boolean }) => void;
+  /** Your shield guardian's name, when it's bound to you (you wear its amulet): ask whether it's within 60 ft. */
+  boundTo?: string;
   /** Ask whether the damage came from a spell (resistance to damage from spells: Aura of Warding). */
   spellToggle?: boolean;
   /** Ask whether bludgeoning, piercing or slashing came from a magical (silvered, adamantine) attack. */
@@ -31,6 +34,8 @@ export function HpPad({
   const [type, setType] = useState<string | undefined>();
   const [src, setSrc] = useState<{ magical?: boolean; silvered?: boolean; adamantine?: boolean }>({});
   const [spell, setSpell] = useState(false);
+  // It follows you: within 60 ft unless you say otherwise.
+  const [bound, setBound] = useState(true);
   const physical = type === "slashing" || type === "piercing" || type === "bludgeoning";
   const amount = Number(value || 0);
   const press = (d: string) => setValue((v) => (v.length >= 3 ? v : (v + d).replace(/^0+/, "")));
@@ -63,6 +68,13 @@ export function HpPad({
           </button>
         </div>
       )}
+      {boundTo && (
+        <div className="types" role="group" aria-label="Bound">
+          <button className="switch" aria-pressed={bound} onClick={() => setBound(!bound)}>
+            {boundTo} within 60 ft: half goes to it
+          </button>
+        </div>
+      )}
       <div className="keys">
         {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((d) => (
           <button key={d} className="key" onClick={() => press(d)}>
@@ -80,7 +92,7 @@ export function HpPad({
         </button>
       </div>
       <div className="pad-actions">
-        <button className="big damage" disabled={!amount} onClick={() => onDamage(amount, type, { ...(physical ? src : {}), ...(spell ? { spell: true } : {}) })}>
+        <button className="big damage" disabled={!amount} onClick={() => onDamage(amount, type, { ...(physical ? src : {}), ...(spell ? { spell: true } : {}), ...(boundTo ? { bound } : {}) })}>
           Damage
         </button>
         <button className="big heal" disabled={!amount} onClick={() => onHeal(amount)}>

@@ -326,30 +326,41 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
   };
   const hasFeature = (id: string) => sheet.features.some((f) => f.id === id);
 
+  /** Damage to a companion: its defenses (when typed), its temporary HP, then its hit points. */
+  const hurtCompanion = (id: string, dealt: number, damageType: string | undefined, magical: boolean) => {
+    const t = companionTarget(id);
+    if (!t) return;
+    let amount = dealt;
+    // What it resists or is immune to: its own (a drake's essence, an Imp's poison) and from effects on it (Protection from Energy).
+    const dfs = t.comp.form?.defenses;
+    if (damageType && dfs) {
+      const after = damageAfterDefenses(amount, damageType, dfs, { ...(magical ? { magical: true } : {}) });
+      for (const n of after.notes) notes.push(`${t.comp.name}: ${n}`);
+      amount = after.amount;
+    }
+    const absorbed = Math.min(t.state.hp.temp, amount);
+    t.state.hp.temp -= absorbed;
+    t.state.hp.current = Math.max(0, t.state.hp.current - (amount - absorbed));
+    notes.push(`${t.comp.name}: ${t.state.hp.current} of ${t.max} HP.`);
+    if (t.state.hp.current === 0) {
+      notes.push(`${t.comp.name} drops to 0 HP and dies.${t.comp.reviveNote ? ` ${t.comp.reviveNote}` : ""}`);
+      t.state.states = [];
+      // One a timed action brought out (Hound of Ill Omen) is gone, and its timer with it.
+      removeEffects(c.effects.filter((e) => e.companion === id));
+    }
+  };
+
+  /** The Master's Amulet, worn: a shield guardian made from it is bound to you. */
+  const wearsMastersAmulet = () => c.inventory.some((i) => i.item === "item:masters-amulet" && i.equipped);
+  /** Your companion made from the Shield Guardian (Companion Builder), if any. */
+  const shieldGuardian = () => sheet.companions.find((x) => x.custom?.from === "creature:shield-guardian");
+
   switch (op.type) {
     case "damage": {
       let { amount, damageType } = op.payload;
       let concAsked = false;
       if (op.payload.companion) {
-        const t = companionTarget(op.payload.companion);
-        if (!t) break;
-        // What it resists or is immune to: its own (a drake's essence, an Imp's poison) and from effects on it (Protection from Energy).
-        const dfs = t.comp.form?.defenses;
-        if (damageType && dfs) {
-          const after = damageAfterDefenses(amount, damageType, dfs, { ...(op.payload.magical ? { magical: true } : {}) });
-          for (const n of after.notes) notes.push(`${t.comp.name}: ${n}`);
-          amount = after.amount;
-        }
-        const absorbed = Math.min(t.state.hp.temp, amount);
-        t.state.hp.temp -= absorbed;
-        t.state.hp.current = Math.max(0, t.state.hp.current - (amount - absorbed));
-        notes.push(`${t.comp.name}: ${t.state.hp.current} of ${t.max} HP.`);
-        if (t.state.hp.current === 0) {
-          notes.push(`${t.comp.name} drops to 0 HP and dies.${t.comp.reviveNote ? ` ${t.comp.reviveNote}` : ""}`);
-          t.state.states = [];
-          // One a timed action brought out (Hound of Ill Omen) is gone, and its timer with it.
-          removeEffects(c.effects.filter((e) => e.companion === op.payload.companion));
-        }
+        hurtCompanion(op.payload.companion, amount, damageType, !!op.payload.magical);
         break;
       }
       // Wild Shape or Polymorph: the creature's hit points go first; at 0 you change back and the rest carries over.
@@ -422,6 +433,22 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         const was = dmg;
         dmg = Math.floor(dmg / 2);
         notes.push(`Resistant to damage from spells: ${was} halved to ${dmg}.`);
+      }
+      // Bound (a shield guardian): within 60 ft of you, wearing its amulet, half the damage you take (rounded up) goes to it.
+      if (op.payload.bound && dmg > 0) {
+        const g = shieldGuardian();
+        const gs = g ? c.companions[g.id] : undefined;
+        const gHp = gs?.hp?.current ?? g?.form?.hpMax.total ?? 0;
+        if (!g?.form) notes.push("Bound: you have no shield guardian (a companion made from the Shield Guardian), so you take it all.");
+        else if (!wearsMastersAmulet()) notes.push(`Bound: you don't wear ${g.name}'s Master's Amulet, so you take it all.`);
+        else if (gs?.away) notes.push(`Bound: ${g.name} is away, so you take it all.`);
+        else if (gHp <= 0) notes.push(`Bound: ${g.name} is at 0 HP, so you take it all.`);
+        else {
+          const moved = Math.ceil(dmg / 2);
+          notes.push(`Bound: ${moved} of the ${dmg} goes to ${g.name}; you take ${dmg - moved}.`);
+          dmg -= moved;
+          hurtCompanion(g.id, moved, undefined, false);
+        }
       }
       if (dmg === 0) break;
 
@@ -776,6 +803,27 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
     case "companionInitiative": {
       const st = (c.companions[op.payload.companion] ??= { states: [] });
       st.initiative = op.payload.value;
+      break;
+    }
+
+    case "guardianShield": {
+      const comp = sheet.companions.find((x) => x.id === op.payload.companion);
+      if (!comp) {
+        notes.push(`No companion "${op.payload.companion}".`);
+        break;
+      }
+      const name = comp.name;
+      const st = (c.companions[comp.id] ??= { states: [] });
+      if (comp.custom?.from !== "creature:shield-guardian") notes.push(`${name} isn't made from the Shield Guardian. Used anyway.`);
+      if (!wearsMastersAmulet()) notes.push(`You don't wear ${name}'s Master's Amulet: its Shield protects the amulet's wearer. Used anyway.`);
+      if (st.away) notes.push(`${name} is away. Used anyway.`);
+      if (st.hp?.current === 0) notes.push(`${name} is at 0 HP. Used anyway.`);
+      const u = (st.used ??= { ...NO_TURN_USED });
+      if (u.reaction) notes.push(`${name}'s reaction is already used this round. Used anyway.`);
+      u.reaction = true;
+      if (c.effects.some((e) => e.effect === "effect:guardian-shield")) notes.push(`${name}'s Shield is already on you.`);
+      else c.effects.push({ id: `guardian-shield-${op.id}`, effect: "effect:guardian-shield", untilTurnStart: true, from: `${name}'s Shield` });
+      notes.push(`${name}'s Shield: +2 AC against this attack (it has to be within 5 ft of you). Remove it once the attack is resolved.`);
       break;
     }
 
