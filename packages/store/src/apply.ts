@@ -447,7 +447,8 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
           const moved = Math.ceil(dmg / 2);
           notes.push(`Bound: ${moved} of the ${dmg} goes to ${g.name}; you take ${dmg - moved}.`);
           dmg -= moved;
-          hurtCompanion(g.id, moved, undefined, false);
+          // Its own resistances and immunities apply to what it takes (a table ruling).
+          hurtCompanion(g.id, moved, damageType, !!op.payload.magical);
         }
       }
       if (dmg === 0) break;

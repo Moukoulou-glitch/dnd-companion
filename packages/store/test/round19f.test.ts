@@ -35,6 +35,12 @@ describe("19f: Bound: half your damage goes to the shield guardian", () => {
     expect(l.character.hp.current).toBe(35);
     expect(guardianHp(l)).toBe(137);
   });
+  it("its own immunities apply to its half: poison moved to it does nothing", () => {
+    const l = wizard();
+    l.record("damage", { amount: 10, damageType: "poison", bound: true });
+    expect(l.character.hp.current).toBe(35);
+    expect(guardianHp(l)).toBe(142);
+  });
   it("not within 60 ft (no flag), older logs: you take it all", () => {
     const l = wizard();
     l.record("damage", { amount: 15 });
