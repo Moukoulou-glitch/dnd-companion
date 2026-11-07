@@ -4411,7 +4411,13 @@
           {
             "selector": "item.damage",
             "op": "critNote",
-            "value": "Not against a construct or an undead. You gain 10 temporary hit points.",
+            "value": "Not against a construct or an undead (no extra damage, no temporary hit points).",
+            "label": "Sword of Life Stealing"
+          },
+          {
+            "selector": "item.damage",
+            "op": "critTempHp",
+            "value": 10,
             "label": "Sword of Life Stealing"
           }
         ]

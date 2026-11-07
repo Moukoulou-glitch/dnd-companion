@@ -158,11 +158,22 @@ describe("19g: Sword of Sharpness, Sword of Life Stealing, Mace of Smiting", () 
   it("Life Stealing: 10 on a 20, with its temporary hit points noted", () => {
     const { atk } = fighter("item:sword-of-life-stealing");
     expect(atk.damage.onCrit[0]).toMatchObject({ value: 10, damageType: "necrotic" });
-    expect(atk.damage.critRiders![0]!.text).toMatch(/10 temporary hit points/);
+    expect(atk.damage.critRiders![0]!.text).toMatch(/construct or an undead/);
   });
   it("Mace of Smiting: +1, +2 more against a construct as a tick-box, 7 on a 20", () => {
     const { atk } = fighter("item:mace-of-smiting");
     expect(atk.damage.onCrit[0]!.value).toBe(7);
     expect(atk.attack.suggestions.some((x) => /construct/.test(x.label))).toBe(true);
+  });
+});
+
+describe("19i: a 20's temporary hit points", () => {
+  it("Life Stealing: 10 temporary HP on a 20, given with the damage", () => {
+    const { atk } = fighter("item:sword-of-life-stealing");
+    expect(atk.damage.critRiders).toContainEqual(expect.objectContaining({ label: "Sword of Life Stealing", tempHp: 10 }));
+  });
+  it("a book weapon's text: its temporary HP read from it", () => {
+    expect(fighter("item:longsword-of-draining").atk.damage.critRiders).toContainEqual(expect.objectContaining({ tempHp: 5 }));
+    expect(fighter("item:sword-of-sharpness").atk.damage.critRiders!.some((r) => r.tempHp)).toBe(false);
   });
 });

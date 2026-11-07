@@ -96,6 +96,8 @@ interface Props {
   afterRoll?: { label: string; sub?: string; warn?: boolean; group?: string; run: () => { value: number; detail: string } | undefined }[];
   /** Closes the roll (after a miss with no more attacks). */
   onDone?: () => void;
+  /** Temporary hit points a weapon's 20 gives you (Sword of Life Stealing: 10), when its damage is rolled. */
+  onTempHp?: (amount: number, label: string) => void;
   /** Shown right after the d20 is rolled, with the options that were ticked (ammunition: count one shot?). */
   afterD20?: (enabled: string[]) => ReactNode;
   /** The feature, spell or item rolling these dice ("feature:second-wind"), for its own dice theme. */
@@ -409,7 +411,7 @@ export function ResultView({ r }: { r: RollRecord }) {
  * What else a natural 20 does with this weapon: its notes (Sword of Life Stealing's temporary HP), and a second d20
  * to roll (Sword of Sharpness: on a 20, a limb). With your own dice you say what it showed.
  */
-export function CritRiders({ riders, physical }: { riders: { label: string; text: string; d20?: boolean }[]; physical: boolean }) {
+export function CritRiders({ riders, physical, tempGiven = false }: { riders: { label: string; text: string; d20?: boolean; tempHp?: number }[]; physical: boolean; tempGiven?: boolean }) {
   const [shown, setShown] = useState<Record<number, number>>({});
   // The second 20 (a limb comes off): its own look.
   const show = (i: number, face: number) => {
@@ -419,7 +421,11 @@ export function CritRiders({ riders, physical }: { riders: { label: string; text
   return (
     <div className="crit-riders">
       {riders.map((r, i) =>
-        !r.d20 ? (
+        r.tempHp ? (
+          <p key={i} className="note">
+            <b>{r.label}:</b> {tempGiven ? `you gain ${r.tempHp} temporary hit points (they don't add to ones you have: the higher stays).` : `you gain ${r.tempHp} temporary hit points.`}
+          </p>
+        ) : !r.d20 ? (
           <p key={i} className="note">
             <b>{r.label}, on a 20:</b> {r.text}
           </p>
@@ -460,7 +466,7 @@ export function CritRiders({ riders, physical }: { riders: { label: string; text
   );
 }
 
-export function Composer({ title, base: baseIn, attack, physical, onPhysicalChange, onRolled, onResolved, damageOnly, healing, onHealSelf, healTargets, dc, dcLabel, reaction, onSpend, onCheck, notes, header, typeChoices, portent, onOptionsUsed, optionInfo, onCommit, repeat, darts, onDamageOptions, afterRoll, onDone, diceSource, afterD20 }: Props) {
+export function Composer({ title, base: baseIn, attack, physical, onPhysicalChange, onRolled, onResolved, damageOnly, healing, onHealSelf, healTargets, dc, dcLabel, reaction, onSpend, onCheck, notes, header, typeChoices, portent, onOptionsUsed, optionInfo, onCommit, repeat, darts, onDamageOptions, afterRoll, onDone, diceSource, afterD20, onTempHp }: Props) {
   const [typePick, setTypePick] = useState<{ via: number; type: string } | null>(null);
   // A smite used on an earlier hit (Extra Attack's first attack, or this one rolled again) is gone: it can't be ticked again.
   const [usedUp, setUsedUp] = useState<UsedUp[]>([]);
@@ -688,6 +694,8 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
     const motif = stage.crit && stage.twenty && attack ? twentyMotif(attack) : undefined;
     if (motif) rec.twenty = { motif, label: twentyLabel(attack!, rec) };
     onRolled(rec);
+    // A 20's temporary hit points (Life Stealing): yours now (Undo in the toast if the target was a construct or an undead).
+    if (stage.crit && stage.twenty && onTempHp) for (const r of attack?.damage.critRiders ?? []) if (r.tempHp) onTempHp(r.tempHp, r.label);
     setEntering(false);
     const next: Stage = { step: "damage-result", record: rec, crit: stage.crit, ...(stage.twenty && stage.crit ? { twenty: true } : {}) };
     if (stage.attackRecord) next.attackRecord = stage.attackRecord;
@@ -1120,7 +1128,7 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
             }}
           />
         )}
-        {stage.crit && stage.twenty && attack?.damage.critRiders?.length ? <CritRiders riders={attack.damage.critRiders} physical={physical} /> : null}
+        {stage.crit && stage.twenty && attack?.damage.critRiders?.length ? <CritRiders riders={attack.damage.critRiders} physical={physical} tempGiven={!!onTempHp} /> : null}
         {healing && healTargets && (
           <HealTargets
             targets={healTargets.targets}

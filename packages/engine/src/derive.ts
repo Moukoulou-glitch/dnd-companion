@@ -82,7 +82,7 @@ export interface WeaponAttack {
     /** Extra weapon dice rolled on a critical hit, e.g. Brutal Critical. */
     critExtraDice: Part[];
     /** What else a critical hit does (Sword of Life Stealing's temporary HP), or a second d20 to roll (Sword of Sharpness: on a 20, a limb). */
-    critRiders?: { label: string; text: string; d20?: boolean }[];
+    critRiders?: { label: string; text: string; d20?: boolean; tempHp?: number }[];
   };
   properties: string[];
   range?: [number, number];
@@ -1450,9 +1450,14 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       const critMods = modsFor(damageKeys, o.itemInstanceId).filter((a) => conditionState(a.mod.when) === "pass");
       const onCrit = critMods.filter((a) => a.mod.op === "critBonusDamage").map((a) => ({ label: labelOf(a), value: flatOf(a), ...(a.mod.damageType ? { damageType: a.mod.damageType } : {}) }));
       const critExtraDice = critMods.filter((a) => a.mod.op === "extraCritDice").map((a) => ({ label: labelOf(a), value: flatOf(a) }));
-      const critRiders = critMods
+      const critRiders: NonNullable<WeaponAttack["damage"]["critRiders"]> = critMods
         .filter((a) => (a.mod.op === "critNote" || a.mod.op === "critD20") && typeof a.mod.value === "string")
         .map((a) => ({ label: labelOf(a), text: a.mod.value as string, ...(a.mod.op === "critD20" ? { d20: true } : {}) }));
+      // Temporary hit points on a 20 (Sword of Life Stealing): given when the damage is rolled.
+      for (const a of critMods.filter((x) => x.mod.op === "critTempHp")) {
+        const n = flatOf(a);
+        if (n > 0) critRiders.push({ label: labelOf(a), text: `You gain ${n} temporary hit points.`, tempHp: n });
+      }
 
       const entry: WeaponAttack = {
         attackId: o.attackId,

@@ -233,6 +233,9 @@ export function weaponModifiers(paras: string[], label: string): Mod[] {
     }
     const again = /Then roll another d20\. If you roll a 20, (.+)$/i.exec(twenty);
     if (again) out.push({ selector: "item.damage", op: "critD20", value: again[1]!.charAt(0).toUpperCase() + again[1]!.slice(1), label } as Mod);
+    // Temporary hit points on a 20 (Life Stealing): given when the damage is rolled.
+    const temp = /you (?:also )?gain (\d+) temporary hit points/i.exec(twenty);
+    if (temp) out.push({ selector: "item.damage", op: "critTempHp", value: Number(temp[1]), label } as Mod);
     // Anything more a 20 does (temporary hit points, a head cut off, who it doesn't work on): shown with it.
     const sentences = twenty.split(/(?<=\.)\s+/);
     const plain = flat && !again && sentences.length === 1 && /damage\.$/.test(twenty.trim());
