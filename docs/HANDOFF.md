@@ -377,3 +377,8 @@ Remaining plan (each a sub-phase, stop after each): 2a crits (done) · 2b Relent
   - Animations: emblems on Play while attuned (`fx/relics.ts`, `RelicStrip`; brighter while their power is on; the tome's while its lore is yours), Απονύχτι's amber look and dice on its attacks (in the sentient-weapons map), a phoenix when Last Hope saves you.
   - Table rulings (Nov 7): Last Hope's temporary HP are for others, not you; Staff of the Tinker: Clockwork needs no action, Reality Check is a reaction, Identify takes an action (the user's revised text).
 - 19l merged to main with approval (Nov 7; run 42396521448 passed).
+- 19m (on fixes-2): easier navigation on Sheet and Items.
+  - Features and traits in sections (`FeatureEntry.group` from `featureGroups` in derive.ts): each class (more levels first; its subclass's features marked; by the level they come at; a pick under the feature it was picked in, indented), then race, background, feats, beyond the rules, other. A search box; chips to jump to a section; each folds open or shut (remembered on the device).
+  - Items: a search box, a filter (All, Equipped, Carried, Attuned, Magic, with counts), and sections by type (Weapons, Armor and shields, Wondrous items and rings, Potions and scrolls, Ammunition, Spellcasting focuses, Tools and instruments, Gear) with the same jump chips and folding; equipped items first in each, marked equipped or worn; "Add" beside the heading.
+  - `components/Sections.tsx` is the shared sectioned list (jump scrolls below the character strip).
+  - The homebrew items' emblems moved from the character strip to the top of Play, so the strip stays small on every page.

@@ -348,6 +348,21 @@ export interface FeatureEntry {
   dc?: FeatureDc;
   /** Where it comes from and when: "Fighter 3", "Battle Master (Fighter 3)", "Race", "Background", "Feat", or the feature it was picked in. */
   origin?: string;
+  /**
+   * The Sheet's section it's listed in: each class (its subclass's features in it too), race, background, feats,
+   * beyond the rules, other; with the class level it comes at, the subclass, or the feature it was picked in.
+   */
+  group?: FeatureGroup;
+}
+
+export interface FeatureGroup {
+  key: string;
+  label: string;
+  /** Sections in this order (classes first, by levels; then race, background, feats, beyond the rules, other). */
+  order: number;
+  level?: number;
+  subclass?: string;
+  pickedIn?: string;
 }
 
 /** An active effect or condition, for the status strip. */
@@ -2679,15 +2694,17 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     features: [
       ...(() => {
         const origins = featureOrigins(c, reg, sources);
+        const groups = featureGroups(c, reg, sources);
         return featureEntries(sources, reg).map((f) => {
           const dc = dcOf(FEATURE_DCS[f.id] ?? customDc(f.id), f.id);
           const origin = origins.get(f.id);
-          return { ...f, ...(dc ? { dc } : {}), ...(origin ? { origin } : {}) };
+          const group = groups.get(f.id) ?? { key: "other", label: "Other", order: 90 };
+          return { ...f, ...(dc ? { dc } : {}), ...(origin ? { origin } : {}), group };
         });
       })(),
       // A custom background's feature written by the player.
       ...(c.background === "background:custom" && c.customBackground?.featureName
-        ? [{ id: "background:custom-feature", name: c.customBackground.featureName, kind: "background" as const, source: "Your own background", ...(c.customBackground.featureText ? { summary: c.customBackground.featureText } : {}) }]
+        ? [{ id: "background:custom-feature", name: c.customBackground.featureName, kind: "background" as const, source: "Your own background", group: { key: "background", label: "Background", order: 50 }, ...(c.customBackground.featureText ? { summary: c.customBackground.featureText } : {}) }]
         : []),
     ],
     extras: c.extras.map((x) => ({
@@ -2886,6 +2903,59 @@ export function featureOrigins(c: Character, reg: ContentRegistry, sources: Sour
       const name = (reg.find(s.id, "feature") ?? reg.find(s.id, "feat"))?.name ?? s.label;
       for (const picked of Object.values(s.choices).flat()) {
         if (typeof picked === "string" && !out.has(picked) && /^(feature|feat):/.test(picked)) out.set(picked, `${parent} · ${name}`);
+      }
+    }
+  }
+  return out;
+}
+
+/**
+ * The Sheet's section of each feature (see FeatureGroup): the same sources as featureOrigins, kept as data so the
+ * page can group, sort and search them.
+ */
+export function featureGroups(c: Character, reg: ContentRegistry, sources: Source[]): Map<string, FeatureGroup> {
+  const out = new Map<string, FeatureGroup>();
+  const classes = [...c.classes].sort((a, b) => b.level - a.level);
+  classes.forEach((cl, i) => {
+    const def = reg.find(cl.class, "class");
+    if (!def) return;
+    const sub = cl.subclass ? reg.find(cl.subclass, "subclass") : undefined;
+    const pool = [...def.features, ...(sub?.features ?? [])];
+    const g = { key: cl.class, label: `${def.name} ${cl.level}`, order: 10 + i };
+    for (const f of activeFeatures(def.features, cl.level, c.optionalOff, pool, c.optionalBoth)) if (!out.has(f.feature)) out.set(f.feature, { ...g, level: f.level });
+    if (sub) for (const f of activeFeatures(sub.features, cl.level, c.optionalOff, pool, c.optionalBoth)) if (!out.has(f.feature)) out.set(f.feature, { ...g, level: f.level, subclass: sub.name });
+  });
+  const race = reg.find(c.race, "race");
+  if (race) {
+    const g = { key: "race", label: `Race: ${race.name}`, order: 40 };
+    out.set(race.id, g);
+    for (const f of race.features) if (!out.has(f)) out.set(f, g);
+  }
+  const bg = c.background ? reg.find(c.background, "background") : undefined;
+  if (bg) {
+    const g = { key: "background", label: `Background: ${bg.name}`, order: 50 };
+    out.set(bg.id, g);
+    for (const f of bg.features) if (!out.has(f)) out.set(f, g);
+  }
+  if (c.background === "background:custom") out.set("background:custom-feature", { key: "background", label: "Background", order: 50 });
+  const feats = { key: "feats", label: "Feats", order: 60 };
+  for (const ft of c.feats) {
+    const def = reg.find(ft.feat, "feat");
+    if (!def) continue;
+    if (!out.has(def.id)) out.set(def.id, feats);
+    for (const f of def.features) if (!out.has(f)) out.set(f, { ...feats, pickedIn: def.name });
+  }
+  for (const x of c.extras) if (x.kind === "feat" && !out.has(x.value)) out.set(x.value, { key: "extras", label: "Beyond the rules", order: 70 });
+  // Picked in another feature (a fighting style, a maneuver, an invocation): in that feature's section, under its name.
+  for (let pass = 0; pass < 3; pass++) {
+    for (const s of sources) {
+      const parent = out.get(s.id);
+      if (!parent) continue;
+      const name = (reg.find(s.id, "feature") ?? reg.find(s.id, "feat"))?.name ?? s.label;
+      for (const picked of Object.values(s.choices).flat()) {
+        if (typeof picked === "string" && !out.has(picked) && /^(feature|feat):/.test(picked)) {
+          out.set(picked, { ...parent, pickedIn: name });
+        }
       }
     }
   }

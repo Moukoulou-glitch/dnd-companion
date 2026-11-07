@@ -1,4 +1,5 @@
-import { Fragment } from "react";
+import { Fragment, useState } from "react";
+import { Sections } from "./Sections";
 import { formatBonus, signed, type DerivedSheet, type RollBreakdown } from "@dnd/engine";
 import { shortSave } from "./DcBig";
 import { ABILITIES, ABILITY_NAMES, SKILLS, SKILL_NAMES, type Ability, type Character, type Skill } from "@dnd/schema";
@@ -222,23 +223,7 @@ export function SheetTab({
 
       <section>
         <h2>Features and traits</h2>
-        <div className="group">
-          {sheet.features.filter((f) => !f.common).map((f) => (
-            <button className="row" key={f.id} onClick={() => openTrait(f.id)}>
-              <div className="row-main">
-                <div className="row-title">{f.name}</div>
-                <div className="row-sub">
-                  {f.origin && <span className="origin">{f.origin}</span>}
-                  {f.origin ? " · " : ""}
-                  {f.summary ?? KIND_LABEL[f.kind]}
-                </div>
-              </div>
-              {f.dc && <span className="tag dc-tag">DC {f.dc.value} {shortSave(f.dc.save)}</span>}
-              {featTag(f.id) && <span className="tag extra-tag">{featTag(f.id)}</span>}
-              {f.text && <span className="tag">text</span>}
-            </button>
-          ))}
-        </div>
+        <FeatureSections sheet={sheet} openTrait={openTrait} featTag={featTag} />
       </section>
 
       {sheet.optionalFeatures.length > 0 && (
@@ -394,5 +379,71 @@ export function SheetTab({
         </section>
       )}
     </main>
+  );
+}
+
+/**
+ * Features and traits in sections: each class (its subclass's features marked), race, background, feats, beyond the
+ * rules; by the level they come at, a pick under the feature it was picked in. A search across all of them.
+ */
+function FeatureSections({ sheet, openTrait, featTag }: { sheet: DerivedSheet; openTrait: (id: string) => void; featTag: (id: string) => string | undefined }) {
+  const [q, setQ] = useState("");
+  const query = q.trim().toLowerCase();
+  const list = sheet.features.filter((f) => !f.common && (!query || [f.name, f.summary ?? "", f.group?.subclass ?? "", f.group?.pickedIn ?? ""].join(" ").toLowerCase().includes(query)));
+  const groups = new Map<string, { label: string; order: number; items: typeof list }>();
+  for (const f of list) {
+    const g = f.group ?? { key: "other", label: "Other", order: 90 };
+    const at = groups.get(g.key) ?? groups.set(g.key, { label: g.label, order: g.order, items: [] }).get(g.key)!;
+    at.items.push(f);
+  }
+  const sorted = [...groups.entries()].sort((a, b) => a[1].order - b[1].order);
+  const sortKey = (f: (typeof list)[number]) => [String(f.group?.level ?? 0).padStart(2, "0"), (f.group?.pickedIn ?? f.name).toLowerCase(), f.group?.pickedIn ? "1" : "0", f.name.toLowerCase()].join("|");
+  return (
+    <>
+      <input className="search" type="search" placeholder="Search features and traits" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Search features and traits" />
+      {query && !list.length && <p className="note">No feature or trait matches "{q}".</p>}
+      <Sections
+        storageKey="sheet-features"
+        label="Features and traits"
+        searching={!!query}
+        sections={sorted.map(([key, g]) => ({
+          key,
+          label: g.label,
+          count: g.items.length,
+          body: (
+            <div className="group">
+              {[...g.items]
+                .sort((a, b) => sortKey(a).localeCompare(sortKey(b)))
+                .map((f) => (
+                  <button className={f.group?.pickedIn ? "row picked" : "row"} key={f.id} onClick={() => openTrait(f.id)}>
+                    <div className="row-main">
+                      <div className="row-title">{f.name}</div>
+                      <div className="row-sub">
+                        {f.group?.level !== undefined && <span className="lvl">Level {f.group.level}</span>}
+                        {f.group?.subclass && (
+                          <>
+                            {f.group.level !== undefined ? " · " : ""}
+                            <span className="sub-tag">{f.group.subclass}</span>
+                          </>
+                        )}
+                        {f.group?.pickedIn && `${f.group.level !== undefined || f.group.subclass ? " · " : ""}picked in ${f.group.pickedIn}`}
+                        {(f.group?.level !== undefined || f.group?.subclass || f.group?.pickedIn) && (f.summary || !f.group) ? " · " : ""}
+                        {f.summary ?? (!f.group ? KIND_LABEL[f.kind] : "")}
+                      </div>
+                    </div>
+                    {f.dc && (
+                      <span className="tag dc-tag">
+                        DC {f.dc.value} {shortSave(f.dc.save)}
+                      </span>
+                    )}
+                    {featTag(f.id) && <span className="tag extra-tag">{featTag(f.id)}</span>}
+                    {f.text && <span className="tag">text</span>}
+                  </button>
+                ))}
+            </div>
+          ),
+        }))}
+      />
+    </>
   );
 }

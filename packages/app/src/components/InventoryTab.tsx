@@ -7,6 +7,7 @@ import type { Character, CustomItem, ItemDef, OperationType } from "@dnd/schema"
 import { describeChanges } from "./ChangesEditor";
 import { ITEM_TYPES } from "./CustomForms";
 import { Markdown } from "./Markdown";
+import { Sections } from "./Sections";
 
 type Act = (type: OperationType, payload: unknown, label: string) => void;
 type Inst = Character["inventory"][number];
@@ -26,6 +27,27 @@ function displayName(inst: Inst, def: ItemDef) {
 /** An item whose definition can't be found (it shouldn't happen): a plain stand-in, so the page still opens. */
 const lost = (id: string): ItemDef => ({ kind: "item", id, name: id.replace(/^item:/, ""), category: "gear", requiresAttunement: false, source: { pack: "missing" } }) as ItemDef;
 export const itemDef = (reg: ContentRegistry, id: string): ItemDef => reg.find(id, "item") ?? lost(id);
+
+type ItemFilter = "all" | "equipped" | "carried" | "attuned" | "magic";
+const ITEM_FILTERS: [ItemFilter, string][] = [
+  ["all", "All"],
+  ["equipped", "Equipped"],
+  ["carried", "Carried"],
+  ["attuned", "Attuned"],
+  ["magic", "Magic"],
+];
+
+/** The Items page's sections, in this order: each item goes in the first that takes it. */
+const ITEM_GROUPS: { key: string; label: string; of: (d: ItemDef) => boolean }[] = [
+  { key: "weapons", label: "Weapons", of: (d) => d.category === "weapon" },
+  { key: "armor", label: "Armor and shields", of: (d) => d.category === "armor" || d.category === "shield" },
+  { key: "magic", label: "Wondrous items and rings", of: (d) => d.category === "wondrous" },
+  { key: "consumables", label: "Potions and scrolls", of: (d) => d.category === "consumable" },
+  { key: "ammo", label: "Ammunition", of: (d) => d.category === "ammunition" },
+  { key: "focus", label: "Spellcasting focuses", of: (d) => d.category === "focus" },
+  { key: "tools", label: "Tools and instruments", of: (d) => d.category === "tool" },
+  { key: "gear", label: "Gear", of: () => true },
+];
 
 function itemTags(inst: Inst, def: ItemDef): string[] {
   const tags: string[] = [];
@@ -695,28 +717,35 @@ export function InventoryTab({
   act: (type: OperationType, payload: unknown, label: string) => void;
 }) {
   const items = character.inventory.map((inst) => ({ inst, def: itemDef(registry, inst.item) }));
-  const equipped = items.filter((i) => i.inst.equipped);
-  const carried = items.filter((i) => !i.inst.equipped);
   const attuned = character.inventory.filter((i) => i.attuned).length;
   const weight = items.reduce((w, i) => w + (i.def.weight ?? 0) * i.inst.quantity, 0);
 
-  const list = (title: string, rows: typeof items) =>
-    rows.length > 0 && (
-      <section>
-        <h2>{title}</h2>
-        <div className="group">
-          {rows.map(({ inst, def }) => (
-            <button className={inst.attuned ? "row attuned" : "row"} key={inst.id} onClick={() => openItem(inst.id)}>
-              <div className="row-main">
-                <div className="row-title">{displayName(inst, def)}</div>
-                {itemTags(inst, def).length > 0 && <div className="row-sub">{itemTags(inst, def).join(", ")}</div>}
-              </div>
-              {inst.quantity !== 1 && <span className="num">×{inst.quantity}</span>}
-            </button>
-          ))}
-        </div>
-      </section>
-    );
+  // Items by type, searchable, with a filter (equipped, carried, attuned, magic).
+  const [q, setQ] = useState("");
+  const [show, setShow] = useState<ItemFilter>("all");
+  const query = q.trim().toLowerCase();
+  const passes = ({ inst, def }: (typeof items)[number]) =>
+    (show === "all" || (show === "equipped" && inst.equipped) || (show === "carried" && !inst.equipped) || (show === "attuned" && inst.attuned) || (show === "magic" && (!!def.magic || def.requiresAttunement))) &&
+    (!query || [displayName(inst, def), def.name, def.category, def.magic?.rarity ?? "", inst.notes ?? ""].join(" ").toLowerCase().includes(query));
+  const visible = items.filter(passes);
+  // Each item in the first section that takes it (Gear takes the rest).
+  const groupOf = (d: ItemDef) => ITEM_GROUPS.find((g) => g.of(d))!.key;
+  const byType = ITEM_GROUPS.map((g) => ({ ...g, rows: visible.filter((i) => groupOf(i.def) === g.key) })).filter((g) => g.rows.length);
+  const rowsOf = (rows: typeof items) => (
+    <div className="group">
+      {[...rows]
+        .sort((a, b) => Number(b.inst.equipped) - Number(a.inst.equipped) || displayName(a.inst, a.def).localeCompare(displayName(b.inst, b.def)))
+        .map(({ inst, def }) => (
+          <button className={inst.attuned ? "row attuned" : "row"} key={inst.id} onClick={() => openItem(inst.id)}>
+            <div className="row-main">
+              <div className="row-title">{displayName(inst, def)}</div>
+              {(inst.equipped || itemTags(inst, def).length > 0) && <div className="row-sub">{[...(inst.equipped ? [def.category === "armor" || def.category === "wondrous" ? "worn" : "equipped"] : []), ...itemTags(inst, def)].join(", ")}</div>}
+            </div>
+            {inst.quantity !== 1 && <span className="num">×{inst.quantity}</span>}
+          </button>
+        ))}
+    </div>
+  );
 
   const attunedItems = items.filter((i) => i.inst.attuned);
   const slots = Math.max(3, attunedItems.length);
@@ -754,8 +783,30 @@ export function InventoryTab({
           ))}
         </div>
       </section>
-      {list("Equipped", equipped)}
-      {list("Carried", carried)}
+      <section aria-label="Items">
+        <h2>
+          Items
+          <button className="link section-tool" onClick={openAdd}>
+            Add
+          </button>
+        </h2>
+        <input className="search" type="search" placeholder="Search your items" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Search your items" />
+        <div className="segmented small item-filter" role="radiogroup" aria-label="Show">
+          {ITEM_FILTERS.map(([k, label]) => (
+            <button key={k} role="radio" aria-checked={show === k} onClick={() => setShow(k)}>
+              {label}
+              <span className="jump-count">{items.filter((i) => k === "all" || (k === "equipped" && i.inst.equipped) || (k === "carried" && !i.inst.equipped) || (k === "attuned" && i.inst.attuned) || (k === "magic" && (!!i.def.magic || i.def.requiresAttunement))).length}</span>
+            </button>
+          ))}
+        </div>
+        {!visible.length && <p className="note">{items.length ? "No item matches." : "No items yet."}</p>}
+        <Sections
+          storageKey="items-types"
+          label="Items"
+          searching={!!query || show !== "all"}
+          sections={byType.map((g) => ({ key: g.key, label: g.label, count: g.rows.length, body: rowsOf(g.rows), ...(g.rows.some((r) => r.inst.attuned) ? { hint: "attuned" } : {}) }))}
+        />
+      </section>
       {sheet.components.length > 0 && (
         <section>
           <h2>Spell components</h2>

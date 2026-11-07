@@ -3818,8 +3818,6 @@ export function App() {
           return !inst?.toggles?.length || inst.untilTurnStart;
         })} onOpen={openEffect} onAdd={openAddEffect} concentration={sheet.concentration} onConcentration={openConcentration} />
 
-        {/* The table's homebrew items that are yours now: each a small living emblem. */}
-        <RelicStrip relics={relicsOf(c)} onOpen={(r) => (r.instanceId ? openItem(r.instanceId) : r.effectId ? (() => { const e = sheet.effects.find((x) => x.instanceId === r.effectId); if (e) openEffect(e); })() : undefined)} />
 
         {sheet.featureTags.length > 0 && (
           <div className="switches" role="group" aria-label="Always-on features">
@@ -3867,6 +3865,12 @@ export function App() {
         </div>
       )}
 
+      {/* On Play: the table's homebrew items that are yours now, each a small living emblem (not in the strip, which stays small). */}
+      {tab === "play" && relicsOf(c).length > 0 && (
+        <div className="relic-wrap">
+          <RelicStrip relics={relicsOf(c)} onOpen={(r) => (r.instanceId ? openItem(r.instanceId) : r.effectId ? (() => { const e = sheet.effects.find((x) => x.instanceId === r.effectId); if (e) openEffect(e); })() : undefined)} />
+        </div>
+      )}
       {tab === "play" && (
         <PlayTab
           character={c}

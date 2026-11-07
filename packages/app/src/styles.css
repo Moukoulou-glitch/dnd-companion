@@ -4725,7 +4725,8 @@ html.fx-shake-strong .app > .strip, html.fx-shake-strong .app > main, html.fx-sh
 @media (prefers-reduced-motion: reduce) { .fx-sw { animation: fx-static 900ms ease-out forwards !important; } .fx-sw > :not(.fx-label):not(.fx-sw-veil) { display: none; } }
 
 /* Homebrew items that are yours (19l): small living emblems on Play. */
-.relic-strip { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0 10px; }
+.relic-wrap { padding: 12px 16px 0; }
+.relic-strip { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 4px; }
 .relic { position: relative; width: 40px; height: 40px; padding: 0; border-radius: 50%; border: 1px solid var(--line); background: radial-gradient(circle at 50% 40%, rgba(var(--rc), 0.22), rgba(10, 14, 22, 0.9) 70%); display: grid; place-items: center; overflow: visible; --rc: 200, 200, 200; }
 .relic svg { width: 34px; height: 34px; overflow: visible; }
 .relic svg * { fill: none; stroke: rgb(var(--rc)); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
@@ -4821,3 +4822,24 @@ html.fx-shake-strong .app > .strip, html.fx-shake-strong .app > main, html.fx-sh
 .fx-lh-spark { position: absolute; bottom: 8%; width: 6px; height: 6px; border-radius: 50%; background: #ffd27a; box-shadow: 0 0 10px #ff8a1a; opacity: 0; animation: fx-lh-spark 1300ms ease-out forwards; }
 @keyframes fx-lh-spark { 0% { opacity: 0; transform: translateY(0); } 20% { opacity: 1; } 100% { opacity: 0; transform: translateY(-460px); } }
 @media (prefers-reduced-motion: reduce) { .fx-lh { animation: fx-static 900ms ease-out forwards !important; } .fx-lh > :not(.fx-label) { display: none; } }
+
+/* Long lists in sections (19m: Features and traits, Items): jump chips, folding sections. */
+.jump-chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 2px 0 8px; margin-bottom: 4px; }
+.jump-chips::-webkit-scrollbar { display: none; }
+.jump-chip { flex: none; display: inline-flex; align-items: center; gap: 6px; font: inherit; font-size: 14px; color: var(--text); background: var(--panel-raised); border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; white-space: nowrap; }
+.jump-chip.quiet { color: var(--muted); background: none; }
+.jump-count { font-size: 12px; color: var(--muted); background: rgba(255, 255, 255, 0.06); border-radius: 999px; padding: 0 6px; }
+.fold { margin: 6px 0 12px; scroll-margin-top: 48px; }
+.fold-head { width: 100%; display: flex; align-items: center; gap: 8px; font: inherit; font-size: 17px; font-weight: 700; color: var(--text); background: none; border: 0; border-bottom: 1px solid var(--line); padding: 10px 2px 8px; text-align: left; cursor: pointer; }
+.fold-caret { display: inline-block; color: var(--muted); transition: transform 160ms ease-out; }
+.fold.open .fold-caret { transform: rotate(90deg); }
+.fold-label { flex: 1; min-width: 0; }
+.fold-hint { font-size: 12px; font-weight: 600; color: var(--gold, #d4a017); }
+.fold-count { font-size: 13px; font-weight: 600; color: var(--muted); }
+.fold > .group { margin-top: 8px; }
+.row-sub .lvl { font-weight: 700; color: var(--text); }
+.row-sub .sub-tag { color: var(--gold, #d4a017); }
+.row.picked { padding-left: 26px; position: relative; }
+.row.picked::before { content: "↳"; position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--muted); }
+.item-filter [aria-checked="true"] .jump-count { color: inherit; background: rgba(0, 0, 0, 0.18); }
+.item-filter button { display: inline-flex; align-items: center; justify-content: center; gap: 4px; }
