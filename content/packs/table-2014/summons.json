@@ -1834,6 +1834,324 @@
       },
       "initiative": "shared",
       "note": "Theros: half your druid level of Heammer Wisps, in unoccupied spaces within 30 ft. They obey your spoken commands and vanish if they leave Plant Growth's mile."
+    },
+    {
+      "kind": "summon",
+      "id": "summon:figurine-bronze-griffon",
+      "name": "Figurine of Wondrous Power, Bronze Griffon",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "creatures": [
+        "creature:griffon"
+      ],
+      "count": {
+        "1": 1
+      },
+      "initiative": "own",
+      "note": "Friendly, obeys your spoken commands (understands your languages); with no command it only defends itself. For up to 6 hours, until it drops to 0 hit points, or until you speak the command word again touching it. It can be ridden as a mount."
+    },
+    {
+      "kind": "summon",
+      "id": "summon:figurine-golden-lions",
+      "name": "Figurine of Wondrous Power, Golden Lions",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "creatures": [
+        "creature:lion"
+      ],
+      "count": {
+        "1": 2
+      },
+      "initiative": "own",
+      "note": "Friendly, obeys your spoken commands (understands your languages); with no command it only defends itself. For up to 1 hour, until it drops to 0 hit points, or until you speak the command word again touching it. Two lions, each its own figurine."
+    },
+    {
+      "kind": "summon",
+      "id": "summon:figurine-marble-elephant",
+      "name": "Figurine of Wondrous Power, Marble Elephant",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "creatures": [
+        "creature:elephant"
+      ],
+      "count": {
+        "1": 1
+      },
+      "initiative": "own",
+      "note": "Friendly, obeys your spoken commands (understands your languages); with no command it only defends itself. For up to 24 hours, until it drops to 0 hit points, or until you speak the command word again touching it."
+    },
+    {
+      "kind": "summon",
+      "id": "summon:figurine-obsidian-steed",
+      "name": "Figurine of Wondrous Power, Obsidian Steed",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "creatures": [
+        "creature:nightmare"
+      ],
+      "count": {
+        "1": 1
+      },
+      "initiative": "own",
+      "note": "Friendly, obeys your spoken commands (understands your languages); with no command it only defends itself. For up to 24 hours, until it drops to 0 hit points, or until you speak the command word again touching it. It fights only to defend itself; on any of its turns, a 10% chance it ignores you (and may carry you off to Hades if you ride it). You can ride it."
+    },
+    {
+      "kind": "summon",
+      "id": "summon:figurine-onyx-dog",
+      "name": "Figurine of Wondrous Power, Onyx Dog",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "creatures": [
+        "creature:mastiff"
+      ],
+      "count": {
+        "1": 1
+      },
+      "initiative": "own",
+      "note": "Friendly, obeys your spoken commands (understands your languages); with no command it only defends itself. For up to 6 hours, until it drops to 0 hit points, or until you speak the command word again touching it. The dog has Intelligence 8, speaks Common, has darkvision 60 ft and sees invisible creatures and objects within 60 ft."
+    },
+    {
+      "kind": "summon",
+      "id": "summon:figurine-serpentine-owl",
+      "name": "Figurine of Wondrous Power, Serpentine Owl",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "creatures": [
+        "creature:giant-owl"
+      ],
+      "count": {
+        "1": 1
+      },
+      "initiative": "own",
+      "note": "Friendly, obeys your spoken commands (understands your languages); with no command it only defends itself. For up to 8 hours, until it drops to 0 hit points, or until you speak the command word again touching it. It can talk with you telepathically at any range on the same plane."
+    },
+    {
+      "kind": "summon",
+      "id": "summon:horn-of-valhalla-silver",
+      "name": "Horn of Valhalla, Silver",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "creatures": [
+        "creature:berserker"
+      ],
+      "count": {
+        "1": 1
+      },
+      "initiative": "own",
+      "note": "2d4 + 2 warrior spirits from Ysgard with berserker statistics, within 60 ft, for 1 hour or until they drop to 0 hit points. Friendly, they follow your commands.",
+      "countDice": "2d4+2"
+    },
+    {
+      "kind": "summon",
+      "id": "summon:horn-of-valhalla-brass",
+      "name": "Horn of Valhalla, Brass",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "creatures": [
+        "creature:berserker"
+      ],
+      "count": {
+        "1": 1
+      },
+      "initiative": "own",
+      "note": "3d4 + 3 warrior spirits from Ysgard with berserker statistics, within 60 ft, for 1 hour or until they drop to 0 hit points. Friendly, they follow your commands (without proficiency with all simple weapons, they attack you instead).",
+      "countDice": "3d4+3"
+    },
+    {
+      "kind": "summon",
+      "id": "summon:horn-of-valhalla-bronze",
+      "name": "Horn of Valhalla, Bronze",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "creatures": [
+        "creature:berserker"
+      ],
+      "count": {
+        "1": 1
+      },
+      "initiative": "own",
+      "note": "4d4 + 4 warrior spirits from Ysgard with berserker statistics, within 60 ft, for 1 hour or until they drop to 0 hit points. Friendly, they follow your commands (without proficiency with medium armor, they attack you instead).",
+      "countDice": "4d4+4"
+    },
+    {
+      "kind": "summon",
+      "id": "summon:horn-of-valhalla-iron",
+      "name": "Horn of Valhalla, Iron",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "creatures": [
+        "creature:berserker"
+      ],
+      "count": {
+        "1": 1
+      },
+      "initiative": "own",
+      "note": "5d4 + 5 warrior spirits from Ysgard with berserker statistics, within 60 ft, for 1 hour or until they drop to 0 hit points. Friendly, they follow your commands (without proficiency with all martial weapons, they attack you instead).",
+      "countDice": "5d4+5"
+    },
+    {
+      "kind": "summon",
+      "id": "summon:bag-of-tricks-gray",
+      "name": "Bag of Tricks (gray)",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "creatures": [
+        "creature:weasel",
+        "creature:giant-rat",
+        "creature:badger",
+        "creature:boar",
+        "creature:panther",
+        "creature:giant-badger",
+        "creature:dire-wolf",
+        "creature:giant-elk"
+      ],
+      "count": {
+        "1": 1
+      },
+      "initiative": "own",
+      "note": "The rolled creature (d8 on the bag's table). It vanishes at the next dawn or at 0 hit points. Friendly, it acts on its own initiative and obeys your spoken commands; with none, it defends itself."
+    },
+    {
+      "kind": "summon",
+      "id": "summon:bag-of-tricks-rust",
+      "name": "Bag of Tricks (rust)",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "creatures": [
+        "creature:rat",
+        "creature:owl",
+        "creature:mastiff",
+        "creature:goat",
+        "creature:giant-goat",
+        "creature:giant-boar",
+        "creature:lion",
+        "creature:brown-bear"
+      ],
+      "count": {
+        "1": 1
+      },
+      "initiative": "own",
+      "note": "The rolled creature (d8 on the bag's table). It vanishes at the next dawn or at 0 hit points. Friendly, it acts on its own initiative and obeys your spoken commands; with none, it defends itself."
+    },
+    {
+      "kind": "summon",
+      "id": "summon:bag-of-tricks-tan",
+      "name": "Bag of Tricks (tan)",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "creatures": [
+        "creature:jackal",
+        "creature:ape",
+        "creature:baboon",
+        "creature:axe-beak",
+        "creature:black-bear",
+        "creature:giant-weasel",
+        "creature:giant-hyena",
+        "creature:tiger"
+      ],
+      "count": {
+        "1": 1
+      },
+      "initiative": "own",
+      "note": "The rolled creature (d8 on the bag's table). It vanishes at the next dawn or at 0 hit points. Friendly, it acts on its own initiative and obeys your spoken commands; with none, it defends itself."
+    },
+    {
+      "kind": "summon",
+      "id": "summon:elemental-air",
+      "name": "Air Elemental (as Conjure Elemental)",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "creatures": [
+        "creature:air-elemental"
+      ],
+      "count": {
+        "1": 1
+      },
+      "initiative": "own",
+      "note": "As if you'd cast Conjure Elemental: it obeys your commands while you concentrate (up to 1 hour); if your concentration breaks it turns hostile and doesn't vanish.",
+      "concentration": true
+    },
+    {
+      "kind": "summon",
+      "id": "summon:elemental-water",
+      "name": "Water Elemental (as Conjure Elemental)",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "creatures": [
+        "creature:water-elemental"
+      ],
+      "count": {
+        "1": 1
+      },
+      "initiative": "own",
+      "note": "As if you'd cast Conjure Elemental: it obeys your commands while you concentrate (up to 1 hour); if your concentration breaks it turns hostile and doesn't vanish.",
+      "concentration": true
+    },
+    {
+      "kind": "summon",
+      "id": "summon:elemental-fire",
+      "name": "Fire Elemental (as Conjure Elemental)",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "creatures": [
+        "creature:fire-elemental"
+      ],
+      "count": {
+        "1": 1
+      },
+      "initiative": "own",
+      "note": "As if you'd cast Conjure Elemental: it obeys your commands while you concentrate (up to 1 hour); if your concentration breaks it turns hostile and doesn't vanish.",
+      "concentration": true
+    },
+    {
+      "kind": "summon",
+      "id": "summon:elemental-earth",
+      "name": "Earth Elemental (as Conjure Elemental)",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "creatures": [
+        "creature:earth-elemental"
+      ],
+      "count": {
+        "1": 1
+      },
+      "initiative": "own",
+      "note": "As if you'd cast Conjure Elemental: it obeys your commands while you concentrate (up to 1 hour); if your concentration breaks it turns hostile and doesn't vanish.",
+      "concentration": true
     }
   ]
 }

@@ -1164,6 +1164,9 @@ export function App() {
         slot={slot}
         {...(caster ? { caster } : {})}
         {...(() => {
+          // How many, rolled (Horn of Valhalla: 3d4 + 3 berserkers).
+          const dice = registry.find(summonId, "summon")?.countDice;
+          if (dice) return { countOverride: Math.max(1, rollDice(dice).total) };
           // How many by a class level (Theros: half your druid level of Heammer Wisps).
           const by = registry.find(summonId, "summon")?.countByClass;
           if (!by) return {};

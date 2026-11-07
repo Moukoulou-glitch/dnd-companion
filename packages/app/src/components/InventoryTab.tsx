@@ -62,7 +62,8 @@ function itemTags(inst: Inst, def: ItemDef): string[] {
 }
 
 /** A spell scroll (DMG p. 200), by its id or name. */
-export const isScroll = (def: ItemDef) => def.id.startsWith("item:spell-scroll") || /spell scroll/i.test(def.name);
+/** A spell scroll, or a spellwrought tattoo (it works like one: its spell, cast once, with the same DC and attack). */
+export const isScroll = (def: ItemDef) => def.id.startsWith("item:spell-scroll") || /spell scroll|spellwrought tattoo/i.test(def.name);
 /** An object holding a spell a Rock Gnome stored in it (Thinking Stone). */
 export const isStoredObject = (def: ItemDef) => def.id === "item:thinking-stone-object";
 

@@ -6144,6 +6144,67 @@
           }
         }
       ]
+    },
+    {
+      "kind": "effect",
+      "id": "other:essence-shard-resistance",
+      "name": "Elemental Essence Shard (Earth)",
+      "category": "other",
+      "summary": "Resistance to the damage type you chose until the start of your next turn.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE"
+      },
+      "choice": {
+        "label": "Damage type",
+        "options": [
+          "acid",
+          "cold",
+          "fire",
+          "force",
+          "lightning",
+          "necrotic",
+          "poison",
+          "psychic",
+          "radiant",
+          "thunder",
+          "bludgeoning",
+          "piercing",
+          "slashing"
+        ]
+      },
+      "modifiers": [
+        {
+          "selector": "defense.resist.{choice}",
+          "op": "resist",
+          "label": "Elemental Essence Shard"
+        }
+      ],
+      "selfOnly": true
+    },
+    {
+      "kind": "effect",
+      "id": "other:perfume-of-bewitching",
+      "name": "Perfume of Bewitching",
+      "category": "other",
+      "summary": "Advantage on Charisma checks aimed at humanoids of challenge rating 1 or lower, for 1 hour.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE"
+      },
+      "minutes": 60,
+      "modifiers": [
+        {
+          "selector": "roll.check.cha",
+          "op": "advantage",
+          "mode": "suggested",
+          "label": "Perfume of Bewitching",
+          "when": {
+            "text": "aimed at a humanoid of challenge rating 1 or lower"
+          }
+        }
+      ],
+      "selfOnly": true
     }
   ]
 }

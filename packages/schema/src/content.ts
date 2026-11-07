@@ -687,6 +687,8 @@ export const SummonDef = z
     /** The spell that summons them; none for a feature's summons (Theros' Heammer Wisps, through `opensSummon`). */
     spell: DefId.optional(),
     /** How many: a class level divided (Theros: half your druid level). */
+    /** How many is rolled each time (Horn of Valhalla, brass: 3d4 + 3). */
+    countDice: z.string().optional(),
     countByClass: z.object({ class: DefId, divide: z.number().int().min(1) }).strict().optional(),
     /** Creatures to choose from; or `type` (with `tiers` or a CR equal to the slot level). */
     creatures: z.array(DefId).optional(),

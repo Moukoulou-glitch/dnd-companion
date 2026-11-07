@@ -396,3 +396,9 @@ Remaining plan (each a sub-phase, stop after each): 2a crits (done) · 2b Relent
   - Oathbow (sworn enemy switch; advantage and 3d6 piercing as tick-boxes), Arrow and Crossbow Bolt of Slaying (6d10 piercing in their ammunition option).
   - Book +N ammunition now gets its bonus (books/items.ts).
 - 20b merged to main with approval (Nov 8; run 42422707043 passed).
+- 20c (on fixes-2): summoned helpers, rods, Tasha's and Xanathar's items, and a few more (pack, our wording; the book's same-named items attach their text).
+  - Summons for items (summons.json): Figurines of Wondrous Power (six; Ebony Fly as a note), Horns of Valhalla (new `SummonDef.countDice`: the picker's number is rolled), Bags of Tricks (d8 table roll, 3 a dawn), elementals "as if you'd cast Conjure Elemental" (concentration) for the Bowl, Brazier, Censer, Stone and Elemental Gems. Item actions `opensSummon`, with `everyDays` (figurines, horns) or a dawn resource.
+  - Rods of Lordly Might (+3 mace, flaming blade switch +2d6 fire, Drain Life/Paralyze/Terrify once a dawn each), Rulership, Security (every 10 days), Absorption (levels as a resource, a reaction).
+  - Absorbing Tattoo (colour picked; its reaction), Eldritch Claw Tattoo (+1 to unarmed strikes, Eldritch Maul switch +1d6 force), Illuminator's Tattoo, Spellwrought Tattoos (work as spell scrolls: `isScroll`), Dark Shard Amulet and Hat of Wizardry (an Arcana check), Clockwork Amulet, Tome of the Stilled Tongue, the sorcerer shards (Earth: resistance until your turn; Evil: 3d6 necrotic; Good: 3d6 temporary HP; Feywild: a surge roll).
+  - Plate Armor of Etherealness, Driftglobe, Perfume of Bewitching, Broom of Flying (a switch: fly 50 ft), Bead of Force.
+  - Left as text (nothing for the sheet): Adamantine, Gleaming, Cast-Off and Smoldering armor, Alchemy Jug, Bag of Beans, Daern's Instant Fortress, Iron Bands, Iron Flask, Rope of Climbing, Horseshoes of Speed, Book of Exalted Deeds.

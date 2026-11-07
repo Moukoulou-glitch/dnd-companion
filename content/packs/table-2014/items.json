@@ -7426,6 +7426,1797 @@
           }
         ]
       }
+    },
+    {
+      "kind": "item",
+      "id": "item:figurine-of-wondrous-power-bronze-griffon",
+      "name": "Figurine of Wondrous Power, Bronze Griffon",
+      "summary": "An action to throw it: it becomes a griffon for up to 6 hours; then not again for 5 days.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "rare"
+      },
+      "requiresAttunement": false,
+      "grant": {
+        "actions": [
+          {
+            "id": "figurine-bronze-griffon",
+            "name": "Figurine: Bronze Griffon",
+            "economy": "action",
+            "opensSummon": {
+              "summon": "summon:figurine-bronze-griffon"
+            },
+            "everyDays": 5,
+            "note": "Throw it to a point on the ground within 60 ft: it becomes the creature for up to 6 hours. Back to a figurine at 0 hit points or when you speak the word again touching it; then it can't be used for 5 days. It can be ridden as a mount."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:figurine-of-wondrous-power-golden-lions",
+      "name": "Figurine of Wondrous Power, Golden Lions",
+      "summary": "An action to throw it: it becomes a lion (two) for up to 1 hour; then not again for 7 days.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "rare"
+      },
+      "requiresAttunement": false,
+      "grant": {
+        "actions": [
+          {
+            "id": "figurine-golden-lions",
+            "name": "Figurine: Golden Lions",
+            "economy": "action",
+            "opensSummon": {
+              "summon": "summon:figurine-golden-lions"
+            },
+            "everyDays": 7,
+            "note": "Throw it to a point on the ground within 60 ft: it becomes the creature for up to 1 hour. Back to a figurine at 0 hit points or when you speak the word again touching it; then it can't be used for 7 days. Two lions, each its own figurine."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:figurine-of-wondrous-power-marble-elephant",
+      "name": "Figurine of Wondrous Power, Marble Elephant",
+      "summary": "An action to throw it: it becomes a elephant for up to 24 hours; then not again for 7 days.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "rare"
+      },
+      "requiresAttunement": false,
+      "grant": {
+        "actions": [
+          {
+            "id": "figurine-marble-elephant",
+            "name": "Figurine: Marble Elephant",
+            "economy": "action",
+            "opensSummon": {
+              "summon": "summon:figurine-marble-elephant"
+            },
+            "everyDays": 7,
+            "note": "Throw it to a point on the ground within 60 ft: it becomes the creature for up to 24 hours. Back to a figurine at 0 hit points or when you speak the word again touching it; then it can't be used for 7 days."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:figurine-of-wondrous-power-obsidian-steed",
+      "name": "Figurine of Wondrous Power, Obsidian Steed",
+      "summary": "An action to throw it: it becomes a nightmare for up to 24 hours; then not again for 5 days.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "very rare"
+      },
+      "requiresAttunement": false,
+      "grant": {
+        "actions": [
+          {
+            "id": "figurine-obsidian-steed",
+            "name": "Figurine: Obsidian Steed",
+            "economy": "action",
+            "opensSummon": {
+              "summon": "summon:figurine-obsidian-steed"
+            },
+            "everyDays": 5,
+            "note": "Throw it to a point on the ground within 60 ft: it becomes the creature for up to 24 hours. Back to a figurine at 0 hit points or when you speak the word again touching it; then it can't be used for 5 days. It fights only to defend itself; on any of its turns, a 10% chance it ignores you (and may carry you off to Hades if you ride it). You can ride it."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:figurine-of-wondrous-power-onyx-dog",
+      "name": "Figurine of Wondrous Power, Onyx Dog",
+      "summary": "An action to throw it: it becomes a mastiff for up to 6 hours; then not again for 7 days.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "rare"
+      },
+      "requiresAttunement": false,
+      "grant": {
+        "actions": [
+          {
+            "id": "figurine-onyx-dog",
+            "name": "Figurine: Onyx Dog",
+            "economy": "action",
+            "opensSummon": {
+              "summon": "summon:figurine-onyx-dog"
+            },
+            "everyDays": 7,
+            "note": "Throw it to a point on the ground within 60 ft: it becomes the creature for up to 6 hours. Back to a figurine at 0 hit points or when you speak the word again touching it; then it can't be used for 7 days. The dog has Intelligence 8, speaks Common, has darkvision 60 ft and sees invisible creatures and objects within 60 ft."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:figurine-of-wondrous-power-serpentine-owl",
+      "name": "Figurine of Wondrous Power, Serpentine Owl",
+      "summary": "An action to throw it: it becomes a giant owl for up to 8 hours; then not again for 2 days.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "rare"
+      },
+      "requiresAttunement": false,
+      "grant": {
+        "actions": [
+          {
+            "id": "figurine-serpentine-owl",
+            "name": "Figurine: Serpentine Owl",
+            "economy": "action",
+            "opensSummon": {
+              "summon": "summon:figurine-serpentine-owl"
+            },
+            "everyDays": 2,
+            "note": "Throw it to a point on the ground within 60 ft: it becomes the creature for up to 8 hours. Back to a figurine at 0 hit points or when you speak the word again touching it; then it can't be used for 2 days. It can talk with you telepathically at any range on the same plane."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:figurine-of-wondrous-power-ebony-fly",
+      "name": "Figurine of Wondrous Power, Ebony Fly",
+      "summary": "An action to throw it: a giant fly you can ride, for up to 12 hours; then not again for 2 days.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "rare"
+      },
+      "requiresAttunement": false,
+      "grant": {
+        "actions": [
+          {
+            "id": "figurine-ebony-fly",
+            "name": "Figurine: Ebony Fly",
+            "economy": "action",
+            "everyDays": 2,
+            "note": "It becomes a giant fly (Large; AC 11, 19 HP, speed 30 ft, fly 60 ft; no attacks) that can be ridden, for up to 12 hours. Then it can't be used for 2 days. Add it as a companion of your own if you want to track it."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:horn-of-valhalla-silver",
+      "name": "Horn of Valhalla, Silver",
+      "summary": "An action to blow it: 2d4 + 2 berserker spirits for 1 hour; then not again for 7 days.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "rare"
+      },
+      "requiresAttunement": false,
+      "grant": {
+        "actions": [
+          {
+            "id": "horn-of-valhalla-silver",
+            "name": "Horn of Valhalla (Silver)",
+            "economy": "action",
+            "opensSummon": {
+              "summon": "summon:horn-of-valhalla-silver"
+            },
+            "everyDays": 7,
+            "note": "2d4 + 2 berserkers appear within 60 ft, friendly and following your commands, for 1 hour or until they drop to 0 hit points. Then not again for 7 days."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:horn-of-valhalla-brass",
+      "name": "Horn of Valhalla, Brass",
+      "summary": "An action to blow it: 3d4 + 3 berserker spirits for 1 hour; then not again for 7 days. Needs proficiency with all simple weapons, or they attack you.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "rare"
+      },
+      "requiresAttunement": false,
+      "grant": {
+        "actions": [
+          {
+            "id": "horn-of-valhalla-brass",
+            "name": "Horn of Valhalla (Brass)",
+            "economy": "action",
+            "opensSummon": {
+              "summon": "summon:horn-of-valhalla-brass"
+            },
+            "everyDays": 7,
+            "note": "3d4 + 3 berserkers appear within 60 ft, friendly and following your commands, for 1 hour or until they drop to 0 hit points. Without proficiency with all simple weapons, they attack you. Then not again for 7 days."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:horn-of-valhalla-bronze",
+      "name": "Horn of Valhalla, Bronze",
+      "summary": "An action to blow it: 4d4 + 4 berserker spirits for 1 hour; then not again for 7 days. Needs proficiency with medium armor, or they attack you.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "very rare"
+      },
+      "requiresAttunement": false,
+      "grant": {
+        "actions": [
+          {
+            "id": "horn-of-valhalla-bronze",
+            "name": "Horn of Valhalla (Bronze)",
+            "economy": "action",
+            "opensSummon": {
+              "summon": "summon:horn-of-valhalla-bronze"
+            },
+            "everyDays": 7,
+            "note": "4d4 + 4 berserkers appear within 60 ft, friendly and following your commands, for 1 hour or until they drop to 0 hit points. Without proficiency with medium armor, they attack you. Then not again for 7 days."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:horn-of-valhalla-iron",
+      "name": "Horn of Valhalla, Iron",
+      "summary": "An action to blow it: 5d4 + 5 berserker spirits for 1 hour; then not again for 7 days. Needs proficiency with all martial weapons, or they attack you.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "legendary"
+      },
+      "requiresAttunement": false,
+      "grant": {
+        "actions": [
+          {
+            "id": "horn-of-valhalla-iron",
+            "name": "Horn of Valhalla (Iron)",
+            "economy": "action",
+            "opensSummon": {
+              "summon": "summon:horn-of-valhalla-iron"
+            },
+            "everyDays": 7,
+            "note": "5d4 + 5 berserkers appear within 60 ft, friendly and following your commands, for 1 hour or until they drop to 0 hit points. Without proficiency with all martial weapons, they attack you. Then not again for 7 days."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:bag-of-tricks-gray",
+      "name": "Bag of Tricks, Gray",
+      "summary": "Three times a dawn, an action to pull out a fuzzy ball and throw it up to 20 ft: it becomes a creature (d8: weasel, giant rat, badger, boar, panther, giant badger, dire wolf, giant elk) until the next dawn or 0 hit points.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "requiresAttunement": false,
+      "grant": {
+        "resources": [
+          {
+            "id": "bag-of-tricks-gray",
+            "name": "Bag of Tricks (gray)",
+            "max": 3,
+            "reset": "dawn"
+          }
+        ],
+        "actions": [
+          {
+            "id": "bag-of-tricks-gray",
+            "name": "Bag of Tricks (gray)",
+            "economy": "action",
+            "cost": {
+              "resource": "bag-of-tricks-gray",
+              "amount": 1
+            },
+            "roll": {
+              "dice": "1d8",
+              "label": "its creature",
+              "table": [
+                "weasel",
+                "giant rat",
+                "badger",
+                "boar",
+                "panther",
+                "giant badger",
+                "dire wolf",
+                "giant elk"
+              ]
+            },
+            "opensSummon": {
+              "summon": "summon:bag-of-tricks-gray"
+            },
+            "note": "Pick the creature the d8 gave. It vanishes at the next dawn or at 0 hit points."
+          }
+        ]
+      },
+      "weight": 0.5
+    },
+    {
+      "kind": "item",
+      "id": "item:bag-of-tricks-rust",
+      "name": "Bag of Tricks, Rust",
+      "summary": "Three times a dawn, an action to pull out a fuzzy ball and throw it up to 20 ft: it becomes a creature (d8: rat, owl, mastiff, goat, giant goat, giant boar, lion, brown bear) until the next dawn or 0 hit points.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "requiresAttunement": false,
+      "grant": {
+        "resources": [
+          {
+            "id": "bag-of-tricks-rust",
+            "name": "Bag of Tricks (rust)",
+            "max": 3,
+            "reset": "dawn"
+          }
+        ],
+        "actions": [
+          {
+            "id": "bag-of-tricks-rust",
+            "name": "Bag of Tricks (rust)",
+            "economy": "action",
+            "cost": {
+              "resource": "bag-of-tricks-rust",
+              "amount": 1
+            },
+            "roll": {
+              "dice": "1d8",
+              "label": "its creature",
+              "table": [
+                "rat",
+                "owl",
+                "mastiff",
+                "goat",
+                "giant goat",
+                "giant boar",
+                "lion",
+                "brown bear"
+              ]
+            },
+            "opensSummon": {
+              "summon": "summon:bag-of-tricks-rust"
+            },
+            "note": "Pick the creature the d8 gave. It vanishes at the next dawn or at 0 hit points."
+          }
+        ]
+      },
+      "weight": 0.5
+    },
+    {
+      "kind": "item",
+      "id": "item:bag-of-tricks-tan",
+      "name": "Bag of Tricks, Tan",
+      "summary": "Three times a dawn, an action to pull out a fuzzy ball and throw it up to 20 ft: it becomes a creature (d8: jackal, ape, baboon, axe beak, black bear, giant weasel, giant hyena, tiger) until the next dawn or 0 hit points.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "requiresAttunement": false,
+      "grant": {
+        "resources": [
+          {
+            "id": "bag-of-tricks-tan",
+            "name": "Bag of Tricks (tan)",
+            "max": 3,
+            "reset": "dawn"
+          }
+        ],
+        "actions": [
+          {
+            "id": "bag-of-tricks-tan",
+            "name": "Bag of Tricks (tan)",
+            "economy": "action",
+            "cost": {
+              "resource": "bag-of-tricks-tan",
+              "amount": 1
+            },
+            "roll": {
+              "dice": "1d8",
+              "label": "its creature",
+              "table": [
+                "jackal",
+                "ape",
+                "baboon",
+                "axe beak",
+                "black bear",
+                "giant weasel",
+                "giant hyena",
+                "tiger"
+              ]
+            },
+            "opensSummon": {
+              "summon": "summon:bag-of-tricks-tan"
+            },
+            "note": "Pick the creature the d8 gave. It vanishes at the next dawn or at 0 hit points."
+          }
+        ]
+      },
+      "weight": 0.5
+    },
+    {
+      "kind": "item",
+      "id": "item:bowl-of-commanding-water-elementals",
+      "name": "Bowl of Commanding Water Elementals",
+      "summary": "Once a dawn, filled with water, an action and its command word: a water elemental, as if you'd cast Conjure Elemental (you concentrate).",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "rare"
+      },
+      "requiresAttunement": false,
+      "grant": {
+        "resources": [
+          {
+            "id": "bowl-of-commanding-water-elementals",
+            "name": "Bowl of Commanding Water Elementals",
+            "max": 1,
+            "reset": "dawn"
+          }
+        ],
+        "actions": [
+          {
+            "id": "bowl-of-commanding-water-elementals",
+            "name": "Bowl of Commanding Water Elementals",
+            "economy": "action",
+            "cost": {
+              "resource": "bowl-of-commanding-water-elementals",
+              "amount": 1
+            },
+            "opensSummon": {
+              "summon": "summon:elemental-water"
+            },
+            "note": "Only filled with water. A water elemental, as if you'd cast Conjure Elemental: you concentrate on it, up to 1 hour."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:brazier-of-commanding-fire-elementals",
+      "name": "Brazier of Commanding Fire Elementals",
+      "summary": "Once a dawn, with a fire burning in it, an action and its command word: a fire elemental, as if you'd cast Conjure Elemental (you concentrate).",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "rare"
+      },
+      "requiresAttunement": false,
+      "grant": {
+        "resources": [
+          {
+            "id": "brazier-of-commanding-fire-elementals",
+            "name": "Brazier of Commanding Fire Elementals",
+            "max": 1,
+            "reset": "dawn"
+          }
+        ],
+        "actions": [
+          {
+            "id": "brazier-of-commanding-fire-elementals",
+            "name": "Brazier of Commanding Fire Elementals",
+            "economy": "action",
+            "cost": {
+              "resource": "brazier-of-commanding-fire-elementals",
+              "amount": 1
+            },
+            "opensSummon": {
+              "summon": "summon:elemental-fire"
+            },
+            "note": "Only with a fire burning in it. A fire elemental, as if you'd cast Conjure Elemental: you concentrate on it, up to 1 hour."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:censer-of-controlling-air-elementals",
+      "name": "Censer of Controlling Air Elementals",
+      "summary": "Once a dawn, with incense burning in it, an action and its command word: a air elemental, as if you'd cast Conjure Elemental (you concentrate).",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "rare"
+      },
+      "requiresAttunement": false,
+      "grant": {
+        "resources": [
+          {
+            "id": "censer-of-controlling-air-elementals",
+            "name": "Censer of Controlling Air Elementals",
+            "max": 1,
+            "reset": "dawn"
+          }
+        ],
+        "actions": [
+          {
+            "id": "censer-of-controlling-air-elementals",
+            "name": "Censer of Controlling Air Elementals",
+            "economy": "action",
+            "cost": {
+              "resource": "censer-of-controlling-air-elementals",
+              "amount": 1
+            },
+            "opensSummon": {
+              "summon": "summon:elemental-air"
+            },
+            "note": "Only with incense burning in it. A air elemental, as if you'd cast Conjure Elemental: you concentrate on it, up to 1 hour."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:stone-of-controlling-earth-elementals",
+      "name": "Stone of Controlling Earth Elementals",
+      "summary": "Once a dawn, touching the ground, an action and its command word: a earth elemental, as if you'd cast Conjure Elemental (you concentrate).",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "rare"
+      },
+      "requiresAttunement": false,
+      "grant": {
+        "resources": [
+          {
+            "id": "stone-of-controlling-earth-elementals",
+            "name": "Stone of Controlling Earth Elementals",
+            "max": 1,
+            "reset": "dawn"
+          }
+        ],
+        "actions": [
+          {
+            "id": "stone-of-controlling-earth-elementals",
+            "name": "Stone of Controlling Earth Elementals",
+            "economy": "action",
+            "cost": {
+              "resource": "stone-of-controlling-earth-elementals",
+              "amount": 1
+            },
+            "opensSummon": {
+              "summon": "summon:elemental-earth"
+            },
+            "note": "Only touching the ground. A earth elemental, as if you'd cast Conjure Elemental: you concentrate on it, up to 1 hour."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:elemental-gem-blue-sapphire",
+      "name": "Elemental Gem, Blue Sapphire",
+      "summary": "An action to break it: a air elemental, as if you'd cast Conjure Elemental (you concentrate). The gem's magic is then gone.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "requiresAttunement": false,
+      "grant": {
+        "actions": [
+          {
+            "id": "elemental-gem-blue-sapphire",
+            "name": "Elemental Gem (Blue Sapphire)",
+            "economy": "action",
+            "opensSummon": {
+              "summon": "summon:elemental-air"
+            },
+            "note": "Break it: a air elemental appears, as if you'd cast Conjure Elemental (you concentrate, up to 1 hour). The gem's magic is gone: remove it from your items."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:elemental-gem-emerald",
+      "name": "Elemental Gem, Emerald",
+      "summary": "An action to break it: a water elemental, as if you'd cast Conjure Elemental (you concentrate). The gem's magic is then gone.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "requiresAttunement": false,
+      "grant": {
+        "actions": [
+          {
+            "id": "elemental-gem-emerald",
+            "name": "Elemental Gem (Emerald)",
+            "economy": "action",
+            "opensSummon": {
+              "summon": "summon:elemental-water"
+            },
+            "note": "Break it: a water elemental appears, as if you'd cast Conjure Elemental (you concentrate, up to 1 hour). The gem's magic is gone: remove it from your items."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:elemental-gem-red-corundum",
+      "name": "Elemental Gem, Red Corundum",
+      "summary": "An action to break it: a fire elemental, as if you'd cast Conjure Elemental (you concentrate). The gem's magic is then gone.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "requiresAttunement": false,
+      "grant": {
+        "actions": [
+          {
+            "id": "elemental-gem-red-corundum",
+            "name": "Elemental Gem (Red Corundum)",
+            "economy": "action",
+            "opensSummon": {
+              "summon": "summon:elemental-fire"
+            },
+            "note": "Break it: a fire elemental appears, as if you'd cast Conjure Elemental (you concentrate, up to 1 hour). The gem's magic is gone: remove it from your items."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:elemental-gem-yellow-diamond",
+      "name": "Elemental Gem, Yellow Diamond",
+      "summary": "An action to break it: a earth elemental, as if you'd cast Conjure Elemental (you concentrate). The gem's magic is then gone.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "requiresAttunement": false,
+      "grant": {
+        "actions": [
+          {
+            "id": "elemental-gem-yellow-diamond",
+            "name": "Elemental Gem (Yellow Diamond)",
+            "economy": "action",
+            "opensSummon": {
+              "summon": "summon:elemental-earth"
+            },
+            "note": "Break it: a earth elemental appears, as if you'd cast Conjure Elemental (you concentrate, up to 1 hour). The gem's magic is gone: remove it from your items."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:rod-of-lordly-might",
+      "name": "Rod of Lordly Might",
+      "summary": "A +3 mace with six buttons (a flaming blade, a battleaxe, a spear, a climbing pole, a battering ram, a compass) and three properties, each once a dawn: Drain Life (4d6 necrotic, DC 17 Con), Paralyze (DC 17 Str), Terrify (DC 17 Wis, within 30 ft).",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "weapon",
+      "magic": {
+        "rarity": "legendary",
+        "bonus": 3
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "item.damage",
+            "op": "add",
+            "value": "2d6",
+            "damageType": "fire",
+            "label": "Rod of Lordly Might: flaming blade",
+            "when": {
+              "toggle": "lordly-flame"
+            }
+          }
+        ],
+        "resources": [
+          {
+            "id": "lordly-drain",
+            "name": "Rod of Lordly Might: Drain Life",
+            "max": 1,
+            "reset": "dawn"
+          },
+          {
+            "id": "lordly-paralyze",
+            "name": "Rod of Lordly Might: Paralyze",
+            "max": 1,
+            "reset": "dawn"
+          },
+          {
+            "id": "lordly-terrify",
+            "name": "Rod of Lordly Might: Terrify",
+            "max": 1,
+            "reset": "dawn"
+          }
+        ],
+        "actions": [
+          {
+            "id": "lordly-flame",
+            "name": "Rod of Lordly Might: button 1 (flaming blade)",
+            "economy": "bonus",
+            "toggles": [
+              "lordly-flame"
+            ],
+            "note": "A fiery blade springs from the end, shedding bright light 40 ft: your hits with it deal 2d6 fire more. Click again (or press another button) to end it."
+          },
+          {
+            "id": "lordly-buttons",
+            "name": "Rod of Lordly Might: buttons 2–6",
+            "economy": "bonus",
+            "infoOnly": true,
+            "note": "2: a battleaxe; 3: a spear (both keep its +3); 4: a climbing pole up to 50 ft; 5: a battering ram (+10 to Strength checks to break doors and walls); 6: it points to magnetic north and tells your depth or height."
+          },
+          {
+            "id": "lordly-drain",
+            "name": "Rod of Lordly Might: Drain Life",
+            "economy": "free",
+            "cost": {
+              "resource": "lordly-drain",
+              "amount": 1
+            },
+            "roll": {
+              "dice": "4d6",
+              "label": "necrotic damage (DC 17 Constitution save or take it; you regain half; not a construct or undead)"
+            },
+            "note": "When you hit a creature with a melee attack using it."
+          },
+          {
+            "id": "lordly-paralyze",
+            "name": "Rod of Lordly Might: Paralyze",
+            "economy": "free",
+            "cost": {
+              "resource": "lordly-paralyze",
+              "amount": 1
+            },
+            "note": "When you hit a creature with a melee attack using it: DC 17 Strength save or paralyzed for 1 minute (it saves again at the end of each of its turns)."
+          },
+          {
+            "id": "lordly-terrify",
+            "name": "Rod of Lordly Might: Terrify",
+            "economy": "action",
+            "cost": {
+              "resource": "lordly-terrify",
+              "amount": 1
+            },
+            "note": "Each creature you can see within 30 ft: DC 17 Wisdom save or frightened of you for 1 minute (saving again at the end of each of its turns)."
+          }
+        ]
+      },
+      "weight": 2,
+      "weapon": {
+        "category": "simple",
+        "kind": "melee",
+        "group": "mace",
+        "damage": "1d6",
+        "damageType": "bludgeoning",
+        "properties": []
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:rod-of-rulership",
+      "name": "Rod of Rulership",
+      "summary": "Once a dawn, an action: each creature you choose within 120 ft makes a DC 15 Wisdom save or is charmed by you for 8 hours, regarding you as its trusted leader.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "rare"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "resources": [
+          {
+            "id": "rod-of-rulership",
+            "name": "Rod of Rulership",
+            "max": 1,
+            "reset": "dawn"
+          }
+        ],
+        "actions": [
+          {
+            "id": "rod-of-rulership",
+            "name": "Rod of Rulership",
+            "economy": "action",
+            "cost": {
+              "resource": "rod-of-rulership",
+              "amount": 1
+            },
+            "note": "Each creature of your choice you can see within 120 ft: DC 15 Wisdom save or charmed by you for 8 hours (you're its trusted leader). Harmed by you or your companions, or told to act against its nature, it stops being charmed."
+          }
+        ]
+      },
+      "weight": 2
+    },
+    {
+      "kind": "item",
+      "id": "item:rod-of-security",
+      "name": "Rod of Security",
+      "summary": "An action: you and up to 199 willing creatures go to a paradise of your choosing, for up to 200 days divided by how many went. Then not again for 10 days.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "very rare"
+      },
+      "requiresAttunement": false,
+      "grant": {
+        "actions": [
+          {
+            "id": "rod-of-security",
+            "name": "Rod of Security",
+            "economy": "action",
+            "everyDays": 10,
+            "note": "You and up to 199 willing creatures you can see go to an extraplanar paradise of your choosing, with enough food and water. There you don't age and heal as with time passing; you stay up to 200 days divided by the number of creatures (rounded down), or until you end it as an action. You come back where you left, or as close as possible. Then not again for 10 days."
+          }
+        ]
+      },
+      "weight": 2
+    },
+    {
+      "kind": "item",
+      "id": "item:rod-of-absorption",
+      "name": "Rod of Absorption",
+      "summary": "A reaction to absorb a spell targeting only you (no area): it's cancelled and its level stored. It absorbs 50 levels in all; the stored levels can fuel your own spells (1st to 5th level, no slot).",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "very rare"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "resources": [
+          {
+            "id": "rod-of-absorption",
+            "name": "Rod of Absorption: levels it can still absorb",
+            "max": 50,
+            "reset": "manual"
+          }
+        ],
+        "actions": [
+          {
+            "id": "rod-of-absorption",
+            "name": "Rod of Absorption: absorb a spell",
+            "economy": "reaction",
+            "cost": {
+              "resource": "rod-of-absorption",
+              "amount": 1
+            },
+            "spendAmount": {
+              "label": "The spell's level"
+            },
+            "note": "A spell targeting only you and not an area: cancelled, its level stored. While holding it you can cast a spell you know or have prepared (up to 5th level) with stored levels instead of a slot (no slot spent: cast it with Free). When it has absorbed 50 levels in all, it absorbs no more."
+          }
+        ]
+      },
+      "weight": 2
+    },
+    {
+      "kind": "item",
+      "id": "item:absorbing-tattoo",
+      "name": "Absorbing Tattoo",
+      "summary": "A tattoo of one colour: resistance to its damage type (pick it). Once a dawn, as a reaction when you take that damage, you're immune to it instead and regain hit points equal to half the damage.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "very rare"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "resources": [
+          {
+            "id": "absorbing-tattoo",
+            "name": "Absorbing Tattoo",
+            "max": 1,
+            "reset": "dawn"
+          }
+        ],
+        "actions": [
+          {
+            "id": "absorbing-tattoo",
+            "name": "Absorbing Tattoo: absorb",
+            "economy": "reaction",
+            "cost": {
+              "resource": "absorbing-tattoo",
+              "amount": 1
+            },
+            "note": "When you take damage of its type: you take none of it and regain hit points equal to half of it (heal yourself by that much on Hit points)."
+          }
+        ]
+      },
+      "picks": {
+        "label": "Its colour",
+        "max": 1,
+        "options": [
+          {
+            "id": "acid",
+            "name": "Acid",
+            "summary": "resistance to acid damage",
+            "grant": {
+              "modifiers": [
+                {
+                  "selector": "defense.resist.acid",
+                  "op": "resist",
+                  "label": "Absorbing Tattoo"
+                }
+              ]
+            }
+          },
+          {
+            "id": "cold",
+            "name": "Cold",
+            "summary": "resistance to cold damage",
+            "grant": {
+              "modifiers": [
+                {
+                  "selector": "defense.resist.cold",
+                  "op": "resist",
+                  "label": "Absorbing Tattoo"
+                }
+              ]
+            }
+          },
+          {
+            "id": "fire",
+            "name": "Fire",
+            "summary": "resistance to fire damage",
+            "grant": {
+              "modifiers": [
+                {
+                  "selector": "defense.resist.fire",
+                  "op": "resist",
+                  "label": "Absorbing Tattoo"
+                }
+              ]
+            }
+          },
+          {
+            "id": "force",
+            "name": "Force",
+            "summary": "resistance to force damage",
+            "grant": {
+              "modifiers": [
+                {
+                  "selector": "defense.resist.force",
+                  "op": "resist",
+                  "label": "Absorbing Tattoo"
+                }
+              ]
+            }
+          },
+          {
+            "id": "lightning",
+            "name": "Lightning",
+            "summary": "resistance to lightning damage",
+            "grant": {
+              "modifiers": [
+                {
+                  "selector": "defense.resist.lightning",
+                  "op": "resist",
+                  "label": "Absorbing Tattoo"
+                }
+              ]
+            }
+          },
+          {
+            "id": "necrotic",
+            "name": "Necrotic",
+            "summary": "resistance to necrotic damage",
+            "grant": {
+              "modifiers": [
+                {
+                  "selector": "defense.resist.necrotic",
+                  "op": "resist",
+                  "label": "Absorbing Tattoo"
+                }
+              ]
+            }
+          },
+          {
+            "id": "poison",
+            "name": "Poison",
+            "summary": "resistance to poison damage",
+            "grant": {
+              "modifiers": [
+                {
+                  "selector": "defense.resist.poison",
+                  "op": "resist",
+                  "label": "Absorbing Tattoo"
+                }
+              ]
+            }
+          },
+          {
+            "id": "psychic",
+            "name": "Psychic",
+            "summary": "resistance to psychic damage",
+            "grant": {
+              "modifiers": [
+                {
+                  "selector": "defense.resist.psychic",
+                  "op": "resist",
+                  "label": "Absorbing Tattoo"
+                }
+              ]
+            }
+          },
+          {
+            "id": "radiant",
+            "name": "Radiant",
+            "summary": "resistance to radiant damage",
+            "grant": {
+              "modifiers": [
+                {
+                  "selector": "defense.resist.radiant",
+                  "op": "resist",
+                  "label": "Absorbing Tattoo"
+                }
+              ]
+            }
+          },
+          {
+            "id": "thunder",
+            "name": "Thunder",
+            "summary": "resistance to thunder damage",
+            "grant": {
+              "modifiers": [
+                {
+                  "selector": "defense.resist.thunder",
+                  "op": "resist",
+                  "label": "Absorbing Tattoo"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:eldritch-claw-tattoo",
+      "name": "Eldritch Claw Tattoo",
+      "summary": "Your unarmed strikes are magical, +1 to attack and damage. Once a dawn, a bonus action: for 1 minute your melee attacks reach 15 ft and deal 1d6 force more.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "attack.martial-arts",
+            "op": "add",
+            "value": 1,
+            "label": "Eldritch Claw Tattoo"
+          },
+          {
+            "selector": "attack.martial-arts-bonus",
+            "op": "add",
+            "value": 1,
+            "label": "Eldritch Claw Tattoo"
+          },
+          {
+            "selector": "attack.tavern-unarmed",
+            "op": "add",
+            "value": 1,
+            "label": "Eldritch Claw Tattoo"
+          },
+          {
+            "selector": "attack.unarmed-fighting",
+            "op": "add",
+            "value": 1,
+            "label": "Eldritch Claw Tattoo"
+          },
+          {
+            "selector": "attack.unarmed-fighting-free-hands",
+            "op": "add",
+            "value": 1,
+            "label": "Eldritch Claw Tattoo"
+          },
+          {
+            "selector": "damage.martial-arts",
+            "op": "add",
+            "value": 1,
+            "label": "Eldritch Claw Tattoo"
+          },
+          {
+            "selector": "damage.martial-arts-bonus",
+            "op": "add",
+            "value": 1,
+            "label": "Eldritch Claw Tattoo"
+          },
+          {
+            "selector": "damage.tavern-unarmed",
+            "op": "add",
+            "value": 1,
+            "label": "Eldritch Claw Tattoo"
+          },
+          {
+            "selector": "damage.unarmed-fighting",
+            "op": "add",
+            "value": 1,
+            "label": "Eldritch Claw Tattoo"
+          },
+          {
+            "selector": "damage.unarmed-fighting-free-hands",
+            "op": "add",
+            "value": 1,
+            "label": "Eldritch Claw Tattoo"
+          },
+          {
+            "selector": "roll.damage.weapon.melee",
+            "op": "add",
+            "value": "1d6",
+            "damageType": "force",
+            "label": "Eldritch Maul",
+            "when": {
+              "toggle": "eldritch-maul"
+            }
+          }
+        ],
+        "resources": [
+          {
+            "id": "eldritch-claw-tattoo",
+            "name": "Eldritch Claw Tattoo: Eldritch Maul",
+            "max": 1,
+            "reset": "dawn"
+          }
+        ],
+        "actions": [
+          {
+            "id": "eldritch-maul",
+            "name": "Eldritch Claw Tattoo: Eldritch Maul",
+            "economy": "bonus",
+            "cost": {
+              "resource": "eldritch-claw-tattoo",
+              "amount": 1
+            },
+            "toggles": [
+              "eldritch-maul"
+            ],
+            "duration": {
+              "rounds": 10
+            },
+            "note": "For 1 minute, your melee attacks with a weapon or unarmed strike reach 15 ft, and their hits deal 1d6 force more."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:illuminators-tattoo",
+      "name": "Illuminator's Tattoo",
+      "summary": "Write with your fingertip as with a pen that never runs dry; once a dawn, make a page invisible to all but you and a named creature for 24 hours.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "common"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "resources": [
+          {
+            "id": "illuminators-tattoo",
+            "name": "Illuminator's Tattoo",
+            "max": 1,
+            "reset": "dawn"
+          }
+        ],
+        "actions": [
+          {
+            "id": "illuminators-tattoo",
+            "name": "Illuminator's Tattoo: hidden writing",
+            "economy": "action",
+            "cost": {
+              "resource": "illuminators-tattoo",
+              "amount": 1
+            },
+            "note": "Touch writing up to a page long and speak a creature's name: for 24 hours only you and it can see it (either of you can end it by touching it). You can always write with your fingertip as with an ink pen that never runs out."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:dark-shard-amulet",
+      "name": "Dark Shard Amulet",
+      "summary": "A warlock spellcasting focus. Once a long rest, try a warlock cantrip you don't know: DC 10 Intelligence (Arcana) check; on a failure the action is wasted.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "common"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "resources": [
+          {
+            "id": "dark-shard-amulet",
+            "name": "Dark Shard Amulet",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "dark-shard-amulet",
+            "name": "Dark Shard Amulet: an unknown cantrip",
+            "economy": "action",
+            "cost": {
+              "resource": "dark-shard-amulet",
+              "amount": 1
+            },
+            "check": {
+              "skills": [
+                "arcana"
+              ],
+              "dc": 10
+            },
+            "note": "A warlock cantrip you don't know: DC 10 Intelligence (Arcana) check; on a success you cast it, on a failure the action is wasted. Once until a long rest."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:hat-of-wizardry",
+      "name": "Hat of Wizardry",
+      "summary": "A wizard spellcasting focus. Once a long rest, try a wizard cantrip you don't know: DC 10 Intelligence (Arcana) check; on a failure the action is wasted.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "common"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "resources": [
+          {
+            "id": "hat-of-wizardry",
+            "name": "Hat of Wizardry",
+            "max": 1,
+            "reset": "long"
+          }
+        ],
+        "actions": [
+          {
+            "id": "hat-of-wizardry",
+            "name": "Hat of Wizardry: an unknown cantrip",
+            "economy": "action",
+            "cost": {
+              "resource": "hat-of-wizardry",
+              "amount": 1
+            },
+            "check": {
+              "skills": [
+                "arcana"
+              ],
+              "dc": 10
+            },
+            "note": "A wizard cantrip you don't know: DC 10 Intelligence (Arcana) check; on a success you cast it, on a failure the action is wasted. Once until a long rest."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:clockwork-amulet",
+      "name": "Clockwork Amulet",
+      "summary": "Once a dawn, when you make an attack roll, take a 10 on the d20 instead of rolling.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "common"
+      },
+      "requiresAttunement": false,
+      "grant": {
+        "resources": [
+          {
+            "id": "clockwork-amulet",
+            "name": "Clockwork Amulet",
+            "max": 1,
+            "reset": "dawn"
+          }
+        ],
+        "actions": [
+          {
+            "id": "clockwork-amulet",
+            "name": "Clockwork Amulet: a 10",
+            "economy": "free",
+            "cost": {
+              "resource": "clockwork-amulet",
+              "amount": 1
+            },
+            "note": "On an attack roll you're about to make: don't roll the d20, it counts as a 10 (type 10 with My dice)."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:tome-of-the-stilled-tongue",
+      "name": "Tome of the Stilled Tongue",
+      "summary": "A wizard's spellbook and arcane focus. Once a dawn, a bonus action to cast a spell written in it without a slot and without verbal or somatic components.",
+      "source": {
+        "pack": "table-2014",
+        "book": "DMG"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "legendary"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "resources": [
+          {
+            "id": "tome-of-the-stilled-tongue",
+            "name": "Tome of the Stilled Tongue",
+            "max": 1,
+            "reset": "dawn"
+          }
+        ],
+        "actions": [
+          {
+            "id": "tome-of-the-stilled-tongue",
+            "name": "Tome of the Stilled Tongue",
+            "economy": "bonus",
+            "cost": {
+              "resource": "tome-of-the-stilled-tongue",
+              "amount": 1
+            },
+            "note": "Cast a spell written in it without a spell slot and without verbal or somatic components (cast it with Free on Spells). Once until the next dawn."
+          }
+        ]
+      },
+      "weight": 5
+    },
+    {
+      "kind": "item",
+      "id": "item:elemental-essence-shard-earth",
+      "name": "Elemental Essence Shard (Earth)",
+      "summary": "A sorcerer's spellcasting focus. When you use Metamagic on a spell: resistance to a damage type you choose until the start of your next turn.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "rare"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "actions": [
+          {
+            "id": "essence-shard-earth",
+            "name": "Elemental Essence Shard (Earth)",
+            "economy": "free",
+            "choose": {
+              "label": "Damage type",
+              "options": [
+                "acid",
+                "cold",
+                "fire",
+                "force",
+                "lightning",
+                "necrotic",
+                "poison",
+                "psychic",
+                "radiant",
+                "thunder",
+                "bludgeoning",
+                "piercing",
+                "slashing"
+              ]
+            },
+            "selfEffect": "other:essence-shard-resistance",
+            "untilTurnStart": true,
+            "note": "When you use a Metamagic option on a spell while holding or wearing it."
+          }
+        ]
+      },
+      "weight": 1
+    },
+    {
+      "kind": "item",
+      "id": "item:outer-essence-shard-evil",
+      "name": "Outer Essence Shard (Evil)",
+      "summary": "A sorcerer's spellcasting focus. When you use Metamagic on a spell: one creature it damages takes 3d6 necrotic more.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "rare"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "actions": [
+          {
+            "id": "essence-shard-evil",
+            "name": "Outer Essence Shard (Evil)",
+            "economy": "free",
+            "roll": {
+              "dice": "3d6",
+              "label": "necrotic damage more to one creature the spell damages",
+              "types": [
+                "necrotic"
+              ]
+            },
+            "note": "When you use a Metamagic option on a spell while holding or wearing it."
+          }
+        ]
+      },
+      "weight": 1
+    },
+    {
+      "kind": "item",
+      "id": "item:outer-essence-shard-good",
+      "name": "Outer Essence Shard (Good)",
+      "summary": "A sorcerer's spellcasting focus. When you use Metamagic on a spell: you or a creature you see within 30 ft gains 3d6 temporary hit points.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "rare"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "actions": [
+          {
+            "id": "essence-shard-good",
+            "name": "Outer Essence Shard (Good)",
+            "economy": "free",
+            "tempHp": "3d6",
+            "others": true,
+            "note": "When you use a Metamagic option on a spell while holding or wearing it: you or one creature you can see within 30 ft."
+          }
+        ]
+      },
+      "weight": 1
+    },
+    {
+      "kind": "item",
+      "id": "item:feywild-shard",
+      "name": "Feywild Shard",
+      "summary": "A sorcerer's spellcasting focus. When you use Metamagic on a spell you can roll on the Wild Magic Surge table (once a dawn unless you're a Wild Magic sorcerer); a spell rolled ignores your Metamagic and needs no concentration.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "resources": [
+          {
+            "id": "feywild-shard",
+            "name": "Feywild Shard",
+            "max": 1,
+            "reset": "dawn"
+          }
+        ],
+        "actions": [
+          {
+            "id": "feywild-shard",
+            "name": "Feywild Shard: a surge",
+            "economy": "free",
+            "cost": {
+              "resource": "feywild-shard",
+              "amount": 1
+            },
+            "roll": {
+              "dice": "1d100",
+              "label": "on the Wild Magic Surge table"
+            },
+            "note": "When you use a Metamagic option on a spell while holding or wearing it. If the result is a spell, your Metamagic doesn't affect it and it needs no concentration. Once a dawn, unless you're a Wild Magic sorcerer (then use it with Free)."
+          }
+        ]
+      },
+      "weight": 1
+    },
+    {
+      "kind": "item",
+      "id": "item:plate-armor-of-etherealness",
+      "name": "Plate Armor of Etherealness",
+      "summary": "Plate armor. Once a dawn, an action and its command word: the effect of Etherealness for 10 minutes (or until you take it off or speak the word again).",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "armor",
+      "weight": 65,
+      "armor": {
+        "category": "heavy",
+        "base": 18,
+        "stealthDisadvantage": true,
+        "strengthRequired": 15
+      },
+      "magic": {
+        "rarity": "legendary"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "resources": [
+          {
+            "id": "plate-armor-of-etherealness",
+            "name": "Plate Armor of Etherealness",
+            "max": 1,
+            "reset": "dawn"
+          }
+        ],
+        "spells": [
+          {
+            "spell": "spell:etherealness",
+            "name": "Etherealness",
+            "casting": "from the armor, once a dawn: 10 minutes, ended by taking it off or speaking the word again",
+            "resource": "plate-armor-of-etherealness",
+            "castingTime": "1 action"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:driftglobe",
+      "name": "Driftglobe",
+      "summary": "Within 60 ft of it, its command word makes it shed Light at will, or Daylight once a dawn; another word makes it float and follow you.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "weight": 1,
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "requiresAttunement": false,
+      "grant": {
+        "resources": [
+          {
+            "id": "driftglobe",
+            "name": "Driftglobe: Daylight",
+            "max": 1,
+            "reset": "dawn"
+          }
+        ],
+        "spells": [
+          {
+            "spell": "spell:light",
+            "name": "Light",
+            "casting": "from the globe, at will",
+            "atWill": true
+          },
+          {
+            "spell": "spell:daylight",
+            "name": "Daylight",
+            "casting": "from the globe, once a dawn",
+            "resource": "driftglobe"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:perfume-of-bewitching",
+      "name": "Perfume of Bewitching",
+      "summary": "Put it on (an action): for 1 hour, advantage on Charisma checks aimed at humanoids of challenge rating 1 or lower, who don't notice the magic.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE"
+      },
+      "category": "consumable",
+      "weight": 0,
+      "magic": {
+        "rarity": "common"
+      },
+      "requiresAttunement": false,
+      "use": {
+        "economy": "action",
+        "effect": "other:perfume-of-bewitching",
+        "consumed": true,
+        "note": "Applying it takes an action; it lasts 1 hour."
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:broom-of-flying",
+      "name": "Broom of Flying",
+      "summary": "Stand astride it and speak its word: it flies you at 50 ft (30 ft carrying over 200 lb.). It can fly alone to a place within 1 mile you know, and come back.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "weight": 3,
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "requiresAttunement": false,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.speed.fly",
+            "op": "grantSpeed",
+            "value": 50,
+            "label": "Broom of Flying",
+            "when": {
+              "toggle": "broom-flying"
+            }
+          }
+        ],
+        "actions": [
+          {
+            "id": "broom-of-flying",
+            "name": "Broom of Flying: ride",
+            "economy": "free",
+            "toggles": [
+              "broom-flying"
+            ],
+            "note": "Astride it, speak its command word: a flying speed of 50 ft (30 ft while it carries over 200 lb., at most 400). It stops hovering when you land: click again."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:bead-of-force",
+      "name": "Bead of Force",
+      "summary": "An action to throw it up to 60 ft: each creature within 10 ft of where it lands makes a DC 15 Dexterity save or takes 5d4 force and is trapped in a sphere of force for 1 minute; the bead is gone. (Keep it worn, ticked as equipped, to have its action.)",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "weight": 0.06,
+      "magic": {
+        "rarity": "rare"
+      },
+      "requiresAttunement": false,
+      "grant": {
+        "actions": [
+          {
+            "id": "bead-of-force",
+            "name": "Bead of Force: throw",
+            "economy": "action",
+            "roll": {
+              "dice": "5d4",
+              "label": "force damage to each creature within 10 ft that fails a DC 15 Dexterity save",
+              "types": [
+                "force"
+              ]
+            },
+            "note": "Those that fail are trapped in a sphere of force for 1 minute (only air passes; those inside can roll it at half speed); those that succeed are pushed out. Then lower the quantity by one."
+          }
+        ]
+      }
     }
   ]
 }
