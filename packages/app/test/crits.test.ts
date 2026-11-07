@@ -107,3 +107,18 @@ describe("19h: a weapon's 20: only on the d20's 20, typed, with its look", () =>
     expect(twentyMotif(holding("item:longsword"))).toBeUndefined();
   });
 });
+
+describe("19j: Wave's critical hit", () => {
+  const c = newCharacter({ id: "f", name: "F", race: "race:human", class: "class:fighter", abilities: { str: 16, dex: 12, con: 14, int: 10, wis: 10, cha: 10 } }, reg);
+  c.classes = [{ class: "class:fighter", level: 5 }];
+  c.inventory.push({ id: "w", item: "item:wave", quantity: 1, equipped: true, attuned: true } as never);
+  const wave = derive(c, reg).attacks.find((a) => a.itemInstanceId === "w" && a.mode === "melee")!;
+  it("any critical hit (a 19 too): half the target's HP maximum as necrotic, once it's typed in", () => {
+    expect(formatFormula(damageFor(hitOf(wave), wave, true, false, 75).terms)).toMatch(/\+37\[necrotic\]$/);
+    expect(formatFormula(damageFor(hitOf(wave), wave, true, false, 0).terms)).not.toMatch(/necrotic/);
+    expect(formatFormula(damageFor(hitOf(wave), wave, false, false, 75).terms)).not.toMatch(/necrotic/);
+  });
+  it("it isn't a 20 weapon: no 'The d20 showed 20' choice", () => {
+    expect(twentyMotif(wave)).toBeUndefined();
+  });
+});

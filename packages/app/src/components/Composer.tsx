@@ -511,6 +511,8 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
   /** The damage just rolled die by die (not typed in as one total), for Piercer's reroll of one die. */
   const lastDamageRoll = useRef<ComposedRoll | undefined>(undefined);
   const [rerolledOne, setRerolledOne] = useState(false);
+  /** The target's hit point maximum, typed in on a critical hit with Wave (half of it as necrotic damage). */
+  const [targetMax, setTargetMax] = useState("");
   const [stage, setStage] = useState<Stage>(damageOnly ? { step: "damage-setup", crit: false } : { step: "setup" });
   const [entering, setEntering] = useState(false);
   /** Your own d20s are in; the roll's other dice (Bless's d4, a die added by hand) wait for their total. */
@@ -540,9 +542,9 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
     };
     const twoHanded = isVersatile(attack) && hands === "two";
     const c = composeDamage(weaponDiceFor(attack, chosenHands), typePick?.type ?? attack.damage.type, bonus, damageChoices, attack.attackId.startsWith("spell:") || attack.attackId.startsWith("item:") || attack.damage.type === "healing" ? attack.name : attack.attackId.startsWith("trait:") ? `${attack.name.replace(/^.*?: /, "")}${attack.damage.type ? ` (${attack.damage.type})` : ""}` : twoHanded ? "Weapon, two hands" : "Weapon");
-    return damageFor(c, attack, stage.crit, stage.step === "damage-setup" && !!stage.twenty);
+    return damageFor(c, attack, stage.crit, stage.step === "damage-setup" && !!stage.twenty, Number(targetMax) || 0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [attack, damageBase, stage, damageChoices, slotPick, optionInfo, typePick, chosenHands, hands]);
+  }, [attack, damageBase, stage, damageChoices, slotPick, optionInfo, typePick, chosenHands, hands, targetMax]);
 
   // Beacon of Hope (or Overchannel): every die at its maximum, nothing to roll.
   const maxed = !!damage && damage.terms.some((t) => t.kind === "dice") && damage.terms.every((t) => t.kind !== "dice" || t.sign < 0 || isMaxed(t));
@@ -693,6 +695,9 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
     // A weapon's 20 (Sharpness, Vicious, Life Stealing): its own look plays with the damage.
     const motif = stage.crit && stage.twenty && attack ? twentyMotif(attack) : undefined;
     if (motif) rec.twenty = { motif, label: twentyLabel(attack!, rec) };
+    // Wave's critical hit: its necrotic tide, with what it added.
+    const half = stage.crit && Number(targetMax) > 0 ? attack?.damage.critRiders?.find((r) => r.halfMax) : undefined;
+    if (half && !rec.twenty) rec.twenty = { motif: "tide", label: `${half.label} · +${Math.floor(Number(targetMax) / 2)} ${half.halfMax}` };
     onRolled(rec);
     // A 20's temporary hit points (Life Stealing): yours now (Undo in the toast if the target was a construct or an undead).
     if (stage.crit && stage.twenty && onTempHp) for (const r of attack?.damage.critRiders ?? []) if (r.tempHp) onTempHp(r.tempHp, r.label);
@@ -977,6 +982,19 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
             {stage.twenty && attack!.damage.critRiders?.some((r) => r.d20) ? ` Then ${attack!.damage.critRiders.filter((r) => r.d20).map((r) => r.label).join(", ")}: another d20, after the damage.` : ""}
           </p>
         )}
+        {/* Any critical hit: half the target's hit point maximum (Wave), once you type that maximum in. */}
+        {stage.crit &&
+          attack?.damage.critRiders
+            ?.filter((r) => r.halfMax)
+            .map((r) => (
+              <label key={r.label} className="field crit-halfmax">
+                <span>
+                  {r.label}: the target's hit point maximum (half of it as {r.halfMax} damage)
+                </span>
+                <input type="number" inputMode="numeric" min={0} value={targetMax} placeholder="e.g. 75" onChange={(e) => setTargetMax(e.target.value.replace(/[^0-9]/g, "").slice(0, 4))} />
+                {Number(targetMax) > 0 && <small>+{Math.floor(Number(targetMax) / 2)} {r.halfMax}</small>}
+              </label>
+            ))}
         {/* What a weapon does "when you roll a 20": only when the d20 showed 20 (a Champion's 19 is a critical hit, not a 20). */}
         {stage.crit && attack && twentyMotif(attack) && (
           <div className="segmented small" role="radiogroup" aria-label="What the d20 showed">
@@ -1128,7 +1146,7 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
             }}
           />
         )}
-        {stage.crit && stage.twenty && attack?.damage.critRiders?.length ? <CritRiders riders={attack.damage.critRiders} physical={physical} tempGiven={!!onTempHp} /> : null}
+        {stage.crit && stage.twenty && attack?.damage.critRiders?.some((r) => !r.halfMax) ? <CritRiders riders={attack.damage.critRiders.filter((r) => !r.halfMax)} physical={physical} tempGiven={!!onTempHp} /> : null}
         {healing && healTargets && (
           <HealTargets
             targets={healTargets.targets}

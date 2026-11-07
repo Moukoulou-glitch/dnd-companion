@@ -4282,6 +4282,256 @@
     },
     {
       "kind": "item",
+      "id": "item:whelm",
+      "name": "Whelm",
+      "summary": "A sentient +3 warhammer (lawful neutral; Int 15, Wis 12, Cha 15; hears, darkvision 120 ft; telepathic, speaks Dwarvish, Giant and Goblin) that hates giants and goblinoids and protects dwarves. Thrown (20/60), it deals 1d8 bludgeoning more (2d8 against a giant) and flies back to your hand. Shock Wave once a dawn; senses secret doors within 30 ft; Detect Evil and Good or Locate Object once a dawn. Only a dwarf can attune to it. Its curse: from the dawn after your first attack with it, the open daytime sky gives you disadvantage on attacks, saves and checks.",
+      "source": {
+        "pack": "table-2014",
+        "book": "DMG",
+        "page": 218
+      },
+      "category": "weapon",
+      "weight": 2,
+      "weapon": {
+        "category": "martial",
+        "kind": "melee",
+        "group": "warhammer",
+        "damage": "1d8",
+        "damageType": "bludgeoning",
+        "properties": [
+          "versatile",
+          "thrown"
+        ],
+        "versatileDamage": "1d10",
+        "range": [
+          20,
+          60
+        ]
+      },
+      "magic": {
+        "rarity": "legendary",
+        "bonus": 3
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "damage.item:whelm.thrown",
+            "op": "add",
+            "value": "1d8",
+            "label": "Whelm (thrown)",
+            "damageType": "bludgeoning"
+          },
+          {
+            "selector": "damage.item:whelm.thrown",
+            "op": "add",
+            "value": "1d8",
+            "label": "Whelm (giant)",
+            "mode": "suggested",
+            "damageType": "bludgeoning",
+            "when": {
+              "text": "thrown at a giant"
+            }
+          },
+          {
+            "selector": "roll.attack.*",
+            "op": "disadvantage",
+            "label": "Whelm: the open sky",
+            "when": {
+              "toggle": "whelm-sky"
+            }
+          },
+          {
+            "selector": "roll.save.*",
+            "op": "disadvantage",
+            "label": "Whelm: the open sky",
+            "when": {
+              "toggle": "whelm-sky"
+            }
+          },
+          {
+            "selector": "roll.check.*",
+            "op": "disadvantage",
+            "label": "Whelm: the open sky",
+            "when": {
+              "toggle": "whelm-sky"
+            }
+          }
+        ],
+        "resources": [
+          {
+            "id": "whelm-shock-wave",
+            "name": "Whelm: Shock Wave",
+            "max": 1,
+            "reset": "dawn"
+          },
+          {
+            "id": "whelm-awareness",
+            "name": "Whelm: its spell",
+            "max": 1,
+            "reset": "dawn"
+          }
+        ],
+        "actions": [
+          {
+            "id": "whelm-shock-wave",
+            "name": "Whelm: Shock Wave",
+            "economy": "action",
+            "cost": {
+              "resource": "whelm-shock-wave",
+              "amount": 1
+            },
+            "note": "Strike the ground: each creature you choose that's on the ground within 60 ft of the spot makes a DC 15 Constitution save or is stunned for 1 minute (it saves again at the end of each of its turns). Once until the next dawn."
+          },
+          {
+            "id": "whelm-sky",
+            "name": "Whelm: under the daytime sky",
+            "economy": "free",
+            "toggles": [
+              "whelm-sky"
+            ],
+            "note": "Its curse (from the dawn after your first attack with it, while you're attuned): while you can see the daytime sky you have disadvantage on attack rolls, saving throws and ability checks. Switch it on outdoors by day, off indoors or at night."
+          },
+          {
+            "id": "whelm-doors",
+            "name": "Whelm: secret doors",
+            "economy": "free",
+            "infoOnly": true,
+            "note": "While you hold it, it tells you where any secret or concealed door within 30 ft of you is."
+          }
+        ],
+        "spells": [
+          {
+            "spell": "spell:detect-evil-and-good",
+            "name": "Detect Evil and Good",
+            "casting": "from Whelm, as an action; it or Locate Object once until the next dawn",
+            "resource": "whelm-awareness",
+            "castingTime": "1 action"
+          },
+          {
+            "spell": "spell:locate-object",
+            "name": "Locate Object",
+            "casting": "from Whelm, as an action; it or Detect Evil and Good once until the next dawn",
+            "resource": "whelm-awareness",
+            "castingTime": "1 action"
+          }
+        ]
+      },
+      "curse": {
+        "name": "Fear of the open sky",
+        "text": "From the dawn after you first make an attack roll with Whelm, and for as long as you stay attuned to it, you fear being outdoors: while you can see the daytime sky you have disadvantage on attack rolls, saving throws and ability checks (switch \"Whelm: under the daytime sky\" on in Actions)."
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:wave",
+      "name": "Wave",
+      "summary": "A sentient +3 trident (neutral; Int 14, Wis 10, Cha 18; hears, darkvision 120 ft; telepathic, speaks Aquan, talks with aquatic animals) that wants mortals to worship the sea gods. On a critical hit, necrotic damage equal to half the target's hit point maximum. It is also a trident of fish command (3 charges: Dominate Beast, DC 15, on a beast with a swimming speed), a weapon of warning (advantage on initiative; you and companions within 30 ft can't be surprised), a cap of water breathing while you hold it, and a cube of force (you choose the effect). Only a creature that worships a god of the sea can attune to it. Thrown (20/60).",
+      "source": {
+        "pack": "table-2014",
+        "book": "DMG",
+        "page": 218
+      },
+      "category": "weapon",
+      "weight": 4,
+      "weapon": {
+        "category": "martial",
+        "kind": "melee",
+        "group": "trident",
+        "damage": "1d6",
+        "damageType": "piercing",
+        "properties": [
+          "versatile",
+          "thrown"
+        ],
+        "versatileDamage": "1d8",
+        "range": [
+          20,
+          60
+        ]
+      },
+      "magic": {
+        "rarity": "legendary",
+        "bonus": 3
+      },
+      "requiresAttunement": true,
+      "charges": {
+        "max": 3,
+        "regain": "1d3"
+      },
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "item.damage",
+            "op": "critHalfMax",
+            "value": "necrotic",
+            "label": "Wave"
+          },
+          {
+            "selector": "roll.initiative",
+            "op": "advantage",
+            "label": "Wave (weapon of warning)"
+          }
+        ],
+        "resources": [
+          {
+            "id": "wave-cube",
+            "name": "Wave: cube of force charges",
+            "max": 36,
+            "reset": "manual"
+          }
+        ],
+        "actions": [
+          {
+            "id": "wave-cube",
+            "name": "Wave: cube of force",
+            "economy": "action",
+            "cost": {
+              "resource": "wave-cube",
+              "amount": 1
+            },
+            "spendAmount": {
+              "label": "Charges for the effect"
+            },
+            "note": "Choose the effect (no faces to press): a barrier 15 ft on a side round you that blocks gases, wind and fog (1 charge); also nonliving matter (2); also living matter (3); also spells and magic (4); all of those (5); none of it, and it ends the effect (0). Lasts 1 minute or until ended; more charges when force effects strike it. It regains 1d20 charges each dawn: add them back on the resource."
+          },
+          {
+            "id": "wave-water",
+            "name": "Wave: water breathing",
+            "economy": "action",
+            "infoOnly": true,
+            "note": "While you hold it, as a cap of water breathing: underwater, speak its word to make a bubble of air round your head, so you breathe normally there until you speak the word again or take it out of the water."
+          },
+          {
+            "id": "wave-warning",
+            "name": "Wave: warning",
+            "economy": "free",
+            "infoOnly": true,
+            "note": "Weapon of warning: you and your companions within 30 ft can't be surprised unless incapacitated by something other than nonmagical sleep, and it wakes you and them if combat starts while you sleep."
+          },
+          {
+            "id": "wave-fish",
+            "name": "Wave: fish command",
+            "economy": "action",
+            "infoOnly": true,
+            "note": "Trident of fish command: Dominate Beast on a beast with a swimming speed, 1 charge (its 3 charges: tap them on the item; 1d3 come back each dawn)."
+          }
+        ],
+        "spells": [
+          {
+            "spell": "spell:dominate-beast",
+            "name": "Dominate Beast",
+            "casting": "from Wave, on a beast with a swimming speed, save DC 15",
+            "charges": {
+              "cost": 1
+            },
+            "dc": 15
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
       "id": "item:vorpal-sword",
       "name": "Vorpal Sword",
       "summary": "A +3 blade that ignores resistance to slashing damage; on a natural 20 against a creature with a head it cuts it off (or 6d8 slashing more). Any sword that deals slashing damage: pick which on the item (a longsword until then).",

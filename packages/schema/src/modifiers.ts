@@ -102,6 +102,8 @@ export const ModifierOp = z.enum([
   "critD20",
   /** Weapons: on a natural 20 you gain `value` temporary hit points (Sword of Life Stealing: 10). */
   "critTempHp",
+  /** Weapons: on any critical hit, damage of type `value` equal to half the target's hit point maximum (Wave: necrotic); the roll asks for that maximum. */
+  "critHalfMax",
   /** Raise the Dexterity cap of medium armor to `value` (Medium Armor Master: 3). Selector stat.ac. */
   "mediumArmorDexCap",
   /** Stats: the value becomes at most `value` (Grappled: speed 0). */

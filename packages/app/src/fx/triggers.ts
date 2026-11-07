@@ -31,7 +31,7 @@ export type FxEvent =
   /** Sneak Attack on a damage roll: the hit's total damage picks the tier (1–10 up to 101 and more). */
   | { kind: "sneak"; total?: number }
   /** A weapon's natural 20 (Sword of Sharpness, Vicious, Life Stealing, Mace of Smiting), or its second 20 ("sever": a limb). */
-  | { kind: "twenty"; motif: "sharp" | "vicious" | "drain" | "smite" | "edge" | "sever"; label: string }
+  | { kind: "twenty"; motif: "sharp" | "vicious" | "drain" | "smite" | "edge" | "sever" | "tide"; label: string }
   /** Destructive Wrath: the storm answers (its lightning and thunder dice at their maximum). */
   | { kind: "wrath" }
   /** Floar (Circle of the Heammer): the Methic flame lights; with Zenith, a sun rises in it too. */

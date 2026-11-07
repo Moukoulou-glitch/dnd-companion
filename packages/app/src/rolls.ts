@@ -31,7 +31,7 @@ export interface RollRecord {
   /** One roll for several darts (Magic Missile): how many, what each deals, and the one roll's own lines. */
   darts?: { count: number; each: number; what: string; lines: { source: string; detail: string; total: number }[] };
   /** A weapon's natural 20 that does more (Sword of Sharpness +14): its look and words. */
-  twenty?: { motif: "sharp" | "vicious" | "drain" | "smite" | "edge"; label: string };
+  twenty?: { motif: "sharp" | "vicious" | "drain" | "smite" | "edge" | "tide"; label: string };
 }
 
 /**

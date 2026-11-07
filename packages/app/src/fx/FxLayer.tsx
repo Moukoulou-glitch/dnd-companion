@@ -139,6 +139,7 @@ export function specOf(e: FxEvent): FxSpec {
         smite: { ms: 1400, buzz: [80, 40, 120], shake: 420 },
         edge: { ms: 1100, buzz: [30, 40, 30] },
         sever: { ms: 2500, buzz: [60, 40, 60, 40, 180], shake: 650 },
+        tide: { ms: 2000, buzz: [30, 50, 30, 50, 120], shake: 300 },
       }[e.motif];
       return { at: "edge", ms: t.ms, buzz: t.buzz, look: `fx-tw fx-tw-${e.motif}`, label: e.label, skippable: true, ...("shake" in t ? { shake: t.shake } : {}) };
     }
@@ -680,6 +681,18 @@ export function FxLayer({ school, spell, feature, character }: { school: (spell:
                   <svg className="fx-tw-svg" viewBox="0 0 390 844" preserveAspectRatio="none">
                     <path className="edge" pathLength={1} d="M40,560 Q200,420 350,300" />
                   </svg>
+                )}
+                {spec.look.includes("fx-tw-tide") && (
+                  <>
+                    <svg className="fx-tw-svg fx-tw-waves" viewBox="0 0 390 844" preserveAspectRatio="none">
+                      <path className="w1" d="M0,844 L0,520 C60,470 110,560 180,500 C250,440 300,540 390,480 L390,844 Z" />
+                      <path className="w2" d="M0,844 L0,580 C70,530 130,620 200,560 C270,500 320,600 390,540 L390,844 Z" />
+                      <path className="foam" pathLength={1} d="M0,520 C60,470 110,560 180,500 C250,440 300,540 390,480" />
+                    </svg>
+                    {Array.from({ length: 12 }, (_, i) => (
+                      <span key={i} className="fx-tw-bubble" style={{ left: `${6 + i * 8}%`, animationDelay: `${300 + (i % 5) * 110}ms` }} />
+                    ))}
+                  </>
                 )}
                 {spec.look.includes("fx-tw-sever") && (
                   <>

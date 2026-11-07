@@ -82,7 +82,7 @@ export interface WeaponAttack {
     /** Extra weapon dice rolled on a critical hit, e.g. Brutal Critical. */
     critExtraDice: Part[];
     /** What else a critical hit does (Sword of Life Stealing's temporary HP), or a second d20 to roll (Sword of Sharpness: on a 20, a limb). */
-    critRiders?: { label: string; text: string; d20?: boolean; tempHp?: number }[];
+    critRiders?: { label: string; text: string; d20?: boolean; tempHp?: number; halfMax?: string; anyCrit?: boolean }[];
   };
   properties: string[];
   range?: [number, number];
@@ -1453,6 +1453,9 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       const critRiders: NonNullable<WeaponAttack["damage"]["critRiders"]> = critMods
         .filter((a) => (a.mod.op === "critNote" || a.mod.op === "critD20") && typeof a.mod.value === "string")
         .map((a) => ({ label: labelOf(a), text: a.mod.value as string, ...(a.mod.op === "critD20" ? { d20: true } : {}) }));
+      // On any critical hit, half the target's hit point maximum (Wave: necrotic): the roll asks for that maximum.
+      for (const a of critMods.filter((x) => x.mod.op === "critHalfMax" && typeof x.mod.value === "string"))
+        critRiders.push({ label: labelOf(a), text: `${a.mod.value} damage equal to half the target's hit point maximum.`, halfMax: a.mod.value as string, anyCrit: true });
       // Temporary hit points on a 20 (Sword of Life Stealing): given when the damage is rolled.
       for (const a of critMods.filter((x) => x.mod.op === "critTempHp")) {
         const n = flatOf(a);

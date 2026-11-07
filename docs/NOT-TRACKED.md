@@ -487,3 +487,7 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 - On a 20 (Sword of Sharpness, Life Stealing, Vicious, Mace of Smiting): from 19h only when the d20 showed 20 (a Champion's 19 is a critical hit without it). After "Skip to damage" the app can't see the d20: tap "The d20 showed 20". Life Stealing's temporary HP are given with the damage on a 20 (Undo if the target was a construct or an undead); a construct's extra damage and the limb or head are shown for you to apply; the second d20 isn't kept in the roll history.
 - Book weapons are read from their wording: unusual phrasing (charges spent for damage, a hit that needs a condition the text gives in another way) stays text.
 
+## Round 19j
+- Whelm: when the open-sky curse starts (the dawn after your first attack with it) and whether you can see the daytime sky are yours: switch "Whelm: under the daytime sky" on and off. Only a dwarf can attune to it, and only a worshipper of a sea god to Wave: not checked.
+- Wave: the target's hit point maximum is typed in on the critical hit. Its cube of force regains 1d20 charges a dawn: add them back on its resource. Its sentience, personality and conflicts are in its summary, not tracked.
+
