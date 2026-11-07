@@ -402,3 +402,4 @@ Remaining plan (each a sub-phase, stop after each): 2a crits (done) · 2b Relent
   - Absorbing Tattoo (colour picked; its reaction), Eldritch Claw Tattoo (+1 to unarmed strikes, Eldritch Maul switch +1d6 force), Illuminator's Tattoo, Spellwrought Tattoos (work as spell scrolls: `isScroll`), Dark Shard Amulet and Hat of Wizardry (an Arcana check), Clockwork Amulet, Tome of the Stilled Tongue, the sorcerer shards (Earth: resistance until your turn; Evil: 3d6 necrotic; Good: 3d6 temporary HP; Feywild: a surge roll).
   - Plate Armor of Etherealness, Driftglobe, Perfume of Bewitching, Broom of Flying (a switch: fly 50 ft), Bead of Force.
   - Left as text (nothing for the sheet): Adamantine, Gleaming, Cast-Off and Smoldering armor, Alchemy Jug, Bag of Beans, Daern's Instant Fortress, Iron Bands, Iron Flask, Rope of Climbing, Horseshoes of Speed, Book of Exalted Deeds.
+- 20c merged to main with approval (Nov 8; run 42424077131 passed).
