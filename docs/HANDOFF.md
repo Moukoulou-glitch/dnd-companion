@@ -383,3 +383,4 @@ Remaining plan (each a sub-phase, stop after each): 2a crits (done) · 2b Relent
   - `components/Sections.tsx` is the shared sectioned list (jump scrolls below the character strip).
   - The homebrew items' emblems moved from the character strip to the top of Play, so the strip stays small on every page.
   - Revised (user's choice): Race first; each class and its subclass are sections of their own ("Battle Master (Fighter)" right after "Fighter 6"); Items: Magic weapons, Magic armor and shields, Magic items (rarity, magic bonus, attunement, wondrous or ring), Potions and scrolls, then Weapons, Armor and shields, Ammunition, Spellcasting focuses, Tools and instruments, Gear.
+- 19m merged to main with approval (Nov 7; run 42402755752 passed).
