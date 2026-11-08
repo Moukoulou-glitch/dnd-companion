@@ -107,11 +107,16 @@ export function roll(formula: string | Term[], rng: Rng = secureRng): RollResult
   // Crits and fumbles use the natural roll, before Reliable Talent-style minimums.
   const naturalRoll = d20?.dice.find((d) => !d.dropped);
   let nat = naturalRoll ? naturalRoll.rerolled ?? naturalRoll.rolled : undefined;
-  // Adama: two d20s added; a total of exactly the number counts as a natural 20, and no natural 1.
+  // Adama: two d20s added. Either die in the crit range (20, or 19–20 with Improved Critical), or a total
+  // in it (from the crit range up to 20), counts as a 20; no natural 1. `natural` is 20 when a die or the
+  // total shows exactly 20 ("on a 20" effects), otherwise the total.
   const onSum = d20 && d20.term.kind === "dice" ? d20.term.critOnSum : undefined;
   if (onSum !== undefined && d20) {
-    const sum = d20.dice.reduce((s, d) => s + (d.rerolled ?? d.rolled), 0);
-    const result: RollResult = { formula: typeof formula === "string" ? formula : "", terms: results, total, crit: sum === onSum, fumble: false, natural: sum };
+    const faces = d20.dice.map((d) => d.rerolled ?? d.rolled);
+    const sum = faces.reduce((s, f) => s + f, 0);
+    const crit = faces.some((f) => f >= critAt) || (sum >= Math.min(critAt, onSum) && sum <= onSum);
+    const twenty = faces.includes(20) || sum === onSum;
+    const result: RollResult = { formula: typeof formula === "string" ? formula : "", terms: results, total, crit, fumble: false, natural: twenty ? 20 : sum };
     return result;
   }
 

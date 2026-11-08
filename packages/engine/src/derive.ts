@@ -1009,14 +1009,8 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     const typedNotes: { text: string; types: string[] }[] = [];
     let minTotal: { value: number; label: string } | undefined;
     let rerollOne: RollBreakdown["rerollOne"];
-    let sumAfter: RollBreakdown["sumAfter"];
     for (const a of modsFor(keys, itemInstanceId)) {
       const { mod } = a;
-      // Adama: after a roll with advantage or disadvantage, the two dice added together, nothing else (a choice on the result).
-      if (mod.op === "sumD20Choice" && conditionState(mod.when) !== "fail") {
-        sumAfter = { label: labelOf(a), natural: flatOf(a) || 20, ...(mod.spends ? { spends: mod.spends } : {}) };
-        continue;
-      }
       // Piercer: after the damage roll, one die rolled again.
       if (mod.op === "rerollOneDie") {
         if (conditionState(mod.when) !== "fail") {
@@ -1078,7 +1072,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       }
       // Adama: with advantage or disadvantage, both d20s added together (a total of exactly 20 is a natural 20).
       if (mod.op === "sumD20" && conditionState(mod.when) !== "fail") {
-        const s: Suggestion = { label: labelOf(a), effect: "add both d20s", apply: { flat: 0, dice: [], sumD20: flatOf(a) || 20 } };
+        const s: Suggestion = { label: labelOf(a), effect: "2d20 instead, no modifiers", apply: { flat: 0, dice: [], sumD20: flatOf(a) || 20 } };
         if (mod.when?.text) s.reason = mod.when.text;
         if (mod.spends) s.spends = mod.spends;
         suggestions.push(s);
@@ -1159,7 +1153,6 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     }
     if (critAt !== undefined && critAt < 20) result.critAt = critAt;
     if (rerollOne) result.rerollOne = rerollOne;
-    if (sumAfter) result.sumAfter = sumAfter;
     if (minD20 !== undefined && minD20 > 1) result.minD20 = minD20;
     if (autoFail.length) result.autoFail = autoFail;
     if (notes.length) result.notes = notes;

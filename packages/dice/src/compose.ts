@@ -7,8 +7,6 @@ import { critFormula, roll, scriptedRng, secureRng, type DieResult, type Rng, ty
  */
 export interface ComposerBase {
   total: number;
-  /** After a roll with advantage or disadvantage: the two d20s added together instead, nothing else (Adama). The app offers it on the result. */
-  sumAfter?: { label: string; natural: number; spends?: { resource: string; amount: number } };
   parts: { label: string; value: number }[];
   dice: { label: string; dice: string; damageType?: string; save?: { dc: number; ability: string; half: boolean } }[];
   advantage: string[];
@@ -122,10 +120,11 @@ export function composeD20(base: ComposerBase, choices: ComposerChoices = noChoi
     d20.count = 2;
     d20.critOnSum = sumOn.apply.sumD20!;
   }
-  // Adama's dice: nothing changes either of them (no crit range, minimum or reroll).
+  // Your crit range counts with Adama too (Improved Critical: a die or the total on 19–20).
+  const critAt = Math.min(base.critAt ?? 20, ...on.map((s) => s.apply.critAt ?? 20));
+  if (critAt < 20) d20.critAtOrAbove = critAt;
+  // Adama's dice: nothing changes either of them (no minimum or reroll).
   if (!sumOn) {
-    const critAt = Math.min(base.critAt ?? 20, ...on.map((s) => s.apply.critAt ?? 20));
-    if (critAt < 20) d20.critAtOrAbove = critAt;
     // Reliable Talent always; Stroke of Luck (treat the d20 as a 20) when ticked.
     const minD20 = Math.max(base.minD20 ?? 0, ...on.map((s) => s.apply.minD20 ?? 0));
     if (minD20 > 0) d20.min = minD20;
@@ -135,6 +134,8 @@ export function composeD20(base: ComposerBase, choices: ComposerChoices = noChoi
   }
   out.terms.push(d20);
   out.sources.push(sumOn ? `2d20 added (${sumOn.label})` : mode === "normal" ? "d20" : triple ? `d20, advantage (${tripleFrom}: three dice)` : `d20, ${mode}`);
+  // Adama: the two dice and nothing else (no modifiers, bonuses or penalties).
+  if (sumOn) return out;
 
   for (const p of base.parts) pushFlat(out, p.value, p.label);
   for (const d of base.dice) pushDice(out, d.dice, d.label);

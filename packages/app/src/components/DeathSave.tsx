@@ -3,7 +3,7 @@ import { rollOrThrow } from "../dice/quick";
 
 /**
  * A death saving throw: tap the d20 (or let the app roll). With Adama (a half-elf's heritage), rolling with
- * advantage or disadvantage, both d20s are added: two taps, and a total of exactly 20 counts as a natural 20.
+ * advantage or disadvantage, two d20s: two taps. A 20 on either die, or a total of exactly 20, counts as a natural 20; otherwise they're added.
  */
 export function DeathSavePanel({
   beacon,
@@ -38,9 +38,9 @@ export function DeathSavePanel({
             }}
           />
           <div className="row-main">
-            <div className="row-title">Adama: add both d20s</div>
+            <div className="row-title">Adama: roll 2d20 instead</div>
             <div className="row-sub">
-              Only with advantage or disadvantage. A total of exactly 20 is a natural 20. {adama} of your uses left{adama <= 0 ? ": none, used anyway if you go on" : ""}.
+              Only with advantage or disadvantage. A 20 on either die, or a total of exactly 20, is a natural 20; otherwise they're added. {adama} of your uses left{adama <= 0 ? ": none, used anyway if you go on" : ""}.
             </div>
           </div>
         </label>

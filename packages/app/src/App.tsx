@@ -661,14 +661,15 @@ export function App() {
     else close();
   };
 
-  /** A death saving throw: what the d20 shows decides it (with Adama, two d20s added: exactly 20 is a natural 20). */
+  /** A death saving throw: what the d20 shows decides it (with Adama, two d20s: a 20 on either, or a total of exactly 20, is a natural 20; otherwise added). */
   const openDeathSave = () => {
     const decide = (n: number, sum?: [number, number]) => {
       let prompts: unknown;
       if (sum) {
         live.current.act("spendResource", { resource: "adama", amount: 1 }, "Adama used.");
         const said = `Death save (Adama): ${sum[0]} + ${sum[1]} = ${n}`;
-        if (n === 20) prompts = s.act("deathSave", { result: "critSuccess" }, `${said}, counts as a natural 20.`);
+        if (sum.includes(20)) prompts = s.act("deathSave", { result: "critSuccess" }, `Death save (Adama): ${sum[0]} and ${sum[1]}, a natural 20.`);
+        else if (n === 20) prompts = s.act("deathSave", { result: "critSuccess" }, `${said}, counts as a natural 20.`);
         else if (n >= 10) prompts = s.act("deathSave", { result: "success" }, `${said}, a success.`);
         else prompts = s.act("deathSave", { result: "failure" }, `${said}, a failure.`);
         return afterDeathSave(prompts);

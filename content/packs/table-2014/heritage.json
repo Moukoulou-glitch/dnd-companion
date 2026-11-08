@@ -102,13 +102,14 @@
         "pack": "table-2014",
         "book": "Homebrew (Heritage)"
       },
-      "summary": "From 10th level, proficiency bonus times per long rest: after you roll an attack roll, ability check or saving throw with advantage or disadvantage, you can take the two d20s added together, with nothing else added, instead of the usual result. A sum of exactly 20 counts as a natural 20 on an attack roll or a death saving throw.",
+      "summary": "From 10th level, proficiency bonus times per long rest: when you'd roll an attack roll, ability check or saving throw with advantage or disadvantage, roll 2d20 instead with no modifiers. A 20 on either die, or a total of 20, counts as a 20 on an attack roll or a death saving throw (your crit range counts, for a die or the total); otherwise the result is the two dice added.",
       "text": [
         "Your heritage allows you to understand both what separates elves from other creatures and what can bring them together. You belong wholly to neither of these worlds; instead, you can bridge the divide between them.",
         "Most importantly, as someone once said for the first time: \"I am not two halves, but two wholes.\"",
-        "When you make an attack roll, an ability check or a saving throw with advantage or disadvantage, after you see the dice you can choose the result in one of two ways: the die that advantage or disadvantage lets you keep, plus your modifiers as normal; or both dice added together, with no modifiers, bonuses or penalties of any kind.",
-        "If the two dice add up to exactly 20, this counts as rolling a 20 on an attack roll or a death saving throw. If you keep a die instead, a 20 on it counts as normal.",
-        "You can use this feature a number of times equal to your proficiency bonus, and you regain all expended uses when you finish a long rest. A use is spent only when you take the sum. Nothing can change either of the two dice, positively or negatively."
+        "When you make an attack roll, an ability check or a saving throw with advantage or disadvantage, you can forgo that roll and instead roll 2d20 without adding any modifiers, bonuses or penalties. You must decide before you roll.",
+        "If either die shows a 20, the result counts as a 20 for an attack roll or a death saving throw. Otherwise, add the two dice together: a total of 20 also counts as a 20 for an attack roll or a death saving throw. On any other roll, the result is simply the two dice added together.",
+        "Features that let you score a critical hit on a lower roll, such as Improved Critical, also apply: a die or a total within that range counts as well.",
+        "You can use this feature a number of times equal to your proficiency bonus, and you regain all expended uses when you finish a long rest. Nothing can change either of the two dice, positively or negatively."
       ],
       "heritage": {
         "races": [
@@ -128,32 +129,44 @@
         "modifiers": [
           {
             "selector": "roll.attack.*",
-            "op": "sumD20Choice",
+            "op": "sumD20",
             "value": "20",
+            "mode": "suggested",
             "label": "Adama",
             "spends": {
               "resource": "adama",
               "amount": 1
+            },
+            "when": {
+              "text": "only with advantage or disadvantage: roll 2d20 with no modifiers. A 20 on either die, or a total of 20 (or within your crit range on an attack), is a 20; otherwise they're added. Decide before rolling."
             }
           },
           {
             "selector": "roll.save.*",
-            "op": "sumD20Choice",
+            "op": "sumD20",
             "value": "20",
+            "mode": "suggested",
             "label": "Adama",
             "spends": {
               "resource": "adama",
               "amount": 1
+            },
+            "when": {
+              "text": "only with advantage or disadvantage: roll 2d20 with no modifiers. A 20 on either die, or a total of 20 (or within your crit range on an attack), is a 20; otherwise they're added. Decide before rolling."
             }
           },
           {
             "selector": "roll.check.*",
-            "op": "sumD20Choice",
+            "op": "sumD20",
             "value": "20",
+            "mode": "suggested",
             "label": "Adama",
             "spends": {
               "resource": "adama",
               "amount": 1
+            },
+            "when": {
+              "text": "only with advantage or disadvantage: roll 2d20 with no modifiers. A 20 on either die, or a total of 20 (or within your crit range on an attack), is a 20; otherwise they're added. Decide before rolling."
             }
           }
         ]

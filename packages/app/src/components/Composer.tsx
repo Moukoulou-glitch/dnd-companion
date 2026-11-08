@@ -125,7 +125,7 @@ export interface OptionInfo {
 
 type Stage =
   | { step: "setup" }
-  | { step: "d20-result"; record: RollRecord; used?: string[]; adama?: boolean }
+  | { step: "d20-result"; record: RollRecord; used?: string[] }
   | { step: "missed"; record: RollRecord }
   | { step: "damage-setup"; crit: boolean; twenty?: boolean; attackRecord?: RollRecord; attackMode?: string; usedGroups?: string[]; carried?: string[] }
   | { step: "damage-result"; record: RollRecord; crit: boolean; twenty?: boolean; attackRecord?: RollRecord };
@@ -189,6 +189,7 @@ function Options({
                 <div className="row-main">
                   <div className="row-title">{s.label}</div>
                   {s.reason && <div className="row-sub">{s.reason}</div>}
+                  {s.apply.sumD20 && choices.enabled.includes(s.label) && composeD20(base, choices).d20Mode === "normal" && <div className="row-sub warn">No advantage or disadvantage on this roll: Adama does nothing and isn't spent.</div>}
                   {s.spends && resourceNow(s.spends.resource) && (
                     <div className="row-sub">
                       {resourceNow(s.spends.resource)!.name}
@@ -515,8 +516,6 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
   const lastDamage = useRef<Composed | undefined>(undefined);
   /** The damage just rolled die by die (not typed in as one total), for Piercer's reroll of one die. */
   const lastDamageRoll = useRef<ComposedRoll | undefined>(undefined);
-  /** The d20 roll just made: its two dice, for Adama's sum. */
-  const lastD20 = useRef<ComposedRoll | undefined>(undefined);
   const [rerolledOne, setRerolledOne] = useState(false);
   /** The target's hit point maximum, typed in on a critical hit with Wave (half of it as necrotic damage). */
   const [targetMax, setTargetMax] = useState("");
@@ -650,16 +649,18 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
       setOtherFor({ values, composed });
       return;
     }
-    const rolled = done ?? rollComposed(composed, values);
-    lastD20.current = rolled;
-    const rec = recordOf(dc ? `${title} (DC ${dc})` : title, "d20", rolled);
+    const rec = recordOf(dc ? `${title} (DC ${dc})` : title, "d20", done ?? rollComposed(composed, values));
     if (thrown) rec.thrown = true;
     if (attack) rec.attack = true;
     if (choices.enabled.length) rec.options = [...choices.enabled];
     setAttackMode(composed.d20Mode);
     commit();
     if (choices.enabled.length) onOptionsUsed?.(choices.enabled);
-    onSpend?.(base.suggestions.filter((x) => choices.enabled.includes(x.label) && (x.spends || x.endsEffect)));
+    // Adama counts only with advantage or disadvantage; when it does, nothing else is added, so only what
+    // gave the advantage or disadvantage is spent with it.
+    const adama = base.suggestions.find((x) => x.apply.sumD20 && choices.enabled.includes(x.label));
+    const adamaOn = !!adama && composed.d20Mode !== "normal";
+    onSpend?.(base.suggestions.filter((x) => choices.enabled.includes(x.label) && (x.spends || x.endsEffect) && (x.apply.sumD20 ? adamaOn : !adamaOn || !!x.apply.mode)));
     const usedNow = usedUpBy(base.suggestions, choices.enabled);
     if (usedNow.length) setUsedUp((u) => [...u, ...usedNow]);
     onRolled(rec);
@@ -890,59 +891,9 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
 
   if (stage.step === "d20-result") {
     const r = stage.record;
-    // Adama: with advantage or disadvantage, the two d20s added together instead, nothing else added (a choice after the roll).
-    const pair = (() => {
-      const sa = base.sumAfter;
-      const t = lastD20.current?.result.terms[0];
-      if (!sa || stage.adama || !t || t.term.kind !== "dice" || t.term.sides !== 20 || t.dice.length !== 2 || !t.term.keep) return undefined;
-      const [a, b] = t.dice.map((d) => d.rerolled ?? d.rolled) as [number, number];
-      return { a, b, sum: a + b, sa };
-    })();
-    const takeSum = () => {
-      if (!pair) return;
-      const left = pair.sa.spends ? resourceNow(pair.sa.spends.resource)?.remaining : undefined;
-      const natural = pair.sum === pair.sa.natural;
-      const rec: RollRecord = {
-        ...r,
-        id: crypto.randomUUID(),
-        at: Date.now(),
-        title: `${r.title} · ${pair.sa.label}`,
-        total: pair.sum,
-        natural: pair.sum,
-        crit: !!attack && natural,
-        fumble: false,
-        lines: [{ source: `${pair.sa.label}: both d20s added, nothing else`, detail: `${pair.a} + ${pair.b}`, total: pair.sum }],
-        options: [...(r.options ?? []), pair.sa.label],
-      };
-      if (pair.sa.spends) onSpend?.([{ label: pair.sa.label, spends: pair.sa.spends }]);
-      onRolled(rec);
-      if (dc !== undefined) onCheck?.(rec.total >= dc);
-      setStage({ step: "d20-result", record: rec, adama: true });
-      if (left !== undefined && left < (pair.sa.spends?.amount ?? 1)) setThrowNote(`${pair.sa.label}: no uses were left. Used anyway.`);
-    };
     return (
       <>
         <ResultView r={r} />
-        {pair && (
-          <div className="adama-choice">
-            <span className="sub-head small">
-              {pair.sa.label}: which result?
-              {pair.sa.spends && resourceNow(pair.sa.spends.resource) ? ` (${resourceNow(pair.sa.spends.resource)!.remaining} of ${resourceNow(pair.sa.spends.resource)!.max} left)` : ""}
-            </span>
-            <div className="big-actions">
-              <button className="big" aria-pressed="true" disabled>
-                {r.total}
-                <span className="sub">the kept die and its modifiers</span>
-              </button>
-              <button className="big primary" onClick={takeSum}>
-                {pair.sum}
-                <span className="sub">
-                  {pair.a} + {pair.b}: both dice, nothing added{pair.sum === pair.sa.natural && attack ? " · a natural 20!" : ""}
-                </span>
-              </button>
-            </div>
-          </div>
-        )}
         {throwNote && <p className="note">{throwNote}</p>}
         {/* Asked after the attack roll (one piece of ammunition shot?): once per attack. */}
         {afterD20 && <Fragment key={`after-${nth}`}>{afterD20(choices.enabled)}</Fragment>}
@@ -953,8 +904,8 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
         )}
         {attack && (
           <>
-            {/* After seeing the roll: add to it (Focused Aim, Precision Attack) or nudge it by hand. Not with Adama's sum: nothing changes it. */}
-            {!stage.adama && <div className="after-roll">
+            {/* After seeing the roll: add to it (Focused Aim, Precision Attack) or nudge it by hand. Not after Adama: nothing changes its dice. */}
+            {!r.lines.some((l) => l.source.startsWith("2d20 added")) && <div className="after-roll">
               <span className="sub-head small">Change this roll</span>
               <div className="choice-grid">
                 {(afterRoll ?? []).map((o) => {

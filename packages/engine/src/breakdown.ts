@@ -74,11 +74,6 @@ export interface RollBreakdown extends Breakdown {
   /** Damage: after the roll, one die of your choice can be rolled again (Piercer: once per turn). */
   /** After the damage roll: dice rolled again, one (Piercer) or up to `count` (Empowered Spell), and what it spends. */
   rerollOne?: { label: string; oncePerTurn?: boolean; count?: number; spends?: { resource: string; amount: number } };
-  /**
-   * After a roll with advantage or disadvantage: take the two d20s added together instead, with nothing else added
-   * (Adama); a sum of exactly `natural` counts as a natural 20 on an attack roll. `spends`: its use.
-   */
-  sumAfter?: { label: string; natural: number; spends?: { resource: string; amount: number } };
   /** With advantage, three d20s instead of two (Elven Accuracy: attacks with Dexterity, Intelligence, Wisdom or Charisma). */
   tripleAdvantage?: string;
   dice: DicePart[];

@@ -60,12 +60,10 @@ describe("heritage features at 10th level (homebrew)", () => {
     expect(s.features.some((f) => f.id === "feat:alert")).toBe(true);
     expect(s.initiative.total).toBe(2 + 5);
   });
-  it("Adama: a choice after d20 rolls with advantage or disadvantage (both dice added), spending a use (proficiency bonus per long rest)", () => {
+  it("Adama: an option on d20 rolls that adds both dice, spending a use (proficiency bonus per long rest)", () => {
     const s = pc("race:half-elf", "class:fighter", 10);
     expect(s.resources.find((r) => r.id === "adama")?.max).toBe(4);
-    // 20d: chosen after the roll, not ticked before it.
-    expect(s.saves.dex.sumAfter).toMatchObject({ natural: 20, spends: { resource: "adama", amount: 1 } });
-    expect(s.saves.dex.suggestions.find((x) => x.label === "Adama")).toBeUndefined();
+    expect(s.saves.dex.suggestions.find((x) => x.label === "Adama")).toMatchObject({ apply: { sumD20: 20 }, spends: { resource: "adama", amount: 1 } });
   });
 });
 
