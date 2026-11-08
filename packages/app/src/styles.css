@@ -4843,3 +4843,5 @@ html.fx-shake-strong .app > .strip, html.fx-shake-strong .app > main, html.fx-sh
 .row.picked::before { content: "↳"; position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--muted); }
 .item-filter [aria-checked="true"] .jump-count { color: inherit; background: rgba(0, 0, 0, 0.18); }
 .item-filter button { display: inline-flex; align-items: center; justify-content: center; gap: 4px; }
+.adama-choice { margin: 10px 0 4px; }
+.adama-choice .big[aria-pressed="true"] { opacity: 1; border-color: var(--line); }

@@ -7,6 +7,8 @@ import { critFormula, roll, scriptedRng, secureRng, type DieResult, type Rng, ty
  */
 export interface ComposerBase {
   total: number;
+  /** After a roll with advantage or disadvantage: the two d20s added together instead, nothing else (Adama). The app offers it on the result. */
+  sumAfter?: { label: string; natural: number; spends?: { resource: string; amount: number } };
   parts: { label: string; value: number }[];
   dice: { label: string; dice: string; damageType?: string; save?: { dc: number; ability: string; half: boolean } }[];
   advantage: string[];

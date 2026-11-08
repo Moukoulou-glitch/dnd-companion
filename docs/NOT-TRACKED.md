@@ -447,7 +447,7 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
   - Thinking Stone: the stored objects and who holds them aren't tracked; each spell's slot-free cast is counted per long rest (a warning past one, never blocked). "Not prepared" isn't enforced: the slot buttons still show.
   - Human Above All: the feat's prerequisites are checked and warned about (16b), for every feat that has one: race, a score, an armor or martial weapon proficiency, spellcasting. Kept either way.
   - Unbridled Seasons: the season spells are cast with Charisma (confirmed, and in the text). Nocter's spell is Sleet Storm (16b); it ending when you start a turn outside it, and Catnap's 1 round, are notes. Heammer's and Nocter's weapon damage is an option you tick (fire or radiant; cold or necrotic). Fey Step's 60 ft is a note.
-  - Adama: an option on attack rolls, saves and checks, and a tick on the death save (two taps, or the app rolls both; 16b); it counts only with advantage or disadvantage, which is yours to say.
+  - Adama (20d): after a roll with advantage or disadvantage (attack, check, save), the result offers the kept total or the two dice added with nothing else; a use is spent only when you take the sum (a note when none are left, never blocked). Not offered with Elven Accuracy's three dice. The death save keeps its own tick (two taps, or the app rolls both; 16b), since a death save isn't rolled with the Composer.
 - Animations: Zone of Truth (the five lines, when you cast it or put its tag on you), Preserve Life (a waterfall rising), Fey Step (by season).
 
 ## Round 16c: Channel Divinity and heritage animations

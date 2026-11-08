@@ -1009,8 +1009,14 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     const typedNotes: { text: string; types: string[] }[] = [];
     let minTotal: { value: number; label: string } | undefined;
     let rerollOne: RollBreakdown["rerollOne"];
+    let sumAfter: RollBreakdown["sumAfter"];
     for (const a of modsFor(keys, itemInstanceId)) {
       const { mod } = a;
+      // Adama: after a roll with advantage or disadvantage, the two dice added together, nothing else (a choice on the result).
+      if (mod.op === "sumD20Choice" && conditionState(mod.when) !== "fail") {
+        sumAfter = { label: labelOf(a), natural: flatOf(a) || 20, ...(mod.spends ? { spends: mod.spends } : {}) };
+        continue;
+      }
       // Piercer: after the damage roll, one die rolled again.
       if (mod.op === "rerollOneDie") {
         if (conditionState(mod.when) !== "fail") {
@@ -1153,6 +1159,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     }
     if (critAt !== undefined && critAt < 20) result.critAt = critAt;
     if (rerollOne) result.rerollOne = rerollOne;
+    if (sumAfter) result.sumAfter = sumAfter;
     if (minD20 !== undefined && minD20 > 1) result.minD20 = minD20;
     if (autoFail.length) result.autoFail = autoFail;
     if (notes.length) result.notes = notes;

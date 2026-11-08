@@ -109,6 +109,11 @@ export const ModifierOp = z.enum([
   /** Weapons: what any critical hit does, shown with its damage; `value` is the text (Cloak of Nightclaw: disadvantage on Dexterity saves). */
   "critHitNote",
   /**
+   * d20 rolls: after a roll with advantage or disadvantage, the player may take the two dice added together instead of
+   * the kept die and its modifiers (Adama); a sum of exactly `value` is a natural 20 on an attack roll. Uses `spends`.
+   */
+  "sumD20Choice",
+  /**
    * Once (its `spends` resource), when you'd drop to 0 hit points you drop to `value` instead (Tattoo of Last Hope: your
    * Charisma modifier, at least 1). Selector hp.zero.
    */
