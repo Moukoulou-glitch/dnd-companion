@@ -1,9 +1,12 @@
 # Cloudflare Worker for the companion: serves the app and the /api routes.
 # Nothing secret lives here. TEAM_DOMAIN and ACCESS_AUD come from the Cloudflare Access application
-# (they are public identifiers, used to check sign-ins); fill them in when the Access app exists.
+# (public identifiers, used to check sign-ins), from Workers & Pages → dnd-companion → Access.
 name = "dnd-companion"
 main = "src/index.ts"
 compatibility_date = "2026-10-19"
+# The app's address: dnd-companion.micyemail.workers.dev. No per-version preview addresses.
+workers_dev = true
+preview_urls = false
 
 [assets]
 directory = "../app/dist"
@@ -14,8 +17,8 @@ not_found_handling = "single-page-application"
 
 [vars]
 ADMIN_EMAIL = "micyemail@gmail.com"
-TEAM_DOMAIN = "REPLACE-ME.cloudflareaccess.com"
-ACCESS_AUD = "REPLACE-ME"
+TEAM_DOMAIN = "floral-sun-7dbe.cloudflareaccess.com"
+ACCESS_AUD = "b760348153d48603d3347a3f924355499e1507e0e752326e1affa3d829386808"
 DEFAULT_LIMIT = "6"
 
 [[d1_databases]]

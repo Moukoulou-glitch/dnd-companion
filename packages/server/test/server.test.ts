@@ -62,6 +62,15 @@ describe("21a: who is signed in", () => {
   });
 });
 
+describe("Cloudflare's own sign-in (ctx.access)", () => {
+  const viaCtx = (email: string, aud = AUD) => handle(new Request("https://app.example/api/me"), env, certs, Date.now(), { access: { aud, getIdentity: async () => ({ email }) } });
+  it("counts for this app only; a browser header never does", async () => {
+    expect(await (await viaCtx(ADMIN)).json()).toMatchObject({ email: ADMIN, admin: true });
+    expect((await viaCtx(ADMIN, "another-app")).status).toBe(401);
+    expect((await viaCtx("stranger@gmail.com")).status).toBe(403);
+  });
+});
+
 describe("21a: the admin's list", () => {
   it("adds a player (6 by default), changes the limit, removes them; players can't", async () => {
     expect((await call("PUT", "/api/admin/players/Nikos@Gmail.com", ADMIN, {})).data).toMatchObject({ email: "nikos@gmail.com", limit: 6 });

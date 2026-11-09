@@ -28,9 +28,27 @@ const fail = (status: number, error: string, more: Record<string, unknown> = {})
 const defaultLimit = (env: Env) => Math.max(0, Number(env.DEFAULT_LIMIT ?? 6) || 6);
 const isAdmin = (env: Env, email: string) => email === env.ADMIN_EMAIL.trim().toLowerCase();
 
+/**
+ * What Cloudflare itself attaches to a request when the Worker is protected by Access (ctx.access): set by
+ * Cloudflare's runtime, never by the browser.
+ */
+export interface AccessContext {
+  access?: { aud?: string; getIdentity?: () => Promise<{ email?: string } | undefined> };
+}
+
+/** The signed-in email: from Access's signed token, or else from Cloudflare's own ctx.access for this app. */
+async function signedIn(req: Request, env: Env, ctx?: AccessContext, fetcher?: (u: string) => Promise<Response>): Promise<string | undefined> {
+  const fromToken = await verifiedEmail(req, env, fetcher);
+  if (fromToken) return fromToken;
+  const a = ctx?.access;
+  if (!a || a.aud !== env.ACCESS_AUD || !a.getIdentity) return undefined;
+  const email = (await a.getIdentity())?.email;
+  return typeof email === "string" && email.includes("@") ? email.trim().toLowerCase() : undefined;
+}
+
 /** Signed in and allowed: the admin, or a player on the list. */
-async function who(req: Request, env: Env, fetcher?: (u: string) => Promise<Response>): Promise<Who | Response> {
-  const email = await verifiedEmail(req, env, fetcher);
+async function who(req: Request, env: Env, fetcher?: (u: string) => Promise<Response>, ctx?: AccessContext): Promise<Who | Response> {
+  const email = await signedIn(req, env, ctx, fetcher);
   if (!email) return fail(401, "Not signed in.");
   if (isAdmin(env, email)) return { email, admin: true };
   const p = await env.DB.prepare("SELECT email FROM players WHERE email = ?").bind(email).first();
@@ -64,10 +82,10 @@ async function readBody(req: Request): Promise<{ ok: true; value: Record<string,
 
 const summary = (r: Omit<Row, "data">) => ({ id: r.id, owner: r.owner, name: r.name, version: r.version, updatedAt: r.updated_at });
 
-export async function handle(req: Request, env: Env, fetcher?: (u: string) => Promise<Response>, now = Date.now()): Promise<Response> {
+export async function handle(req: Request, env: Env, fetcher?: (u: string) => Promise<Response>, now = Date.now(), ctx?: AccessContext): Promise<Response> {
   const url = new URL(req.url);
   const path = url.pathname.replace(/\/+$/, "") || "/";
-  const u = await who(req, env, fetcher);
+  const u = await who(req, env, fetcher, ctx);
 
   // The app itself (static files): only for allowed accounts.
   if (!path.startsWith("/api/")) {
@@ -213,5 +231,5 @@ export async function handle(req: Request, env: Env, fetcher?: (u: string) => Pr
 }
 
 export default {
-  fetch: (req: Request, env: Env) => handle(req, env),
+  fetch: (req: Request, env: Env, ctx: ExecutionContext) => handle(req, env, undefined, Date.now(), ctx as unknown as AccessContext),
 } satisfies ExportedHandler<Env>;
