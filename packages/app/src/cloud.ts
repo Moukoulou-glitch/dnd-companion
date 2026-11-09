@@ -115,7 +115,9 @@ export class Cloud {
     let res: Response;
     try {
       // A sign-in that ran out sends a redirect to Google: not followed here, it means "sign in again".
-      res = await this.fetchFn(path, { credentials: "same-origin", redirect: "manual", cache: "no-store", ...init, headers: { "content-type": "application/json", ...(init.headers ?? {}) } });
+      // A slow connection doesn't hold the app up: after 5 seconds it counts as offline.
+      const signal = typeof AbortSignal !== "undefined" && "timeout" in AbortSignal ? AbortSignal.timeout(5000) : undefined;
+      res = await this.fetchFn(path, { credentials: "same-origin", redirect: "manual", cache: "no-store", ...(signal ? { signal } : {}), ...init, headers: { "content-type": "application/json", ...(init.headers ?? {}) } });
     } catch {
       return "offline";
     }
@@ -126,6 +128,8 @@ export class Cloud {
 
   /** Who's signed in; "local" when the app isn't served from the account's server. */
   async me(): Promise<MeResult> {
+    // GitHub Pages has no account server: the device only, with nothing to wait for.
+    if (typeof location !== "undefined" && location.hostname.endsWith("github.io")) return { kind: "local" };
     const res = await this.call("/api/me");
     if (res === "offline") return { kind: "offline" };
     if (res === "signed-out") return { kind: "signed-out" };
