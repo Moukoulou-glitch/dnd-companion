@@ -327,6 +327,15 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
   const hasFeature = (id: string) => sheet.features.some((f) => f.id === id);
 
   /** Damage to a companion: its defenses (when typed), its temporary HP, then its hit points. */
+  /** A companion's or summoned creature's temporary hit points are gone: effects that lasted only while they did end (Tale of the Traveler). */
+  const tempGoneOn = (list: { effect: string }[] | undefined, who: string): { effect: string }[] | undefined => {
+    if (!list?.length) return list;
+    const gone = list.filter((e) => reg.find(e.effect, "effect")?.whileTempHp);
+    if (!gone.length) return list;
+    notes.push(`${who}: the temporary hit points are gone, so ${gone.map((e) => reg.find(e.effect, "effect")?.name ?? e.effect).join(", ")} ends.`);
+    return list.filter((e) => !gone.includes(e));
+  };
+
   const hurtCompanion = (id: string, dealt: number, damageType: string | undefined, magical: boolean) => {
     const t = companionTarget(id);
     if (!t) return;
@@ -340,6 +349,7 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
     }
     const absorbed = Math.min(t.state.hp.temp, amount);
     t.state.hp.temp -= absorbed;
+    if (absorbed && t.state.hp.temp === 0) t.state.effects = tempGoneOn(t.state.effects, t.comp.name) as typeof t.state.effects;
     t.state.hp.current = Math.max(0, t.state.hp.current - (amount - absorbed));
     notes.push(`${t.comp.name}: ${t.state.hp.current} of ${t.max} HP.`);
     if (t.state.hp.current === 0) {
@@ -804,6 +814,13 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       if (!x) break;
       const def = reg.find(x.creature, "creature");
       const who = x.name ?? def?.name ?? "It";
+      if (op.payload.temp !== undefined) {
+        if (op.payload.temp > (x.temp ?? 0)) {
+          x.temp = op.payload.temp;
+          notes.push(`${who}: ${op.payload.temp} temporary HP.`);
+        } else notes.push(`${who}: temporary HP don't stack, keeping ${x.temp}.`);
+        if (op.payload.hp === undefined && op.payload.damage === undefined) break;
+      }
       let target = op.payload.hp ?? x.hp;
       if (op.payload.damage !== undefined) {
         // Its stat block's defenses, plus any from effects on it (Protection from Energy, Stoneskin);
@@ -821,7 +838,10 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
           const absorbed = Math.min(x.temp, amount);
           x.temp -= absorbed;
           amount -= absorbed;
-          if (!x.temp) delete x.temp;
+          if (!x.temp) {
+            delete x.temp;
+            x.effects = tempGoneOn(x.effects, who) as typeof x.effects;
+          }
           if (absorbed) notes.push(`${who}: temporary HP absorbed ${absorbed}.`);
         }
         target = Math.max(0, x.hp - amount);

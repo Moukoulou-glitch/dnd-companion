@@ -1511,11 +1511,14 @@ export function App() {
             const choice = b.effect === "other:spirit-tale-traveler" ? undefined : die;
             const tempTo = (id: string, amount: number) => {
               if (id === "me") live.current.act("setTempHp", { amount: Math.max(amount, live.current.character?.hp.temp ?? 0) }, `${what}: ${amount} temporary HP.`);
-              else if (!id.startsWith("summon:") && id !== "other") live.current.act("setTempHp", { amount, companion: id }, `${what}: ${amount} temporary HP.`);
+              else if (id.startsWith("summon:")) live.current.act("summonHp", { id: id.slice("summon:".length), temp: amount }, `${what}: ${amount} temporary HP.`);
+              else if (id !== "other") live.current.act("setTempHp", { amount, companion: id }, `${what}: ${amount} temporary HP.`);
             };
             const effectOn = (id: string) => {
               if (!b.effect) return;
-              if (id === "me") live.current.act("addEffect", { instanceId: crypto.randomUUID(), effect: b.effect, ...(choice ? { choice } : {}) }, `${what} on you${choice ? ` (${choice})` : ""}.`);
+              // Phantom on you: until the end of your next turn (tags count down as your turns end; this one is ending too).
+              const rounds = b.effect === "other:spirit-tale-phantom" ? 2 : undefined;
+              if (id === "me") live.current.act("addEffect", { instanceId: crypto.randomUUID(), effect: b.effect, ...(choice ? { choice } : {}), ...(rounds ? { rounds } : {}) }, `${what} on you${choice ? ` (${choice})` : ""}.`);
               else if (id !== "other") giveEffectTo(id, b.effect, choice, what);
             };
             if (b.total !== undefined && (b.tale === 3 || b.tale === 6)) {

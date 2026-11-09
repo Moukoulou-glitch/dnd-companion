@@ -341,9 +341,10 @@ export function FeaturePanel({
       ) : times > 1 && !physical && faces && !a.choose && a.roll?.anyOnDouble && a.roll.table && faces.every((f) => f === faces[0]) ? (
         // Mystical Connection: the same number twice, so any line of the table.
         <>
-          <p className="sub-head">Both the same: pick any</p>
+          <p className="sub-head">Both the same: pick any your die can show</p>
           <div className="group">
-            {a.roll.table.map((line, i) => (
+            {/* Only the lines the die can reach (a d10 shows 1–10; tales 11 and 12 come with the d12). */}
+            {a.roll.table.slice(0, Number(/d(\d+)/.exec(amount?.dice[0] ?? "")?.[1] ?? a.roll.table.length)).map((line, i) => (
               <button key={i} className="row" onClick={() => useWith(i + 1)}>
                 <div className="row-main">
                   <div className="row-title">{line.split(":")[0]}</div>

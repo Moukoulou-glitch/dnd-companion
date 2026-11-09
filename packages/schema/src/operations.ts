@@ -82,6 +82,8 @@ export const OPERATION_PAYLOADS = {
       magical: z.boolean().optional(),
       silvered: z.boolean().optional(),
       adamantine: z.boolean().optional(),
+      /** Temporary hit points it gains (Tale of the Traveler): they don't stack, the higher stays. */
+      temp: z.number().int().min(0).optional(),
     })
     .strict(),
   /** Change an effect on a summoned creature: its time left, the level it was cast at, its choice. */
