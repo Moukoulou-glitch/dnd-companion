@@ -1822,10 +1822,43 @@ export function App() {
    * off your turn they're a reaction (opportunity attack). Nothing is spent
    * until the attack is actually rolled.
    */
-  const openAttack = (a: WeaponAttack, extra: Parameters<typeof openRoll>[3] = {}) => {
+  const openAttack = (a: WeaponAttack, extra: Parameters<typeof openRoll>[3] = {}, asked = false) => {
     const cb = live.current.character?.combat;
     // An opportunity attack: on someone else's turn, or picked from the Reaction menu.
     const reaction = (!!cb && !cb.myTurn && a.action === "attack") || !!extra.reaction;
+    // Defender (and the Moonblade's defender rune): the first time you attack with it on your turn, move some of its bonus to AC?
+    const shift = !asked && !reaction && a.itemInstanceId ? live.current.sheet?.actions.find((x) => x.beforeFirstAttack && x.itemInstanceId === a.itemInstanceId && x.choose?.options.length) : undefined;
+    const moved = !!shift && !!live.current.character?.effects.some((e) => e.custom?.name.startsWith(`${shift.name}: `));
+    const firstThisTurn = !cb || (!cb.usedThisTurn.includes(shift?.id ?? "") && !cb.attackedWith.some((w) => w.itemInstanceId === a.itemInstanceId));
+    if (shift && !moved && firstThisTurn) {
+      const most = shift.choose!.options.length;
+      const again = (choice?: string) => {
+        if (!choice) return openAttack(a, extra, true);
+        live.current.act("useAction", { action: shift.id, choice }, `${shift.name}: ${choice}, until the start of your next turn.`);
+        const want = shift.choiceToggles?.[choice] ?? [];
+        // The attack with its new numbers, once the sheet has them.
+        const go = (tries: number) => {
+          const on = want.every((t) => live.current.character?.toggles.includes(t));
+          const fresh = live.current.sheet?.attacks.find((x) => x.attackId === a.attackId && x.mode === a.mode && !!x.offHand === !!a.offHand);
+          if ((on && fresh) || tries <= 0) return openAttack(fresh ?? a, extra, true);
+          setTimeout(() => go(tries - 1), 60);
+        };
+        go(10);
+      };
+      return open(shift.name, () => (
+        <Choose
+          question={`Move some of ${a.name}'s +${most} to your AC before this attack?`}
+          detail="Until the start of your next turn, while you hold it. What goes to AC comes off its attack and damage rolls."
+          options={[
+            { label: `No: keep +${most} on attack and damage`, onPick: () => again() },
+            ...shift.choose!.options.map((o) => {
+              const n = Number(/^\+(\d+)/.exec(o)?.[1] ?? 0);
+              return { label: `${o} (+${most - n} to attack and damage)`, onPick: () => again(o) };
+            }),
+          ]}
+        />
+      ));
+    }
     // Vigilant Defender (Cavalier 18th): off your turn, an opportunity attack that doesn't use your reaction (once per creature's turn: yours to keep).
     const vigilant = reaction && !!cb && !cb.myTurn && !!live.current.sheet?.features.some((f) => f.id === "feature:cavalier-vigilant-defender");
     const economy = vigilant ? "free" : reaction ? "reaction" : a.action === "bonus" ? "bonus" : "action";
