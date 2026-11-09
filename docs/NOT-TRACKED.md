@@ -493,7 +493,8 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 
 ## Round 19k
 - Blackrazor: you say when it devours a soul and enter the creature's hit point maximum; the temporary HP don't fade by themselves after 24 hours (its timer ends the advantage; clear the temporary HP on the Hit points pad). The 1d10 necrotic against an undead is rolled from "Blackrazor: hit an undead" and taken by hand; the undead's healing is the DM's. When it casts Haste is its choice; three days without a soul is the DM's.
-- Moonblade: its runes are picked on the item (the DM decides or rolls); a +1 rune past +3 isn't stopped. A minor property, defender, spell storing and the elfshadow are notes (add a Ring of Spell Storing or a companion from the Shadow to track those). Its rejection and attunement rules are the DM's.
+- Moonblade: its runes are picked on the item (the DM decides or rolls); a +1 rune past +3 isn't stopped. A minor property, spell storing and the elfshadow are notes (the defender rune works like the Defender, 20e; moving more than its bonus isn't stopped) (add a Ring of Spell Storing or a companion from the Shadow to track those). Its rejection and attunement rules are the DM's.
+- Defender (20e): a free action, "Defender: bonus to AC", moves 1, 2 or 3 of its +3 from attack and damage to AC until the start of your next turn, only while it's equipped. "The first time you attack with it on your turn" is yours to keep: the app doesn't stop a second move in the same turn (a new pick replaces the old one).
 - Sentient weapons speak in the lines the app gives them; their wishes, conflicts and alignment aren't tracked. Their dice look only shows with 3D dice.
 
 ## Round 19l (homebrew items)

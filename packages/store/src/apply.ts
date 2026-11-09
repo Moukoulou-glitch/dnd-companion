@@ -1553,11 +1553,15 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         const name = op.payload.choice ? `${a.name}: ${op.payload.choice}` : a.name;
         const entry: Character["effects"][number] = { id: `${op.id}-turn`, effect: "custom", custom: { name, modifiers: [] }, from: a.source, untilTurnStart: true, rounds: 1 };
         if (!c.combat) entry.outOfCombat = true;
-        if (a.toggles.length) entry.toggles = a.toggles;
+        // The switches it turned on (Defender: the pick's) go off with it.
+        const chosen = a.choiceToggles && op.payload.choice ? a.choiceToggles[op.payload.choice] ?? [] : [];
+        if (a.toggles.length || chosen.length) entry.toggles = [...a.toggles, ...chosen];
         // Bait and Switch: the die rolled goes on AC until your next turn starts.
         if (a.id === "maneuver-bait-and-switch" && op.payload.rolled) entry.custom!.modifiers = [{ selector: "stat.ac", op: "add", value: op.payload.rolled, mode: "auto", label: `Bait and Switch (+${op.payload.rolled})` }];
         removeEffects(c.effects.filter((e) => e.effect === "custom" && (e.custom?.name === a.name || e.custom?.name.startsWith(`${a.name}: `))));
         c.effects.push(entry);
+        // Replacing the same one again: its switches stay on.
+        if (entry.toggles) c.toggles = [...new Set([...c.toggles, ...entry.toggles])];
       }
       // Healer: once per creature until it finishes a short or long rest.
       if (a.id === "healer-kit" && op.payload.choice) {

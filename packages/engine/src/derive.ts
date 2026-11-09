@@ -2515,6 +2515,8 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     const switcher = actions.find((x) => x.toggles.includes(name));
     // Dodge shows as its own effect chip while it lasts, not as a switch.
     if (switcher?.common) continue;
+    // A pick that lasts until your next turn (Defender's bonus to AC) shows as its effect chip too.
+    if (actions.some((x) => x.untilTurnStart && Object.values(x.choiceToggles ?? {}).some((ts) => ts.includes(name)))) continue;
     const byAction = switcher?.name;
     const label = TOGGLE_LABELS[name] ?? byAction ?? (a.mod.op === "note" ? a.source.label : labelOf(a));
     toggles.push({ name, label, on: c.toggles.includes(name), ...(TOGGLE_REMINDERS[name] ? { reminders: TOGGLE_REMINDERS[name]!.map(fillTag) } : {}) });

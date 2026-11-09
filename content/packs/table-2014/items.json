@@ -4032,6 +4032,154 @@
     },
     {
       "kind": "item",
+      "id": "item:defender-longsword",
+      "name": "Defender",
+      "summary": "A +3 sword. The first time you attack with it on each of your turns, you can move some or all of its +3 from attack and damage rolls to your AC until the start of your next turn, while you hold it. Any sword: pick which on the item (a longsword until then).",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "weapon",
+      "magic": {
+        "rarity": "legendary",
+        "bonus": 3
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "item.attack",
+            "op": "add",
+            "value": -1,
+            "label": "Defender: 1 moved to AC",
+            "when": {
+              "toggle": "defender-ac-1"
+            }
+          },
+          {
+            "selector": "item.damage",
+            "op": "add",
+            "value": -1,
+            "label": "Defender: 1 moved to AC",
+            "when": {
+              "toggle": "defender-ac-1"
+            }
+          },
+          {
+            "selector": "stat.ac",
+            "op": "add",
+            "value": 1,
+            "label": "Defender (held)",
+            "when": {
+              "toggle": "defender-ac-1"
+            }
+          },
+          {
+            "selector": "item.attack",
+            "op": "add",
+            "value": -2,
+            "label": "Defender: 2 moved to AC",
+            "when": {
+              "toggle": "defender-ac-2"
+            }
+          },
+          {
+            "selector": "item.damage",
+            "op": "add",
+            "value": -2,
+            "label": "Defender: 2 moved to AC",
+            "when": {
+              "toggle": "defender-ac-2"
+            }
+          },
+          {
+            "selector": "stat.ac",
+            "op": "add",
+            "value": 2,
+            "label": "Defender (held)",
+            "when": {
+              "toggle": "defender-ac-2"
+            }
+          },
+          {
+            "selector": "item.attack",
+            "op": "add",
+            "value": -3,
+            "label": "Defender: 3 moved to AC",
+            "when": {
+              "toggle": "defender-ac-3"
+            }
+          },
+          {
+            "selector": "item.damage",
+            "op": "add",
+            "value": -3,
+            "label": "Defender: 3 moved to AC",
+            "when": {
+              "toggle": "defender-ac-3"
+            }
+          },
+          {
+            "selector": "stat.ac",
+            "op": "add",
+            "value": 3,
+            "label": "Defender (held)",
+            "when": {
+              "toggle": "defender-ac-3"
+            }
+          }
+        ],
+        "actions": [
+          {
+            "id": "defender-shift",
+            "name": "Defender: bonus to AC",
+            "economy": "free",
+            "untilTurnStart": true,
+            "choose": {
+              "label": "How much of the bonus goes to your AC",
+              "options": [
+                "+1 to AC",
+                "+2 to AC",
+                "+3 to AC"
+              ]
+            },
+            "choiceToggles": {
+              "+1 to AC": [
+                "defender-ac-1"
+              ],
+              "+2 to AC": [
+                "defender-ac-2"
+              ],
+              "+3 to AC": [
+                "defender-ac-3"
+              ]
+            },
+            "note": "The first time you attack with it on your turn, before that attack: move some or all of its bonus from attack and damage rolls to your AC, until the start of your next turn. Only while you hold it (unequip it and the AC goes)."
+          }
+        ]
+      },
+      "weight": 3,
+      "weapon": {
+        "category": "martial",
+        "kind": "melee",
+        "group": "longsword",
+        "damage": "1d8",
+        "damageType": "slashing",
+        "properties": [
+          "versatile"
+        ],
+        "versatileDamage": "1d10"
+      },
+      "baseFrom": [
+        "item:greatsword",
+        "item:longsword",
+        "item:rapier",
+        "item:scimitar",
+        "item:shortsword"
+      ]
+    },
+    {
+      "kind": "item",
       "id": "item:dragon-slayer-longsword",
       "name": "Dragon Slayer",
       "summary": "A +1 weapon: 3d6 more of its type against dragons. Any sword: pick which on the item (a longsword until then).",
@@ -4810,15 +4958,117 @@
           {
             "id": "defender",
             "name": "Defender",
-            "summary": "it works as a defender: at the start of your turn, move some of its bonus from attack and damage to your AC",
+            "summary": "it works as a defender: the first time you attack with it on your turn, move some or all of its bonus from attack and damage to your AC until the start of your next turn",
             "grant": {
+              "modifiers": [
+                {
+                  "selector": "item.attack",
+                  "op": "add",
+                  "value": -1,
+                  "label": "Moonblade: 1 moved to AC",
+                  "when": {
+                    "toggle": "moonblade-defender-ac-1"
+                  }
+                },
+                {
+                  "selector": "item.damage",
+                  "op": "add",
+                  "value": -1,
+                  "label": "Moonblade: 1 moved to AC",
+                  "when": {
+                    "toggle": "moonblade-defender-ac-1"
+                  }
+                },
+                {
+                  "selector": "stat.ac",
+                  "op": "add",
+                  "value": 1,
+                  "label": "Moonblade (held)",
+                  "when": {
+                    "toggle": "moonblade-defender-ac-1"
+                  }
+                },
+                {
+                  "selector": "item.attack",
+                  "op": "add",
+                  "value": -2,
+                  "label": "Moonblade: 2 moved to AC",
+                  "when": {
+                    "toggle": "moonblade-defender-ac-2"
+                  }
+                },
+                {
+                  "selector": "item.damage",
+                  "op": "add",
+                  "value": -2,
+                  "label": "Moonblade: 2 moved to AC",
+                  "when": {
+                    "toggle": "moonblade-defender-ac-2"
+                  }
+                },
+                {
+                  "selector": "stat.ac",
+                  "op": "add",
+                  "value": 2,
+                  "label": "Moonblade (held)",
+                  "when": {
+                    "toggle": "moonblade-defender-ac-2"
+                  }
+                },
+                {
+                  "selector": "item.attack",
+                  "op": "add",
+                  "value": -3,
+                  "label": "Moonblade: 3 moved to AC",
+                  "when": {
+                    "toggle": "moonblade-defender-ac-3"
+                  }
+                },
+                {
+                  "selector": "item.damage",
+                  "op": "add",
+                  "value": -3,
+                  "label": "Moonblade: 3 moved to AC",
+                  "when": {
+                    "toggle": "moonblade-defender-ac-3"
+                  }
+                },
+                {
+                  "selector": "stat.ac",
+                  "op": "add",
+                  "value": 3,
+                  "label": "Moonblade (held)",
+                  "when": {
+                    "toggle": "moonblade-defender-ac-3"
+                  }
+                }
+              ],
               "actions": [
                 {
-                  "id": "moonblade-defender",
-                  "name": "Moonblade: defender",
+                  "id": "moonblade-defender-shift",
+                  "name": "Moonblade: bonus to AC",
                   "economy": "free",
-                  "infoOnly": true,
-                  "note": "At the start of your turn, before you attack, you can move some or all of its attack and damage bonus to your AC until the start of your next turn (add an effect for the AC, and leave those points off its rolls)."
+                  "untilTurnStart": true,
+                  "choose": {
+                    "label": "How much of the bonus goes to your AC",
+                    "options": [
+                      "+1 to AC",
+                      "+2 to AC",
+                      "+3 to AC"
+                    ]
+                  },
+                  "choiceToggles": {
+                    "+1 to AC": [
+                      "moonblade-defender-ac-1"
+                    ],
+                    "+2 to AC": [
+                      "moonblade-defender-ac-2"
+                    ],
+                    "+3 to AC": [
+                      "moonblade-defender-ac-3"
+                    ]
+                  },
+                  "note": "The first time you attack with it on your turn, before that attack: move some or all of its bonus from attack and damage rolls to your AC, until the start of your next turn. Only while you hold it (unequip it and the AC goes). Not more than its bonus (+1 for the first rune, +1 more for each \"+1 more\" rune)."
                 }
               ]
             }

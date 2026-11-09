@@ -1559,8 +1559,10 @@ export function App() {
               ? `${a.name}: ${choice}, ${rolled} ${current.roll.label}.`
               : choice && current.roll?.types?.includes(choice) && rolled !== undefined
               ? `${a.name}: ${rolled} ${choice} damage.`
-              : choice && current.untilTurnStart
+              : choice && current.untilTurnStart && !current.choiceToggles
               ? `${a.name}: ${choice}. Use your reaction when the trigger happens.`
+              : choice && current.untilTurnStart
+              ? `${a.name}: ${choice}, until the start of your next turn.`
               : choice
               ? `${a.name}: ${choice.replace(/ \(not enough\)$/, "")}.`
               : free ? `${a.name} switched on (nothing spent).` : current.roll && rolled !== undefined ? `${a.name}: ${rolled} ${current.roll.label}.` : onMe === false ? `${a.name} used on another creature.` : `${a.name} used.`;
