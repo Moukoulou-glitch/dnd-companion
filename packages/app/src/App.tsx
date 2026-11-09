@@ -79,7 +79,7 @@ import { CLASS_DICE_COLOURS, classDiceColour, mainClass, setDiceClasses, setDice
 import { Choose, Confirm, PoolRollPanel, SlotSpendPanel, SpendDiePanel } from "./components/Prompts";
 import { AccountGate, AccountLine, MoveOverScreen } from "./components/Account";
 import { AdminPanel } from "./components/Admin";
-import { SIGN_OUT_URL } from "./cloud";
+import { signInAgain, signOut } from "./cloud";
 import type { Account } from "./useCharacters";
 import { BottomSheet, BreakdownLines } from "./components/Sheet";
 import { SheetTab } from "./components/SheetTab";
@@ -304,8 +304,8 @@ export function App() {
   const castSeq = useRef(0);
   const empowered = useRef<{ seq: number; spell: string; used: number }>({ seq: -1, spell: "", used: 0 });
   if (!s.ready) return null;
-  if (s.account.kind === "signed-out") return <AccountGate title="Sign in again" text="Your sign-in has run out. Sign in with your Google account to get to your characters." action="Sign in" onAction={() => location.reload()} />;
-  if (s.account.kind === "no-access") return <AccountGate title="No access yet" text={`${s.account.message} Then come back here.`} action="Use another account" onAction={() => location.assign(SIGN_OUT_URL)} />;
+  if (s.account.kind === "signed-out") return <AccountGate title="Sign in again" text="Your sign-in has run out. Sign in again to get to your characters." action="Sign in" onAction={signInAgain} />;
+  if (s.account.kind === "no-access") return <AccountGate title="No access yet" text={`${s.account.message} Then come back here.`} action="Use another account" onAction={signOut} />;
   if (s.moveOver && s.account.kind === "cloud") return <MoveOverScreen move={s.moveOver} online={s.account.online} email={s.account.me.email} onMove={s.doMoveOver} />;
   if (s.error && !s.character) return <p style={{ padding: 16 }}>{s.error}</p>;
   if (!s.character || !s.sheet) return <Welcome create={s.create} readImport={s.readImport} deleted={s.deleted} restore={s.restore} purge={s.purge} account={s.account} />;
@@ -3817,7 +3817,7 @@ export function App() {
       <FxLayer school={spellSchool} spell={spellLook} feature={featureUsed} character={c} />
       <DiceStrip />
       {s.account.kind === "cloud" && s.account.signedOut && (
-        <button className="signin-banner" onClick={() => location.reload()}>
+        <button className="signin-banner" onClick={signInAgain}>
           Your sign-in has run out: changes stay on this phone. Tap to sign in again.
         </button>
       )}

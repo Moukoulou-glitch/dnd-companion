@@ -85,6 +85,9 @@ const summary = (r: Omit<Row, "data">) => ({ id: r.id, owner: r.owner, name: r.n
 export async function handle(req: Request, env: Env, fetcher?: (u: string) => Promise<Response>, now = Date.now(), ctx?: AccessContext): Promise<Response> {
   const url = new URL(req.url);
   const path = url.pathname.replace(/\/+$/, "") || "/";
+  // Signing in again: the app's offline copy can't reach Cloudflare's sign-in page, so it sends the browser
+  // here (never answered from the offline copy). Access signs the person in first; then back to the app.
+  if (path === "/api/signin") return new Response(null, { status: 302, headers: { location: "/", "cache-control": "no-store" } });
   const u = await who(req, env, fetcher, ctx);
 
   // The app itself (static files): only for allowed accounts.

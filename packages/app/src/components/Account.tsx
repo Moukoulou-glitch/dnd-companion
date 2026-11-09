@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { SIGN_OUT_URL } from "../cloud";
+import { signInAgain, signOut } from "../cloud";
 import type { Account, MoveOver } from "../useCharacters";
 
 /** A whole-screen message about the account: signed out, or not on the list. */
@@ -35,13 +35,13 @@ export function AccountLine({ account, onRetry }: { account: Extract<Account, { 
       </div>
       <div className="account-actions">
         {(!account.online || account.signedOut) && onRetry && (
-          <button className="chip" onClick={account.signedOut ? () => location.reload() : onRetry}>
+          <button className="chip" onClick={account.signedOut ? signInAgain : onRetry}>
             {account.signedOut ? "Sign in again" : "Try again"}
           </button>
         )}
-        <a className="chip" href={SIGN_OUT_URL}>
+        <button className="chip" onClick={signOut}>
           Sign out
-        </a>
+        </button>
       </div>
     </div>
   );

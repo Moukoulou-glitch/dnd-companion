@@ -53,6 +53,10 @@ describe("21a: who is signed in", () => {
     expect(await bad("not.a.token")).toBe(401);
     expect((await call("GET", "/api/me", "MicyEmail@Gmail.com")).data).toMatchObject({ email: ADMIN, admin: true, limit: null });
   });
+  it("signing in again: back to the app (Access has signed the person in on the way)", async () => {
+    const r = await handle(new Request("https://app.example/api/signin", { headers: { "Cf-Access-Jwt-Assertion": token(ADMIN) } }), env, certs);
+    expect([r.status, r.headers.get("location")]).toEqual([302, "/"]);
+  });
   it("an account not on the list: no app, no API", async () => {
     const page = await call("GET", "/", "stranger@gmail.com");
     expect(page.status).toBe(403);

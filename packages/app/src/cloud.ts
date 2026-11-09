@@ -235,6 +235,22 @@ export class AdminApi {
   deleteCharacter = (id: string) => this.call<{ deleted: boolean }>(`/api/admin/characters/${encodeURIComponent(id)}`, { method: "DELETE" });
 }
 
+/**
+ * Signing in again: a page the offline copy never answers (it goes to the server, so Cloudflare Access
+ * shows its sign-in first), which then sends the browser back to the app.
+ */
+export const SIGN_IN_URL = "/api/signin";
+export const signInAgain = () => location.assign(SIGN_IN_URL);
+
+/**
+ * Signing out: this browser forgets which account it was on (so the next person here sees the sign-in, not
+ * the last account's characters), then Cloudflare Access ends the sign-in.
+ */
+export const signOut = () => {
+  remember(undefined);
+  location.assign(SIGN_OUT_URL);
+};
+
 /** Signing out of the account (Cloudflare Access's own address). */
 export const SIGN_OUT_URL = "/cdn-cgi/access/logout";
 
