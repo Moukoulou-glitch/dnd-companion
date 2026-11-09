@@ -4135,6 +4135,7 @@
             "name": "Defender: bonus to AC",
             "economy": "free",
             "untilTurnStart": true,
+              "beforeFirstAttack": true,
             "choose": {
               "label": "How much of the bonus goes to your AC",
               "options": [
@@ -5049,6 +5050,8 @@
                   "name": "Moonblade: bonus to AC",
                   "economy": "free",
                   "untilTurnStart": true,
+              "beforeFirstAttack": true,
+              "upToItemBonus": true,
                   "choose": {
                     "label": "How much of the bonus goes to your AC",
                     "options": [
@@ -5068,7 +5071,7 @@
                       "moonblade-defender-ac-3"
                     ]
                   },
-                  "note": "The first time you attack with it on your turn, before that attack: move some or all of its bonus from attack and damage rolls to your AC, until the start of your next turn. Only while you hold it (unequip it and the AC goes). Not more than its bonus (+1 for the first rune, +1 more for each \"+1 more\" rune)."
+                  "note": "The first time you attack with it on your turn, before that attack: move some or all of its bonus from attack and damage rolls to your AC, until the start of your next turn. Only while you hold it (unequip it and the AC goes). Only up to its bonus (+1 for the first rune, +1 more for each \"+1 more\" rune)."
                 }
               ]
             }

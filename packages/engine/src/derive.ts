@@ -307,6 +307,8 @@ export interface ActionResult {
   slotHeal?: { die: string };
   /** Starry Form: the pick's switches. */
   choiceToggles?: Record<string, string[]>;
+  /** Done before your first attack with its item on your turn (Defender). */
+  beforeFirstAttack?: boolean;
 }
 
 export interface SpeedResult {
@@ -2273,6 +2275,17 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       for (const k of ["asAttack", "dash", "untilTurnStart", "endsConcentration", "infoOnly"] as const) if (a[k]) entry[k] = true;
       if (a.check) entry.check = a.check;
       if (a.choose) entry.choose = a.choose;
+      if (a.beforeFirstAttack) entry.beforeFirstAttack = true;
+      // The Moonblade's defender rune: no more than its bonus (+1, and +1 for each "+1 more" rune).
+      if (a.choose && a.upToItemBonus && s.itemInstanceId) {
+        const inst = c.inventory.find((i) => i.id === s.itemInstanceId);
+        const def = inst ? reg.find(inst.item, "item") : undefined;
+        const plus = (mods: typeof s.grant.modifiers) => (mods ?? []).filter((m) => m.selector === "item.attack" && m.op === "add" && !m.when && typeof m.value === "number" && m.value > 0).reduce((n, m) => n + (m.value as number), 0);
+        const picked = (inst?.picks ?? []).map((id) => def?.picks?.options.find((o) => o.id === id)?.grant.modifiers);
+        const bonus = (def?.magic?.bonus ?? 0) + plus(def?.grant?.modifiers) + picked.reduce((n, m) => n + plus(m), 0);
+        const fits = (o: string) => Number(/^\+(\d+)/.exec(o)?.[1] ?? 0) <= bonus;
+        entry.choose = { ...a.choose, options: a.choose.options.filter(fits) };
+      }
       if (a.extraAction) entry.extraAction = true;
       if (a.limited) entry.limited = true;
       if (a.flexibleCasting) {
@@ -2315,7 +2328,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
         entry.recoversSlots = { budget, maxLevel: a.recoversSlots.maxLevel, ...(a.recoversSlots.count ? { count: a.recoversSlots.count } : {}) };
       }
       if (a.slotHeal) entry.slotHeal = a.slotHeal;
-      if (a.choiceToggles) entry.choiceToggles = a.choiceToggles;
+      if (a.choiceToggles) entry.choiceToggles = entry.choose && a.upToItemBonus ? Object.fromEntries(Object.entries(a.choiceToggles).filter(([o]) => entry.choose!.options.includes(o))) : a.choiceToggles;
       // Defensive Duelist (remastered): proficiency bonus + half Dexterity (rounded up, at least 1).
       if (a.id === "defensive-duelist") {
         const half = Math.max(1, Math.ceil(mods.dex / 2));
@@ -2516,7 +2529,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     // Dodge shows as its own effect chip while it lasts, not as a switch.
     if (switcher?.common) continue;
     // A pick that lasts until your next turn (Defender's bonus to AC) shows as its effect chip too.
-    if (actions.some((x) => x.untilTurnStart && Object.values(x.choiceToggles ?? {}).some((ts) => ts.includes(name)))) continue;
+    if (sources.some((src) => (src.grant.actions ?? []).some((x) => x.untilTurnStart && Object.values(x.choiceToggles ?? {}).some((ts) => ts.includes(name))))) continue;
     const byAction = switcher?.name;
     const label = TOGGLE_LABELS[name] ?? byAction ?? (a.mod.op === "note" ? a.source.label : labelOf(a));
     toggles.push({ name, label, on: c.toggles.includes(name), ...(TOGGLE_REMINDERS[name] ? { reminders: TOGGLE_REMINDERS[name]!.map(fillTag) } : {}) });

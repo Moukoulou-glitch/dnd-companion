@@ -500,6 +500,10 @@ export const ActionDef = z
     charges: z.number().int().min(1).optional(),
     /** Its toggles last until the start of your next turn (Dodge). */
     untilTurnStart: z.boolean().optional(),
+    /** Done before your first attack with its item on your turn (Defender): a warning after one, or used twice in a turn. */
+    beforeFirstAttack: z.boolean().optional(),
+    /** Its `choose` options are "+N …": only those up to the item's own bonus are offered (the Moonblade's defender rune). */
+    upToItemBonus: z.boolean().optional(),
     /** Ends your concentration. */
     endsConcentration: z.boolean().optional(),
     /** Asks what to pick when used (Ready: which action), and names the effect after it. */

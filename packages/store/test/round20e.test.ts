@@ -49,4 +49,24 @@ describe("20e: Defender", () => {
     l.record("useAction", { action: "moonblade-defender-shift", choice: "+2 to AC" });
     expect([hit(l), sheet(l).ac.total]).toEqual([h - 2, ac + 2]);
   });
+  it("warned, not stopped: a second move in the same turn, or after attacking with it", () => {
+    const l = holding("item:defender-longsword");
+    l.record("startCombat", {} as never);
+    l.record("startTurn", {} as never);
+    expect(l.record("useAction", { action: "defender-shift", choice: "+1 to AC" }).join(" ")).not.toMatch(/⚠/);
+    expect(l.record("useAction", { action: "defender-shift", choice: "+2 to AC" }).join(" ")).toMatch(/already done this turn/);
+    expect(sheet(l).ac.total).toBe(derive({ ...l.character, toggles: [] }, reg).ac.total + 2);
+    l.record("startTurn", {} as never);
+    l.character.combat!.attackedWith = [{ attackId: "defender", itemInstanceId: "w", melee: true, light: false }];
+    expect(l.record("useAction", { action: "defender-shift", choice: "+1 to AC" }).join(" ")).toMatch(/already attacked with it/);
+  });
+  it("the Moonblade: no more than its bonus", () => {
+    const one = holding("item:moonblade", ["defender"]);
+    expect(sheet(one).actions.find((a) => a.id === "moonblade-defender-shift")?.choose?.options).toEqual(["+1 to AC"]);
+    const ac = sheet(one).ac.total;
+    expect(one.record("useAction", { action: "moonblade-defender-shift", choice: "+3 to AC" }).join(" ")).toMatch(/more than it allows/);
+    expect(sheet(one).ac.total).toBe(ac);
+    const three = holding("item:moonblade", ["bonus", "bonus", "defender"]);
+    expect(sheet(three).actions.find((a) => a.id === "moonblade-defender-shift")?.choose?.options).toEqual(["+1 to AC", "+2 to AC", "+3 to AC"]);
+  });
 });

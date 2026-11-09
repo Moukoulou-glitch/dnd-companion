@@ -1351,6 +1351,11 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         notes.push(`Unknown feature "${op.payload.action}".`);
         break;
       }
+      // A pick past what it allows (the Moonblade's bonus): not done.
+      if (a.choose && a.choiceToggles && op.payload.choice && !(op.payload.choice in a.choiceToggles) && Object.keys(a.choiceToggles).length) {
+        notes.push(`${a.name}: ${op.payload.choice} is more than it allows (${a.choose.options.join(", ")}). Nothing changed.`);
+        break;
+      }
       // Flexible Casting: sorcery points into a spell slot, or a slot into points.
       if (a.flexibleCasting) {
         const lvl = Number(/Level (\d)/.exec(op.payload.choice ?? "")?.[1] ?? 0);
@@ -1521,6 +1526,12 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         if (used >= total) notes.push(`No level ${op.payload.slot} slot left: used anyway.`);
         c.slotsUsed[key] = used + 1;
         if (!c.shape) notes.push(`${a.name} heals you while you're in a Wild Shape form.`);
+      }
+      // Defender: the first time you attack with it on your turn. After that, or a second time in a turn: warned, still done.
+      if (a.beforeFirstAttack && c.combat?.myTurn) {
+        if (c.combat.usedThisTurn.includes(a.id)) notes.push(`⚠ ${a.name}: already done this turn. It's for the first time you attack with it on each of your turns. Done anyway.`);
+        else if (c.combat.attackedWith.some((x) => x.itemInstanceId === a.itemInstanceId)) notes.push(`⚠ ${a.name}: you've already attacked with it this turn; it's for the first attack. Done anyway.`);
+        if (free && !c.combat.usedThisTurn.includes(a.id)) c.combat.usedThisTurn = [...c.combat.usedThisTurn, a.id];
       }
       if (!free) spendTurn(a.asAttack ? "attack" : a.economy, (cb) => {
         // Grapple and Shove take the place of one attack of the Attack action.
