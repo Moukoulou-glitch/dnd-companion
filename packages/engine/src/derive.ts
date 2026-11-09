@@ -241,7 +241,7 @@ export interface ActionResult {
   /** The feature or feat this comes from, for showing its text. */
   featureId?: string;
   /** Dice rolled when used and what the number means (Spirit Shield: damage prevented). */
-  roll?: Amount & { label: string; table?: string[]; times?: number; types?: string[]; afterChoice?: boolean; maxWith?: { label: string; spends?: { resource: string; amount: number } } };
+  roll?: Amount & { label: string; table?: string[]; times?: number; types?: string[]; afterChoice?: boolean; anyOnDouble?: boolean; maxWith?: { label: string; spends?: { resource: string; amount: number } } };
   /** Writes a spellbook spell onto a scroll (Master Scrivener): the pick is the spell, written `higher` levels up. */
   scribesScroll?: { list: string; maxLevel: number; higher: number };
   duration?: { rounds?: number; minutes?: number; fromRoll?: "rounds" | "minutes" | "hours" | "days" };
@@ -259,6 +259,8 @@ export interface ActionResult {
   /** Opens the falling panel (the common Fall action). */
   fall?: boolean;
   releases?: string[];
+  /** Effects it ends ("prefix*"): a new tale ends the last one's. */
+  endsEffects?: string[];
   /** Once every this many days: a Backstory note when used (only when the roll is at most `everyDaysIfRollAtMost`, if set). */
   everyDays?: number;
   everyDaysIfRollAtMost?: number;
@@ -2199,7 +2201,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     for (const a of s.grant.actions ?? []) {
       const entry: ActionResult = { id: a.id, name: a.name, economy: a.economy, source: s.label, toggles: a.toggles };
       if (/^(feature|feat|race|background):/.test(s.id)) entry.featureId = s.id;
-      if (a.roll) entry.roll = { ...amountOf(a.roll.dice, s), label: a.roll.label, ...(a.roll.table ? { table: a.roll.table } : {}), ...(a.roll.times ? { times: a.roll.times } : {}), ...(a.roll.types ? { types: a.roll.types } : {}), ...(a.roll.afterChoice ? { afterChoice: true } : {}) };
+      if (a.roll) entry.roll = { ...amountOf(a.roll.dice, s), label: a.roll.label, ...(a.roll.table ? { table: a.roll.table } : {}), ...(a.roll.times ? { times: a.roll.times } : {}), ...(a.roll.types ? { types: a.roll.types } : {}), ...(a.roll.afterChoice ? { afterChoice: true } : {}), ...(a.roll.anyOnDouble ? { anyOnDouble: true } : {}) };
       // Its damage can be maximized by an option for its types (Destructive Wrath on Wrath of the Storm's 2d8).
       if (a.roll?.types && entry.roll) {
         const mx = active.find((x) => x.mod.op === "maximize" && x.mod.forTypes?.some((t) => a.roll!.types!.includes(t)) && conditionState(x.mod.when) !== "fail");
@@ -2221,6 +2223,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       if (a.holdsRoll) entry.holdsRoll = true;
       if (a.fall) entry.fall = true;
       if (a.releases) entry.releases = a.releases;
+      if (a.endsEffects) entry.endsEffects = a.endsEffects;
       if (a.rollsSpell) entry.rollsSpell = a.rollsSpell;
       if (s.effectInstanceId) entry.effectInstanceId = s.effectInstanceId;
       if (a.duration) entry.duration = a.duration;

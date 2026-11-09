@@ -423,6 +423,8 @@ export const EffectDef = z
     keepIfFails: z.string().optional(),
     /** Ends when you do one of these (Invisibility: attack or cast a spell); the app asks. */
     endsOn: z.array(z.enum(["attack", "cast"])).optional(),
+    /** It lasts only while you have temporary hit points (Tale of the Traveler): it ends when they're gone. */
+    whileTempHp: z.boolean().optional(),
     /** Temporary HP gained when applied (Armor of Agathys: 5*slotLevel). */
     tempHpGain: z.union([z.number(), z.string()]).optional(),
     /**

@@ -353,6 +353,12 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
   /** Your temporary HP ran out: what lasted only while you had them switches off (Blackrazor's devoured soul). */
   const tempHpGone = () => {
     if (c.hp.temp > 0) return;
+    // Effects that last only while temporary hit points do (Tale of the Traveler).
+    const lasting = c.effects.filter((e) => e.effect !== "custom" && reg.find(reg.effectId(e.effect), "effect")?.whileTempHp);
+    if (lasting.length) {
+      removeEffects(lasting);
+      notes.push(`${lasting.map(effectName).join(", ")}: the temporary hit points are gone, so it ends.`);
+    }
     for (const a of sheet.actions.filter((x) => x.whileTempHp && x.toggles.some((t) => c.toggles.includes(t)))) {
       c.toggles = c.toggles.filter((t) => !a.toggles.includes(t));
       notes.push(`${a.name}: its temporary hit points are gone, and what they gave with them.`);
@@ -1638,6 +1644,26 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         // Kept until bestowed or a rest; a new roll replaces it.
         if (line && a.holdsRoll) {
           removeEffects(c.effects.filter((e) => e.effect === "custom" && e.id.endsWith(`-held-${a.id}`)));
+          // A new tale ends the last one's effects (on you, a companion or a summoned creature).
+          if (a.endsEffects?.length) {
+            const hits = (id: string) => a.endsEffects!.some((p) => (p.endsWith("*") ? id.startsWith(p.slice(0, -1)) : id === p));
+            const mine = c.effects.filter((e) => hits(e.effect));
+            const ended: string[] = mine.map(effectName);
+            if (mine.length) removeEffects(mine);
+            for (const [cid, st] of Object.entries(c.companions)) {
+              const gone = (st.effects ?? []).filter((e) => hits(e.effect));
+              if (!gone.length) continue;
+              st.effects = (st.effects ?? []).filter((e) => !hits(e.effect));
+              ended.push(...gone.map((e) => `${reg.find(e.effect, "effect")?.name ?? e.effect} (${sheet.companions.find((x) => x.id === cid)?.name ?? "companion"})`));
+            }
+            for (const m of c.summons) {
+              const gone = (m.effects ?? []).filter((e) => hits(e.effect));
+              if (!gone.length) continue;
+              m.effects = (m.effects ?? []).filter((e) => !hits(e.effect));
+              ended.push(...gone.map((e) => `${reg.find(e.effect, "effect")?.name ?? e.effect} (${m.name ?? "summoned creature"})`));
+            }
+            if (ended.length) notes.push(`The last tale ends: ${ended.join(", ")}.`);
+          }
           const title = line.replace(/^\d+\s*·\s*/, "").split(":")[0]!.trim();
           c.effects.push({ id: `${op.id}-held-${a.id}`, effect: "custom", custom: { name: `Tale held: ${title}`, modifiers: [], text: line }, untilRest: "short", from: a.source });
         }

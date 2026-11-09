@@ -16,7 +16,10 @@ describe("13f: College of Spirits", () => {
   it("Tales from Beyond: a Bardic Inspiration use, the die on the twelve tales", () => {
     const a = bard(5).actions.find((x) => x.id === "tales-from-beyond")!;
     expect([a.cost?.resource, a.roll?.text, a.roll?.table?.length]).toEqual(["bardic-inspiration", "1d8", 12]);
-    expect(bard(14).actions.some((x) => x.id === "tales-from-beyond-second")).toBe(true);
+    // Mystical Connection (22a): the same roll, twice; doubles pick any tale.
+    const at14 = bard(14).actions.find((x) => x.id === "tales-from-beyond")!;
+    expect([at14.roll?.times, at14.roll?.anyOnDouble, a.roll?.times]).toEqual([2, true, undefined]);
+    expect(bard(14).actions.some((x) => x.id === "tales-from-beyond-second")).toBe(false);
     expect(a.note).toMatch(/DC \d+/);
   });
   it("Spiritual Focus: from 6th, 1d6 on a damage spell and on a healing spell", () => {

@@ -79,6 +79,7 @@ import { CLASS_DICE_COLOURS, classDiceColour, mainClass, setDiceClasses, setDice
 import { Choose, Confirm, PoolRollPanel, SlotSpendPanel, SpendDiePanel } from "./components/Prompts";
 import { AccountGate, AccountLine, MoveOverScreen } from "./components/Account";
 import { AdminPanel } from "./components/Admin";
+import { TaleBestowPanel, taleNumber } from "./components/Tales";
 import { signInAgain, signOut } from "./cloud";
 import type { Account } from "./useCharacters";
 import { BottomSheet, BreakdownLines } from "./components/Sheet";
@@ -1480,8 +1481,60 @@ export function App() {
   };
 
   /** A feature's use: its panel, with what it does. From Play's Features (`fromResource`), also a way to spend the use alone. */
+  /** Tales from Beyond: bestowing the tale you hold, with what that tale does (Tales.tsx). */
+  const openTaleBestow = (a: ActionResult) => {
+    const c0 = live.current.character!;
+    const held = c0.effects.find((e) => e.effect === "custom" && /-held-tales-from-beyond(-second)?$/.test(e.id));
+    const n = taleNumber(held?.custom?.text);
+    if (!n) return open(a.name, <p className="note">No tale held: roll one first (Tales from Beyond: a tale, a bonus action and a Bardic Inspiration use).</p>);
+    const sh = live.current.sheet!;
+    const die = (sh.actions.find((x) => x.id === "tales-from-beyond")?.roll?.dice[0] ?? "1d6").replace(/^\d+/, "");
+    const sc = sh.spellcasting.find((x) => x.id === "bard") ?? sh.spellcasting[0];
+    const ENDS = ["condition:blinded", "condition:deafened", "condition:paralyzed", "condition:petrified", "condition:poisoned"];
+    const conditionsOnMe = c0.effects.filter((e) => ENDS.includes(e.effect)).map((e) => ({ instance: e.id, name: registry.find(e.effect, "effect")?.name ?? e.effect }));
+    open(a.name, () => (
+      <TaleBestowPanel
+        tale={n}
+        die={die}
+        cha={sh.abilities.cha.modifier}
+        bardLevel={c0.classes.find((cl) => cl.class === "class:bard")?.level ?? 0}
+        dc={sc?.saveDc.total ?? 8}
+        attack={sc?.attack.total ?? 0}
+        targets={featureTargets(a)}
+        conditionsOnMe={conditionsOnMe}
+        physical={live.current.character?.settings.physicalDice ?? true}
+        roll={async (f) => (await rollOrThrow(f, true, undefined, { source: "Tales from Beyond" })).total}
+        onBestow={(b) =>
+          guard({ name: a.name, economy: "action" }, () => {
+            live.current.act("useAction", { action: a.id }, `${a.name}: ${b.said}`);
+            const what = `Tale of the ${b.name}`;
+            const choice = b.effect === "other:spirit-tale-traveler" ? undefined : die;
+            const tempTo = (id: string, amount: number) => {
+              if (id === "me") live.current.act("setTempHp", { amount: Math.max(amount, live.current.character?.hp.temp ?? 0) }, `${what}: ${amount} temporary HP.`);
+              else if (!id.startsWith("summon:") && id !== "other") live.current.act("setTempHp", { amount, companion: id }, `${what}: ${amount} temporary HP.`);
+            };
+            const effectOn = (id: string) => {
+              if (!b.effect) return;
+              if (id === "me") live.current.act("addEffect", { instanceId: crypto.randomUUID(), effect: b.effect, ...(choice ? { choice } : {}) }, `${what} on you${choice ? ` (${choice})` : ""}.`);
+              else if (id !== "other") giveEffectTo(id, b.effect, choice, what);
+            };
+            if (b.total !== undefined && (b.tale === 3 || b.tale === 6)) {
+              tempTo(b.target, b.total);
+              if (b.second) tempTo(b.second, b.total);
+            }
+            if (b.tale === 11 && b.total !== undefined && b.target !== "other") healTarget(b.target, b.total, what);
+            if (b.endCondition) live.current.act("removeEffect", { instanceId: b.endCondition }, `${what}: a condition ends.`);
+            if (b.effect) effectOn(b.target);
+            close();
+          })
+        }
+      />
+    ));
+  };
+
   const openFeature = (a: ActionResult, fromResource?: { resource: string; name: string }, onUseOverride?: (rolled?: number) => void) => {
     if (a.rollsSpell) return rollEffectSpell(a);
+    if (a.id === "tales-from-beyond-bestow") return openTaleBestow(a);
     if (a.id === "wild-shape") return openTransform("wildshape");
     if (a.id === "deflect-missiles" || a.id === "slow-fall") return openReduce(a);
     if (a.fall) return openFall();

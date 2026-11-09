@@ -1401,7 +1401,7 @@
       "kind": "feature",
       "id": "feature:college-of-spirits-tales-from-beyond",
       "name": "Tales from Beyond",
-      "summary": "Holding your Spiritual Focus, a bonus action and a Bardic Inspiration use: roll your Bardic Inspiration die on the Spirit Tales table. An action later bestows that tale on a creature within 30 ft (you too). One tale at a time; it fades on a short or long rest. Saves use your spell save DC.",
+      "summary": "Holding your Spiritual Focus, a bonus action and a Bardic Inspiration use: roll your Bardic Inspiration die on the Spirit Tales table. An action later bestows that tale on a creature within 30 ft (you too): the app rolls its dice and applies it. One tale at a time (a new roll ends the last one's effects); it fades on a short or long rest. Saves use your spell save DC.",
       "source": {
         "pack": "table-2014",
         "book": "VRGR",
@@ -1456,20 +1456,20 @@
                 "10 · Dragon: a 30-ft cone of fire from its mouth: Dexterity save, fire damage of four of your Bardic Inspiration dice, half on a success.",
                 "11 · Angel: it regains hit points of two of your Bardic Inspiration dice + your Charisma modifier, and one of blinded, deafened, paralyzed, petrified or poisoned ends.",
                 "12 · Mind-Bender: Intelligence save or psychic damage of three of your Bardic Inspiration dice and stunned until the end of its next turn."
-              ]
+              ],
+              "anyOnDouble": true
             },
-            "note": "The tale is kept as a tag until you bestow it or rest; a new roll replaces it. Saves: {spelldc}.",
-            "holdsRoll": true
+            "note": "Holding your Spiritual Focus. The tale is kept as a tag until you bestow it or finish a rest; a new roll replaces it and ends what the last tale still does. Saves: {spelldc}.",
+            "holdsRoll": true,
+            "endsEffects": [
+              "other:spirit-tale-*"
+            ]
           },
           {
             "id": "tales-from-beyond-bestow",
             "name": "Tales from Beyond: bestow it",
             "economy": "action",
-            "roll": {
-              "dice": "scale.die",
-              "label": "one Bardic Inspiration die for the tale (roll it as many times as the tale says)"
-            },
-            "note": "One creature you can see within 30 ft, you too: the tale you hold. Saves: {spelldc}.",
+            "note": "One creature you can see within 30 ft (you too) gets the tale you hold: the app rolls its dice and puts on what it gives. Then you need a new roll before you bestow again. Saves: {spelldc}.",
             "releases": [
               "tales-from-beyond",
               "tales-from-beyond-second"
@@ -1539,56 +1539,174 @@
         "book": "VRGR",
         "page": 28
       },
-      "scaling": {
-        "die": {
-          "class": "class:bard",
-          "table": [
-            [
-              1,
-              "1d6"
-            ],
-            [
-              5,
-              "1d8"
-            ],
-            [
-              10,
-              "1d10"
-            ],
-            [
-              15,
-              "1d12"
-            ]
-          ]
-        }
-      },
       "grant": {
-        "actions": [
+        "actionNotes": [
           {
-            "id": "tales-from-beyond-second",
-            "name": "Mystical Connection: the second roll",
-            "economy": "free",
-            "roll": {
-              "dice": "scale.die",
-              "label": "the second tale: keep either (the same number twice: any tale)",
-              "table": [
-                "1 · Clever Animal: for 10 minutes, the target adds your Bardic Inspiration die to its Intelligence, Wisdom and Charisma checks (rolled after the d20).",
-                "2 · Renowned Duelist: your melee spell attack against the target; a hit deals force damage of two of your Bardic Inspiration dice + your Charisma modifier.",
-                "3 · Beloved Friends: the target and one creature it picks within 5 ft gain temporary hit points of your Bardic Inspiration die + your Charisma modifier.",
-                "4 · Runaway: the target teleports up to 30 ft with its reaction; up to your Charisma modifier of creatures it sees within 30 ft may do the same with theirs.",
-                "5 · Avenger: for 1 minute, a creature that hits the target in melee takes force damage of your Bardic Inspiration die.",
-                "6 · Traveler: temporary hit points of your Bardic Inspiration die + your bard level; while they last, +10 ft walking speed and +1 AC.",
-                "7 · Beguiler: Wisdom save or psychic damage of two of your Bardic Inspiration dice and incapacitated until the end of its next turn.",
-                "8 · Phantom: invisible until the end of its next turn or its first hit; that hit adds necrotic damage of your Bardic Inspiration die and frightens the creature hit until the end of its next turn.",
-                "9 · Brute: creatures of its choice within 30 ft make a Strength save: thunder damage of three of your Bardic Inspiration dice and prone, or half and standing.",
-                "10 · Dragon: a 30-ft cone of fire from its mouth: Dexterity save, fire damage of four of your Bardic Inspiration dice, half on a success.",
-                "11 · Angel: it regains hit points of two of your Bardic Inspiration dice + your Charisma modifier, and one of blinded, deafened, paralyzed, petrified or poisoned ends.",
-                "12 · Mind-Bender: Intelligence save or psychic damage of three of your Bardic Inspiration dice and stunned until the end of its next turn."
-              ]
-            },
-            "note": "Right after Tales from Beyond's roll, at no further cost. Both tales are held; bestowing ends both.",
-            "holdsRoll": true
+            "action": "tales-from-beyond",
+            "text": "roll the die twice and keep either tale; the same number on both: any tale on the table.",
+            "rollTimes": 2
           }
+        ]
+      }
+    },
+    {
+      "kind": "effect",
+      "id": "other:spirit-tale-clever-animal",
+      "name": "Tale of the Clever Animal",
+      "category": "other",
+      "summary": "For 10 minutes, after rolling the d20 for an Intelligence, Wisdom or Charisma check, add the bard's Bardic Inspiration die.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VRGR",
+        "page": 28
+      },
+      "modifiers": [
+        {
+          "selector": "roll.check.int",
+          "op": "add",
+          "value": "1{choice}",
+          "mode": "suggested",
+          "preset": "always",
+          "label": "Tale of the Clever Animal",
+          "when": {
+            "text": "every Intelligence, Wisdom and Charisma check for 10 minutes"
+          }
+        },
+        {
+          "selector": "roll.check.wis",
+          "op": "add",
+          "value": "1{choice}",
+          "mode": "suggested",
+          "preset": "always",
+          "label": "Tale of the Clever Animal",
+          "when": {
+            "text": "every Intelligence, Wisdom and Charisma check for 10 minutes"
+          }
+        },
+        {
+          "selector": "roll.check.cha",
+          "op": "add",
+          "value": "1{choice}",
+          "mode": "suggested",
+          "preset": "always",
+          "label": "Tale of the Clever Animal",
+          "when": {
+            "text": "every Intelligence, Wisdom and Charisma check for 10 minutes"
+          }
+        }
+      ],
+      "minutes": 10,
+      "choice": {
+        "label": "Which die?",
+        "options": [
+          "d6",
+          "d8",
+          "d10",
+          "d12"
+        ]
+      }
+    },
+    {
+      "kind": "effect",
+      "id": "other:spirit-tale-avenger",
+      "name": "Tale of the Avenger",
+      "category": "other",
+      "summary": "For 1 minute, a creature that hits you with a melee attack takes force damage of one roll of the bard's Bardic Inspiration die (the die is on this tag).",
+      "source": {
+        "pack": "table-2014",
+        "book": "VRGR",
+        "page": 28
+      },
+      "modifiers": [],
+      "rounds": 10,
+      "choice": {
+        "label": "Which die?",
+        "options": [
+          "d6",
+          "d8",
+          "d10",
+          "d12"
+        ]
+      },
+      "reminders": [
+        "A creature that hits you with a melee attack takes force damage: one roll of the die on this tag."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "other:spirit-tale-traveler",
+      "name": "Tale of the Traveler",
+      "category": "other",
+      "summary": "While the tale's temporary hit points last: +10 ft walking speed and +1 AC.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VRGR",
+        "page": 28
+      },
+      "modifiers": [
+        {
+          "selector": "stat.speed.walk",
+          "op": "add",
+          "value": 10,
+          "label": "Tale of the Traveler"
+        },
+        {
+          "selector": "stat.ac",
+          "op": "add",
+          "value": 1,
+          "label": "Tale of the Traveler"
+        }
+      ],
+      "whileTempHp": true
+    },
+    {
+      "kind": "effect",
+      "id": "other:spirit-tale-phantom",
+      "name": "Tale of the Phantom",
+      "category": "other",
+      "summary": "Invisible until the end of your next turn or until you hit a creature with an attack. That hit adds necrotic damage of the bard's Bardic Inspiration die and frightens the creature until the end of its next turn.",
+      "source": {
+        "pack": "table-2014",
+        "book": "VRGR",
+        "page": 28
+      },
+      "modifiers": [
+        {
+          "selector": "roll.damage.weapon.*",
+          "op": "add",
+          "value": "1{choice}",
+          "damageType": "necrotic",
+          "mode": "suggested",
+          "preset": "always",
+          "label": "Tale of the Phantom",
+          "when": {
+            "text": "your first hit while invisible: the creature hit is also frightened of you until the end of its next turn; the invisibility ends"
+          }
+        },
+        {
+          "selector": "roll.damage.spell",
+          "op": "add",
+          "value": "1{choice}",
+          "damageType": "necrotic",
+          "mode": "suggested",
+          "preset": "always",
+          "label": "Tale of the Phantom",
+          "when": {
+            "text": "your first hit while invisible: the creature hit is also frightened of you until the end of its next turn; the invisibility ends"
+          }
+        }
+      ],
+      "includes": [
+        "condition:invisible"
+      ],
+      "rounds": 1,
+      "choice": {
+        "label": "Which die?",
+        "options": [
+          "d6",
+          "d8",
+          "d10",
+          "d12"
         ]
       }
     }

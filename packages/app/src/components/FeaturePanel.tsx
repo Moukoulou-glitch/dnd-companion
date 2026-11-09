@@ -338,6 +338,21 @@ export function FeaturePanel({
         <button className="big wide primary" disabled={throwing} onClick={() => void rollTimes()}>
           {throwing ? "Throwing…" : `Roll ${amount?.dice[0] ?? ""} ${times} times`}
         </button>
+      ) : times > 1 && !physical && faces && !a.choose && a.roll?.anyOnDouble && a.roll.table && faces.every((f) => f === faces[0]) ? (
+        // Mystical Connection: the same number twice, so any line of the table.
+        <>
+          <p className="sub-head">Both the same: pick any</p>
+          <div className="group">
+            {a.roll.table.map((line, i) => (
+              <button key={i} className="row" onClick={() => useWith(i + 1)}>
+                <div className="row-main">
+                  <div className="row-title">{line.split(":")[0]}</div>
+                  <div className="row-sub">{line.slice(line.indexOf(":") + 1).trim()}</div>
+                </div>
+              </button>
+            ))}
+          </div>
+        </>
       ) : times > 1 && !physical && faces && !a.choose ? (
         <div className="big-actions">
           {faces.map((f, i) => (

@@ -429,6 +429,8 @@ export const ActionDef = z
         times: z.number().int().min(2).max(3).optional(),
         /** Rolled after the pick from `choose`, and recorded with it (Theros: the phenomenon, then 1d10 days). */
         afterChoice: z.boolean().optional(),
+        /** Rolled more than once (roll.times) and every face the same: any line of the table may be picked (Mystical Connection). */
+        anyOnDouble: z.boolean().optional(),
         /** The damage types it can deal (Wrath of the Storm: lightning or thunder): options for those types are offered (Destructive Wrath). */
         types: z.array(z.string()).optional(),
       })
@@ -466,6 +468,8 @@ export const ActionDef = z
      */
     holdsRoll: z.boolean().optional(),
     releases: z.array(z.string()).optional(),
+    /** Effects it ends, on you and on companions and summoned creatures ("other:spirit-tale-*": a prefix): a new tale ends the last one's. */
+    endsEffects: z.array(z.string()).optional(),
     /** Opens the falling panel: the height, the dice, Slow Fall and Feather Fall (a common action). */
     fall: z.boolean().optional(),
     /** Only if you haven't moved this turn (Steady Aim). */
