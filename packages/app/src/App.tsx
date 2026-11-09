@@ -78,6 +78,7 @@ type ZeroHpChoice = { relentless?: true; grave?: { saved: boolean; total?: numbe
 import { CLASS_DICE_COLOURS, classDiceColour, mainClass, setDiceClasses, setDiceResources, setDiceState, usePickedDiceColour } from "./diceColours";
 import { Choose, Confirm, PoolRollPanel, SlotSpendPanel, SpendDiePanel } from "./components/Prompts";
 import { AccountGate, AccountLine, MoveOverScreen } from "./components/Account";
+import { AdminPanel } from "./components/Admin";
 import { SIGN_OUT_URL } from "./cloud";
 import type { Account } from "./useCharacters";
 import { BottomSheet, BreakdownLines } from "./components/Sheet";
@@ -3772,6 +3773,11 @@ export function App() {
           }}
         />
         {s.account.kind === "cloud" && <AccountLine account={s.account} onRetry={s.retrySync} />}
+        {s.account.kind === "cloud" && s.account.me.admin && (
+          <button className="big" style={{ width: "100%", marginTop: 8 }} onClick={() => open("Players and characters", () => <AdminPanel />)}>
+            Admin: players and characters
+          </button>
+        )}
         <div className="big-actions" style={{ marginTop: 12 }}>
           <button className="big primary" onClick={openNewCharacter}>
             New character
@@ -4277,6 +4283,12 @@ function Welcome({
         <>
           <p className="note">{account.kind === "cloud" ? "No characters on your account yet." : deleted.length ? "No characters here right now." : "No characters on this device yet."}</p>
           {account.kind === "cloud" && <AccountLine account={account} />}
+          {account.kind === "cloud" && account.me.admin && (
+            <details style={{ marginTop: 8 }}>
+              <summary className="big">Admin: players and characters</summary>
+              <AdminPanel />
+            </details>
+          )}
           <div className="big-actions">
             <button className="big primary" onClick={() => setMaking(true)}>
               New character

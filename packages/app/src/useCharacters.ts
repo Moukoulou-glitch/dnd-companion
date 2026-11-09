@@ -637,7 +637,7 @@ export function useCharacters() {
   return { ready, error, character, sheet, roster, selectedId, select, act, undo, canUndo: !!log?.canUndo, toast, setToast, history: log?.history ?? [], exportSelected, exportAll, oldestUnsaved, addRoll, rolls: (selectedId && rolls.current.get(selectedId)) || [], create, readImport, remove, restore, purge, deleted: account.kind === "cloud" ? [] : deletedList, account, moveOver, doMoveOver, retrySync: () => void syncAll() };
 }
 
-function download(name: string, data: unknown) {
+export function download(name: string, data: unknown) {
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
@@ -671,7 +671,7 @@ function hashOf(c: Character): string {
 }
 
 /** A character's export file (the same as "Export as a file"), from a saved record. */
-function fileOf(r: StoredCharacter) {
+export function fileOf(r: StoredCharacter) {
   let character: Character = r.snapshot;
   try {
     character = new CharacterLog(CharacterSchema.parse(r.snapshot), registry, clock, "player", r.ops.map((o) => OperationSchema.parse(o))).character;

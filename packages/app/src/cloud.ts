@@ -186,6 +186,55 @@ export class Cloud {
   }
 }
 
+// ---- The admin page ----
+
+export interface AdminPlayer {
+  email: string;
+  limit: number;
+  count: number;
+  addedAt: number;
+}
+export interface AdminList {
+  defaultLimit: number;
+  admin: { email: string; count: number };
+  players: AdminPlayer[];
+  /** Accounts taken off the list whose characters are still kept. */
+  removed: { email: string; count: number }[];
+}
+export interface AdminCharacter {
+  id: string;
+  owner: string;
+  name: string;
+  version: number;
+  updatedAt: number;
+}
+
+/** The admin's calls; anything but a JSON answer comes back as an error message. */
+export class AdminApi {
+  constructor(private readonly fetchFn: FetchFn = (i, init) => fetch(i, init)) {}
+
+  private async call<T>(path: string, init: RequestInit = {}): Promise<T | { error: string }> {
+    let res: Response;
+    try {
+      res = await this.fetchFn(path, { credentials: "same-origin", redirect: "manual", cache: "no-store", ...init, headers: { "content-type": "application/json", ...(init.headers ?? {}) } });
+    } catch {
+      return { error: "No connection." };
+    }
+    if (res.type === "opaqueredirect" || res.status === 401 || (res.status >= 300 && res.status < 400)) return { error: "Your sign-in ran out: reload the app to sign in again." };
+    if (!(res.headers.get("content-type") ?? "").includes("application/json")) return { error: "The account server isn't here." };
+    const body = (await res.json()) as T & { error?: string };
+    if (!res.ok) return { error: body.error ?? `HTTP ${res.status}` };
+    return body;
+  }
+
+  players = () => this.call<AdminList>("/api/admin/players");
+  setPlayer = (email: string, limit?: number) => this.call<{ email: string; limit: number; count: number; note?: string }>(`/api/admin/players/${encodeURIComponent(email)}`, { method: "PUT", body: JSON.stringify(limit === undefined ? {} : { limit }) });
+  removePlayer = (email: string) => this.call<{ email: string; characters: number }>(`/api/admin/players/${encodeURIComponent(email)}`, { method: "DELETE" });
+  characters = () => this.call<{ characters: AdminCharacter[] }>("/api/admin/characters");
+  character = (id: string) => this.call<AdminCharacter & { data: CloudData }>(`/api/admin/characters/${encodeURIComponent(id)}`);
+  deleteCharacter = (id: string) => this.call<{ deleted: boolean }>(`/api/admin/characters/${encodeURIComponent(id)}`, { method: "DELETE" });
+}
+
 /** Signing out of the account (Cloudflare Access's own address). */
 export const SIGN_OUT_URL = "/cdn-cgi/access/logout";
 
