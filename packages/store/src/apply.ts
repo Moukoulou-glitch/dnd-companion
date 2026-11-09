@@ -1669,17 +1669,25 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
             const hits = (id: string) => a.endsEffects!.some((p) => (p.endsWith("*") ? id.startsWith(p.slice(0, -1)) : id === p));
             const mine = c.effects.filter((e) => hits(e.effect));
             const ended: string[] = mine.map(effectName);
+            // The temporary hit points that came with it go too (Tale of the Traveler).
+            const lastsOnTemp = (id: string) => !!reg.find(id, "effect")?.whileTempHp;
+            if (mine.some((e) => lastsOnTemp(e.effect)) && c.hp.temp > 0) {
+              notes.push(`Its ${c.hp.temp} temporary hit points go with it.`);
+              c.hp.temp = 0;
+            }
             if (mine.length) removeEffects(mine);
             for (const [cid, st] of Object.entries(c.companions)) {
               const gone = (st.effects ?? []).filter((e) => hits(e.effect));
               if (!gone.length) continue;
               st.effects = (st.effects ?? []).filter((e) => !hits(e.effect));
+              if (gone.some((e) => lastsOnTemp(e.effect)) && st.hp) st.hp.temp = 0;
               ended.push(...gone.map((e) => `${reg.find(e.effect, "effect")?.name ?? e.effect} (${sheet.companions.find((x) => x.id === cid)?.name ?? "companion"})`));
             }
             for (const m of c.summons) {
               const gone = (m.effects ?? []).filter((e) => hits(e.effect));
               if (!gone.length) continue;
               m.effects = (m.effects ?? []).filter((e) => !hits(e.effect));
+              if (gone.some((e) => lastsOnTemp(e.effect))) delete m.temp;
               ended.push(...gone.map((e) => `${reg.find(e.effect, "effect")?.name ?? e.effect} (${m.name ?? "summoned creature"})`));
             }
             if (ended.length) notes.push(`The last tale ends: ${ended.join(", ")}.`);

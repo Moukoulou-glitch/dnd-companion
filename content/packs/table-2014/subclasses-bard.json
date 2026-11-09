@@ -1604,7 +1604,8 @@
           "d10",
           "d12"
         ]
-      }
+      },
+      "optionsLast": true
     },
     {
       "kind": "effect",
@@ -1630,6 +1631,18 @@
       },
       "reminders": [
         "A creature that hits you with a melee attack takes force damage: one roll of the die on this tag."
+      ],
+      "actions": [
+        {
+          "id": "spirit-tale-avenger-damage",
+          "name": "Tale of the Avenger: it hit me",
+          "economy": "free",
+          "roll": {
+            "dice": "1{choice}",
+            "label": "force damage to the creature that hit you with a melee attack"
+          },
+          "note": "Whenever a creature hits you with a melee attack while the tale lasts."
+        }
       ]
     },
     {

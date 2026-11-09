@@ -67,4 +67,27 @@ describe("22a: Tales from Beyond", () => {
     expect(l.record("damage", { amount: 7, companion: id }).join(" ")).toMatch(/Argos: the temporary hit points are gone, so Tale of the Traveler ends/);
     expect(l.character.companions[id]!.effects ?? []).toEqual([]);
   });
+  it("Clever Animal (and Chromatic Infusion) aren't used up by a roll: they last their time", () => {
+    const l = spirits();
+    l.record("addEffect", { instanceId: "ca", effect: "other:spirit-tale-clever-animal", choice: "d8" });
+    const sg = derive(l.character, reg).skills.arcana.suggestions.find((x) => x.label === "Tale of the Clever Animal")!;
+    expect([sg.apply.dice, sg.preset, sg.endsEffect]).toEqual([["1d8"], "always", undefined]);
+    l.record("addItem", { instanceId: "w", item: "item:dagger" });
+    l.record("setItem", { instanceId: "w", equipped: true });
+    l.record("addEffect", { instanceId: "ci", effect: "other:chromatic-infusion", choice: "Fire" });
+    const ci = derive(l.character, reg).attacks.find((a) => a.itemInstanceId === "w")!.damage.bonus.suggestions.find((x) => /Chromatic Infusion/.test(x.label))!;
+    expect([ci.apply.dice, ci.apply.damageType, ci.endsEffect]).toEqual([["1d4"], "fire", undefined]);
+  });
+  it("the Avenger: a damage roll of the die on the tag", () => {
+    const l = spirits();
+    l.record("addEffect", { instanceId: "av", effect: "other:spirit-tale-avenger", choice: "d8" });
+    expect(derive(l.character, reg).actions.find((x) => x.id === "spirit-tale-avenger-damage")?.roll?.dice).toEqual(["1d8"]);
+  });
+  it("a new tale takes Traveler's temporary HP with it", () => {
+    const l = spirits();
+    l.record("setTempHp", { amount: 12 });
+    l.record("addEffect", { instanceId: "tr", effect: "other:spirit-tale-traveler" });
+    expect(l.record("useAction", { action: "tales-from-beyond", rolled: 1 }).join(" ")).toMatch(/Its 12 temporary hit points go with it/);
+    expect([l.character.hp.temp, tags(l).includes("other:spirit-tale-traveler")]).toEqual([0, false]);
+  });
 });

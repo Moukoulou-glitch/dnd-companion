@@ -251,7 +251,8 @@ export function collectSources(c: Character, baseReg: ContentRegistry, duplicate
     });
     const src: Source = { id: def.id, label, grant: {
         modifiers,
-        ...(def.actions ? { actions: def.actions } : {}),
+        // "{choice}" in an action's dice too: the Avenger's force damage is the die on the tag.
+        ...(def.actions ? { actions: def.actions.flatMap((a) => (!String(a.roll?.dice ?? "").includes("{choice}") ? [a] : inst?.choice ? [{ ...a, roll: { ...a.roll!, dice: String(a.roll!.dice).replace("{choice}", inst.choice) } }] : [])) } : {}),
         ...(def.attacks ? { attacks: def.attacks } : {}),
         // Wish duplicating a spell: the spell picked, castable at will while the tag is on.
         ...(def.grantsChosenSpell && inst?.choice?.startsWith("spell:") ? { spells: [{ spell: inst.choice, name: reg.find(inst.choice, "spell")?.name ?? inst.choice, casting: `through ${def.name}: no components needed`, atWill: true }] } : {}),

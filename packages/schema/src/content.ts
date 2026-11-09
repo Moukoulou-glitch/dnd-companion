@@ -425,6 +425,8 @@ export const EffectDef = z
     endsOn: z.array(z.enum(["attack", "cast"])).optional(),
     /** It lasts only while you have temporary hit points (Tale of the Traveler): it ends when they're gone. */
     whileTempHp: z.boolean().optional(),
+    /** Its options start ticked but aren't used up: it stays for its whole time (Tale of the Clever Animal, Chromatic Infusion). */
+    optionsLast: z.boolean().optional(),
     /** Temporary HP gained when applied (Armor of Agathys: 5*slotLevel). */
     tempHpGain: z.union([z.number(), z.string()]).optional(),
     /**

@@ -1129,7 +1129,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
         if (mod.forTypes) s.forTypes = mod.forTypes;
         if (mod.group) s.group = mod.group;
         if (mod.preset) s.preset = mod.preset;
-        if (a.source.effectInstanceId && mod.preset === "always") s.endsEffect = a.source.effectInstanceId;
+        if (a.source.effectInstanceId && mod.preset === "always" && !reg.find(a.source.id, "effect")?.optionsLast) s.endsEffect = a.source.effectInstanceId;
         suggestions.push(s);
         continue;
       }

@@ -30,7 +30,7 @@ type Roll = { dice: number; plus: "cha" | "bard" | 0; type?: string; save?: stri
 /** How each tale works (the Spirit Tales table, in our words): its dice and what it does. */
 const TALES: Record<number, { name: string; kind: "effect" | "attack" | "temp" | "note" | "save" | "heal"; roll?: Roll; effect?: string; text: string; self?: boolean }> = {
   1: { name: "Clever Animal", kind: "effect", effect: "other:spirit-tale-clever-animal", text: "For 10 minutes the target adds your Bardic Inspiration die to its Intelligence, Wisdom and Charisma checks." },
-  2: { name: "Renowned Duelist", kind: "attack", roll: { dice: 2, plus: "cha", type: "force" }, text: "You make a melee spell attack against the target: a hit deals force damage of two of your Bardic Inspiration dice + your Charisma modifier." },
+  2: { name: "Renowned Duelist", kind: "attack", text: "You make a melee spell attack against the target: a hit deals force damage of two of your Bardic Inspiration dice + your Charisma modifier." },
   3: { name: "Beloved Friends", kind: "temp", roll: { dice: 1, plus: "cha" }, text: "The target and one creature of its choice within 5 ft of it gain temporary hit points: your Bardic Inspiration die + your Charisma modifier." },
   4: { name: "Runaway", kind: "note", text: "The target can use its reaction at once to teleport up to 30 ft to a space it can see; then up to your Charisma modifier of creatures it can see within 30 ft can use their reactions to do the same." },
   5: { name: "Avenger", kind: "effect", effect: "other:spirit-tale-avenger", text: "For 1 minute, any creature that hits the target with a melee attack takes force damage of one roll of your Bardic Inspiration die." },
@@ -108,7 +108,7 @@ export function TaleBestowPanel({
   };
   const said = () => {
     const who = pick?.name ?? "someone";
-    if (t.kind === "attack") return `Tale of the ${t.name}: melee spell attack ${sign(attack)}; on a hit ${total} force damage.`;
+    if (t.kind === "attack") return `Tale of the ${t.name}: a melee spell attack ${sign(attack)} against the target.`;
     if (t.kind === "save") return `Tale of the ${t.name}: DC ${dc} ${r!.save} save, or ${total} ${r!.type} damage ${r!.then}.`;
     if (t.kind === "temp") return `Tale of the ${t.name}: ${total} temporary HP to ${who}${second ? ` and ${targets.find((x) => x.id === second)?.name ?? "another"}` : ""}.`;
     if (t.kind === "heal") return `Tale of the ${t.name}: ${who} regains ${total} HP.`;
@@ -122,7 +122,7 @@ export function TaleBestowPanel({
       <p className="note">{t.text}</p>
       {(t.kind === "save" || t.kind === "attack") && (
         <p className="note">
-          {t.kind === "save" ? `Save DC ${dc} (your spell save DC).` : `Your spell attack: ${sign(attack)}. Roll it against the target's AC.`}
+          {t.kind === "save" ? `Save DC ${dc} (your spell save DC).` : `Your spell attack: ${sign(attack)}. Bestowing it opens the attack roll, then the damage (2${die} + ${cha} force).`}
         </p>
       )}
       {needsTarget && (
@@ -214,7 +214,7 @@ export function TaleBestowPanel({
           })
         }
       >
-        Bestow the tale (an action)
+        {t.kind === "attack" ? "Bestow the tale and attack (an action)" : "Bestow the tale (an action)"}
       </button>
     </>
   );

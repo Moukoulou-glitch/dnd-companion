@@ -1944,7 +1944,8 @@
             "text": "the weapon you infused"
           }
         }
-      ]
+      ],
+      "optionsLast": true
     },
     {
       "kind": "feat",

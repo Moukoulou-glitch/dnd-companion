@@ -1528,6 +1528,24 @@ export function App() {
             if (b.tale === 11 && b.total !== undefined && b.target !== "other") healTarget(b.target, b.total, what);
             if (b.endCondition) live.current.act("removeEffect", { instanceId: b.endCondition }, `${what}: a condition ends.`);
             if (b.effect) effectOn(b.target);
+            // Runaway on you: the teleport takes your reaction.
+            if (b.tale === 4 && b.target === "me" && live.current.character?.combat) live.current.act("useEconomy", { kind: "reaction", amount: 1 }, "Tale of the Runaway: your reaction teleports you up to 30 ft.");
+            // Renowned Duelist: your melee spell attack against the target, then its damage (2 dice + Charisma, force).
+            if (b.tale === 2) {
+              const flat = (parts: { label: string; value: number }[]) => ({ total: parts.reduce((t, p) => t + p.value, 0), parts, dice: [], advantage: [], disadvantage: [], suggestions: [] });
+              const duel: WeaponAttack = {
+                attackId: "tale:renowned-duelist",
+                name: "Tale of the Renowned Duelist",
+                mode: "melee",
+                action: "attack",
+                ability: sc?.ability ?? "cha",
+                proficient: true,
+                attack: flat(sc?.attack.parts ?? [{ label: "Spell attack", value: 0 }]),
+                damage: { dice: `2${die}`, type: "force", bonus: flat([{ label: "Charisma", value: sh.abilities.cha.modifier }]), onCrit: [], critExtraDice: [] },
+                properties: [],
+              };
+              return openRoll(duel.name, duel.attack, duel, { notes: ["A melee spell attack (Tales from Beyond): the bestowing action is already spent."] });
+            }
             close();
           })
         }
