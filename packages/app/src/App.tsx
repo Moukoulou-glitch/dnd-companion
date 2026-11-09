@@ -77,6 +77,9 @@ const BEACON_EFFECT = "effect:beacon-of-hope";
 type ZeroHpChoice = { relentless?: true; grave?: { saved: boolean; total?: number; crit?: boolean }; rage?: { saved: boolean; total?: number } };
 import { CLASS_DICE_COLOURS, classDiceColour, mainClass, setDiceClasses, setDiceResources, setDiceState, usePickedDiceColour } from "./diceColours";
 import { Choose, Confirm, PoolRollPanel, SlotSpendPanel, SpendDiePanel } from "./components/Prompts";
+import { AccountGate, AccountLine, MoveOverScreen } from "./components/Account";
+import { SIGN_OUT_URL } from "./cloud";
+import type { Account } from "./useCharacters";
 import { BottomSheet, BreakdownLines } from "./components/Sheet";
 import { SheetTab } from "./components/SheetTab";
 import { SpellPanel, SpellsTab, spellAsAttack, type ClassList } from "./components/SpellsTab";
@@ -300,8 +303,11 @@ export function App() {
   const castSeq = useRef(0);
   const empowered = useRef<{ seq: number; spell: string; used: number }>({ seq: -1, spell: "", used: 0 });
   if (!s.ready) return null;
+  if (s.account.kind === "signed-out") return <AccountGate title="Sign in again" text="Your sign-in has run out. Sign in with your Google account to get to your characters." action="Sign in" onAction={() => location.reload()} />;
+  if (s.account.kind === "no-access") return <AccountGate title="No access yet" text={`${s.account.message} Then come back here.`} action="Use another account" onAction={() => location.assign(SIGN_OUT_URL)} />;
+  if (s.moveOver && s.account.kind === "cloud") return <MoveOverScreen move={s.moveOver} online={s.account.online} email={s.account.me.email} onMove={s.doMoveOver} />;
   if (s.error && !s.character) return <p style={{ padding: 16 }}>{s.error}</p>;
-  if (!s.character || !s.sheet) return <Welcome create={s.create} readImport={s.readImport} deleted={s.deleted} restore={s.restore} purge={s.purge} />;
+  if (!s.character || !s.sheet) return <Welcome create={s.create} readImport={s.readImport} deleted={s.deleted} restore={s.restore} purge={s.purge} account={s.account} />;
 
   const { character: c, sheet } = s;
 
@@ -2761,20 +2767,31 @@ export function App() {
       ) : null,
     );
 
+  /** On the account, at the limit: no new character (created or imported); says so instead. */
+  const atLimit = (what: string): boolean => {
+    const a = s.account;
+    if (a.kind !== "cloud" || a.me.limit === null || s.roster.length < a.me.limit) return false;
+    open(what, <p className="note">You've reached your limit of {a.me.limit} characters. Delete one, or ask your DM for more.</p>);
+    return true;
+  };
+
   const openNewCharacter = () =>
+    !atLimit("New character") &&
     open(
       "New character",
       <NewCharacterPanel
         reg={registry}
         onCreate={async (input: NewCharacterInput) => {
-          await s.create(newCharacter({ ...input, id: crypto.randomUUID() }, registry));
-          openBuild();
+          if (await s.create(newCharacter({ ...input, id: crypto.randomUUID() }, registry))) openBuild();
+          else openRoster();
         }}
       />,
     );
 
   const importFile = async (file: File | undefined) => {
     if (!file) return;
+    // A whole backup may hold some already here: those don't count; the rest stop at the limit one by one.
+    if (filesIn(await file.text()).length === 1 && !s.readImport(await file.text()).exists && atLimit("Import")) return;
     const text = await file.text();
     const files = filesIn(text);
     // A full backup: every character in it, after one question if any are already here.
@@ -2825,7 +2842,7 @@ export function App() {
     open(`Delete ${c.name}?`, () => (
       <Confirm
         question={`Delete ${c.name}?`}
-        detail="They move to Deleted characters, with everything they had, and you can restore them from there."
+        detail={s.account.kind === "cloud" ? "Their file is downloaded first (import it to bring them back), then they're deleted from your account for good." : "They move to Deleted characters, with everything they had, and you can restore them from there."}
         no="No, keep them"
         yes={`Delete ${c.name}`}
         onNo={openRoster}
@@ -3754,6 +3771,7 @@ export function App() {
             close();
           }}
         />
+        {s.account.kind === "cloud" && <AccountLine account={s.account} onRetry={s.retrySync} />}
         <div className="big-actions" style={{ marginTop: 12 }}>
           <button className="big primary" onClick={openNewCharacter}>
             New character
@@ -3792,6 +3810,11 @@ export function App() {
       <RageVeins show={rageAt} />
       <FxLayer school={spellSchool} spell={spellLook} feature={featureUsed} character={c} />
       <DiceStrip />
+      {s.account.kind === "cloud" && s.account.signedOut && (
+        <button className="signin-banner" onClick={() => location.reload()}>
+          Your sign-in has run out: changes stay on this phone. Tap to sign in again.
+        </button>
+      )}
       {grey > 0 && <div className="grey-veil" aria-hidden="true" style={{ backdropFilter: `grayscale(${grey})`, WebkitBackdropFilter: `grayscale(${grey})` }} />}
       {/* A glimpse doesn't make room above the name: the page doesn't jump for a moment's crest. */}
       <header className={`strip${crest && !glimpse ? " has-crest" : ""}${crest && glimpse ? " crest-glimpse" : ""}`}>
@@ -4234,8 +4257,10 @@ function Welcome({
   deleted,
   restore,
   purge,
+  account,
 }: {
-  create: (c: Character, label?: string) => Promise<void>;
+  account: Account;
+  create: (c: Character, label?: string) => Promise<boolean>;
   readImport: (text: string) => { character?: Character; error?: string };
   deleted: DeletedEntry[];
   restore: (id: string) => Promise<void>;
@@ -4250,7 +4275,8 @@ function Welcome({
         <NewCharacterPanel reg={registry} onCreate={(input) => void create(newCharacter({ ...input, id: crypto.randomUUID() }, registry))} />
       ) : (
         <>
-          <p className="note">{deleted.length ? "No characters here right now." : "No characters on this device yet."}</p>
+          <p className="note">{account.kind === "cloud" ? "No characters on your account yet." : deleted.length ? "No characters here right now." : "No characters on this device yet."}</p>
+          {account.kind === "cloud" && <AccountLine account={account} />}
           <div className="big-actions">
             <button className="big primary" onClick={() => setMaking(true)}>
               New character

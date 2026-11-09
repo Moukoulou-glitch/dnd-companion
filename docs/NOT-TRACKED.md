@@ -511,3 +511,12 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 - Armor of Invulnerability: damage counts as nonmagical unless you mark it magical (or it's from a spell). Slaying ammunition's 6d10 is in its option on the roll: the target's type and its DC 17 save (half) are yours. The Oathbow's disadvantage with other weapons while your sworn enemy lives is a note.
 - A manual or tome studied once: its century without magic isn't tracked (don't study it twice).
 
+
+## The account (21b; live only once the app moves to Cloudflare)
+- On GitHub Pages (no /api) the app works on the device only, exactly as before.
+- On the account: each device keeps its own copy (offline at the table) and sends changes about a second after the last tap. Two devices that changed the same character both keep their changes (merged in time order). An undo on one device after the other already has that change can come back from the other device.
+- A character replaced from a file on one device while another changed it: the one sent last wins.
+- Deleting needs a connection (its file is downloaded first either way). There's no bin on the account.
+- A character made offline past the limit stays on that device only (a message says so); export it to keep it.
+- When the sign-in runs out, changes wait on the device and a banner asks to sign in again.
+- Characters of another Google account signed in on the same phone stay on the phone, hidden, until that account signs in again.

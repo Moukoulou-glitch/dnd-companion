@@ -4843,3 +4843,9 @@ html.fx-shake-strong .app > .strip, html.fx-shake-strong .app > main, html.fx-sh
 .row.picked::before { content: "↳"; position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--muted); }
 .item-filter [aria-checked="true"] .jump-count { color: inherit; background: rgba(0, 0, 0, 0.18); }
 .item-filter button { display: inline-flex; align-items: center; justify-content: center; gap: 4px; }
+
+/* The account: who's signed in, the limit, saved or waiting (21b). */
+.account-line { border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; margin: 8px 0 4px; }
+.account-line .account-actions { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+.account-line a.chip { text-decoration: none; }
+.signin-banner { display: block; width: 100%; padding: 10px 16px; border: 0; background: #7a4b12; color: #fff; font: inherit; text-align: left; }

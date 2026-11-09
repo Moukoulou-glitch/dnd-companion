@@ -12,6 +12,12 @@ export interface StoredCharacter {
   fixtureHash?: string;
   /** Set when the player deleted the character: it is kept so it can be restored. */
   deletedAt?: number;
+  /** On the signed-in app: the account it belongs to (none: from before signing in, to move over). */
+  owner?: string;
+  /** The account's version of it this copy was last in step with (none: never sent). */
+  serverVersion?: number;
+  /** Changed here since it was last sent. */
+  dirty?: boolean;
 }
 
 /** A book file the player loaded; it stays on this device only. */

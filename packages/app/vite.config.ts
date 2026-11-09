@@ -72,6 +72,8 @@ export default defineConfig({
       workbox: {
         globPatterns: ["**/*.{js,css,html,svg,png,woff,woff2}"],
         globIgnores: ["dice-box/**"],
+        // The account's server and Cloudflare's sign-in pages are never answered from the offline copy.
+        navigateFallbackDenylist: [/^\/api\//, /^\/cdn-cgi\//],
         maximumFileSizeToCacheInBytes: 6 * 1024 * 1024,
         runtimeCaching: [{ urlPattern: ({ url }) => url.pathname.includes("/dice-box/"), handler: "CacheFirst", options: { cacheName: "dice-box-2" } }],
       },
