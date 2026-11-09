@@ -8,7 +8,7 @@
     "packages/*"
   ],
   "scripts": {
-    "typecheck": "tsc -b && tsc -p packages/app",
+    "typecheck": "tsc -b && tsc -p packages/app && tsc -p packages/server",
     "test": "vitest run",
     "test:watch": "vitest",
     "dev": "npm run dev -w @dnd/app",

@@ -1,0 +1,25 @@
+# Cloudflare Worker for the companion: serves the app and the /api routes.
+# Nothing secret lives here. TEAM_DOMAIN and ACCESS_AUD come from the Cloudflare Access application
+# (they are public identifiers, used to check sign-ins); fill them in when the Access app exists.
+name = "dnd-companion"
+main = "src/index.ts"
+compatibility_date = "2026-10-19"
+
+[assets]
+directory = "../app/dist"
+binding = "ASSETS"
+# Every request goes through the Worker first, so only allowed accounts get the app.
+run_worker_first = true
+not_found_handling = "single-page-application"
+
+[vars]
+ADMIN_EMAIL = "micyemail@gmail.com"
+TEAM_DOMAIN = "REPLACE-ME.cloudflareaccess.com"
+ACCESS_AUD = "REPLACE-ME"
+DEFAULT_LIMIT = "6"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "dnd-companion"
+database_id = "REPLACE-ME"
+migrations_dir = "migrations"

@@ -1,0 +1,16 @@
+{
+  "name": "@dnd/server",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Cloudflare Worker: signed-in players' characters, the allowed Gmail accounts and their character limits.",
+  "main": "src/index.ts",
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "migrate": "wrangler d1 migrations apply dnd-companion --remote"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "5.20261019.1",
+    "wrangler": "4.151.2"
+  }
+}
