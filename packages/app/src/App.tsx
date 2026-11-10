@@ -673,11 +673,36 @@ export function App() {
 
   /** A death saving throw: what the d20 shows decides it (with Adama, two d20s: a 20 on either, or a total of exactly 20, is a natural 20; otherwise added). */
   const openDeathSave = () => {
-    const decide = (n: number, sum?: [number, number]) => {
+    const decide = (n: number, sum?: [number, number], favored?: number) => {
+      // Favored by the Gods: a failed death save (not a natural 1) can take 2d4 more before it counts.
+      const failed = sum ? !sum.includes(20) && n < 10 : n >= 2 && n < 10;
+      if (failed && favored === undefined && live.current.sheet?.actions.some((a) => a.id === "favored-by-the-gods")) {
+        const left = live.current.sheet.resources.find((r) => r.id === "favored-by-the-gods")?.remaining ?? 0;
+        return open("Death saving throw", () => (
+          <Choose
+            question={`${n}: a failed death save. Favored by the Gods?`}
+            detail={`Add 2d4 to it, possibly turning it into a success (10 or more).${left > 0 ? "" : " No use left until a rest: used anyway if you go on."}`}
+            options={[
+              {
+                label: "Favored by the Gods: roll 2d4",
+                onPick: () =>
+                  void rollOrThrow("2d4", true, undefined, { source: "Favored by the Gods" }).then((r) => {
+                    live.current.act("useAction", { action: "favored-by-the-gods", rolled: r.total }, `Favored by the Gods: +${r.total}.`);
+                    playFx({ kind: "favored", amount: r.total });
+                    decide(n, sum, r.total);
+                  }),
+              },
+              { label: "Accept the failure", onPick: () => decide(n, sum, 0) },
+            ]}
+          />
+        ));
+      }
+      const plus = favored ? ` + ${favored} (Favored by the Gods) = ${n + favored}` : "";
+      if (favored) n += favored;
       let prompts: unknown;
       if (sum) {
         live.current.act("spendResource", { resource: "adama", amount: 1 }, "Adama used.");
-        const said = `Death save (Adama): ${sum[0]} + ${sum[1]} = ${n}`;
+        const said = `Death save (Adama): ${sum[0]} + ${sum[1]}${plus ? `${plus}` : ` = ${n}`}`;
         if (sum.includes(20)) prompts = s.act("deathSave", { result: "critSuccess" }, `Death save (Adama): ${sum[0]} and ${sum[1]}, a natural 20.`);
         else if (n === 20) prompts = s.act("deathSave", { result: "critSuccess" }, `${said}, counts as a natural 20.`);
         else if (n >= 10) prompts = s.act("deathSave", { result: "success" }, `${said}, a success.`);
@@ -686,8 +711,8 @@ export function App() {
       }
       if (n === 20) prompts = s.act("deathSave", { result: "critSuccess" }, "Death save: natural 20.");
       else if (n === 1) prompts = s.act("deathSave", { result: "critFailure" }, "Death save: natural 1, two failures.");
-      else if (n >= 10) prompts = s.act("deathSave", { result: "success" }, `Death save: ${n}, a success.`);
-      else prompts = s.act("deathSave", { result: "failure" }, `Death save: ${n}, a failure.`);
+      else if (n >= 10) prompts = s.act("deathSave", { result: "success" }, `Death save: ${favored ? `${n - favored}${plus}` : n}, a success.`);
+      else prompts = s.act("deathSave", { result: "failure" }, `Death save: ${favored ? `${n - favored}${plus}` : n}, a failure.`);
       afterDeathSave(prompts);
     };
     const adama = live.current.sheet?.resources.find((r) => r.id === "adama");
