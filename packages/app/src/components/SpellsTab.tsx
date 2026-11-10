@@ -237,7 +237,8 @@ export function SpellsTab({
                       {sheet.concentration?.spell === r.sp.id && <span className="tag conc">concentrating</span>}
                       {r.sp.ready === "prepared" && <span className="tag adv">prepared</span>}
                       {r.sp.notInBook && <span className="tag dis">not in your spellbook</span>}
-                      {r.sp.fromFeature && <span className="tag">{r.sp.fromFeature}</span>}
+                      {/* Where it comes from: the class, or the feature, feat, race or item that gives it. */}
+                      <span className="tag spell-from">{r.sp.fromFeature ?? r.sp.list.label}</span>
                       {r.sp.cast.extra &&
                         (r.sp.cast.extra.perLong !== undefined ? (
                           <span className={`tag ${r.sp.cast.extra.sinceLong >= r.sp.cast.extra.perLong ? "fail" : "adv"}`}>

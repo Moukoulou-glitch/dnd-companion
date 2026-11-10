@@ -494,7 +494,20 @@
               "resource": "sorcery-points",
               "amount": 1
             },
-            "note": "Reroll any healing dice from a spell (yours or an ally's within 5 ft). Once per turn, not while incapacitated."
+            "note": "On your own healing spells: after the healing roll, \"Empowered Healing\" on the result rerolls any of its dice for 1 sorcery point. For an ally's healing spell within 5 ft: use this to spend the point, and they reroll. Once per turn, not while incapacitated."
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.heal.spell.option",
+            "op": "rerollOneDie",
+            "value": 20,
+            "label": "Empowered Healing",
+            "spends": {
+              "resource": "sorcery-points",
+              "amount": 1
+            },
+            "oncePerTurn": true
           }
         ]
       }
@@ -562,7 +575,9 @@
               "resource": "unearthly-recovery",
               "amount": 1
             },
-            "note": "Below half HP: regain HP equal to half your maximum."
+            "note": "With fewer than half your hit points left: regain half your hit point maximum.",
+            "heal": "halfhpmax",
+            "belowHalfHp": true
           }
         ]
       }

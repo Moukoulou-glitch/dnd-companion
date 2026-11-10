@@ -311,6 +311,8 @@ export interface ActionResult {
   choiceToggles?: Record<string, string[]>;
   /** Done before your first attack with its item on your turn (Defender). */
   beforeFirstAttack?: boolean;
+  /** Only below half your hit points (Unearthly Recovery). */
+  belowHalfHp?: boolean;
 }
 
 export interface SpeedResult {
@@ -439,6 +441,8 @@ export interface DerivedSheet {
   proficiencyBonus: number;
   abilities: Record<Ability, AbilityResult>;
   saves: Record<Ability, SaveResult>;
+  /** Death saving throws: what gives them advantage or disadvantage (names). */
+  deathSave: { advantage: string[]; disadvantage: string[] };
   skills: Record<Skill, SkillResult>;
   /** Tools and instruments you're proficient with, and `anyTool` for one you aren't (no proficiency bonus). */
   tools: ToolResult[];
@@ -1221,6 +1225,9 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     const base = [abilityPart(ab), ...(proficient ? [pbPart()] : []), ...handParts("save.all", "all saves"), ...handParts(`save.${ab}`, "this save")];
     saves[ab] = { ...roll([`roll.save.${ab}`], base), proficient };
   }
+  // Death saves: advantage or disadvantage from what covers them (Beacon of Hope; Holy Aura's "all saving throws").
+  const deathRoll = roll(["roll.save.death"], []);
+  const deathSave = { advantage: deathRoll.advantage, disadvantage: deathRoll.disadvantage };
 
   // Jack of All Trades (bard 2nd): half the proficiency bonus, rounded down, on ability checks without proficiency.
   const jack = sources.find((s) => s.id === "feature:jack-of-all-trades");
@@ -2092,7 +2099,8 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
         // Options to tick on the healing roll (Spiritual Focus: 1d6 on one healing roll).
         if (!r.damageBonus) {
           const opt = roll(["roll.heal.spell.option", `roll.heal.spell.option.list.${list}`], []);
-          if (opt.suggestions.length) r.damageBonus = opt;
+          // …and dice to roll again (Empowered Healing: any number, a sorcery point).
+          if (opt.suggestions.length || opt.rerollOne) r.damageBonus = opt;
         }
       }
     }
@@ -2261,7 +2269,9 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
         entry.cost = { resource: a.cost.resource, name: r?.name ?? a.cost.resource, amount: a.cost.amount, remaining: r?.remaining ?? 0 };
       }
       if (a.tempHp !== undefined) entry.tempHp = amountOf(a.tempHp, s);
-      if (a.heal !== undefined) entry.heal = amountOf(a.heal, s);
+      // "halfhpmax": half your hit point maximum (Unearthly Recovery).
+      if (a.heal === "halfhpmax") entry.heal = { dice: [], flat: Math.floor(hpMax.total / 2), text: `${Math.floor(hpMax.total / 2)} (half your hit point maximum)` };
+      else if (a.heal !== undefined) entry.heal = amountOf(a.heal, s);
       if (a.others) entry.others = true;
       if (a.gives) entry.gives = { effect: a.gives.effect, ...(a.gives.selfWarning ? { selfWarning: a.gives.selfWarning } : {}) };
       // Combat Inspiration (Valor): the die can also go on weapon damage or AC.
@@ -2279,6 +2289,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       if (a.check) entry.check = a.check;
       if (a.choose) entry.choose = a.choose;
       if (a.beforeFirstAttack) entry.beforeFirstAttack = true;
+      if (a.belowHalfHp) entry.belowHalfHp = true;
       // The Moonblade's defender rune: no more than its bonus (+1, and +1 for each "+1 more" rune).
       if (a.choose && a.upToItemBonus && s.itemInstanceId) {
         const inst = c.inventory.find((i) => i.id === s.itemInstanceId);
@@ -2655,6 +2666,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     })(),
     abilities,
     saves,
+    deathSave,
     skills,
     tools,
     anyTool,

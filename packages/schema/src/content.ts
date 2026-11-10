@@ -733,7 +733,19 @@ export const Definition = z.discriminatedUnion("kind", [
 ]);
 export type Definition = z.infer<typeof Definition>;
 
-export const ContentPack = z
+/**
+ * A content pack. Its type is written out by hand: inferred, it grew past what TypeScript will write into
+ * a declaration file (every definition kind inlined once more).
+ */
+export type ContentPack = {
+  id: string;
+  title: string;
+  ruleset: z.infer<typeof Ruleset>;
+  license: string;
+  visibility: "built-in" | "private" | "campaign";
+  definitions: Definition[];
+};
+export const ContentPack: z.ZodType<ContentPack, z.ZodTypeDef, unknown> = z
   .object({
     id: z.string(),
     title: z.string(),
@@ -743,4 +755,3 @@ export const ContentPack = z
     definitions: z.array(Definition),
   })
   .strict();
-export type ContentPack = z.infer<typeof ContentPack>;

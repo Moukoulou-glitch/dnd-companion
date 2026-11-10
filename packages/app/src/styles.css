@@ -4856,3 +4856,29 @@ html.fx-shake-strong .app > .strip, html.fx-shake-strong .app > main, html.fx-sh
 .admin .limit-input { display: inline-flex; align-items: center; gap: 6px; }
 .admin .limit-value { min-width: 2ch; text-align: center; font-weight: 600; }
 .admin .admin-said { border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; }
+
+/* Favored by the Gods (Divine Soul): golden light from above, a turning halo, two radiant d4s, drifting feathers. Transforms and opacity only. */
+.fx-favored { position: absolute; inset: 0; overflow: hidden; background: radial-gradient(ellipse at 50% 0%, rgba(255, 226, 150, 0.42), rgba(255, 200, 90, 0.12) 50%, transparent 80%); animation: fx-fav-sky var(--fx-ms, 2000ms) ease-out forwards; }
+.fx-fav-beam { -webkit-mask-image: linear-gradient(90deg, transparent, #000 35%, #000 65%, transparent); mask-image: linear-gradient(90deg, transparent, #000 35%, #000 65%, transparent); position: absolute; left: 50%; top: 0; width: 160px; height: 62%; margin-left: -80px; background: linear-gradient(180deg, rgba(255, 244, 205, 0.85), rgba(255, 214, 120, 0.25) 70%, transparent); transform-origin: 50% 0; transform: scaleY(0); animation: fx-fav-beam var(--fx-ms, 2000ms) ease-out forwards; }
+.fx-fav-halo { position: absolute; left: 50%; top: 30%; width: 180px; height: 180px; margin: -90px 0 0 -90px; opacity: 0; animation: fx-fav-halo var(--fx-ms, 2000ms) ease-out forwards; }
+.fx-fav-halo circle { fill: none; stroke: #ffe39a; stroke-width: 3; }
+.fx-fav-halo circle.thin { stroke-width: 1; stroke: #fff4d2; }
+.fx-fav-halo line { stroke: #ffd36b; stroke-width: 2; stroke-linecap: round; }
+.fx-fav-dice { position: absolute; left: 50%; top: 30%; width: 200px; height: 100px; margin: -50px 0 0 -100px; overflow: visible; }
+.fx-fav-dice path { fill: rgba(255, 233, 170, 0.92); stroke: #fff8e0; stroke-width: 2; stroke-linejoin: round; }
+.fx-fav-dice path.edge { fill: none; stroke: rgba(196, 140, 40, 0.7); stroke-width: 1.5; }
+.fx-fav-dice g { opacity: 0; transform: translateY(-160px) rotate(-30deg); transform-box: fill-box; transform-origin: 50% 60%; animation: fx-fav-die var(--fx-ms, 2000ms) cubic-bezier(0.2, 0.9, 0.3, 1.2) forwards; }
+.fx-fav-dice g.d2 { animation-delay: 120ms; transform: translateY(-160px) rotate(30deg); }
+.fx-fav-feather { position: absolute; top: -20px; width: 10px; height: 26px; border-radius: 50% 50% 50% 50% / 70% 70% 30% 30%; background: linear-gradient(180deg, #fffaf0, #ffe2a0); opacity: 0; transform: rotate(var(--r, 0deg)); animation: fx-fav-feather var(--fx-ms, 2000ms) ease-in forwards; }
+.fx-favored + .fx-label, .fx-favored .fx-label { color: #fff3cf; }
+@keyframes fx-fav-sky { 0% { opacity: 0; } 15% { opacity: 1; } 75% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes fx-fav-beam { 0% { transform: scaleY(0); opacity: 0; } 20% { transform: scaleY(1); opacity: 1; } 70% { opacity: 0.8; } 100% { transform: scaleY(1); opacity: 0; } }
+@keyframes fx-fav-halo { 0% { opacity: 0; transform: scale(0.6) rotate(0deg); } 25% { opacity: 1; transform: scale(1) rotate(40deg); } 80% { opacity: 0.9; transform: scale(1.04) rotate(140deg); } 100% { opacity: 0; transform: scale(1.12) rotate(180deg); } }
+@keyframes fx-fav-die { 0% { opacity: 0; } 10% { opacity: 1; } 40% { opacity: 1; transform: translateY(0) rotate(0deg); } 82% { opacity: 1; transform: translateY(0) rotate(0deg) scale(1.06); } 100% { opacity: 0; transform: translateY(0) rotate(0deg) scale(1.15); } }
+@keyframes fx-fav-feather { 0% { opacity: 0; transform: translate(0, 0) rotate(var(--r, 0deg)); } 15% { opacity: 0.95; } 100% { opacity: 0; transform: translate(18px, 70vh) rotate(calc(var(--r, 0deg) + 160deg)); } }
+@media (prefers-reduced-motion: reduce) {
+  .fx-favored, .fx-fav-beam, .fx-fav-halo, .fx-fav-dice g, .fx-fav-feather { animation: none !important; }
+  .fx-fav-halo, .fx-fav-dice g { opacity: 1; transform: none; }
+  .fx-fav-feather, .fx-fav-beam { display: none; }
+}
+.tag.spell-from { opacity: 0.85; font-style: italic; }

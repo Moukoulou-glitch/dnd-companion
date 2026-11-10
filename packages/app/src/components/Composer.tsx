@@ -93,7 +93,9 @@ interface Props {
    * Things added to an attack roll after seeing it (Focused Aim, Precision
    * Attack): `run` spends what they cost and gives the number added.
    */
-  afterRoll?: { label: string; sub?: string; warn?: boolean; group?: string; run: () => { value: number; detail: string } | undefined }[];
+  afterRoll?: AfterRollOption[];
+  /** One of your own saving throws: after-roll options for saves (Favored by the Gods) are offered, and a failure against a DC waits for them. */
+  saveRoll?: boolean;
   /** Closes the roll (after a miss with no more attacks). */
   onDone?: () => void;
   /** A sentient weapon's own dice (Blackrazor): the theme key, and its name for the dice that are its own. */
@@ -472,7 +474,32 @@ export function CritRiders({ riders, physical, tempGiven = false }: { riders: { 
   );
 }
 
-export function Composer({ title, base: baseIn, attack, physical, onPhysicalChange, onRolled, onResolved, damageOnly, healing, onHealSelf, healTargets, dc, dcLabel, reaction, onSpend, onCheck, notes, header, typeChoices, portent, onOptionsUsed, optionInfo, onCommit, repeat, darts, onDamageOptions, afterRoll, onDone, diceSource, afterD20, onTempHp, weaponDice }: Props) {
+/** Something added to a d20 roll after seeing it: on attacks (Focused Aim, Precision Attack), saves, or both (Favored by the Gods). */
+export interface AfterRollOption {
+  label: string;
+  sub?: string;
+  warn?: boolean;
+  group?: string;
+  on?: "attack" | "save" | "any";
+  run: () => { value: number; detail: string } | undefined | Promise<{ value: number; detail: string } | undefined>;
+}
+
+export function Composer({ title, base: baseIn, attack, physical, onPhysicalChange, onRolled, onResolved, damageOnly, healing, onHealSelf, healTargets, dc, dcLabel, reaction, onSpend, onCheck, notes, header, typeChoices, portent, onOptionsUsed, optionInfo, onCommit, repeat, darts, onDamageOptions, afterRoll, onDone, diceSource, afterD20, onTempHp, weaponDice, saveRoll }: Props) {
+  /** A failed save against a DC, waiting: something could still change it (Favored by the Gods), or the player accepts it. */
+  const [checkHeld, setCheckHeld] = useState(false);
+  const saveAfter = saveRoll && !attack ? (afterRoll ?? []).filter((o) => o.on === "save" || o.on === "any") : [];
+  /** Adds an after-roll option to the shown d20 result (once per roll each); a held failed check is decided again. */
+  const applyAfter = async (o: AfterRollOption, r: RollRecord, used: string[], done: boolean) => {
+    if (done) return;
+    const res = await o.run();
+    if (!res) return;
+    const total = r.total + res.value;
+    setStage({ step: "d20-result", record: { ...r, total, lines: [...r.lines, { source: o.label, detail: res.detail, total: res.value }] }, used: [...used, o.group ?? o.label] });
+    if (checkHeld && dc !== undefined) {
+      setCheckHeld(false);
+      onCheck?.(total >= dc);
+    }
+  };
   const [typePick, setTypePick] = useState<{ via: number; type: string } | null>(null);
   // A smite used on an earlier hit (Extra Attack's first attack, or this one rolled again) is gone: it can't be ticked again.
   const [usedUp, setUsedUp] = useState<UsedUp[]>([]);
@@ -664,7 +691,10 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
     const usedNow = usedUpBy(base.suggestions, choices.enabled);
     if (usedNow.length) setUsedUp((u) => [...u, ...usedNow]);
     onRolled(rec);
-    if (dc !== undefined) onCheck?.(rec.total >= dc);
+    if (dc !== undefined) {
+      if (rec.total < dc && saveAfter.length) setCheckHeld(true);
+      else onCheck?.(rec.total >= dc);
+    }
     setEntering(false);
     setStage({ step: "d20-result", record: rec });
   };
@@ -902,13 +932,42 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
             {r.total >= dc ? `Success against DC ${dc}.` : `Failed against DC ${dc}.`}
           </p>
         )}
+        {saveAfter.length > 0 && (
+          <div className="after-roll">
+            <span className="sub-head small">Change this roll</span>
+            <div className="choice-grid">
+              {saveAfter.map((o) => {
+                const used = stage.used ?? [];
+                const done = used.includes(o.group ?? o.label);
+                return (
+                  <button key={o.label} className={`tag use${o.warn ? " danger-text" : ""}`} disabled={done} onClick={() => void applyAfter(o, r, used, done)}>
+                    {o.label}
+                    {o.sub ? <small> · {o.sub}</small> : null}
+                  </button>
+                );
+              })}
+            </div>
+            {checkHeld && dc !== undefined && (
+              <button
+                className="big wide"
+                style={{ marginTop: 8 }}
+                onClick={() => {
+                  setCheckHeld(false);
+                  onCheck?.(false);
+                }}
+              >
+                Accept the failure
+              </button>
+            )}
+          </div>
+        )}
         {attack && (
           <>
             {/* After seeing the roll: add to it (Focused Aim, Precision Attack) or nudge it by hand. Not after Adama: nothing changes its dice. */}
             {!r.lines.some((l) => l.source.startsWith("2d20 added")) && <div className="after-roll">
               <span className="sub-head small">Change this roll</span>
               <div className="choice-grid">
-                {(afterRoll ?? []).map((o) => {
+                {(afterRoll ?? []).filter((o) => o.on !== "save").map((o) => {
                   // Once per roll: one Focused Aim (1, 2 or 3 ki), one Precision Attack.
                   const used = stage.used ?? [];
                   // Already ticked before the roll (Precision Attack): not again.
@@ -919,16 +978,7 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
                       key={o.label}
                       className={`tag use${o.warn ? " danger-text" : ""}`}
                       disabled={done}
-                      onClick={() => {
-                        if (done) return;
-                        const res = o.run();
-                        if (!res) return;
-                        setStage({
-                          step: "d20-result",
-                          record: { ...r, total: r.total + res.value, lines: [...r.lines, { source: o.label, detail: res.detail, total: res.value }] },
-                          used: [...used, o.group ?? o.label],
-                        });
-                      }}
+                      onClick={() => void applyAfter(o, r, used, done)}
                     >
                       {o.label}
                       {o.sub ? <small> · {o.sub}</small> : null}
@@ -1128,7 +1178,7 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
       <>
         <ResultView r={stage.record} />
         {throwNote && <p className="note">{throwNote}</p>}
-        {!healing && attack?.damage.bonus.rerollOne && !rerolledOne && (
+        {attack?.damage.bonus.rerollOne && !rerolledOne && (
           <RerollOne
             what={attack.damage.bonus.rerollOne}
             roll={lastDamageRoll.current}

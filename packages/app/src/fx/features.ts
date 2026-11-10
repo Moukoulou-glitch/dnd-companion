@@ -101,7 +101,7 @@ export interface FeatureSheet {
  * Uses with their own look already (fx/triggers.ts, components/Fx.tsx): Flurry of Blows' afterimages, Way of
  * Mercy's hands, Rage's veins, the transformations' forms. They keep theirs and get nothing more.
  */
-const OWN_LOOK = new Set(["flurry-of-blows", "hand-of-healing", "hand-of-harm", "destructive-wrath", "transmuted-spell", "floar", "theros", "preserve-life", "fey-step", "fey-step-reaction", ...Object.keys(CD_LOOKS)]);
+const OWN_LOOK = new Set(["favored-by-the-gods", "flurry-of-blows", "hand-of-healing", "hand-of-harm", "destructive-wrath", "transmuted-spell", "floar", "theros", "preserve-life", "fey-step", "fey-step-reaction", ...Object.keys(CD_LOOKS)]);
 /** Resources whose spending has its own look (Adama's two wholes). */
 const OWN_RESOURCES = new Set(["adama"]);
 const OWN_TOGGLES = new Set(["raging", ...Object.keys(FORM_FX)]);

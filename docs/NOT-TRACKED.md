@@ -520,3 +520,4 @@ Things the app shows as a description only, or tracks partly. Kept up to date as
 - A character made offline past the limit stays on that device only (a message says so); export it to keep it.
 - When the sign-in runs out, changes wait on the device and a banner asks to sign in again.
 - Characters of another Google account signed in on the same phone stay on the phone, hidden, until that account signs in again.
+- Divine Soul (22c): Favored by the Gods is offered after your own attack rolls and saving throws (Sheet saves, concentration checks, Strength of the Grave/Relentless Rage saves), not after a death save. Empowered Healing rerolls dice on your own healing spells; for an ally's spell within 5 ft, its action only spends the point. Its once per turn is shown, not enforced.

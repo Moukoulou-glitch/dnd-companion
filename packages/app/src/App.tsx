@@ -12,7 +12,7 @@ import { ActionsTab } from "./components/ActionsTab";
 import { CompanionPanel, MovePanel } from "./components/Combat";
 import { SwipeAway } from "./components/Swipe";
 import { ConditionLinks, RichText } from "./components/Conditions";
-import { Composer, ResultView, type OptionInfo } from "./components/Composer";
+import { Composer, ResultView, type AfterRollOption, type OptionInfo } from "./components/Composer";
 import { AddEffectPanel, EffectChips, EffectPanel } from "./components/Effects";
 import { FeaturePanel } from "./components/FeaturePanel";
 import { DcBig, Reminders } from "./components/DcBig";
@@ -449,6 +449,8 @@ export function App() {
           base={live.current.sheet!.saves[ability]}
           dc={dc}
           dcLabel={dcLabel}
+          afterRoll={afterRollFor()}
+          saveRoll
           onOptionsUsed={recordOptions}
           physical={live.current.character?.settings.physicalDice ?? true}
           onPhysicalChange={setPhysicalDice}
@@ -691,7 +693,7 @@ export function App() {
     const adama = live.current.sheet?.resources.find((r) => r.id === "adama");
     open(
       "Death saving throw",
-      <DeathSavePanel beacon={!!live.current.character?.effects.some((e) => e.effect === "effect:beacon-of-hope")} {...(adama ? { adama: adama.remaining } : {})} onDecide={decide} />,
+      <DeathSavePanel advantage={live.current.sheet?.deathSave.advantage ?? []} disadvantage={live.current.sheet?.deathSave.disadvantage ?? []} {...(adama ? { adama: adama.remaining } : {})} onDecide={decide} />,
     );
   };
 
@@ -855,6 +857,7 @@ export function App() {
             }
           : {})}
         {...(attack && !opts.damageOnly ? { ...(opts.notMine ? {} : { afterRoll: afterRollFor() }), onDone: opts.back ? opts.back.to : close } : {})}
+        {...(!attack && !opts.notMine && live.current.sheet && Object.values(live.current.sheet.saves).includes(base as never) ? { afterRoll: afterRollFor(), saveRoll: true } : {})}
         {...(() => {
           // After the d20: count the ammunition, and keep a die that didn't help (Unfailing Inspiration).
           const ammo = atk?.ammo && live.current.character?.settings.trackAmmo && !opts.notMine;
@@ -934,7 +937,25 @@ export function App() {
     const sh = live.current.sheet;
     const ch = live.current.character;
     if (!sh || !ch) return [];
-    const out: { label: string; sub?: string; warn?: boolean; group?: string; run: () => { value: number; detail: string } | undefined }[] = [];
+    const out: AfterRollOption[] = [];
+    // Favored by the Gods (Divine Soul): after a failed save or a missed attack, 2d4 more (once per short or long rest).
+    const favored = sh.actions.find((a) => a.id === "favored-by-the-gods");
+    if (favored) {
+      const left = sh.resources.find((r) => r.id === "favored-by-the-gods")?.remaining ?? 0;
+      out.push({
+        label: "Favored by the Gods +2d4",
+        group: "Favored by the Gods",
+        on: "any",
+        sub: left > 0 ? "a failed save or a miss · once per rest" : "used: no use left until a rest",
+        warn: left <= 0,
+        run: async () => {
+          const r = await rollOrThrow("2d4", true, undefined, { source: "Favored by the Gods" });
+          live.current.act("useAction", { action: "favored-by-the-gods", rolled: r.total }, `Favored by the Gods: +${r.total}.`);
+          playFx({ kind: "favored", amount: r.total });
+          return { value: r.total, detail: `2d4 [${r.total}]` };
+        },
+      });
+    }
     if (sh.actions.some((a) => a.id === "focused-aim"))
       for (const n of [1, 2, 3])
         out.push({
@@ -2977,6 +2998,8 @@ export function App() {
         base={live.current.sheet!.saves.con}
         dc={dc}
         dcLabel="Constitution saving throw"
+        afterRoll={afterRollFor()}
+        saveRoll
         onOptionsUsed={recordOptions}
         physical={live.current.character?.settings.physicalDice ?? true}
         onPhysicalChange={setPhysicalDice}

@@ -506,6 +506,8 @@ export const ActionDef = z
     untilTurnStart: z.boolean().optional(),
     /** Done before your first attack with its item on your turn (Defender): a warning after one, or used twice in a turn. */
     beforeFirstAttack: z.boolean().optional(),
+    /** Only while you have fewer than half your hit points (Unearthly Recovery): a warning otherwise, never blocked. */
+    belowHalfHp: z.boolean().optional(),
     /** Its `choose` options are "+N …": only those up to the item's own bonus are offered (the Moonblade's defender rune). */
     upToItemBonus: z.boolean().optional(),
     /** Ends your concentration. */

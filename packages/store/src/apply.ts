@@ -1554,6 +1554,7 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         if (!c.shape) notes.push(`${a.name} heals you while you're in a Wild Shape form.`);
       }
       // Defender: the first time you attack with it on your turn. After that, or a second time in a turn: warned, still done.
+      if (a.belowHalfHp && c.hp.current >= Math.ceil(sheet.hpMax.total / 2)) notes.push(`⚠ ${a.name}: only when you have fewer than half your hit points (${c.hp.current} of ${sheet.hpMax.total}). Done anyway.`);
       if (a.beforeFirstAttack && c.combat?.myTurn) {
         if (c.combat.usedThisTurn.includes(a.id)) notes.push(`⚠ ${a.name}: already done this turn. It's for the first time you attack with it on each of your turns. Done anyway.`);
         else if (c.combat.attackedWith.some((x) => x.itemInstanceId === a.itemInstanceId)) notes.push(`⚠ ${a.name}: you've already attacked with it this turn; it's for the first attack. Done anyway.`);

@@ -39,6 +39,8 @@ export type FxEvent =
   | { kind: "twenty"; motif: "sharp" | "vicious" | "drain" | "smite" | "edge" | "sever" | "tide"; label: string }
   /** Destructive Wrath: the storm answers (its lightning and thunder dice at their maximum). */
   | { kind: "wrath" }
+  /** Favored by the Gods: a failed save or a miss, and the gods add 2d4 (the amount). */
+  | { kind: "favored"; amount: number }
   /** Floar (Circle of the Heammer): the Methic flame lights; with Zenith, a sun rises in it too. */
   | { kind: "floar"; radiant: boolean; zenith: boolean }
   /** Theros: a phenomenon over the land, for so many days. */

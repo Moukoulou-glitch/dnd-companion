@@ -4040,12 +4040,17 @@
           "selector": "roll.save.wis",
           "op": "advantage",
           "label": "Beacon of Hope"
+        },
+        {
+          "selector": "roll.save.death",
+          "op": "advantage",
+          "label": "Beacon of Hope"
         }
       ],
       "rounds": 10,
       "concentration": true,
       "reminders": [
-        "Death saves with advantage: roll two d20s and use the higher (the death save panel says so).",
+        "Death saves with advantage (the death save panel rolls two d20s).",
         "Healing you receive is the maximum the dice could give: the app does it for your own healing rolls, Hit Dice and potions; when someone else heals you, enter their maximum."
       ]
     },

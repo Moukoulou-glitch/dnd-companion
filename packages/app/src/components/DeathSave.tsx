@@ -6,17 +6,21 @@ import { rollOrThrow } from "../dice/quick";
  * advantage or disadvantage, two d20s: two taps. A 20 on either die, or a total of exactly 20, counts as a natural 20; otherwise they're added.
  */
 export function DeathSavePanel({
-  beacon,
+  advantage = [],
+  disadvantage = [],
   adama,
   onDecide,
 }: {
-  beacon: boolean;
+  /** What gives the death save advantage (Beacon of Hope, Holy Aura) or disadvantage; both cancel out. */
+  advantage?: string[];
+  disadvantage?: string[];
   /** Adama's uses left, when the character has it. */
   adama?: number;
   /** The d20 that decides it; `sum` when Adama added two (the faces for the log). */
   onDecide: (n: number, sum?: [number, number]) => void;
 }) {
   const [useAdama, setUseAdama] = useState(false);
+  const mode = advantage.length && !disadvantage.length ? "advantage" : disadvantage.length && !advantage.length ? "disadvantage" : "normal";
   const [first, setFirst] = useState<number | null>(null);
   const tap = (n: number) => {
     if (!useAdama) return onDecide(n);
@@ -26,7 +30,12 @@ export function DeathSavePanel({
   return (
     <>
       <p className="note">Tap what your d20 shows, or let the app roll. 10 or higher succeeds; 1 counts as two failures; 20 brings you back with 1 HP.</p>
-      {beacon && !useAdama && <p className="note">Beacon of Hope: advantage. Roll two d20s and tap the higher one; the app rolls two for you.</p>}
+      {mode !== "normal" && !useAdama && (
+        <p className="note">
+          {(mode === "advantage" ? advantage : disadvantage).join(", ")}: {mode}. Roll two d20s and tap the {mode === "advantage" ? "higher" : "lower"} one; the app rolls two for you.
+        </p>
+      )}
+      {advantage.length > 0 && disadvantage.length > 0 && !useAdama && <p className="note">Advantage ({advantage.join(", ")}) and disadvantage ({disadvantage.join(", ")}) cancel out: one d20.</p>}
       {adama !== undefined && (
         <label className="row check" style={{ padding: "8px 0" }}>
           <input
@@ -61,7 +70,7 @@ export function DeathSavePanel({
             ? void rollOrThrow("1d20", true, undefined, { source: "Adama", quick: true }).then((a) =>
                 rollOrThrow("1d20", true, undefined, { source: "Adama", quick: true }).then((b) => onDecide(a.total + b.total, [a.total, b.total])),
               )
-            : void rollOrThrow(beacon ? "2d20kh1" : "1d20", true, undefined, { source: "Death saving throw", quick: true }).then((r) => onDecide(r.total))
+            : void rollOrThrow(mode === "advantage" ? "2d20kh1" : mode === "disadvantage" ? "2d20kl1" : "1d20", true, undefined, { source: "Death saving throw", quick: true }).then((r) => onDecide(r.total))
         }
       >
         Roll for me

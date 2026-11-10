@@ -165,6 +165,8 @@ export function specOf(e: FxEvent): FxSpec {
     }
     case "wrath":
       return { at: "edge", ms: 1400, buzz: [60, 40, 120], look: "fx-wrath", label: "Destructive Wrath · maximum", shake: 450 };
+    case "favored":
+      return { at: "edge", ms: 2000, buzz: [30, 60, 30], look: "fx-favored", label: `Favored by the Gods · +${e.amount}` };
     case "concentration":
       return { at: "conc", ms: 600, look: e.kept ? "fx-conc-kept" : "fx-conc-lost", label: e.kept ? "Concentration held" : "Concentration lost" };
     case "death-save":
@@ -822,6 +824,32 @@ export function FxLayer({ school, spell, feature, character }: { school: (spell:
                     ))}
                   </>
                 )}
+              </>
+            )}
+            {spec.look === "fx-favored" && (
+              <>
+                {/* Light falls from above, a halo turns, two radiant d4s come down, feathers drift. */}
+                <span className="fx-fav-beam" />
+                <svg className="fx-fav-halo" viewBox="-60 -60 120 120">
+                  <circle r="46" />
+                  <circle r="38" className="thin" />
+                  {Array.from({ length: 12 }, (_, i) => (
+                    <line key={i} x1="0" y1="-52" x2="0" y2="-44" transform={`rotate(${i * 30})`} />
+                  ))}
+                </svg>
+                <svg className="fx-fav-dice" viewBox="-80 -40 160 80">
+                  <g className="d1">
+                    <path d="M-40,-28 L-12,22 L-68,22 Z" />
+                    <path d="M-40,-28 L-40,22" className="edge" />
+                  </g>
+                  <g className="d2">
+                    <path d="M40,-28 L68,22 L12,22 Z" />
+                    <path d="M40,-28 L40,22" className="edge" />
+                  </g>
+                </svg>
+                {Array.from({ length: 10 }, (_, i) => (
+                  <span key={i} className="fx-fav-feather" style={{ left: `${8 + ((i * 37) % 84)}%`, animationDelay: `${300 + (i % 5) * 140}ms`, ["--r" as string]: `${-40 + ((i * 53) % 80)}deg` }} />
+                ))}
               </>
             )}
             {spec.look === "fx-wrath" && (
