@@ -4436,6 +4436,11 @@ function Welcome({
             </label>
           </div>
           {msg && <p className="note danger-text">{msg}</p>}
+          {/* Before the first character too: the book's races, backgrounds and spells are needed to make one. */}
+          <details style={{ marginTop: 12 }}>
+            <summary className="big">Book text{bookReport ? " (loaded)" : ""}</summary>
+            <BooksPanel report={bookReport} />
+          </details>
           {deleted.length > 0 && (
             <>
               <h3 style={{ marginTop: 24 }}>Deleted characters</h3>
