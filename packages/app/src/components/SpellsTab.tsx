@@ -1,6 +1,5 @@
 import { RichText, TextBlocks } from "./Conditions";
 import { spellMatches } from "../spellSearch";
-import { bookReport } from "../content";
 import { useMemo, useState, type ReactNode } from "react";
 import { ABILITY_NAMES } from "@dnd/schema";
 import { signed, type ContentRegistry, type DerivedSheet, type SpellResult, type WeaponAttack } from "@dnd/engine";
@@ -94,6 +93,7 @@ export function SpellsTab({
   customSpells = [],
   openCustomSpell,
   backup,
+  bookLoaded = true,
 }: {
   sheet: DerivedSheet;
   openSpell: (sp: SpellResult) => void;
@@ -102,6 +102,8 @@ export function SpellsTab({
   openSpellInfo: (id: string, list?: string) => void;
   /** The whole spellbook view: what a backup copy costs, and paying for it. */
   backup?: ReactNode;
+  /** A book file is loaded on this device (spells beyond the SRD come from it). */
+  bookLoaded?: boolean;
   /** Spells the player wrote, to change or delete. */
   customSpells?: { id: string; name: string }[];
   openCustomSpell?: (id?: string) => void;
@@ -210,7 +212,7 @@ export function SpellsTab({
       )}
       {needle && !shownRows.length && <p className="note">No spell matches “{q.trim()}”.</p>}
       {/* Spells beyond the SRD (Xanathar's, Tasha's…) come from the book file, which each device and each address keeps on its own. */}
-      {!bookReport && (listOf || (needle && !shownRows.length)) && (
+      {!bookLoaded && (listOf || (needle && !shownRows.length)) && (
         <p className="note warn">No book file on this device: spells from Xanathar's, Tasha's and the other books aren't listed. Load your book file in Characters → Book text.</p>
       )}
       {current === "book" && backup}

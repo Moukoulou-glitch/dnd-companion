@@ -4139,7 +4139,7 @@ export function App() {
             : {})}
         />
       )}
-      {tab === "spells" && <SpellsTab sheet={sheet} openSpell={openSpell} classLists={classLists} reg={registry} openSpellInfo={openSpellInfo} customSpells={c.customSpells} openCustomSpell={openCustomSpell} backup={backupNode()} />}
+      {tab === "spells" && <SpellsTab sheet={sheet} openSpell={openSpell} classLists={classLists} reg={registry} openSpellInfo={openSpellInfo} customSpells={c.customSpells} openCustomSpell={openCustomSpell} backup={backupNode()} bookLoaded={!!bookReport} />}
       {tab === "sheet" && <SheetTab
           sheet={sheet}
           character={c}
