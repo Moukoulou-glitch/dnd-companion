@@ -673,12 +673,23 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       if (new Set(picks).size < picks.length) warnings.push(`${s.label}: the same ability picked twice; the rule asks for different ones.`);
     }
   }
+  // The race's increases, some put on other abilities (Customizing Your Origin).
+  const raceLines = raceBonusLines(c, reg);
+  {
+    const landed = raceLines.map((l) => l.to);
+    const twice = ABILITIES.filter((a) => landed.filter((x) => x === a).length > 1);
+    if (raceLines.some((l) => l.to !== l.from) && twice.length)
+      warnings.push(`Your race's increases: ${twice.map((a) => ABILITY_NAMES[a]).join(" and ")} ${twice.length > 1 ? "get" : "gets"} two of them. Customizing Your Origin moves each increase to a different ability.`);
+  }
   const abilities = {} as Record<Ability, AbilityResult>;
   for (const ab of ABILITIES) {
     const parts: Part[] = [{ label: "Base score", value: c.abilities[ab] ?? 10 }];
     for (const s of sources) {
-      const bonus = (s.grant.abilityBonuses?.[ab] ?? 0) + chosenBonus(s, ab);
+      const isRace = s.id === c.race && raceLines.length > 0;
+      const bonus = (isRace ? 0 : (s.grant.abilityBonuses?.[ab] ?? 0)) + chosenBonus(s, ab);
       if (bonus) parts.push({ label: s.label, value: bonus });
+      if (isRace)
+        for (const l of raceLines.filter((x) => x.to === ab)) parts.push({ label: l.to === l.from ? s.label : `${s.label} (its ${ABILITY_NAMES[l.from]} ${l.amount >= 0 ? "+" : ""}${l.amount}, moved here)`, value: l.amount });
     }
     let fromAsi = 0;
     for (const a of c.asi) {
@@ -2898,6 +2909,17 @@ function featureEntries(sources: Source[], reg: ContentRegistry): FeatureEntry[]
  * (not the character's total level), the subclass, race, background, a feat,
  * or the feature it was picked in (Archery: "Fighter 1 · Fighting Style").
  */
+/**
+ * The race's fixed ability score increases and where each goes: on its own ability, or moved to another
+ * (Tasha's, Customizing Your Origin: { cha: "dex" } puts a Tiefling's +2 Charisma on Dexterity).
+ * Increases the player picks (Half-Elf's two +1s, Variant Human) are already theirs to place: not listed.
+ */
+export function raceBonusLines(c: Character, reg: ContentRegistry): { from: Ability; to: Ability; amount: number }[] {
+  const race = reg.find(c.race, "race");
+  const fixed = race?.grant?.abilityBonuses ?? {};
+  return ABILITIES.filter((a) => fixed[a]).map((a) => ({ from: a, to: c.raceMoves?.[a] ?? a, amount: fixed[a]! }));
+}
+
 export function featureOrigins(c: Character, reg: ContentRegistry, sources: Source[]): Map<string, string> {
   const out = new Map<string, string>();
   const race = reg.find(c.race, "race");

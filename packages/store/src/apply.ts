@@ -2902,6 +2902,14 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       break;
     }
 
+    case "setRaceMoves": {
+      // Only real moves are kept (an ability sent to itself is no move).
+      const moves = Object.fromEntries(Object.entries(op.payload.moves).filter(([from, to]) => from !== to));
+      if (Object.keys(moves).length) c.raceMoves = moves;
+      else delete c.raceMoves;
+      break;
+    }
+
     case "chooseAsi": {
       const { class: cls, level, abilities, feat, clear } = op.payload;
       const tag = `${reg.find(cls, "class")?.name ?? cls} ${level} (Ability Score Improvement)`;
@@ -2934,7 +2942,11 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       if (name !== undefined) c.name = name;
       if (player !== undefined) c.player = player;
       if (alignment !== undefined) c.alignment = alignment;
-      if (race !== undefined) c.race = race;
+      if (race !== undefined && race !== c.race) {
+        c.race = race;
+        // Another race has other increases: where the old one's went no longer applies.
+        delete c.raceMoves;
+      }
       if (background !== undefined && background !== (c.background ?? null)) {
         // A new background: the old one's picks (skills, languages, tools) go with it; its gear stays in the inventory.
         if (c.background) delete c.choices[c.background];
@@ -3293,7 +3305,7 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
   }
 
   // Building at full HP (a Constitution bonus, a race's extra hit points): stay at full.
-  if (["setChoice", "setAbilities", "chooseAsi", "setDetails", "setSubclass"].includes(op.type) && input.hp.current >= maxHp) {
+  if (["setChoice", "setAbilities", "setRaceMoves", "chooseAsi", "setDetails", "setSubclass"].includes(op.type) && input.hp.current >= maxHp) {
     c.hp.current = derive(c, reg).hpMax.total;
   }
 
@@ -3304,7 +3316,7 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
   }
 
   // A lower HP maximum (Exhaustion 4, Aid ending) pulls current HP down with it.
-  if (["addEffect", "removeEffect", "updateEffect", "endTurn", "setItem", "removeItem", "setChoice", "setAbilities", "chooseAsi", "setDetails", "setSubclass", "levelDown"].includes(op.type)) {
+  if (["addEffect", "removeEffect", "updateEffect", "endTurn", "setItem", "removeItem", "setChoice", "setAbilities", "setRaceMoves", "chooseAsi", "setDetails", "setSubclass", "levelDown"].includes(op.type)) {
     const newMax = derive(c, reg).hpMax.total;
     if (c.hp.current > newMax) {
       c.hp.current = newMax;

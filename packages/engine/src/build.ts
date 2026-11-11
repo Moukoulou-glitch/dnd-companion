@@ -471,6 +471,8 @@ export function newCharacter(
   race: string;
   class: string;
   abilities: Record<Ability, number>;
+  /** The race's increases put on other abilities (Customizing Your Origin). */
+  raceMoves?: Partial<Record<Ability, Ability>>;
   background?: string;
   alignment?: string;
   player?: string;
@@ -491,6 +493,7 @@ export function newCharacter(
     ...(input.alignment ? { alignment: input.alignment } : {}),
     abilities: input.abilities,
     race: input.race,
+    ...(input.raceMoves && Object.entries(input.raceMoves).some(([a, b]) => a !== b) ? { raceMoves: Object.fromEntries(Object.entries(input.raceMoves).filter(([a, b]) => a !== b)) } : {}),
     ...(input.background ? { background: input.background } : {}),
     classes: [{ class: input.class, level: 1 }],
     hp: { current: 1, temp: 0 },

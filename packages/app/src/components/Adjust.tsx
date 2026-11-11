@@ -2,6 +2,7 @@ import { useState } from "react";
 import { signed, type ContentRegistry, type DerivedSheet } from "@dnd/engine";
 import { ABILITY_NAMES, type Ability, type Character, type OperationType } from "@dnd/schema";
 import { BreakdownLines } from "./Sheet";
+import { RaceBonusMover } from "./RaceBonus";
 
 type Act = (type: OperationType, payload: unknown, label: string) => unknown;
 
@@ -42,7 +43,7 @@ export function NumberStep({ label, sub, value, onChange, min = 0, max = 999 }: 
 }
 
 /** An ability score's breakdown, and changing it by hand: bonus, penalty (drain), "becomes N" (Amulet of Health). */
-export function AbilityAdjustPanel({ ab, character, sheet, act }: { ab: Ability; character: Character; sheet: DerivedSheet; act: Act }) {
+export function AbilityAdjustPanel({ ab, character, sheet, act, race }: { ab: Ability; character: Character; sheet: DerivedSheet; act: Act; race?: { name: string; fixed: Partial<Record<Ability, number>> } }) {
   const adj = character.abilityAdjust[ab] ?? { bonus: 0, penalty: 0, penaltyEndsOnRest: false };
   const name = ABILITY_NAMES[ab];
   const set = (p: Record<string, unknown>, label: string) => act("setAbilityAdjust", { ability: ab, ...p }, label);
@@ -66,6 +67,12 @@ export function AbilityAdjustPanel({ ab, character, sheet, act }: { ab: Ability;
         <p className="over-banner" role="alert">
           {name} is {score}, above its maximum of {sheet.abilities[ab].max}.
         </p>
+      )}
+      {race && Object.keys(race.fixed).length > 0 && (
+        <>
+          <h2 className="sub-head">Your race's increases</h2>
+          <RaceBonusMover raceName={race.name} fixed={race.fixed} moves={character.raceMoves ?? {}} onChange={(m) => act("setRaceMoves", { moves: m }, Object.entries(m).some(([a, b]) => a !== b) ? `${race.name}'s increases: ${Object.entries(m).filter(([a, b]) => a !== b).map(([a, b]) => `${ABILITY_NAMES[a as Ability]} to ${ABILITY_NAMES[b as Ability]}`).join(", ")}.` : `${race.name}'s increases back on their own abilities.`)} />
+        </>
       )}
       <PermanentChange ab={ab} character={character} sheet={sheet} act={act} />
       <h2 className="sub-head">Change it by hand</h2>

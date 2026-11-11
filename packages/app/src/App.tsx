@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { ACTION_TARGETS, SPELL_TARGETS, friendlyTargets, targetWarnings, backupCost, copyCost, buildItems, shapeKindOf, customCompanionId, customItemId, customSpellId, withCustom, castingEconomy, castingMinutes, creatureSpellRoll, formatBonus, summonBlock, materialNeed, maxSpellLevel, newCharacter, spellListOf, signed, turnWarnings, type TurnIntent, type RollBreakdown } from "@dnd/engine";
-import { ABILITIES, ABILITY_NAMES, SKILL_NAMES, type Character, type OperationType, type Skill } from "@dnd/schema";
+import { ABILITIES, ABILITY_NAMES, SKILL_NAMES, type Ability, type Character, type OperationType, type Skill } from "@dnd/schema";
 import { roll as rollDice, secureRng, type ComposerBase } from "@dnd/dice";
 import type { RollRecord } from "./rolls";
 import { ShapePanel, TextList, TransformPanel } from "./components/Shapes";
@@ -4150,7 +4150,7 @@ export function App() {
           onGift={(id, on) => s.act("setExtraFeature", { feature: id, on }, `${registry.find(id, "feature")?.name ?? id} ${on ? "given to" : "taken from"} ${c.name}.`)}
           openAbility={(ab) =>
             open(`${ABILITY_NAMES[ab]} score`, () =>
-              live.current.character && live.current.sheet ? <AbilityAdjustPanel ab={ab} character={live.current.character} sheet={live.current.sheet} act={live.current.act} /> : null,
+              live.current.character && live.current.sheet ? <AbilityAdjustPanel ab={ab} character={live.current.character} sheet={live.current.sheet} act={live.current.act} race={raceInfo(live.current.character)} /> : null,
             )
           }
           open={open}
@@ -4382,6 +4382,12 @@ function DeletedPanel({ list, restore, purge }: { list: DeletedEntry[]; restore:
       </div>
     </>
   );
+}
+
+/** The character's race and its fixed increases, for moving them (Customizing Your Origin). */
+function raceInfo(c: Character): { name: string; fixed: Partial<Record<Ability, number>> } | undefined {
+  const r = withCustom(registry, c).find(c.race, "race");
+  return r ? { name: r.name, fixed: r.grant?.abilityBonuses ?? {} } : undefined;
 }
 
 function Welcome({

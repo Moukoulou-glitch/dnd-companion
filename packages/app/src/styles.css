@@ -4882,3 +4882,13 @@ html.fx-shake-strong .app > .strip, html.fx-shake-strong .app > main, html.fx-sh
   .fx-fav-feather, .fx-fav-beam { display: none; }
 }
 .tag.spell-from { opacity: 0.85; font-style: italic; }
+
+/* Where the race's increases go: the whole ability name fits. */
+.race-moves .score-select {
+  width: auto;
+  min-width: 8.5em;
+}
+.race-moves .link {
+  display: block;
+  margin: 6px auto 12px;
+}

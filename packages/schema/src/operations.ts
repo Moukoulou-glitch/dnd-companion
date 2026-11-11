@@ -392,6 +392,8 @@ export const OPERATION_PAYLOADS = {
   setChoice: z.object({ source: z.string(), choice: z.string(), values: z.array(z.string()) }).strict(),
   /** Base ability scores (before racial and other bonuses). */
   setAbilities: z.object({ abilities: z.record(z.enum(["str", "dex", "con", "int", "wis", "cha"]), z.number().int().min(1).max(30)) }).strict(),
+  /** Where the race's ability score increases go (Customizing Your Origin): the race's ability → another. Empty: back to the race's. */
+  setRaceMoves: z.object({ moves: z.record(z.enum(["str", "dex", "con", "int", "wis", "cha"]), z.enum(["str", "dex", "con", "int", "wis", "cha"])) }).strict(),
   /** An Ability Score Improvement at a class level: abilities (+2 one or +1 two) or a feat. null clears it. */
   chooseAsi: z
     .object({
@@ -598,6 +600,7 @@ export const Operation = z.discriminatedUnion("type", [
   OperationBase.extend({ type: z.literal("setSubclass"), payload: OPERATION_PAYLOADS.setSubclass }),
   OperationBase.extend({ type: z.literal("setChoice"), payload: OPERATION_PAYLOADS.setChoice }),
   OperationBase.extend({ type: z.literal("setAbilities"), payload: OPERATION_PAYLOADS.setAbilities }),
+  OperationBase.extend({ type: z.literal("setRaceMoves"), payload: OPERATION_PAYLOADS.setRaceMoves }),
   OperationBase.extend({ type: z.literal("chooseAsi"), payload: OPERATION_PAYLOADS.chooseAsi }),
   OperationBase.extend({ type: z.literal("setDetails"), payload: OPERATION_PAYLOADS.setDetails }),
   OperationBase.extend({ type: z.literal("useItem"), payload: OPERATION_PAYLOADS.useItem }),

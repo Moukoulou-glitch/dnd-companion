@@ -21,6 +21,7 @@ import {
   type ContentRegistry,
   type DerivedSheet,
 } from "@dnd/engine";
+import { movedBonuses, RaceBonusMover, type RaceMoves } from "./RaceBonus";
 import { ABILITIES, ABILITY_NAMES, SKILL_NAMES, type Ability, type Character, type ExtraNote, type OperationType, type Skill } from "@dnd/schema";
 import { RichText } from "./Conditions";
 import { ExtraBox, ExtraNoteForm, KIND_NAMES } from "./Extras";
@@ -167,7 +168,8 @@ function PickList<T extends { id: string; name: string }>({
 }
 
 /** Ability scores: standard array, point buy, rolled, or typed in. */
-function AbilityStep({ scores, setScores, raceBonus }: { scores: Record<Ability, number>; setScores: (s: Record<Ability, number>) => void; raceBonus: Partial<Record<Ability, number>> }) {
+function AbilityStep({ scores, setScores, raceName, fixed, moves, setMoves }: { scores: Record<Ability, number>; setScores: (s: Record<Ability, number>) => void; raceName: string; fixed: Partial<Record<Ability, number>>; moves: RaceMoves; setMoves: (m: RaceMoves) => void }) {
+  const raceBonus = movedBonuses(fixed, moves);
   const [method, setMethod] = useState<"array" | "points" | "roll" | "manual">("array");
   const [pool, setPool] = useState<number[]>(STANDARD_ARRAY);
   const spent = ABILITIES.reduce((n, a) => n + (POINT_BUY_COST[scores[a]] ?? 99), 0);
@@ -228,6 +230,7 @@ function AbilityStep({ scores, setScores, raceBonus }: { scores: Record<Ability,
           </button>
         </p>
       )}
+      <RaceBonusMover raceName={raceName} fixed={fixed} moves={moves} onChange={setMoves} />
       <div className="group">
         {ABILITIES.map((a) => {
           const bonus = raceBonus[a] ?? 0;
@@ -274,6 +277,8 @@ export interface NewCharacterInput {
   class: string;
   background?: string;
   abilities: Record<Ability, number>;
+  /** The race's increases put on other abilities (Customizing Your Origin). */
+  raceMoves?: RaceMoves;
   equipment?: { item: string; quantity: number }[];
   gear?: string[];
   gold?: number;
@@ -442,6 +447,7 @@ export function NewCharacterPanel({ reg, onCreate }: { reg: ContentRegistry; onC
   const [cls, setCls] = useState<string>();
   const [background, setBackground] = useState<string>();
   const [scores, setScores] = useState<Record<Ability, number>>({ str: 15, dex: 14, con: 13, int: 12, wis: 10, cha: 8 });
+  const [raceMoves, setRaceMoves] = useState<RaceMoves>({});
 
   // Races with subraces show as "Dwarf: Hill Dwarf"; the table's own races come with them.
   // In a family the base race comes first (Dragonborn, then Chromatic, Gem, Metallic).
@@ -495,6 +501,7 @@ export function NewCharacterPanel({ reg, onCreate }: { reg: ContentRegistry; onC
           search="Search races"
           selected={race}
           onPick={(r) => {
+            if (r.id !== race) setRaceMoves({});
             setRace(r.id);
             next();
           }}
@@ -515,7 +522,7 @@ export function NewCharacterPanel({ reg, onCreate }: { reg: ContentRegistry; onC
         />
       )}
 
-      {step === 3 && <AbilityStep scores={scores} setScores={setScores} raceBonus={raceDef?.grant?.abilityBonuses ?? {}} />}
+      {step === 3 && <AbilityStep scores={scores} setScores={setScores} raceName={raceDef?.name ?? "Your race"} fixed={raceDef?.grant?.abilityBonuses ?? {}} moves={raceMoves} setMoves={setRaceMoves} />}
 
       {step === 4 && (
         <>
@@ -568,6 +575,7 @@ export function NewCharacterPanel({ reg, onCreate }: { reg: ContentRegistry; onC
                 class: cls!,
                 ...(background ? { background } : {}),
                 abilities: scores,
+                ...(Object.keys(raceMoves).length ? { raceMoves } : {}),
                 ...kitResult(reg, cls, background, kit),
               })
             }

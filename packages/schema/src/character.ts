@@ -630,6 +630,11 @@ export const Character = z
     /** Maximum hit points changed by hand: a vampire's bite reduces it; both at 0 is your normal maximum. */
     maxHpAdjust: z.object({ reduce: z.number().int().min(0).default(0), increase: z.number().int().min(0).default(0) }).strict().default({ reduce: 0, increase: 0 }),
     /**
+     * The race's ability score increases put on other abilities (Tasha's, Customizing Your Origin):
+     * the race's ability → where its increase goes. { cha: "dex" }: a Tiefling's +2 Charisma becomes +2 Dexterity.
+     */
+    raceMoves: z.record(Ability, Ability).optional(),
+    /**
      * Ability scores changed by hand: a bonus, a penalty (a shadow's Strength
      * drain, gone after a rest when marked), or "becomes N" (Amulet of Health:
      * 19, no effect if already higher).
