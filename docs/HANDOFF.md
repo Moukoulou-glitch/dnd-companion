@@ -441,3 +441,4 @@ Remaining plan (each a sub-phase, stop after each): 2a crits (done) · 2b Relent
 - 22h: the race's fixed ability increases can be put on other abilities (Customizing Your Origin): Character.raceMoves (from → to), op setRaceMoves, builder's Abilities step and each ability's panel on the sheet; two on one ability warned; a new race clears the moves.
 - 22h merged to main with approval (Nov 12; run 43107949983 passed).
 - 22i: class moments (fx/Moments.tsx; FxEvent "moment"): Portent foretold (setPool) and used (usePool), Arcane Recovery (its slots), Second Wind, Action Surge, Divine Sense, Lay on Hands (its points), Charm of Sunlight (and joining); they replace the class's generic look. Portent's dice: the "portent" dice preset (resource:portent, name:Portent). Charm of Sunlight's tag (other:charm-of-sunlight) puts an animated crown of light over the name (NameFx).
+- 22i merged to main with approval (Nov 12; run 43110860411 passed).
