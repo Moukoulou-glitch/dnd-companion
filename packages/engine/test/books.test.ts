@@ -586,3 +586,24 @@ Invented text for the wand.
     expect(atk.attack.parts.some((p) => p.value === 2)).toBe(true);
   });
 });
+
+describe("22f: book spells without classes get the app's class lists", () => {
+  // Invented text under a real spell's name: the class list is the app's (a fact), the text isn't a book's.
+  const NO_CLASSES = `#### Beast Bond
+*Level 1 Divination*
+___
+- **Casting Time:** Action
+- **Range:** Touch
+- **Components:** V, S
+- **Duration:** Concentration, up to 10 minutes
+---
+Invented test text: you and a beast share a simple link.
+`;
+  it("Beast Bond joins the druid and ranger lists; a spell with its own classes keeps them", () => {
+    const reg = tableRegistry();
+    const { pack } = bookPack([{ name: "spells-sublist.md", text: NO_CLASSES + "\n" + SPELLS }], reg);
+    const sp = (n: string) => pack.definitions.find((d) => d.kind === "spell" && d.name === n) as { classes: string[] } | undefined;
+    expect(sp("Beast Bond")?.classes).toEqual(["druid", "ranger"]);
+    expect(sp("Frost Needle")?.classes).toEqual(["sorcerer", "wizard"]);
+  });
+});

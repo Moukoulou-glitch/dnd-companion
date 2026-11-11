@@ -7,6 +7,7 @@ import { looksLikeBestiary, parseBestiary } from "./bestiary.js";
 import { looksLikeItems, parseItems } from "./items.js";
 import { classFromFileName, looksLikeSpells, parseSpells } from "./spells.js";
 import { slug } from "./text.js";
+import { BOOK_SPELL_CLASSES } from "./spellClasses.js";
 
 export { slug } from "./text.js";
 
@@ -282,6 +283,13 @@ export function bookPack(files: BookFile[], base: ContentRegistry): { pack: Cont
     const opt = [...new Set([...(prev.optionalClasses ?? []), ...(s.optionalClasses ?? [])])];
     if (opt.length) prev.optionalClasses = opt;
     if (!prev.text.length && s.text.length) Object.assign(prev, { text: s.text, higherLevels: s.higherLevels });
+  }
+
+  // A book spell list without classes (the Spells export): the class lists the app knows for those books.
+  for (const s of merged.values()) {
+    if (s.classes.length) continue;
+    const known = BOOK_SPELL_CLASSES[s.id.replace(/^spell:/, "")];
+    if (known) s.classes = [...known];
   }
 
   // Spells: the book's version, but placeholders keep their checked numbers.
