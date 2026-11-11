@@ -6,6 +6,7 @@ import { CHARMED, DAMAGE_FX, FORM_FX, damageKey } from "./looks";
 import { alignmentSide, spellFxOf, type SpellPhase } from "./spells";
 import { genLook, type GenLook, type SpellInfo } from "./generated";
 import { featureLook, type FeatureInfo } from "./features";
+import type { MomentMotif } from "./Moments";
 
 /** The feature a recorded use belongs to (fx/features.ts featureFor, on the live sheet); undefined: no look. */
 export type FeatureLookup = (type: string, payload: unknown) => FeatureInfo | undefined;
@@ -80,7 +81,20 @@ export type FxEvent =
   /** A spell with no hand-made look: its generated one (fx/generated.ts), by level, school, damage and shape. */
   | { kind: "gen"; g: GenLook }
   /** Sending: the message's words, once it's sent. */
-  | { kind: "sending"; words: string[] };
+  | { kind: "sending"; words: string[] }
+  /** A class moment (fx/Moments.tsx): Portent foretold or used, Arcane Recovery, Second Wind, Action Surge, Divine Sense, Lay on Hands, Charm of Sunlight. */
+  | { kind: "moment"; motif: MomentMotif; values?: number[]; amount?: number; joined?: boolean };
+
+/** Features with a class moment of their own, by action id. */
+export const MOMENT_ACTIONS: Record<string, MomentMotif> = {
+  "second-wind": "second-wind",
+  "action-surge": "action-surge",
+  "arcane-recovery": "arcane-recovery",
+  "divine-sense": "divine-sense",
+  "lay-on-hands": "lay-on-hands",
+  "charm-of-sunlight": "sunlight",
+  "charm-of-sunlight-join": "sunlight",
+};
 
 /** A saved roll: crit and natural 1 on attack rolls only; Sneak Attack when its dice are in the damage. */
 export function rollFx(r: RollRecord, c?: Character, info?: SpellLookup): FxEvent[] {
@@ -166,6 +180,18 @@ export function opFx(type: string, payload: unknown, before: Character, after: C
   const lvl = (ch: Character) => (ch.classes ?? []).reduce((t, x) => t + x.level, 0);
   if (type === "levelUp" && heritage && lvl(before) < HERITAGE_LEVEL && lvl(after) >= HERITAGE_LEVEL)
     out.push({ kind: "heritage", motif: heritage.motif, label: `Heritage: ${heritage.name}`, ...(heritage.motif === "seasons" && typeof season === "string" ? { season } : {}) });
+  // Class moments: their own looks (the feature's generic one is left out: fx/features.ts).
+  if (type === "useAction" && typeof p.action === "string" && MOMENT_ACTIONS[p.action] && !p.free) {
+    const motif = MOMENT_ACTIONS[p.action]!;
+    const slots = Array.isArray(p.slots) ? (p.slots as number[]) : undefined;
+    out.push({ kind: "moment", motif, ...(slots?.length ? { values: slots } : {}), ...(typeof p.amount === "number" ? { amount: p.amount } : {}), ...(p.action === "charm-of-sunlight-join" ? { joined: true } : {}) });
+  }
+  // Portent: the d20s foretold after a long rest, and one of them used in place of a roll.
+  if (type === "setPool" && p.resource === "portent" && Array.isArray(p.values) && p.values.length) out.push({ kind: "moment", motif: "portent-roll", values: p.values as number[] });
+  if (type === "usePool" && p.resource === "portent" && typeof p.index === "number") {
+    const n = before.pools?.portent?.[p.index];
+    if (n !== undefined) out.push({ kind: "moment", motif: "portent-use", values: [n] });
+  }
   if (type === "useAction" && p.action === "theros" && typeof p.choice === "string") out.push({ kind: "theros", phenomenon: p.choice, ...(typeof p.rolled === "number" ? { days: p.rolled } : {}) });
   // Damage and healing on a summoned creature or companion aren't yours.
   const onYou = !p.companion && !p.summon;

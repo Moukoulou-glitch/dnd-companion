@@ -4892,3 +4892,142 @@ html.fx-shake-strong .app > .strip, html.fx-shake-strong .app > main, html.fx-sh
   display: block;
   margin: 6px auto 12px;
 }
+
+/* ---- Class moments (22i, fx/Moments.tsx): Portent, Arcane Recovery, Second Wind, Action Surge, Divine Sense, Lay on Hands, Charm of Sunlight ---- */
+.fx-mo { position: absolute; inset: 0; overflow: hidden; }
+.fx-mo > * { pointer-events: none; }
+.fx-mo .fx-label { z-index: 3; }
+/* The words sit below the picture, never over the foretold number. */
+.fx-mo .fx-label-mid { top: 68%; }
+@keyframes mo-fade { 0% { opacity: 0; } 14% { opacity: 1; } 78% { opacity: 1; } 100% { opacity: 0; } }
+.mo-veil { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 36%, rgba(60, 30, 120, 0.15), rgba(14, 8, 34, 0.78) 75%); animation: mo-fade var(--fx-ms) ease-out forwards; }
+.mo-veil.gold { background: radial-gradient(ellipse at 50% 36%, rgba(255, 220, 140, 0.18), rgba(30, 22, 6, 0.6) 75%); }
+
+/* Portent: the seer's eye opens; the foretold d20s come out of it and settle, their numbers shown. */
+.mo-eye { position: absolute; left: 50%; top: 30%; width: 240px; height: 130px; margin: -65px 0 0 -120px; overflow: visible; }
+.mo-eye .lid { fill: rgba(20, 10, 50, 0.6); stroke: #e8c46a; stroke-width: 3; transform-origin: 0 0; transform: scaleY(0.04); animation: mo-lid var(--fx-ms) cubic-bezier(0.3, 0.8, 0.3, 1) forwards; }
+.mo-eye .iris { opacity: 0; animation: mo-iris var(--fx-ms) ease-out forwards; }
+.mo-eye .ring { fill: none; stroke: #b79cff; stroke-width: 2; }
+.mo-eye .ring.a { stroke-dasharray: 6 4; animation: mo-spin var(--fx-ms) linear forwards; transform-origin: 0 0; }
+.mo-eye .ring.b { stroke: #e8c46a; stroke-width: 1; }
+.mo-eye line { stroke: #e8c46a; stroke-width: 2; stroke-linecap: round; }
+.mo-eye .star { fill: #fff6d8; }
+.mo-eye .pupil { fill: #120828; stroke: #e8c46a; stroke-width: 1.5; }
+.mo-eye .n { font-size: 38px; font-weight: 800; fill: #ffe9a8; stroke: #2a1460; stroke-width: 2; paint-order: stroke; }
+@keyframes mo-lid { 0% { transform: scaleY(0.04); opacity: 0; } 10% { opacity: 1; } 32% { transform: scaleY(1); } 82% { transform: scaleY(1); opacity: 1; } 100% { transform: scaleY(0.04); opacity: 0; } }
+@keyframes mo-iris { 0%, 18% { opacity: 0; transform: scale(0.6); } 34% { opacity: 1; transform: scale(1); } 82% { opacity: 1; } 100% { opacity: 0; transform: scale(1.1); } }
+@keyframes mo-spin { to { transform: rotate(160deg); } }
+.mo-portent-row { position: absolute; left: 0; right: 0; top: 52%; display: flex; justify-content: center; gap: 14px; }
+.mo-portent-die { width: 92px; height: 92px; opacity: 0; transform: translateY(-120px) scale(0.3) rotate(-120deg); animation: mo-pdie var(--fx-ms) cubic-bezier(0.2, 0.9, 0.3, 1.15) forwards; animation-delay: calc(380ms + var(--i) * 160ms); }
+.mo-portent-die .d20-out { fill: rgba(70, 40, 150, 0.92); stroke: #e8c46a; stroke-width: 3; stroke-linejoin: round; }
+.mo-portent-die .d20-in { fill: rgba(120, 90, 220, 0.25); stroke: rgba(232, 196, 106, 0.45); stroke-width: 1.5; }
+.mo-portent-die .d20-edge { stroke: rgba(232, 196, 106, 0.45); stroke-width: 1.2; fill: none; }
+.mo-portent-die .d20-n { font-size: 34px; font-weight: 800; fill: #fff3cf; stroke: #2a1460; stroke-width: 3; paint-order: stroke; }
+@keyframes mo-pdie { 0% { opacity: 0; } 12% { opacity: 1; } 34% { transform: translateY(0) scale(1) rotate(0deg); } 80% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(0) scale(1.08); } }
+.mo-star { position: absolute; left: var(--x); top: var(--y); width: 3px; height: 3px; border-radius: 50%; background: #fff6d8; box-shadow: 0 0 6px #b79cff; opacity: 0; animation: mo-twinkle var(--fx-ms) ease-in-out forwards; animation-delay: var(--d); }
+@keyframes mo-twinkle { 0% { opacity: 0; } 30% { opacity: 1; } 55% { opacity: 0.3; } 75% { opacity: 1; } 100% { opacity: 0; } }
+.fx-mo-portent-use .mo-eye { top: 36%; }
+.mo-ripple { position: absolute; left: 50%; top: 36%; width: 120px; height: 120px; margin: -60px 0 0 -60px; border-radius: 50%; border: 2px solid rgba(232, 196, 106, 0.85); opacity: 0; animation: mo-ripple var(--fx-ms) ease-out forwards; animation-delay: 380ms; }
+.mo-ripple.b { border-color: rgba(183, 156, 255, 0.8); animation-delay: 560ms; }
+@keyframes mo-ripple { 0% { opacity: 0.9; transform: scale(0.5); } 60% { opacity: 0; transform: scale(3.4); } 100% { opacity: 0; } }
+.mo-shard { position: absolute; left: 50%; top: 36%; width: 3px; height: 14px; margin: -7px 0 0 -1.5px; border-radius: 2px; background: linear-gradient(#fff3cf, #b79cff); opacity: 0; animation: mo-shard var(--fx-ms) ease-out forwards; animation-delay: 420ms; }
+@keyframes mo-shard { 0% { opacity: 0; transform: rotate(var(--a)) translateY(-20px); } 15% { opacity: 1; } 55% { opacity: 0; transform: rotate(var(--a)) translateY(calc(-1 * var(--d))); } 100% { opacity: 0; } }
+
+/* Arcane Recovery: an open spellbook; the spent slots come back to it as glowing rings, glyphs rising. */
+.fx-mo-arcane-recovery { background: radial-gradient(ellipse at 50% 55%, rgba(80, 120, 255, 0.28), transparent 70%); animation: mo-fade var(--fx-ms) ease-out forwards; }
+.mo-book { position: absolute; left: 50%; top: 52%; width: 200px; height: 125px; margin: -62px 0 0 -100px; opacity: 0; animation: mo-book var(--fx-ms) ease-out forwards; }
+.mo-book .page { fill: rgba(225, 232, 255, 0.95); stroke: #6e96ff; stroke-width: 2; }
+.mo-book .spine { stroke: #6e96ff; stroke-width: 2; }
+.mo-book .line { stroke: rgba(80, 110, 220, 0.5); stroke-width: 1.5; }
+@keyframes mo-book { 0% { opacity: 0; transform: translateY(20px) scale(0.85); } 15% { opacity: 1; transform: none; } 70% { filter: drop-shadow(0 0 0 #8fb0ff); } 82% { opacity: 1; filter: drop-shadow(0 0 18px #8fb0ff); } 100% { opacity: 0; } }
+.mo-slot { position: absolute; left: 50%; top: 52%; width: 44px; height: 44px; margin: -22px 0 0 -22px; border-radius: 50%; border: 3px solid #a9c1ff; box-shadow: 0 0 14px #6e96ff, inset 0 0 10px #6e96ff; display: grid; place-items: center; opacity: 0; transform: rotate(var(--a)) translateY(-210px) rotate(calc(-1 * var(--a))); animation: mo-slot var(--fx-ms) cubic-bezier(0.5, 0, 0.3, 1) forwards; animation-delay: calc(250ms + var(--i) * 140ms); }
+.mo-slot b { color: #fff; font-weight: 800; font-size: 1.1rem; text-shadow: 0 0 6px #6e96ff; }
+@keyframes mo-slot { 0% { opacity: 0; } 12% { opacity: 1; } 48% { opacity: 1; transform: rotate(var(--a)) translateY(-8px) rotate(calc(-1 * var(--a))) scale(0.9); } 62% { opacity: 1; transform: translateY(-60px) scale(1.15); } 85% { opacity: 0.9; transform: translateY(-70px) scale(1.1); } 100% { opacity: 0; transform: translateY(-80px) scale(1.2); } }
+.mo-glyph { position: absolute; left: 50%; top: 50%; width: 8px; height: 8px; margin-left: var(--x); border: 1.5px solid #a9c1ff; transform: rotate(45deg); opacity: 0; animation: mo-glyph var(--fx-ms) ease-out forwards; animation-delay: var(--d); }
+@keyframes mo-glyph { 0% { opacity: 0; transform: translateY(0) rotate(45deg); } 20% { opacity: 1; } 100% { opacity: 0; transform: translateY(-160px) rotate(225deg); } }
+
+/* Second Wind: warm gusts sweep across, a heartbeat draws, a bloom of strength. */
+.fx-mo-second-wind { background: radial-gradient(ellipse at 50% 45%, rgba(255, 170, 70, 0.22), transparent 70%); animation: mo-fade var(--fx-ms) ease-out forwards; }
+.mo-gusts { position: absolute; left: 0; top: 18%; width: 100%; height: 40%; }
+.mo-gusts .g { fill: none; stroke: rgba(255, 214, 150, 0.85); stroke-width: 4; stroke-linecap: round; stroke-dasharray: 0.35 1; stroke-dashoffset: 1.35; animation: mo-gust var(--fx-ms) ease-in-out forwards; }
+.mo-gusts .g.b { stroke-width: 3; animation-delay: 120ms; stroke: rgba(255, 236, 200, 0.75); }
+.mo-gusts .g.c { stroke-width: 2.5; animation-delay: 240ms; }
+@keyframes mo-gust { 0% { stroke-dashoffset: 1.35; opacity: 0; } 10% { opacity: 1; } 70% { opacity: 1; } 100% { stroke-dashoffset: -0.1; opacity: 0; } }
+.mo-pulse { position: absolute; left: 50%; top: 48%; width: 280px; height: 80px; margin: -40px 0 0 -140px; overflow: visible; }
+.mo-pulse path { fill: none; stroke: #ffcf7a; stroke-width: 4; stroke-linejoin: round; stroke-linecap: round; filter: drop-shadow(0 0 6px #ff9f3a); stroke-dasharray: 1; stroke-dashoffset: 1; animation: mo-draw var(--fx-ms) ease-out forwards; animation-delay: 200ms; }
+@keyframes mo-draw { 0% { stroke-dashoffset: 1; opacity: 1; } 55% { stroke-dashoffset: 0; opacity: 1; } 100% { stroke-dashoffset: 0; opacity: 0; } }
+.mo-bloom { position: absolute; left: 50%; top: 48%; width: 180px; height: 180px; margin: -90px 0 0 -90px; border-radius: 50%; background: radial-gradient(circle, rgba(255, 235, 190, 0.9), rgba(255, 170, 70, 0.4) 40%, transparent 70%); opacity: 0; animation: mo-bloom var(--fx-ms) ease-out forwards; animation-delay: 520ms; }
+@keyframes mo-bloom { 0% { opacity: 0; transform: scale(0.3); } 30% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(1.8); } }
+
+/* Action Surge: the world streaks past, two chevrons slam in, a flash: one more action. */
+.mo-streak { position: absolute; right: 100%; top: var(--y); width: var(--w); height: 2px; border-radius: 2px; background: linear-gradient(90deg, transparent, rgba(220, 235, 255, 0.95)); animation: mo-streak var(--fx-ms) cubic-bezier(0.5, 0, 0.2, 1) forwards; animation-delay: var(--d); }
+@keyframes mo-streak { 0% { transform: translateX(0); opacity: 0; } 10% { opacity: 1; } 55% { transform: translateX(260vw); opacity: 1; } 100% { transform: translateX(260vw); opacity: 0; } }
+.mo-chevrons { position: absolute; left: 50%; top: 38%; width: 220px; height: 110px; margin: -55px 0 0 -110px; overflow: visible; }
+.mo-chevrons path { fill: none; stroke: #e6f0ff; stroke-width: 12; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 10px #8fb6ff); opacity: 0; animation: mo-chev var(--fx-ms) cubic-bezier(0.2, 0.9, 0.2, 1.2) forwards; }
+.mo-chevrons .c2 { animation-delay: 110ms; }
+@keyframes mo-chev { 0% { opacity: 0; transform: translateX(-160px); } 22% { opacity: 1; transform: translateX(0); } 75% { opacity: 1; transform: translateX(6px); } 100% { opacity: 0; transform: translateX(60px); } }
+.mo-flash { position: absolute; inset: 0; background: rgba(230, 240, 255, 0.55); opacity: 0; animation: mo-flash var(--fx-ms) ease-out forwards; }
+@keyframes mo-flash { 0%, 18% { opacity: 0; } 24% { opacity: 1; } 45% { opacity: 0; } 100% { opacity: 0; } }
+
+/* Divine Sense: an eye of light opens; the sense sweeps outward; what it finds flickers at the edges. */
+.mo-sense-eye { position: absolute; left: 50%; top: 32%; width: 170px; height: 110px; margin: -55px 0 0 -85px; overflow: visible; }
+.mo-sense-eye .lid { fill: rgba(255, 240, 200, 0.18); stroke: #ffe39a; stroke-width: 3; transform: scaleY(0.05); animation: mo-lid var(--fx-ms) ease-out forwards; }
+.mo-sense-eye .iris { fill: #fff6d8; filter: drop-shadow(0 0 8px #ffd36b); opacity: 0; animation: mo-iris var(--fx-ms) ease-out forwards; }
+.mo-sense-eye line { stroke: #ffe39a; stroke-width: 2.5; stroke-linecap: round; opacity: 0; animation: mo-iris var(--fx-ms) ease-out forwards; }
+.mo-sense-ring { position: absolute; left: 50%; top: 32%; width: 80px; height: 80px; margin: -40px 0 0 -40px; border-radius: 50%; border: 2px solid rgba(255, 227, 154, 0.85); opacity: 0; animation: mo-sense var(--fx-ms) ease-out forwards; animation-delay: calc(450ms + var(--i) * 260ms); }
+@keyframes mo-sense { 0% { opacity: 0.9; transform: scale(0.6); } 70% { opacity: 0; transform: scale(9); } 100% { opacity: 0; transform: scale(9); } }
+.mo-sensed { position: absolute; left: var(--x); top: var(--y); width: 26px; height: 26px; margin: -13px 0 0 -13px; border-radius: 50%; opacity: 0; animation: mo-sensed var(--fx-ms) ease-in-out forwards; }
+.mo-sensed.celestial { background: radial-gradient(circle, #fffbe8, rgba(255, 240, 180, 0.4) 50%, transparent 70%); animation-delay: 750ms; }
+.mo-sensed.fiend { background: radial-gradient(circle, #ff9a7a, rgba(220, 40, 30, 0.45) 50%, transparent 70%); animation-delay: 950ms; }
+.mo-sensed.undead { background: radial-gradient(circle, #c6ffd6, rgba(60, 200, 120, 0.4) 50%, transparent 70%); animation-delay: 1150ms; }
+@keyframes mo-sensed { 0% { opacity: 0; transform: scale(0.4); } 20% { opacity: 1; transform: scale(1.2); } 35% { opacity: 0.4; } 50% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(0.8); } }
+
+/* Lay on Hands: two hands of light come together, a glow between them, motes rising. */
+.mo-glow { position: absolute; left: 50%; top: 42%; width: 220px; height: 220px; margin: -110px 0 0 -110px; border-radius: 50%; background: radial-gradient(circle, rgba(255, 250, 230, 0.95), rgba(255, 214, 120, 0.45) 35%, transparent 70%); opacity: 0; animation: mo-bloom var(--fx-ms) ease-out forwards; animation-delay: 520ms; }
+.mo-hand { position: absolute; top: 42%; width: 92px; height: 115px; margin-top: -58px; overflow: visible; opacity: 0; }
+.mo-hand path { fill: rgba(255, 236, 190, 0.92); stroke: #fff8e0; stroke-width: 2; filter: drop-shadow(0 0 10px #ffd36b); }
+.mo-hand.l { left: 50%; margin-left: -100px; transform: translateX(-80px) rotate(-12deg); animation: mo-hand-l var(--fx-ms) cubic-bezier(0.3, 0.8, 0.3, 1) forwards; }
+.mo-hand.r { left: 50%; margin-left: 8px; transform: translateX(80px) rotate(12deg) scaleX(-1); animation: mo-hand-r var(--fx-ms) cubic-bezier(0.3, 0.8, 0.3, 1) forwards; }
+@keyframes mo-hand-l { 0% { opacity: 0; } 12% { opacity: 1; } 32% { transform: translateX(0) rotate(-6deg); } 80% { opacity: 1; transform: translateX(0) rotate(-6deg); } 100% { opacity: 0; transform: translateX(0) rotate(-6deg) translateY(-12px); } }
+@keyframes mo-hand-r { 0% { opacity: 0; } 12% { opacity: 1; } 32% { transform: translateX(0) rotate(6deg) scaleX(-1); } 80% { opacity: 1; transform: translateX(0) rotate(6deg) scaleX(-1); } 100% { opacity: 0; transform: translateX(0) rotate(6deg) scaleX(-1) translateY(-12px); } }
+.mo-mote { position: absolute; left: 50%; top: 46%; width: var(--s); height: var(--s); margin-left: var(--x); border-radius: 50%; background: #fff6d8; box-shadow: 0 0 8px #ffd36b; opacity: 0; animation: mo-mote var(--fx-ms) ease-out forwards; animation-delay: var(--d); }
+@keyframes mo-mote { 0% { opacity: 0; transform: translateY(0); } 20% { opacity: 1; } 100% { opacity: 0; transform: translateY(-220px); } }
+
+/* Charm of Sunlight: a sun rises, its rays turn, the crown of light forms; the shadows flee. */
+.mo-sunwash { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 26%, rgba(255, 246, 200, 0.75), rgba(255, 200, 90, 0.25) 45%, rgba(255, 170, 60, 0.06) 75%); animation: mo-fade var(--fx-ms) ease-out forwards; }
+.mo-sun { position: absolute; left: 50%; top: 26%; width: 120px; height: 120px; margin: -60px 0 0 -60px; border-radius: 50%; background: radial-gradient(circle, #fffef4, #ffe28a 55%, rgba(255, 200, 80, 0) 72%); opacity: 0; animation: mo-sun var(--fx-ms) ease-out forwards; }
+@keyframes mo-sun { 0% { opacity: 0; transform: translateY(70px) scale(0.5); } 30% { opacity: 1; transform: none; } 80% { opacity: 1; } 100% { opacity: 0; transform: scale(1.3); } }
+.mo-sunrays { position: absolute; left: 50%; top: 26%; width: 420px; height: 420px; margin: -210px 0 0 -210px; opacity: 0; animation: mo-rays var(--fx-ms) ease-out forwards; animation-delay: 200ms; }
+.mo-sunrays line { stroke: rgba(255, 236, 170, 0.85); stroke-width: 5; stroke-linecap: round; }
+@keyframes mo-rays { 0% { opacity: 0; transform: scale(0.5) rotate(0deg); } 30% { opacity: 1; transform: scale(1) rotate(20deg); } 80% { opacity: 0.8; } 100% { opacity: 0; transform: scale(1.15) rotate(50deg); } }
+.mo-crown { position: absolute; left: 50%; top: 26%; width: 150px; height: 88px; margin: -44px 0 0 -75px; overflow: visible; opacity: 0; animation: mo-crown var(--fx-ms) cubic-bezier(0.3, 0.8, 0.3, 1.2) forwards; animation-delay: 650ms; }
+@keyframes mo-crown { 0% { opacity: 0; transform: translateY(-40px) scale(0.6); } 25% { opacity: 1; transform: none; } 80% { opacity: 1; } 100% { opacity: 0; transform: translateY(10px) scale(1.05); } }
+.mo-shadow { position: absolute; left: 50%; top: 30%; width: 60px; height: 30px; margin: -15px 0 0 -30px; border-radius: 50%; background: radial-gradient(ellipse, rgba(20, 10, 30, 0.85), transparent 70%); opacity: 0; animation: mo-flee var(--fx-ms) ease-in forwards; animation-delay: 300ms; }
+@keyframes mo-flee { 0% { opacity: 0.9; transform: rotate(var(--a)) translateY(-40px); } 60% { opacity: 0; transform: rotate(var(--a)) translateY(-420px) scale(0.5); } 100% { opacity: 0; } }
+
+/* The crown itself (the moment, and above the name while the Charm lasts). */
+.sun-crown .rays line, .mo-crown .rays line { stroke: #ffe9a8; stroke-width: 3; stroke-linecap: round; }
+.sun-crown .band, .mo-crown .band { fill: rgba(255, 226, 140, 0.95); stroke: #fffbe8; stroke-width: 2.5; stroke-linejoin: round; filter: drop-shadow(0 0 6px #ffcf5a); }
+.sun-crown .gem, .mo-crown .gem { fill: #fffef4; filter: drop-shadow(0 0 4px #fff); }
+/* Room above the name for the crown while the Charm lasts (the name is at the top of the screen). */
+.who-name.name-crowned { padding-top: 26px; }
+.name-crown { position: absolute; left: 50%; top: 0; width: 54px; height: 32px; margin-left: -27px; overflow: visible; pointer-events: none; }
+.name-crown .rays { transform-origin: 0 0; animation: crown-rays 6s linear infinite; }
+.name-crown .rays line { opacity: 0.85; animation: crown-flicker 2.4s ease-in-out infinite; }
+.name-crown .rays line:nth-child(odd) { animation-delay: -1.2s; }
+.name-crown .band { animation: crown-glow 3s ease-in-out infinite; }
+.name-crowned .name-real { text-shadow: 0 0 10px rgba(255, 214, 120, 0.75), 0 0 2px rgba(255, 240, 200, 0.9); }
+@keyframes crown-rays { 0% { transform: rotate(-4deg); } 50% { transform: rotate(4deg); } 100% { transform: rotate(-4deg); } }
+@keyframes crown-flicker { 0%, 100% { opacity: 0.35; } 50% { opacity: 1; } }
+@keyframes crown-glow { 0%, 100% { filter: drop-shadow(0 0 3px #ffcf5a); } 50% { filter: drop-shadow(0 0 9px #ffe08a); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .fx-mo, .fx-mo * { animation: none !important; }
+  .fx-mo .mo-eye .lid, .fx-mo .mo-sense-eye .lid { transform: none; }
+  .fx-mo .mo-eye .iris, .fx-mo .mo-sense-eye .iris, .fx-mo .mo-sense-eye line, .fx-mo .mo-portent-die, .fx-mo .mo-book, .fx-mo .mo-crown, .fx-mo .mo-sun, .fx-mo .mo-hand { opacity: 1; transform: none; }
+  .fx-mo .mo-hand.r { transform: scaleX(-1); }
+  .fx-mo .mo-slot { opacity: 1; transform: translateY(-70px); }
+  .fx-mo .mo-streak, .fx-mo .mo-star, .fx-mo .mo-shard, .fx-mo .mo-glyph, .fx-mo .mo-mote, .fx-mo .mo-shadow, .fx-mo .mo-flash, .fx-mo .mo-ripple, .fx-mo .mo-sense-ring, .fx-mo .mo-gusts, .fx-mo .mo-sensed { display: none; }
+  .fx-mo .fx-label { opacity: 1; }
+  .name-crown .rays, .name-crown .rays line, .name-crown .band { animation: none !important; }
+}

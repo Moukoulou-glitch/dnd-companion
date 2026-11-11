@@ -168,7 +168,8 @@ describe("Elemental spells by mode, martial effects", () => {
     expect(opFx("useAction", { action: "flurry-of-blows" }, ch, ch)).toEqual([{ kind: "flurry" }]);
     expect(opFx("useAction", { action: "hand-of-healing" }, ch, ch)).toEqual([{ kind: "mercy", hand: "healing" }]);
     expect(opFx("useAction", { action: "hand-of-harm" }, ch, ch)).toEqual([{ kind: "mercy", hand: "harm" }]);
-    expect(opFx("useAction", { action: "second-wind" }, ch, ch)).toEqual([]);
+    // Second Wind has its own moment now (22i), and nothing else.
+    expect(opFx("useAction", { action: "second-wind" }, ch, ch)).toEqual([{ kind: "moment", motif: "second-wind" }]);
   });
 
   it("Reckless Attack: a streak when it's taken on the roll, an impact only on a hit", () => {

@@ -8,6 +8,7 @@ import { GenSpell } from "./GenSpell";
 import type { GenLook } from "./generated";
 import { phaseLook } from "./spells";
 import { DAMAGE_FX, FORM_FX } from "./looks";
+import { MomentPieces, type Moment } from "./Moments";
 
 /**
  * The effects themselves: small, reusable CSS/SVG pieces drawn where they
@@ -43,6 +44,34 @@ export interface FxSpec {
   cd?: CdLook;
   /** A heritage feature's look, and the season for Unbridled Seasons. */
   heritage?: { motif: string; season?: string };
+  /** A class moment's pieces (fx/Moments.tsx). */
+  moment?: Moment;
+}
+
+const and = (xs: (string | number)[]) => (xs.length <= 1 ? xs.join("") : `${xs.slice(0, -1).join(", ")} and ${xs[xs.length - 1]}`);
+
+/** A class moment: how long, its buzz and its words. */
+function momentSpec(e: Extract<FxEvent, { kind: "moment" }>): FxSpec {
+  const m: Moment = { motif: e.motif, ...(e.values ? { values: e.values } : {}) };
+  const base = { at: "edge" as const, look: `fx-mo fx-mo-${e.motif}`, moment: m, skippable: true };
+  switch (e.motif) {
+    case "portent-roll":
+      return { ...base, ms: 2600, buzz: [10, 60, 10, 60, 30], label: `Portent · ${and(e.values ?? [])} foretold` };
+    case "portent-use":
+      return { ...base, ms: 1700, buzz: [40, 50, 20], label: `Portent · ${e.values?.[0] ?? ""}, as foretold` };
+    case "arcane-recovery":
+      return { ...base, ms: 2100, buzz: [10, 40, 10, 40, 10], label: e.values?.length ? `Arcane Recovery · ${e.values.length === 1 ? "a level" : "levels"} ${and(e.values)} slot${e.values.length === 1 ? "" : "s"}` : "Arcane Recovery" };
+    case "second-wind":
+      return { ...base, ms: 1500, buzz: [20, 40, 60], label: "Second Wind" };
+    case "action-surge":
+      return { ...base, ms: 1200, buzz: [50, 30, 80], label: "Action Surge · one more action", shake: 240 };
+    case "divine-sense":
+      return { ...base, ms: 2100, buzz: [15, 80, 15, 80, 15], label: "Divine Sense" };
+    case "lay-on-hands":
+      return { ...base, ms: 1900, buzz: [20, 40, 20, 40, 60], label: e.amount ? `Lay on Hands · ${e.amount}` : "Lay on Hands" };
+    case "sunlight":
+      return { ...base, ms: 2500, buzz: [20, 40, 20, 40, 120], label: e.joined ? "Charm of Sunlight · your crown joins" : "Charm of Sunlight" };
+  }
 }
 
 const SCHOOLS = ["evocation", "abjuration", "necromancy", "conjuration"];
@@ -165,6 +194,8 @@ export function specOf(e: FxEvent): FxSpec {
     }
     case "wrath":
       return { at: "edge", ms: 1400, buzz: [60, 40, 120], look: "fx-wrath", label: "Destructive Wrath · maximum", shake: 450 };
+    case "moment":
+      return momentSpec(e);
     case "favored":
       return { at: "edge", ms: 2000, buzz: [30, 60, 30], look: "fx-favored", label: `Favored by the Gods · +${e.amount}` };
     case "concentration":
@@ -826,6 +857,7 @@ export function FxLayer({ school, spell, feature, character }: { school: (spell:
                 )}
               </>
             )}
+            {spec.moment && <MomentPieces m={spec.moment} />}
             {spec.look === "fx-favored" && (
               <>
                 {/* Light falls from above, a halo turns, two radiant d4s come down, feathers drift. */}

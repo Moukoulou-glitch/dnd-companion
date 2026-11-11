@@ -34,6 +34,8 @@ export const FEATURE_PRESETS: Record<string, DiceTheme> = {
   inspiration: preset("inspiration", "Inspiration", { material: "tc-psychic", color: "#d6336c", glow: 1, impact: "ripple", particles: "motes", haptic: [10] }),
   // Beacon of Hope: emerald dice shot with gold, healing at its fullest.
   beacon: preset("beacon", "Beacon of Hope", { material: "tc-radiant", color: "#1f9d6b", glow: 2, impact: "bloom", particles: "light", haptic: [12, 40, 12] }),
+  // Portent: the diviner's foretold d20s, deep violet with gold, runes turning as they land.
+  portent: preset("portent", "Portent", { material: "tc-force", color: "#4b2a8f", glow: 2, impact: "ripple", particles: "runes", haptic: [10, 40, 10] }),
   // Death saves: restrained and quick, nothing to wait for.
   death: preset("death", "Death save", { material: "default", color: "#495057", glow: 0, haptic: [40] }),
 };
@@ -57,6 +59,8 @@ export const FEATURE_ASSIGNMENTS: [key: string, preset: keyof typeof FEATURE_PRE
   ["name:Hit Die", "vital"],
   ["name:Bardic Inspiration", "inspiration"],
   ["name:Death saving throw", "death"],
+  ["resource:portent", "portent"],
+  ["name:Portent", "portent"],
   ["name:Beacon of Hope", "beacon"],
   ["state:raging", "rage"],
 ];
