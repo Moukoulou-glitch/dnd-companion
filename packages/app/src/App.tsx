@@ -4143,6 +4143,11 @@ export function App() {
       {tab === "sheet" && <SheetTab
           sheet={sheet}
           character={c}
+          gifts={registry
+            .list("feature")
+            .filter((f) => f.source.book === "Campaign")
+            .map((f) => ({ id: f.id, name: f.name, summary: (f as { summary?: string }).summary ?? "", have: c.extraFeatures.includes(f.id) }))}
+          onGift={(id, on) => s.act("setExtraFeature", { feature: id, on }, `${registry.find(id, "feature")?.name ?? id} ${on ? "given to" : "taken from"} ${c.name}.`)}
           openAbility={(ab) =>
             open(`${ABILITY_NAMES[ab]} score`, () =>
               live.current.character && live.current.sheet ? <AbilityAdjustPanel ab={ab} character={live.current.character} sheet={live.current.sheet} act={live.current.act} /> : null,

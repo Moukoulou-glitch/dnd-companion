@@ -39,3 +39,14 @@ describe("22c: Divine Soul and death saves", () => {
     expect(sheet(l).deathSave.advantage).toEqual(["Beacon of Hope"]);
   });
 });
+
+describe("22e: campaign gifts", () => {
+  it("Charm of Sunlight given and taken back (its use with it)", () => {
+    const l = divine(5);
+    l.record("setExtraFeature", { feature: "feature:charm-of-sunlight", on: true });
+    expect(sheet(l).features.some((f) => f.id === "feature:charm-of-sunlight")).toBe(true);
+    expect(l.record("setExtraFeature", { feature: "feature:charm-of-sunlight", on: true }).join(" ")).toMatch(/already yours/);
+    l.record("setExtraFeature", { feature: "feature:charm-of-sunlight", on: false });
+    expect(sheet(l).features.some((f) => f.id === "feature:charm-of-sunlight")).toBe(false);
+  });
+});

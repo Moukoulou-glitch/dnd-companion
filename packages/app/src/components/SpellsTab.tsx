@@ -1,5 +1,6 @@
 import { RichText, TextBlocks } from "./Conditions";
 import { spellMatches } from "../spellSearch";
+import { bookReport } from "../content";
 import { useMemo, useState, type ReactNode } from "react";
 import { ABILITY_NAMES } from "@dnd/schema";
 import { signed, type ContentRegistry, type DerivedSheet, type SpellResult, type WeaponAttack } from "@dnd/engine";
@@ -208,6 +209,10 @@ export function SpellsTab({
         <input className="search" type="search" placeholder="Search by name, level or school" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Search spells" />
       )}
       {needle && !shownRows.length && <p className="note">No spell matches “{q.trim()}”.</p>}
+      {/* Spells beyond the SRD (Xanathar's, Tasha's…) come from the book file, which each device and each address keeps on its own. */}
+      {!bookReport && (listOf || (needle && !shownRows.length)) && (
+        <p className="note warn">No book file on this device: spells from Xanathar's, Tasha's and the other books aren't listed. Load your book file in Characters → Book text.</p>
+      )}
       {current === "book" && backup}
       {listOf && listOf.kind !== "prepared" && (
         <p className="note">

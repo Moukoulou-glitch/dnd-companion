@@ -3128,6 +3128,16 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       break;
     }
 
+    case "setExtraFeature": {
+      const { feature, on } = op.payload;
+      const name = reg.find(feature, "feature")?.name ?? feature;
+      if (on) {
+        if (c.extraFeatures.includes(feature)) notes.push(`${name} is already yours.`);
+        else c.extraFeatures = [...c.extraFeatures, feature];
+      } else c.extraFeatures = c.extraFeatures.filter((f) => f !== feature);
+      break;
+    }
+
     case "setOptionalFeature": {
       const { feature, on, also, both } = op.payload;
       if (both !== undefined) {

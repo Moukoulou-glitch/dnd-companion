@@ -54,7 +54,12 @@ export function SheetTab({
   onOptionalAll,
   onOptionalBoth,
   openProficiencies,
+  gifts = [],
+  onGift,
 }: {
+  /** Campaign gifts the table has (Charm of Sunlight): tick to give one to this character. */
+  gifts?: { id: string; name: string; summary: string; have: boolean }[];
+  onGift?: (id: string, on: boolean) => void;
   sheet: DerivedSheet;
   character: Character;
   /** An ability's breakdown, and changing it by hand. */
@@ -307,6 +312,24 @@ export function SheetTab({
         </button>
         <p className="note">For what your DM or table gives you beyond the rules. The app asks how you got it and keeps the reason with it.</p>
       </section>
+
+      {gifts.length > 0 && onGift && (
+        <section>
+          <h2>Campaign gifts</h2>
+          <div className="group">
+            {gifts.map((g) => (
+              <label key={g.id} className="row check">
+                <input type="checkbox" checked={g.have} onChange={() => onGift(g.id, !g.have)} />
+                <div className="row-main">
+                  <div className="row-title">{g.name}</div>
+                  <div className="row-sub">{g.summary}</div>
+                </div>
+              </label>
+            ))}
+          </div>
+          <p className="note">Your campaign's own boons and items of power. Ticked: this character has it, with its uses on Play and Actions.</p>
+        </section>
+      )}
 
       <section>
         <h2>

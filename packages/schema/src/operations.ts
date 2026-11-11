@@ -430,6 +430,8 @@ export const OPERATION_PAYLOADS = {
   /** `also`: more of them switched the same way in one change (all of a class's Tasha's features). */
   /** `both`: keep what it replaces too (beyond the rules; the app warns). */
   setOptionalFeature: z.object({ feature: z.string(), on: z.boolean(), also: z.array(z.string()).optional(), both: z.boolean().optional() }).strict(),
+  /** A feature given outside the rules (a campaign gift: Charm of Sunlight), added or taken away. */
+  setExtraFeature: z.object({ feature: z.string(), on: z.boolean() }).strict(),
   removeCustomSpell: z.object({ id: z.string() }).strict(),
   /**
    * An item of the player's own, made or changed (same id). New, with `instanceId`:
@@ -634,6 +636,7 @@ export const Operation = z.discriminatedUnion("type", [
   OperationBase.extend({ type: z.literal("removeCustomAction"), payload: OPERATION_PAYLOADS.removeCustomAction }),
   OperationBase.extend({ type: z.literal("setCustomSpell"), payload: OPERATION_PAYLOADS.setCustomSpell }),
   OperationBase.extend({ type: z.literal("setOptionalFeature"), payload: OPERATION_PAYLOADS.setOptionalFeature }),
+  OperationBase.extend({ type: z.literal("setExtraFeature"), payload: OPERATION_PAYLOADS.setExtraFeature }),
   OperationBase.extend({ type: z.literal("setProfRemoved"), payload: OPERATION_PAYLOADS.setProfRemoved }),
   OperationBase.extend({ type: z.literal("copyScroll"), payload: OPERATION_PAYLOADS.copyScroll }),
   OperationBase.extend({ type: z.literal("removeCustomSpell"), payload: OPERATION_PAYLOADS.removeCustomSpell }),
