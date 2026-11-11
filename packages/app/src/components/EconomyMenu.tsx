@@ -12,6 +12,8 @@ function spellState(sp: SpellResult): string | undefined {
   if (sp.cast.pact && sp.cast.pact.remaining > 0) return undefined;
   if (sp.cast.points && sp.cast.points.remaining >= sp.cast.points.amount) return undefined;
   if (sp.cast.slotLevels.length) return undefined;
+  // From an item's charges (the Ring of the Great Pine Cone): enough for its cheapest level.
+  if (sp.cast.charges) return sp.cast.charges.options.some((o) => sp.cast.charges!.remaining >= o.cost) ? undefined : "no charges left";
   return "no slot left";
 }
 
@@ -27,6 +29,8 @@ function SpellRow({ sp, onOpen, sub }: { sp: SpellResult; onOpen: () => void; su
           {sub ? ` · ${sub}` : ""}
         </div>
       </div>
+      {/* Where it comes from (a class, a feat, an item): the same spell twice says which is which. */}
+      <span className="tag spell-from">{sp.fromFeature ?? sp.list.label}</span>
       {why && <span className="tag fail">{why}</span>}
       <span className="num spell-num">{sp.attack ? signed(sp.attack.total) : sp.save ? `DC ${sp.save.dc}` : ""}</span>
     </button>
@@ -136,16 +140,24 @@ export function EconomyMenu({
         </section>
       )}
 
-      {spells.length > 0 && (
-        <section>
-          <h2 className="sub-head">Spells ({spells.length})</h2>
-          <div className="group">
-            {spells.map((sp) => (
-              <SpellRow key={`${sp.list.id}-${sp.id}`} sp={sp} onOpen={() => openSpell(sp)} />
-            ))}
-          </div>
-        </section>
-      )}
+      {/* Spells by level, cantrips first; each with where it comes from. */}
+      {[...new Set(spells.map((sp) => sp.level))]
+        .sort((a, b) => a - b)
+        .map((lvl) => {
+          const list = spells.filter((sp) => sp.level === lvl).sort((a, b) => a.name.localeCompare(b.name) || (a.fromFeature ?? a.list.label).localeCompare(b.fromFeature ?? b.list.label));
+          return (
+            <section key={lvl}>
+              <h2 className="sub-head">
+                {lvl === 0 ? "Cantrips" : `Level ${lvl} spells`} ({list.length})
+              </h2>
+              <div className="group">
+                {list.map((sp) => (
+                  <SpellRow key={`${sp.list.id}-${sp.id}`} sp={sp} onOpen={() => openSpell(sp)} />
+                ))}
+              </div>
+            </section>
+          );
+        })}
 
       {common.filter((a) => a.id !== "common-ready").length > 0 && (
         <section>

@@ -186,6 +186,13 @@ export function opFx(type: string, payload: unknown, before: Character, after: C
     const slots = Array.isArray(p.slots) ? (p.slots as number[]) : undefined;
     out.push({ kind: "moment", motif, ...(slots?.length ? { values: slots } : {}), ...(typeof p.amount === "number" ? { amount: p.amount } : {}), ...(p.action === "charm-of-sunlight-join" ? { joined: true } : {}) });
   }
+  // Divine Intervention: answered (rolled at most your cleric level, or the 20th-level sure one), or not.
+  if (type === "useAction" && (p.action === "divine-intervention" || p.action === "divine-intervention-sure") && !p.free) {
+    const cleric = after.classes?.find((x) => x.class === "class:cleric")?.level ?? 0;
+    const rolled = typeof p.rolled === "number" ? p.rolled : undefined;
+    const answered = p.action === "divine-intervention-sure" || (rolled !== undefined && rolled <= cleric);
+    out.push({ kind: "moment", motif: answered ? "divine-intervention" : "divine-silence", ...(rolled !== undefined ? { values: [rolled] } : {}) });
+  }
   // Portent: the d20s foretold after a long rest, and one of them used in place of a roll.
   if (type === "setPool" && p.resource === "portent" && Array.isArray(p.values) && p.values.length) out.push({ kind: "moment", motif: "portent-roll", values: p.values as number[] });
   if (type === "usePool" && p.resource === "portent" && typeof p.index === "number") {

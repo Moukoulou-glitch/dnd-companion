@@ -288,9 +288,21 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
     }
   };
 
+  /** Uses held for days (Divine Intervention: 7) come back once the in-world clock reaches the day. */
+  const releaseHolds = () => {
+    for (const [id, h] of Object.entries(c.resourceHolds ?? {})) {
+      if (c.story.calendar.minutes < h.until) continue;
+      delete c.resourceHolds![id];
+      delete c.resourcesUsed[id];
+      notes.push(`${h.from}: the days have passed, it can be used again.`);
+    }
+    if (c.resourceHolds && !Object.keys(c.resourceHolds).length) delete c.resourceHolds;
+  };
+
   const passMinutes = (minutes: number) => {
     // The in-world clock moves too, unless the player keeps it by hand.
     if (c.story.calendar.followRests) c.story.calendar.minutes += minutes;
+    releaseHolds();
     const ended: Character["effects"] = [];
     for (const e of c.effects) {
       if (e.minutes !== undefined) {
@@ -672,6 +684,11 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
 
     case "restoreResource": {
       const id = aliasOf(op.payload.resource);
+      // Restored by hand: whatever wait it had is over.
+      if (c.resourceHolds?.[id]) {
+        delete c.resourceHolds[id];
+        if (!Object.keys(c.resourceHolds).length) delete c.resourceHolds;
+      }
       c.resourcesUsed[id] = Math.max(0, (c.resourcesUsed[id] ?? 0) - op.payload.amount);
       break;
     }
@@ -1298,8 +1315,11 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
           notes.push(`${g.from}: ${back} ${r.name} back.`);
         }
       const resets = kind === "short" ? ["short"] : ["short", "long", "dawn"];
-      const restored = sheet.resources.filter((r) => resets.includes(r.reset) && r.used > 0).map((r) => r.name);
-      for (const r of sheet.resources) if (resets.includes(r.reset)) delete c.resourcesUsed[r.id];
+      // Held for days (Divine Intervention after it worked): not back with the rest.
+      const held = (id: string) => !!c.resourceHolds?.[id];
+      for (const r of sheet.resources) if (held(r.id) && resets.includes(r.reset) && r.used > 0) notes.push(`${r.name}: not back with the rest; it waits for its days to pass (or restore it by hand).`);
+      const restored = sheet.resources.filter((r) => resets.includes(r.reset) && r.used > 0 && !held(r.id)).map((r) => r.name);
+      for (const r of sheet.resources) if (resets.includes(r.reset) && !held(r.id)) delete c.resourcesUsed[r.id];
       // Rolls kept in advance (Portent) are lost when their resource comes back.
       for (const r of sheet.resources) if (r.pool && resets.includes(r.reset)) delete c.pools[r.id];
       if (c.pactSlotsUsed > 0) restored.push("Pact Magic slots");
@@ -1443,6 +1463,12 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         if (a.cost.remaining < amount) notes.push(`${a.cost.name}: ${a.cost.remaining > 0 ? `only ${a.cost.remaining} left` : "none left"}. Used anyway.`);
         c.resourcesUsed[a.cost.resource] = Math.min(max, used + amount);
         if (a.spendAmount) notes.push(`${a.cost.name}: ${Math.max(0, max - used - amount)} left.`);
+        // Once every N days (Divine Intervention when the deity answers: 7): a rest doesn't bring it back before then.
+        const rolledN = op.payload.rolled;
+        if (a.everyDays && (a.everyDaysIfRollAtMost === undefined || (rolledN !== undefined && rolledN <= a.everyDaysIfRollAtMost))) {
+          c.resourceHolds = { ...(c.resourceHolds ?? {}), [a.cost.resource]: { until: c.story.calendar.minutes + a.everyDays * 1440, from: a.name } };
+          notes.push(`${a.name}: not again for ${a.everyDays} days.`);
+        }
       }
       // Its item's charges (Ring of the Great Pine Cone): spent from the item, warned when there aren't enough.
       if (a.charges && a.itemInstanceId && !free) {
@@ -2905,6 +2931,13 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
     case "setRaceMoves": {
       // Only real moves are kept (an ability sent to itself is no move).
       const moves = Object.fromEntries(Object.entries(op.payload.moves).filter(([from, to]) => from !== to));
+      // Never two of the race's increases on one ability (the table's ruling): refused, nothing changes.
+      const fixed = reg.find(c.race, "race")?.grant?.abilityBonuses ?? {};
+      const landed = Object.keys(fixed).filter((a) => fixed[a as keyof typeof fixed]).map((a) => (moves as Record<string, string>)[a] ?? a);
+      if (new Set(landed).size < landed.length) {
+        notes.push("Two of your race's increases can't go on the same ability: nothing changed.");
+        break;
+      }
       if (Object.keys(moves).length) c.raceMoves = moves;
       else delete c.raceMoves;
       break;

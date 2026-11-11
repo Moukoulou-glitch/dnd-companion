@@ -2708,7 +2708,11 @@
             "economy": "action",
             "toggles": [],
             "note": "Your deity intervenes, no roll needed; the DM chooses how. Then not again for 7 days.",
-            "everyDays": 7
+            "everyDays": 7,
+            "cost": {
+              "resource": "divine-intervention",
+              "amount": 1
+            }
           }
         ]
       }
@@ -3166,9 +3170,21 @@
               "dice": "1d100",
               "label": "your cleric level or lower: your deity intervenes"
             },
-            "note": "Call on your deity: roll d100, and if it's your cleric level or lower, the DM chooses how it helps. On a success, not again for 7 days; otherwise after a long rest.",
+            "note": "Call on your deity (an action): roll d100, and if it's your cleric level or lower, the DM chooses how it helps. On a success, not again for 7 days (a long rest doesn't bring it back before then); otherwise after a long rest.",
             "everyDays": 7,
-            "everyDaysIfRollAtMost": "classLevel.class:cleric"
+            "everyDaysIfRollAtMost": "classLevel.class:cleric",
+            "cost": {
+              "resource": "divine-intervention",
+              "amount": 1
+            }
+          }
+        ],
+        "resources": [
+          {
+            "id": "divine-intervention",
+            "name": "Divine Intervention",
+            "max": 1,
+            "reset": "long"
           }
         ]
       }

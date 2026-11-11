@@ -37,6 +37,15 @@ describe("22h: the race's increases on other abilities (Customizing Your Origin)
     expect(s.abilities.cha.score.total).toBe(18);
     expect(s.warnings.join(" ")).toMatch(/Charisma gets two of them/);
   });
+  it("22j: two on one ability is refused on the sheet", () => {
+    const l = log();
+    expect(l.record("setRaceMoves", { moves: { int: "cha" } }).join(" ")).toMatch(/can't go on the same ability/);
+    expect(l.character.raceMoves).toBeUndefined();
+    // A swap is fine: +2 to Intelligence, +1 to Charisma.
+    l.record("setRaceMoves", { moves: { cha: "int", int: "cha" } });
+    const s = derive(l.character, reg);
+    expect([s.abilities.int.score.total, s.abilities.cha.score.total]).toEqual([12, 16]);
+  });
   it("changed on the sheet, back again, and cleared by another race", () => {
     const l = log();
     l.record("setRaceMoves", { moves: { cha: "str" } });

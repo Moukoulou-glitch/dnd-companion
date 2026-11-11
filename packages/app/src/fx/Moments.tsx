@@ -6,7 +6,7 @@ import type { CSSProperties } from "react";
  * "Class moments"). Under reduced motion they show still, briefly. Looks only: what was used, and the numbers
  * shown, come from the recorded operation (fx/triggers.ts).
  */
-export type MomentMotif = "portent-roll" | "portent-use" | "arcane-recovery" | "second-wind" | "action-surge" | "divine-sense" | "lay-on-hands" | "sunlight";
+export type MomentMotif = "portent-roll" | "portent-use" | "arcane-recovery" | "second-wind" | "action-surge" | "divine-sense" | "lay-on-hands" | "sunlight" | "divine-intervention" | "divine-silence";
 
 export interface Moment {
   motif: MomentMotif;
@@ -195,6 +195,53 @@ export function MomentPieces({ m }: { m: Moment }) {
           {range(14).map((i) => (
             <span key={i} className="mo-mote" style={v({ x: `${(rnd(i) - 0.5) * 160}px`, d: `${450 + rnd(i, 2) * 700}ms`, s: `${4 + rnd(i, 3) * 5}px` })} />
           ))}
+        </>
+      );
+    // Divine Intervention answered: the sky goes dark, the clouds part, a pillar of light comes down through
+    // turning rings of sacred geometry, a sigil bursts, a shockwave, and light rises everywhere.
+    case "divine-intervention":
+      return (
+        <>
+          <span className="mo-di-dark" />
+          <span className="mo-di-cloud l" />
+          <span className="mo-di-cloud r" />
+          <span className="mo-di-pillar" />
+          <svg className="mo-di-geo" viewBox="-120 -120 240 240" aria-hidden="true">
+            <circle className="r1" r="104" pathLength={1} />
+            <circle className="r2" r="88" pathLength={1} />
+            <g className="ticks">
+              {range(24).map((i) => (
+                <line key={i} x1="0" y1="-112" x2="0" y2={i % 2 ? -104 : -98} transform={`rotate(${i * 15})`} />
+              ))}
+            </g>
+            <polygon className="star a" pathLength={1} points={range(6).map((i) => `${Math.sin((i * Math.PI) / 3) * 80},${-Math.cos((i * Math.PI) / 3) * 80}`).filter((_, i) => i % 2 === 0).join(" ")} />
+            <polygon className="star b" pathLength={1} points={range(6).map((i) => `${Math.sin((i * Math.PI) / 3) * 80},${-Math.cos((i * Math.PI) / 3) * 80}`).filter((_, i) => i % 2 === 1).join(" ")} />
+            <circle className="r3" r="40" pathLength={1} />
+          </svg>
+          <svg className="mo-di-sigil" viewBox="-100 -100 200 200" aria-hidden="true">
+            {range(16).map((i) => (
+              <line key={i} x1="0" y1="-26" x2="0" y2={i % 2 ? -62 : -92} transform={`rotate(${i * 22.5})`} />
+            ))}
+            <circle r="22" />
+          </svg>
+          <span className="mo-di-wave" />
+          <span className="mo-di-flash" />
+          {range(26).map((i) => (
+            <span key={i} className="mo-di-mote" style={v({ x: `${rnd(i) * 100}%`, d: `${900 + rnd(i, 2) * 1600}ms`, s: `${3 + rnd(i, 3) * 5}px` })} />
+          ))}
+          {range(8).map((i) => (
+            <span key={`f${i}`} className="mo-di-feather" style={v({ x: `${10 + rnd(i, 4) * 80}%`, d: `${1300 + rnd(i, 5) * 900}ms`, r: `${-50 + rnd(i, 6) * 100}deg` })} />
+          ))}
+        </>
+      );
+    // Not answered: the clouds gather, a faint light tries and fades.
+    case "divine-silence":
+      return (
+        <>
+          <span className="mo-di-dark" />
+          <span className="mo-di-cloud l shut" />
+          <span className="mo-di-cloud r shut" />
+          <span className="mo-di-faint" />
         </>
       );
     case "sunlight":

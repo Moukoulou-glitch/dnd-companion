@@ -21,7 +21,11 @@ export function SummonPicker({ reg, summon, slot, caster, onSummon, countOverrid
   const def = reg.find(summon, "summon");
   const opts = useMemo(() => summonOptions(reg, summon, slot, caster), [reg, summon, slot, caster]);
   const [tier, setTier] = useState(0);
-  const [counts, setCounts] = useState<Record<string, number>>({});
+  // Only one kind to summon (Nature's Embrace: three dryads; the Golden Lions): all of them, ready to go.
+  const [counts, setCounts] = useState<Record<string, number>>(() => {
+    const only = opts && !def?.spirit && opts.creatures.length === 1 && !opts.tiers.length ? opts.creatures[0] : undefined;
+    return only ? { [only.id]: countOverride ?? opts!.count ?? 1 } : {};
+  });
   const [q, setQ] = useState("");
   if (!def || !opts) return <p className="note">Nothing to summon.</p>;
   const t = opts.tiers[tier];

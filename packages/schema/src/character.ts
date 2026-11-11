@@ -635,6 +635,12 @@ export const Character = z
      */
     raceMoves: z.record(Ability, Ability).optional(),
     /**
+     * Uses that a rest doesn't bring back until some days have passed (Divine Intervention after your deity
+     * answered: 7 days): the resource → the in-world minute it's back, and what held it. Restoring it by hand
+     * ends the wait too.
+     */
+    resourceHolds: z.record(z.string(), z.object({ until: z.number().int().min(0), from: z.string() }).strict()).optional(),
+    /**
      * Ability scores changed by hand: a bonus, a penalty (a shadow's Strength
      * drain, gone after a rest when marked), or "becomes N" (Amulet of Health:
      * 19, no effect if already higher).

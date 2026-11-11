@@ -69,6 +69,10 @@ function momentSpec(e: Extract<FxEvent, { kind: "moment" }>): FxSpec {
       return { ...base, ms: 2100, buzz: [15, 80, 15, 80, 15], label: "Divine Sense" };
     case "lay-on-hands":
       return { ...base, ms: 1900, buzz: [20, 40, 20, 40, 60], label: e.amount ? `Lay on Hands · ${e.amount}` : "Lay on Hands" };
+    case "divine-intervention":
+      return { ...base, ms: 4200, buzz: [40, 60, 40, 60, 80, 40, 200], shake: 600, label: `Divine Intervention · your deity answers${e.values?.length ? ` (${e.values[0]})` : ""}` };
+    case "divine-silence":
+      return { ...base, ms: 2200, buzz: [30, 120, 15], label: `Divine Intervention · ${e.values?.[0] ?? ""}: the heavens are silent` };
     case "sunlight":
       return { ...base, ms: 2500, buzz: [20, 40, 20, 40, 120], label: e.joined ? "Charm of Sunlight · your crown joins" : "Charm of Sunlight" };
   }

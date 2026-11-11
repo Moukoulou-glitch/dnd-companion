@@ -61,7 +61,8 @@ import { bookReport, registry } from "./content";
 import { BookText, BooksPanel } from "./components/BookText";
 import { SendingPanel, sendingNote } from "./components/Sending";
 import { formatWorld } from "./calendar";
-import { everyDaysNote } from "./everyDays";
+import { actionDays, everyDaysNote, interventionNote, lastsDaysNote, spellDays } from "./everyDays";
+import { UsedWhenPanel } from "./components/UsedWhen";
 import { WishPanel } from "./components/Wish";
 import { FallPanel } from "./components/Fall";
 import { BuildPanel, LevelUpPanel, NewCharacterPanel, type NewCharacterInput } from "./components/Builder";
@@ -525,7 +526,42 @@ export function App() {
    */
   const noteEveryDays = (a: ActionResult, rolled?: number) => {
     const note = everyDaysNote(a, rolled, live.current.character?.story);
-    if (note) live.current.act("addNote", note, `${a.name}: noted in your Backstory (next in ${a.everyDays} days).`);
+    if (note) return void live.current.act("addNote", note, `${a.name}: noted in your Backstory (next in ${a.everyDays} days).`);
+    // Something that lasts days (Theros: 1d10 days; Blackrazor's 24 hours): when it ends, in the Backstory too.
+    const eff = a.selfEffect ? effReg().find(a.selfEffect, "effect") : undefined;
+    const days = actionDays(a, rolled, eff?.minutes);
+    if (days) live.current.act("addNote", lastsDaysNote(a.name, days, live.current.character?.story, "used"), `${a.name}: noted in your Backstory (${days} day${days === 1 ? "" : "s"}).`);
+  };
+  /** A spell that lasts a day or more (Gentle Repose: 10 days; Water Breathing: 24 hours): a note with the day it ends. */
+  const noteSpellDays = (name: string, duration: string | undefined) => {
+    const days = spellDays(duration);
+    if (days) live.current.act("addNote", lastsDaysNote(name, days, live.current.character?.story), `${name}: noted in your Backstory (${days} day${days === 1 ? "" : "s"}).`);
+  };
+  /**
+   * Divine Intervention: the player says when (session and day, on any of the calendars) for its Backstory
+   * note, then the rest of the use goes on.
+   */
+  const INTERVENTIONS = new Set(["divine-intervention", "divine-intervention-sure"]);
+  const askIntervention = (a: ActionResult, rolled: number | undefined, then: () => void) => {
+    const story = live.current.character?.story;
+    if (!story) return then();
+    const answered = a.everyDaysIfRollAtMost === undefined || (rolled !== undefined && rolled <= a.everyDaysIfRollAtMost);
+    open(a.name, () => (
+      <UsedWhenPanel
+        name={a.name}
+        story={story}
+        detail={answered ? `Your deity answered${rolled !== undefined ? ` (${rolled})` : ""}: not again for ${a.everyDays ?? 7} days.` : `No answer (${rolled}): it can be tried again after a long rest.`}
+        onSkip={then}
+        onSave={(w) => {
+          live.current.act(
+            "addNote",
+            interventionNote({ name: a.name, session: w.session, minutes: w.minutes, kind: w.kind, ...(w.kind === "custom" && story.calendar.custom ? { custom: story.calendar.custom } : {}), ...(rolled !== undefined ? { rolled } : {}), answered, ...(a.everyDays ? { days: a.everyDays } : {}), story }),
+            `${a.name}: noted in your Backstory.`,
+          );
+          then();
+        }}
+      />
+    ));
   };
 
   /** Sending's message: written after the cast, saved as a note (with the session and in-world date), the words sent off. */
@@ -548,6 +584,7 @@ export function App() {
         onOther={() => {
           void rollOrThrow("2d4", true, undefined, { source: "Wish" }).then((r) => {
             live.current.act("addEffect", { instanceId: crypto.randomUUID(), effect: "effect:wish-stress", minutes: r.total * 1440 }, `Wish's stress: Strength 3 for ${r.total} days; necrotic damage for each spell you cast until a long rest.`);
+            live.current.act("addNote", lastsDaysNote("Wish's stress", r.total, live.current.character?.story, "began"), `Wish's stress: noted in your Backstory.`);
             close();
           });
         }}
@@ -1707,7 +1744,8 @@ export function App() {
                 },
                 () => {
                   live.current.act("useAction", payload, label);
-                  noteEveryDays(current, rolled);
+                  const intervention = INTERVENTIONS.has(current.id);
+                  if (!intervention) noteEveryDays(current, rolled);
                   // Its effect on you (Bardic Inspiration on yourself, if your table allows it): the die it gives.
                   const die = current.gives && current.cost ? live.current.sheet?.resources.find((r) => r.id === current.cost!.resource)?.die : undefined;
                   if (current.gives && onMe) {
@@ -1720,6 +1758,12 @@ export function App() {
                     if (healed !== undefined && (current.heal || current.spendAmount?.heals)) healTarget(target, healed + (spend ? current.healBonus?.value ?? 0 : 0), current.name);
                   }
                   flashForFeature(current.id, { zenith: hasZenith(live.current.character) });
+                  // Divine Intervention: when it was used, for the Backstory; then on as usual.
+                  if (intervention) return askIntervention(current, rolled, () => followUp());
+                  followUp();
+                },
+              );
+            const followUp = () => {
                   // Hound of Ill Omen: straight to the companion it brought out.
                   if (current.summons) return openCompanion(current.summons.companion);
                   // Theros' Heammer Wisps: the summon's picker.
@@ -1731,8 +1775,7 @@ export function App() {
                   else if (current.id === "flurry-of-blows") openFlurry();
                   else if (sk && base) openRoll(`${current.name}: ${SKILL_NAMES[sk]}`, base, undefined, current.check?.dc !== undefined ? { dc: current.check.dc } : {});
                   else close();
-                },
-              );
+            };
             if (current.cost && current.cost.remaining < current.cost.amount)
               open(current.name, () => (
                 <Confirm
@@ -3591,6 +3634,8 @@ export function App() {
                 `${sp.name} cast${castingTime ? ` (${castingTime})` : ""}${choice ? `: ${ABILITY_NAMES[choice as keyof typeof ABILITY_NAMES] ?? choice}` : ""}.`,
               );
               if (!sp.stores) flashForSpell(sp.id, level);
+              // Lasting a day or more: a note in the Backstory with the day it ends.
+              if (!sp.stores) noteSpellDays(sp.name, sp.duration);
               // Stored in an object (Thinking Stone): nothing more happens now; the object is used later.
               if (sp.stores) {
                 castOnCompanions.current = [];
@@ -3741,6 +3786,7 @@ export function App() {
     const sp = t.cast && live.current.sheet?.spells.find((x) => x.id === t.cast!.spell && x.list.id === t.cast!.list);
     if (!sp || !t.cast) return close();
     flashForSpell(sp.id, t.cast.level);
+    noteSpellDays(sp.name, sp.duration);
     const eff = t.cast.selfEffect ? effReg().find(sp.id.replace(/^spell:/, "effect:"), "effect") : undefined;
     if (eff?.transform) return openTransform(shapeKindOf(eff.transform), { forEffect: eff.id });
     const sum = registry.list("summon").find((x) => x.spell === sp.id);

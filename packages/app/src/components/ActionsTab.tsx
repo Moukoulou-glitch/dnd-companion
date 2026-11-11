@@ -42,7 +42,7 @@ export function FeatureRow({ a, openFeature }: { a: ActionResult; openFeature: (
           {a.name}
         </div>
         <div className="row-sub">
-          {a.cost ? `${a.cost.remaining} left` : "No cost"}
+          {a.cost ? `${a.cost.remaining} left` : a.charges ? `${a.charges.amount} charge${a.charges.amount === 1 ? "" : "s"} · ${a.charges.remaining} left` : "No cost"}
           {a.tempHp ? `, ${a.tempHp.text} temp HP` : ""}
           {a.heal ? `, heals ${a.heal.text}` : ""}
         </div>

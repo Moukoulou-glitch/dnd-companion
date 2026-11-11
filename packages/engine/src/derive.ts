@@ -679,7 +679,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     const landed = raceLines.map((l) => l.to);
     const twice = ABILITIES.filter((a) => landed.filter((x) => x === a).length > 1);
     if (raceLines.some((l) => l.to !== l.from) && twice.length)
-      warnings.push(`Your race's increases: ${twice.map((a) => ABILITY_NAMES[a]).join(" and ")} ${twice.length > 1 ? "get" : "gets"} two of them. Customizing Your Origin moves each increase to a different ability.`);
+      warnings.push(`Your race's increases: ${twice.map((a) => ABILITY_NAMES[a]).join(" and ")} ${twice.length > 1 ? "get" : "gets"} two of them. Each increase goes on a different ability: move one.`);
   }
   const abilities = {} as Record<Ability, AbilityResult>;
   for (const ab of ABILITIES) {

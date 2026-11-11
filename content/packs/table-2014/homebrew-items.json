@@ -311,7 +311,10 @@
             "name": "Ring of the Great Pine Cone: Nature's Embrace",
             "economy": "action",
             "charges": 6,
-            "note": "Only in a forest. Three dryads appear in unoccupied spaces within 30 ft, for 10 minutes or until they drop to 0 hit points. They're allies, share your initiative and act right after you as a group, obey your spoken commands (no action), and otherwise Dodge and keep out of danger. They understand Common but can't speak it."
+            "note": "Only in a forest. Three dryads appear in unoccupied spaces within 30 ft, for 10 minutes or until they drop to 0 hit points. They're allies, share your initiative and act right after you as a group, obey your spoken commands (no action), and otherwise Dodge and keep out of danger. They understand Common but can't speak it.",
+            "opensSummon": {
+              "summon": "summon:pine-cone-dryads"
+            }
           }
         ],
         "spells": [
@@ -367,6 +370,23 @@
         "Whisperer of the Elements. As an action, you can expend 5 charges gain immunity to either acid, cold, fire, lightning, or thunder damage, for 1 minute. Additionally, for the same amount of time, your weapon attacks deal extra 1d8 of the selected damage type.",
         "Nature's Embrace. While you are in a forest, you can use your action and expend 6 charges, and summon 3 Dryads in unoccupied spaces within 30 feet of you. The Dryads disappear when they drop to 0 hit points, or after 10 minutes (whichever comes first). The Dryads are allies to you and your companions. In combat, they share your initiative count, but they take their turn immediately after yours, as a group. They obey your verbal commands, which you must issue on your turn (no action required by you). If you don't issue any, they take the Dodge action and use their move to avoid danger. They understand Common, but cannot speak it."
       ]
+    },
+    {
+      "kind": "summon",
+      "id": "summon:pine-cone-dryads",
+      "name": "Ring of the Great Pine Cone: Nature's Embrace",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (Giorgos)"
+      },
+      "creatures": [
+        "creature:dryad"
+      ],
+      "count": {
+        "1": 3
+      },
+      "initiative": "yours",
+      "note": "Three dryads, allies to you and your companions, for 10 minutes or until they drop to 0 hit points. They act right after you, as a group; they obey your spoken commands (no action), and otherwise Dodge and keep out of danger. They understand Common but can't speak it."
     },
     {
       "kind": "item",
