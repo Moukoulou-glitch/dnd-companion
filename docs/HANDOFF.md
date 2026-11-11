@@ -439,3 +439,4 @@ Remaining plan (each a sub-phase, stop after each): 2a crits (done) · 2b Relent
 - 22g: Book text on the start screen (no characters yet), so a new player can load the book before making a character.
 - 22g merged to main with approval (Nov 11; run 43084220221 passed).
 - 22h: the race's fixed ability increases can be put on other abilities (Customizing Your Origin): Character.raceMoves (from → to), op setRaceMoves, builder's Abilities step and each ability's panel on the sheet; two on one ability warned; a new race clears the moves.
+- 22h merged to main with approval (Nov 12; run 43107949983 passed).
