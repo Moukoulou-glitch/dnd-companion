@@ -1518,7 +1518,10 @@
               "dice": "2d6",
               "label": "fire damage"
             },
-            "note": "Spirit appears within 30 ft; creatures within 10 ft of it: Dex save or 2d6 fire."
+            "note": "Spirit appears within 30 ft with all its hit points, for 1 hour; creatures within 10 ft of it: Dex save or 2d6 fire.",
+            "summons": {
+              "companion": "wildfire-spirit"
+            }
           },
           {
             "id": "command-wildfire-spirit",
@@ -1741,7 +1744,10 @@
             "cost": {
               "resource": "wild-shape"
             },
-            "note": "Cast Find Familiar (fey) without components; it lasts half your druid level in hours."
+            "note": "Cast Find Familiar (fey) without components; it lasts half your druid level in hours. Pick its form next.",
+            "opensSummon": {
+              "summon": "summon:find-familiar"
+            }
           }
         ]
       }

@@ -1078,6 +1078,21 @@ export function App() {
         },
       });
     }
+    // Arcane Deflection (War Magic 2): +4 to a save you failed, for your reaction; only cantrips until the end of your next turn.
+    if (sh.actions.some((a) => a.id === "arcane-deflection")) {
+      const used = !!ch.combat && (ch.combat.reaction ?? 0) >= 1;
+      out.push({
+        label: "Arcane Deflection +4",
+        group: "Arcane Deflection",
+        on: "save",
+        sub: used ? "your reaction is already used" : "a failed save · your reaction · then only cantrips until the end of your next turn",
+        warn: used,
+        run: () => {
+          live.current.act("useAction", { action: "arcane-deflection" }, "Arcane Deflection: +4 to the save. Only cantrips until the end of your next turn.");
+          return { value: 4, detail: "reaction" };
+        },
+      });
+    }
     for (const rr of rerolls) {
       if (!sh.actions.some((a) => a.id === rr.action) || rr.when === false) continue;
       out.push({

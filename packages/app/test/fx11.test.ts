@@ -6,9 +6,10 @@ import { Signature } from "../src/fx/Signature.js";
 import { opFx } from "../src/fx/triggers.js";
 
 const reg = tableRegistry();
-const sheetOf = (cls: string, level: number) => {
+const sheetOf = (cls: string, level: number, feat?: string) => {
   const c = newCharacter({ id: "x", name: "X", race: "race:human", class: cls, abilities: { str: 16, dex: 14, con: 14, int: 10, wis: 12, cha: 14 } }, reg);
   c.classes[0] = { ...c.classes[0]!, level };
+  if (feat) c.feats.push({ feat, from: "Fighter 4 (Ability Score Improvement)" });
   return { c, sheet: derive(c, reg) };
 };
 
@@ -34,18 +35,18 @@ describe("feature animations (12c)", () => {
       expect(Signature({ g, x: 100, y: 100 }).at, cls).toBeTruthy();
     }
   });
-  it("a feature from its action, its resource or nothing for a passive or common action (Bardic Inspiration, bard 1)", () => {
-    const { sheet } = sheetOf("class:bard", 1);
-    const f = featureFor(sheet, "useAction", { action: "bardic-inspiration" });
-    expect(f).toMatchObject({ cls: "bard", level: 1 });
-    expect(featureFor(sheet, "spendResource", { resource: "bardic-inspiration", amount: 1 })).toMatchObject({ cls: "bard", level: 1 });
-    // "Just activate", Dash, an unknown action: nothing. Features with a look of their own (Indomitable, 22n): no generic one.
-    expect(featureFor(sheet, "useAction", { action: "bardic-inspiration", free: true })).toBeUndefined();
-    expect(featureFor(sheetOf("class:fighter", 9).sheet, "useAction", { action: "indomitable" })).toBeUndefined();
+  it("a feature from its action, its resource or nothing for a passive or common action (a feat: Savage Attacker)", () => {
+    const { sheet } = sheetOf("class:fighter", 4, "feat:savage-attacker");
+    const f = featureFor(sheet, "useAction", { action: "savage-attacker" });
+    expect(f).toMatchObject({ cls: "feat", level: 1 });
+    expect(featureFor(sheet, "spendResource", { resource: "savage-attacker", amount: 1 })).toMatchObject({ cls: "feat" });
+    // "Just activate", Dash, an unknown action: nothing. Class features have looks of their own now (22k–22p): no generic one.
+    expect(featureFor(sheet, "useAction", { action: "savage-attacker", free: true })).toBeUndefined();
+    expect(featureFor(sheetOf("class:bard", 1).sheet, "useAction", { action: "bardic-inspiration" })).toBeUndefined();
     const common = sheet.actions.find((a) => a.common);
     if (common) expect(featureFor(sheet, "useAction", { action: common.id })).toBeUndefined();
     expect(featureFor(sheet, "useAction", { action: "nope" })).toBeUndefined();
-    expect(featureFor(undefined, "useAction", { action: "bardic-inspiration" })).toBeUndefined();
+    expect(featureFor(undefined, "useAction", { action: "savage-attacker" })).toBeUndefined();
   });
   it("uses with their own look keep it: Rage, Flurry of Blows", () => {
     const { sheet } = sheetOf("class:barbarian", 1);
@@ -57,11 +58,11 @@ describe("feature animations (12c)", () => {
     expect(featureFor(monk, "useAction", { action: "flurry-of-blows" })).toBeUndefined();
   });
   it("opFx plays it when a lookup is given; without one, nothing new", () => {
-    const { c, sheet } = sheetOf("class:bard", 5);
+    const { c, sheet } = sheetOf("class:fighter", 4, "feat:savage-attacker");
     const look = (t: string, p: unknown) => featureFor(sheet, t, p);
-    const ev = opFx("useAction", { action: "bardic-inspiration" }, c, c, undefined, undefined, look);
+    const ev = opFx("useAction", { action: "savage-attacker" }, c, c, undefined, undefined, look);
     expect(ev).toHaveLength(1);
-    expect((ev[0] as { g: { sig: string; tier: number } }).g).toMatchObject({ sig: "cls-bard", tier: 0 });
-    expect(opFx("useAction", { action: "bardic-inspiration" }, c, c)).toEqual([]);
+    expect((ev[0] as { g: { sig: string; tier: number } }).g).toMatchObject({ sig: "cls-feat", tier: 0 });
+    expect(opFx("useAction", { action: "savage-attacker" }, c, c)).toEqual([]);
   });
 });

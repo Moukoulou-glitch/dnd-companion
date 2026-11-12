@@ -36,3 +36,17 @@ describe("22o: Form of the Beast's bite", () => {
     expect(derive(l.character, reg).actions.find((a) => a.id === "beast-bite-heal")?.belowHalfHp).toBe(true);
   });
 });
+
+describe("22p: druid summons", () => {
+  it("Summon Wildfire Spirit brings the spirit out with all its hit points", () => {
+    const l = pc("class:druid", 2, "subclass:circle-of-wildfire");
+    expect(l.record("useAction", { action: "summon-wildfire-spirit", rolled: 7 }).join(" ")).toMatch(/Wildfire Spirit appears/);
+    const sp = derive(l.character, reg).companions.find((x) => x.id === "wildfire-spirit")!;
+    expect(l.character.companions["wildfire-spirit"]?.hp?.current).toBe(sp.form?.hpMax.total);
+    expect(l.character.companions["wildfire-spirit"]?.hp?.temp).toBe(0);
+  });
+  it("Wild Companion opens Find Familiar", () => {
+    const a = derive(pc("class:druid", 2).character, reg).actions.find((x) => x.id === "wild-companion")!;
+    expect(a.opensSummon).toEqual({ summon: "summon:find-familiar" });
+  });
+});

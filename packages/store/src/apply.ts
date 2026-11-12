@@ -1799,7 +1799,7 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
           c.companions[comp.id] = { ...(c.companions[comp.id] ?? {}), states: [], form };
           delete c.companions[comp.id]!.hp;
           const max = derive(c, reg).companions.find((x) => x.id === comp.id)?.form?.hpMax.total;
-          if (max !== undefined) c.companions[comp.id]!.hp = { current: max, temp: a.summons.tempHp };
+          if (max !== undefined) c.companions[comp.id]!.hp = { current: max, temp: a.summons.tempHp ?? 0 };
           notes.push(`${comp.name} appears${a.summons.tempHp ? ` with ${a.summons.tempHp} temporary HP` : ""}.`);
         }
       }
