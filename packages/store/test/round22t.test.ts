@@ -81,3 +81,15 @@ describe("22v: Unicorn Spirit and Grim Harvest", () => {
     expect(l.character.hp.current).toBe(11);
   });
 });
+
+describe("22w: healing that can go to someone else", () => {
+  it("Hand of Healing, the Chalice and the Healer's stabilize ask on whom", () => {
+    const c = newCharacter({ id: "m", name: "M", race: "race:human", class: "class:monk", abilities: { str: 10, dex: 16, con: 14, int: 10, wis: 16, cha: 10 } }, reg);
+    c.classes = [{ class: "class:monk", level: 6, subclass: "subclass:way-of-mercy" }];
+    expect(derive(c, reg).actions.find((x) => x.id === "hand-of-healing")?.others).toBe(true);
+    const l = new CharacterLog(c, reg, new HybridClock("t", () => (t += 1000)), "player");
+    l.character.hp.current = 10;
+    l.record("useAction", { action: "hand-of-healing", rolled: 7, onMe: false });
+    expect(l.character.hp.current).toBe(10);
+  });
+});

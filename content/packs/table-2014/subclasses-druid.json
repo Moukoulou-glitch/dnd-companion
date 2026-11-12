@@ -1153,6 +1153,7 @@
             "name": "Chalice healing",
             "economy": "free",
             "heal": "scale.die + mod.wis",
+            "others": true,
             "note": "After a slot healing spell: you or a creature within 30 ft also heals."
           }
         ],

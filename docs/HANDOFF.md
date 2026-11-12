@@ -467,3 +467,5 @@ Remaining plan (each a sub-phase, stop after each): 2a crits (done) · 2b Relent
 - 22u: uses that nothing spent: Pact of the Talisman (+1d4 offered after a check) and Protection of the Talisman (+1d4 after a save), spending their uses; Spell Sniper's steady aim and Gift of the Protectors are actions that spend their use; Fury of the Small's damage bonus spends its use when ticked.
 - 22u merged to main with approval (Nov 12; run 43280243442 passed).
 - 22v: Spirit Totem's unicorn spirit heals your druid level (new "Unicorn Spirit" action, to you or others); Grim Harvest is an action that heals the hit points entered (twice the spell's level, three times for necromancy).
+- 22v merged to main with approval (Nov 12; run 43282611649 passed).
+- 22w: Hand of Healing, Starry Form's Chalice and the Healer feat's stabilize ask "On whom?" (you or someone else) instead of always healing you.

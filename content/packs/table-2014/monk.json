@@ -108,6 +108,7 @@
               "resource": "ki"
             },
             "heal": "scale.die + mod.wis",
+            "others": true,
             "toggles": [],
             "note": "Touch a creature: it regains a Martial Arts die + your Wisdom modifier. In a Flurry of Blows it can replace one strike, free."
           }

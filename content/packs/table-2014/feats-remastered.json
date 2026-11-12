@@ -455,6 +455,7 @@
             "name": "Healer: stabilize and heal",
             "economy": "action",
             "heal": "1 + pb",
+            "others": true,
             "note": "Stabilize a dying creature with a healer's kit use: it also regains 1 + your proficiency bonus hit points."
           },
           {
