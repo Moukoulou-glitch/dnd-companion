@@ -522,6 +522,14 @@
             "name": "Hawk Spirit",
             "economy": "reaction",
             "note": "A creature attacks a target inside the hawk aura: give it advantage."
+          },
+          {
+            "id": "spirit-totem-unicorn",
+            "name": "Unicorn Spirit",
+            "economy": "free",
+            "heal": "classLevel.class:druid",
+            "others": true,
+            "note": "You cast a spell with a spell slot that restores hit points to any creature inside the unicorn's aura: each creature of your choice in the aura (you too) also regains hit points equal to your druid level. Also: you and your allies have advantage on ability checks to detect creatures in the aura."
           }
         ]
       }

@@ -66,3 +66,18 @@ describe("22u: uses that had nothing to spend them", () => {
     expect(fury?.spends?.resource).toBe("fury-of-the-small");
   });
 });
+
+describe("22v: Unicorn Spirit and Grim Harvest", () => {
+  it("the unicorn heals your druid level; Grim Harvest heals what's entered", () => {
+    const c = newCharacter({ id: "v", name: "V", race: "race:human", class: "class:druid", abilities: { str: 10, dex: 12, con: 14, int: 10, wis: 16, cha: 10 } }, reg);
+    c.classes = [{ class: "class:druid", level: 7, subclass: "subclass:circle-of-the-shepherd" }];
+    expect(derive(c, reg).actions.find((x) => x.id === "spirit-totem-unicorn")?.heal?.text).toBe("7");
+    const w = newCharacter({ id: "w", name: "W", race: "race:human", class: "class:wizard", abilities: { str: 10, dex: 12, con: 14, int: 16, wis: 10, cha: 10 } }, reg);
+    w.classes = [{ class: "class:wizard", level: 4, subclass: "subclass:school-of-necromancy" }];
+    w.hp.current = 5;
+    const l = new CharacterLog(w, reg, new HybridClock("t", () => (t += 1000)), "player");
+    expect(derive(l.character, reg).actions.find((x) => x.id === "grim-harvest")?.healEntered).toMatch(/twice/);
+    l.record("useAction", { action: "grim-harvest", rolled: 6 });
+    expect(l.character.hp.current).toBe(11);
+  });
+});

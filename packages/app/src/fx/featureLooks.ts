@@ -166,6 +166,7 @@ export const FEAT_LOOKS: Record<string, FeatLook> = {
   "elder-champion-regain": f("Elder Champion", "Paladin 20 · Oath of the Ancients", 20, "200, 255, 170", "80, 190, 90", "leaf", "leaves"),
   // Feats and race traits (1st-level size)
   "chef-treat": f("Chef's Treats", "Feat · Chef", 1, "255, 220, 170", "210, 140, 70", "heart", "rise"),
+  "grim-harvest": f("Grim Harvest", "Wizard 2 · School of Necromancy", 2, "200, 230, 200", "70, 120, 80", "skull", "converge"),
   "spell-sniper-aim": f("Spell Sniper: steady aim", "Feat · Spell Sniper", 1, "230, 240, 255", "120, 160, 255", "target", "converge"),
   "gift-of-the-protectors": f("Gift of the Protectors", "Invocation · Warlock 9", 9, "245, 235, 210", "150, 110, 200", "book", "rise"),
   "dragon-fear": f("Dragon Fear", "Feat · Dragon Fear", 1, "255, 160, 110", "170, 40, 30", "wings", "ripple"),
@@ -257,6 +258,7 @@ export const FEAT_LOOKS: Record<string, FeatLook> = {
   "combat-wild-shape-heal": f("Combat Wild Shape", "Druid 2 · Circle of the Moon", 2, "220, 230, 255", "140, 150, 210", "moon", "rise"),
   "balm-of-the-summer-court": f("Balm of the Summer Court", "Druid 2 · Circle of Dreams", 2, "240, 255, 220", "170, 210, 110", "leaf", "converge"),
   "spirit-totem-hawk": f("Spirit Totem", "Druid 2 · Circle of the Shepherd", 2, "220, 240, 200", "150, 190, 110", "laurel", "sparks"),
+  "spirit-totem-unicorn": f("Spirit Totem", "Druid 2 · Circle of the Shepherd", 2, "220, 240, 200", "150, 190, 110", "laurel", "sparks"),
   "spirit-totem-bear": f("Spirit Totem", "Druid 2 · Circle of the Shepherd", 2, "220, 240, 200", "150, 190, 110", "laurel", "sparks"),
   "halo-of-spores": f("Halo of Spores", "Druid 2 · Circle of Spores", 2, "200, 220, 170", "110, 90, 60", "skull", "ripple"),
   "symbiotic-entity": f("Symbiotic Entity", "Druid 2 · Circle of Spores", 2, "205, 225, 175", "100, 85, 55", "leaf", "smoke"),
