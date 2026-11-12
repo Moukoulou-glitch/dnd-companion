@@ -203,7 +203,14 @@
             "id": "dragon-fear",
             "name": "Dragon Fear roar",
             "economy": "action",
-            "note": "Uses your Breath Weapon. Creatures you choose within 30 ft: Wisdom save (DC 8 + proficiency bonus + Charisma modifier) or frightened for 1 minute; they retry when they take damage."
+            "note": "Spends a use of your Breath Weapon. Creatures you choose within 30 ft: Wisdom save (DC 8 + proficiency bonus + Charisma modifier) or frightened for 1 minute; they retry when they take damage.",
+            "cost": {
+              "resource": "breath-weapon",
+              "amount": 1,
+              "or": [
+                "ftd-breath-weapon"
+              ]
+            }
           }
         ]
       },

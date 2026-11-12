@@ -3903,6 +3903,33 @@
             "duration": {
               "minutes": 60
             }
+          },
+          {
+            "id": "eyes-of-night-slot",
+            "name": "Eyes of Night (spell slot)",
+            "economy": "action",
+            "note": "Again after its free use: spend a spell slot. Share 300-ft darkvision for 1 hour with up to Wis mod creatures within 10 ft.",
+            "toggles": [
+              "eyes-of-night-shared"
+            ],
+            "duration": {
+              "minutes": 60
+            },
+            "choose": {
+              "label": "Spell slot",
+              "options": [
+                "1st-level slot",
+                "2nd-level slot",
+                "3rd-level slot",
+                "4th-level slot",
+                "5th-level slot",
+                "6th-level slot",
+                "7th-level slot",
+                "8th-level slot",
+                "9th-level slot"
+              ]
+            },
+            "choiceSpendsSlot": true
           }
         ]
       }

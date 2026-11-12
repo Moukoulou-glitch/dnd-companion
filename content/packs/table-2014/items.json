@@ -170,7 +170,8 @@
             "name": "Chime of Opening",
             "economy": "action",
             "toggles": [],
-            "note": "Point it at a door, lock, lid or similar within 120 ft and strike it: one lock or latch opens (silence stops it). Uses a charge: tap it on the item."
+            "note": "Point it at a door, lock, lid or similar within 120 ft and strike it: one lock or latch opens (silence stops it). Uses one of its charges.",
+            "charges": 1
           }
         ]
       }

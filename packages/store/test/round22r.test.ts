@@ -38,3 +38,43 @@ describe("22r: magic item fixes", () => {
     expect(a.charges?.amount).toBe(1);
   });
 });
+
+describe("22s: a spell slot instead of the free use", () => {
+  const pc = (cls: string, level: number, subclass: string) => {
+    const c = newCharacter({ id: "q", name: "Q", race: "race:human", class: cls, abilities: { str: 10, dex: 14, con: 14, int: 12, wis: 16, cha: 16 } }, reg);
+    c.classes = [{ class: cls, level, subclass }];
+    return new CharacterLog(c, reg, new HybridClock("t", () => (t += 1000)), "player");
+  };
+  it("Universal Speech, Eyes of Night, Animating Performance, Performance of Creation, Mantle of Majesty", () => {
+    const l = pc("class:bard", 6, "subclass:college-of-eloquence");
+    const a = derive(l.character, reg).actions.find((x) => x.id === "universal-speech-slot")!;
+    expect(a.choose?.options[0]).toBe("1st-level slot");
+    l.record("useAction", { action: "universal-speech-slot", choice: "2nd-level slot" });
+    expect(l.character.slotsUsed["2"]).toBe(1);
+    expect(derive(pc("class:bard", 6, "subclass:college-of-creation").character, reg).actions.find((x) => x.id === "animating-performance-slot")?.choose?.options[0]).toBe("3rd-level slot");
+    expect(derive(pc("class:bard", 3, "subclass:college-of-creation").character, reg).actions.find((x) => x.id === "performance-of-creation-slot")?.choose?.options[0]).toBe("2nd-level slot");
+    expect(derive(pc("class:bard", 6, "subclass:college-of-glamour").character, reg).actions.some((x) => x.id === "mantle-of-majesty-slot")).toBe(true);
+    expect(derive(pc("class:cleric", 1, "subclass:twilight-domain").character, reg).actions.some((x) => x.id === "eyes-of-night-slot")).toBe(true);
+  });
+  it("Elder Champion's 10 hit points at the start of your turn; the Chime of Opening's charge", () => {
+    expect(derive(pc("class:paladin", 20, "subclass:oath-of-the-ancients").character, reg).actions.find((x) => x.id === "elder-champion-regain")?.heal?.text).toBe("10");
+    expect(derive(withItem("item:chime-of-opening").character, reg).actions.find((x) => x.id === "chime-of-opening")?.charges?.amount).toBe(1);
+  });
+});
+
+describe("22s: Dragon Fear spends a Breath Weapon use", () => {
+  const dragonborn = (race: string) => {
+    const c = newCharacter({ id: "d", name: "D", race, class: "class:fighter", abilities: { str: 14, dex: 12, con: 14, int: 10, wis: 10, cha: 14 } }, reg);
+    c.classes = [{ class: "class:fighter", level: 4 }];
+    c.feats.push({ feat: "feat:dragon-fear", from: "Fighter 4 (Ability Score Improvement)" });
+    return new CharacterLog(c, reg, new HybridClock("t", () => (t += 1000)), "player");
+  };
+  it("the Player's Handbook dragonborn's, or Fizban's", () => {
+    for (const [race, pool] of [["race:dragonborn", "breath-weapon"], ["race:chromatic-dragonborn", "ftd-breath-weapon"]] as const) {
+      const l = dragonborn(race);
+      expect(derive(l.character, reg).actions.find((a) => a.id === "dragon-fear")?.cost?.resource).toBe(pool);
+      l.record("useAction", { action: "dragon-fear" });
+      expect(l.character.resourcesUsed[pool]).toBe(1);
+    }
+  });
+});

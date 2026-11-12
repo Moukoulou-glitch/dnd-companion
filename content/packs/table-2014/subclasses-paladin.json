@@ -569,6 +569,14 @@
               "rounds": 10
             },
             "note": "1 minute: regain 10 HP each turn start, action paladin spells as a bonus action, nearby enemies have disadvantage on saves against your spells and Channel Divinity."
+          },
+          {
+            "id": "elder-champion-regain",
+            "name": "Elder Champion: regain 10 HP",
+            "economy": "free",
+            "toggles": [],
+            "heal": "10",
+            "note": "At the start of each of your turns while you're the Elder Champion: regain 10 hit points."
           }
         ]
       }

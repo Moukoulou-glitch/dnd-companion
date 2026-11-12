@@ -413,6 +413,31 @@
               "rounds": 10
             },
             "note": "Concentration, 1 minute. Cast Command as a bonus action each turn, no slot."
+          },
+          {
+            "id": "mantle-of-majesty-slot",
+            "name": "Mantle of Majesty (spell slot)",
+            "economy": "bonus",
+            "toggles": [
+              "mantle-of-majesty"
+            ],
+            "duration": {
+              "rounds": 10
+            },
+            "note": "Again after its free use: spend a spell slot of 3rd level or higher. Concentration, 1 minute. Cast Command as a bonus action each turn, no slot.",
+            "choose": {
+              "label": "Spell slot",
+              "options": [
+                "3rd-level slot",
+                "4th-level slot",
+                "5th-level slot",
+                "6th-level slot",
+                "7th-level slot",
+                "8th-level slot",
+                "9th-level slot"
+              ]
+            },
+            "choiceSpendsSlot": true
           }
         ]
       }
@@ -990,6 +1015,26 @@
               "resource": "performance-of-creation"
             },
             "note": "Create an item worth up to 20 gp x bard level; lasts proficiency bonus hours. Or spend a 2nd+ slot instead."
+          },
+          {
+            "id": "performance-of-creation-slot",
+            "name": "Performance of Creation (spell slot)",
+            "economy": "action",
+            "note": "Again after its free use: spend a spell slot of 2nd level or higher. Create an item worth up to 20 gp x bard level; lasts proficiency bonus hours.",
+            "choose": {
+              "label": "Spell slot",
+              "options": [
+                "2nd-level slot",
+                "3rd-level slot",
+                "4th-level slot",
+                "5th-level slot",
+                "6th-level slot",
+                "7th-level slot",
+                "8th-level slot",
+                "9th-level slot"
+              ]
+            },
+            "choiceSpendsSlot": true
           }
         ]
       }
@@ -1025,6 +1070,28 @@
               "minutes": 60
             },
             "note": "Animate an item for 1 hour. Or spend a 3rd+ slot instead."
+          },
+          {
+            "id": "animating-performance-slot",
+            "name": "Animating Performance (spell slot)",
+            "economy": "action",
+            "duration": {
+              "minutes": 60
+            },
+            "note": "Again after its free use: spend a spell slot of 3rd level or higher. Animate an item for 1 hour.",
+            "choose": {
+              "label": "Spell slot",
+              "options": [
+                "3rd-level slot",
+                "4th-level slot",
+                "5th-level slot",
+                "6th-level slot",
+                "7th-level slot",
+                "8th-level slot",
+                "9th-level slot"
+              ]
+            },
+            "choiceSpendsSlot": true
           }
         ],
         "companions": [
@@ -1262,6 +1329,30 @@
               "minutes": 60
             },
             "note": "Chosen creatures understand you for 1 hour. Or spend a spell slot instead."
+          },
+          {
+            "id": "universal-speech-slot",
+            "name": "Universal Speech (spell slot)",
+            "economy": "action",
+            "duration": {
+              "minutes": 60
+            },
+            "note": "Again after its free use: spend a spell slot. Chosen creatures understand you for 1 hour.",
+            "choose": {
+              "label": "Spell slot",
+              "options": [
+                "1st-level slot",
+                "2nd-level slot",
+                "3rd-level slot",
+                "4th-level slot",
+                "5th-level slot",
+                "6th-level slot",
+                "7th-level slot",
+                "8th-level slot",
+                "9th-level slot"
+              ]
+            },
+            "choiceSpendsSlot": true
           }
         ]
       }

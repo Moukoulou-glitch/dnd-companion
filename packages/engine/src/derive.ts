@@ -453,6 +453,8 @@ export interface DerivedSheet {
   /** Tools and instruments you're proficient with, and `anyTool` for one you aren't (no proficiency bonus). */
   tools: ToolResult[];
   anyTool: Record<Ability, RollBreakdown>;
+  /** A plain ability check (no skill or tool): the ability's modifier, Jack of All Trades, what adds to its checks. */
+  abilityChecks: Record<Ability, RollBreakdown>;
   passives: { perception: Breakdown; investigation: Breakdown; insight: Breakdown };
   ac: Breakdown;
   initiative: RollBreakdown;
@@ -1306,6 +1308,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     return r;
   });
   const anyTool = toolChecks(undefined, 0);
+  const abilityChecks = Object.fromEntries(ABILITIES.map((ab) => [ab, roll([`roll.check.${ab}`], [abilityPart(ab), ...jackPart(ab)])])) as Record<Ability, RollBreakdown>;
 
   const passive = (sk: Skill): Breakdown => {
     const s = skills[sk];
@@ -2284,9 +2287,11 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       // "{dc:wis}" (a ki save DC) and "{spelldc}" in the note, worked out.
       if (a.note) entry.note = fillTag(a.note).replace(/\{spelldc\}/g, spellDcText).replace(/\{dc:(str|dex|con|int|wis|cha)\}/g, (_, ab: Ability) => `DC ${8 + pb + mods[ab]}`);
       if (a.cost) {
-        const r = resources.find((x) => x.id === a.cost!.resource);
+        // The first of its pools the character has (`or`: Dragon Fear spends whichever Breath Weapon is yours).
+        const ids = [a.cost.resource, ...(a.cost.or ?? [])];
+        const r = ids.map((id) => resources.find((x) => x.id === id)).find((x) => !!x);
         if (!r) warnings.push(`${a.name}: its resource "${a.cost.resource}" doesn't exist.`);
-        entry.cost = { resource: a.cost.resource, name: r?.name ?? a.cost.resource, amount: a.cost.amount, remaining: r?.remaining ?? 0 };
+        entry.cost = { resource: r?.id ?? a.cost.resource, name: r?.name ?? a.cost.resource, amount: a.cost.amount, remaining: r?.remaining ?? 0 };
       }
       if (a.tempHp !== undefined) entry.tempHp = amountOf(a.tempHp, s);
       // "halfhpmax": half your hit point maximum (Unearthly Recovery).
@@ -2691,6 +2696,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     skills,
     tools,
     anyTool,
+    abilityChecks,
     passives: { perception: passive("perception"), investigation: passive("investigation"), insight: passive("insight") },
     ac,
     initiative,

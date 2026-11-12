@@ -43,7 +43,7 @@ export function NumberStep({ label, sub, value, onChange, min = 0, max = 999 }: 
 }
 
 /** An ability score's breakdown, and changing it by hand: bonus, penalty (drain), "becomes N" (Amulet of Health). */
-export function AbilityAdjustPanel({ ab, character, sheet, act, race }: { ab: Ability; character: Character; sheet: DerivedSheet; act: Act; race?: { name: string; fixed: Partial<Record<Ability, number>> } }) {
+export function AbilityAdjustPanel({ ab, character, sheet, act, race, onCheck }: { ab: Ability; character: Character; sheet: DerivedSheet; act: Act; race?: { name: string; fixed: Partial<Record<Ability, number>> }; onCheck?: () => void }) {
   const adj = character.abilityAdjust[ab] ?? { bonus: 0, penalty: 0, penaltyEndsOnRest: false };
   const name = ABILITY_NAMES[ab];
   const set = (p: Record<string, unknown>, label: string) => act("setAbilityAdjust", { ability: ab, ...p }, label);
@@ -52,6 +52,11 @@ export function AbilityAdjustPanel({ ab, character, sheet, act, race }: { ab: Ab
   const score = sheet.abilities[ab].score.total;
   return (
     <>
+      {onCheck && (
+        <button className="big primary wide" style={{ marginBottom: 12 }} onClick={onCheck}>
+          Roll a {name} check ({signed(sheet.abilityChecks[ab].total)})
+        </button>
+      )}
       <BreakdownLines b={sheet.abilities[ab].score} totalLabel="Score" />
       {score <= 0 && (
         <p className="over-banner" role="alert">

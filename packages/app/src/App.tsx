@@ -4308,7 +4308,7 @@ export function App() {
           onGift={(id, on) => s.act("setExtraFeature", { feature: id, on }, `${registry.find(id, "feature")?.name ?? id} ${on ? "given to" : "taken from"} ${c.name}.`)}
           openAbility={(ab) =>
             open(`${ABILITY_NAMES[ab]} score`, () =>
-              live.current.character && live.current.sheet ? <AbilityAdjustPanel ab={ab} character={live.current.character} sheet={live.current.sheet} act={live.current.act} race={raceInfo(live.current.character)} /> : null,
+              live.current.character && live.current.sheet ? <AbilityAdjustPanel ab={ab} character={live.current.character} sheet={live.current.sheet} act={live.current.act} race={raceInfo(live.current.character)} onCheck={() => live.current.sheet && openRoll(`${ABILITY_NAMES[ab]} check`, live.current.sheet.abilityChecks[ab], undefined, { check: true })} /> : null,
             )
           }
           open={open}

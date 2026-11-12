@@ -157,6 +157,13 @@ export const FEAT_LOOKS: Record<string, FeatLook> = {
   "feywild-shard": f("Feywild Shard: a surge", "Feywild Shard · uncommon", 3, "230, 200, 255", "121, 220, 209", "star", "sparks"),
   "broom-of-flying": f("Broom of Flying: ride", "Broom of Flying · uncommon", 3, "215, 240, 255", "115, 170, 235", "wind", "sparks"),
   "bead-of-force": f("Bead of Force: throw", "Bead of Force · rare", 6, "210, 200, 255", "126, 100, 249", "vortex", "repel"),
+  // Variants that share their feature's look (a spell slot instead of the free use; Elder Champion's turn-start healing)
+  "universal-speech-slot": f("Universal Speech", "Bard 6 · College of Eloquence", 6, "255, 200, 220", "240, 200, 130", "book", "ripple"),
+  "eyes-of-night-slot": f("Eyes of Night", "Cleric 1 · Twilight Domain", 1, "240, 225, 255", "150, 100, 200", "eye", "stars"),
+  "animating-performance-slot": f("Animating Performance", "Bard 6 · College of Creation", 6, "255, 215, 170", "220, 120, 200", "star", "leaves"),
+  "performance-of-creation-slot": f("Performance of Creation", "Bard 3 · College of Creation", 3, "255, 220, 170", "220, 130, 200", "star", "converge"),
+  "mantle-of-majesty-slot": f("Mantle of Majesty", "Bard 6 · College of Glamour", 6, "255, 215, 245", "210, 100, 230", "crown", "sparks"),
+  "elder-champion-regain": f("Elder Champion", "Paladin 20 · Oath of the Ancients", 20, "200, 255, 170", "80, 190, 90", "leaf", "leaves"),
   // Feats and race traits (1st-level size)
   "chef-treat": f("Chef's Treats", "Feat · Chef", 1, "255, 220, 170", "210, 140, 70", "heart", "rise"),
   "dragon-fear": f("Dragon Fear", "Feat · Dragon Fear", 1, "255, 160, 110", "170, 40, 30", "wings", "ripple"),

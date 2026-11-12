@@ -399,7 +399,8 @@ export const ActionDef = z
 
     economy: z.enum(["action", "bonus", "reaction", "free"]),
     /** Resource spent per use. */
-    cost: z.object({ resource: z.string(), amount: z.number().int().min(1).default(1) }).strict().optional(),
+    /** Resource spent per use; `or`: other pools it spends when the first isn't yours (Dragon Fear: either dragonborn's Breath Weapon). */
+    cost: z.object({ resource: z.string(), amount: z.number().int().min(1).default(1), or: z.array(z.string()).optional() }).strict().optional(),
     /** On/off states switched on (e.g. "raging"). */
     toggles: z.array(z.string()).default([]),
     tempHp: ValueExpr.optional(),
