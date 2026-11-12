@@ -598,10 +598,34 @@
             "cost": {
               "resource": "faithful-summons"
             },
-            "note": "On dropping to 0 HP or being incapacitated: four CR 2 beasts appear to protect you for 1 hour (no concentration)."
+            "note": "On dropping to 0 HP or being incapacitated: four CR 2 beasts appear to protect you for 1 hour (no concentration).",
+            "opensSummon": {
+              "summon": "summon:faithful-summons"
+            }
           }
         ]
       }
+    },
+    {
+      "kind": "summon",
+      "id": "summon:faithful-summons",
+      "name": "Faithful Summons",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 24
+      },
+      "type": [
+        "beast"
+      ],
+      "tiers": [
+        {
+          "maxCr": 2,
+          "count": 4
+        }
+      ],
+      "initiative": "shared",
+      "note": "Four beasts of CR 2 or lower appear within 20 ft of you, as Conjure Animals at 9th level, for 1 hour (no concentration). They protect you and attack your foes; they're friendly to you and your companions."
     },
     {
       "kind": "subclass",
@@ -1656,7 +1680,8 @@
             "cost": {
               "resource": "blazing-revival"
             },
-            "note": "At 0 HP with your spirit within 120 ft: the spirit is destroyed and you regain half your HP maximum."
+            "note": "At 0 HP with your spirit within 120 ft: the spirit drops to 0 hit points (it's gone) and you regain half your hit point maximum and stand up.",
+            "heal": "halfhpmax"
           }
         ]
       }

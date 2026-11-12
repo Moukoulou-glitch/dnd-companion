@@ -702,11 +702,19 @@
             "cost": {
               "resource": "searing-vengeance"
             },
+            "note": "Instead of a death save: you regain half your hit point maximum and stand up if you like. Then roll its burst (\"Searing Vengeance: the burst\") for the creatures you choose within 30 ft.",
+            "heal": "halfhpmax"
+          },
+          {
+            "id": "searing-vengeance-burst",
+            "name": "Searing Vengeance: the burst",
+            "economy": "free",
+            "toggles": [],
             "roll": {
               "dice": "2d8 + mod.cha",
               "label": "Radiant damage"
             },
-            "note": "Instead of a death save: regain half your HP maximum and stand. Chosen creatures within 30 ft take the radiant damage and are blinded until end of turn."
+            "note": "Right after Searing Vengeance: each creature you choose within 30 ft takes the radiant damage and is blinded until the end of the current turn."
           }
         ]
       }
@@ -1430,7 +1438,7 @@
             "id": "limited-wish",
             "name": "Limited Wish",
             "max": 1,
-            "reset": "manual"
+            "reset": "long"
           }
         ],
         "actions": [
@@ -1441,7 +1449,12 @@
             "cost": {
               "resource": "limited-wish"
             },
-            "note": "Cast any 1-action spell of 6th level or lower from any list, no components. Comes back after 1d4 long rests."
+            "note": "Cast any 1-action spell of 6th level or lower from any list, no components. Then not again until you finish 1d4 long rests (rolled now; the app counts them down).",
+            "roll": {
+              "dice": "1d4",
+              "label": "long rests before you can use it again"
+            },
+            "restsAway": true
           }
         ]
       }

@@ -20,8 +20,9 @@ describe("22k: feature looks by level", () => {
       expect(actions.has(id), id).toBe(true);
       expect(GLYPHS[l.glyph], id).toBeTruthy();
     }
-    const keys = Object.entries(FEAT_LOOKS).filter(([id]) => !id.endsWith("-points") && id !== "sun-shield-light").map(([, l]) => `${l.c1}|${l.c2}|${l.glyph}|${l.motion}`);
-    expect(new Set(keys).size).toBe(keys.length);
+    // One look per feature (a feature's variants, like the sorcery-point ones, share its look).
+    const byName = new Map(Object.values(FEAT_LOOKS).map((l) => [l.name, `${l.c1}|${l.c2}|${l.glyph}|${l.motion}`]));
+    expect(new Set(byName.values()).size).toBe(byName.size);
   });
   it("17th–20th: the grandest, with a veil, a pillar and a shake", () => {
     const c = pc("class:paladin", 20, "subclass:oath-of-devotion");

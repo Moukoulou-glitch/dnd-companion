@@ -1689,6 +1689,22 @@
             "duration": {
               "rounds": 10
             }
+          },
+          {
+            "id": "bulwark-of-force-die",
+            "name": "Bulwark of Force (Psionic Energy die)",
+            "economy": "bonus",
+            "toggles": [
+              "bulwark-of-force"
+            ],
+            "note": "Again after its free use: spend a Psionic Energy die. Half cover (+2 AC and Dex saves) for up to your Intelligence modifier creatures within 30 ft, you included, for 1 minute.",
+            "cost": {
+              "resource": "psionic-energy-psi-warrior",
+              "amount": 1
+            },
+            "duration": {
+              "rounds": 10
+            }
           }
         ],
         "modifiers": [

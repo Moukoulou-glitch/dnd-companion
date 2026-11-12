@@ -456,6 +456,8 @@ export const ActionDef = z
      * writes a note in the Backstory with the in-world date and when it can be used again.
      */
     everyDays: z.number().int().min(1).optional(),
+    /** Its use stays spent for as many long rests as its roll (Limited Wish: 1d4). */
+    restsAway: z.boolean().optional(),
     /** Only a roll at or under this starts the wait (Divine Intervention: your cleric level). */
     everyDaysIfRollAtMost: ValueExpr.optional(),
     /** Pact Magic slots come back: all (Eldritch Master), or this many (Rod of the Pact Keeper: 1). */

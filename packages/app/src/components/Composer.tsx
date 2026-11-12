@@ -481,7 +481,8 @@ export interface AfterRollOption {
   warn?: boolean;
   group?: string;
   on?: "attack" | "save" | "any";
-  run: () => { value: number; detail: string } | undefined | Promise<{ value: number; detail: string } | undefined>;
+  /** What it adds to the total (a reroll: the new d20 less the old one); `r` is the roll it's applied to. */
+  run: (r?: RollRecord) => { value: number; detail: string } | undefined | Promise<{ value: number; detail: string } | undefined>;
 }
 
 export function Composer({ title, base: baseIn, attack, physical, onPhysicalChange, onRolled, onResolved, damageOnly, healing, onHealSelf, healTargets, dc, dcLabel, reaction, onSpend, onCheck, notes, header, typeChoices, portent, onOptionsUsed, optionInfo, onCommit, repeat, darts, onDamageOptions, afterRoll, onDone, diceSource, afterD20, onTempHp, weaponDice, saveRoll }: Props) {
@@ -491,7 +492,7 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
   /** Adds an after-roll option to the shown d20 result (once per roll each); a held failed check is decided again. */
   const applyAfter = async (o: AfterRollOption, r: RollRecord, used: string[], done: boolean) => {
     if (done) return;
-    const res = await o.run();
+    const res = await o.run(r);
     if (!res) return;
     const total = r.total + res.value;
     setStage({ step: "d20-result", record: { ...r, total, lines: [...r.lines, { source: o.label, detail: res.detail, total: res.value }] }, used: [...used, o.group ?? o.label] });

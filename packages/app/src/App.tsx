@@ -430,9 +430,12 @@ export function App() {
     };
     const askRelentless = (extra: ZeroHpChoice) => {
       if (!o.relentless) return finish(extra);
-      open("Relentless Endurance?", () => (
+      // Relentless Endurance, or Undying Sentinel (Oath of the Ancients): whichever has its use left.
+      const r = ["relentless-endurance", "undying-sentinel"].map((id) => live.current.sheet?.resources.find((x) => x.id === id)).find((x) => x && x.remaining > 0);
+      const name = r?.name ?? "Relentless Endurance";
+      open(`${name}?`, () => (
         <Confirm
-          question={`${payload.amount} damage drops you to 0 hit points. Use Relentless Endurance to drop to 1 instead?`}
+          question={`${payload.amount} damage drops you to 0 hit points. Use ${name} to drop to 1 instead?`}
           detail="Once per long rest. Not used: you fall unconscious and make death saves."
           no="No, drop to 0"
           yes="Yes, drop to 1"
@@ -893,6 +896,9 @@ export function App() {
     const healing = attack?.damage.type === "healing";
     // Dice that come back if the roll still fails (Unfailing Inspiration): as they are before the roll uses them up.
     const keepers = opts.notMine ? [] : (live.current.sheet?.effects ?? []).filter((e) => e.keepIfFails && e.usedUp);
+    // A saving throw of yours, decided once when the roll opens: the sheet is drawn again after the roll (a new
+    // object), and an identity check made then would lose the after-roll options (Favored by the Gods, Diamond Soul).
+    const isMySave = !attack && !opts.notMine && !!live.current.sheet && Object.values(live.current.sheet.saves).includes(base as never);
     return open(title, () => {
       // The attack as the sheet has it now (a smite used on the first hit of Extra Attack is gone from the next).
       const atk = attack ? liveAttack(live.current.sheet, attack) : undefined;
@@ -919,7 +925,7 @@ export function App() {
             }
           : {})}
         {...(attack && !opts.damageOnly ? { ...(opts.notMine ? {} : { afterRoll: afterRollFor() }), onDone: opts.back ? opts.back.to : close } : {})}
-        {...(!attack && !opts.notMine && live.current.sheet && Object.values(live.current.sheet.saves).includes(base as never) ? { afterRoll: afterRollFor(), saveRoll: true } : {})}
+        {...(isMySave ? { afterRoll: afterRollFor(), saveRoll: true } : {})}
         {...(() => {
           // After the d20: count the ammunition, and keep a die that didn't help (Unfailing Inspiration).
           const ammo = atk?.ammo && live.current.character?.settings.trackAmmo && !opts.notMine;
@@ -1015,6 +1021,24 @@ export function App() {
           live.current.act("useAction", { action: "favored-by-the-gods", rolled: r.total }, `Favored by the Gods: +${r.total}.`);
           playFx({ kind: "favored", amount: r.total });
           return { value: r.total, detail: `2d4 [${r.total}]` };
+        },
+      });
+    }
+    // Diamond Soul (Monk 14): a failed save rolled again for 1 ki; the new roll counts.
+    if (sh.actions.some((a) => a.id === "diamond-soul-reroll")) {
+      const ki = sh.resources.find((r) => r.id === "ki")?.remaining ?? 0;
+      out.push({
+        label: "Diamond Soul: reroll (1 ki)",
+        group: "Diamond Soul",
+        on: "save",
+        sub: ki > 0 ? "a failed save · the new roll counts" : "no ki left",
+        warn: ki <= 0,
+        run: async (r) => {
+          const old = r?.natural;
+          if (old === undefined) return undefined;
+          const n = (await rollOrThrow("1d20", true, undefined, { source: "Diamond Soul" })).total;
+          live.current.act("useAction", { action: "diamond-soul-reroll" }, `Diamond Soul: rerolled ${old} → ${n}.`);
+          return { value: n - old, detail: `d20 ${old} → ${n}` };
         },
       });
     }

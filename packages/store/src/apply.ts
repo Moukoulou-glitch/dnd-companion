@@ -291,7 +291,7 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
   /** Uses held for days (Divine Intervention: 7) come back once the in-world clock reaches the day. */
   const releaseHolds = () => {
     for (const [id, h] of Object.entries(c.resourceHolds ?? {})) {
-      if (c.story.calendar.minutes < h.until) continue;
+      if (h.until === undefined || c.story.calendar.minutes < h.until) continue;
       delete c.resourceHolds![id];
       delete c.resourcesUsed[id];
       notes.push(`${h.from}: the days have passed, it can be used again.`);
@@ -586,14 +586,16 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         } else if (op.payload.rage && c.hp.current === 0) notes.push(!rage ? "Relentless Rage isn't one of your features." : killedOutright ? "Relentless Rage can't help: that damage kills you outright." : "Relentless Rage works only while you're raging.");
         if (c.hp.current === 0 && op.payload.relentless) {
           // Relentless Endurance (asked before the damage was recorded): not if killed outright, once per long rest.
-          const r = sheet.resources.find((x) => x.id === "relentless-endurance");
-          if (rest - before >= maxHp) notes.push("Relentless Endurance can't help: that damage kills you outright.");
+          // Undying Sentinel (Oath of the Ancients, 15th) does the same: the first with a use left.
+          const all = ["relentless-endurance", "undying-sentinel"].map((id) => sheet.resources.find((x) => x.id === id)).filter((x): x is NonNullable<typeof x> => !!x);
+          const r = all.find((x) => x.remaining > 0) ?? all[0];
+          if (rest - before >= maxHp) notes.push(`${r?.name ?? "Relentless Endurance"} can't help: that damage kills you outright.`);
           else if (!r) notes.push("Relentless Endurance isn't one of your features.");
-          else if (r.remaining <= 0) notes.push("Relentless Endurance is already used until your next long rest: you drop to 0.");
+          else if (r.remaining <= 0) notes.push(`${r.name} is already used until your next long rest: you drop to 0.`);
           else {
             c.hp.current = 1;
             c.resourcesUsed[r.id] = (c.resourcesUsed[r.id] ?? 0) + 1;
-            notes.push("Relentless Endurance: you drop to 1 hit point instead (once per long rest).");
+            notes.push(`${r.name}: you drop to 1 hit point instead (once per long rest).`);
           }
         }
       }
@@ -1315,6 +1317,19 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
           notes.push(`${g.from}: ${back} ${r.name} back.`);
         }
       const resets = kind === "short" ? ["short"] : ["short", "long", "dawn"];
+      // Held for some long rests (Limited Wish: 1d4): this one counts; the last one brings it back.
+      if (kind === "long")
+        for (const [id, h] of Object.entries(c.resourceHolds ?? {})) {
+          if (h.rests === undefined) continue;
+          if (h.rests <= 1) {
+            delete c.resourceHolds![id];
+            notes.push(`${h.from}: back after the long rests it needed.`);
+          } else {
+            c.resourceHolds![id] = { ...h, rests: h.rests - 1 };
+            notes.push(`${h.from}: ${h.rests - 1} more long rest${h.rests - 1 === 1 ? "" : "s"} before it's back.`);
+          }
+        }
+      if (c.resourceHolds && !Object.keys(c.resourceHolds).length) delete c.resourceHolds;
       // Held for days (Divine Intervention after it worked): not back with the rest.
       const held = (id: string) => !!c.resourceHolds?.[id];
       for (const r of sheet.resources) if (held(r.id) && resets.includes(r.reset) && r.used > 0) notes.push(`${r.name}: not back with the rest; it waits for its days to pass (or restore it by hand).`);
@@ -1465,6 +1480,10 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         if (a.spendAmount) notes.push(`${a.cost.name}: ${Math.max(0, max - used - amount)} left.`);
         // Once every N days (Divine Intervention when the deity answers: 7): a rest doesn't bring it back before then.
         const rolledN = op.payload.rolled;
+        if (a.restsAway && rolledN !== undefined && rolledN > 0) {
+          c.resourceHolds = { ...(c.resourceHolds ?? {}), [a.cost.resource]: { rests: rolledN, from: a.name } };
+          notes.push(`${a.name}: back after ${rolledN} long rest${rolledN === 1 ? "" : "s"}.`);
+        }
         if (a.everyDays && (a.everyDaysIfRollAtMost === undefined || (rolledN !== undefined && rolledN <= a.everyDaysIfRollAtMost))) {
           c.resourceHolds = { ...(c.resourceHolds ?? {}), [a.cost.resource]: { until: c.story.calendar.minutes + a.everyDays * 1440, from: a.name } };
           notes.push(`${a.name}: not again for ${a.everyDays} days.`);

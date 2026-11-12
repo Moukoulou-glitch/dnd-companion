@@ -263,6 +263,8 @@ export interface ActionResult {
   endsEffects?: string[];
   /** Once every this many days: a Backstory note when used (only when the roll is at most `everyDaysIfRollAtMost`, if set). */
   everyDays?: number;
+  /** Spent for as many long rests as its roll (Limited Wish: 1d4). */
+  restsAway?: boolean;
   everyDaysIfRollAtMost?: number;
   endsConditions?: string[];
   /** Healing typed in rather than rolled, and what the number is (Keeper of Souls). */
@@ -2256,6 +2258,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       if (a.notAfterMoving) entry.notAfterMoving = true;
       if (a.restores) entry.restores = a.restores;
       if (a.restoresPactSlots) entry.restoresPactSlots = a.restoresPactSlots;
+      if (a.restsAway) entry.restsAway = true;
       if (a.everyDays) {
         entry.everyDays = a.everyDays;
         if (a.everyDaysIfRollAtMost !== undefined) entry.everyDaysIfRollAtMost = evalFlat(a.everyDaysIfRollAtMost, ctxFor(s));
