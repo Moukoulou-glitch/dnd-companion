@@ -277,6 +277,17 @@
             "max": 1,
             "reset": "long"
           }
+        ],
+        "actions": [
+          {
+            "id": "gift-of-the-protectors",
+            "name": "Gift of the Protectors",
+            "economy": "free",
+            "cost": {
+              "resource": "gift-of-the-protectors"
+            },
+            "note": "A creature whose name is written in your Book of Shadows drops to 0 hit points: it drops to 1 instead."
+          }
         ]
       }
     },

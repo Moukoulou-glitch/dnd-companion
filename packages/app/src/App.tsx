@@ -1098,6 +1098,27 @@ export function App() {
       });
       out.push(lucky("any"), lucky("check"));
     }
+    // Pact of the Talisman: the wearer adds a d4 to a failed ability check; Protection of the Talisman: to a failed
+    // save (proficiency bonus times per long rest each). Offered to the warlock, as the usual wearer.
+    for (const [res, on, label, what] of [
+      ["pact-of-the-talisman", "check", "Talisman +1d4", "a failed check"],
+      ["protection-of-the-talisman", "save", "Protection of the Talisman +1d4", "a failed save"],
+    ] as const) {
+      const pool = sh.resources.find((r) => r.id === res);
+      if (!pool) continue;
+      out.push({
+        label,
+        group: label,
+        on,
+        sub: pool.remaining > 0 ? `${what} · ${pool.remaining} left · while wearing the talisman` : "no use left until a long rest",
+        warn: pool.remaining <= 0,
+        run: async () => {
+          const r = await rollOrThrow("1d4", true, undefined, { source: label.replace(" +1d4", "") });
+          live.current.act("spendResource", { resource: res, amount: 1 }, `${label.replace(" +1d4", "")}: +${r.total}.`);
+          return { value: r.total, detail: `d4 [${r.total}]` };
+        },
+      });
+    }
     // Arcane Deflection (War Magic 2): +4 to a save you failed, for your reaction; only cantrips until the end of your next turn.
     if (sh.actions.some((a) => a.id === "arcane-deflection")) {
       const used = !!ch.combat && (ch.combat.reaction ?? 0) >= 1;

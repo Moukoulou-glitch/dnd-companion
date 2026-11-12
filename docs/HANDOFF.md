@@ -464,3 +464,4 @@ Remaining plan (each a sub-phase, stop after each): 2a crits (done) · 2b Relent
 - 22s merged to main with approval (Nov 12; run 43252539571 passed).
 - 22t: Call the Hunt asks how many allies join (up to the Constitution modifier, minimum 1; new `choiceTempHp`) and gives 5 temporary HP for each (no stacking); Spirit Totem's bear spirit gives 5 + druid level temporary HP (new "Bear Spirit" action); Dwarven Fortitude opens a Hit Die spend from its panel.
 - 22t merged to main with approval (Nov 12; run 43264695019 passed).
+- 22u: uses that nothing spent: Pact of the Talisman (+1d4 offered after a check) and Protection of the Talisman (+1d4 after a save), spending their uses; Spell Sniper's steady aim and Gift of the Protectors are actions that spend their use; Fury of the Small's damage bonus spends its use when ticked.

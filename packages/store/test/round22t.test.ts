@@ -41,3 +41,28 @@ describe("22t: Spirit Totem's bear spirit", () => {
     expect(l.character.hp.temp).toBe(11);
   });
 });
+
+describe("22u: uses that had nothing to spend them", () => {
+  const pc = (cls: string, level: number, extra: (c: ReturnType<typeof newCharacter>) => void, race = "race:human") => {
+    const c = newCharacter({ id: "u", name: "U", race, class: cls, abilities: { str: 10, dex: 14, con: 14, int: 12, wis: 12, cha: 16 } }, reg);
+    c.classes = [{ class: cls, level }];
+    extra(c);
+    return new CharacterLog(c, reg, new HybridClock("t", () => (t += 1000)), "player");
+  };
+  it("Spell Sniper's steady aim and Gift of the Protectors spend their use", () => {
+    const l = pc("class:wizard", 4, (c) => c.feats.push({ feat: "feat:spell-sniper", from: "Wizard 4 (Ability Score Improvement)" }));
+    l.record("useAction", { action: "spell-sniper-aim" });
+    expect(l.character.resourcesUsed["spell-sniper-aim"]).toBe(1);
+    const w = pc("class:warlock", 9, (c) => {
+      c.choices["feature:pact-boon"] = { option: ["feature:pact-of-the-tome"] };
+      c.choices["feature:eldritch-invocations"] = { invocations: ["feature:invocation-gift-of-the-protectors"] };
+    });
+    w.record("useAction", { action: "gift-of-the-protectors" });
+    expect(w.character.resourcesUsed["gift-of-the-protectors"]).toBe(1);
+  });
+  it("Fury of the Small's damage spends its use when ticked", () => {
+    const s = derive(pc("class:fighter", 3, (c) => c.inventory.push({ id: "w", item: "item:shortsword", quantity: 1, equipped: true, attuned: false }), "race:goblin").character, reg);
+    const fury = s.attacks.find((a) => /Shortsword/.test(a.name))?.damage.bonus.suggestions.find((x) => x.label === "Fury of the Small");
+    expect(fury?.spends?.resource).toBe("fury-of-the-small");
+  });
+});

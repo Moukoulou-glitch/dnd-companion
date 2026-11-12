@@ -2014,6 +2014,10 @@
             "label": "Fury of the Small",
             "when": {
               "text": "the target is larger than you; once per short rest"
+            },
+            "spends": {
+              "resource": "fury-of-the-small",
+              "amount": 1
             }
           }
         ]
