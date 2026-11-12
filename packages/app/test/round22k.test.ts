@@ -15,7 +15,7 @@ const pc = (cls: string, level: number, subclass?: string, extra: Partial<Record
 describe("22k: feature looks by level", () => {
   it("every look names a real action, a known symbol, and no two look the same", () => {
     const actions = new Set<string>();
-    for (const kind of ["feature", "feat", "race"] as const) for (const f of reg.list(kind)) for (const a of f.grant?.actions ?? []) actions.add(a.id);
+    for (const kind of ["feature", "feat", "race", "item"] as const) for (const f of reg.list(kind)) for (const a of f.grant?.actions ?? []) actions.add(a.id);
     for (const [id, l] of Object.entries(FEAT_LOOKS)) {
       expect(actions.has(id), id).toBe(true);
       expect(GLYPHS[l.glyph], id).toBeTruthy();

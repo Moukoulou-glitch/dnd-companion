@@ -619,7 +619,8 @@
             "name": "Horn of Silent Alarm",
             "economy": "action",
             "toggles": [],
-            "note": "A blast only one creature you choose within 600 ft can hear. Uses a charge: tap it on the item; 1d4 come back each dawn."
+            "note": "A blast only one creature you choose within 600 ft can hear. Uses one of its charges (1d4 come back each dawn).",
+            "charges": 1
           }
         ]
       }
@@ -2438,7 +2439,8 @@
             "id": "ring-of-evasion",
             "name": "Ring of Evasion",
             "economy": "reaction",
-            "note": "A Dexterity save you failed becomes a success. Spend a charge: tap it on the ring."
+            "note": "A Dexterity save you failed becomes a success (your reaction). Uses one of its charges (1d3 come back each dawn).",
+            "charges": 1
           }
         ]
       },
@@ -4135,7 +4137,7 @@
             "name": "Defender: bonus to AC",
             "economy": "free",
             "untilTurnStart": true,
-              "beforeFirstAttack": true,
+            "beforeFirstAttack": true,
             "choose": {
               "label": "How much of the bonus goes to your AC",
               "options": [
@@ -5050,8 +5052,8 @@
                   "name": "Moonblade: bonus to AC",
                   "economy": "free",
                   "untilTurnStart": true,
-              "beforeFirstAttack": true,
-              "upToItemBonus": true,
+                  "beforeFirstAttack": true,
+                  "upToItemBonus": true,
                   "choose": {
                     "label": "How much of the bonus goes to your AC",
                     "options": [
@@ -7704,7 +7706,19 @@
               "summon": "summon:figurine-bronze-griffon"
             },
             "everyDays": 5,
-            "note": "Throw it to a point on the ground within 60 ft: it becomes the creature for up to 6 hours. Back to a figurine at 0 hit points or when you speak the word again touching it; then it can't be used for 5 days. It can be ridden as a mount."
+            "note": "Throw it to a point on the ground within 60 ft: it becomes the creature for up to 6 hours. Back to a figurine at 0 hit points or when you speak the word again touching it; then it can't be used for 5 days. It can be ridden as a mount.",
+            "cost": {
+              "resource": "figurine-bronze-griffon",
+              "amount": 1
+            }
+          }
+        ],
+        "resources": [
+          {
+            "id": "figurine-bronze-griffon",
+            "name": "Figurine: Bronze Griffon",
+            "max": 1,
+            "reset": "manual"
           }
         ]
       }
@@ -7733,7 +7747,19 @@
               "summon": "summon:figurine-golden-lions"
             },
             "everyDays": 7,
-            "note": "Throw it to a point on the ground within 60 ft: it becomes the creature for up to 1 hour. Back to a figurine at 0 hit points or when you speak the word again touching it; then it can't be used for 7 days. Two lions, each its own figurine."
+            "note": "Throw it to a point on the ground within 60 ft: it becomes the creature for up to 1 hour. Back to a figurine at 0 hit points or when you speak the word again touching it; then it can't be used for 7 days. Two lions, each its own figurine.",
+            "cost": {
+              "resource": "figurine-golden-lions",
+              "amount": 1
+            }
+          }
+        ],
+        "resources": [
+          {
+            "id": "figurine-golden-lions",
+            "name": "Figurine: Golden Lions",
+            "max": 1,
+            "reset": "manual"
           }
         ]
       }
@@ -7762,7 +7788,19 @@
               "summon": "summon:figurine-marble-elephant"
             },
             "everyDays": 7,
-            "note": "Throw it to a point on the ground within 60 ft: it becomes the creature for up to 24 hours. Back to a figurine at 0 hit points or when you speak the word again touching it; then it can't be used for 7 days."
+            "note": "Throw it to a point on the ground within 60 ft: it becomes the creature for up to 24 hours. Back to a figurine at 0 hit points or when you speak the word again touching it; then it can't be used for 7 days.",
+            "cost": {
+              "resource": "figurine-marble-elephant",
+              "amount": 1
+            }
+          }
+        ],
+        "resources": [
+          {
+            "id": "figurine-marble-elephant",
+            "name": "Figurine: Marble Elephant",
+            "max": 1,
+            "reset": "manual"
           }
         ]
       }
@@ -7791,7 +7829,19 @@
               "summon": "summon:figurine-obsidian-steed"
             },
             "everyDays": 5,
-            "note": "Throw it to a point on the ground within 60 ft: it becomes the creature for up to 24 hours. Back to a figurine at 0 hit points or when you speak the word again touching it; then it can't be used for 5 days. It fights only to defend itself; on any of its turns, a 10% chance it ignores you (and may carry you off to Hades if you ride it). You can ride it."
+            "note": "Throw it to a point on the ground within 60 ft: it becomes the creature for up to 24 hours. Back to a figurine at 0 hit points or when you speak the word again touching it; then it can't be used for 5 days. It fights only to defend itself; on any of its turns, a 10% chance it ignores you (and may carry you off to Hades if you ride it). You can ride it.",
+            "cost": {
+              "resource": "figurine-obsidian-steed",
+              "amount": 1
+            }
+          }
+        ],
+        "resources": [
+          {
+            "id": "figurine-obsidian-steed",
+            "name": "Figurine: Obsidian Steed",
+            "max": 1,
+            "reset": "manual"
           }
         ]
       }
@@ -7820,7 +7870,19 @@
               "summon": "summon:figurine-onyx-dog"
             },
             "everyDays": 7,
-            "note": "Throw it to a point on the ground within 60 ft: it becomes the creature for up to 6 hours. Back to a figurine at 0 hit points or when you speak the word again touching it; then it can't be used for 7 days. The dog has Intelligence 8, speaks Common, has darkvision 60 ft and sees invisible creatures and objects within 60 ft."
+            "note": "Throw it to a point on the ground within 60 ft: it becomes the creature for up to 6 hours. Back to a figurine at 0 hit points or when you speak the word again touching it; then it can't be used for 7 days. The dog has Intelligence 8, speaks Common, has darkvision 60 ft and sees invisible creatures and objects within 60 ft.",
+            "cost": {
+              "resource": "figurine-onyx-dog",
+              "amount": 1
+            }
+          }
+        ],
+        "resources": [
+          {
+            "id": "figurine-onyx-dog",
+            "name": "Figurine: Onyx Dog",
+            "max": 1,
+            "reset": "manual"
           }
         ]
       }
@@ -7849,7 +7911,19 @@
               "summon": "summon:figurine-serpentine-owl"
             },
             "everyDays": 2,
-            "note": "Throw it to a point on the ground within 60 ft: it becomes the creature for up to 8 hours. Back to a figurine at 0 hit points or when you speak the word again touching it; then it can't be used for 2 days. It can talk with you telepathically at any range on the same plane."
+            "note": "Throw it to a point on the ground within 60 ft: it becomes the creature for up to 8 hours. Back to a figurine at 0 hit points or when you speak the word again touching it; then it can't be used for 2 days. It can talk with you telepathically at any range on the same plane.",
+            "cost": {
+              "resource": "figurine-serpentine-owl",
+              "amount": 1
+            }
+          }
+        ],
+        "resources": [
+          {
+            "id": "figurine-serpentine-owl",
+            "name": "Figurine: Serpentine Owl",
+            "max": 1,
+            "reset": "manual"
           }
         ]
       }
@@ -7875,7 +7949,19 @@
             "name": "Figurine: Ebony Fly",
             "economy": "action",
             "everyDays": 2,
-            "note": "It becomes a giant fly (Large; AC 11, 19 HP, speed 30 ft, fly 60 ft; no attacks) that can be ridden, for up to 12 hours. Then it can't be used for 2 days. Add it as a companion of your own if you want to track it."
+            "note": "It becomes a giant fly (Large; AC 11, 19 HP, speed 30 ft, fly 60 ft; no attacks) that can be ridden, for up to 12 hours. Then it can't be used for 2 days. Add it as a companion of your own if you want to track it.",
+            "cost": {
+              "resource": "figurine-ebony-fly",
+              "amount": 1
+            }
+          }
+        ],
+        "resources": [
+          {
+            "id": "figurine-ebony-fly",
+            "name": "Figurine: Ebony Fly",
+            "max": 1,
+            "reset": "manual"
           }
         ]
       }
@@ -7904,7 +7990,19 @@
               "summon": "summon:horn-of-valhalla-silver"
             },
             "everyDays": 7,
-            "note": "2d4 + 2 berserkers appear within 60 ft, friendly and following your commands, for 1 hour or until they drop to 0 hit points. Then not again for 7 days."
+            "note": "2d4 + 2 berserkers appear within 60 ft, friendly and following your commands, for 1 hour or until they drop to 0 hit points. Then not again for 7 days.",
+            "cost": {
+              "resource": "horn-of-valhalla-silver",
+              "amount": 1
+            }
+          }
+        ],
+        "resources": [
+          {
+            "id": "horn-of-valhalla-silver",
+            "name": "Horn of Valhalla (Silver)",
+            "max": 1,
+            "reset": "manual"
           }
         ]
       }
@@ -7933,7 +8031,19 @@
               "summon": "summon:horn-of-valhalla-brass"
             },
             "everyDays": 7,
-            "note": "3d4 + 3 berserkers appear within 60 ft, friendly and following your commands, for 1 hour or until they drop to 0 hit points. Without proficiency with all simple weapons, they attack you. Then not again for 7 days."
+            "note": "3d4 + 3 berserkers appear within 60 ft, friendly and following your commands, for 1 hour or until they drop to 0 hit points. Without proficiency with all simple weapons, they attack you. Then not again for 7 days.",
+            "cost": {
+              "resource": "horn-of-valhalla-brass",
+              "amount": 1
+            }
+          }
+        ],
+        "resources": [
+          {
+            "id": "horn-of-valhalla-brass",
+            "name": "Horn of Valhalla (Brass)",
+            "max": 1,
+            "reset": "manual"
           }
         ]
       }
@@ -7962,7 +8072,19 @@
               "summon": "summon:horn-of-valhalla-bronze"
             },
             "everyDays": 7,
-            "note": "4d4 + 4 berserkers appear within 60 ft, friendly and following your commands, for 1 hour or until they drop to 0 hit points. Without proficiency with medium armor, they attack you. Then not again for 7 days."
+            "note": "4d4 + 4 berserkers appear within 60 ft, friendly and following your commands, for 1 hour or until they drop to 0 hit points. Without proficiency with medium armor, they attack you. Then not again for 7 days.",
+            "cost": {
+              "resource": "horn-of-valhalla-bronze",
+              "amount": 1
+            }
+          }
+        ],
+        "resources": [
+          {
+            "id": "horn-of-valhalla-bronze",
+            "name": "Horn of Valhalla (Bronze)",
+            "max": 1,
+            "reset": "manual"
           }
         ]
       }
@@ -7991,7 +8113,19 @@
               "summon": "summon:horn-of-valhalla-iron"
             },
             "everyDays": 7,
-            "note": "5d4 + 5 berserkers appear within 60 ft, friendly and following your commands, for 1 hour or until they drop to 0 hit points. Without proficiency with all martial weapons, they attack you. Then not again for 7 days."
+            "note": "5d4 + 5 berserkers appear within 60 ft, friendly and following your commands, for 1 hour or until they drop to 0 hit points. Without proficiency with all martial weapons, they attack you. Then not again for 7 days.",
+            "cost": {
+              "resource": "horn-of-valhalla-iron",
+              "amount": 1
+            }
+          }
+        ],
+        "resources": [
+          {
+            "id": "horn-of-valhalla-iron",
+            "name": "Horn of Valhalla (Iron)",
+            "max": 1,
+            "reset": "manual"
           }
         ]
       }
@@ -8344,7 +8478,8 @@
             "opensSummon": {
               "summon": "summon:elemental-air"
             },
-            "note": "Break it: a air elemental appears, as if you'd cast Conjure Elemental (you concentrate, up to 1 hour). The gem's magic is gone: remove it from your items."
+            "note": "Break it: a air elemental appears, as if you'd cast Conjure Elemental (you concentrate, up to 1 hour). The gem's magic is gone: remove it from your items.",
+            "consumesItem": true
           }
         ]
       }
@@ -8372,7 +8507,8 @@
             "opensSummon": {
               "summon": "summon:elemental-water"
             },
-            "note": "Break it: a water elemental appears, as if you'd cast Conjure Elemental (you concentrate, up to 1 hour). The gem's magic is gone: remove it from your items."
+            "note": "Break it: a water elemental appears, as if you'd cast Conjure Elemental (you concentrate, up to 1 hour). The gem's magic is gone: remove it from your items.",
+            "consumesItem": true
           }
         ]
       }
@@ -8400,7 +8536,8 @@
             "opensSummon": {
               "summon": "summon:elemental-fire"
             },
-            "note": "Break it: a fire elemental appears, as if you'd cast Conjure Elemental (you concentrate, up to 1 hour). The gem's magic is gone: remove it from your items."
+            "note": "Break it: a fire elemental appears, as if you'd cast Conjure Elemental (you concentrate, up to 1 hour). The gem's magic is gone: remove it from your items.",
+            "consumesItem": true
           }
         ]
       }
@@ -8428,7 +8565,8 @@
             "opensSummon": {
               "summon": "summon:elemental-earth"
             },
-            "note": "Break it: a earth elemental appears, as if you'd cast Conjure Elemental (you concentrate, up to 1 hour). The gem's magic is gone: remove it from your items."
+            "note": "Break it: a earth elemental appears, as if you'd cast Conjure Elemental (you concentrate, up to 1 hour). The gem's magic is gone: remove it from your items.",
+            "consumesItem": true
           }
         ]
       }
@@ -8603,7 +8741,19 @@
             "name": "Rod of Security",
             "economy": "action",
             "everyDays": 10,
-            "note": "You and up to 199 willing creatures you can see go to an extraplanar paradise of your choosing, with enough food and water. There you don't age and heal as with time passing; you stay up to 200 days divided by the number of creatures (rounded down), or until you end it as an action. You come back where you left, or as close as possible. Then not again for 10 days."
+            "note": "You and up to 199 willing creatures you can see go to an extraplanar paradise of your choosing, with enough food and water. There you don't age and heal as with time passing; you stay up to 200 days divided by the number of creatures (rounded down), or until you end it as an action. You come back where you left, or as close as possible. Then not again for 10 days.",
+            "cost": {
+              "resource": "rod-of-security",
+              "amount": 1
+            }
+          }
+        ],
+        "resources": [
+          {
+            "id": "rod-of-security",
+            "name": "Rod of Security",
+            "max": 1,
+            "reset": "manual"
           }
         ]
       },
@@ -9466,7 +9616,8 @@
                 "force"
               ]
             },
-            "note": "Those that fail are trapped in a sphere of force for 1 minute (only air passes; those inside can roll it at half speed); those that succeed are pushed out. Then lower the quantity by one."
+            "note": "Those that fail are trapped in a sphere of force for 1 minute (only air passes; those inside can roll it at half speed); those that succeed are pushed out. Then lower the quantity by one.",
+            "consumesItem": true
           }
         ]
       }

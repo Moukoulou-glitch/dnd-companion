@@ -458,6 +458,8 @@ export const ActionDef = z
     everyDays: z.number().int().min(1).optional(),
     /** Its use stays spent for as many long rests as its roll (Limited Wish: 1d4). */
     restsAway: z.boolean().optional(),
+    /** Using it destroys its item (an elemental gem broken, a bead of force thrown): one fewer in the inventory. */
+    consumesItem: z.boolean().optional(),
     /** Only a roll at or under this starts the wait (Divine Intervention: your cleric level). */
     everyDaysIfRollAtMost: ValueExpr.optional(),
     /** Pact Magic slots come back: all (Eldritch Master), or this many (Rod of the Pact Keeper: 1). */

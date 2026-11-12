@@ -265,6 +265,7 @@ export interface ActionResult {
   everyDays?: number;
   /** Spent for as many long rests as its roll (Limited Wish: 1d4). */
   restsAway?: boolean;
+  consumesItem?: boolean;
   everyDaysIfRollAtMost?: number;
   endsConditions?: string[];
   endsAllConditions?: boolean;
@@ -2262,6 +2263,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       if (a.restores) entry.restores = a.restores;
       if (a.restoresPactSlots) entry.restoresPactSlots = a.restoresPactSlots;
       if (a.restsAway) entry.restsAway = true;
+      if (a.consumesItem) entry.consumesItem = true;
       if (a.everyDays) {
         entry.everyDays = a.everyDays;
         if (a.everyDaysIfRollAtMost !== undefined) entry.everyDaysIfRollAtMost = evalFlat(a.everyDaysIfRollAtMost, ctxFor(s));

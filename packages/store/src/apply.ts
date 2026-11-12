@@ -1611,6 +1611,16 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         if (sum > a.recoversSlots.budget) notes.push(`That's ${sum} levels of slots; ${a.name} allows ${a.recoversSlots.budget}. Kept, beyond the rules.`);
         if (back.some((l) => l > a.recoversSlots!.maxLevel)) notes.push(`${a.name} can't recover slots above level ${a.recoversSlots.maxLevel}. Kept, beyond the rules.`);
       }
+      // Using it destroys its item (an elemental gem, a bead of force): one fewer.
+      if (a.consumesItem && a.itemInstanceId && !free) {
+        const inst = c.inventory.find((i) => i.id === a.itemInstanceId);
+        if (inst) {
+          const left = (inst.quantity ?? 1) - 1;
+          if (left > 0) inst.quantity = left;
+          else c.inventory = c.inventory.filter((i) => i !== inst);
+          notes.push(`${inst.name ?? reg.find(inst.item, "item")?.name ?? "The item"} is used up${left > 0 ? `: ${left} left` : ""}.`);
+        }
+      }
       // The pick names a slot (Song of Defense: "3rd (15)"; Drake's Breath for a slot): that slot is spent.
       if (a.choiceSpendsSlot && !free) {
         const lvl = Number(/^(\d)/.exec(op.payload.choice ?? "")?.[1]);
