@@ -464,6 +464,8 @@ export const ActionDef = z
     restoresPactSlots: z.union([z.boolean(), z.number().int().min(1)]).optional(),
     /** Ends these effects or conditions on you (Stillness of Mind: charmed, frightened). */
     endsConditions: z.array(DefId).optional(),
+    /** All of them end, not just one (Guarded Mind: every charm and fright). */
+    endsAllConditions: z.boolean().optional(),
     /**
      * The table result rolled is kept as a tag until a short or long rest, replacing the one this
      * action kept before (Tales from Beyond: the tale you hold). `releases`: actions whose kept tags this one ends (bestowing the tale).
@@ -544,6 +546,8 @@ export const ActionDef = z
     choiceToggles: z.record(z.string(), z.array(z.string())).optional(),
     /** Spend a spell slot to heal this die per slot level (Combat Wild Shape: 1d8). The panel asks which slot. */
     slotHeal: z.object({ die: z.string() }).strict().optional(),
+    /** The pick from `choose` names a spell slot ("3rd (15)"): using it spends a slot of that level (Song of Defense, Drake's Breath). */
+    choiceSpendsSlot: z.boolean().optional(),
   })
   .strict();
 export type ActionDef = z.infer<typeof ActionDef>;

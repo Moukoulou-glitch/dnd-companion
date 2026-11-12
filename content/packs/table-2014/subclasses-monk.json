@@ -1093,8 +1093,53 @@
             "note": "CON save against your ki DC or 2d6 radiant; each extra ki (max 3) adds 2d6.",
             "roll": {
               "dice": "2d6",
-              "label": "radiant damage (base)"
+              "label": "radiant damage"
             }
+          },
+          {
+            "id": "searing-sunburst-1",
+            "name": "Searing Sunburst (+1 ki)",
+            "economy": "action",
+            "toggles": [],
+            "cost": {
+              "resource": "ki",
+              "amount": 1
+            },
+            "roll": {
+              "dice": "4d6",
+              "label": "radiant damage"
+            },
+            "note": "1 ki more: 4d6 radiant. 20-ft radius within 150 ft; Constitution save against your ki DC or the damage (no damage on a success)."
+          },
+          {
+            "id": "searing-sunburst-2",
+            "name": "Searing Sunburst (+2 ki)",
+            "economy": "action",
+            "toggles": [],
+            "cost": {
+              "resource": "ki",
+              "amount": 2
+            },
+            "roll": {
+              "dice": "6d6",
+              "label": "radiant damage"
+            },
+            "note": "2 ki more: 6d6 radiant. 20-ft radius within 150 ft; Constitution save against your ki DC or the damage (no damage on a success)."
+          },
+          {
+            "id": "searing-sunburst-3",
+            "name": "Searing Sunburst (+3 ki)",
+            "economy": "action",
+            "toggles": [],
+            "cost": {
+              "resource": "ki",
+              "amount": 3
+            },
+            "roll": {
+              "dice": "8d6",
+              "label": "radiant damage"
+            },
+            "note": "3 ki more: 8d6 radiant. 20-ft radius within 150 ft; Constitution save against your ki DC or the damage (no damage on a success)."
           }
         ]
       }

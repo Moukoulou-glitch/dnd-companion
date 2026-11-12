@@ -267,6 +267,7 @@ export interface ActionResult {
   restsAway?: boolean;
   everyDaysIfRollAtMost?: number;
   endsConditions?: string[];
+  endsAllConditions?: boolean;
   /** Healing typed in rather than rolled, and what the number is (Keeper of Souls). */
   healEntered?: string;
   /** Then a summon's picker (Theros: Heammer Wisps), on this pick or always. */
@@ -309,6 +310,8 @@ export interface ActionResult {
   recoversSlots?: { budget: number; maxLevel: number; count?: number };
   /** Combat Wild Shape: spend a slot, heal this die per slot level. */
   slotHeal?: { die: string };
+  /** The pick names a spell slot that using it spends (Song of Defense). */
+  choiceSpendsSlot?: boolean;
   /** Starry Form: the pick's switches. */
   choiceToggles?: Record<string, string[]>;
   /** Done before your first attack with its item on your turn (Defender). */
@@ -2264,6 +2267,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
         if (a.everyDaysIfRollAtMost !== undefined) entry.everyDaysIfRollAtMost = evalFlat(a.everyDaysIfRollAtMost, ctxFor(s));
       }
       if (a.endsConditions?.length) entry.endsConditions = a.endsConditions;
+      if (a.endsAllConditions) entry.endsAllConditions = true;
       if (a.healEntered) entry.healEntered = a.healEntered;
       if (a.cost) {
         const free = spells.filter((sp) => sp.cast.free?.resource === a.cost!.resource).map((sp) => ({ id: sp.id, list: sp.list.id }));
@@ -2356,6 +2360,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
         entry.recoversSlots = { budget, maxLevel: a.recoversSlots.maxLevel, ...(a.recoversSlots.count ? { count: a.recoversSlots.count } : {}) };
       }
       if (a.slotHeal) entry.slotHeal = a.slotHeal;
+      if (a.choiceSpendsSlot) entry.choiceSpendsSlot = true;
       if (a.choiceToggles) entry.choiceToggles = entry.choose && a.upToItemBonus ? Object.fromEntries(Object.entries(a.choiceToggles).filter(([o]) => entry.choose!.options.includes(o))) : a.choiceToggles;
       // Defensive Duelist (remastered): proficiency bonus + half Dexterity (rounded up, at least 1).
       if (a.id === "defensive-duelist") {

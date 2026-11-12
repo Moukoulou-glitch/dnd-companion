@@ -2337,6 +2337,26 @@
               "label": "damage (Dexterity save for half)"
             },
             "note": "30-ft cone, from you or your drake. Or spend a spell slot of 3rd level or higher instead."
+          },
+          {
+            "id": "drakes-breath-slot",
+            "name": "Drake's Breath (spell slot)",
+            "economy": "action",
+            "toggles": [],
+            "choose": {
+              "label": "Spell slot",
+              "options": [
+                "3rd-level slot",
+                "4th-level slot",
+                "5th-level slot"
+              ]
+            },
+            "choiceSpendsSlot": true,
+            "roll": {
+              "dice": "scale.breath",
+              "label": "damage (Dexterity save for half)"
+            },
+            "note": "Again after its free use: spend a spell slot of 3rd level or higher. 30-ft cone of acid, cold, fire, lightning or poison (your pick), from you or your drake; Dexterity save for half."
           }
         ]
       }

@@ -1649,7 +1649,12 @@
             "cost": {
               "resource": "psionic-energy-psi-warrior",
               "amount": 1
-            }
+            },
+            "endsConditions": [
+              "condition:charmed",
+              "condition:frightened"
+            ],
+            "endsAllConditions": true
           }
         ]
       }

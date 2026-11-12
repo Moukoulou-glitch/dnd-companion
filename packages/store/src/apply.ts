@@ -1340,6 +1340,15 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       if (c.pactSlotsUsed > 0) restored.push("Pact Magic slots");
       c.pactSlotsUsed = 0;
 
+      if (kind === "short" && sheet.features.some((f) => f.id === "feature:deft-explorer-tireless")) {
+        const ex = c.effects.find((e) => e.effect === "condition:exhaustion");
+        if (ex) {
+          const lvl = (ex.level ?? 1) - 1;
+          if (lvl <= 0) removeEffects([ex]);
+          else ex.level = lvl;
+          notes.push(lvl <= 0 ? "Tireless: exhaustion gone with the short rest." : `Tireless: exhaustion down to level ${lvl} with the short rest.`);
+        }
+      }
       if (kind === "long") {
         if (Object.values(c.slotsUsed).some((n) => n > 0)) restored.push("Spell slots");
         c.slotsUsed = {};
@@ -1401,6 +1410,15 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
           if (!c.combat) entry.outOfCombat = true;
           c.effects.push(entry);
           notes.push(`${g.from}: ${def?.name ?? g.effect} on you${g.minutes ? ` for ${g.minutes >= 60 && g.minutes % 60 === 0 ? `${g.minutes / 60} hours` : `${g.minutes} minutes`}` : " until your next long rest"}${g.dc !== undefined ? ` (save DC ${g.dc})` : ""}.`);
+        }
+      }
+      // Celestial Resilience (Celestial warlock, 10th): temporary hit points at the end of every short or long rest.
+      {
+        const cr = sheet.actions.find((x) => x.id === "celestial-resilience");
+        const n = cr?.tempHp && !cr.tempHp.dice.length ? cr.tempHp.flat : 0;
+        if (n > 0 && n > c.hp.temp) {
+          c.hp.temp = n;
+          notes.push(`Celestial Resilience: ${n} temporary hit points (up to five allies get ${Math.max(0, Math.floor((c.classes.find((x) => x.class === "class:warlock")?.level ?? 0) / 2) + Math.floor(((sheet.abilities.cha.score.total ?? 10) - 10) / 2))} each).`);
         }
       }
       break;
@@ -1556,8 +1574,12 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       if (a.endsConditions?.length) {
         const picked = op.payload.choice ? `condition:${op.payload.choice.toLowerCase()}` : undefined;
         const ends = picked && a.endsConditions.includes(picked) ? [picked] : a.endsConditions;
+        const all = a.endsAllConditions ? c.effects.filter((e) => ends.includes(e.effect)) : [];
         const one = c.effects.find((e) => ends.includes(e.effect));
-        if (one) {
+        if (all.length > 1) {
+          removeEffects(all);
+          notes.push(`${a.name}: ${all.map(effectName).join(" and ")} ended.`);
+        } else if (one) {
           removeEffects([one]);
           notes.push(`${a.name}: ${effectName(one)} ended.`);
         } else notes.push(`${a.name}: you aren't ${ends.map((x) => x.replace(/^condition:/, "")).join(" or ")}; nothing ended.`);
@@ -1588,6 +1610,18 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         if (a.recoversSlots.count && back.length > a.recoversSlots.count) notes.push(`${a.name} brings back ${a.recoversSlots.count === 1 ? "one slot" : `${a.recoversSlots.count} slots`}. Kept, beyond the rules.`);
         if (sum > a.recoversSlots.budget) notes.push(`That's ${sum} levels of slots; ${a.name} allows ${a.recoversSlots.budget}. Kept, beyond the rules.`);
         if (back.some((l) => l > a.recoversSlots!.maxLevel)) notes.push(`${a.name} can't recover slots above level ${a.recoversSlots.maxLevel}. Kept, beyond the rules.`);
+      }
+      // The pick names a slot (Song of Defense: "3rd (15)"; Drake's Breath for a slot): that slot is spent.
+      if (a.choiceSpendsSlot && !free) {
+        const lvl = Number(/^(\d)/.exec(op.payload.choice ?? "")?.[1]);
+        if (lvl >= 1 && lvl <= 9) {
+          const key = String(lvl);
+          const total = sheet.spellSlots.find((x) => x.level === lvl)?.total ?? 0;
+          const used = c.slotsUsed[key] ?? 0;
+          if (used >= total) notes.push(`No level ${lvl} spell slot left: spent anyway.`);
+          c.slotsUsed[key] = used + 1;
+          notes.push(`A level ${lvl} spell slot spent.`);
+        }
       }
       // Combat Wild Shape: a slot spent for healing (the healing itself comes as its own heal).
       if (a.slotHeal && op.payload.slot) {

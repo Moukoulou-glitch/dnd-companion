@@ -1255,7 +1255,8 @@
                 "9th (45)"
               ]
             },
-            "note": "While Bladesong is active: expend a spell slot, reduce the damage by 5 x slot level."
+            "note": "While Bladesong is active, when you take damage: spend a spell slot (picked here, it's spent) and reduce the damage by 5 times its level.",
+            "choiceSpendsSlot": true
           }
         ]
       }
