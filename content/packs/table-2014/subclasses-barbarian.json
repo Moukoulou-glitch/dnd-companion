@@ -1225,7 +1225,8 @@
             "name": "Bite: heal",
             "economy": "free",
             "heal": "pb",
-            "note": "Once per turn, when you hit with the bite while below half your hit points."
+            "note": "Once per turn, when you hit with the bite while below half your hit points.",
+            "belowHalfHp": true
           }
         ],
         "modifiers": [

@@ -96,6 +96,8 @@ interface Props {
   afterRoll?: AfterRollOption[];
   /** One of your own saving throws: after-roll options for saves (Favored by the Gods) are offered, and a failure against a DC waits for them. */
   saveRoll?: boolean;
+  /** An ability check of yours: its after-roll options (Magical Guidance) are offered on the result. */
+  checkRoll?: boolean;
   /** Closes the roll (after a miss with no more attacks). */
   onDone?: () => void;
   /** A sentient weapon's own dice (Blackrazor): the theme key, and its name for the dice that are its own. */
@@ -480,15 +482,16 @@ export interface AfterRollOption {
   sub?: string;
   warn?: boolean;
   group?: string;
-  on?: "attack" | "save" | "any";
+  /** "any": attacks and saves (Favored by the Gods); "check": ability checks only (Magical Guidance). */
+  on?: "attack" | "save" | "check" | "any";
   /** What it adds to the total (a reroll: the new d20 less the old one); `r` is the roll it's applied to. */
   run: (r?: RollRecord) => { value: number; detail: string } | undefined | Promise<{ value: number; detail: string } | undefined>;
 }
 
-export function Composer({ title, base: baseIn, attack, physical, onPhysicalChange, onRolled, onResolved, damageOnly, healing, onHealSelf, healTargets, dc, dcLabel, reaction, onSpend, onCheck, notes, header, typeChoices, portent, onOptionsUsed, optionInfo, onCommit, repeat, darts, onDamageOptions, afterRoll, onDone, diceSource, afterD20, onTempHp, weaponDice, saveRoll }: Props) {
+export function Composer({ title, base: baseIn, attack, physical, onPhysicalChange, onRolled, onResolved, damageOnly, healing, onHealSelf, healTargets, dc, dcLabel, reaction, onSpend, onCheck, notes, header, typeChoices, portent, onOptionsUsed, optionInfo, onCommit, repeat, darts, onDamageOptions, afterRoll, onDone, diceSource, afterD20, onTempHp, weaponDice, saveRoll, checkRoll }: Props) {
   /** A failed save against a DC, waiting: something could still change it (Favored by the Gods), or the player accepts it. */
   const [checkHeld, setCheckHeld] = useState(false);
-  const saveAfter = saveRoll && !attack ? (afterRoll ?? []).filter((o) => o.on === "save" || o.on === "any") : [];
+  const saveAfter = saveRoll && !attack ? (afterRoll ?? []).filter((o) => o.on === "save" || o.on === "any") : checkRoll && !attack ? (afterRoll ?? []).filter((o) => o.on === "check") : [];
   /** Adds an after-roll option to the shown d20 result (once per roll each); a held failed check is decided again. */
   const applyAfter = async (o: AfterRollOption, r: RollRecord, used: string[], done: boolean) => {
     if (done) return;
@@ -968,7 +971,7 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
             {!r.lines.some((l) => l.source.startsWith("2d20 added")) && <div className="after-roll">
               <span className="sub-head small">Change this roll</span>
               <div className="choice-grid">
-                {(afterRoll ?? []).filter((o) => o.on !== "save").map((o) => {
+                {(afterRoll ?? []).filter((o) => o.on !== "save" && o.on !== "check").map((o) => {
                   // Once per roll: one Focused Aim (1, 2 or 3 ki), one Precision Attack.
                   const used = stage.used ?? [];
                   // Already ticked before the roll (Precision Attack): not again.

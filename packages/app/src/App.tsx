@@ -380,7 +380,14 @@ export function App() {
         {...(boundGuardian() ? { boundTo: boundGuardian()!.name } : {})}
         rangedToggle={!!live.current.sheet?.defenses.resist.includes("ranged")}
         magicalAll={!!(live.current.sheet?.defenses.resist.includes("nonmagical") || live.current.sheet?.defenses.immune.includes("nonmagical"))}
-        onDamage={(amount, type, src) => {
+        {...(live.current.sheet?.actions.some((a) => a.id === "uncanny-dodge") ? { halveWith: "Uncanny Dodge" } : {})}
+        onDamage={(amountIn, type, src) => {
+          // Uncanny Dodge: an attack you can see, halved, for your reaction.
+          let amount = amountIn;
+          if (src?.halved) {
+            amount = Math.floor(amountIn / 2);
+            live.current.act("useAction", { action: "uncanny-dodge" }, `Uncanny Dodge: ${amountIn} halved to ${amount}.`);
+          }
           const magical = !!src?.magical;
           const fromSpell = !!src?.spell;
           const bound = !!src?.bound;
@@ -889,6 +896,8 @@ export function App() {
       reaction?: boolean;
       /** A roll for a companion or a summoned creature: your own after-the-roll options (Precision Attack, Focused Aim) aren't offered. */
       notMine?: boolean;
+      /** An ability check of yours (a tool's), for after-roll options on checks (Magical Guidance). */
+      check?: boolean;
     } = {},
   ) => {
     // Each roll is a fresh composer: the next one (a strike after Hand of Healing) never inherits the last one's dice.
@@ -899,6 +908,8 @@ export function App() {
     // A saving throw of yours, decided once when the roll opens: the sheet is drawn again after the roll (a new
     // object), and an identity check made then would lose the after-roll options (Favored by the Gods, Diamond Soul).
     const isMySave = !attack && !opts.notMine && !!live.current.sheet && Object.values(live.current.sheet.saves).includes(base as never);
+    // An ability check of yours: an ability, a skill, or a tool (said by the caller).
+    const isMyCheck = !attack && !opts.notMine && !!live.current.sheet && !isMySave && (!!opts.check || Object.values(live.current.sheet.skills).includes(base as never));
     return open(title, () => {
       // The attack as the sheet has it now (a smite used on the first hit of Extra Attack is gone from the next).
       const atk = attack ? liveAttack(live.current.sheet, attack) : undefined;
@@ -926,6 +937,7 @@ export function App() {
           : {})}
         {...(attack && !opts.damageOnly ? { ...(opts.notMine ? {} : { afterRoll: afterRollFor() }), onDone: opts.back ? opts.back.to : close } : {})}
         {...(isMySave ? { afterRoll: afterRollFor(), saveRoll: true } : {})}
+        {...(isMyCheck ? { afterRoll: afterRollFor(), checkRoll: true } : {})}
         {...(() => {
           // After the d20: count the ammunition, and keep a die that didn't help (Unfailing Inspiration).
           const ammo = atk?.ammo && live.current.character?.settings.trackAmmo && !opts.notMine;
@@ -1031,6 +1043,41 @@ export function App() {
       { action: "indomitable", label: "Indomitable: reroll", sub: (n) => (n > 0 ? `a failed save · ${n} left · the new roll counts` : "no use left until a long rest"), left: sh.resources.find((r) => r.id === "indomitable")?.remaining ?? 0 },
       { action: "fanatical-focus", label: "Fanatical Focus: reroll", sub: () => "a failed save, once per rage · the new roll counts", left: 1, when: ch.toggles.includes("raging") },
     ];
+    // On a failed ability check: Magical Guidance (Sorcerer 5, 1 sorcery point) rerolls it; Psi-Bolstered Knack
+    // (Soulknife 3) adds a Psionic Energy die.
+    if (sh.actions.some((a) => a.id === "magical-guidance")) {
+      const sp = sh.resources.find((r) => r.id === "sorcery-points")?.remaining ?? 0;
+      out.push({
+        label: "Magical Guidance: reroll (1 sorcery point)",
+        group: "Magical Guidance",
+        on: "check",
+        sub: sp > 0 ? "a failed check · the new roll counts" : "no sorcery points left",
+        warn: sp <= 0,
+        run: async (r) => {
+          const old = r?.natural;
+          if (old === undefined) return undefined;
+          const n = (await rollOrThrow("1d20", true, undefined, { source: "Magical Guidance" })).total;
+          live.current.act("useAction", { action: "magical-guidance" }, `Magical Guidance: rerolled ${old} → ${n}.`);
+          return { value: n - old, detail: `d20 ${old} → ${n}` };
+        },
+      });
+    }
+    const knack = sh.actions.find((a) => a.id === "psi-bolstered-knack");
+    if (knack?.roll) {
+      const left = sh.resources.find((r) => r.id === "psionic-energy")?.remaining ?? 0;
+      out.push({
+        label: `Psi-Bolstered Knack +${knack.roll.text}`,
+        group: "Psi-Bolstered Knack",
+        on: "check",
+        sub: left > 0 ? "a failed check with a proficient skill or tool · the die is spent only if it now succeeds" : "no Psionic Energy dice left",
+        warn: left <= 0,
+        run: async () => {
+          const r = await rollOrThrow(knack.roll!.text, true, undefined, { source: "Psi-Bolstered Knack" });
+          live.current.act("spendResource", { resource: "psionic-energy", amount: 1 }, `Psi-Bolstered Knack: +${r.total}, a Psionic Energy die spent. If the check still fails, the die isn't spent: restore it on Play.`);
+          return { value: r.total, detail: `${knack.roll!.text} [${r.total}]` };
+        },
+      });
+    }
     for (const rr of rerolls) {
       if (!sh.actions.some((a) => a.id === rr.action) || rr.when === false) continue;
       out.push({
@@ -2936,7 +2983,7 @@ export function App() {
       if (!sh) return null;
       const t = name ? sh.tools.find((x) => x.name === name) : undefined;
       const checks = t?.checks ?? sh.anyTool;
-      return <ToolCheck name={name} proficiency={t?.proficiency ?? 0} doubledBy={t?.doubledBy} checks={checks} onRoll={(title, ab) => openRoll(title, checks[ab])} />;
+      return <ToolCheck name={name} proficiency={t?.proficiency ?? 0} doubledBy={t?.doubledBy} checks={checks} onRoll={(title, ab) => openRoll(title, checks[ab], undefined, { check: true })} />;
     });
 
   const openBooks = () => open("Book text", <BooksPanel report={bookReport} />);

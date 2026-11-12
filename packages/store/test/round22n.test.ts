@@ -29,3 +29,10 @@ describe("22n: fixes found in the 6th–9th-level features", () => {
     expect(a.note).toMatch(/4d6 from 14th/);
   });
 });
+
+describe("22o: Form of the Beast's bite", () => {
+  it("heals only below half your hit points: warned above it", () => {
+    const l = pc("class:barbarian", 3, "subclass:path-of-the-beast");
+    expect(derive(l.character, reg).actions.find((a) => a.id === "beast-bite-heal")?.belowHalfHp).toBe(true);
+  });
+});

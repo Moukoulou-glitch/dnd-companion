@@ -16,9 +16,12 @@ export function HpPad({
   boundTo,
   rangedToggle = false,
   magicalAll = false,
+  halveWith,
   below,
 }: {
-  onDamage: (amount: number, type?: string, src?: { magical?: boolean; silvered?: boolean; adamantine?: boolean; spell?: boolean; bound?: boolean; ranged?: boolean }) => void;
+  /** A feature that halves an attack's damage with your reaction (Uncanny Dodge): a switch for it. */
+  halveWith?: string;
+  onDamage: (amount: number, type?: string, src?: { magical?: boolean; silvered?: boolean; adamantine?: boolean; spell?: boolean; bound?: boolean; ranged?: boolean; halved?: boolean }) => void;
   /** Ask whether any damage was magical (resistance to nonmagical damage of every type: Armor of Invulnerability). */
   magicalAll?: boolean;
   /** Ask whether the damage came from a ranged weapon attack (resistance to it: Tattoo of Guardian Winds). */
@@ -41,6 +44,7 @@ export function HpPad({
   const [src, setSrc] = useState<{ magical?: boolean; silvered?: boolean; adamantine?: boolean }>({});
   const [spell, setSpell] = useState(false);
   const [ranged, setRanged] = useState(false);
+  const [halved, setHalved] = useState(false);
   // It follows you: within 60 ft unless you say otherwise.
   const [bound, setBound] = useState(true);
   const physical = type === "slashing" || type === "piercing" || type === "bludgeoning";
@@ -96,6 +100,13 @@ export function HpPad({
           </button>
         </div>
       )}
+      {halveWith && (
+        <div className="types" role="group" aria-label={halveWith}>
+          <button className="switch" aria-pressed={halved} onClick={() => setHalved(!halved)}>
+            {halveWith}: halve it (your reaction){halved && amount ? ` → ${Math.floor(amount / 2)}` : ""}
+          </button>
+        </div>
+      )}
       <div className="keys">
         {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((d) => (
           <button key={d} className="key" onClick={() => press(d)}>
@@ -113,7 +124,7 @@ export function HpPad({
         </button>
       </div>
       <div className="pad-actions">
-        <button className="big damage" disabled={!amount} onClick={() => onDamage(amount, type, { ...(physical || (magicalAll && src.magical) ? src : {}), ...(spell ? { spell: true } : {}), ...(boundTo ? { bound } : {}), ...(rangedToggle && ranged ? { ranged: true } : {}) })}>
+        <button className="big damage" disabled={!amount} onClick={() => onDamage(amount, type, { ...(physical || (magicalAll && src.magical) ? src : {}), ...(spell ? { spell: true } : {}), ...(boundTo ? { bound } : {}), ...(rangedToggle && ranged ? { ranged: true } : {}), ...(halveWith && halved ? { halved: true } : {}) })}>
           Damage
         </button>
         <button className="big heal" disabled={!amount} onClick={() => onHeal(amount)}>
