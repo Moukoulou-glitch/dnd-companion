@@ -7,6 +7,7 @@ import { alignmentSide, spellFxOf, type SpellPhase } from "./spells";
 import { genLook, type GenLook, type SpellInfo } from "./generated";
 import { featureLook, type FeatureInfo } from "./features";
 import type { MomentMotif } from "./Moments";
+import { FEAT_LOOKS, featFor } from "./featureLooks";
 
 /** The feature a recorded use belongs to (fx/features.ts featureFor, on the live sheet); undefined: no look. */
 export type FeatureLookup = (type: string, payload: unknown) => FeatureInfo | undefined;
@@ -82,6 +83,8 @@ export type FxEvent =
   | { kind: "gen"; g: GenLook }
   /** Sending: the message's words, once it's sent. */
   | { kind: "sending"; words: string[] }
+  /** A class or subclass feature with a look of its own (fx/featureLooks.ts), grander the higher its level. */
+  | { kind: "feat-look"; action: string; level?: number; from?: string }
   /** A class moment (fx/Moments.tsx): Portent foretold or used, Arcane Recovery, Second Wind, Action Surge, Divine Sense, Lay on Hands, Charm of Sunlight. */
   | { kind: "moment"; motif: MomentMotif; values?: number[]; amount?: number; joined?: boolean };
 
@@ -185,6 +188,21 @@ export function opFx(type: string, payload: unknown, before: Character, after: C
     const motif = MOMENT_ACTIONS[p.action]!;
     const slots = Array.isArray(p.slots) ? (p.slots as number[]) : undefined;
     out.push({ kind: "moment", motif, ...(slots?.length ? { values: slots } : {}), ...(typeof p.amount === "number" ? { amount: p.amount } : {}), ...(p.action === "charm-of-sunlight-join" ? { joined: true } : {}) });
+  }
+  // Class and subclass features with their own look (17th–20th level first: fx/featureLooks.ts).
+  if (type === "useAction" && typeof p.action === "string" && FEAT_LOOKS[p.action] && !p.free) out.push({ kind: "feat-look", action: p.action, ...featFor(FEAT_LOOKS[p.action]!, after.classes) });
+  // Twilight Domain: the sanctuary (with Twilight Shroud from 17th level, the grand one) and Steps of Night.
+  if (type === "useAction" && p.action === "twilight-sanctuary" && !p.free) {
+    const cl = after.classes?.find((x) => x.class === "class:cleric");
+    out.push({ kind: "moment", motif: cl && cl.level >= 17 && /twilight/.test(cl.subclass ?? "") ? "twilight-shroud" : "twilight-sanctuary" });
+  }
+  if (type === "useAction" && p.action === "steps-of-night" && !p.free) out.push({ kind: "moment", motif: "steps-of-night" });
+  // Exhaustion: each level its own look as it comes on; a breath of relief as it lifts.
+  {
+    const lv = (ch: Character) => ch.effects?.find((e) => e.effect === "condition:exhaustion")?.level ?? 0;
+    const b = lv(before), a = lv(after);
+    if (a > b) out.push({ kind: "moment", motif: "exhaustion", values: [Math.min(6, a)] });
+    else if (a < b) out.push({ kind: "moment", motif: "exhaustion-eases", values: [a] });
   }
   // Divine Intervention: answered (rolled at most your cleric level, or the 20th-level sure one), or not.
   if (type === "useAction" && (p.action === "divine-intervention" || p.action === "divine-intervention-sure") && !p.free) {
@@ -328,6 +346,24 @@ export function ongoingFx(c: Character | undefined): { spell: string; look: stri
 /** The transformation loops to show now: one per feature state that's on and has a look. */
 export function formFx(c: Character | undefined): { form: string; look: string }[] {
   return (c?.toggles ?? []).filter((t) => FORM_FX[t]).map((t) => ({ form: t, look: FORM_FX[t]!.ongoing }));
+}
+
+/**
+ * Loops while a state lasts (22k), by slot: Twilight Sanctuary's sphere (with the shroud from 17th level),
+ * Steps of Night's flight, and exhaustion (heavier with each level).
+ */
+export const STATE_LOOP_KEYS = ["twilight", "steps", "exhaustion"] as const;
+export function stateLoops(c: Character | undefined): Partial<Record<(typeof STATE_LOOP_KEYS)[number], string>> {
+  if (!c) return {};
+  const out: Partial<Record<(typeof STATE_LOOP_KEYS)[number], string>> = {};
+  if (c.toggles?.includes("twilight-sanctuary")) {
+    const cl = c.classes?.find((x) => x.class === "class:cleric");
+    out.twilight = cl && cl.level >= 17 && /twilight/.test(cl.subclass ?? "") ? "sfx-ongoing-twilight sfx-ongoing-shroud17" : "sfx-ongoing-twilight";
+  }
+  if (c.toggles?.includes("steps-of-night")) out.steps = "sfx-ongoing-steps";
+  const ex = c.effects?.find((e) => e.effect === "condition:exhaustion")?.level ?? 0;
+  if (ex > 0) out.exhaustion = `sfx-ongoing-exh sfx-ongoing-exh-${Math.min(6, ex)}`;
+  return out;
 }
 
 /** Known damage types (for tests and the effects list). */

@@ -21,7 +21,7 @@ describe("Channel Divinity: each option its own look", () => {
       }
     };
     for (const kind of ["feature"] as const) walk(reg.list(kind));
-    const missing = [...ids].filter((id) => !CD_LOOKS[id] && id !== "destructive-wrath" && id !== "preserve-life");
+    const missing = [...ids].filter((id) => !CD_LOOKS[id] && id !== "destructive-wrath" && id !== "preserve-life" && id !== "twilight-sanctuary");
     expect(missing).toEqual([]);
     expect(ids.size).toBeGreaterThan(25);
     // No two looks alike: colours, symbol and motion together.

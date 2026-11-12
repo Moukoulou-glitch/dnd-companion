@@ -8,7 +8,7 @@
  * "leaves" drifting, "sparks" flying, "smoke" spreading low, "ripple" rings out from the eye, "reticle" closing in,
  * "mirror" a second sigil sliding off, "stars" twinkling, "converge" motes drawn in. */
 export type CdMotion = "repel" | "rays" | "rise" | "fall" | "leaves" | "sparks" | "smoke" | "ripple" | "reticle" | "mirror" | "stars" | "converge";
-export type CdGlyph = "sun" | "book" | "eye" | "leaf" | "mask" | "moon" | "sword" | "shield" | "hammer" | "skull" | "scales" | "heart" | "star" | "crown" | "chain" | "target" | "laurel" | "hourglass";
+export type CdGlyph = "sun" | "book" | "eye" | "leaf" | "mask" | "moon" | "sword" | "shield" | "hammer" | "skull" | "scales" | "heart" | "star" | "crown" | "chain" | "target" | "laurel" | "hourglass" | "coin" | "wings" | "vortex" | "gear" | "rune" | "wind" | "fist" | "flame";
 
 export interface CdLook {
   name: string;
@@ -37,7 +37,6 @@ export const CD_LOOKS: Record<string, CdLook> = {
   "path-to-the-grave": look("Path to the Grave", "225, 220, 235", "120, 100, 140", "skull", "fall"),
   "orders-demand": look("Order's Demand", "235, 235, 255", "90, 110, 230", "scales", "repel"),
   "balm-of-peace": look("Balm of Peace", "235, 255, 250", "120, 220, 200", "heart", "rise"),
-  "twilight-sanctuary": look("Twilight Sanctuary", "255, 225, 200", "150, 90, 200", "moon", "stars"),
   "harness-divine-power": look("Harness Divine Power", "255, 250, 230", "255, 210, 120", "star", "converge"),
   // Paladin
   "sacred-weapon": look("Sacred Weapon", "255, 248, 220", "255, 215, 110", "sword", "rays"),
@@ -76,6 +75,14 @@ export const GLYPHS: Record<CdGlyph, string> = {
   target: "M50 14a36 36 0 1 0 0.1 0Z M50 30a20 20 0 1 0 0.1 0Z M50 46a4 4 0 1 0 0.1 0Z M50 2v16 M50 82v16 M2 50h16 M82 50h16",
   laurel: "M50 90C26 78 16 54 22 24 M50 90C74 78 84 54 78 24 M22 34c8 0 12 4 14 10 M20 50c8 0 12 4 14 10 M26 66c8 0 10 4 12 10 M78 34c-8 0-12 4-14 10 M80 50c-8 0-12 4-14 10 M74 66c-8 0-10 4-12 10",
   hourglass: "M26 10h48 M26 90h48 M30 10c0 22 20 28 20 40c0 12-20 18-20 40 M70 10c0 22-20 28-20 40c0 12 20 18 20 40",
+  coin: "M50 14a36 36 0 1 0 0.1 0Z M50 26a24 24 0 1 0 0.1 0Z M50 34v32 M42 42c0-6 16-6 16 0s-16 6-16 12s16 6 16 0",
+  wings: "M50 70C40 40 20 30 6 34c8 4 10 10 12 16c-6-2-10 0-12 4c10 0 16 4 22 10c-4 0-6 2-8 6c14-2 22 0 30 0Z M50 70C60 40 80 30 94 34c-8 4-10 10-12 16c6-2 10 0 12 4c-10 0-16 4-22 10c4 0 6 2 8 6c-14-2-22 0-30 0Z M50 70v20",
+  vortex: "M50 50c0-4 6-4 6 0c0 8-12 8-12 0c0-12 18-12 18 0c0 16-24 16-24 0c0-20 30-20 30 0c0 24-36 24-36 0c0-28 42-28 42 0",
+  gear: "M50 30a20 20 0 1 0 0.1 0Z M50 8v14 M50 78v14 M8 50h14 M78 50h14 M20 20l10 10 M70 70l10 10 M80 20l-10 10 M30 70l-10 10 M50 42a8 8 0 1 0 0.1 0Z",
+  rune: "M32 10v80 M32 28l36-18 M32 50l40 22 M68 10v32 M72 72v18",
+  wind: "M8 34h54c10 0 14-14 4-16c-6-1-10 4-8 8 M8 52h72c12 0 14 16 2 16c-6 0-8-6-4-8 M16 72h36",
+  fist: "M28 44V26c0-6 10-6 10 0v14 M38 40V20c0-6 10-6 10 0v20 M48 40V22c0-6 10-6 10 0v18 M58 42V28c0-6 10-6 10 0v24c0 20-10 32-24 32c-12 0-20-8-20-22v-8c0-6 10-8 12 0",
+  flame: "M50 92c-20 0-30-14-30-30c0-18 14-26 16-44c8 8 10 18 8 26c6-4 10-12 10-20c14 12 26 26 26 40c0 16-10 28-30 28Z M50 92c-8 0-12-6-12-12c0-8 8-12 10-20c6 6 14 12 14 20c0 6-4 12-12 12Z",
 };
 
 /** Heritage features (the table's homebrew, from 10th level): their looks, by race. */

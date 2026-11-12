@@ -1,5 +1,6 @@
 import { FORM_FX } from "./looks";
 import { CD_LOOKS } from "./divinity";
+import { FEAT_LOOKS } from "./featureLooks";
 import { SKIP_AFTER, type GenLook, type Tier } from "./generated";
 
 /**
@@ -101,10 +102,10 @@ export interface FeatureSheet {
  * Uses with their own look already (fx/triggers.ts, components/Fx.tsx): Flurry of Blows' afterimages, Way of
  * Mercy's hands, Rage's veins, the transformations' forms. They keep theirs and get nothing more.
  */
-const OWN_LOOK = new Set(["divine-intervention", "divine-intervention-sure", "second-wind", "action-surge", "arcane-recovery", "divine-sense", "lay-on-hands", "charm-of-sunlight", "charm-of-sunlight-join", "favored-by-the-gods", "flurry-of-blows", "hand-of-healing", "hand-of-harm", "destructive-wrath", "transmuted-spell", "floar", "theros", "preserve-life", "fey-step", "fey-step-reaction", ...Object.keys(CD_LOOKS)]);
+const OWN_LOOK = new Set([...Object.keys(FEAT_LOOKS), "twilight-sanctuary", "twilight-sanctuary-turn", "steps-of-night", "divine-intervention", "divine-intervention-sure", "second-wind", "action-surge", "arcane-recovery", "divine-sense", "lay-on-hands", "charm-of-sunlight", "charm-of-sunlight-join", "favored-by-the-gods", "flurry-of-blows", "hand-of-healing", "hand-of-harm", "destructive-wrath", "transmuted-spell", "floar", "theros", "preserve-life", "fey-step", "fey-step-reaction", ...Object.keys(CD_LOOKS)]);
 /** Resources whose spending has its own look (Adama's two wholes). */
 const OWN_RESOURCES = new Set(["adama", "portent"]);
-const OWN_TOGGLES = new Set(["raging", ...Object.keys(FORM_FX)]);
+const OWN_TOGGLES = new Set(["raging", "twilight-sanctuary", "steps-of-night", ...Object.keys(FORM_FX)]);
 
 /**
  * The feature a recorded use belongs to: useAction (its action), spendResource or usePool (the resource;

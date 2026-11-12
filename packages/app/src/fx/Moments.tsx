@@ -6,7 +6,7 @@ import type { CSSProperties } from "react";
  * "Class moments"). Under reduced motion they show still, briefly. Looks only: what was used, and the numbers
  * shown, come from the recorded operation (fx/triggers.ts).
  */
-export type MomentMotif = "portent-roll" | "portent-use" | "arcane-recovery" | "second-wind" | "action-surge" | "divine-sense" | "lay-on-hands" | "sunlight" | "divine-intervention" | "divine-silence";
+export type MomentMotif = "portent-roll" | "portent-use" | "arcane-recovery" | "second-wind" | "action-surge" | "divine-sense" | "lay-on-hands" | "sunlight" | "divine-intervention" | "divine-silence" | "twilight-sanctuary" | "twilight-shroud" | "steps-of-night" | "exhaustion" | "exhaustion-eases";
 
 export interface Moment {
   motif: MomentMotif;
@@ -194,6 +194,123 @@ export function MomentPieces({ m }: { m: Moment }) {
           </svg>
           {range(14).map((i) => (
             <span key={i} className="mo-mote" style={v({ x: `${(rnd(i) - 0.5) * 160}px`, d: `${450 + rnd(i, 2) * 700}ms`, s: `${4 + rnd(i, 3) * 5}px` })} />
+          ))}
+        </>
+      );
+    // Twilight Sanctuary: dusk sweeps over, a dome of twilight rises around you with stars inside, a crescent above.
+    // With Twilight Shroud (17th): night falls whole, constellations draw themselves, veils of twilight drape the dome.
+    case "twilight-sanctuary":
+    case "twilight-shroud": {
+      const shroud = m.motif === "twilight-shroud";
+      const stars = range(shroud ? 22 : 12).map((i) => ({ x: 8 + rnd(i, 7) * 84, y: 8 + rnd(i, 8) * 44 }));
+      return (
+        <>
+          <span className={`mo-tw-dusk${shroud ? " deep" : ""}`} />
+          {shroud && (
+            <svg className="mo-tw-const" viewBox="0 0 100 60" preserveAspectRatio="none" aria-hidden="true">
+              <path pathLength={1} d={`M${stars.slice(0, 7).map((p) => `${p.x},${p.y}`).join(" L")}`} />
+              <path pathLength={1} d={`M${stars.slice(7, 13).map((p) => `${p.x},${p.y}`).join(" L")}`} />
+              <path pathLength={1} d={`M${stars.slice(13, 18).map((p) => `${p.x},${p.y}`).join(" L")}`} />
+            </svg>
+          )}
+          {stars.map((p, i) => (
+            <span key={i} className="mo-tw-star" style={v({ x: `${p.x}%`, y: `${p.y}%`, d: `${200 + rnd(i, 9) * 900}ms` })} />
+          ))}
+          <svg className="mo-tw-moon" viewBox="0 0 100 100" aria-hidden="true">
+            <path d="M64 12A38 38 0 1 0 88 66A30 30 0 1 1 64 12Z" />
+          </svg>
+          <span className="mo-tw-dome" />
+          <span className="mo-tw-dome inner" />
+          {shroud && range(6).map((i) => <span key={`v${i}`} className="mo-tw-veil" style={v({ i, x: `${8 + i * 16}%` })} />)}
+          {range(shroud ? 16 : 10).map((i) => (
+            <span key={`m${i}`} className="mo-tw-mote" style={v({ x: `${(rnd(i, 3) - 0.5) * 240}px`, d: `${500 + rnd(i, 4) * 900}ms` })} />
+          ))}
+        </>
+      );
+    }
+    // Steps of Night: night mist below, steps of starlight going up, and you rise on them.
+    case "steps-of-night":
+      return (
+        <>
+          <span className="mo-sn-mist" />
+          {range(6).map((i) => (
+            <span key={i} className="mo-sn-step" style={v({ i, x: `${16 + i * 13}%`, y: `${78 - i * 9}%` })} />
+          ))}
+          <svg className="mo-sn-moon" viewBox="0 0 100 100" aria-hidden="true">
+            <path d="M64 12A38 38 0 1 0 88 66A30 30 0 1 1 64 12Z" />
+          </svg>
+          {range(10).map((i) => (
+            <span key={`s${i}`} className="mo-sn-spark" style={v({ x: `${10 + rnd(i, 2) * 80}%`, d: `${300 + rnd(i, 5) * 900}ms` })} />
+          ))}
+        </>
+      );
+    // Exhaustion, by level: 1 heavy breath and sweat; 2 a weight drags you down; 3 your sight doubles and blurs;
+    // 4 your heart cracks; 5 chains close in; 6 the light goes out.
+    case "exhaustion": {
+      const n = Math.min(6, Math.max(1, m.values?.[0] ?? 1));
+      return (
+        <>
+          <span className="mo-ex-dark" />
+          {n === 1 && range(12).map((i) => <span key={i} className="mo-ex-drop" style={v({ x: `${6 + rnd(i, 2) * 88}%`, d: `${rnd(i, 3) * 700}ms` })} />)}
+          {n === 2 && (
+            <svg className="mo-ex-weight" viewBox="0 0 100 120" aria-hidden="true">
+              <path className="chain" d="M50 0v40" />
+              <path className="ball" d="M30 40h40l10 60H20Z" />
+              <text x="50" y="86" textAnchor="middle">½</text>
+            </svg>
+          )}
+          {n === 3 && (
+            <>
+              <svg className="mo-ex-eye a" viewBox="0 0 100 100" aria-hidden="true">
+                <path d="M8 50C24 26 76 26 92 50C76 74 24 74 8 50Z M50 38a12 12 0 1 0 0.1 0Z" />
+              </svg>
+              <svg className="mo-ex-eye b" viewBox="0 0 100 100" aria-hidden="true">
+                <path d="M8 50C24 26 76 26 92 50C76 74 24 74 8 50Z M50 38a12 12 0 1 0 0.1 0Z" />
+              </svg>
+            </>
+          )}
+          {n === 4 && (
+            <svg className="mo-ex-heart" viewBox="0 0 100 100" aria-hidden="true">
+              <g className="l">
+                <path d="M50 86C20 64 10 46 10 32c0-12 10-20 20-20c8 0 16 6 20 14L44 40l10 12l-8 14Z" />
+              </g>
+              <g className="r">
+                <path d="M50 86c30-22 40-40 40-54c0-12-10-20-20-20c-8 0-16 6-20 14L44 40l10 12l-8 14Z" />
+              </g>
+              <path className="crack" pathLength={1} d="M50 26L44 40l10 12l-8 14L50 86" />
+            </svg>
+          )}
+          {n === 5 && (
+            <>
+              <svg className="mo-ex-chain l" viewBox="0 0 200 40" aria-hidden="true">
+                {range(6).map((i) => <rect key={i} x={i * 32 + 2} y="8" width="34" height="24" rx="12" />)}
+              </svg>
+              <svg className="mo-ex-chain r" viewBox="0 0 200 40" aria-hidden="true">
+                {range(6).map((i) => <rect key={i} x={i * 32 + 2} y="8" width="34" height="24" rx="12" />)}
+              </svg>
+            </>
+          )}
+          {n === 6 && (
+            <>
+              <span className="mo-ex-black" />
+              <svg className="mo-ex-flat" viewBox="0 0 300 80" aria-hidden="true">
+                <path pathLength={1} d="M0,40 L70,40 L82,14 L94,66 L104,40 L300,40" />
+              </svg>
+              <svg className="mo-ex-skull" viewBox="0 0 100 100" aria-hidden="true">
+                <path d="M50 12c-22 0-34 14-34 34c0 12 6 20 14 24v12h40V70c8-4 14-12 14-24c0-20-12-34-34-34Z M36 48a7 7 0 1 0 0.1 0Z M64 48a7 7 0 1 0 0.1 0Z M42 82v-8 M50 82v-8 M58 82v-8" />
+              </svg>
+            </>
+          )}
+        </>
+      );
+    }
+    // Exhaustion lifting: the dark draws back, a breath of light.
+    case "exhaustion-eases":
+      return (
+        <>
+          <span className="mo-ex-lift" />
+          {range(10).map((i) => (
+            <span key={i} className="mo-mote" style={v({ x: `${(rnd(i) - 0.5) * 200}px`, d: `${200 + rnd(i, 2) * 600}ms`, s: `${4 + rnd(i, 3) * 4}px` })} />
           ))}
         </>
       );

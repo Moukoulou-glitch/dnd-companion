@@ -5075,3 +5075,118 @@ html.fx-shake-strong .app > .strip, html.fx-shake-strong .app > main, html.fx-sh
   .fx-mo .mo-di-pillar { transform: none; opacity: 0.8; }
   .fx-mo .mo-di-mote, .fx-mo .mo-di-feather, .fx-mo .mo-di-wave, .fx-mo .mo-di-flash, .fx-mo .mo-di-cloud, .fx-mo .mo-di-faint { display: none; }
 }
+
+/* ---- 22k: feature looks by level (fx/featureLooks.ts, drawn on the Channel Divinity stage) ---- */
+.fx-feat-t0 .fx-cd-sigil { width: 170px; height: 170px; margin: -85px; }
+.fx-feat-t0 .fx-cd-glyph { width: 80px; height: 80px; margin: -40px; }
+.fx-feat-t1 .fx-cd-sigil { width: 200px; height: 200px; margin: -100px; }
+.fx-feat-t3 .fx-cd-sigil, .fx-feat-t4 .fx-cd-sigil { width: 250px; height: 250px; margin: -125px; }
+.fx-feat-t3 .fx-cd-glyph { width: 120px; height: 120px; margin: -60px; }
+.fx-feat-t4 .fx-cd-glyph { width: 140px; height: 140px; margin: -70px; stroke-width: 4.5; }
+.fx-feat .fx-label { top: calc(46% + 150px); }
+.fx-feat-from { position: absolute; left: 0; right: 0; top: calc(46% + 182px); text-align: center; font-size: 0.8rem; letter-spacing: 0.06em; text-transform: uppercase; color: rgba(var(--cd1), 0.85); text-shadow: 0 0 8px rgba(var(--cd2), 0.9), 0 0 2px #000; opacity: 0; animation: fx-label var(--fx-ms) ease-out forwards; }
+.fx-feat-t0 .fx-label, .fx-feat-t1 .fx-label { top: calc(46% + 118px); }
+.fx-feat-t0 .fx-feat-from, .fx-feat-t1 .fx-feat-from { top: calc(46% + 148px); }
+.fx-feat-veil { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 46%, rgba(var(--cd2), 0.18), rgba(4, 4, 12, 0.85) 70%); animation: mo-di-dark var(--fx-ms) ease-out forwards; }
+.fx-feat-pillar { position: absolute; left: 50%; top: 0; width: 120px; height: 46%; margin-left: -60px; background: linear-gradient(180deg, rgba(var(--cd1), 0.95), rgba(var(--cd2), 0.5) 70%, rgba(var(--cd2), 0)); -webkit-mask-image: linear-gradient(90deg, transparent, #000 32%, #000 68%, transparent); mask-image: linear-gradient(90deg, transparent, #000 32%, #000 68%, transparent); transform-origin: 50% 0; transform: scaleY(0); animation: fx-feat-pillar var(--fx-ms) cubic-bezier(0.6, 0, 0.3, 1) forwards; }
+@keyframes fx-feat-pillar { 0%, 8% { transform: scaleY(0); opacity: 0; } 22% { transform: scaleY(1); opacity: 1; } 80% { opacity: 0.85; } 100% { transform: scaleY(1) scaleX(1.4); opacity: 0; } }
+.fx-feat-outer { position: absolute; left: 50%; top: 46%; width: 330px; height: 330px; margin: -165px; overflow: visible; fill: none; stroke: rgba(var(--cd1), 0.75); stroke-width: 1.2; filter: drop-shadow(0 0 6px rgba(var(--cd2), 0.9)); opacity: 0; animation: fx-feat-outer var(--fx-ms) ease-out forwards; }
+.fx-feat-outer circle { stroke-dasharray: 1; stroke-dashoffset: 1; animation: fx-cd-draw 900ms ease-out 250ms forwards; }
+.fx-feat-outer line { stroke-width: 2; }
+@keyframes fx-feat-outer { 0% { opacity: 0; transform: rotate(40deg) scale(0.85); } 20% { opacity: 1; } 80% { opacity: 1; } 100% { opacity: 0; transform: rotate(-40deg) scale(1.05); } }
+.fx-feat-wave { position: absolute; left: 50%; top: 46%; width: 120px; height: 120px; margin: -60px; border-radius: 50%; border: 4px solid rgba(var(--cd1), 0.95); box-shadow: 0 0 28px rgba(var(--cd2), 0.95); opacity: 0; animation: fx-feat-wave var(--fx-ms) ease-out forwards; }
+@keyframes fx-feat-wave { 0%, 26% { opacity: 0; transform: scale(0.3); } 29% { opacity: 1; } 60% { opacity: 0; transform: scale(8); } 100% { opacity: 0; transform: scale(8); } }
+.fx-feat-t4 .fx-cd-glow { background: radial-gradient(circle at 50% 46%, rgba(var(--cd1), 0.55), rgba(var(--cd2), 0.25) 35%, transparent 70%); }
+
+/* ---- 22k: Twilight Sanctuary, Twilight Shroud, Steps of Night ---- */
+.mo-tw-dusk { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(30, 20, 70, 0.85), rgba(90, 50, 120, 0.55) 45%, rgba(255, 160, 120, 0.25) 80%, rgba(255, 200, 150, 0.1)); transform-origin: 50% 0; animation: mo-tw-dusk var(--fx-ms) ease-out forwards; }
+.mo-tw-dusk.deep { background: linear-gradient(180deg, rgba(6, 4, 24, 0.97), rgba(40, 24, 80, 0.85) 50%, rgba(140, 80, 160, 0.4) 85%, rgba(255, 180, 150, 0.15)); }
+@keyframes mo-tw-dusk { 0% { opacity: 0; transform: scaleY(0.2); } 22% { opacity: 1; transform: scaleY(1); } 82% { opacity: 1; } 100% { opacity: 0; } }
+.mo-tw-star { position: absolute; left: var(--x); top: var(--y); width: 3px; height: 3px; border-radius: 50%; background: #fffaf0; box-shadow: 0 0 6px #ffe6c0, 0 0 12px rgba(190, 150, 255, 0.8); opacity: 0; animation: mo-twinkle var(--fx-ms) ease-in-out forwards; animation-delay: var(--d); }
+.mo-tw-const { position: absolute; left: 0; top: 0; width: 100%; height: 60%; overflow: visible; }
+.mo-tw-const path { fill: none; stroke: rgba(230, 215, 255, 0.7); stroke-width: 0.35; stroke-dasharray: 1; stroke-dashoffset: 1; vector-effect: non-scaling-stroke; animation: mo-tw-draw var(--fx-ms) ease-out forwards; }
+.mo-tw-const path:nth-child(2) { animation-delay: 200ms; }
+.mo-tw-const path:nth-child(3) { animation-delay: 400ms; }
+@keyframes mo-tw-draw { 0%, 15% { stroke-dashoffset: 1; opacity: 1; } 55% { stroke-dashoffset: 0; } 85% { opacity: 1; } 100% { stroke-dashoffset: 0; opacity: 0; } }
+.mo-tw-moon { position: absolute; left: 50%; top: 14%; width: 84px; height: 84px; margin-left: -42px; overflow: visible; fill: rgba(255, 238, 215, 0.95); filter: drop-shadow(0 0 12px rgba(255, 220, 190, 0.9)) drop-shadow(0 0 28px rgba(170, 110, 230, 0.7)); opacity: 0; animation: mo-tw-moon var(--fx-ms) ease-out forwards; }
+.fx-mo-twilight-shroud .mo-tw-moon { width: 120px; height: 120px; margin-left: -60px; top: 10%; }
+@keyframes mo-tw-moon { 0% { opacity: 0; transform: translateY(40px) scale(0.6); } 30% { opacity: 1; transform: none; } 82% { opacity: 1; } 100% { opacity: 0; transform: translateY(-10px); } }
+.mo-tw-dome { position: absolute; left: 50%; top: 66%; width: 340px; height: 340px; margin: -170px 0 0 -170px; border-radius: 50%; border: 2px solid rgba(220, 190, 255, 0.85); background: radial-gradient(circle at 50% 70%, rgba(255, 190, 150, 0.25), rgba(150, 90, 210, 0.22) 45%, rgba(60, 30, 110, 0.08) 70%, transparent 72%); box-shadow: 0 0 40px rgba(170, 110, 230, 0.6), inset 0 0 50px rgba(255, 200, 170, 0.3); opacity: 0; transform: scale(0.1); animation: mo-tw-dome var(--fx-ms) cubic-bezier(0.2, 0.8, 0.3, 1) forwards; animation-delay: 300ms; }
+.mo-tw-dome.inner { width: 240px; height: 240px; margin: -120px 0 0 -120px; border-color: rgba(255, 210, 180, 0.6); border-style: dashed; animation-delay: 450ms; }
+.fx-mo-twilight-shroud .mo-tw-dome { width: 420px; height: 420px; margin: -210px 0 0 -210px; border-width: 3px; }
+@keyframes mo-tw-dome { 0% { opacity: 0; transform: scale(0.1); } 30% { opacity: 1; transform: scale(1); } 82% { opacity: 1; transform: scale(1.02); } 100% { opacity: 0; transform: scale(1.06); } }
+.mo-tw-veil { position: absolute; left: var(--x); top: 24%; width: 16%; height: 70%; background: linear-gradient(180deg, rgba(190, 150, 255, 0), rgba(190, 150, 255, 0.35) 30%, rgba(255, 190, 160, 0.3) 70%, rgba(255, 190, 160, 0)); filter: blur(3px); transform-origin: 50% 0; opacity: 0; animation: mo-tw-veil var(--fx-ms) ease-in-out forwards; animation-delay: calc(700ms + var(--i) * 90ms); }
+@keyframes mo-tw-veil { 0% { opacity: 0; transform: scaleY(0) skewX(0deg); } 25% { opacity: 1; transform: scaleY(1) skewX(6deg); } 50% { transform: scaleY(1) skewX(-6deg); } 75% { opacity: 0.9; transform: scaleY(1) skewX(4deg); } 100% { opacity: 0; transform: scaleY(1) skewX(0deg); } }
+.mo-tw-mote { position: absolute; left: 50%; top: 74%; width: 5px; height: 5px; margin-left: var(--x); border-radius: 50%; background: #ffe6d0; box-shadow: 0 0 8px rgba(200, 150, 255, 0.9); opacity: 0; animation: mo-mote var(--fx-ms) ease-out forwards; animation-delay: var(--d); }
+.fx-mo-twilight-sanctuary .fx-label, .fx-mo-twilight-shroud .fx-label { color: #f3e4ff; }
+.mo-sn-mist { position: absolute; left: 0; right: 0; bottom: 0; height: 45%; background: linear-gradient(0deg, rgba(20, 10, 45, 0.85), rgba(60, 35, 110, 0.4) 55%, transparent); animation: mo-fade var(--fx-ms) ease-out forwards; }
+.mo-sn-step { position: absolute; left: var(--x); top: var(--y); width: 54px; height: 10px; border-radius: 50%; background: radial-gradient(ellipse, rgba(255, 245, 230, 0.95), rgba(180, 140, 255, 0.6) 50%, transparent 72%); box-shadow: 0 0 14px rgba(180, 140, 255, 0.8); opacity: 0; animation: mo-sn-step var(--fx-ms) ease-out forwards; animation-delay: calc(150ms + var(--i) * 140ms); }
+@keyframes mo-sn-step { 0% { opacity: 0; transform: scale(0.3); } 15% { opacity: 1; transform: scale(1); } 60% { opacity: 0.8; } 100% { opacity: 0; transform: translateY(-10px); } }
+.mo-sn-moon { position: absolute; left: 76%; top: 12%; width: 60px; height: 60px; overflow: visible; fill: rgba(240, 230, 255, 0.9); filter: drop-shadow(0 0 10px rgba(180, 140, 255, 0.9)); opacity: 0; animation: mo-tw-moon var(--fx-ms) ease-out forwards; }
+.mo-sn-spark { position: absolute; left: var(--x); bottom: 0; width: 3px; height: 3px; border-radius: 50%; background: #fff; box-shadow: 0 0 6px #c9b2ff; opacity: 0; animation: mo-di-rise var(--fx-ms) ease-out forwards; animation-delay: var(--d); }
+
+/* ---- 22k: exhaustion by level ---- */
+.mo-ex-dark { position: absolute; inset: 0; animation: mo-ex-dark var(--fx-ms) ease-in-out forwards; }
+.fx-mo-exh-1 .mo-ex-dark { background: radial-gradient(ellipse at 50% 45%, transparent 40%, rgba(20, 16, 10, 0.55) 90%); }
+.fx-mo-exh-2 .mo-ex-dark { background: radial-gradient(ellipse at 50% 45%, transparent 32%, rgba(20, 14, 10, 0.68) 85%); }
+.fx-mo-exh-3 .mo-ex-dark { background: radial-gradient(ellipse at 50% 45%, rgba(20, 14, 10, 0.1) 25%, rgba(16, 10, 8, 0.75) 80%); }
+.fx-mo-exh-4 .mo-ex-dark { background: radial-gradient(ellipse at 50% 45%, rgba(60, 0, 0, 0.18) 20%, rgba(14, 4, 4, 0.82) 75%); }
+.fx-mo-exh-5 .mo-ex-dark { background: radial-gradient(ellipse at 50% 45%, rgba(10, 6, 6, 0.3) 15%, rgba(4, 2, 2, 0.9) 70%); }
+.fx-mo-exh-6 .mo-ex-dark { background: rgba(0, 0, 0, 0.6); }
+@keyframes mo-ex-dark { 0% { opacity: 0; } 20% { opacity: 1; } 40% { opacity: 0.75; } 60% { opacity: 1; } 85% { opacity: 1; } 100% { opacity: 0; } }
+.mo-ex-drop { position: absolute; left: var(--x); top: -4%; width: 6px; height: 10px; border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; background: linear-gradient(rgba(220, 235, 255, 0.9), rgba(140, 170, 210, 0.7)); opacity: 0; animation: mo-ex-drop var(--fx-ms) ease-in forwards; animation-delay: var(--d); }
+@keyframes mo-ex-drop { 0% { opacity: 0; transform: translateY(0); } 10% { opacity: 1; } 100% { opacity: 0; transform: translateY(70vh); } }
+.mo-ex-weight { position: absolute; left: 50%; top: 0; width: 120px; height: 144px; margin-left: -60px; overflow: visible; animation: mo-ex-weight var(--fx-ms) cubic-bezier(0.5, 0, 0.8, 0.6) forwards; }
+.mo-ex-weight .chain { stroke: #8a8f99; stroke-width: 4; stroke-dasharray: 6 4; }
+.mo-ex-weight .ball { fill: #4a4f5a; stroke: #b9bec8; stroke-width: 2; }
+.mo-ex-weight text { fill: #e6e8ee; font-size: 30px; font-weight: 800; }
+@keyframes mo-ex-weight { 0% { transform: translateY(-160px); opacity: 0; } 15% { opacity: 1; } 45% { transform: translateY(38vh); } 52% { transform: translateY(36vh); } 58% { transform: translateY(38vh); } 85% { opacity: 1; } 100% { transform: translateY(40vh); opacity: 0; } }
+.mo-ex-eye { position: absolute; left: 50%; top: 34%; width: 150px; height: 150px; margin: -75px 0 0 -75px; fill: none; stroke: #e9e4da; stroke-width: 4; opacity: 0; filter: blur(1px); animation: mo-ex-eye var(--fx-ms) ease-in-out forwards; }
+.mo-ex-eye.b { animation-name: mo-ex-eye-b; filter: blur(3px); }
+@keyframes mo-ex-eye { 0% { opacity: 0; } 20% { opacity: 0.9; transform: translateX(0); } 60% { transform: translateX(-14px); } 85% { opacity: 0.8; } 100% { opacity: 0; transform: translateX(-6px); } }
+@keyframes mo-ex-eye-b { 0% { opacity: 0; } 20% { opacity: 0.5; transform: translateX(0); } 60% { transform: translateX(18px); } 85% { opacity: 0.4; } 100% { opacity: 0; transform: translateX(10px); } }
+.mo-ex-heart { position: absolute; left: 50%; top: 32%; width: 150px; height: 150px; margin: -75px 0 0 -75px; overflow: visible; }
+.mo-ex-heart path { fill: rgba(190, 30, 50, 0.92); stroke: #ff9aa6; stroke-width: 2; }
+.mo-ex-heart .crack { fill: none; stroke: #1a0508; stroke-width: 4; stroke-dasharray: 1; stroke-dashoffset: 1; animation: mo-ex-crack var(--fx-ms) ease-out forwards; }
+.mo-ex-heart g { animation: mo-ex-half var(--fx-ms) ease-in forwards; }
+.mo-ex-heart g.l { --dx: -10px; --r: -8deg; }
+.mo-ex-heart g.r { --dx: 10px; --r: 8deg; }
+@keyframes mo-ex-crack { 0%, 15% { stroke-dashoffset: 1; } 45% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: 0; opacity: 0; } }
+@keyframes mo-ex-half { 0%, 45% { transform: none; opacity: 1; } 75% { transform: translateX(var(--dx)) rotate(var(--r)); opacity: 1; } 100% { transform: translateX(var(--dx)) rotate(var(--r)) translateY(20px); opacity: 0; } }
+.mo-ex-chain { position: absolute; top: 44%; width: 60%; height: 40px; overflow: visible; fill: none; stroke: #9aa0aa; stroke-width: 5; animation: mo-ex-chain var(--fx-ms) cubic-bezier(0.3, 0.8, 0.3, 1) forwards; }
+.mo-ex-chain.l { left: -60%; --dir: 1; }
+.mo-ex-chain.r { right: -60%; --dir: -1; transform: scaleX(-1); }
+@keyframes mo-ex-chain { 0% { translate: 0 0; opacity: 0; } 10% { opacity: 1; } 40% { translate: calc(var(--dir) * 104%) 0; } 46% { translate: calc(var(--dir) * 100%) 0; } 85% { opacity: 1; translate: calc(var(--dir) * 100%) 0; } 100% { opacity: 0; translate: calc(var(--dir) * 100%) 0; } }
+.mo-ex-black { position: absolute; inset: 0; background: #000; opacity: 0; animation: mo-ex-black var(--fx-ms) ease-in forwards; }
+@keyframes mo-ex-black { 0% { opacity: 0; } 40% { opacity: 0.95; } 85% { opacity: 0.95; } 100% { opacity: 0; } }
+.mo-ex-flat { position: absolute; left: 50%; top: 52%; width: 300px; height: 80px; margin-left: -150px; overflow: visible; }
+.mo-ex-flat path { fill: none; stroke: #c83a3a; stroke-width: 3; stroke-dasharray: 1; stroke-dashoffset: 1; animation: mo-draw var(--fx-ms) linear forwards; filter: drop-shadow(0 0 4px #ff4a4a); }
+.mo-ex-skull { position: absolute; left: 50%; top: 26%; width: 120px; height: 120px; margin-left: -60px; fill: none; stroke: rgba(230, 225, 215, 0.85); stroke-width: 3; opacity: 0; animation: mo-ex-skull var(--fx-ms) ease-in-out forwards; }
+@keyframes mo-ex-skull { 0%, 35% { opacity: 0; transform: scale(0.9); } 60% { opacity: 0.9; transform: scale(1); } 85% { opacity: 0.9; } 100% { opacity: 0; } }
+.mo-ex-lift { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 45%, rgba(255, 245, 220, 0.35), transparent 65%); animation: mo-fade var(--fx-ms) ease-out forwards; }
+.fx-mo-exhaustion .fx-label { color: #e8e2d6; }
+.fx-mo-exh-4 .fx-label, .fx-mo-exh-6 .fx-label { color: #ffb3b3; }
+
+/* ---- 22k: loops while they last ---- */
+.sfx-ongoing-twilight > span:first-child { display: block; position: absolute; left: -10%; right: -10%; bottom: -22vh; height: 46vh; border-radius: 50% 50% 0 0; border-top: 2px solid rgba(210, 180, 255, 0.45); background: radial-gradient(ellipse at 50% 100%, rgba(255, 190, 150, 0.14), rgba(150, 90, 210, 0.12) 55%, transparent 75%); box-shadow: 0 -10px 40px rgba(170, 110, 230, 0.25); animation: sfx-shimmer 5s ease-in-out infinite; }
+.sfx-ongoing-twilight > span:nth-child(n + 2):nth-child(-n + 4) { display: block; position: absolute; bottom: calc(6vh + var(--i) * 4vh); left: calc(14% + var(--i) * 24%); width: 3px; height: 3px; border-radius: 50%; background: #fff4e6; box-shadow: 0 0 6px rgba(200, 160, 255, 0.9); animation: crown-flicker 2.8s ease-in-out infinite; animation-delay: calc(var(--i) * -0.9s); }
+.sfx-ongoing-shroud17 > span:nth-child(5) { display: block; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(170, 120, 240, 0.16), transparent 12%, transparent 88%, rgba(170, 120, 240, 0.16)); animation: sfx-shimmer 3.6s ease-in-out infinite; }
+.sfx-ongoing-steps > span:first-child { display: block; position: absolute; left: 0; right: 0; bottom: 0; height: 16vh; background: linear-gradient(0deg, rgba(40, 24, 80, 0.38), transparent); animation: sfx-shimmer 4.2s ease-in-out infinite; }
+.sfx-ongoing-steps > span:nth-child(2), .sfx-ongoing-steps > span:nth-child(3) { display: block; position: absolute; bottom: 4vh; left: calc(30% + var(--i) * 28%); width: 40px; height: 6px; border-radius: 50%; background: radial-gradient(ellipse, rgba(230, 215, 255, 0.6), transparent 70%); animation: sfx-shimmer 2.4s ease-in-out infinite; animation-delay: calc(var(--i) * -1.2s); }
+.sfx-ongoing-exh > span:first-child { display: block; position: absolute; inset: 0; animation: sfx-shimmer 6s ease-in-out infinite; }
+.sfx-ongoing-exh-1 > span:first-child { box-shadow: inset 0 0 60px 6px rgba(20, 14, 8, 0.28); }
+.sfx-ongoing-exh-2 > span:first-child { box-shadow: inset 0 0 70px 12px rgba(20, 14, 8, 0.36); }
+.sfx-ongoing-exh-3 > span:first-child { box-shadow: inset 0 0 80px 18px rgba(18, 12, 8, 0.44); }
+.sfx-ongoing-exh-4 > span:first-child { box-shadow: inset 0 0 90px 24px rgba(40, 6, 6, 0.5); }
+.sfx-ongoing-exh-5 > span:first-child { box-shadow: inset 0 0 100px 32px rgba(10, 4, 4, 0.6); }
+.sfx-ongoing-exh-6 > span:first-child { box-shadow: inset 0 0 120px 60px rgba(0, 0, 0, 0.75); }
+
+@media (prefers-reduced-motion: reduce) {
+  .fx-feat-veil, .fx-feat-pillar, .fx-feat-outer, .fx-feat-wave, .fx-feat-from { animation: none !important; }
+  .fx-feat-pillar, .fx-feat-wave { display: none; }
+  .fx-feat-outer, .fx-feat-from { opacity: 0.8; }
+  .fx-feat-outer circle { animation: none; stroke-dashoffset: 0; }
+  .fx-mo .mo-tw-dome, .fx-mo .mo-tw-moon, .fx-mo .mo-ex-heart, .fx-mo .mo-ex-eye.a, .fx-mo .mo-ex-skull, .fx-mo .mo-sn-moon { opacity: 1; transform: none; }
+  .fx-mo .mo-tw-veil, .fx-mo .mo-tw-const, .fx-mo .mo-tw-mote, .fx-mo .mo-tw-star, .fx-mo .mo-sn-step, .fx-mo .mo-sn-spark, .fx-mo .mo-ex-drop, .fx-mo .mo-ex-weight, .fx-mo .mo-ex-chain, .fx-mo .mo-ex-eye.b, .fx-mo .mo-ex-flat { display: none; }
+  .sfx-ongoing-twilight > span, .sfx-ongoing-steps > span, .sfx-ongoing-exh > span, .sfx-ongoing-shroud17 > span { animation: none !important; }
+}

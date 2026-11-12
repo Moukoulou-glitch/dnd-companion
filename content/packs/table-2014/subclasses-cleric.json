@@ -4103,11 +4103,15 @@
             "duration": {
               "minutes": 1
             },
-            "roll": {
-              "dice": "1d6 + classLevel.class:cleric",
-              "label": "temporary hit points"
-            },
-            "note": "30-ft aura, 1 minute: allies ending their turn in it gain 1d6 + cleric level temp HP or end charmed/frightened."
+            "note": "30-ft sphere of twilight around you for 1 minute. Whenever a creature of your choice (you too) ends its turn in it: 1d6 + your cleric level temporary hit points, or one charm or fright on it ends (use \"Twilight Sanctuary: end of a turn\")."
+          },
+          {
+            "id": "twilight-sanctuary-turn",
+            "name": "Twilight Sanctuary: end of a turn",
+            "economy": "free",
+            "toggles": [],
+            "tempHp": "1d6 + classLevel.class:cleric",
+            "note": "While your sanctuary lasts, when you or a creature of your choice ends its turn in it: give 1d6 + your cleric level temporary hit points (they don't stack: the higher stays). Or end one charm or fright on it instead: take the condition off on the Play tab."
           }
         ]
       }

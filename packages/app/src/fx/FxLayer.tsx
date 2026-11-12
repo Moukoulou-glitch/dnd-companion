@@ -3,12 +3,13 @@ import { useEffect, useRef, useState } from "react";
 import { CD_LOOKS, GLYPHS, type CdLook } from "./divinity";
 import type { Character } from "@dnd/schema";
 import type { RollRecord } from "../rolls";
-import { formFx, ongoingFx, opFx, rollFx, type FeatureLookup, type FxEvent, type SpellLookup } from "./triggers";
+import { formFx, ongoingFx, opFx, rollFx, stateLoops, STATE_LOOP_KEYS, type FeatureLookup, type FxEvent, type SpellLookup } from "./triggers";
 import { GenSpell } from "./GenSpell";
 import type { GenLook } from "./generated";
 import { phaseLook } from "./spells";
 import { DAMAGE_FX, FORM_FX } from "./looks";
 import { MomentPieces, type Moment } from "./Moments";
+import { FEAT_LOOKS, FEAT_LOOK_MS, featTier } from "./featureLooks";
 
 /**
  * The effects themselves: small, reusable CSS/SVG pieces drawn where they
@@ -46,6 +47,8 @@ export interface FxSpec {
   heritage?: { motif: string; season?: string };
   /** A class moment's pieces (fx/Moments.tsx). */
   moment?: Moment;
+  /** A feature look's grandeur (0–4, by its level) and where it's from (fx/featureLooks.ts). */
+  feat?: { tier: 0 | 1 | 2 | 3 | 4; from: string };
 }
 
 const and = (xs: (string | number)[]) => (xs.length <= 1 ? xs.join("") : `${xs.slice(0, -1).join(", ")} and ${xs[xs.length - 1]}`);
@@ -73,6 +76,19 @@ function momentSpec(e: Extract<FxEvent, { kind: "moment" }>): FxSpec {
       return { ...base, ms: 4200, buzz: [40, 60, 40, 60, 80, 40, 200], shake: 600, label: `Divine Intervention · your deity answers${e.values?.length ? ` (${e.values[0]})` : ""}` };
     case "divine-silence":
       return { ...base, ms: 2200, buzz: [30, 120, 15], label: `Divine Intervention · ${e.values?.[0] ?? ""}: the heavens are silent` };
+    case "twilight-sanctuary":
+      return { ...base, ms: 2400, buzz: [15, 50, 15, 50, 30], label: "Twilight Sanctuary" };
+    case "twilight-shroud":
+      return { ...base, ms: 3600, buzz: [30, 60, 30, 60, 30, 60, 140], shake: 260, label: "Twilight Sanctuary · Twilight Shroud" };
+    case "steps-of-night":
+      return { ...base, ms: 1800, buzz: [10, 40, 10, 40, 10], label: "Steps of Night" };
+    case "exhaustion": {
+      const n = Math.min(6, Math.max(1, e.values?.[0] ?? 1));
+      const what = ["", "disadvantage on ability checks", "speed halved", "disadvantage on attacks and saves", "hit point maximum halved", "speed 0", "death"][n]!;
+      return { ...base, look: `fx-mo fx-mo-exhaustion fx-mo-exh-${n}`, ms: [0, 1500, 1700, 1900, 2100, 2300, 3200][n]!, buzz: [[], [30], [40, 60, 40], [50, 50, 50], [60, 40, 60, 40, 60], [80, 60, 80, 60, 120], [200, 100, 400]][n]!, label: `Exhaustion ${n} · ${what}`, ...(n >= 5 ? { shake: n === 6 ? 500 : 260 } : {}) };
+    }
+    case "exhaustion-eases":
+      return { ...base, ms: 1500, buzz: [10, 40, 10], label: e.values?.[0] ? `Exhaustion eases · level ${e.values[0]}` : "Exhaustion gone" };
     case "sunlight":
       return { ...base, ms: 2500, buzz: [20, 40, 20, 40, 120], label: e.joined ? "Charm of Sunlight · your crown joins" : "Charm of Sunlight" };
   }
@@ -200,6 +216,13 @@ export function specOf(e: FxEvent): FxSpec {
       return { at: "edge", ms: 1400, buzz: [60, 40, 120], look: "fx-wrath", label: "Destructive Wrath · maximum", shake: 450 };
     case "moment":
       return momentSpec(e);
+    case "feat-look": {
+      const l = FEAT_LOOKS[e.action];
+      if (!l) return { at: "edge", ms: 1, look: "fx-none" };
+      const tier = featTier(e.level ?? l.level);
+      const buzz = [[14], [18, 30, 18], [25, 35, 25, 35], [40, 40, 40, 40, 70], [60, 40, 60, 40, 120, 50, 180]][tier]!;
+      return { at: "edge", ms: FEAT_LOOK_MS[tier], buzz, look: `fx-cd fx-cd-${l.motion} fx-feat fx-feat-t${tier}`, label: l.name, cd: { name: l.name, c1: l.c1, c2: l.c2, glyph: l.glyph, motion: l.motion }, feat: { tier, from: e.from ?? l.from }, skippable: true, ...(tier === 4 ? { shake: 380 } : tier === 3 ? { shake: 160 } : {}) };
+    }
     case "favored":
       return { at: "edge", ms: 2000, buzz: [30, 60, 30], look: "fx-favored", label: `Favored by the Gods · +${e.amount}` };
     case "concentration":
@@ -435,6 +458,9 @@ export function FxLayer({ school, spell, feature, character }: { school: (spell:
   return (
     <div className="fx-layer" aria-hidden="true">
       <Ongoing look={ongoingFx(character)?.look} />
+      {STATE_LOOP_KEYS.map((k) => (
+        <Ongoing key={`state-${k}`} look={stateLoops(character)[k]} />
+      ))}
       {FORM_KEYS.map((f) => (
         <Ongoing key={f} look={formFx(character).find((x) => x.form === f)?.look} />
       ))}
@@ -586,6 +612,19 @@ export function FxLayer({ school, spell, feature, character }: { school: (spell:
             {spec.cd && (
               <span className="fx-cd-stage" style={{ ["--cd1" as string]: spec.cd.c1, ["--cd2" as string]: spec.cd.c2 }}>
                 <span className="fx-cd-glow" />
+                {/* A feature's grandeur by its level: from 14th an outer ring of runes; from 17th a veil, a pillar of light and a shockwave. */}
+                {spec.feat && spec.feat.tier >= 4 && <span className="fx-feat-veil" />}
+                {spec.feat && spec.feat.tier >= 4 && <span className="fx-feat-pillar" />}
+                {spec.feat && spec.feat.tier >= 3 && (
+                  <svg className="fx-feat-outer" viewBox="-80 -80 160 160" aria-hidden="true">
+                    <circle r="76" pathLength={1} />
+                    {Array.from({ length: 36 }, (_, i) => (
+                      <line key={i} x1="0" y1="-76" x2="0" y2={i % 3 ? -71 : -66} transform={`rotate(${i * 10})`} />
+                    ))}
+                  </svg>
+                )}
+                {spec.feat && spec.feat.tier >= 4 && <span className="fx-feat-wave" />}
+                {spec.feat && <span className="fx-feat-from">{spec.feat.from}</span>}
                 {["repel", "ripple"].includes(spec.cd.motion) && [0, 1, 2].map((i) => <span key={`r${i}`} className="fx-cd-ring" style={{ animationDelay: `${300 + i * 260}ms` }} />)}
                 {spec.cd.motion === "rays" && Array.from({ length: 12 }, (_, i) => <span key={`y${i}`} className="fx-cd-ray" style={{ transform: `rotate(${i * 30}deg)` }} />)}
                 {spec.cd.motion === "reticle" && [0, 1, 2, 3].map((i) => <span key={`k${i}`} className="fx-cd-bracket" style={{ ["--q" as string]: String(i) }} />)}
@@ -605,8 +644,8 @@ export function FxLayer({ school, spell, feature, character }: { school: (spell:
                   </svg>
                 )}
                 {["rise", "fall", "leaves", "sparks", "smoke", "stars", "converge"].includes(spec.cd.motion) &&
-                  Array.from({ length: 16 }, (_, i) => (
-                    <span key={`p${i}`} className="fx-cd-p" style={{ ["--i" as string]: String(i), ["--a" as string]: `${i * 22.5}deg`, left: `${(i * 37 + 7) % 100}%`, animationDelay: `${150 + (i % 8) * 90}ms` }} />
+                  Array.from({ length: spec.feat ? [10, 12, 16, 20, 28][spec.feat.tier]! : 16 }, (_, i) => (
+                    <span key={`p${i}`} className="fx-cd-p" style={{ ["--i" as string]: String(i), ["--a" as string]: `${i * (360 / (spec.feat ? [10, 12, 16, 20, 28][spec.feat.tier]! : 16))}deg`, left: `${(i * 37 + 7) % 100}%`, animationDelay: `${150 + (i % 8) * 90}ms` }} />
                   ))}
               </span>
             )}
