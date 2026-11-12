@@ -515,6 +515,7 @@
             "name": "Bear Spirit",
             "economy": "free",
             "tempHp": "5 + classLevel.class:druid",
+            "others": true,
             "note": "When the bear spirit appears: you (if you're in its aura) and each creature of your choice in it gain these temporary HP. While in the aura, advantage on Strength checks and saving throws."
           },
           {

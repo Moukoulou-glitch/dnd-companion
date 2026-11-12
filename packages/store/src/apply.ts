@@ -1823,7 +1823,9 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         } else if (gain) notes.push(`Temporary HP don't stack: keeping ${c.hp.temp}, the higher value.`);
       }
       const rolled = op.payload.rolled;
-      if (a.tempHp && rolled !== undefined) {
+      if (a.tempHp && rolled !== undefined && op.payload.onMe === false) {
+        notes.push(`${a.name}: ${rolled} temporary hit points to the creature you chose (yours stay as they are).`);
+      } else if (a.tempHp && rolled !== undefined) {
         if (rolled > c.hp.temp) {
           c.hp.temp = rolled;
           notes.push(`${rolled} temporary HP.`);

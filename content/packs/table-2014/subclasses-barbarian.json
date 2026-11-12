@@ -611,6 +611,7 @@
             "name": "Storm Aura: Tundra",
             "economy": "bonus",
             "tempHp": "scale.thp",
+            "others": true,
             "note": "Triggers free when you rage; bonus action on later turns while raging. Chosen allies in the aura gain the same."
           }
         ]

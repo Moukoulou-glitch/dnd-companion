@@ -4138,6 +4138,7 @@
             "economy": "free",
             "toggles": [],
             "tempHp": "1d6 + classLevel.class:cleric",
+            "others": true,
             "note": "While your sanctuary lasts, when you or a creature of your choice ends its turn in it: give 1d6 + your cleric level temporary hit points (they don't stack: the higher stays). Or end one charm or fright on it instead: take the condition off on the Play tab."
           }
         ]

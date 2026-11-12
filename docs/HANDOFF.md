@@ -469,3 +469,5 @@ Remaining plan (each a sub-phase, stop after each): 2a crits (done) · 2b Relent
 - 22v: Spirit Totem's unicorn spirit heals your druid level (new "Unicorn Spirit" action, to you or others); Grim Harvest is an action that heals the hit points entered (twice the spell's level, three times for necromancy).
 - 22v merged to main with approval (Nov 12; run 43282611649 passed).
 - 22w: Hand of Healing, Starry Form's Chalice and the Healer feat's stabilize ask "On whom?" (you or someone else) instead of always healing you.
+- 22w merged to main with approval (Nov 12; run 43283338108 passed).
+- 22x: temporary HP given to someone else no longer land on you (`onMe: false` writes a note); Chef's treats, Inspiring Leader, Storm Aura (Tundra), Twilight Sanctuary's turn-end temp HP and the Bear Spirit ask "On whom?".

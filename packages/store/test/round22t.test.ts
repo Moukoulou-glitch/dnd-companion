@@ -93,3 +93,17 @@ describe("22w: healing that can go to someone else", () => {
     expect(l.character.hp.current).toBe(10);
   });
 });
+
+describe("22x: temporary HP that can go to someone else", () => {
+  it("given to another creature, yours stay as they are", () => {
+    const c = newCharacter({ id: "x", name: "X", race: "race:human", class: "class:fighter", abilities: { str: 10, dex: 12, con: 14, int: 10, wis: 10, cha: 16 } }, reg);
+    c.classes = [{ class: "class:fighter", level: 4 }];
+    c.feats.push({ feat: "feat:inspiring-leader", from: "Fighter 4 (Ability Score Improvement)" });
+    const l = new CharacterLog(c, reg, new HybridClock("t", () => (t += 1000)), "player");
+    expect(derive(l.character, reg).actions.find((x) => x.id === "inspiring-leader")?.others).toBe(true);
+    expect(l.record("useAction", { action: "inspiring-leader", rolled: 7, onMe: false }).join(" ")).toMatch(/to the creature you chose/);
+    expect(l.character.hp.temp).toBe(0);
+    l.record("useAction", { action: "inspiring-leader", rolled: 7, onMe: true });
+    expect(l.character.hp.temp).toBe(7);
+  });
+});

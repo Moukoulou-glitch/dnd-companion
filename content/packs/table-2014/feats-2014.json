@@ -98,7 +98,8 @@
               "resource": "chef-treats"
             },
             "note": "Whoever eats a treat (bonus action) gains temp HP equal to your proficiency bonus. Treats last 8 hours.",
-            "tempHp": "pb"
+            "tempHp": "pb",
+            "others": true
           }
         ]
       },
@@ -896,7 +897,8 @@
             "name": "Inspiring speech",
             "economy": "action",
             "note": "Takes 10 minutes. Up to six friendly creatures within 30 ft (you included) gain this many temp HP, once per short or long rest each.",
-            "tempHp": "level + mod.cha"
+            "tempHp": "level + mod.cha",
+            "others": true
           }
         ]
       },
