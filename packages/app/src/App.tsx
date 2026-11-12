@@ -1078,6 +1078,26 @@ export function App() {
         },
       });
     }
+    // Lucky (the feat): a luck point for another d20 on your attack, check or save; the higher counts here (by hand
+    // with −1/+1 if you'd keep the lower).
+    if (sh.actions.some((a) => a.id === "lucky")) {
+      const pts = sh.resources.find((r) => r.id === "luck-points")?.remaining ?? 0;
+      const lucky = (on: "any" | "check"): AfterRollOption => ({
+        label: "Lucky: another d20 (1 luck point)",
+        group: "Lucky",
+        on,
+        sub: pts > 0 ? `${pts} luck point${pts === 1 ? "" : "s"} left · the higher d20 counts` : "no luck points left until a long rest",
+        warn: pts <= 0,
+        run: async (r) => {
+          const old = r?.natural;
+          if (old === undefined) return undefined;
+          const n = (await rollOrThrow("1d20", true, undefined, { source: "Lucky" })).total;
+          live.current.act("useAction", { action: "lucky" }, `Lucky: ${old} and ${n}; ${Math.max(old, n)} counts.`);
+          return { value: Math.max(0, n - old), detail: `d20 ${old} and ${n}: ${Math.max(old, n)} kept` };
+        },
+      });
+      out.push(lucky("any"), lucky("check"));
+    }
     // Arcane Deflection (War Magic 2): +4 to a save you failed, for your reaction; only cantrips until the end of your next turn.
     if (sh.actions.some((a) => a.id === "arcane-deflection")) {
       const used = !!ch.combat && (ch.combat.reaction ?? 0) >= 1;

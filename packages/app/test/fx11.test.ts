@@ -35,18 +35,23 @@ describe("feature animations (12c)", () => {
       expect(Signature({ g, x: 100, y: 100 }).at, cls).toBeTruthy();
     }
   });
-  it("a feature from its action, its resource or nothing for a passive or common action (a feat: Savage Attacker)", () => {
-    const { sheet } = sheetOf("class:fighter", 4, "feat:savage-attacker");
-    const f = featureFor(sheet, "useAction", { action: "savage-attacker" });
-    expect(f).toMatchObject({ cls: "feat", level: 1 });
-    expect(featureFor(sheet, "spendResource", { resource: "savage-attacker", amount: 1 })).toMatchObject({ cls: "feat" });
-    // "Just activate", Dash, an unknown action: nothing. Class features have looks of their own now (22k–22p): no generic one.
-    expect(featureFor(sheet, "useAction", { action: "savage-attacker", free: true })).toBeUndefined();
-    expect(featureFor(sheetOf("class:bard", 1).sheet, "useAction", { action: "bardic-inspiration" })).toBeUndefined();
-    const common = sheet.actions.find((a) => a.common);
-    if (common) expect(featureFor(sheet, "useAction", { action: common.id })).toBeUndefined();
+  it("a feature from its action, its resource or nothing for a passive or common action (one from a book file)", () => {
+    // Every class, subclass, feat and race action in the content has its own look (22k–22q): the generic one is for
+    // features from book files. An invented one stands in for them.
+    const sheet = {
+      actions: [{ id: "book-surge", name: "Book Surge", featureId: "feature:book-surge", source: "Book Surge", toggles: [], cost: { resource: "book-surge" } }, { id: "common-dash", name: "Dash", source: "Common", common: true, toggles: [] }],
+      resources: [{ id: "book-surge", name: "Book Surge", source: "Book Surge" }],
+      features: [{ id: "feature:book-surge", name: "Book Surge", origin: "Fighter 7" }],
+    };
+    expect(featureFor(sheet, "useAction", { action: "book-surge" })).toMatchObject({ cls: "fighter", level: 7, name: "Book Surge" });
+    expect(featureFor(sheet, "spendResource", { resource: "book-surge", amount: 1 })).toMatchObject({ cls: "fighter", level: 7 });
+    expect(featureFor(sheet, "useAction", { action: "book-surge", free: true })).toBeUndefined();
+    expect(featureFor(sheet, "useAction", { action: "common-dash" })).toBeUndefined();
     expect(featureFor(sheet, "useAction", { action: "nope" })).toBeUndefined();
-    expect(featureFor(undefined, "useAction", { action: "savage-attacker" })).toBeUndefined();
+    expect(featureFor(undefined, "useAction", { action: "book-surge" })).toBeUndefined();
+    // With a look of their own: no generic one.
+    expect(featureFor(sheetOf("class:fighter", 4, "feat:savage-attacker").sheet, "useAction", { action: "savage-attacker" })).toBeUndefined();
+    expect(featureFor(sheetOf("class:bard", 1).sheet, "useAction", { action: "bardic-inspiration" })).toBeUndefined();
   });
   it("uses with their own look keep it: Rage, Flurry of Blows", () => {
     const { sheet } = sheetOf("class:barbarian", 1);
@@ -58,11 +63,11 @@ describe("feature animations (12c)", () => {
     expect(featureFor(monk, "useAction", { action: "flurry-of-blows" })).toBeUndefined();
   });
   it("opFx plays it when a lookup is given; without one, nothing new", () => {
-    const { c, sheet } = sheetOf("class:fighter", 4, "feat:savage-attacker");
-    const look = (t: string, p: unknown) => featureFor(sheet, t, p);
-    const ev = opFx("useAction", { action: "savage-attacker" }, c, c, undefined, undefined, look);
+    const { c } = sheetOf("class:fighter", 7);
+    const look = () => ({ id: "feature:book-surge", name: "Book Surge", cls: "fighter" as const, level: 7 });
+    const ev = opFx("useAction", { action: "book-surge" }, c, c, undefined, undefined, look);
     expect(ev).toHaveLength(1);
-    expect((ev[0] as { g: { sig: string; tier: number } }).g).toMatchObject({ sig: "cls-feat", tier: 0 });
-    expect(opFx("useAction", { action: "savage-attacker" }, c, c)).toEqual([]);
+    expect((ev[0] as { g: { sig: string; tier: number } }).g).toMatchObject({ sig: "cls-fighter", tier: 2 });
+    expect(opFx("useAction", { action: "book-surge" }, c, c)).toEqual([]);
   });
 });
