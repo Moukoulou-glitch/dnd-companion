@@ -1330,7 +1330,22 @@
             "cost": {
               "resource": "call-the-hunt"
             },
-            "note": "When you rage: chosen allies deal +1d6 once per turn until the rage ends; you gain 5 temp HP for each ally chosen."
+            "note": "When you rage: pick the allies (up to your Constitution modifier, minimum 1). They deal +1d6 once per turn until the rage ends; you gain 5 temporary HP for each.",
+            "choose": {
+              "label": "How many allies join the hunt",
+              "options": [
+                "1 ally",
+                "2 allies",
+                "3 allies",
+                "4 allies",
+                "5 allies",
+                "6 allies"
+              ]
+            },
+            "choiceTempHp": {
+              "each": 5,
+              "upToMod": "con"
+            }
           }
         ]
       }

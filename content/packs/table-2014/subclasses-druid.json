@@ -511,6 +511,13 @@
             "levelOf": "class:druid"
           },
           {
+            "id": "spirit-totem-bear",
+            "name": "Bear Spirit",
+            "economy": "free",
+            "tempHp": "5 + classLevel.class:druid",
+            "note": "When the bear spirit appears: you (if you're in its aura) and each creature of your choice in it gain these temporary HP. While in the aura, advantage on Strength checks and saving throws."
+          },
+          {
             "id": "spirit-totem-hawk",
             "name": "Hawk Spirit",
             "economy": "reaction",

@@ -311,6 +311,8 @@ export interface ActionResult {
   recoversSlots?: { budget: number; maxLevel: number; count?: number };
   /** Combat Wild Shape: spend a slot, heal this die per slot level. */
   slotHeal?: { die: string };
+  /** Temporary HP for each creature the pick names (Call the Hunt). */
+  choiceTempHp?: number;
   /** The pick names a spell slot that using it spends (Song of Defense). */
   choiceSpendsSlot?: boolean;
   /** Starry Form: the pick's switches. */
@@ -2324,6 +2326,12 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
         const bonus = (def?.magic?.bonus ?? 0) + plus(def?.grant?.modifiers) + picked.reduce((n, m) => n + plus(m), 0);
         const fits = (o: string) => Number(/^\+(\d+)/.exec(o)?.[1] ?? 0) <= bonus;
         entry.choose = { ...a.choose, options: a.choose.options.filter(fits) };
+      }
+      // Call the Hunt: up to your Constitution modifier (minimum 1) creatures; temporary HP for each.
+      if (a.choose && a.choiceTempHp) {
+        entry.choiceTempHp = a.choiceTempHp.each;
+        const ab = a.choiceTempHp.upToMod;
+        if (ab) entry.choose = { ...entry.choose!, options: entry.choose!.options.filter((o) => Number(/^(\d+)/.exec(o)?.[1] ?? 0) <= Math.max(1, mods[ab])) };
       }
       if (a.extraAction) entry.extraAction = true;
       if (a.limited) entry.limited = true;

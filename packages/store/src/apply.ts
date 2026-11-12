@@ -1813,6 +1813,15 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
           notes.push(`${comp.name} appears${a.summons.tempHp ? ` with ${a.summons.tempHp} temporary HP` : ""}.`);
         }
       }
+      // Call the Hunt: temporary HP for each creature picked (they don't stack: the higher stays).
+      if (a.choiceTempHp && op.payload.choice) {
+        const n = Number(/^(\d+)/.exec(op.payload.choice)?.[1] ?? 0);
+        const gain = n * a.choiceTempHp;
+        if (gain > c.hp.temp) {
+          c.hp.temp = gain;
+          notes.push(`${gain} temporary HP (${a.choiceTempHp} for each of ${n}).`);
+        } else if (gain) notes.push(`Temporary HP don't stack: keeping ${c.hp.temp}, the higher value.`);
+      }
       const rolled = op.payload.rolled;
       if (a.tempHp && rolled !== undefined) {
         if (rolled > c.hp.temp) {

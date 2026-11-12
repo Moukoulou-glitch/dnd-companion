@@ -1754,6 +1754,24 @@ export function App() {
     if (a.id === "wild-shape") return openTransform("wildshape");
     if (a.id === "deflect-missiles" || a.id === "slow-fall") return openReduce(a);
     if (a.fall) return openFall();
+    // Dwarven Fortitude: when you Dodge, spend a Hit Die to heal, as on a short rest.
+    if (a.id === "dwarven-fortitude") {
+      const dice = (live.current.sheet?.hitDice ?? []).filter((h) => h.total - h.used > 0);
+      return open(a.name, () => (
+        <>
+          <p className="note">{a.note}</p>
+          {dice.length ? (
+            dice.map((h) => (
+              <button key={h.die} className="big primary wide" style={{ marginTop: 8 }} onClick={() => openHitDie(h.die)}>
+                Spend a {h.die} ({h.total - h.used} left)
+              </button>
+            ))
+          ) : (
+            <p className="note warn">No Hit Dice left until a long rest.</p>
+          )}
+        </>
+      ));
+    }
     // A free cast (Haunted: Invisibility) opens the spell itself, where the free use casts it.
     const free = a.spells?.[0] && live.current.sheet?.spells.find((x) => x.id === a.spells![0]!.id && x.list.id === a.spells![0]!.list);
     if (free) return openSpell(free);

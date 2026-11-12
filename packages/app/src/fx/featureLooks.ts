@@ -255,6 +255,7 @@ export const FEAT_LOOKS: Record<string, FeatLook> = {
   "combat-wild-shape-heal": f("Combat Wild Shape", "Druid 2 · Circle of the Moon", 2, "220, 230, 255", "140, 150, 210", "moon", "rise"),
   "balm-of-the-summer-court": f("Balm of the Summer Court", "Druid 2 · Circle of Dreams", 2, "240, 255, 220", "170, 210, 110", "leaf", "converge"),
   "spirit-totem-hawk": f("Spirit Totem", "Druid 2 · Circle of the Shepherd", 2, "220, 240, 200", "150, 190, 110", "laurel", "sparks"),
+  "spirit-totem-bear": f("Spirit Totem", "Druid 2 · Circle of the Shepherd", 2, "220, 240, 200", "150, 190, 110", "laurel", "sparks"),
   "halo-of-spores": f("Halo of Spores", "Druid 2 · Circle of Spores", 2, "200, 220, 170", "110, 90, 60", "skull", "ripple"),
   "symbiotic-entity": f("Symbiotic Entity", "Druid 2 · Circle of Spores", 2, "205, 225, 175", "100, 85, 55", "leaf", "smoke"),
   "starry-form": f("Starry Form", "Druid 2 · Circle of Stars", 2, "235, 235, 255", "150, 140, 255", "star", "rays"),

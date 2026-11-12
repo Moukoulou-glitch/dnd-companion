@@ -515,6 +515,11 @@ export const ActionDef = z
     beforeFirstAttack: z.boolean().optional(),
     /** Only while you have fewer than half your hit points (Unearthly Recovery): a warning otherwise, never blocked. */
     belowHalfHp: z.boolean().optional(),
+    /**
+     * The pick from `choose` starts with a number of creatures ("3 allies"): you gain `each` temporary HP per creature
+     * (Call the Hunt: 5). With `upToMod`, only picks up to that ability's modifier (minimum 1) are offered.
+     */
+    choiceTempHp: z.object({ each: z.number().int().min(1), upToMod: Ability.optional() }).strict().optional(),
     /** Its `choose` options are "+N …": only those up to the item's own bonus are offered (the Moonblade's defender rune). */
     upToItemBonus: z.boolean().optional(),
     /** Ends your concentration. */
