@@ -471,3 +471,5 @@ Remaining plan (each a sub-phase, stop after each): 2a crits (done) · 2b Relent
 - 22w: Hand of Healing, Starry Form's Chalice and the Healer feat's stabilize ask "On whom?" (you or someone else) instead of always healing you.
 - 22w merged to main with approval (Nov 12; run 43283338108 passed).
 - 22x: temporary HP given to someone else no longer land on you (`onMe: false` writes a note); Chef's treats, Inspiring Leader, Storm Aura (Tundra), Twilight Sanctuary's turn-end temp HP and the Bear Spirit ask "On whom?".
+- 22x merged to main with approval (Nov 12; run 43284186759 passed).
+- 22y: a sweep test (`round22y-sweep`): every subclass at levels 3–20, every race, every feat and every item (equipped and attuned) derives a sheet with no NaN, undefined or crash. One-off sweeps also used every action of every subclass and item once, and checked that every cost names a pool the character has: nothing found.
