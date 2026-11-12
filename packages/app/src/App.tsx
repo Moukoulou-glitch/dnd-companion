@@ -1024,20 +1024,26 @@ export function App() {
         },
       });
     }
-    // Diamond Soul (Monk 14): a failed save rolled again for 1 ki; the new roll counts.
-    if (sh.actions.some((a) => a.id === "diamond-soul-reroll")) {
-      const ki = sh.resources.find((r) => r.id === "ki")?.remaining ?? 0;
+    // A failed save rolled again; the new roll counts: Diamond Soul (Monk 14, 1 ki), Indomitable (Fighter 9, its uses),
+    // Fanatical Focus (Zealot 6, once per rage, while raging).
+    const rerolls: { action: string; label: string; sub: (left: number) => string; left: number; when?: boolean }[] = [
+      { action: "diamond-soul-reroll", label: "Diamond Soul: reroll (1 ki)", sub: (n) => (n > 0 ? "a failed save · the new roll counts" : "no ki left"), left: sh.resources.find((r) => r.id === "ki")?.remaining ?? 0 },
+      { action: "indomitable", label: "Indomitable: reroll", sub: (n) => (n > 0 ? `a failed save · ${n} left · the new roll counts` : "no use left until a long rest"), left: sh.resources.find((r) => r.id === "indomitable")?.remaining ?? 0 },
+      { action: "fanatical-focus", label: "Fanatical Focus: reroll", sub: () => "a failed save, once per rage · the new roll counts", left: 1, when: ch.toggles.includes("raging") },
+    ];
+    for (const rr of rerolls) {
+      if (!sh.actions.some((a) => a.id === rr.action) || rr.when === false) continue;
       out.push({
-        label: "Diamond Soul: reroll (1 ki)",
-        group: "Diamond Soul",
+        label: rr.label,
+        group: rr.label,
         on: "save",
-        sub: ki > 0 ? "a failed save · the new roll counts" : "no ki left",
-        warn: ki <= 0,
+        sub: rr.sub(rr.left),
+        warn: rr.left <= 0,
         run: async (r) => {
           const old = r?.natural;
           if (old === undefined) return undefined;
-          const n = (await rollOrThrow("1d20", true, undefined, { source: "Diamond Soul" })).total;
-          live.current.act("useAction", { action: "diamond-soul-reroll" }, `Diamond Soul: rerolled ${old} → ${n}.`);
+          const n = (await rollOrThrow("1d20", true, undefined, { source: rr.label.split(":")[0] })).total;
+          live.current.act("useAction", { action: rr.action }, `${rr.label.split(":")[0]}: rerolled ${old} → ${n}.`);
           return { value: n - old, detail: `d20 ${old} → ${n}` };
         },
       });

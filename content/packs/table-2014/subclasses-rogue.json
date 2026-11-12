@@ -1195,8 +1195,11 @@
             "id": "tokens-of-the-departed",
             "name": "Tokens of the Departed",
             "economy": "reaction",
-            "infoOnly": true,
-            "note": "A creature you can see dies within 30 ft: gain a soul trinket. Mark one used when you destroy it."
+            "note": "A creature you can see dies within 30 ft: a soul trinket forms in your free hand (you hold up to your proficiency bonus of them).",
+            "restores": {
+              "resource": "soul-trinkets",
+              "amount": 1
+            }
           },
           {
             "id": "destroy-soul-trinket",

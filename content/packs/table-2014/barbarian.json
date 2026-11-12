@@ -498,7 +498,7 @@
             "id": "spirit-shield",
             "name": "Spirit Shield",
             "economy": "reaction",
-            "note": "While raging, when a creature you can see within 30 ft takes damage: reduce it by 2d6 (3d6 from 10th level).",
+            "note": "While raging, when a creature you can see within 30 ft takes damage: reduce it by 2d6 (3d6 from 10th level, 4d6 from 14th).",
             "roll": {
               "dice": "scale.dice",
               "label": "damage prevented"
