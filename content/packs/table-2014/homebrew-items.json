@@ -987,6 +987,69 @@
       ]
     },
     {
+      "kind": "item",
+      "id": "item:whistle-of-the-ashen-gale",
+      "name": "Whistle of the Ashen Gale",
+      "summary": "Your Charisma score is 16 (no effect if it's already that or higher). You know thaumaturgy. Once per short or long rest, after you succeed on a save against a spell or magical effect: your speed increases by 10 × your proficiency bonus until the end of your next turn.",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (Giorgos)"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "very rare"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "stat.ability.cha",
+            "op": "setMin",
+            "value": 16,
+            "label": "Whistle of the Ashen Gale"
+          }
+        ],
+        "resources": [
+          {
+            "id": "whistle-ashen-gale",
+            "name": "Whistle of the Ashen Gale",
+            "max": 1,
+            "reset": "short"
+          }
+        ],
+        "spells": [
+          {
+            "spell": "spell:thaumaturgy",
+            "name": "Thaumaturgy",
+            "casting": "at will, from the whistle: a chill draft, drifting ash or a distant, unnatural whistling comes with it",
+            "atWill": true
+          }
+        ],
+        "actions": [
+          {
+            "id": "whistle-ashen-gale",
+            "name": "Whistle of the Ashen Gale: the whispering wind",
+            "economy": "free",
+            "cost": {
+              "resource": "whistle-ashen-gale"
+            },
+            "selfEffect": "effect:whistle-ashen-gale",
+            "duration": {
+              "rounds": 2
+            },
+            "note": "Right after you succeed on a saving throw against a spell or a magical effect: your speed increases by 10 × your proficiency bonus until the end of your next turn."
+          }
+        ]
+      },
+      "text": [
+        "This slender whistle is carved from pale, weather-worn bone, its surface polished to a soft matte sheen that feels unnaturally cold to the touch. Fine silver filigree winds around its body like frozen veins, binding together hairline fractures filled with a dark, glassy resin resembling compacted ash. Ancient runes, nearly worn away by time, spiral subtly along its length in a forgotten arcane script.",
+        "When held, the whistle produces no audible sound. Instead, the attuned bearer feels a faint pressure of wind against their thoughts, as if distant air is passing through hollow stone corridors. A single dark feather hangs from its base, suspended by a thin chain, never moving in still air yet always shifting slightly when unobserved.",
+        "While attuned to the whistle, your Charisma score becomes 16. This property has no effect if your Charisma is already 16 or higher.",
+        "In addition, you learn the thaumaturgy cantrip if you don't already know it. When you cast it, the manifestations of the spell are subtly altered, accompanied by a chill draft, drifting ash, or a distant, unnatural whistling sound.",
+        "Once per rest, when you succeed on a saving throw against a spell or a magical effect, you can draw upon the whispering wind within the whistle to increase your speed by an amount equal to your proficiency bonus x 10. This bonus lasts until the end of your next turn."
+      ]
+    },
+    {
       "kind": "effect",
       "id": "effect:tome-of-wound-forbidding",
       "name": "Tome of Wound Forbidding",
@@ -1045,6 +1108,27 @@
           "value": "1d8",
           "damageTypeFromChoice": true,
           "label": "Whisperer of the Elements"
+        }
+      ],
+      "selfOnly": true
+    },
+    {
+      "kind": "effect",
+      "id": "effect:whistle-ashen-gale",
+      "name": "Whispering wind",
+      "category": "other",
+      "summary": "Speed increased by 10 × your proficiency bonus until the end of your next turn (Whistle of the Ashen Gale).",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (Giorgos)"
+      },
+      "rounds": 2,
+      "modifiers": [
+        {
+          "selector": "stat.speed.walk",
+          "op": "add",
+          "value": "10*pb",
+          "label": "Whistle of the Ashen Gale"
         }
       ],
       "selfOnly": true

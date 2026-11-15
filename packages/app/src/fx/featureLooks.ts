@@ -167,6 +167,7 @@ export const FEAT_LOOKS: Record<string, FeatLook> = {
   // Feats and race traits (1st-level size)
   "chef-treat": f("Chef's Treats", "Feat · Chef", 1, "255, 220, 170", "210, 140, 70", "heart", "rise"),
   "grim-harvest": f("Grim Harvest", "Wizard 2 · School of Necromancy", 2, "200, 230, 200", "70, 120, 80", "skull", "converge"),
+  "whistle-ashen-gale": f("Whistle of the Ashen Gale", "Whistle of the Ashen Gale · very rare", 6, "225, 225, 235", "110, 110, 130", "wind", "smoke"),
   "spell-sniper-aim": f("Spell Sniper: steady aim", "Feat · Spell Sniper", 1, "230, 240, 255", "120, 160, 255", "target", "converge"),
   "gift-of-the-protectors": f("Gift of the Protectors", "Invocation · Warlock 9", 9, "245, 235, 210", "150, 110, 200", "book", "rise"),
   "dragon-fear": f("Dragon Fear", "Feat · Dragon Fear", 1, "255, 160, 110", "170, 40, 30", "wings", "ripple"),
