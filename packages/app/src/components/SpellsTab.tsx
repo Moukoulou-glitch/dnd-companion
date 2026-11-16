@@ -337,7 +337,7 @@ export function SpellPanel({
   casterSide?: boolean;
   /** That tag adds damage to your attacks (Hex), so the note can say so. */
   casterDamage?: boolean;
-  onCast: (level: number, using: "slot" | "pact" | "free" | "ritual" | "fast-ritual" | "none" | "extra" | "scroll" | "points" | "charges", selfEffect: boolean, castingTime?: string, onCompanions?: string[]) => void;
+  onCast: (level: number, using: "slot" | "pact" | "free" | "ritual" | "fast-ritual" | "none" | "extra" | "scroll" | "points" | "charges", selfEffect: boolean, castingTime?: string, onCompanions?: string[], chargeOption?: number) => void;
   /** Your companions here now: its effect can go on them too (Bless on your wolf). */
   companions?: { id: string; name: string; warnings?: string[]; already?: boolean }[];
   /** Opens already cast at this level (after a turn warning was confirmed). */
@@ -380,9 +380,9 @@ export function SpellPanel({
       : []),
   ];
 
-  const doCast = (level: number, using: "slot" | "pact" | "free" | "ritual" | "fast-ritual" | "none" | "extra" | "scroll" | "points" | "charges") => {
+  const doCast = (level: number, using: "slot" | "pact" | "free" | "ritual" | "fast-ritual" | "none" | "extra" | "scroll" | "points" | "charges", chargeOption?: number) => {
     // Stored in an object (Thinking Stone): no effect on anyone now.
-    onCast(level, using, sp.stores ? false : casterSide ? true : onMe, times.length > 1 ? time : undefined, casterSide || sp.stores ? [] : onComps);
+    onCast(level, using, sp.stores ? false : casterSide ? true : onMe, times.length > 1 ? time : undefined, casterSide || sp.stores ? [] : onComps, chargeOption);
     setCast(level);
   };
 
@@ -498,9 +498,10 @@ export function SpellPanel({
                 </span>
               </button>
             )}
-            {sp.cast.charges?.options.map((o) => (
-              <button key={`ch${o.level}`} className={sp.cast.charges!.remaining >= o.cost ? "big" : "big damage"} onClick={() => doCast(o.level, "charges")}>
+            {sp.cast.charges?.options.map((o, i) => (
+              <button key={`ch${i}`} className={sp.cast.charges!.remaining >= o.cost ? "big" : "big damage"} onClick={() => doCast(o.level, "charges", i)}>
                 {ordinal(o.level)} level · {o.cost} {o.cost === 1 ? "charge" : "charges"}
+                {o.label ? ` · ${o.label}` : ""}
                 <span className="sub">
                   {sp.cast.charges!.item}: {sp.cast.charges!.remaining} left
                 </span>

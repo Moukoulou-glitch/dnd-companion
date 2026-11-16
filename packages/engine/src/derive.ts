@@ -219,7 +219,7 @@ export interface SpellResult {
      */
     scroll?: { instanceId: string; level: number; dc: number; attack: number; onList: boolean; check?: { dc: number; ability: Ability; bonus: number }; stored?: boolean; by?: string; entry?: string; from?: string };
     /** Cast with an item's charges (Wand of Magic Missiles: 1 at 1st, one more a level): the levels it can be cast at, and what each costs. */
-    charges?: { instanceId: string; item: string; remaining: number; options: { level: number; cost: number }[] };
+    charges?: { instanceId: string; item: string; remaining: number; options: { level: number; cost: number; label?: string; effect?: string }[] };
   };
 }
 
@@ -315,6 +315,8 @@ export interface ActionResult {
   choiceTempHp?: number;
   /** The pick names a spell slot that using it spends (Song of Defense). */
   choiceSpendsSlot?: boolean;
+  /** That slot's level comes back as its item's charges (Tithanonas' Spell Shard). */
+  choiceRefillsCharges?: boolean;
   /** Starry Form: the pick's switches. */
   choiceToggles?: Record<string, string[]>;
   /** Done before your first attack with its item on your turn (Defender). */
@@ -1783,8 +1785,10 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     /** Cast only through the item's own uses (a prayer bead), never with your slots. */
     noSlots?: boolean;
     /** Cast with an item's charges (a wand), at `castAt` or the spell's level and up. */
-    charges?: { instanceId: string; item: string; remaining: number; cost: number; perLevel?: boolean; maxLevel?: number };
+    charges?: { instanceId: string; item: string; remaining: number; cost: number; perLevel?: boolean; maxLevel?: number; extras?: { label: string; extra: number; effect?: string }[] };
     castAt?: number;
+    /** Added to its save DC and spell attack (Tithanonas' Spell Shard, Tier II). */
+    dcBonus?: { value: number; label: string };
     dc?: number;
     noConcentration?: boolean;
     extraPerLong?: number;
@@ -1830,8 +1834,9 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       if (g.charges && s.itemInstanceId) {
         const inst = c.inventory.find((i) => i.id === s.itemInstanceId);
         const idef = inst ? reg.find(inst.item, "item") : undefined;
-        if (inst && idef?.charges) granted.charges = { instanceId: inst.id, item: inst.name ?? idef.name, remaining: Math.max(0, idef.charges.max - (inst.chargesUsed ?? 0)), ...g.charges };
+        if (inst && idef?.charges) granted.charges = { instanceId: inst.id, item: inst.name ?? idef.name, remaining: Math.max(0, idef.charges.max - (inst.chargesUsed ?? 0)), ...g.charges, ...(g.chargeExtras ? { extras: g.chargeExtras } : {}) };
       }
+      if (g.dcBonus && (!g.dcBonus.whileToggle || c.toggles.includes(g.dcBonus.whileToggle))) granted.dcBonus = { value: g.dcBonus.value, label: g.dcBonus.label };
       spellDefs.set(`${list}|${g.spell}`, { def: reg.has(g.spell) ? reg.get(g.spell, "spell") : undefined, list, prepared: true, granted });
       if (g.resource && !reg.has(g.spell)) {
         const res = resources.find((r) => r.id === g.resource);
@@ -2015,10 +2020,10 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     const timer = durationTimer(def.duration);
     if (timer) r.timer = timer;
     if (sc && def.attack) {
-      r.attack = roll([`roll.attack.spell.${def.attack}`, `roll.attack.spell.${def.id.replace(/^spell:/, "")}`], [pbPart(), castingPart(sc), ...statAdds(["stat.spell.attack", `stat.spell.attack.${sc.id}`])]);
+      r.attack = roll([`roll.attack.spell.${def.attack}`, `roll.attack.spell.${def.id.replace(/^spell:/, "")}`], [pbPart(), castingPart(sc), ...statAdds(["stat.spell.attack", `stat.spell.attack.${sc.id}`]), ...(granted?.dcBonus ? [{ label: granted.dcBonus.label, value: granted.dcBonus.value }] : [])]);
       if (elvenAccuracy && sc.ability !== "str") r.attack.tripleAdvantage = "Elven Accuracy";
     }
-    if (sc && def.save) r.save = { ability: def.save.ability, dc: granted?.dc ?? sc.saveDc.total, onSuccess: def.save.onSuccess };
+    if (sc && def.save) r.save = { ability: def.save.ability, dc: (granted?.dc ?? sc.saveDc.total) + (granted?.dcBonus?.value ?? 0), onSuccess: def.save.onSuccess };
     // Untamed Flame: the Circle spells of 1 action can be cast as a bonus action, up to a slot level.
     for (const src of sources) {
       const ac = src.grant.altCast;
@@ -2135,7 +2140,10 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       const ch = granted.charges;
       const from = granted.castAt ?? Math.max(1, def.level);
       const top = ch.perLevel ? Math.min(9, ch.maxLevel ?? 9) : from;
-      r.cast = { slotLevels: [], charges: { instanceId: ch.instanceId, item: ch.item, remaining: ch.remaining, options: Array.from({ length: Math.max(1, top - from + 1) }, (_, i) => ({ level: from + i, cost: ch.cost + (ch.perLevel ? i : 0) })) } };
+      const options: { level: number; cost: number; label?: string; effect?: string }[] = Array.from({ length: Math.max(1, top - from + 1) }, (_, i) => ({ level: from + i, cost: ch.cost + (ch.perLevel ? i : 0) }));
+      // More charges for more (the Shard's Longstrider: +20 ft for 3 more).
+      for (const x of ch.extras ?? []) options.push({ level: from, cost: ch.cost + x.extra, label: x.label, ...(x.effect ? { effect: x.effect } : {}) });
+      r.cast = { slotLevels: [], charges: { instanceId: ch.instanceId, item: ch.item, remaining: ch.remaining, options } };
     }
     if (granted?.pointCost) {
       const res = resources.find((x) => x.id === granted.pointCost!.resource);
@@ -2376,6 +2384,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       }
       if (a.slotHeal) entry.slotHeal = a.slotHeal;
       if (a.choiceSpendsSlot) entry.choiceSpendsSlot = true;
+      if (a.choiceRefillsCharges) entry.choiceRefillsCharges = true;
       if (a.choiceToggles) entry.choiceToggles = entry.choose && a.upToItemBonus ? Object.fromEntries(Object.entries(a.choiceToggles).filter(([o]) => entry.choose!.options.includes(o))) : a.choiceToggles;
       // Defensive Duelist (remastered): proficiency bonus + half Dexterity (rounded up, at least 1).
       if (a.id === "defensive-duelist") {

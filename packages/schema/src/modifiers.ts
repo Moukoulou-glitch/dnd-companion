@@ -323,6 +323,10 @@ export const GrantedSpell = z
      * (or `castAt`), and with `perLevel` one more charge for each level above, up to `maxLevel`.
      */
     charges: z.object({ cost: z.number().int().min(1), perLevel: z.boolean().optional(), maxLevel: z.number().int().min(1).max(9).optional() }).strict().optional(),
+    /** More charges for more effect, offered as their own casting buttons (Tithanonas' Spell Shard: Longstrider +20 ft for 3 more). */
+    chargeExtras: z.array(z.object({ label: z.string(), extra: z.number().int().min(1), effect: DefId.optional() }).strict()).optional(),
+    /** Its save DC and spell attack go up while a switch is on (Tithanonas' Spell Shard, Tier II: +2). */
+    dcBonus: z.object({ value: z.number().int(), label: z.string(), whileToggle: z.string().optional() }).strict().optional(),
     /** Only while this switch is on (Floar's Fire Bolt). */
     whileToggle: z.string().optional(),
     /** Its free cast needs no concentration (Unbridled Seasons: Beacon of Hope once per long rest). */
@@ -554,6 +558,8 @@ export const ActionDef = z
     choiceToggles: z.record(z.string(), z.array(z.string())).optional(),
     /** Spend a spell slot to heal this die per slot level (Combat Wild Shape: 1d8). The panel asks which slot. */
     slotHeal: z.object({ die: z.string() }).strict().optional(),
+    /** With `choiceSpendsSlot`: the slot's level comes back as its item's charges, never past their maximum (Tithanonas' Spell Shard). */
+    choiceRefillsCharges: z.boolean().optional(),
     /** The pick from `choose` names a spell slot ("3rd (15)"): using it spends a slot of that level (Song of Defense, Drake's Breath). */
     choiceSpendsSlot: z.boolean().optional(),
   })

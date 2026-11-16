@@ -1631,6 +1631,18 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
           if (used >= total) notes.push(`No level ${lvl} spell slot left: spent anyway.`);
           c.slotsUsed[key] = used + 1;
           notes.push(`A level ${lvl} spell slot spent.`);
+          // Tithanonas' Spell Shard: the slot's level back as charges, never past the maximum.
+          if (a.choiceRefillsCharges && a.itemInstanceId) {
+            const inst = c.inventory.find((i) => i.id === a.itemInstanceId);
+            const idef = inst ? reg.find(inst.item, "item") : undefined;
+            if (inst && idef?.charges) {
+              const usedCh = inst.chargesUsed ?? 0;
+              const back = Math.min(lvl, usedCh);
+              if (usedCh - back) inst.chargesUsed = usedCh - back;
+              else delete inst.chargesUsed;
+              notes.push(back < lvl ? `${inst.name ?? idef.name}: ${back} charge${back === 1 ? "" : "s"} back (it holds at most ${idef.charges.max}); ${idef.charges.max - usedCh + back} now.` : `${inst.name ?? idef.name}: ${back} charge${back === 1 ? "" : "s"} back, ${idef.charges.max - usedCh + back} now.`);
+            }
+          }
         }
       }
       // Combat Wild Shape: a slot spent for healing (the healing itself comes as its own heal).
@@ -2017,7 +2029,9 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         // A wand or staff: its charges at this level (Wand of Fireballs at 4th: 4).
         const ch = sp.cast.charges;
         const inst = ch && c.inventory.find((i) => i.id === ch.instanceId);
-        const cost = ch?.options.find((o) => o.level === level)?.cost ?? ch?.options[0]?.cost ?? 1;
+        const picked = op.payload.chargeOption !== undefined ? ch?.options[op.payload.chargeOption] : undefined;
+        const cost = picked?.cost ?? ch?.options.find((o) => o.level === level && !o.label)?.cost ?? ch?.options[0]?.cost ?? 1;
+        if (picked?.label) notes.push(`${sp.name}: ${picked.label}.`);
         if (!ch || !inst) notes.push(`${sp.name}: no item to cast it with. Cast anyway.`);
         else {
           const max = reg.find(inst.item, "item")?.charges?.max ?? ch.remaining;
@@ -2118,7 +2132,9 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         if (economy === "bonus") cb.bonusSpell = true;
         if (economy === "action" && sp.level > 0) cb.leveledActionSpell = true;
       });
-      const effectId = sp.id.replace(/^spell:/, "effect:");
+      // An item's option with its own effect (the Shard's Longstrider for +20 ft).
+      const chargePick = using === "charges" && op.payload.chargeOption !== undefined ? sp.cast.charges?.options[op.payload.chargeOption] : undefined;
+      const effectId = chargePick?.effect ?? sp.id.replace(/^spell:/, "effect:");
       const selfDef = reg.find(effectId, "effect");
       if (selfEffect && selfDef?.ends) restore(selfDef, op.payload.choice);
       else if (selfEffect && selfDef) {

@@ -172,6 +172,8 @@ export function App() {
   const castOnCompanions = useRef<string[]>([]);
   /** How the spell was last cast (Awakened Spellbook changes a damage type only when a slot was spent). */
   const lastCastUsing = useRef<{ spell: string; using: string } | null>(null);
+  /** Which of an item's charge options was picked for the cast being made (the Shard's Longstrider for 20 ft). */
+  const chargeOptionRef = useRef<number | undefined>(undefined);
   /** The ritual being cast is at its normal casting time (Awakened Spellbook). */
   const fastRitual = useRef(false);
   const growJoin = useRef(0);
@@ -3781,7 +3783,7 @@ export function App() {
               castSeq.current += 1;
               live.current.act(
                 "castSpell",
-                { spell: sp.id, list: sp.list.id, level, using, selfEffect, ...comp, ...(choice ? { choice } : {}), ...(castingTime ? { castingTime } : {}) },
+                { spell: sp.id, list: sp.list.id, level, using, selfEffect, ...comp, ...(choice ? { choice } : {}), ...(castingTime ? { castingTime } : {}), ...(using === "charges" && chargeOptionRef.current !== undefined ? { chargeOption: chargeOptionRef.current } : {}) },
                 `${sp.name} cast${castingTime ? ` (${castingTime})` : ""}${choice ? `: ${ABILITY_NAMES[choice as keyof typeof ABILITY_NAMES] ?? choice}` : ""}.`,
               );
               if (!sp.stores) flashForSpell(sp.id, level);
@@ -3983,8 +3985,9 @@ export function App() {
           companions={friendlyTargets(live.current.character!, live.current.sheet!, registry)
             .filter((t) => t.kind !== "me" && t.hp > 0)
             .map((t) => ({ id: t.id, name: t.name, warnings: targetWarnings(t, SPELL_TARGETS[sp.id], sp.name), ...(t.effects.includes(sp.id.replace(/^spell:/, "effect:")) ? { already: true } : {}) }))}
-          onCast={(level, using, selfEffect, castingTime, onCompanions) => {
+          onCast={(level, using, selfEffect, castingTime, onCompanions, chargeOption) => {
             castOnCompanions.current = onCompanions ?? [];
+            chargeOptionRef.current = using === "charges" ? chargeOption : undefined;
             lastCastUsing.current = { spell: sp.id, using };
             // Awakened Spellbook's ritual at its normal time: a ritual (no slot) that spends that use.
             fastRitual.current = using === "fast-ritual";

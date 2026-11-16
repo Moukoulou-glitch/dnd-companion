@@ -1050,6 +1050,243 @@
       ]
     },
     {
+      "kind": "item",
+      "id": "item:tithanonas-spell-shard",
+      "name": "Tithanonas' Spell Shard",
+      "summary": "Attunement by a wizard, druid, cleric or ranger (a DC 18 Wisdom save every 2 days, three in a row, then a 250-word poem). 10 charges, 1d6 + 4 back at dawn; when the last is spent, a d20: 19 or lower, it dissolves. An action: a spell slot's level back as charges (never past 10). Casts Goodberry, Longstrider, Blindness/Deafness, Water Breathing, Plant Growth and Water Walk for charges, with your DC; a focus for transmutation and necromancy spells. Tier II (switched on when the DM says): +2 DC and spell attack on its spells, Animate Dead (4) and Bestow Curse (4); disadvantage on initiative; 9+ charges in a day: DC 15 Wisdom save or speed 0 and no reactions until your next turn.",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (Giorgos)"
+      },
+      "category": "wondrous",
+      "weight": 0.55,
+      "magic": {
+        "rarity": "very rare"
+      },
+      "requiresAttunement": true,
+      "charges": {
+        "max": 10,
+        "regain": "1d6+4",
+        "onEmpty": "The last charge is spent: roll a d20. On 19 or lower the Shard dissolves into a single drop of ink that vanishes in the air."
+      },
+      "grant": {
+        "spells": [
+          {
+            "spell": "spell:goodberry",
+            "name": "Goodberry",
+            "casting": "from the Shard, 1 charge",
+            "charges": {
+              "cost": 1
+            },
+            "castAt": 1,
+            "dcBonus": {
+              "value": 2,
+              "label": "Tithanonas' Spell Shard (Tier II)",
+              "whileToggle": "shard-tier-2"
+            }
+          },
+          {
+            "spell": "spell:longstrider",
+            "name": "Longstrider",
+            "casting": "from the Shard, 1 charge",
+            "charges": {
+              "cost": 1
+            },
+            "castAt": 1,
+            "dcBonus": {
+              "value": 2,
+              "label": "Tithanonas' Spell Shard (Tier II)",
+              "whileToggle": "shard-tier-2"
+            },
+            "chargeExtras": [
+              {
+                "label": "speed +20 ft instead of +10",
+                "extra": 3,
+                "effect": "effect:shard-longstrider"
+              }
+            ]
+          },
+          {
+            "spell": "spell:blindness-deafness",
+            "name": "Blindness/Deafness",
+            "casting": "from the Shard, 2 charges",
+            "charges": {
+              "cost": 2
+            },
+            "castAt": 2,
+            "dcBonus": {
+              "value": 2,
+              "label": "Tithanonas' Spell Shard (Tier II)",
+              "whileToggle": "shard-tier-2"
+            },
+            "chargeExtras": [
+              {
+                "label": "one more creature",
+                "extra": 2
+              }
+            ]
+          },
+          {
+            "spell": "spell:water-breathing",
+            "name": "Water Breathing",
+            "casting": "from the Shard, 3 charges",
+            "charges": {
+              "cost": 3
+            },
+            "castAt": 3,
+            "dcBonus": {
+              "value": 2,
+              "label": "Tithanonas' Spell Shard (Tier II)",
+              "whileToggle": "shard-tier-2"
+            }
+          },
+          {
+            "spell": "spell:plant-growth",
+            "name": "Plant Growth",
+            "casting": "from the Shard, 3 charges",
+            "charges": {
+              "cost": 3
+            },
+            "castAt": 3,
+            "dcBonus": {
+              "value": 2,
+              "label": "Tithanonas' Spell Shard (Tier II)",
+              "whileToggle": "shard-tier-2"
+            },
+            "chargeExtras": [
+              {
+                "label": "the 8-hour enrichment in 1 hour of casting",
+                "extra": 3
+              }
+            ]
+          },
+          {
+            "spell": "spell:water-walk",
+            "name": "Water Walk",
+            "casting": "from the Shard, 3 charges",
+            "charges": {
+              "cost": 3
+            },
+            "castAt": 3,
+            "dcBonus": {
+              "value": 2,
+              "label": "Tithanonas' Spell Shard (Tier II)",
+              "whileToggle": "shard-tier-2"
+            }
+          },
+          {
+            "spell": "spell:animate-dead",
+            "name": "Animate Dead",
+            "casting": "from the Shard, 4 charges: the dead rise as waterlogged sailors and the drowned, under your control",
+            "charges": {
+              "cost": 4
+            },
+            "castAt": 3,
+            "dcBonus": {
+              "value": 2,
+              "label": "Tithanonas' Spell Shard (Tier II)",
+              "whileToggle": "shard-tier-2"
+            },
+            "whileToggle": "shard-tier-2"
+          },
+          {
+            "spell": "spell:bestow-curse",
+            "name": "Bestow Curse",
+            "casting": "from the Shard, 4 charges",
+            "charges": {
+              "cost": 4
+            },
+            "castAt": 3,
+            "dcBonus": {
+              "value": 2,
+              "label": "Tithanonas' Spell Shard (Tier II)",
+              "whileToggle": "shard-tier-2"
+            },
+            "whileToggle": "shard-tier-2"
+          }
+        ],
+        "actions": [
+          {
+            "id": "shard-store-slot",
+            "name": "Spell Shard: Spell Storing",
+            "economy": "action",
+            "choose": {
+              "label": "The spell slot",
+              "options": [
+                "1st-level slot",
+                "2nd-level slot",
+                "3rd-level slot",
+                "4th-level slot",
+                "5th-level slot",
+                "6th-level slot",
+                "7th-level slot",
+                "8th-level slot",
+                "9th-level slot"
+              ]
+            },
+            "choiceSpendsSlot": true,
+            "choiceRefillsCharges": true,
+            "note": "Spend a spell slot: its level comes back to the Shard as charges (never past 10). Stored charges last 24 hours or until used."
+          },
+          {
+            "id": "shard-tier-2",
+            "name": "Spell Shard: Tier II",
+            "economy": "free",
+            "toggles": [
+              "shard-tier-2"
+            ],
+            "note": "Switch it on when the DM says Tier II is unlocked (26+ charges spent on transmutation or necromancy spells within 2 days). Then: +2 save DC and spell attack on the Shard's spells, Animate Dead and Bestow Curse for 4 charges, and disadvantage on initiative. Click again to switch it off."
+          },
+          {
+            "id": "shard-burden",
+            "name": "Spell Shard: Paralyzing Burden",
+            "economy": "free",
+            "untilTurnStart": true,
+            "toggles": [
+              "shard-burden"
+            ],
+            "note": "Tier II: whenever you've spent 9 or more of its charges in one day, a DC 15 Wisdom save. Failed: tap this. Your speed is 0 and you can't take reactions until the start of your next turn, curled up on the rock like the Philosopher."
+          }
+        ],
+        "modifiers": [
+          {
+            "selector": "roll.initiative",
+            "op": "disadvantage",
+            "label": "Tithanonas' Spell Shard (Tier II)",
+            "when": {
+              "toggle": "shard-tier-2"
+            }
+          },
+          {
+            "selector": "stat.speed.*",
+            "op": "set",
+            "value": 0,
+            "label": "The Scholar's Paralyzing Burden",
+            "when": {
+              "toggle": "shard-burden"
+            }
+          }
+        ]
+      },
+      "text": [
+        "This item appears to be a large, cut shard of Topaz shaped like a teardrop or a half-eaten eggshell. It has a faint yellow glow, but upon touch, its color shifts to a dark, melanic black, like the ink of a giant squid. Swirls inside resemble the deep, drowning waters of the ocean.",
+        "Requires attunement by a Wizard, Druid, Cleric, or Ranger. Value unknown; weight 250 g.",
+        "Basic Properties (Tier I)",
+        "Requirement: The character must attempt to attune to the Shard every 2 days, and on every attempt must succeed on a DC 18 Wisdom saving throw. On a failed saving throw the attempts reset. After three consecutive successes the character must write a poem of exactly 250 words.",
+        "The Shard has 10 charges and regains 1d6+4 charges every dawn. If all charges are expended, roll a d20. On a result of 19 or lower, the Shard dissolves into a single drop of ink that vanishes in the air.",
+        "Spell Storing: As an action, the attuned character can expend any level spell slot and transfer the corresponding slot level into the Shard as charges. Charges inserted this way last for 24 hours or until used.",
+        "Casting: While holding the Shard, you can expend a number of charges equal to the spell's level to cast a spell. The Shard acts as a spellcasting focus for spells of the Transmutation and Necromancy schools. The spell's saving throw DC and spell attack bonus are those of the user.",
+        "Scholar's Spell: You can expend charges to cast the following spells (using the user's DC): 1 charge: Goodberry (as described by Tithanonas, 1st level). 1 charge: Longstrider (1st level); with 3 extra charges, the target's speed increases by 20 feet until the spell ends, instead of 10 feet. 2 charges: Blindness/Deafness (2nd level); with 2 extra charges, you can target one additional creature. 3 charges: Water Breathing (3rd level). 3 charges: Plant Growth (3rd level); with 3 extra charges, you can choose to cast the 8-hour enrichment version with a casting time of 1 hour instead of 8 hours. 3 charges: Water Walk (3rd level).",
+        "Progressive Unlocking. Tithanonas, the Paranoid and Macabre Scholar, demands that the user accept his existential view to reveal the Shard's full powers.",
+        "Tier II: The Truth of Entropy. The Shard carries Tithanonas' entropic outlook—the belief that everything must rot. Requirement: The character must expend at least 26 charges from the Shard on Transmutation or Necromancy spells within 2 days.",
+        "Additional Feature: The user's spell save DC and spell attack bonus increase by +2 for spells of the Transmutation and Necromancy schools cast through the Shard.",
+        "Macabre Spell: You can expend 4 charges to cast the spell Animate Dead (3rd level). The creatures created are under your control and resemble waterlogged sailors or the drowned.",
+        "Scholar's Spell: You can expend charges to cast the following spell (using the user's DC): 4 charges: Bestow Curse (3rd level).",
+        "New drawback: The Scholar's Paralyzing Burden. Tithanonas' voice begins to drown out your own resolve. Whenever you expend 9 or more charges at the same day, you must make a DC 15 Wisdom saving throw. On a failure: You are overwhelmed by the \"futility of the moment.\" Your movement speed is reduced to 0, and you cannot take reactions until the start of your next turn as you \"curl up on the rock like the Philosopher,\" contemplating the end of all things.",
+        "Constant Effect: While attuned to the Shard at this level, you have Disadvantage on Initiative rolls. You are often caught staring at the sky or the sea, wondering why the \"cotton birds\" bother to fly, making you slow to react to sudden danger."
+      ]
+    },
+    {
       "kind": "effect",
       "id": "effect:tome-of-wound-forbidding",
       "name": "Tome of Wound Forbidding",
@@ -1132,6 +1369,26 @@
         }
       ],
       "selfOnly": true
+    },
+    {
+      "kind": "effect",
+      "id": "effect:shard-longstrider",
+      "name": "Longstrider (+20 ft)",
+      "category": "spell",
+      "summary": "Walking speed +20 ft for 1 hour (Longstrider through Tithanonas' Spell Shard, 3 more charges).",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (Giorgos)"
+      },
+      "minutes": 60,
+      "modifiers": [
+        {
+          "selector": "stat.speed.walk",
+          "op": "add",
+          "value": 20,
+          "label": "Longstrider (Spell Shard)"
+        }
+      ]
     }
   ]
 }

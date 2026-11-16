@@ -28,3 +28,45 @@ describe("22z: Whistle of the Ashen Gale (homebrew)", () => {
     expect(l.character.resourcesUsed["whistle-ashen-gale"] ?? 0).toBe(0);
   });
 });
+
+describe("23a: Tithanonas' Spell Shard (homebrew)", () => {
+  const pc = () => {
+    const c = newCharacter({ id: "s", name: "S", race: "race:human", class: "class:wizard", abilities: { str: 8, dex: 14, con: 14, int: 16, wis: 12, cha: 10 } }, reg);
+    c.classes = [{ class: "class:wizard", level: 5 }];
+    c.inventory.push({ id: "sh", item: "item:tithanonas-spell-shard", quantity: 1, equipped: true, attuned: true });
+    return new CharacterLog(c, reg, new HybridClock("t", () => (t += 1000)), "player");
+  };
+  const spell = (l: CharacterLog, id: string) => derive(l.character, reg).spells.find((x) => x.id === id);
+  it("casts its spells for charges, with the extra-charge options", () => {
+    const l = pc();
+    const ls = spell(l, "spell:longstrider")!;
+    expect(ls.cast.charges?.options.map((o) => [o.level, o.cost, o.label ?? ""])).toEqual([[1, 1, ""], [1, 4, "speed +20 ft instead of +10"]]);
+    l.record("castSpell", { spell: "spell:longstrider", list: ls.list.id, level: 1, using: "charges", selfEffect: true, chargeOption: 1 } as never);
+    expect(l.character.inventory.find((i) => i.id === "sh")?.chargesUsed).toBe(4);
+    expect(l.character.effects.some((e) => e.effect === "effect:shard-longstrider")).toBe(true);
+    expect(derive(l.character, reg).speed.total).toBe(50);
+    const bd = spell(l, "spell:blindness-deafness")!;
+    l.record("castSpell", { spell: bd.id, list: bd.list.id, level: 2, using: "charges", selfEffect: false } as never);
+    expect(l.character.inventory.find((i) => i.id === "sh")?.chargesUsed).toBe(6);
+    expect(spell(l, "spell:animate-dead")).toBeUndefined();
+  });
+  it("Spell Storing: a slot's level back as charges, never past 10", () => {
+    const l = pc();
+    l.character.inventory.find((i) => i.id === "sh")!.chargesUsed = 2;
+    l.record("useAction", { action: "shard-store-slot", choice: "3rd-level slot" });
+    expect(l.character.slotsUsed["3"]).toBe(1);
+    expect(l.character.inventory.find((i) => i.id === "sh")?.chargesUsed).toBeUndefined();
+  });
+  it("Tier II: +2 DC on its spells, Animate Dead and Bestow Curse, disadvantage on initiative; the Burden stops you", () => {
+    const l = pc();
+    const before = spell(l, "spell:blindness-deafness")!.save!.dc;
+    l.record("useAction", { action: "shard-tier-2" });
+    const s = derive(l.character, reg);
+    expect(s.spells.find((x) => x.id === "spell:blindness-deafness")!.save!.dc).toBe(before + 2);
+    expect(s.spells.some((x) => x.id === "spell:animate-dead")).toBe(true);
+    expect(s.spells.some((x) => x.id === "spell:bestow-curse")).toBe(true);
+    expect(s.initiative.disadvantage.length).toBeGreaterThan(0);
+    l.record("useAction", { action: "shard-burden" });
+    expect(derive(l.character, reg).speed.total).toBe(0);
+  });
+});

@@ -347,6 +347,8 @@ export const OPERATION_PAYLOADS = {
       castingTime: z.string().optional(),
       /** Readied (the Ready action): cast now, held with concentration, released with your reaction. */
       readied: z.boolean().optional(),
+      /** Cast with an item's charges: which of its options (more charges for more effect), by its place in the list. */
+      chargeOption: z.number().int().min(0).max(20).optional(),
       /** The costly or consumed material component is used up by this cast. */
       consumeComponent: z.boolean().optional(),
       /** A ritual at its normal casting time (Awakened Spellbook): spends that once-per-long-rest use. */
