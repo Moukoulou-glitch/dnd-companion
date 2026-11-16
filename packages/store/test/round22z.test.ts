@@ -90,3 +90,15 @@ describe("23c: more languages to pick", () => {
     for (const l of ["Aquan", "Auran", "Ignan", "Terran", "Druidic", "Thieves' Cant", "Language of Silence"]) expect(LANGUAGES).toContain(l);
   });
 });
+
+describe("23d: the classes' secret languages come with the class", () => {
+  it("a druid knows Druidic, a rogue Thieves' Cant", () => {
+    const of = (cls: string) => {
+      const c = newCharacter({ id: "l", name: "L", race: "race:human", class: cls, abilities: { str: 10, dex: 14, con: 12, int: 10, wis: 14, cha: 10 } }, reg);
+      return derive(c, reg).proficiencies.languages;
+    };
+    expect(of("class:druid")).toContain("Druidic");
+    expect(of("class:rogue")).toContain("Thieves' Cant");
+    expect(of("class:fighter")).not.toContain("Druidic");
+  });
+});
