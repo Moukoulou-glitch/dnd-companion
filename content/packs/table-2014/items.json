@@ -4233,6 +4233,66 @@
     },
     {
       "kind": "item",
+      "id": "item:corpse-slayer-longsword",
+      "name": "Corpse Slayer",
+      "summary": "A +1 weapon: on a hit against an undead, 1d8 more of the weapon's type, and until the start of your next turn it has disadvantage on saves against turn undead effects. Battleaxe, greataxe, longsword, greatsword, shortsword, glaive, spear, javelin, warhammer, whip, club, dagger, quarterstaff, rapier, scimitar or trident: pick which on the item (a longsword until then).",
+      "source": {
+        "pack": "table-2014",
+        "book": "VRGtR"
+      },
+      "category": "weapon",
+      "magic": {
+        "rarity": "rare",
+        "bonus": 1
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "modifiers": [
+          {
+            "selector": "item.damage",
+            "op": "add",
+            "value": "1d8",
+            "label": "Corpse Slayer",
+            "mode": "suggested",
+            "when": {
+              "text": "against an undead: it also has disadvantage on saves against turn undead effects until the start of your next turn"
+            }
+          }
+        ]
+      },
+      "weight": 3,
+      "weapon": {
+        "category": "martial",
+        "kind": "melee",
+        "group": "longsword",
+        "damage": "1d8",
+        "damageType": "slashing",
+        "properties": [
+          "versatile"
+        ],
+        "versatileDamage": "1d10"
+      },
+      "baseFrom": [
+        "item:battleaxe",
+        "item:greataxe",
+        "item:longsword",
+        "item:greatsword",
+        "item:shortsword",
+        "item:glaive",
+        "item:spear",
+        "item:javelin",
+        "item:warhammer",
+        "item:whip",
+        "item:club",
+        "item:dagger",
+        "item:quarterstaff",
+        "item:rapier",
+        "item:scimitar",
+        "item:trident"
+      ]
+    },
+    {
+      "kind": "item",
       "id": "item:giant-slayer-longsword",
       "name": "Giant Slayer",
       "summary": "A +1 weapon: 2d6 more of its type against giants, who must make a DC 15 Strength save or fall prone. Any sword or axe: pick which on the item (a longsword until then).",

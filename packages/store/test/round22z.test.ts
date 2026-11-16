@@ -70,3 +70,16 @@ describe("23a: Tithanonas' Spell Shard (homebrew)", () => {
     expect(derive(l.character, reg).speed.total).toBe(0);
   });
 });
+
+describe("23b: Corpse Slayer", () => {
+  it("a +1 weapon on any of its bases, with 1d8 more against undead", () => {
+    const c = newCharacter({ id: "k", name: "K", race: "race:human", class: "class:fighter", abilities: { str: 16, dex: 12, con: 14, int: 10, wis: 10, cha: 10 } }, reg);
+    c.classes = [{ class: "class:fighter", level: 5 }];
+    c.inventory.push({ id: "cs", item: "item:corpse-slayer-longsword", quantity: 1, equipped: true, attuned: true, base: "item:greataxe" });
+    const s = derive(c, reg);
+    const a = s.attacks.find((x) => /Corpse Slayer/.test(x.name))!;
+    expect(a.damage.dice).toBe("1d12");
+    expect(a.attack.parts.some((p) => p.value === 1)).toBe(true);
+    expect(a.damage.bonus.suggestions.find((x) => x.label === "Corpse Slayer")).toBeDefined();
+  });
+});
