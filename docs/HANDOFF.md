@@ -485,3 +485,4 @@ Remaining plan (each a sub-phase, stop after each): 2a crits (done) · 2b Relent
 - 23d: a druid knows Druidic from level 1 (feature:druidic in srd-fixes now grants the language); a rogue already knew Thieves' Cant (checked by a test).
 - 23d merged to main with approval (Nov 17; run 43973380075 passed).
 - 23e: languages in alphabetical order everywhere: the list offered (LANGUAGES, sorted), a feature's own language choices, and the sheet's Languages line.
+- 23e merged to main with approval (Nov 17; run 43974631898 passed).
