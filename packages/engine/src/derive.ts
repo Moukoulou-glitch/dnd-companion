@@ -2759,7 +2759,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       armor: [...profs.armor],
       weapons: [...profs.weapon],
       tools: [...profs.tool],
-      languages: [...profs.language],
+      languages: [...profs.language].sort((x, y) => x.localeCompare(y)),
       removed: c.profRemoved ?? [],
     },
     defenses,

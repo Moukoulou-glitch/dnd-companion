@@ -102,3 +102,14 @@ describe("23d: the classes' secret languages come with the class", () => {
     expect(of("class:fighter")).not.toContain("Druidic");
   });
 });
+
+describe("23e: languages in alphabetical order", () => {
+  it("the list offered and the sheet's own", async () => {
+    const { LANGUAGES } = await import("@dnd/engine");
+    expect([...LANGUAGES]).toEqual([...LANGUAGES].sort((a, b) => a.localeCompare(b)));
+    const c = newCharacter({ id: "a", name: "A", race: "race:human", class: "class:druid", abilities: { str: 10, dex: 14, con: 12, int: 10, wis: 14, cha: 10 } }, reg);
+    c.choices["race:human"] = { ...(c.choices["race:human"] ?? {}) };
+    const langs = derive(c, reg).proficiencies.languages;
+    expect(langs).toEqual([...langs].sort((a, b) => a.localeCompare(b)));
+  });
+});

@@ -12,30 +12,30 @@ import { derive, featureOrigins, schoolFreePicks } from "./derive.js";
  */
 
 export const LANGUAGES = [
+  // In alphabetical order, as they are offered.
+  "Abyssal",
+  "Aquan",
+  "Auran",
+  "Celestial",
   "Common",
+  "Deep Speech",
+  "Draconic",
+  "Druidic",
   "Dwarvish",
   "Elvish",
   "Giant",
   "Gnomish",
   "Goblin",
   "Halfling",
-  "Orc",
-  "Abyssal",
-  "Celestial",
-  "Draconic",
-  "Deep Speech",
+  "Ignan",
   "Infernal",
+  "Language of Silence",
+  "Orc",
   "Primordial",
   "Sylvan",
-  "Undercommon",
-  // Primordial's dialects, the classes' secret tongues, and the table's own.
-  "Aquan",
-  "Auran",
-  "Ignan",
   "Terran",
-  "Druidic",
   "Thieves' Cant",
-  "Language of Silence",
+  "Undercommon",
 ];
 
 export const TOOLS = [
@@ -280,7 +280,7 @@ export function choiceOptions(ch: ChoiceDef, reg: ContentRegistry, slotMax?: num
     case "ability":
       return (from ?? [...ABILITIES]).map((a) => ({ value: a, label: ABILITY_NAMES[a as Ability] ?? a }));
     case "language":
-      return (from ?? LANGUAGES).map((l) => ({ value: l, label: l }));
+      return [...(from ?? LANGUAGES)].sort((x, y) => x.localeCompare(y)).map((l) => ({ value: l, label: l }));
     case "tool":
       return (from ?? TOOLS).map((t) => ({ value: t, label: t }));
     case "option":

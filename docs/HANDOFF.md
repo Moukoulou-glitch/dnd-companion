@@ -483,3 +483,5 @@ Remaining plan (each a sub-phase, stop after each): 2a crits (done) · 2b Relent
 - 23c: Corpse Slayer's own critical-hit look (grave-light, a cut, the skull cracking to ash; replaces the usual crit on its attack roll) and a bigger one when its critical damage has a Divine Smite on it (a pillar of radiance, a rune ring, gold shock, the skull burning to gold ash; `{kind:"corpse", smite}`); seven more languages to pick (Aquan, Auran, Ignan, Terran, Druidic, Thieves' Cant, Language of Silence; "Iguana" read as Ignan); an item's quantity can be typed as well as stepped.
 - 23c merged to main with approval (Nov 17; run 43971843926 passed).
 - 23d: a druid knows Druidic from level 1 (feature:druidic in srd-fixes now grants the language); a rogue already knew Thieves' Cant (checked by a test).
+- 23d merged to main with approval (Nov 17; run 43973380075 passed).
+- 23e: languages in alphabetical order everywhere: the list offered (LANGUAGES, sorted), a feature's own language choices, and the sheet's Languages line.
