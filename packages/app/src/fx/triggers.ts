@@ -41,6 +41,8 @@ export type FxEvent =
   | { kind: "twenty"; motif: "sharp" | "vicious" | "drain" | "smite" | "edge" | "sever" | "tide"; label: string }
   /** Destructive Wrath: the storm answers (its lightning and thunder dice at their maximum). */
   | { kind: "wrath" }
+  /** Corpse Slayer's critical hit: the grave cracks open; with a Divine Smite on its damage, radiance burns the dead away. */
+  | { kind: "corpse"; smite: boolean }
   /** Favored by the Gods: a failed save or a miss, and the gods add 2d4 (the amount). */
   | { kind: "favored"; amount: number }
   /** Floar (Circle of the Heammer): the Methic flame lights; with Zenith, a sun rises in it too. */
@@ -99,19 +101,24 @@ export const MOMENT_ACTIONS: Record<string, MomentMotif> = {
   "charm-of-sunlight-join": "sunlight",
 };
 
+const CORPSE = /Corpse Slayer/i;
+
 /** A saved roll: crit and natural 1 on attack rolls only; Sneak Attack when its dice are in the damage. */
 export function rollFx(r: RollRecord, c?: Character, info?: SpellLookup): FxEvent[] {
   if (r.kind === "d20") {
     if (!r.attack) return [];
     const reckless: FxEvent[] = r.options?.includes(RECKLESS) ? [{ kind: "reckless", hit: false }] : [];
     // The roll's own crit flag: a natural 20, or the crit range a feature gives (Champion's 19).
-    if (r.crit) return [...reckless, { kind: "crit" }];
+    // Corpse Slayer has its own critical hit.
+    if (r.crit) return [...reckless, CORPSE.test(r.title) ? { kind: "corpse", smite: false } : { kind: "crit" }];
     if (r.natural === 1) return [...reckless, { kind: "fumble" }];
     return reckless;
   }
   const out: FxEvent[] = r.lines.some((l) => /sneak attack/i.test(l.source) && l.detail !== "") ? [{ kind: "sneak", total: r.total }] : [];
   if (r.twenty) out.unshift({ kind: "twenty", motif: r.twenty.motif, label: r.twenty.label });
   if (r.options?.includes("Destructive Wrath")) out.unshift({ kind: "wrath" });
+  // Corpse Slayer's critical damage with a Divine Smite on it.
+  if (CORPSE.test(r.title) && /\(critical\)/.test(r.title) && (r.options ?? []).some((o) => /^Divine Smite/.test(o))) out.unshift({ kind: "corpse", smite: true });
   // A spell's damage: right after casting it resolves; from the concentration chip it's a later use.
   const phase: SpellPhase = r.again ? "again" : "resolve";
   // Its damage type changed (Transmuted Spell: Fireball as thunder): the spell's own look is for its own type, so the

@@ -5190,3 +5190,30 @@ html.fx-shake-strong .app > .strip, html.fx-shake-strong .app > main, html.fx-sh
   .fx-mo .mo-tw-veil, .fx-mo .mo-tw-const, .fx-mo .mo-tw-mote, .fx-mo .mo-tw-star, .fx-mo .mo-sn-step, .fx-mo .mo-sn-spark, .fx-mo .mo-ex-drop, .fx-mo .mo-ex-weight, .fx-mo .mo-ex-chain, .fx-mo .mo-ex-eye.b, .fx-mo .mo-ex-flat { display: none; }
   .sfx-ongoing-twilight > span, .sfx-ongoing-steps > span, .sfx-ongoing-exh > span, .sfx-ongoing-shroud17 > span { animation: none !important; }
 }
+
+/* Corpse Slayer's critical hit: grave-light, a cut, and the dead's skull cracking into ash. */
+.fx-cs { position: absolute; inset: 0; overflow: hidden; pointer-events: none; animation: fx-tw-in var(--fx-ms) ease-out forwards; }
+.fx-cs-veil { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 45%, rgba(60, 90, 70, 0.25), rgba(4, 10, 8, 0.85)); }
+.fx-cs .fx-label { color: #d9f2df; font-size: 1.2em; letter-spacing: 0.02em; text-shadow: 0 0 2px #000, 0 0 14px #5fbf86; }
+.fx-cs-skull { position: absolute; left: 50%; top: 42%; width: 150px; height: 175px; margin: -88px 0 0 -75px; opacity: 0; animation: fx-cs-skull var(--fx-ms) ease-in forwards; filter: drop-shadow(0 0 14px rgba(140, 230, 170, 0.55)); }
+.fx-cs-skull .bone { fill: #d8d2bf; stroke: #6b6452; stroke-width: 2; }
+.fx-cs-skull .hole { fill: #101512; }
+.fx-cs-skull .crack { fill: none; stroke: #0b0d0b; stroke-width: 3; stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: 1; animation: fx-tw-draw 240ms 380ms ease-in forwards; }
+@keyframes fx-cs-skull { 0% { opacity: 0; transform: scale(0.6); } 14% { opacity: 1; transform: scale(1.05); } 22% { transform: scale(1); } 34% { opacity: 1; transform: scale(1); filter: drop-shadow(0 0 14px rgba(140, 230, 170, 0.55)); } 60% { opacity: 0; transform: scale(1.12) translateY(30px); filter: blur(3px); } 100% { opacity: 0; } }
+.fx-cs-svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.fx-cs-svg .slash { fill: none; stroke: #eafff0; stroke-width: 6; stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: 1; filter: drop-shadow(0 0 8px #7de0a4) drop-shadow(0 0 20px #2f8a5a); animation: fx-tw-draw 220ms 300ms ease-in forwards; }
+.fx-cs-ash { position: absolute; left: 50%; top: 45%; width: 6px; height: 6px; border-radius: 2px; background: #b9b3a2; opacity: 0; animation: fx-cs-ash 1100ms ease-out forwards; }
+@keyframes fx-cs-ash { 0% { opacity: 1; transform: rotate(var(--a)) translateY(0) scale(1.2); } 100% { opacity: 0; transform: rotate(var(--a)) translateY(calc(var(--d) * -1)) scale(0.3); } }
+/* With a Divine Smite: a pillar of radiance from above, a ring of runes, gold shock, the skull burning to gold ash. */
+.fx-cs-smite .fx-cs-veil { background: radial-gradient(ellipse at 50% 45%, rgba(120, 100, 40, 0.25), rgba(8, 8, 4, 0.88)); }
+.fx-cs-smite .fx-label { color: #fff2c4; font-size: 1.35em; text-shadow: 0 0 2px #000, 0 0 18px #ffd34d; }
+.fx-cs-smite .fx-cs-skull { animation-duration: 2000ms; filter: drop-shadow(0 0 18px #ffd34d); }
+.fx-cs-smite .fx-cs-ash { background: #ffdf7a; box-shadow: 0 0 8px #ffb300; animation-duration: 1500ms; }
+.fx-cs-smite .fx-cs-svg .slash { stroke: #fffbe8; filter: drop-shadow(0 0 10px #ffd34d) drop-shadow(0 0 26px #ff9d00); }
+.fx-cs-pillar { position: absolute; left: 50%; top: -10%; width: 140px; height: 70%; margin-left: -70px; background: linear-gradient(180deg, rgba(255, 250, 220, 0), rgba(255, 240, 180, 0.95) 60%, rgba(255, 220, 120, 0.2)); filter: blur(4px); transform-origin: top; transform: scaleY(0); animation: fx-cs-pillar var(--fx-ms) ease-out forwards; }
+@keyframes fx-cs-pillar { 0% { transform: scaleY(0); opacity: 0; } 12% { transform: scaleY(1); opacity: 1; } 55% { opacity: 1; width: 140px; } 70% { opacity: 0.7; } 100% { opacity: 0; transform: scaleY(1) scaleX(0.2); } }
+.fx-cs-runes { position: absolute; left: 50%; top: 45%; width: 260px; height: 260px; margin: -130px 0 0 -130px; border-radius: 50%; border: 3px dashed rgba(255, 220, 120, 0.85); box-shadow: 0 0 22px rgba(255, 200, 80, 0.6), inset 0 0 22px rgba(255, 200, 80, 0.4); opacity: 0; animation: fx-cs-runes var(--fx-ms) linear forwards; }
+@keyframes fx-cs-runes { 0% { opacity: 0; transform: scale(0.4) rotate(0deg); } 18% { opacity: 1; transform: scale(1) rotate(40deg); } 75% { opacity: 1; transform: scale(1.05) rotate(200deg); } 100% { opacity: 0; transform: scale(1.4) rotate(260deg); } }
+.fx-cs-wave { position: absolute; left: 50%; top: 45%; width: 90px; height: 90px; margin: -45px 0 0 -45px; border-radius: 50%; border: 8px solid #ffe08a; box-shadow: 0 0 30px #ffb300; opacity: 0; animation: fx-cs-wave 1000ms 600ms ease-out forwards; }
+@keyframes fx-cs-wave { 0% { opacity: 1; transform: scale(0.3); } 100% { opacity: 0; transform: scale(8); border-width: 1px; } }
+@media (prefers-reduced-motion: reduce) { .fx-cs { animation: fx-static 900ms ease-out forwards !important; } .fx-cs > :not(.fx-label):not(.fx-cs-veil) { display: none; } }

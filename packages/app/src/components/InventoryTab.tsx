@@ -562,18 +562,8 @@ export function ItemPanel({
       {def.storesSpells && <StoredSpellsBox inst={inst} def={def} act={act} spells={spells} {...(mine ? { mine } : {})} holderPresent={holderPresent} />}
       {(isScroll(def) || isStoredObject(def)) && <ScrollSpell inst={inst} def={def} act={act} spells={spells} {...(onRead ? { onRead } : {})} {...(onCopy ? { onCopy } : {})} onCustom={onCustomSpell ?? (() => {})} />}
       <div className="group">
-        <div className="row">
-          <div className="row-main row-title">Quantity</div>
-          <div className="stepper">
-            <button aria-label="One fewer" onClick={() => act("setItem", { instanceId: inst.id, quantity: Math.max(0, inst.quantity - 1) }, `${name}: ${Math.max(0, inst.quantity - 1)}.`)}>
-              −
-            </button>
-            <span>{inst.quantity}</span>
-            <button aria-label="One more" onClick={() => act("setItem", { instanceId: inst.id, quantity: inst.quantity + 1 }, `${name}: ${inst.quantity + 1}.`)}>
-              +
-            </button>
-          </div>
-        </div>
+        {/* − and +, or type the number. */}
+        <NumberStep label="Quantity" value={inst.quantity} min={0} max={99999} onChange={(n) => n !== inst.quantity && act("setItem", { instanceId: inst.id, quantity: n }, `${name}: ${n}.`)} />
         {canEquip && (
           <label className="row check">
             <input type="checkbox" checked={inst.equipped} onChange={() => act("setItem", { instanceId: inst.id, equipped: !inst.equipped }, `${name} ${inst.equipped ? "unequipped" : "equipped"}.`)} />

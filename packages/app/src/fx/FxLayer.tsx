@@ -214,6 +214,11 @@ export function specOf(e: FxEvent): FxSpec {
     }
     case "wrath":
       return { at: "edge", ms: 1400, buzz: [60, 40, 120], look: "fx-wrath", label: "Destructive Wrath · maximum", shake: 450 };
+    // Corpse Slayer: the grave's skull cracks and falls to ash; with a Divine Smite, a pillar of radiance burns it away.
+    case "corpse":
+      return e.smite
+        ? { at: "edge", ms: 3000, buzz: [40, 30, 40, 30, 90, 40, 200], look: "fx-cs fx-cs-smite", label: "Corpse Slayer · Divine Smite", shake: 560, skippable: true }
+        : { at: "edge", ms: 1900, buzz: [30, 40, 30, 40, 90], look: "fx-cs", label: "Corpse Slayer · critical hit", shake: 260, skippable: true };
     case "moment":
       return momentSpec(e);
     case "feat-look": {
@@ -824,6 +829,31 @@ export function FxLayer({ school, spell, feature, character }: { school: (spell:
                     </span>
                   </>
                 )}
+              </>
+            )}
+            {spec.look.startsWith("fx-cs") && (
+              <>
+                <span className="fx-cs-veil" />
+                {spec.look.includes("fx-cs-smite") && (
+                  <>
+                    <span className="fx-cs-pillar" />
+                    <span className="fx-cs-runes" />
+                    <span className="fx-cs-wave" />
+                  </>
+                )}
+                <svg className="fx-cs-skull" viewBox="0 0 120 140" aria-hidden="true">
+                  <path className="bone" d="M60,8 C28,8 10,30 10,58 C10,76 18,88 30,95 L30,118 L48,118 L48,108 L54,108 L54,120 L66,120 L66,108 L72,108 L72,118 L90,118 L90,95 C102,88 110,76 110,58 C110,30 92,8 60,8 Z" />
+                  <path className="hole" d="M28,62 C28,50 38,46 46,50 C52,54 52,66 44,72 C36,76 28,72 28,62 Z" />
+                  <path className="hole" d="M92,62 C92,50 82,46 74,50 C68,54 68,66 76,72 C84,76 92,72 92,62 Z" />
+                  <path className="hole" d="M60,78 L54,92 L66,92 Z" />
+                  <path className="crack" pathLength={1} d="M60,8 L56,30 L66,44 L58,60 L64,80 L57,98 L62,120" />
+                </svg>
+                <svg className="fx-cs-svg" viewBox="0 0 390 844" preserveAspectRatio="none">
+                  <path className="slash" pathLength={1} d="M30,250 Q200,420 360,620" />
+                </svg>
+                {Array.from({ length: spec.look.includes("fx-cs-smite") ? 26 : 16 }, (_, i) => (
+                  <span key={i} className="fx-cs-ash" style={{ ["--a" as string]: `${(i * 137) % 360}deg`, ["--d" as string]: `${90 + ((i * 53) % 150)}px`, animationDelay: `${420 + (i % 8) * 55}ms` }} />
+                ))}
               </>
             )}
             {spec.look.startsWith("fx-tw ") && (

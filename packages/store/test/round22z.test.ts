@@ -83,3 +83,10 @@ describe("23b: Corpse Slayer", () => {
     expect(a.damage.bonus.suggestions.find((x) => x.label === "Corpse Slayer")).toBeDefined();
   });
 });
+
+describe("23c: more languages to pick", () => {
+  it("Primordial's dialects, Druidic, Thieves' Cant and the Language of Silence", async () => {
+    const { LANGUAGES } = await import("@dnd/engine");
+    for (const l of ["Aquan", "Auran", "Ignan", "Terran", "Druidic", "Thieves' Cant", "Language of Silence"]) expect(LANGUAGES).toContain(l);
+  });
+});

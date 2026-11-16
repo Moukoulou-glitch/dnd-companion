@@ -28,6 +28,14 @@ export const LANGUAGES = [
   "Primordial",
   "Sylvan",
   "Undercommon",
+  // Primordial's dialects, the classes' secret tongues, and the table's own.
+  "Aquan",
+  "Auran",
+  "Ignan",
+  "Terran",
+  "Druidic",
+  "Thieves' Cant",
+  "Language of Silence",
 ];
 
 export const TOOLS = [
