@@ -84,7 +84,7 @@ export type FxEvent =
   /** A spell with no hand-made look: its generated one (fx/generated.ts), by level, school, damage and shape. */
   | { kind: "gen"; g: GenLook }
   /** Sending: the message's words, once it's sent. */
-  | { kind: "sending"; words: string[] }
+  | { kind: "sending"; words: string[]; incoming?: boolean }
   /** A class or subclass feature with a look of its own (fx/featureLooks.ts), grander the higher its level. */
   | { kind: "feat-look"; action: string; level?: number; from?: string }
   /** A class moment (fx/Moments.tsx): Portent foretold or used, Arcane Recovery, Second Wind, Action Surge, Divine Sense, Lay on Hands, Charm of Sunlight. */

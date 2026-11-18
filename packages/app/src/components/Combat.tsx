@@ -386,7 +386,8 @@ export function turnOrder(character: Character, sheet: DerivedSheet, reg?: Conte
     else {
       // Each with its own (Conjure Elemental) or one for the group.
       const own = sum?.initiative === "own" ? ms : [first];
-      for (const m of own) out.push({ name: own.length > 1 ? (m.name ?? base) : name, ...(m.initiative !== undefined ? { initiative: m.initiative } : {}) });
+      // Each by its own name (an Air Elemental called up with a Water Elemental is the Air Elemental, not a second Water).
+      for (const m of own) out.push({ name: own.length > 1 ? (m.name ?? reg?.find(m.creature, "creature")?.name ?? base) : name, ...(m.initiative !== undefined ? { initiative: m.initiative } : {}) });
     }
   }
   return out.sort((a, b) => (b.initiative ?? -999) - (a.initiative ?? -999));

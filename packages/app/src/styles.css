@@ -5217,3 +5217,29 @@ html.fx-shake-strong .app > .strip, html.fx-shake-strong .app > main, html.fx-sh
 .fx-cs-wave { position: absolute; left: 50%; top: 45%; width: 90px; height: 90px; margin: -45px 0 0 -45px; border-radius: 50%; border: 8px solid #ffe08a; box-shadow: 0 0 30px #ffb300; opacity: 0; animation: fx-cs-wave 1000ms 600ms ease-out forwards; }
 @keyframes fx-cs-wave { 0% { opacity: 1; transform: scale(0.3); } 100% { opacity: 0; transform: scale(8); border-width: 1px; } }
 @media (prefers-reduced-motion: reduce) { .fx-cs { animation: fx-static 900ms ease-out forwards !important; } .fx-cs > :not(.fx-label):not(.fx-cs-veil) { display: none; } }
+
+/* The four elementals' own movements: the whirlwind's turning bands and leaf, fire's embers rising. */
+.critter .cr-band { animation: cr-band 0.8s linear infinite; }
+@keyframes cr-band { to { stroke-dashoffset: -40; } }
+.critter .cr-whirl { transform-box: fill-box; transform-origin: 50% 100%; animation: cr-whirl 2.6s ease-in-out infinite; animation-delay: var(--cr-delay); }
+@keyframes cr-whirl { 0%, 100% { transform: skewX(-4deg); } 50% { transform: skewX(4deg); } }
+.critter .cr-leaf { transform-box: view-box; transform-origin: 30px 24px; animation: cr-leaf 1.6s linear infinite; }
+@keyframes cr-leaf { to { transform: rotate(360deg); } }
+.critter .cr-ember { animation: cr-ember 2.4s ease-out infinite; }
+@keyframes cr-ember { 0% { opacity: 0; transform: translateY(6px); } 30% { opacity: 1; } 100% { opacity: 0; transform: translateY(-10px); } }
+
+/* A Sending to you: a line of light falls from above, and the words open out of it. */
+.fx-sending-in .fx-send-line { animation-name: fx-send-line-in; }
+.fx-sending-in .fx-send-words > span { animation-name: fx-send-word-in; animation-delay: calc(var(--i) * 30ms); }
+@keyframes fx-send-line-in {
+  0% { opacity: 0; height: 160px; transform: translate(-50%, -600%); }
+  10% { opacity: 1; }
+  30% { opacity: 1; height: 40px; transform: translate(-50%, -80%); }
+  38%, 100% { opacity: 0; height: 0; transform: translate(-50%, -50%); }
+}
+@keyframes fx-send-word-in {
+  0%, 30% { opacity: 0; transform: translateY(-40px) scale(0.5); filter: blur(3px); }
+  48% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+  86% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(6px); }
+}

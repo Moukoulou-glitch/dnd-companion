@@ -355,6 +355,7 @@ export function AddEffectPanel({
   close,
   onTransform,
   onPick,
+  onSpecial,
   already = [],
 }: {
   registry: ContentRegistry;
@@ -363,6 +364,8 @@ export function AddEffectPanel({
   onTransform?: (d: EffectDef) => void;
   /** Put the effect on someone else (a summoned creature) instead of you; a spell that grows with its level (Aid) asks the level. */
   onPick?: (d: EffectDef, choice?: string, slotLevel?: number) => void;
+  /** An effect that opens its own panel instead of going on (a Sending to you: the message and your answer). */
+  onSpecial?: Record<string, () => void>;
   /** Effects already on that creature: a spell can't go on it twice (its effects don't add up). */
   already?: string[];
 }) {
@@ -373,6 +376,7 @@ export function AddEffectPanel({
   const add = (d: EffectDef, choice?: string, slotLevel?: number) => {
     // Polymorph, True Polymorph: which creature? The effect goes on with the form.
     if (onPick) return onPick(d, choice, slotLevel);
+    if (onSpecial?.[d.id]) return onSpecial[d.id]!();
     if (d.transform && onTransform) return onTransform(d);
     act("addEffect", { instanceId: crypto.randomUUID(), effect: d.id, ...(choice ? { choice } : {}) }, `${d.name}${choice ? ` (${optionName(choice)})` : ""} added.`);
     close();

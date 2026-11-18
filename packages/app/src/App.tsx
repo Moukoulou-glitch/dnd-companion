@@ -59,7 +59,7 @@ import { AddExtraPanel, ExtraEditor, ExtraInline, skillExtra } from "./component
 import { AddItemPanel, AmmoRecover, CoinPanel, InventoryTab, ItemPanel, itemDef } from "./components/InventoryTab";
 import { bookReport, registry } from "./content";
 import { BookText, BooksPanel } from "./components/BookText";
-import { SendingPanel, sendingNote } from "./components/Sending";
+import { SendingPanel, SendingReceivedPanel, receivedNote, sendingNote } from "./components/Sending";
 import { formatWorld } from "./calendar";
 import { actionDays, everyDaysNote, interventionNote, lastsDaysNote, spellDays } from "./everyDays";
 import { UsedWhenPanel } from "./components/UsedWhen";
@@ -622,6 +622,34 @@ export function App() {
             "Words sent: saved in your notes.",
           );
           playFx({ kind: "sending", words: text.trim().split(/\s+/).filter(Boolean).slice(0, 40) });
+          close();
+        }}
+      />
+    ));
+
+  /** Someone's Sending reached you: the words you heard and your answer, saved as a note; theirs arrive, yours go off. */
+  const openSendingReceived = () =>
+    open("A Sending to you", () => (
+      <SendingReceivedPanel
+        onSkip={close}
+        onSave={(from, text, reply) => {
+          const ch = live.current.character;
+          const cal = ch?.story.calendar;
+          live.current.act(
+            "addNote",
+            {
+              ...receivedNote(from, text, reply),
+              category: "blue",
+              pinned: false,
+              ...(ch?.story.session !== undefined ? { session: ch.story.session } : {}),
+              ...(cal ? { gameDate: formatWorld(cal.minutes, cal.kind, cal.custom), gameMinutes: cal.minutes } : {}),
+            },
+            reply.trim() ? "A Sending and your answer: saved in your notes." : "A Sending to you: saved in your notes.",
+          );
+          const words = (t: string) => t.trim().split(/\s+/).filter(Boolean).slice(0, 40);
+          playFx({ kind: "sending", words: words(text), incoming: true });
+          // Your answer goes off once theirs has arrived.
+          if (reply.trim()) setTimeout(() => playFx({ kind: "sending", words: words(reply) }), Math.min(3400, 1600 + words(text).length * 60) + 200);
           close();
         }}
       />
@@ -3207,7 +3235,7 @@ export function App() {
   const openAddEffect = () =>
     open(
       "Add an effect",
-      <AddEffectPanel registry={registry} act={s.act} close={close} onTransform={(d) => openTransform(shapeKindOf(d.transform!), { addEffect: d.id })} />,
+      <AddEffectPanel registry={registry} act={s.act} close={close} onTransform={(d) => openTransform(shapeKindOf(d.transform!), { addEffect: d.id })} onSpecial={{ "other:sending-received": openSendingReceived }} />,
     );
 
   /** Constitution save against a DC; a failure ends concentration (undo is one tap away). */

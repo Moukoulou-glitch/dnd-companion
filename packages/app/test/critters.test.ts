@@ -19,7 +19,14 @@ describe("summoned creatures on Play", () => {
     expect(critterFor(wolf.id, wolf)).toMatchObject({ plan: "quad" });
     expect(generatedCritter({ name: "Giant Eagle", type: "beast", size: "Large", speed: { walk: 10, fly: 80 } })).toMatchObject({ plan: "bird", f: expect.arrayContaining(["big"]) });
     expect(generatedCritter({ name: "Vrock", type: "fiend (demon)", size: "Large", speed: { walk: 40, fly: 60 } })).toMatchObject({ plan: "fiend" });
-    expect(generatedCritter({ name: "Fire Elemental", type: "elemental", size: "Large", speed: { walk: 50 } })).toMatchObject({ plan: "flame" });
+    expect(generatedCritter({ name: "Magmin", type: "elemental", size: "Small", speed: { walk: 30 } })).toMatchObject({ plan: "elemental", f: expect.arrayContaining(["fire"]) });
+    expect(generatedCritter({ name: "Sparkle", type: "elemental", size: "Small", speed: { walk: 30 } })).toMatchObject({ plan: "flame" });
+  });
+  it("each of the four elementals has its own body, not one flame in four colours", () => {
+    const looks = ["fire", "earth", "water", "air"].map((e) => critterFor(`creature:${e}-elemental`)!);
+    expect(looks.map((l) => l.plan)).toEqual(["elemental", "elemental", "elemental", "elemental"]);
+    expect(looks.map((l) => l.f!.find((f) => ["fire", "earth", "water", "air"].includes(f)))).toEqual(["fire", "earth", "water", "air"]);
+    expect(new Set(looks.map((l) => l.trick)).size).toBe(4);
   });
 });
 

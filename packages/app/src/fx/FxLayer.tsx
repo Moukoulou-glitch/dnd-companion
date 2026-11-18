@@ -244,7 +244,8 @@ export function specOf(e: FxEvent): FxSpec {
       return { at: "tap", ms: 650, look: e.gained ? "fx-insp-gain" : "fx-insp-spend", ...(e.gained ? { particles: 5 } : {}) };
     // Sending: the words gather, drift up one after another and thin into a line of light that shoots away.
     case "sending":
-      return { at: "center", ms: Math.min(3400, 1600 + e.words.length * 60), buzz: [15, 40, 15], look: "fx-sending", words: e.words };
+      // A message to you: the line of light comes down and the words come out of it.
+      return { at: "center", ms: Math.min(3400, 1600 + e.words.length * 60), buzz: [15, 40, 15], look: e.incoming ? "fx-sending fx-sending-in" : "fx-sending", words: e.words };
     case "level-up":
       return { at: "center", ms: 1000, buzz: [30, 80, 30, 80, 60], look: "fx-level", label: `Level ${e.level}` };
     case "unarmed":

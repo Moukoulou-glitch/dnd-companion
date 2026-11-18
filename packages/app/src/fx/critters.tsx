@@ -28,6 +28,7 @@ export type Plan =
   | "angel"
   | "fiend"
   | "flame"
+  | "elemental"
   | "humanoid";
 
 export interface CritterSpec {
@@ -69,6 +70,11 @@ export const CRITTERS: Record<string, CritterSpec> = {
   "creature:spider": s("bug", "#2e2a30", "#7a3a3a", ["legs8"], "drop", "#ff3a3a"),
   "creature:weasel": s("quad", "#a8743e", "#f4e2c4", ["ears", "longtail", "small", "flat"], "hop"),
   "creature:shield-guardian": SHIELD_GUARDIAN_SPEC,
+  // Conjure Elemental, Conjure Minor Elementals: each element its own body.
+  "creature:fire-elemental": s("elemental", "#ff5a1e", "#ffd25a", ["fire", "big"], "flicker", "#fff6c8"),
+  "creature:earth-elemental": s("elemental", "#7a6248", "#a89270", ["earth", "big"], "stomp", "#ffb02e"),
+  "creature:water-elemental": s("elemental", "#2f7fd0", "#9fdcff", ["water", "big"], "sway", "#e8fbff"),
+  "creature:air-elemental": s("elemental", "#cfe4f6", "#ffffff", ["air", "big"], "spin", "#2f5f9a"),
   "creature:imp": s("imp", "#c8323a", "#7a141c", ["horns", "wings", "spadetail"], "juggle", "#ffe066"),
   "creature:pseudodragon": s("drake", "#c86a3a", "#f2b46a", ["wings", "horns"], "flutter", "#7affd2"),
   "creature:quasit": s("imp", "#4a8a3a", "#1e4a1a", ["horns", "spadetail", "claws"], "hop", "#ffdd33"),
@@ -165,10 +171,10 @@ export const SPIRIT_CRITTERS: Record<string, CritterSpec> = {
   "summon-construct/clay": s("construct", "#a8683a", "#d8a07a", ["round"], "stomp", "#ffcc33"),
   "summon-construct/metal": s("construct", "#8a96a8", "#d8e0ec", ["rivets"], "stomp", "#ff5a3a"),
   "summon-construct/stone": s("construct", "#7a7468", "#b8b0a0", ["rock"], "stomp", "#5affd2"),
-  "summon-elemental/air": s("flame", "#c8e0ff", "#ffffff", ["swirl"], "spin", "#3a6aa8"),
-  "summon-elemental/earth": s("construct", "#7a5a3a", "#a8946a", ["rock", "round"], "stomp", "#ffcc33"),
-  "summon-elemental/fire": s("flame", "#ff6a2a", "#ffe06a", [], "flicker", "#fff"),
-  "summon-elemental/water": s("flame", "#3a8ad8", "#a8e0ff", ["drop"], "sway", "#fff"),
+  "summon-elemental/air": s("elemental", "#cfe4f6", "#ffffff", ["air"], "spin", "#2f5f9a"),
+  "summon-elemental/earth": s("elemental", "#7a6248", "#a89270", ["earth"], "stomp", "#ffb02e"),
+  "summon-elemental/fire": s("elemental", "#ff5a1e", "#ffd25a", ["fire"], "flicker", "#fff6c8"),
+  "summon-elemental/water": s("elemental", "#2f7fd0", "#9fdcff", ["water"], "sway", "#e8fbff"),
   "summon-celestial/avenger": s("angel", "#f2e8c8", "#ffd86a", ["wings", "halo", "bow"], "flutter", "#7ac8ff"),
   "summon-celestial/defender": s("angel", "#f2f2f8", "#ffd86a", ["wings", "halo", "shield"], "flutter", "#7ac8ff"),
   "summon-fiend/demon": s("fiend", "#8a2a3a", "#3a0a14", ["horns", "claws"], "stomp", "#ffcc33"),
@@ -204,7 +210,14 @@ export function generatedCritter(d: Pick<CreatureDef, "name" | "type" | "size" |
   if (type.startsWith("dragon")) return s("drake", hue(0, 360), light(h), ["wings", "horns", ...size], "flutter");
   if (type.startsWith("fiend")) return s(size.includes("tiny") || size.includes("small") ? "imp" : "fiend", hue(355), "#3a0a14", ["horns", fly ? "wings" : "claws", ...size], "stomp", "#ffcc33");
   if (type.startsWith("undead")) return s(fly ? "blob" : "undead", fly ? "#c8d8e8" : hue(90), "#3a3e34", [fly ? "ghost" : "arms", ...size], "sway", "#7affd2");
-  if (type.startsWith("elemental")) return s("flame", hue(h), light(h), size, "flicker");
+  // An elemental by its element (a magmin, a mud mephit, a galeb duhr, a water weird); otherwise a flame.
+  if (type.startsWith("elemental")) {
+    if (/fire|flame|magma|magmin|salamander|azer|ember|smoke/.test(name)) return s("elemental", "#ff5a1e", "#ffd25a", ["fire", ...size], "flicker", "#fff6c8");
+    if (/earth|stone|rock|galeb|xorn|gargoyle|mud|dust|crystal/.test(name)) return s("elemental", "#7a6248", "#a89270", ["earth", ...size], "stomp", "#ffb02e");
+    if (/water|ice|steam|weird|wave|tide/.test(name)) return s("elemental", "#2f7fd0", "#9fdcff", ["water", ...size], "sway", "#e8fbff");
+    if (/air|wind|cloud|storm|invisible stalker|djinni|whirl/.test(name)) return s("elemental", "#cfe4f6", "#ffffff", ["air", ...size], "spin", "#2f5f9a");
+    return s("flame", hue(h), light(h), size, "flicker");
+  }
   if (type.startsWith("construct")) return s("construct", "#7a7a84", "#c8c8d0", [...size, "rivets"], "stomp");
   if (type.startsWith("celestial")) return s("angel", "#f2ecd8", "#ffd86a", ["wings", "halo", ...size], "flutter");
   if (type.startsWith("fey")) return s("sprite", hue(140), light(150), ["wings", ...size], "loop");
@@ -586,6 +599,91 @@ function body(sp: CritterSpec): ReactNode {
           <g className="cr-head">
             <rect x={23} y={27} width={14} height={5} rx={2.5} fill="#1a1a1e" />
             <Eyes x={30} y={29.5} gap={7} r={1.1} color={sp.eye ?? "#5affd2"} />
+          </g>
+        </>
+      );
+    }
+    // The four elements, each its own body.
+    case "elemental": {
+      const eye = sp.eye ?? "#fff";
+      if (has(sp, "earth"))
+        // A hunched stone giant: boulder shoulders, a small head sunk between them, fists on the ground, a crystal growing out of it.
+        return (
+          <>
+            <g className="cr-leg a">
+              <path d="M20 40 l-2 8 h9 l-1 -8 Z" fill={sp.c1} stroke="#4a3a2a" strokeWidth={0.6} />
+            </g>
+            <g className="cr-leg c">
+              <path d="M34 40 l1 8 h9 l-2 -8 Z" fill={sp.c1} stroke="#4a3a2a" strokeWidth={0.6} />
+            </g>
+            <g className="cr-body">
+              <path d="M14 26 Q12 16 22 14 L38 14 Q48 16 46 26 L44 40 Q30 44 16 40 Z" fill={sp.c1} stroke="#4a3a2a" strokeWidth={0.8} />
+              <path d="M18 22 l6 3 l-2 6 M40 20 l-5 5 l3 5 M27 34 l4 -3 l3 3" stroke={sp.c2} strokeWidth={0.9} fill="none" />
+              <path d="M40 14 l3 -9 l3 8 Z M43 14 l4 -6 l1 7 Z" fill="#7ad8c8" stroke="#3a8a80" strokeWidth={0.5} />
+              <path d="M10 28 Q6 30 7 38 Q8 46 14 46 Q18 44 17 38 L16 28 Z" fill={sp.c2} stroke="#4a3a2a" strokeWidth={0.7} />
+              <path d="M50 28 Q54 30 53 38 Q52 46 46 46 Q42 44 43 38 L44 28 Z" fill={sp.c2} stroke="#4a3a2a" strokeWidth={0.7} />
+            </g>
+            <g className="cr-head">
+              <path d="M24 16 Q24 9 30 9 Q36 9 36 16 Z" fill={sp.c2} stroke="#4a3a2a" strokeWidth={0.7} />
+              <Eyes x={30} y={13.5} gap={5} r={1} color={eye} />
+            </g>
+          </>
+        );
+      if (has(sp, "water"))
+        // A wave rising out of its own pool, its crest curling over, bubbles rising inside.
+        return (
+          <>
+            <ellipse cx={30} cy={46} rx={20} ry={2.6} fill={sp.c1} opacity={0.6} />
+            <g className="cr-body">
+              <path d="M14 46 Q16 34 20 26 Q24 14 34 10 Q46 8 48 18 Q44 13 38 16 Q42 18 40 24 Q36 30 40 38 Q42 44 46 46 Z" fill={sp.c1} opacity={0.92} />
+              <path d="M20 44 Q22 34 26 28 Q30 22 36 20" stroke={sp.c2} strokeWidth={1.6} fill="none" strokeLinecap="round" opacity={0.8} />
+              <path d="M34 10 Q46 8 48 18 Q44 13 38 16" fill={sp.c2} opacity={0.9} />
+              {[0, 1, 2].map((i) => (
+                <circle key={i} className="cr-bubble" cx={24 + i * 5} cy={40 - i * 3} r={1 + (i % 2) * 0.6} fill="#fff" opacity={0.7} style={{ animationDelay: `${-i * 0.9}s` }} />
+              ))}
+            </g>
+            <g className="cr-head">
+              <Eyes x={30} y={28} gap={6} r={1.2} color={eye} />
+            </g>
+          </>
+        );
+      if (has(sp, "air"))
+        // A whirlwind: a funnel of turning bands, narrow at the ground, with a leaf caught in it.
+        return (
+          <>
+            <g className="cr-body cr-whirl">
+              {[
+                [30, 12, 15, 4],
+                [30, 19, 12.5, 3.6],
+                [30, 26, 10, 3.2],
+                [30, 32, 7.5, 2.8],
+                [30, 38, 5, 2.4],
+                [30, 43, 3, 2],
+              ].map(([cx, cy, rx, ry], i) => (
+                <ellipse key={i} className="cr-band" cx={cx} cy={cy} rx={rx} ry={ry} fill="none" stroke={i % 2 ? sp.c2 : sp.c1} strokeWidth={2.2} strokeDasharray={`${rx! * 2.2} ${rx! * 1.2}`} style={{ animationDelay: `${-i * 0.15}s` }} />
+              ))}
+              <path className="cr-leaf" d="M44 22 q3 -2 5 0 q-2 3 -5 0 Z" fill="#8ac85a" />
+              <path d="M30 46 v2" stroke={sp.c1} strokeWidth={2} strokeLinecap="round" />
+            </g>
+            <g className="cr-head">
+              <Eyes x={30} y={17} gap={6} r={1.2} color={eye} />
+            </g>
+          </>
+        );
+      // Fire: a body of flame with arms of fire raised, a bright core, embers rising off it.
+      return (
+        <>
+          <g className="cr-body cr-flicker">
+            <path d="M30 6 Q34 14 38 12 Q38 20 44 24 Q48 34 42 42 Q38 48 30 48 Q22 48 18 42 Q12 34 16 24 Q22 20 22 12 Q26 14 30 6 Z" fill={sp.c1} />
+            <path d="M16 28 Q8 22 10 12 Q14 20 18 22 Z M44 28 Q52 22 50 12 Q46 20 42 22 Z" fill={sp.c1} />
+            <path d="M30 18 Q36 26 37 34 Q38 44 30 45 Q22 44 23 34 Q24 26 30 18 Z" fill={sp.c2} />
+            <path d="M30 30 Q33 35 33 39 Q33 43 30 43 Q27 43 27 39 Q27 35 30 30 Z" fill="#fffbe8" opacity={0.85} />
+          </g>
+          {[0, 1, 2, 3].map((i) => (
+            <circle key={i} className="cr-ember" cx={18 + i * 8} cy={14 + (i % 2) * 4} r={0.9} fill="#ffd25a" style={{ animationDelay: `${-i * 0.6}s` }} />
+          ))}
+          <g className="cr-head">
+            <Eyes x={30} y={26} gap={6} r={1.2} color={eye} />
           </g>
         </>
       );

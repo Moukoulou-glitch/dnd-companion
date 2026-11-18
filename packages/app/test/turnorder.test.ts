@@ -29,3 +29,18 @@ describe("Turn order on the combat card", () => {
     expect(order[1]!.with).toEqual(["Wildfire Spirit (right after)"]);
   });
 });
+
+describe("Conjure Elemental's creatures in the turn order", () => {
+  it("each by its own name and initiative: an Air Elemental called with a Water Elemental isn't a second Water", () => {
+    const c = newCharacter({ id: "w", name: "W", race: "race:human", class: "class:wizard", abilities: { str: 8, dex: 14, con: 14, int: 16, wis: 10, cha: 10 } }, reg);
+    c.summons = [
+      { id: "w1", creature: "creature:water-elemental", hp: 114, spell: "spell:conjure-elemental", group: "g", initiative: 6 },
+      { id: "a1", creature: "creature:air-elemental", hp: 90, spell: "spell:conjure-elemental", group: "g", initiative: 13 },
+    ] as typeof c.summons;
+    const order = turnOrder(c, derive(c, reg), reg).filter((x) => !x.you);
+    expect(order.map((x) => [x.name, x.initiative])).toEqual([
+      ["Air Elemental", 13],
+      ["Water Elemental", 6],
+    ]);
+  });
+});

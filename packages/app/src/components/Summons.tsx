@@ -135,7 +135,21 @@ export function SummonsCard({ character, reg, onOpen }: { character: Character; 
             reg.find(members[0]!.spell, "summon")?.name ??
             reg.list("summon").find((x) => x.spell === members[0]!.spell)?.name ??
             "Spell";
-          const names = [...new Set(members.map((m) => reg.find(m.creature, "creature")?.name ?? m.creature))];
+          const nameOf = (m: (typeof members)[number]) => m.name ?? reg.find(m.creature, "creature")?.name ?? m.creature;
+          // "2 × Wolf", "Water Elemental, Air Elemental": how many of each, not one count for all.
+          const counts = new Map<string, number>();
+          for (const m of members) counts.set(nameOf(m), (counts.get(nameOf(m)) ?? 0) + 1);
+          const title = [...counts].map(([n, k]) => (k > 1 ? `${k} × ${n}` : n)).join(", ");
+          // Each with its own initiative (Conjure Elemental): every one shown, not only the first's.
+          const inits = [...new Set(members.map((m) => m.initiative))];
+          const initText =
+            inits.length > 1
+              ? ` · initiative ${members.map((m) => `${nameOf(m)} ${m.initiative ?? "?"}`).join(", ")}`
+              : members[0]!.initiative !== undefined
+                ? ` · initiative ${members[0]!.initiative}`
+                : character.combat
+                  ? " · roll initiative"
+                  : "";
           const hp = members.reduce((t, m) => t + m.hp, 0);
           const max = members.reduce((t, m) => t + (summonBlock(reg, m)?.hp.max ?? reg.find(m.creature, "creature")?.hp ?? m.hp), 0);
           return (
@@ -152,13 +166,10 @@ export function SummonsCard({ character, reg, onOpen }: { character: Character; 
                   })}
               </span>
               <div className="row-main">
-                <div className="row-title">
-                  {members.length > 1 ? `${members.length} × ` : ""}
-                  {names.join(", ")}
-                </div>
+                <div className="row-title">{title}</div>
                 <div className="row-sub">
                   {spell}
-                  {members[0]!.initiative !== undefined ? ` · initiative ${members[0]!.initiative}` : character.combat ? " · roll initiative" : ""}
+                  {initText}
                   {members.some((m) => m.concentration) ? " · concentration" : ""}
                 </div>
                 <div className="mini-bar" aria-hidden="true">

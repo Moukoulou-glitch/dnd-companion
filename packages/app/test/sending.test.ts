@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { countWords, sendingNote, SENDING_WORDS } from "../src/components/Sending";
+import { countWords, receivedNote, sendingNote, SENDING_WORDS } from "../src/components/Sending";
 import { specOf } from "../src/fx/FxLayer";
 
 describe("Sending: the message, its word count, the note it becomes", () => {
@@ -23,5 +23,20 @@ describe("Sending: the message, its word count, the note it becomes", () => {
     const long = specOf({ kind: "sending", words: Array.from({ length: 25 }, () => "w") });
     expect(short).toMatchObject({ at: "center", look: "fx-sending", words: ["Meet", "me"] });
     expect(long.ms).toBeGreaterThan(short.ms);
+  });
+});
+
+describe("a Sending to you", () => {
+  it("its note keeps what you heard and your answer, each with its word count", () => {
+    const n = receivedNote("Mira", "The gate falls at dawn. Come.", "On my way, hold the bridge.");
+    expect(n.title).toBe("Sending from Mira");
+    expect(n.body).toContain("The gate falls at dawn. Come.");
+    expect(n.body).toContain("_6 words._");
+    expect(n.body).toContain("**Your answer:** On my way, hold the bridge.");
+    expect(receivedNote("", "Run.", "").title).toBe("A Sending to you");
+    expect(receivedNote("", "Run.", "").body).not.toContain("Your answer");
+  });
+  it("its words arrive: the same look, coming in", () => {
+    expect(specOf({ kind: "sending", words: ["Run"], incoming: true }).look).toBe("fx-sending fx-sending-in");
   });
 });

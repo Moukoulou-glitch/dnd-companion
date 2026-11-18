@@ -6210,6 +6210,18 @@
         }
       ],
       "selfOnly": true
+    },
+    {
+      "kind": "effect",
+      "id": "other:sending-received",
+      "name": "Sending (a message to you)",
+      "category": "spell",
+      "summary": "Someone's Sending reached you: write down what you heard, and your answer of up to 25 words if you give one. Both are saved in your notes.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "modifiers": []
     }
   ]
 }
