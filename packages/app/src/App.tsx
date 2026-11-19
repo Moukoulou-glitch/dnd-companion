@@ -677,6 +677,57 @@ export function App() {
       return !!def?.includes?.some((x) => x === "condition:charmed" || x === "condition:frightened");
     });
 
+  /**
+   * Twilight Sanctuary for another creature ending its turn in the sphere: its temporary HP (the end-of-turn
+   * action, given to it), or one charm or fright on it ending (companions and summoned creatures the app tracks).
+   */
+  function openTwilightOther() {
+    const a = live.current.sheet?.actions.find((x) => x.id === "twilight-sanctuary-turn");
+    const charmish = (id: string) => {
+      if (id === "condition:charmed" || id === "condition:frightened") return true;
+      const def = registry.find(id, "effect") as { includes?: string[] } | undefined;
+      return !!def?.includes?.some((x) => x === "condition:charmed" || x === "condition:frightened");
+    };
+    open("Twilight Sanctuary: another creature", () => {
+      const others = friendlyTargets(live.current.character!, live.current.sheet!, registry).filter((t) => t.kind !== "me");
+      const ending = others.flatMap((t) => t.effects.filter(charmish).map((e) => ({ t, e })));
+      return (
+        <>
+          <p className="note">A creature of your choice ended its turn in your sphere. Grant it one benefit.</p>
+          <div className="group">
+            {a && (
+              <button className="row" onClick={() => openFeature(a, undefined, undefined, "other")}>
+                <div className="row-main">
+                  <div className="row-title">Temporary hit points</div>
+                  <div className="row-sub">{a.tempHp?.text ?? "1d6 + your cleric level"}: pick who on the next screen</div>
+                </div>
+              </button>
+            )}
+            {ending.map(({ t, e }) => (
+              <button
+                key={`${t.id}-${e}`}
+                className="row"
+                onClick={() => {
+                  const name = registry.find(e, "effect")?.name ?? e;
+                  if (t.kind === "companion") live.current.act("companionEffect", { companion: t.id, effect: e, add: false }, `Twilight Sanctuary: ${name} ends on ${t.name}.`);
+                  else live.current.act("summonEffect", { id: t.id.slice(7), effect: e, add: false }, `Twilight Sanctuary: ${name} ends on ${t.name}.`);
+                  close();
+                }}
+              >
+                <div className="row-main">
+                  <div className="row-title">
+                    End {registry.find(e, "effect")?.name ?? e} on {t.name}
+                  </div>
+                </div>
+              </button>
+            ))}
+          </div>
+          <p className="note">{ending.length ? "" : "None of your companions or summoned creatures is charmed or frightened. "}For anyone else, they end the charm or fright on their own sheet.</p>
+        </>
+      );
+    });
+  }
+
   /** Twilight Sanctuary at the end of your turn: 1d6 + cleric level temporary HP, or end one charm or fright on you. */
   twilightTurn.current = () => openTwilightTurn();
   function openTwilightTurn() {
@@ -688,7 +739,7 @@ export function App() {
           <p className="note">Your turn ends in your twilight sphere. Choose one benefit for yourself.</p>
           <div className="group">
             {a && (
-              <button className="row" onClick={() => openFeature(a)}>
+              <button className="row" onClick={() => openFeature(a, undefined, undefined, "me")}>
                 <div className="row-main">
                   <div className="row-title">Temporary hit points</div>
                   <div className="row-sub">{a.tempHp?.text ?? "1d6 + your cleric level"} (they don't stack: the higher stays)</div>
@@ -1868,7 +1919,7 @@ export function App() {
     ));
   };
 
-  const openFeature = (a: ActionResult, fromResource?: { resource: string; name: string }, onUseOverride?: (rolled?: number) => void) => {
+  const openFeature = (a: ActionResult, fromResource?: { resource: string; name: string }, onUseOverride?: (rolled?: number) => void, forWhom?: string) => {
     if (a.rollsSpell) return rollEffectSpell(a);
     if (a.id === "tales-from-beyond-bestow") return openTaleBestow(a);
     if (a.id === "wild-shape") return openTransform("wildshape");
@@ -1901,6 +1952,7 @@ export function App() {
       return (
         <FeaturePanel
           a={current}
+          {...(forWhom ? { defaultTarget: forWhom } : {})}
           beaconIds={[
             ...friendlyTargets(live.current.character!, live.current.sheet!, registry).filter((t) => t.effects.includes(BEACON_EFFECT)).map((t) => t.id),
             ...(live.current.sheet?.selfMaxHealing ? ["me"] : []),
@@ -2929,6 +2981,18 @@ export function App() {
             </div>
           )}
           {t.reminders && <Reminders items={live.current.sheet?.toggles.find((x) => x.name === name)?.reminders ?? t.reminders} />}
+          {on && name === "twilight-sanctuary" && (
+            <div className="confirm" style={{ marginBottom: 12 }}>
+              <button className="big primary" onClick={() => openTwilightOther()}>
+                Another creature ended its turn here
+                <span className="sub">temporary hit points, or end a charm or fright on it</span>
+              </button>
+              <button className="big" onClick={() => openTwilightTurn()}>
+                My turn ended here
+                <span className="sub">the same benefits, for you</span>
+              </button>
+            </div>
+          )}
           {feature ? <BookText text={feature.text} summary={feature.summary} /> : action?.note && <p>{action.note}</p>}
           {on ? (
             <button

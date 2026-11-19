@@ -34,7 +34,10 @@ export function FeaturePanel({
   maxLabels,
   onJustSpend,
   onMaxWith,
+  defaultTarget,
 }: {
+  /** Who it's for at first ("me", "other", a companion's id): the end of your own turn in Twilight Sanctuary is you. */
+  defaultTarget?: string;
   /** Its damage at the maximum by an option (Destructive Wrath on Wrath of the Storm): spend what the option costs. */
   onMaxWith?: (label: string, spends?: { resource: string; amount: number }) => void;
   /** From Play's Features: spend its use without doing anything else. */
@@ -67,10 +70,10 @@ export function FeaturePanel({
   const [entry, setEntry] = useState("");
   const [points, setPoints] = useState("");
   // Healing Hands and the like: on someone else unless ticked.
-  const [onMe, setOnMe] = useState(false);
+  const [onMe, setOnMe] = useState(defaultTarget === "me");
   // Who it goes to, when the app knows the candidates: you, a companion, a summoned creature, or someone else.
   const pickable = !!targets?.length && (!!a.others || !!a.gives || !!a.spendAmount?.heals);
-  const [target, setTarget] = useState(a.spendAmount?.heals ? "me" : "other");
+  const [target, setTarget] = useState(defaultTarget && targets?.some((t) => t.id === defaultTarget) ? defaultTarget : a.spendAmount?.heals ? "me" : "other");
   const me = pickable ? target === "me" : a.others || a.gives ? onMe : undefined;
   const useWith = (rolled?: number, free?: boolean, check?: string, choice?: string, spend?: { amount: number; healSelf: boolean }, onMeArg?: boolean) =>
     onUse(rolled, free, check, choice ?? (types.length > 1 ? dtype : undefined), spend, onMeArg, pickable ? target : undefined);

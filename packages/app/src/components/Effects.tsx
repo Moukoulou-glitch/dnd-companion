@@ -383,7 +383,13 @@ export function AddEffectPanel({
   };
   // Effects someone or something else puts on you; caster-only ones (Hex, Hunter's Mark) come from casting.
   const all = useMemo(() => registry.list("effect").filter((d) => !d.selfOnly && !(onPick && d.transform)), [registry, onPick]);
-  const list = all.filter((d: EffectDef) => d.category === tab && d.name.toLowerCase().includes(q.trim().toLowerCase()));
+  // Every word must match: the name, and on Other also what it does ("paladin aura", "potion fire").
+  const words = q.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  const list = all.filter((d: EffectDef) => {
+    if (d.category !== tab) return false;
+    const hay = (tab === "other" ? `${d.name} ${d.summary ?? ""}` : d.name).toLowerCase();
+    return words.every((w) => hay.includes(w));
+  });
 
   return (
     <>
@@ -396,7 +402,10 @@ export function AddEffectPanel({
             ["custom", "Custom"],
           ] as const
         ).filter(([id]) => !onPick || id !== "custom").map(([id, label]) => (
-          <button key={id} role="tab" aria-selected={tab === id} aria-checked={tab === id} onClick={() => setTab(id)}>
+          <button key={id} role="tab" aria-selected={tab === id} aria-checked={tab === id} onClick={() => {
+              setTab(id);
+              setQ("");
+            }}>
             {label}
           </button>
         ))}
@@ -405,7 +414,8 @@ export function AddEffectPanel({
         <CustomBuilder act={act} close={close} />
       ) : (
         <>
-          {tab === "spell" && <input className="search" type="search" placeholder="Search spells" value={q} onChange={(e) => setQ(e.target.value)} />}
+          {(tab === "spell" || tab === "other") && <input className="search" type="search" placeholder={tab === "spell" ? "Search spells" : "Search by name or what it does"} value={q} onChange={(e) => setQ(e.target.value)} />}
+          {tab === "other" && words.length > 0 && !list.length && <p className="note">Nothing matches “{q.trim()}”.</p>}
           <div className="group">
             {list.map((d) => {
               // The same spell twice on one creature: the second doesn't add anything, so it isn't offered.
