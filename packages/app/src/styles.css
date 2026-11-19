@@ -3248,7 +3248,35 @@ button.mpip {
 .fx-tatter { position: absolute; bottom: -10%; left: calc(6% + var(--i) * 12%); width: 22px; height: 46%; border-radius: 50% 50% 0 0; background: linear-gradient(to top, rgba(20, 30, 25, 0.65), rgba(150, 175, 160, 0)); filter: blur(2px); animation: fx-tatter var(--fx-ms) ease-out forwards; animation-delay: calc(var(--i) * 40ms); }
 @keyframes fx-tatter { 0% { opacity: 0; translate: 0 20%; } 35% { opacity: 1; } 100% { opacity: 0; translate: 0 -45%; } }
 .fx-form-dread .fx-label { color: #cfe3d6; }
-.sfx-ongoing-dread > span:first-child { display: block; inset: 0; box-shadow: inset 0 0 50px 8px rgba(150, 185, 160, 0.3); animation: sfx-shimmer 5.2s ease-in-out infinite; }
+/* Form of Dread, while it lasts: a grave's cold light at the edges beating slowly like a dread heart, tattered shrouds
+   hanging from the top corners, a grave mist creeping along the bottom, ash rising, and now and then the patron's
+   pale eyes opening at the top of the screen. */
+.sfx-ongoing-dread::before { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 46%, transparent 52%, rgba(14, 22, 18, 0.55) 88%, rgba(6, 10, 8, 0.8)); box-shadow: inset 0 0 70px 14px rgba(150, 200, 165, 0.22); animation: sfx-dread-beat 3.4s ease-in-out infinite; }
+@keyframes sfx-dread-beat { 0%, 100% { opacity: 0.7; } 8% { opacity: 1; } 16% { opacity: 0.8; } 24% { opacity: 0.97; } 45% { opacity: 0.72; } }
+.sfx-ongoing-dread > span:nth-child(1), .sfx-ongoing-dread > span:nth-child(2) { display: block; top: 0; width: 15vw; max-width: 80px; height: 19vh; background: linear-gradient(180deg, rgba(40, 52, 46, 0.6), rgba(80, 100, 88, 0.32) 55%, rgba(80, 100, 88, 0)); clip-path: polygon(0 0, 100% 0, 92% 30%, 100% 44%, 80% 52%, 88% 70%, 62% 64%, 66% 86%, 44% 74%, 40% 100%, 24% 80%, 14% 92%, 6% 70%, 0 76%); transform-origin: 50% 0; animation: sfx-shroud 6s ease-in-out infinite; }
+.sfx-ongoing-dread > span:nth-child(1) { left: 0; }
+.sfx-ongoing-dread > span:nth-child(2) { right: 0; transform: scaleX(-1); animation-name: sfx-shroud-r; animation-delay: -2.4s; }
+@keyframes sfx-shroud { 0%, 100% { transform: skewX(0deg) scaleY(1); } 50% { transform: skewX(5deg) scaleY(1.05); } }
+@keyframes sfx-shroud-r { 0%, 100% { transform: scaleX(-1) skewX(0deg) scaleY(1); } 50% { transform: scaleX(-1) skewX(5deg) scaleY(1.05); } }
+.sfx-ongoing-dread > span:nth-child(3) { display: block; left: -20%; right: -20%; bottom: 0; height: 22vh; background: radial-gradient(ellipse at 30% 100%, rgba(170, 210, 185, 0.32), transparent 60%), radial-gradient(ellipse at 75% 100%, rgba(150, 190, 170, 0.28), transparent 55%); filter: blur(6px); animation: sfx-grave-mist 14s ease-in-out infinite alternate; }
+@keyframes sfx-grave-mist { 0% { transform: translateX(-6%); opacity: 0.7; } 100% { transform: translateX(6%); opacity: 1; } }
+.sfx-ongoing-dread > span:nth-child(4) { display: block; left: 50%; top: 9vh; width: 64px; height: 10px; margin-left: -32px; background: radial-gradient(ellipse 9px 4px at 14px 5px, rgba(210, 255, 220, 0.95), rgba(120, 220, 160, 0.45) 60%, transparent 100%), radial-gradient(ellipse 9px 4px at 50px 5px, rgba(210, 255, 220, 0.95), rgba(120, 220, 160, 0.45) 60%, transparent 100%); filter: drop-shadow(0 0 6px rgba(150, 240, 180, 0.8)); opacity: 0; animation: sfx-patron-eyes 9s ease-in-out infinite; }
+@keyframes sfx-patron-eyes { 0%, 62%, 100% { opacity: 0; transform: scaleY(0.1); } 68% { opacity: 0.85; transform: scaleY(1); } 82% { opacity: 0.85; transform: scaleY(1); } 84% { opacity: 0.85; transform: scaleY(0.1); } 86% { opacity: 0.85; transform: scaleY(1); } 92% { opacity: 0; transform: scaleY(0.1); } }
+.sfx-ongoing-dread > span:nth-child(5) { display: block; left: 0; right: 0; bottom: 0; height: 60vh; background-image: radial-gradient(circle, rgba(200, 210, 200, 0.55) 1px, transparent 1.6px), radial-gradient(circle, rgba(170, 190, 175, 0.4) 1.2px, transparent 2px); background-size: 90px 120px, 140px 170px; background-position: 10px 0, 60px 40px; animation: sfx-ash-rise 16s linear infinite; mask-image: linear-gradient(0deg, #000 40%, transparent); -webkit-mask-image: linear-gradient(0deg, #000 40%, transparent); }
+@keyframes sfx-ash-rise { from { background-position: 10px 0, 60px 40px; } to { background-position: 40px -480px, 20px -640px; } }
+@media (prefers-reduced-motion: reduce) { .sfx-ongoing-dread::before, .sfx-ongoing-dread > span { animation: none !important; } .sfx-ongoing-dread > span:nth-child(4) { display: none; } }
+
+/* Invisible, while it lasts: the screen's edges bend the light like heat haze, glints flicker where light catches
+   your outline, a faint band of refraction sweeps across now and then, and your own name and HP turn translucent. */
+.sfx-ongoing-invis::before { content: ""; position: absolute; inset: 0; backdrop-filter: blur(1.6px) saturate(1.2) hue-rotate(8deg); -webkit-backdrop-filter: blur(1.6px) saturate(1.2) hue-rotate(8deg); mask-image: radial-gradient(ellipse at 50% 50%, transparent 60%, #000 92%); -webkit-mask-image: radial-gradient(ellipse at 50% 50%, transparent 60%, #000 92%); box-shadow: inset 0 0 40px 6px rgba(200, 225, 255, 0.12); animation: sfx-haze 4.5s ease-in-out infinite; }
+@keyframes sfx-haze { 0%, 100% { opacity: 0.55; transform: scale(1); } 50% { opacity: 1; transform: scale(1.012); } }
+.sfx-ongoing-invis > span:nth-child(-n + 3) { display: block; width: 12px; height: 12px; left: calc(14% + var(--i) * 31%); top: calc(22% + var(--i) * 19%); background: radial-gradient(circle, #fff 0 1.4px, transparent 2px), linear-gradient(0deg, transparent 44%, rgba(220, 235, 255, 0.9) 50%, transparent 56%), linear-gradient(90deg, transparent 44%, rgba(220, 235, 255, 0.9) 50%, transparent 56%); opacity: 0; animation: sfx-glint 5.6s ease-in-out infinite; animation-delay: calc(var(--i) * -1.9s); }
+@keyframes sfx-glint { 0%, 70%, 100% { opacity: 0; transform: scale(0.4) rotate(0deg); } 78% { opacity: 0.9; transform: scale(1.1) rotate(20deg); } 86% { opacity: 0; transform: scale(0.6) rotate(40deg); } }
+.sfx-ongoing-invis > span:nth-child(4) { display: block; top: -20%; bottom: -20%; left: -40%; width: 30%; background: linear-gradient(90deg, transparent, rgba(220, 235, 255, 0.07) 40%, rgba(255, 255, 255, 0.12) 50%, rgba(220, 235, 255, 0.07) 60%, transparent); backdrop-filter: blur(0.8px); -webkit-backdrop-filter: blur(0.8px); transform: skewX(-14deg); animation: sfx-refract 11s ease-in-out infinite; }
+@keyframes sfx-refract { 0%, 55% { left: -40%; } 85%, 100% { left: 120%; } }
+.app:has(.sfx-ongoing-invis) .who, .app:has(.sfx-ongoing-invis) .vitals { animation: sfx-unseen 4.5s ease-in-out infinite; }
+@keyframes sfx-unseen { 0%, 100% { opacity: 0.5; filter: blur(0.2px); } 50% { opacity: 0.78; filter: none; } }
+@media (prefers-reduced-motion: reduce) { .sfx-ongoing-invis::before, .sfx-ongoing-invis > span { animation: none !important; } .sfx-ongoing-invis > span { display: none !important; } .app:has(.sfx-ongoing-invis) .who, .app:has(.sfx-ongoing-invis) .vitals { animation: none; opacity: 0.65; } }
 
 @media (prefers-reduced-motion: reduce) {
   .fx-charmed, .fx-form, .fx-wings path, .fx-tatter, .fx-charm-swirl path { animation: fx-static 450ms ease-out forwards !important; translate: 0 0 !important; stroke-dashoffset: 0 !important; }

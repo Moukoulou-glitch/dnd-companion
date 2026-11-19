@@ -359,7 +359,12 @@ export function formFx(c: Character | undefined): { form: string; look: string }
  * Loops while a state lasts (22k), by slot: Twilight Sanctuary's sphere (with the shroud from 17th level),
  * Steps of Night's flight, and exhaustion (heavier with each level).
  */
-export const STATE_LOOP_KEYS = ["twilight", "steps", "exhaustion"] as const;
+export const STATE_LOOP_KEYS = ["twilight", "steps", "exhaustion", "invisible"] as const;
+
+/** Effects that make you invisible (they include the condition), and the switches that do (Hidden Step). */
+const INVISIBLE_EFFECTS = new Set(["condition:invisible", "effect:invisibility", "effect:greater-invisibility", "other:potion-invisibility", "effect:mislead", "other:spirit-tale-phantom"]);
+export const isInvisible = (c: Character | undefined) =>
+  !!c && ((c.effects ?? []).some((e) => INVISIBLE_EFFECTS.has(e.effect) || /invisib/.test(e.effect)) || (c.toggles ?? []).some((t) => t === "hidden-step" || /invisib/.test(t)));
 export function stateLoops(c: Character | undefined): Partial<Record<(typeof STATE_LOOP_KEYS)[number], string>> {
   if (!c) return {};
   const out: Partial<Record<(typeof STATE_LOOP_KEYS)[number], string>> = {};
@@ -370,6 +375,7 @@ export function stateLoops(c: Character | undefined): Partial<Record<(typeof STA
   if (c.toggles?.includes("steps-of-night")) out.steps = "sfx-ongoing-steps";
   const ex = c.effects?.find((e) => e.effect === "condition:exhaustion")?.level ?? 0;
   if (ex > 0) out.exhaustion = `sfx-ongoing-exh sfx-ongoing-exh-${Math.min(6, ex)}`;
+  if (isInvisible(c)) out.invisible = "sfx-ongoing-invis";
   return out;
 }
 
