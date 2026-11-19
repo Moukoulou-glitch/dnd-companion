@@ -504,7 +504,7 @@
               "spirit-totem"
             ],
             "duration": {
-              "minutes": 1
+              "rounds": 10
             },
             "note": "Summon a spirit within 60 ft for 1 minute (30-ft aura). Bonus action: move it 60 ft.",
             "maxLevel": 9,
@@ -577,7 +577,7 @@
               "spirit-totem"
             ],
             "duration": {
-              "minutes": 1
+              "rounds": 10
             },
             "note": "Summon a spirit within 60 ft for 1 minute (30-ft aura). Bonus action: move it 60 ft.",
             "levelOf": "class:druid",

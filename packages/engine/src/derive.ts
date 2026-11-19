@@ -279,6 +279,8 @@ export interface ActionResult {
   heal?: Amount;
   /** Its healing or effect can go to another creature (Healing Hands): the player says whether it's on them. */
   others?: boolean;
+  /** No once-a-turn limit (Twilight Sanctuary's end of a turn). */
+  anyTimes?: boolean;
   /** The effect it gives (Bardic Inspiration's die): "Put its effect on me" tracks it on you, with a warning when the rules say someone else. */
   gives?: { effect: string; selfWarning?: string };
   /** One of the actions anyone can take (Dash, Dodge, Grapple): listed in their own section. */
@@ -2315,6 +2317,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       if (a.heal === "halfhpmax") entry.heal = { dice: [], flat: Math.floor(hpMax.total / 2), text: `${Math.floor(hpMax.total / 2)} (half your hit point maximum)` };
       else if (a.heal !== undefined) entry.heal = amountOf(a.heal, s);
       if (a.others) entry.others = true;
+      if (a.anyTimes) entry.anyTimes = true;
       if (a.gives) entry.gives = { effect: a.gives.effect, ...(a.gives.selfWarning ? { selfWarning: a.gives.selfWarning } : {}) };
       // Combat Inspiration (Valor): the die can also go on weapon damage or AC.
       // The college's own die (Combat Inspiration, Mote of Potential, Unfailing Inspiration): what the creature can do with it.

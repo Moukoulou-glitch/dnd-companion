@@ -418,6 +418,8 @@ export const ActionDef = z
     healEntered: z.string().optional(),
     /** The healing can go to another creature (Healing Hands: touch a creature): asks whether it's on you. */
     others: z.boolean().optional(),
+    /** No once-a-turn limit: used for each creature it applies to (Twilight Sanctuary's end of a turn). Never warned as "already used this turn". */
+    anyTimes: z.boolean().optional(),
     /**
      * The effect it gives the creature it's used on (Bardic Inspiration: its die, from the resource spent).
      * "Put its effect on me" tracks it on you; `selfWarning` when the rules give it to someone else.

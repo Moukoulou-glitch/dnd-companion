@@ -2922,7 +2922,7 @@
               "empty-body"
             ],
             "duration": {
-              "minutes": 1
+              "rounds": 10
             },
             "note": "Invisible for 1 minute, and resistance to all damage except force."
           }

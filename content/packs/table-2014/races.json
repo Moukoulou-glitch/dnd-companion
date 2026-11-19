@@ -1161,7 +1161,7 @@
             "economy": "action",
             "infoOnly": true,
             "duration": {
-              "minutes": 1
+              "rounds": 10
             },
             "note": "Within 10 miles: see and hear from the token for up to 1 minute; you're blind and deaf to your own surroundings. The token is destroyed afterwards."
           }

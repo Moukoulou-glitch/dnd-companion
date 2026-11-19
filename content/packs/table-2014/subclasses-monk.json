@@ -1918,7 +1918,7 @@
               "amount": 1
             },
             "duration": {
-              "minutes": 1
+              "rounds": 10
             },
             "toggles": [
               "aspect-of-the-wyrm"
@@ -1965,7 +1965,7 @@
               "amount": 3
             },
             "duration": {
-              "minutes": 1
+              "rounds": 10
             },
             "toggles": [
               "aspect-of-the-wyrm"

@@ -388,7 +388,7 @@
               "resource": "channel-divinity"
             },
             "duration": {
-              "minutes": 1
+              "rounds": 10
             },
             "note": "Creature within 60 ft, Wisdom save vs your spell DC. On a fail: read surface thoughts for 1 minute; you may end it to cast Suggestion on it, no slot, auto-fail."
           }
@@ -784,7 +784,7 @@
               "corona-of-light"
             ],
             "duration": {
-              "minutes": 1
+              "rounds": 10
             },
             "note": "Bright light 60 ft; enemies in it: disadvantage on saves vs your fire/radiant spells. Dismiss as an action."
           }
@@ -1803,7 +1803,7 @@
               "invoke-duplicity"
             ],
             "duration": {
-              "minutes": 1
+              "rounds": 10
             },
             "note": "Illusion within 30 ft, 1 minute (concentration). Bonus action: move it 30 ft. Cast from its space; advantage vs creatures next to you both."
           }
@@ -4130,7 +4130,7 @@
               "twilight-sanctuary"
             ],
             "duration": {
-              "minutes": 1
+              "rounds": 10
             },
             "note": "30-ft sphere of twilight around you for 1 minute. Whenever a creature of your choice (you too) ends its turn in it: 1d6 + your cleric level temporary hit points, or one charm or fright on it ends (use \"Twilight Sanctuary: end of a turn\")."
           },
@@ -4141,6 +4141,7 @@
             "toggles": [],
             "tempHp": "1d6 + classLevel.class:cleric",
             "others": true,
+            "anyTimes": true,
             "note": "While your sanctuary lasts, when you or a creature of your choice ends its turn in it: give 1d6 + your cleric level temporary hit points (they don't stack: the higher stays). Or end one charm or fright on it instead: take the condition off on the Play tab."
           }
         ]
@@ -4177,7 +4178,7 @@
               "steps-of-night"
             ],
             "duration": {
-              "minutes": 1
+              "rounds": 10
             },
             "note": "In dim light or darkness: fly at your walking speed for 1 minute."
           }

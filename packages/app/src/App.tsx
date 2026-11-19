@@ -688,9 +688,48 @@ export function App() {
       const def = registry.find(id, "effect") as { includes?: string[] } | undefined;
       return !!def?.includes?.some((x) => x === "condition:charmed" || x === "condition:frightened");
     };
-    open("Twilight Sanctuary: another creature", () => {
+    /** Ending a charm or fright on another creature: on a companion or summoned creature that has it, it comes off; anyone else tracks it on their own sheet. */
+    const endOn = (what: "charmed" | "frightened") => {
       const others = friendlyTargets(live.current.character!, live.current.sheet!, registry).filter((t) => t.kind !== "me");
-      const ending = others.flatMap((t) => t.effects.filter(charmish).map((e) => ({ t, e })));
+      const hits = others.flatMap((t) => t.effects.filter((e) => charmish(e) && (e === `condition:${what}` || (registry.find(e, "effect") as { includes?: string[] } | undefined)?.includes?.includes(`condition:${what}`))).map((e) => ({ t, e })));
+      const word = what === "charmed" ? "charm" : "fright";
+      const someone = () => {
+        live.current.setToast({ id: Date.now(), text: `Twilight Sanctuary: one ${word} on that creature ends (they take it off their own sheet).`, canUndo: false });
+        close();
+      };
+      if (!hits.length) return someone();
+      open(`End a ${word}`, () => (
+        <>
+          <p className="note">On which creature?</p>
+          <div className="group">
+            {hits.map(({ t, e }) => (
+              <button
+                key={`${t.id}-${e}`}
+                className="row"
+                onClick={() => {
+                  const name = registry.find(e, "effect")?.name ?? e;
+                  if (t.kind === "companion") live.current.act("companionEffect", { companion: t.id, effect: e, add: false }, `Twilight Sanctuary: ${name} ends on ${t.name}.`);
+                  else live.current.act("summonEffect", { id: t.id.slice(7), effect: e, add: false }, `Twilight Sanctuary: ${name} ends on ${t.name}.`);
+                  close();
+                }}
+              >
+                <div className="row-main">
+                  <div className="row-title">{t.name}</div>
+                  <div className="row-sub">{registry.find(e, "effect")?.name ?? e}</div>
+                </div>
+              </button>
+            ))}
+            <button className="row" onClick={someone}>
+              <div className="row-main">
+                <div className="row-title">Someone else</div>
+                <div className="row-sub">They take it off their own sheet</div>
+              </div>
+            </button>
+          </div>
+        </>
+      ));
+    };
+    open("Twilight Sanctuary: another creature", () => {
       return (
         <>
           <p className="note">A creature of your choice ended its turn in your sphere. Grant it one benefit.</p>
@@ -703,26 +742,19 @@ export function App() {
                 </div>
               </button>
             )}
-            {ending.map(({ t, e }) => (
-              <button
-                key={`${t.id}-${e}`}
-                className="row"
-                onClick={() => {
-                  const name = registry.find(e, "effect")?.name ?? e;
-                  if (t.kind === "companion") live.current.act("companionEffect", { companion: t.id, effect: e, add: false }, `Twilight Sanctuary: ${name} ends on ${t.name}.`);
-                  else live.current.act("summonEffect", { id: t.id.slice(7), effect: e, add: false }, `Twilight Sanctuary: ${name} ends on ${t.name}.`);
-                  close();
-                }}
-              >
-                <div className="row-main">
-                  <div className="row-title">
-                    End {registry.find(e, "effect")?.name ?? e} on {t.name}
-                  </div>
-                </div>
-              </button>
-            ))}
+            <button className="row" onClick={() => endOn("charmed")}>
+              <div className="row-main">
+                <div className="row-title">End a charm on it</div>
+                <div className="row-sub">One effect causing it to be charmed</div>
+              </div>
+            </button>
+            <button className="row" onClick={() => endOn("frightened")}>
+              <div className="row-main">
+                <div className="row-title">End a fright on it</div>
+                <div className="row-sub">One effect causing it to be frightened</div>
+              </div>
+            </button>
           </div>
-          <p className="note">{ending.length ? "" : "None of your companions or summoned creatures is charmed or frightened. "}For anyone else, they end the charm or fright on their own sheet.</p>
         </>
       );
     });
@@ -2041,7 +2073,7 @@ export function App() {
                 {
                   name: current.name,
                   economy: current.asAttack ? "action" : current.economy,
-                  ...(current.asAttack ? { attack: true } : { actionId: current.id }),
+                  ...(current.asAttack ? { attack: true } : current.anyTimes ? {} : { actionId: current.id }),
                   ...(current.notAfterMoving ? { notAfterMoving: true } : {}),
                 },
                 () => {
@@ -2978,6 +3010,16 @@ export function App() {
                   +
                 </button>
               </div>
+            </div>
+          )}
+          {timer && timer.rounds === undefined && timer.minutes !== undefined && (
+            <div className="row timer-row">
+              <div className="row-main row-title">
+                {timer.minutes} {timer.minutes === 1 ? "minute" : "minutes"} left
+              </div>
+              <button className="link" onClick={() => live.current.act("updateEffect", { instanceId: timer.id, rounds: timer.minutes! * 10, minutes: null }, `${t.label}: ${timer.minutes! * 10} rounds.`)}>
+                Count in rounds
+              </button>
             </div>
           )}
           {t.reminders && <Reminders items={live.current.sheet?.toggles.find((x) => x.name === name)?.reminders ?? t.reminders} />}

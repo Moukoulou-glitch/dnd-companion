@@ -49,7 +49,7 @@ describe("14c in play", () => {
     const l = make("class:druid", 10, "subclass:circle-of-the-shepherd");
     l.record("useAction", { action: "spirit-totem", choice: "Bear" });
     const tag = l.character.effects.find((e) => e.effect === "other:spirit-totem-guardian")!;
-    expect(tag).toMatchObject({ choice: "Bear", minutes: 1, toggles: ["spirit-totem"] });
+    expect(tag).toMatchObject({ choice: "Bear", rounds: 10, toggles: ["spirit-totem"] });
     expect(l.character.toggles).toContain("spirit-totem");
     l.record("removeEffect", { instanceId: tag.id });
     expect(l.character.toggles).not.toContain("spirit-totem");

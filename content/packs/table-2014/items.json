@@ -5769,7 +5769,7 @@
               "animated-shield"
             ],
             "duration": {
-              "minutes": 1
+              "rounds": 10
             },
             "note": "It guards you as if you held it, for 1 minute or until you stop it or are incapacitated; then it falls or comes back to your hand."
           }
