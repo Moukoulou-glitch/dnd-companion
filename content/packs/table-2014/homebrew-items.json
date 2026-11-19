@@ -1389,6 +1389,49 @@
           "label": "Longstrider (Spell Shard)"
         }
       ]
+    },
+    {
+      "kind": "item",
+      "id": "item:battleaxe-of-regina-lapsa",
+      "name": "Battleaxe of Regina Lapsa",
+      "summary": "A silvered battleaxe. Before you attack a celestial, fiend, undead or a creature of undisputed royal lineage with it, roll 1d4 and add it to the attack roll or, if the attack hits, to the damage; on a critical hit, another 1d4 and both dice go to the damage. Attuned by a fighter: Second Wind heals 1d12 + fighter level instead of 1d10.",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (Giorgos)"
+      },
+      "category": "weapon",
+      "weight": 4,
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "requiresAttunement": true,
+      "weapon": {
+        "category": "martial",
+        "kind": "melee",
+        "group": "battleaxe",
+        "damage": "1d8",
+        "damageType": "slashing",
+        "properties": [
+          "versatile"
+        ],
+        "versatileDamage": "1d10"
+      },
+      "grant": {
+        "actionNotes": [
+          {
+            "action": "second-wind",
+            "text": "1d12 + your fighter level instead of 1d10.",
+            "heal": "1d12 + classLevel.class:fighter"
+          }
+        ]
+      },
+      "text": [
+        "Weapon (Battleaxe), Uncommon",
+        "A heavy, crudely crafted battleaxe with a silvered edge and a leather-wrapped haft, bearing faded, ancient engravings of runic patterns and black feathers.",
+        "Before you make an attack roll against a Celestial, Fiend, Undead, or a creatures of undisputed royal lineage with this Battleaxe, roll 1d4. After seeing the result, you decide whether to add it to your attack roll or, if the attack hits, to your damage roll.",
+        "On a critical hit, roll an additional 1d4 and automatically add the total of both dice to your damage roll.",
+        "Second Wind (Requires attunement by a Fighter). While this axe is in your possession, if you have the Second Wind feature (Fighter class feature), you regain 1d12 + your Fighter level hit points instead of 1d10 + your Fighter level whenever you use it."
+      ]
     }
   ]
 }

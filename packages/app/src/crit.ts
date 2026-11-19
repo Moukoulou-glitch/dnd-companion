@@ -34,7 +34,20 @@ export function damageFor(hit: Composed, attack: Pick<WeaponAttack, "damage">, c
   // The flat damage "when you roll a 20" (Vicious, Sharpness): only when the d20 showed 20, not on a Champion's 19.
   // Any critical hit: half the target's hit point maximum, when it's entered (Wave: necrotic).
   const half = targetMaxHp > 0 ? (attack.damage.critRiders ?? []).filter((r) => r.halfMax).map((r) => ({ label: `${r.label} (half its HP maximum)`, value: Math.floor(targetMaxHp / 2), damageType: r.halfMax! })) : [];
-  return withCrit(hit, extra, [...(twenty ? attack.damage.onCrit : []), ...half]);
+  const out = withCrit(hit, extra, [...(twenty ? attack.damage.onCrit : []), ...half]);
+  // On any critical hit, not doubled (Battleaxe of Regina Lapsa: both d4s to the damage). The weapon's own damage type.
+  const type = hit.terms.find((t) => t.kind === "dice")?.label;
+  for (const add of attack.damage.critAnyAdd ?? []) {
+    if (add.flat) {
+      out.terms.push({ kind: "flat", sign: 1, value: add.flat, ...(type ? { label: type } : {}) });
+      out.sources.push(add.label);
+    }
+    if (add.dice) {
+      out.terms.push({ kind: "dice", sign: 1, count: add.dice.count, sides: add.dice.sides, ...(type ? { label: type } : {}) });
+      out.sources.push(add.label);
+    }
+  }
+  return out;
 }
 
 /** The words on a weapon's 20: its name and what the 20 added ("Sword of Sharpness · +14", "Sword of Life Stealing · +10 necrotic"). */

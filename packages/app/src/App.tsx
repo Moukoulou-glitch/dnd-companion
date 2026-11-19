@@ -68,7 +68,7 @@ import { FallPanel } from "./components/Fall";
 import { BuildPanel, LevelUpPanel, NewCharacterPanel, type NewCharacterInput } from "./components/Builder";
 import { flashEnabled, flashForFeature, flashForSpell, flashTorch, hasZenith, setFlashEnabled } from "./flash";
 import { PlayTab, type PlayPrompts } from "./components/PlayTab";
-import { liveAttack } from "./oneTime";
+import { attackOverlays, liveAttack } from "./oneTime";
 import { NumberStep } from "./components/Adjust";
 import { zeroHpOptions } from "@dnd/store";
 
@@ -90,6 +90,9 @@ import { filesIn, useCharacters } from "./useCharacters";
 import { backupDue, daysSince, lastBackup, snoozeBackup, snoozedUntil } from "./backup";
 import { formatMinutes } from "./time";
 import { DiePick } from "./components/DiePick";
+
+/** The table's homebrew axe whose d4 is rolled before an attack (asked in openAttack). */
+const LAPSA_ITEM = "item:battleaxe-of-regina-lapsa";
 import { DeathSavePanel } from "./components/DeathSave";
 import { vibrateFor, type HpState } from "./vibrate";
 
@@ -2326,7 +2329,7 @@ export function App() {
    * off your turn they're a reaction (opportunity attack). Nothing is spent
    * until the attack is actually rolled.
    */
-  const openAttack = (a: WeaponAttack, extra: Parameters<typeof openRoll>[3] = {}, asked = false) => {
+  const openAttack = (a: WeaponAttack, extra: Parameters<typeof openRoll>[3] = {}, asked = false, lapsaAsked = false) => {
     const cb = live.current.character?.combat;
     // An opportunity attack: on someone else's turn, or picked from the Reaction menu.
     const reaction = (!!cb && !cb.myTurn && a.action === "attack") || !!extra.reaction;
@@ -2359,6 +2362,60 @@ export function App() {
               const n = Number(/^\+(\d+)/.exec(o)?.[1] ?? 0);
               return { label: `${o} (+${most - n} to attack and damage)`, onPick: () => again(o) };
             }),
+          ]}
+        />
+      ));
+    }
+    // Battleaxe of Regina Lapsa: against a celestial, fiend, undead or royal blood, its d4 is rolled first, then put on the attack or kept for the damage.
+    const lapsa = !lapsaAsked && !!a.itemInstanceId && live.current.character?.inventory.find((i) => i.id === a.itemInstanceId)?.item === LAPSA_ITEM;
+    if (lapsa) {
+      const label = "Battleaxe of Regina Lapsa";
+      const go = (n?: number, to?: "attack" | "damage") => {
+        if (!n || !to) return openAttack(a, extra, true, true);
+        const part = { label: `${label}: its d4 (${n})`, value: n };
+        const overlay = (b: WeaponAttack): WeaponAttack => ({
+          ...b,
+          attack: to === "attack" ? { ...b.attack, total: b.attack.total + n, parts: [...b.attack.parts, part] } : b.attack,
+          damage: {
+            ...b.damage,
+            bonus: to === "damage" ? { ...b.damage.bonus, total: b.damage.bonus.total + n, parts: [...b.damage.bonus.parts, part] } : b.damage.bonus,
+            // A critical hit: both d4s go to the damage (the first one already is, when it was kept for the damage).
+            critAnyAdd: [...(to === "attack" ? [{ label: `${label}: its d4 (critical hit)`, flat: n }] : []), { label: `${label}: another 1d4 (critical hit)`, dice: { count: 1, sides: 4 } }],
+          },
+        });
+        const withD4 = overlay(a);
+        attackOverlays.set(withD4, overlay);
+        openAttack(withD4, extra, true, true);
+      };
+      return open(label, () => (
+        <Choose
+          question="Is the target a celestial, a fiend, an undead, or a creature of undisputed royal lineage?"
+          detail="Then roll the axe's d4 before the attack roll, and choose where it goes once you see it."
+          options={[
+            {
+              label: "Yes: roll the d4",
+              onPick: () =>
+                open(label, () => (
+                  <DiePick
+                    sides={4}
+                    what="Before the attack roll: the axe's d4."
+                    source={label}
+                    onPick={(n) =>
+                      open(label, () => (
+                        <Choose
+                          question={`The d4 shows ${n}. Where does it go?`}
+                          detail="On a critical hit, another 1d4 is rolled and both dice are added to the damage."
+                          options={[
+                            { label: `+${n} to the attack roll`, onPick: () => go(n, "attack") },
+                            { label: `+${n} to the damage, if it hits`, onPick: () => go(n, "damage") },
+                          ]}
+                        />
+                      ))
+                    }
+                  />
+                )),
+            },
+            { label: "No", onPick: () => go() },
           ]}
         />
       ));

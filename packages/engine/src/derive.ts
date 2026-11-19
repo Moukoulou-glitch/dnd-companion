@@ -84,6 +84,8 @@ export interface WeaponAttack {
     critExtraDice: Part[];
     /** What else a critical hit does (Sword of Life Stealing's temporary HP), or a second d20 to roll (Sword of Sharpness: on a 20, a limb). */
     critRiders?: { label: string; text: string; d20?: boolean; tempHp?: number; halfMax?: string; anyCrit?: boolean }[];
+    /** Added on any critical hit, never doubled: a number already rolled, or dice rolled then (Battleaxe of Regina Lapsa: its d4 and another 1d4). Set by the app for one attack. */
+    critAnyAdd?: { label: string; flat?: number; dice?: { count: number; sides: number } }[];
   };
   properties: string[];
   range?: [number, number];
@@ -2424,6 +2426,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       for (const t of targets) {
         t.note = `${t.note ? `${t.note} ` : ""}${src.label}: ${text}`;
         if (n.rollTimes && t.roll) t.roll = { ...t.roll, times: n.rollTimes };
+        if (n.heal !== undefined && t.heal) t.heal = amountOf(n.heal, src);
         if (n.dc && !t.dc) {
           const dc = dcOf(n.dc);
           if (dc) t.dc = dc;

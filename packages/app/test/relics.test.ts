@@ -21,7 +21,7 @@ describe("19l: homebrew items' emblems", () => {
     expect(r.map((x) => x.motif)).toEqual(["tome", "winds", "pearl"]);
     expect(r.find((x) => x.motif === "winds")!.active).toBe(true);
     expect(r.find((x) => x.motif === "pearl")!.active).toBe(false);
-    expect(Object.keys(RELICS)).toHaveLength(14);
+    expect(Object.keys(RELICS)).toHaveLength(15);
   });
   it("Tattoo of Last Hope: a phoenix when it saves you", () => {
     const before = ch({ resourcesUsed: {} });

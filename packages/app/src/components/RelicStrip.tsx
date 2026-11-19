@@ -140,6 +140,23 @@ const ART: Record<RelicMotif, ReactNode> = {
       ))}
     </>
   ),
+  // The Battleaxe of Regina Lapsa: a crude bearded blade with a silvered edge and a back spike, black feathers
+  // engraved on its face, a leather-wrapped haft with faded rune diamonds; light runs along the silver edge now and then.
+  lapsa: (
+    <>
+      <path className="r-haft" d="M11 7 L33 35" />
+      <path className="r-wrap" d="M15.5 12.5 L30.5 31.5" />
+      <path className="r-wrap2" d="M16 13.1 L30 30.9" />
+      <path className="r-runes" d="M18 14.8 l1.2 0.4 l0.4 1.2 l-1.2 -0.4 Z M22.6 20.6 l1.2 0.4 l0.4 1.2 l-1.2 -0.4 Z M27.2 26.4 l1.2 0.4 l0.4 1.2 l-1.2 -0.4 Z" />
+      <path className="r-pommel" d="M31.5 33.5 L34.5 32.5 L35.5 36.5 L32 36.8 Z" />
+      <path className="r-blade" d="M12.5 6.5 C9.5 3.8 6 2.6 3.2 3 C1.6 9.5 1.8 17.5 4.5 24.5 C6.4 19.5 9.6 15.2 14.6 11.6 Z" />
+      <path className="r-spike" d="M14.6 7.6 C17.5 6.8 19.8 5 21 2.6 C20.6 6.6 18.7 9.4 15.8 10.6 Z" />
+      <path className="r-collar" d="M11.2 6 L14.6 4.2 L16.6 7.4 L13.2 9.4 Z" />
+      <circle className="r-knob" cx={11.4} cy={4.2} r={1.6} />
+      <path className="r-feathers" d="M7.6 6.6 C6 10 6 14 7 17.5 M7 9.5 l-1.2 0.4 M6.7 12 l-1.3 0.4 M6.8 14.5 l-1.2 0.5 M10.4 9 C9 11.2 8.6 13.6 9 15.6" />
+      <path className="r-edge" d="M3.2 3 C1.6 9.5 1.8 17.5 4.5 24.5" />
+    </>
+  ),
   unlocking: (
     <>
       <path className="r-lock" d="M12 18 V13 C12 6 28 6 28 13 V18" />

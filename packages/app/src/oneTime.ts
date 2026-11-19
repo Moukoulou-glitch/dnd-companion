@@ -25,8 +25,23 @@ export function withoutUsedUp<B extends { suggestions: Sg[] }>(b: B, used: UsedU
  * latest numbers (a smite used on the first hit of Extra Attack is gone from
  * the second). Falls back to the attack it was opened with.
  */
+/**
+ * What was added to one attack by hand before its roll (the Battleaxe of Regina Lapsa's d4), put again on the
+ * sheet's fresh copy of that attack each time the roll panel draws.
+ */
+export const attackOverlays = new WeakMap<WeaponAttack, (fresh: WeaponAttack) => WeaponAttack>();
+
 export function liveAttack<A extends WeaponAttack>(sheet: DerivedSheet | undefined, a: A): A {
   if (!sheet) return a;
+  const over = attackOverlays.get(a);
+  if (over) {
+    const plain = liveAttackOf(sheet, a);
+    return (plain === a ? a : over(plain)) as A;
+  }
+  return liveAttackOf(sheet, a);
+}
+
+function liveAttackOf<A extends WeaponAttack>(sheet: DerivedSheet, a: A): A {
   const same = (x: WeaponAttack) => x.attackId === a.attackId && x.itemInstanceId === a.itemInstanceId && x.mode === a.mode && !!x.offHand === !!a.offHand && x.name === a.name;
   const found = sheet.attacks.find(same) ?? sheet.companions.flatMap((c) => c.form?.attacks ?? []).find(same);
   return (found as A | undefined) ?? a;

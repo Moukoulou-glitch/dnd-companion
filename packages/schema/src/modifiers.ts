@@ -786,6 +786,8 @@ export const Grant = z
             minLevel: z.number().int().min(1).max(20).optional(),
             /** A save it adds, 8 + proficiency + the best of these abilities (Fey Step's season: Wisdom against Charisma). */
             dc: z.object({ save: z.string(), by: z.array(Ability).min(1), name: z.string() }).strict().optional(),
+            /** Its healing becomes this (Battleaxe of Regina Lapsa: Second Wind 1d12 + fighter level). */
+            heal: ValueExpr.optional(),
           })
           .strict(),
       )
