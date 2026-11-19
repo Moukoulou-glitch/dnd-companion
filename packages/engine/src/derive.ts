@@ -431,6 +431,8 @@ export interface ResourceResult {
   reset: string;
   die?: string;
   source: string;
+  /** Where it comes from: "race", "background", a class id ("class:cleric"), "feat", "extra", "item". */
+  origin?: string;
   /** Rolls made in advance (Portent): the dice size and the values kept so far. */
   pool?: { sides: number; values: number[] };
   /** Used without limit, and by what (Archdruid): never runs out. */
@@ -1751,6 +1753,8 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       const used = Math.min(c.resourcesUsed[r.id] ?? 0, max);
       const shortNow = r.shortFrom && (c.classes.find((x) => x.class === r.shortFrom!.class)?.level ?? 0) >= r.shortFrom.level;
       const entry: ResourceResult = { id: r.id, name: r.name, max, used, remaining: max - used, reset: shortNow ? "short" : r.reset, source: s.label };
+      const origin = s.itemInstanceId ? "item" : s.origin;
+      if (origin) entry.origin = origin;
       if (r.die) {
         const terms = evalExpr(r.die, ctxFor(s));
         const die = terms[0];

@@ -107,7 +107,9 @@ export interface PlayPrompts {
   rollPool: (r: ResourceResult) => void;
 }
 
-function Pips({ total, used, onSpend, onRestore, kind, name, die, level, pact, look }: {
+function Pips({ total, used, onSpend, onRestore, kind, name, die, level, pact, look, origin }: {
+  /** Where a feature's use comes from: its token's frame (a cleric's amulet, a rogue's coin). */
+  origin?: string;
   /** A spell slot's level: its knot has that many loops. */
   level?: number;
   pact?: boolean;
@@ -151,7 +153,7 @@ function Pips({ total, used, onSpend, onRestore, kind, name, die, level, pact, l
             aria-label={spent ? `Get back one ${name}` : `Spend one ${name}${die ? ` (${die})` : ""}`}
             onClick={spent ? onRestore : onSpend}
           >
-            {kind === "slot" && level ? <KnotToken level={level} spent={spent} {...(pact ? { pact } : {})} /> : look ? <ResourceToken look={look} spent={spent} {...(die ? { die } : {})} /> : die}
+            {kind === "slot" && level ? <KnotToken level={level} spent={spent} {...(pact ? { pact } : {})} /> : look ? <ResourceToken look={look} spent={spent} {...(die ? { die } : {})} {...(origin ? { origin } : {})} /> : die}
           </button>
         );
       })}
@@ -453,6 +455,7 @@ export function PlayTab({
                 <Pips
                   name={r.name}
                   look={tokenLook(r, sheet.actions)}
+                  {...(r.origin ? { origin: r.origin } : {})}
                   {...(r.die && !r.pool ? { die: r.die } : {})}
                   total={r.max}
                   used={r.used}

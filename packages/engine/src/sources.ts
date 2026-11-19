@@ -20,6 +20,8 @@ export interface Source {
   effectInstanceId?: string;
   /** Slot level an effect was cast at ("slotLevel" in its expressions). */
   slotLevel?: number;
+  /** Where it comes from: "race", "background", a class id ("class:cleric"), "feat", "extra", "item". */
+  origin?: string;
 }
 
 /** The modifiers an effect applies at a given level (levels are cumulative, like Exhaustion). */
@@ -70,6 +72,12 @@ export function collectSources(c: Character, baseReg: ContentRegistry, duplicate
     pushChosenFeatures(f.id, f.choices);
   };
 
+  // Each source's origin, marked as each part of the character is walked.
+  let marked = 0;
+  const mark = (origin: string) => {
+    for (; marked < out.length; marked++) out[marked]!.origin ??= origin;
+  };
+
   const race = reg.get(c.race, "race");
   out.push({ id: race.id, label: race.name, grant: race.grant ?? {}, choices: choicesFor(race.id) });
   race.features.forEach(pushFeature);
@@ -84,12 +92,14 @@ export function collectSources(c: Character, baseReg: ContentRegistry, duplicate
     if (!out.some((s) => s.id === f.id)) pushFeature(f.id);
   }
 
+  mark("race");
   if (c.background) {
     const bg = reg.get(c.background, "background");
     out.push({ id: bg.id, label: bg.name, grant: bg.grant ?? {}, choices: choicesFor(bg.id) });
     bg.features.forEach(pushFeature);
     pushChosenFeatures(bg.id, bg.choices);
   }
+  mark("background");
 
   c.classes.forEach((cl, index) => {
     const def = reg.get(cl.class, "class");
@@ -107,6 +117,7 @@ export function collectSources(c: Character, baseReg: ContentRegistry, duplicate
     activeFeatures(def.features, cl.level, c.optionalOff, pool, c.optionalBoth).forEach((f) => pushFeature(f.feature));
 
     if (subDef) activeFeatures(subDef.features, cl.level, c.optionalOff, pool, c.optionalBoth).forEach((f) => pushFeature(f.feature));
+    mark(cl.class);
   });
 
   for (const feat of c.feats) {
@@ -115,6 +126,7 @@ export function collectSources(c: Character, baseReg: ContentRegistry, duplicate
     def.features.forEach(pushFeature);
     pushChosenFeatures(def.id, def.choices);
   }
+  mark("feat");
 
   // What the table gave beyond the rules, each applied like any other source.
   for (const x of c.extras) {
@@ -136,6 +148,7 @@ export function collectSources(c: Character, baseReg: ContentRegistry, duplicate
     }
   }
 
+  mark("extra");
   // Spell scrolls with their spell written in: read one to cast it (DMG p. 200).
   for (const inst of c.inventory) {
     if (!inst.scroll || inst.quantity < 1) continue;
