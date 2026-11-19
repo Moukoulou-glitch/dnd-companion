@@ -990,7 +990,7 @@
       "kind": "item",
       "id": "item:whistle-of-the-ashen-gale",
       "name": "Whistle of the Ashen Gale",
-      "summary": "Your Charisma score is 16 (no effect if it's already that or higher). You know thaumaturgy. Once per short or long rest, after you succeed on a save against a spell or magical effect: your speed increases by 10 × your proficiency bonus until the end of your next turn.",
+      "summary": "Your Charisma score is 16 (no effect if it's already that or higher). You know thaumaturgy. Once per short or long rest, after you succeed on a save against a spell or magical effect: every speed you have increases by 10 × your proficiency bonus until the end of your next turn.",
       "source": {
         "pack": "table-2014",
         "book": "Homebrew (Giorgos)"
@@ -1037,7 +1037,7 @@
             "duration": {
               "rounds": 2
             },
-            "note": "Right after you succeed on a saving throw against a spell or a magical effect: your speed increases by 10 × your proficiency bonus until the end of your next turn."
+            "note": "Right after you succeed on a saving throw against a spell or a magical effect: every speed you have (walking, flying, swimming, climbing) increases by 10 × your proficiency bonus until the end of your next turn."
           }
         ]
       },
@@ -1354,7 +1354,7 @@
       "id": "effect:whistle-ashen-gale",
       "name": "Whispering wind",
       "category": "other",
-      "summary": "Speed increased by 10 × your proficiency bonus until the end of your next turn (Whistle of the Ashen Gale).",
+      "summary": "Every speed you have (walking, flying, swimming, climbing) increased by 10 × your proficiency bonus until the end of your next turn (Whistle of the Ashen Gale).",
       "source": {
         "pack": "table-2014",
         "book": "Homebrew (Giorgos)"
@@ -1362,7 +1362,7 @@
       "rounds": 2,
       "modifiers": [
         {
-          "selector": "stat.speed.walk",
+          "selector": "stat.speed.*",
           "op": "add",
           "value": "10*pb",
           "label": "Whistle of the Ashen Gale"

@@ -5404,3 +5404,34 @@ h2 .slot-count .pact b { color: #b58cff; }
 .sfx-ongoing-wyrm::before { inset: 0; background: radial-gradient(circle at 50% 100%, transparent 6px, rgba(200, 150, 60, 0.18) 7px, transparent 9px) 0 0 / 18px 12px; mask-image: radial-gradient(ellipse, transparent 55%, #000 88%); -webkit-mask-image: radial-gradient(ellipse, transparent 55%, #000 88%); animation: st-pulse 3s ease-in-out infinite; }
 .sfx-ongoing-wyrm::after { inset: 0; box-shadow: inset 0 0 60px 8px rgba(220, 160, 60, 0.25); }
 @media (prefers-reduced-motion: reduce) { .sfx-ongoing.sfx-st::before, .sfx-ongoing.sfx-st::after, .sfx-ongoing.sfx-st > span { animation: none !important; } .sfx-ongoing.sfx-st > span { opacity: 0.5; } }
+
+/* The Whistle of the Ashen Gale: bone and silver; its feather sways, ash drifts from its window, the runes glint.
+   With the whispering wind on, the feather streams and the ash blows away fast. */
+.relic-whistle { --rc: 200, 205, 215; }
+.relic-whistle .r-bone { fill: #e8e2d2; stroke: #8f887a; stroke-width: 0.9; }
+.relic-whistle .r-cap { fill: #b9bec6; stroke: #6c727c; stroke-width: 0.8; }
+.relic-whistle .r-window { fill: #14171c; stroke: none; }
+.relic-whistle .r-runes { stroke: #3a3530; stroke-width: 0.9; animation: relic-glint 3.4s ease-in-out infinite; }
+.relic-whistle .r-binding { stroke: #9aa1ab; stroke-width: 0.9; stroke-dasharray: 1.6 1; }
+.relic-whistle .r-hang { stroke: #9aa1ab; stroke-width: 0.9; stroke-dasharray: 1.4 1; }
+.relic-whistle .r-bead { fill: #c3c8cf; stroke: #6c727c; stroke-width: 0.6; }
+.relic-whistle .r-feather path:first-child { fill: #4a4e5a; stroke: #b4bac4; stroke-width: 0.7; }
+.relic-whistle .r-feather path:last-child { stroke: #aab0ba; stroke-width: 0.5; }
+.relic-whistle .r-feather { transform-origin: 33px 21px; animation: relic-sway 4.2s ease-in-out infinite; }
+.relic-whistle .r-ash { fill: #9a9da4; stroke: none; opacity: 0; animation: relic-ash 3.6s ease-out infinite; }
+.relic-whistle .r-ash.n1 { animation-delay: 1.2s; }
+.relic-whistle .r-ash.n2 { animation-delay: 2.4s; }
+@keyframes relic-ash { 0% { opacity: 0; transform: translate(0, 0); } 20% { opacity: 0.9; } 100% { opacity: 0; transform: translate(-10px, -8px); } }
+.relic-whistle.on .r-feather { animation: relic-stream 0.6s ease-in-out infinite; }
+@keyframes relic-stream { 0%, 100% { transform: rotate(-38deg); } 50% { transform: rotate(-30deg) scaleY(0.96); } }
+.relic-whistle.on .r-ash { animation-duration: 1s; }
+
+/* The whispering wind, while it lasts: grey wind streaks sweep across the screen with ash carried in them, a cold
+   pressure darkens the edges, and the dark feather of the whistle drifts across now and then. */
+.sfx-ongoing-gale::before { inset: 0; background: radial-gradient(ellipse at 50% 50%, transparent 58%, rgba(70, 72, 82, 0.35) 95%); animation: st-pulse 3s ease-in-out infinite; }
+.sfx-ongoing-gale > span:nth-child(-n + 5) { display: block; left: -40%; width: 38%; height: 2px; top: calc(14% + var(--i) * 17%); border-radius: 2px; background: linear-gradient(90deg, rgba(210, 214, 222, 0), rgba(210, 214, 222, 0.5), rgba(210, 214, 222, 0)); animation: st-gust 1.8s linear infinite; animation-delay: calc(var(--i) * -0.37s); }
+@keyframes st-gust { 0% { left: -40%; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { left: 110%; opacity: 0; } }
+.sfx-ongoing-gale > span:nth-child(6), .sfx-ongoing-gale > span:nth-child(7) { display: block; left: -10%; top: calc(20% + (var(--i) - 5) * 40%); width: 120%; height: 30%; background-image: radial-gradient(circle, rgba(160, 162, 170, 0.55) 1px, transparent 1.6px), radial-gradient(circle, rgba(120, 122, 130, 0.45) 1.3px, transparent 2px), radial-gradient(circle, rgba(190, 192, 198, 0.4) 0.8px, transparent 1.4px); background-size: 137px 91px, 197px 143px, 251px 173px; background-position: 0 0, 61px 37px, 113px 71px; animation: st-ash-blow 3.4s linear infinite; mask-image: linear-gradient(90deg, transparent, #000 20%, #000 80%, transparent); -webkit-mask-image: linear-gradient(90deg, transparent, #000 20%, #000 80%, transparent); }
+@keyframes st-ash-blow { from { background-position: 0 0, 61px 37px, 113px 71px; } to { background-position: 548px -60px, 649px -20px, 615px -110px; } }
+.sfx-ongoing-gale > span:nth-child(8) { display: block; left: -12%; top: 36%; width: 14px; height: 30px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 40'%3E%3Cpath d='M10 2 C16 10 16 26 10 38 C4 26 4 10 10 2 Z' fill='%231c1e24' stroke='%237a7e88' stroke-width='0.8'/%3E%3Cpath d='M10 4 V38' stroke='%23aab0ba' stroke-width='0.6'/%3E%3C/svg%3E") center / contain no-repeat; opacity: 0; animation: st-feather-blow 7s ease-in-out infinite; }
+@keyframes st-feather-blow { 0%, 55% { left: -12%; opacity: 0; transform: rotate(60deg) translateY(0); } 60% { opacity: 0.85; } 95% { opacity: 0.85; } 100% { left: 112%; opacity: 0; transform: rotate(420deg) translateY(-60px); } }

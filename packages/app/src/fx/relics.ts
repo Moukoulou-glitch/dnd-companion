@@ -18,9 +18,10 @@ export type RelicMotif =
   | "essence"
   | "tinker"
   | "pearl"
-  | "unlocking";
+  | "unlocking"
+  | "whistle";
 
-export const RELICS: Record<string, { name: string; motif: RelicMotif; attune: boolean; whileOn?: string }> = {
+export const RELICS: Record<string, { name: string; motif: RelicMotif; attune: boolean; whileOn?: string; whileEffect?: string }> = {
   "item:tattoo-of-vineyard-blessing": { name: "Tattoo of Vineyard Blessing", motif: "vineyard", attune: true, whileOn: "vineyard-grape" },
   "item:tattoo-of-illusionary-scribing": { name: "Tattoo of Illusionary Scribing", motif: "scribing", attune: true },
   "item:tattoo-of-guardian-winds": { name: "Tattoo of Guardian Winds", motif: "winds", attune: true, whileOn: "guardian-winds" },
@@ -34,6 +35,7 @@ export const RELICS: Record<string, { name: string; motif: RelicMotif; attune: b
   "item:staff-of-the-tinker": { name: "Staff of the Tinker", motif: "tinker", attune: true },
   "item:pearl-of-regeneration": { name: "Pearl of Regeneration", motif: "pearl", attune: true, whileOn: "pearl-orbiting" },
   "item:tattoo-of-unlocking": { name: "Tattoo of Unlocking", motif: "unlocking", attune: true },
+  "item:whistle-of-the-ashen-gale": { name: "Whistle of the Ashen Gale", motif: "whistle", attune: true, whileEffect: "effect:whistle-ashen-gale" },
 };
 
 export const TOME_EFFECT = "effect:tome-of-wound-forbidding";
@@ -58,7 +60,8 @@ export function relicsOf(c: Character | undefined): RelicShown[] {
   for (const i of c.inventory) {
     const r = RELICS[i.item];
     if (!r || !i.equipped || (r.attune && !i.attuned)) continue;
-    out.push({ key: i.id, name: i.name ?? r.name, motif: r.motif, active: !!r.whileOn && c.toggles.includes(r.whileOn), instanceId: i.id });
+    const active = (!!r.whileOn && c.toggles.includes(r.whileOn)) || (!!r.whileEffect && c.effects.some((e) => e.effect === r.whileEffect));
+    out.push({ key: i.id, name: i.name ?? r.name, motif: r.motif, active, instanceId: i.id });
   }
   return out;
 }

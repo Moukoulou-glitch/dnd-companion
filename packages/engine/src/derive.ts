@@ -1199,10 +1199,11 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
   };
 
   /** Flat additions to a stat (AC, speed, HP max); dice are not allowed here. */
-  const statAdds = (key: string | string[]): Part[] => {
+  const statAdds = (key: string | string[], ownOnly = false): Part[] => {
     const parts: Part[] = [];
     for (const a of modsFor(typeof key === "string" ? [key] : key)) {
       if (a.mod.op !== "add" || a.mod.value === undefined) continue;
+      if (ownOnly && a.mod.selector.endsWith("*")) continue;
       if (conditionState(a.mod.when) !== "pass" || a.mod.mode === "suggested") continue;
       parts.push({ label: labelOf(a), value: flatOf(a) });
     }
@@ -1214,9 +1215,10 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
    * multipliers (rounded down), then caps ("set": the value becomes at most N).
    * Each step shows up as a line, so "Exhaustion 2: speed halved" reads as -20.
    */
-  const statWith = (key: string, base: Part[]): Breakdown => {
-    const parts = [...base, ...statAdds(key)];
-    const applicable = modsFor([key]).filter((a) => a.mod.value !== undefined && a.mod.mode !== "suggested" && conditionState(a.mod.when) === "pass");
+  /** `ownOnly`: only what changes this stat itself, not every speed (a flying speed equal to your walking one already has those). */
+  const statWith = (key: string, base: Part[], ownOnly = false): Breakdown => {
+    const parts = [...base, ...statAdds(key, ownOnly)];
+    const applicable = modsFor([key]).filter((a) => a.mod.value !== undefined && a.mod.mode !== "suggested" && conditionState(a.mod.when) === "pass" && !(ownOnly && a.mod.selector.endsWith("*") && a.mod.op !== "set"));
     for (const a of applicable.filter((x) => x.mod.op === "multiply")) {
       const before = sum(parts).total;
       const factor = Number(a.mod.value);
@@ -1401,15 +1403,16 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
   const otherSpeeds = (walk: Breakdown): SpeedResult[] => {
     const out: SpeedResult[] = [];
     for (const mode of ["fly", "swim", "climb"] as const) {
-      let best: { value: number; label: string; hover: boolean } | undefined;
+      let best: { value: number; label: string; hover: boolean; fromWalk: boolean } | undefined;
       for (const a of modsFor([`stat.speed.${mode}`])) {
         if (a.mod.op !== "grantSpeed" || conditionState(a.mod.when) !== "pass" || a.mod.mode === "suggested") continue;
         const v = a.mod.value === "walk" ? walk.total : flatOf(a);
         const label = `${labelOf(a)}${a.mod.value === "walk" ? " (equal to walking)" : ""}`;
-        if (!best || v > best.value) best = { value: v, label, hover: !!a.mod.hover || !!best?.hover };
+        if (!best || v > best.value) best = { value: v, label, hover: !!a.mod.hover || !!best?.hover, fromWalk: a.mod.value === "walk" };
         else if (a.mod.hover) best.hover = true;
       }
-      if (best) out.push({ mode, total: statWith(`stat.speed.${mode}`, [{ label: best.label, value: best.value }]), ...(best.hover ? { hover: true } : {}) });
+      // Equal to walking: walking already has what changes every speed (Haste, the whispering wind); not twice.
+      if (best) out.push({ mode, total: statWith(`stat.speed.${mode}`, [{ label: best.label, value: best.value }], best.fromWalk), ...(best.hover ? { hover: true } : {}) });
     }
     return out;
   };

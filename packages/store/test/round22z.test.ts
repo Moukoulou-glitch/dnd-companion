@@ -129,3 +129,21 @@ describe("23k: Form of the Beast lasts as long as the rage", () => {
     expect(l.character.toggles.some((x) => x.startsWith("beast-"))).toBe(false);
   });
 });
+
+describe("23l: the whispering wind raises every speed", () => {
+  it("walking and flying both", () => {
+    const c = newCharacter({ id: "g", name: "G", race: "race:human", class: "class:fighter", abilities: { str: 14, dex: 12, con: 14, int: 10, wis: 10, cha: 10 } }, reg);
+    c.classes = [{ class: "class:fighter", level: 5 }];
+    c.inventory.push({ id: "wh", item: "item:whistle-of-the-ashen-gale", quantity: 1, equipped: true, attuned: true });
+    c.inventory.push({ id: "wb", item: "item:winged-boots", quantity: 1, equipped: true, attuned: true });
+    const l = new CharacterLog(c, reg, new HybridClock("t", () => (t += 1000)), "player");
+    l.record("useAction", { action: "winged-boots" });
+    const before = derive(l.character, reg);
+    const fly0 = before.speeds.find((s) => s.mode === "fly")?.total.total;
+    expect(fly0).toBeGreaterThan(0);
+    l.record("useAction", { action: "whistle-ashen-gale" });
+    const after = derive(l.character, reg);
+    expect(after.speed.total).toBe(before.speed.total + 30);
+    expect(after.speeds.find((s) => s.mode === "fly")?.total.total).toBe(fly0! + 30);
+  });
+});

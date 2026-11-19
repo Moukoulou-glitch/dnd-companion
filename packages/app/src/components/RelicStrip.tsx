@@ -120,6 +120,26 @@ const ART: Record<RelicMotif, ReactNode> = {
       <circle className="r-pearl" cx={33} cy={16} r={2.6} />
     </>
   ),
+  // The Whistle of the Ashen Gale: a bone whistle bound in silver chain, its cap of worked silver, runes along it, a
+  // dark feather hanging on a chain from the cap; ash drifts from its window, and the feather stirs in a wind no one feels.
+  whistle: (
+    <>
+      <path className="r-bone" d="M7 30 L23 10 L28 14 L12 34 Z" />
+      <path className="r-cap" d="M22 9 L25 6 L31 11 L28 14 Z" />
+      <path className="r-window" d="M17 18 L19.5 15.5 L21.5 17.5 L19 20 Z" />
+      <path className="r-runes" d="M11 29 l1.5 1.2 M13 26.5 l1.5 1.2 M15 24 l1.5 1.2 M23.5 13 l1.4 1.1" />
+      <path className="r-binding" d="M9 28 L16 33 M12 24 L20 29 M16 19.5 L22 24 M19 15 L25 19" />
+      <path className="r-hang" d="M30 10 C33 12 34 15 33 18" />
+      <circle className="r-bead" cx={33} cy={19.5} r={1.6} />
+      <g className="r-feather">
+        <path d="M33 21 C36 25 36 31 33 37 C30 31 30 25 33 21 Z" />
+        <path d="M33 22 V37" />
+      </g>
+      {[0, 1, 2].map((i) => (
+        <circle key={i} className={`r-ash n${i}`} cx={18} cy={16} r={0.9} />
+      ))}
+    </>
+  ),
   unlocking: (
     <>
       <path className="r-lock" d="M12 18 V13 C12 6 28 6 28 13 V18" />

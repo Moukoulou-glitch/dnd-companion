@@ -24,3 +24,16 @@ describe("23k: each transformation its own loop while it's on", () => {
     expect(formFx(c({ toggles: ["starry-form", "starry-form-dragon"] })).map((x) => x.look)).toEqual(["sfx-st sfx-ongoing-starry", "sfx-st sfx-ongoing-starry-dragon"]);
   });
 });
+
+describe("23l: the Whistle of the Ashen Gale on Play", async () => {
+  const { relicsOf } = await import("../src/fx/relics.js");
+  const { stateLoops } = await import("../src/fx/triggers.js");
+  it("its token while attuned, bright while the wind blows, and the wind's loop", () => {
+    const base = c({ inventory: [{ id: "wh", item: "item:whistle-of-the-ashen-gale", quantity: 1, equipped: true, attuned: true }] as Character["inventory"] });
+    expect(relicsOf(base)).toMatchObject([{ motif: "whistle", active: false }]);
+    const windy = { ...base, effects: [{ id: "e", effect: "effect:whistle-ashen-gale", from: "x" }] } as Character;
+    expect(relicsOf(windy)[0]!.active).toBe(true);
+    expect(stateLoops(windy).gale).toBe("sfx-st sfx-ongoing-gale");
+    expect(relicsOf({ ...base, inventory: [{ ...base.inventory[0]!, attuned: false }] } as Character)).toEqual([]);
+  });
+});
