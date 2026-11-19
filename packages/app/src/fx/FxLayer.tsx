@@ -218,6 +218,9 @@ export function specOf(e: FxEvent): FxSpec {
     case "twilight20":
       return { at: "edge", ms: 1900, buzz: [20, 40, 20, 40, 80], look: "fx-tw20", label: "Natural 20", skippable: true };
     // Corpse Slayer: the grave's skull cracks and falls to ash; with a Divine Smite, a pillar of radiance burns it away.
+    // The Battleaxe of Regina Lapsa: the axe swings down, its silvered edge bites, runes flare, black feathers scatter.
+    case "lapsa":
+      return { at: "edge", ms: 2100, buzz: [20, 30, 90, 40, 30], look: "fx-rl", label: "Battleaxe of Regina Lapsa · critical hit", shake: 320, skippable: true };
     case "corpse":
       return e.smite
         ? { at: "edge", ms: 3000, buzz: [40, 30, 40, 30, 90, 40, 200], look: "fx-cs fx-cs-smite", label: "Corpse Slayer · Divine Smite", shake: 560, skippable: true }
@@ -866,6 +869,52 @@ export function FxLayer({ school, spell, feature, character }: { school: (spell:
                   <span key={i} className="fx-tw20-star" style={{ ["--a" as string]: `${i * 20}deg`, ["--d" as string]: `${70 + (i % 4) * 26}px`, animationDelay: `${700 + (i % 6) * 40}ms` }} />
                 ))}
               </div>
+            )}
+            {spec.look === "fx-rl" && (
+              <>
+                <span className="fx-rl-veil" />
+                <svg className="fx-rl-svg" viewBox="0 0 390 844" preserveAspectRatio="none">
+                  <path className="cut" pathLength={1} d="M70,250 Q170,400 330,560" />
+                  <path className="cut-core" pathLength={1} d="M70,250 Q170,400 330,560" />
+                </svg>
+                <div className="fx-rl-at">
+                  <svg className="fx-rl-axe" viewBox="0 0 40 40" aria-hidden="true">
+                    <path className="haft" d="M11 7 L33 35" />
+                    <path className="wrap" d="M15.5 12.5 L30.5 31.5" />
+                    <path className="steel" d="M12.5 6.5 C9.5 3.8 6 2.6 3.2 3 C1.6 9.5 1.8 17.5 4.5 24.5 C6.4 19.5 9.6 15.2 14.6 11.6 Z" />
+                    <path className="steel" d="M14.6 7.6 C17.5 6.8 19.8 5 21 2.6 C20.6 6.6 18.7 9.4 15.8 10.6 Z" />
+                    <path className="feather" d="M7.6 6.6 C6 10 6 14 7 17.5 M10.4 9 C9 11.2 8.6 13.6 9 15.6" />
+                    <path className="edge" d="M3.2 3 C1.6 9.5 1.8 17.5 4.5 24.5" />
+                  </svg>
+                  <span className="fx-rl-flash" />
+                  {Array.from({ length: 8 }, (_, i) => (
+                    <span key={i} className="fx-rl-rune" style={{ ["--a" as string]: `${i * 45}deg`, animationDelay: `${430 + i * 40}ms` }} />
+                  ))}
+                  {[
+                  [110, 0, -180, 380],
+                  [-116, 85, -83, 425],
+                  [18, -163, 14, 470],
+                  [80, 83, 111, 515],
+                  [-175, -25, -152, 560],
+                  [190, -97, -55, 605],
+                  [-39, 117, 42, 380],
+                  [-92, -141, 139, 425],
+                  [118, 34, -124, 470],
+                  [-160, 53, -27, 515],
+                  [93, -160, 70, 560],
+                  [44, 112, 167, 605],
+                  [-168, -78, -96, 380],
+                  [118, -21, 1, 425],
+                  [-96, 110, 98, 470],
+                  [-28, -171, -165, 515]
+                  ].map(([x, y, r, dl], i) => (
+                    <svg key={i} className="fx-rl-feather" viewBox="0 0 12 34" style={{ ["--x" as string]: `${x}px`, ["--y" as string]: `${y}px`, ["--r" as string]: `${r}deg`, animationDelay: `${dl}ms` }} aria-hidden="true">
+                      <path d="M6 1 C11 9 11 22 6 33 C1 22 1 9 6 1 Z" />
+                      <path className="spine" d="M6 3 V33" />
+                    </svg>
+                  ))}
+                </div>
+              </>
             )}
             {spec.look.startsWith("fx-cs") && (
               <>

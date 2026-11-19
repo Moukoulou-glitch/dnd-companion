@@ -5503,3 +5503,32 @@ h2 .slot-count .pact b { color: #b58cff; }
 .relic-lapsa.on .r-runes { fill: #f0c070; animation-duration: 2s; }
 .relic-lapsa.on .r-edge { animation-duration: 2.2s; }
 @media (prefers-reduced-motion: reduce) { .relic-lapsa .r-edge, .relic-lapsa .r-runes { animation: none; } }
+
+/* The Battleaxe of Regina Lapsa's critical hit: the axe swings down, its silvered edge leaves a cut across the screen,
+   faded runes flare round the blow, and black feathers burst out and drift down. */
+.fx.fx-rl { position: absolute; inset: 0; overflow: hidden; pointer-events: none; animation: fx-tw-in var(--fx-ms) ease-out forwards; }
+.fx-rl-veil { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 46%, rgba(170, 180, 195, 0.18), rgba(8, 8, 10, 0.86)); }
+.fx-rl .fx-label { color: #eef2f7; font-size: 1.2em; letter-spacing: 0.02em; text-shadow: 0 0 2px #000, 0 0 14px #b7c3d4; }
+.fx-rl-svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.fx-rl-svg path { fill: none; stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: 1; animation: fx-tw-draw 200ms 330ms ease-in forwards; }
+.fx-rl-svg .cut { stroke: rgba(170, 185, 205, 0.55); stroke-width: 16; }
+.fx-rl-svg .cut-core { stroke: #f4f8ff; stroke-width: 4; }
+.fx-rl-at { position: absolute; left: 50%; top: 46%; width: 0; height: 0; }
+.fx-rl-axe { position: absolute; left: -40px; top: -40px; width: 190px; height: 190px; overflow: visible; transform-origin: 82% 88%; opacity: 0; animation: fx-rl-swing var(--fx-ms) ease-in forwards; }
+.fx-rl-axe path { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.fx-rl-axe .haft { stroke: #4a3324; stroke-width: 3.4; }
+.fx-rl-axe .wrap { stroke: #6e4429; stroke-width: 3.6; stroke-dasharray: 1.4 1.6; stroke-linecap: butt; }
+.fx-rl-axe .steel { fill: #7a8088; stroke: #24262a; stroke-width: 0.7; }
+.fx-rl-axe .feather { stroke: #18191c; stroke-width: 0.9; }
+.fx-rl-axe .edge { stroke: #f4f8ff; stroke-width: 1.2; }
+@keyframes fx-rl-swing { 0% { opacity: 0; transform: rotate(48deg); } 6% { opacity: 1; } 17% { transform: rotate(62deg); } 22% { transform: rotate(-20deg); } 26% { transform: rotate(-15deg); } 62% { opacity: 1; transform: rotate(-16deg); } 80%, 100% { opacity: 0; transform: rotate(-17deg); } }
+.fx-rl-flash { position: absolute; left: -70px; top: -70px; width: 140px; height: 140px; border-radius: 50%; background: radial-gradient(circle, #ffffff, rgba(210, 222, 240, 0.7) 35%, rgba(150, 165, 190, 0) 70%); opacity: 0; transform: scale(0.3); animation: fx-rl-flash 700ms 440ms ease-out forwards; }
+@keyframes fx-rl-flash { 0% { opacity: 1; transform: scale(0.3); } 100% { opacity: 0; transform: scale(2.2); } }
+.fx-rl-rune { position: absolute; left: -7px; top: -7px; width: 14px; height: 14px; border: 2px solid #e8c27a; background: rgba(255, 200, 110, 0.25); box-shadow: 0 0 10px rgba(255, 190, 90, 0.8); opacity: 0; transform: rotate(var(--a)) translateY(-96px) rotate(45deg); animation: fx-rl-rune 1200ms ease-out forwards; }
+@keyframes fx-rl-rune { 0% { opacity: 0; transform: rotate(var(--a)) translateY(-60px) rotate(45deg) scale(0.4); } 25% { opacity: 1; transform: rotate(var(--a)) translateY(-96px) rotate(45deg) scale(1.1); } 100% { opacity: 0; transform: rotate(calc(var(--a) + 40deg)) translateY(-110px) rotate(45deg) scale(0.8); } }
+.fx-rl-feather { position: absolute; left: -6px; top: -17px; width: 12px; height: 34px; overflow: visible; opacity: 0; animation: fx-rl-feather 1500ms ease-out forwards; }
+.fx-rl-feather path { fill: #121216; stroke: #4c505a; stroke-width: 0.8; }
+.fx-rl-feather .spine { fill: none; stroke: #6a6f7a; stroke-width: 0.6; }
+@keyframes fx-rl-feather { 0% { opacity: 0; transform: translate(0, 0) rotate(0deg) scale(0.5); } 10% { opacity: 1; } 35% { transform: translate(var(--x), var(--y)) rotate(var(--r)) scale(1); } 100% { opacity: 0; transform: translate(calc(var(--x) * 1.2), calc(var(--y) + 120px)) rotate(calc(var(--r) + 140deg)) scale(0.9); } }
+@media (prefers-reduced-motion: reduce) { .fx.fx-rl { animation: fx-static 900ms ease-out forwards !important; } .fx-rl > :not(.fx-label):not(.fx-rl-veil) { display: none; } }
+.fx.fx-rl .fx-label-mid { top: 72%; }

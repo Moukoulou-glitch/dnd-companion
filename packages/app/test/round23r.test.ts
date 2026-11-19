@@ -36,3 +36,12 @@ describe("23r: Battleaxe of Regina Lapsa", () => {
     expect(relicsOf(fighter(true))).toMatchObject([{ motif: "lapsa", active: true }]);
   });
 });
+
+describe("23s: its critical hit has its own look", () => {
+  it("a crit on the axe's attack roll plays the axe's look, not the plain crit", async () => {
+    const { rollFx } = await import("../src/fx/triggers.js");
+    const r = { id: "r", at: 0, title: "Battleaxe of Regina Lapsa", kind: "d20" as const, total: 25, crit: true, fumble: false, physical: false, lines: [], attack: true, natural: 20 };
+    expect(rollFx(r)).toEqual([{ kind: "lapsa" }]);
+    expect(rollFx({ ...r, crit: false, natural: 12 })).toEqual([]);
+  });
+});

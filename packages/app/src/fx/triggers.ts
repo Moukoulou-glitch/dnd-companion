@@ -45,6 +45,8 @@ export type FxEvent =
   | { kind: "twilight20" }
   /** Corpse Slayer's critical hit: the grave cracks open; with a Divine Smite on its damage, radiance burns the dead away. */
   | { kind: "corpse"; smite: boolean }
+  /** The Battleaxe of Regina Lapsa's critical hit: the axe falls, its silver edge bites, black feathers burst. */
+  | { kind: "lapsa" }
   /** Favored by the Gods: a failed save or a miss, and the gods add 2d4 (the amount). */
   | { kind: "favored"; amount: number }
   /** Floar (Circle of the Heammer): the Methic flame lights; with Zenith, a sun rises in it too. */
@@ -104,6 +106,7 @@ export const MOMENT_ACTIONS: Record<string, MomentMotif> = {
 };
 
 const CORPSE = /Corpse Slayer/i;
+const LAPSA = /Regina Lapsa/i;
 
 /** A saved roll: crit and natural 1 on attack rolls only; Sneak Attack when its dice are in the damage. */
 /** Most of the character's levels are Twilight cleric levels. */
@@ -123,7 +126,7 @@ export function rollFx(r: RollRecord, c?: Character, info?: SpellLookup): FxEven
     const reckless: FxEvent[] = r.options?.includes(RECKLESS) ? [{ kind: "reckless", hit: false }] : [];
     // The roll's own crit flag: a natural 20, or the crit range a feature gives (Champion's 19).
     // Corpse Slayer has its own critical hit.
-    if (r.crit) return [...twilight, ...reckless, CORPSE.test(r.title) ? { kind: "corpse", smite: false } : { kind: "crit" }];
+    if (r.crit) return [...twilight, ...reckless, CORPSE.test(r.title) ? { kind: "corpse", smite: false } : LAPSA.test(r.title) ? { kind: "lapsa" } : { kind: "crit" }];
     if (r.natural === 1) return [...reckless, { kind: "fumble" }];
     return reckless;
   }
