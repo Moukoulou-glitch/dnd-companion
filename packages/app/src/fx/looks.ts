@@ -73,6 +73,44 @@ export interface FormLook {
   ongoing: string;
 }
 
+/**
+ * Loops while a feature's state is on, for those whose start already has its own look (a feature look): the state,
+ * and its loop at the screen's edges (23k). A pick's state can add its own piece (Starry Form's Archer: its
+ * constellation).
+ */
+export const STATE_ONGOING: Record<string, string> = {
+  floar: "sfx-st sfx-ongoing-floar",
+  "starry-form": "sfx-st sfx-ongoing-starry",
+  "starry-form-archer": "sfx-st sfx-ongoing-starry-archer",
+  "starry-form-chalice": "sfx-st sfx-ongoing-starry-chalice",
+  "starry-form-dragon": "sfx-st sfx-ongoing-starry-dragon",
+  "avenging-angel": "sfx-st sfx-ongoing-angel",
+  "elder-champion": "sfx-st sfx-ongoing-elder",
+  "astral-arms": "sfx-st sfx-ongoing-astral",
+  "astral-visage": "sfx-st sfx-ongoing-visage",
+  "awakened-astral-self": "sfx-st sfx-ongoing-awakened",
+  "beast-bite": "sfx-st sfx-ongoing-beast sfx-ongoing-beast-bite",
+  "beast-claws": "sfx-st sfx-ongoing-beast sfx-ongoing-beast-claws",
+  "beast-tail": "sfx-st sfx-ongoing-beast sfx-ongoing-beast-tail",
+  "umbral-form": "sfx-st sfx-ongoing-umbral",
+  "radiant-soul": "sfx-st sfx-ongoing-radiant-soul",
+  "radiant-consumption": "sfx-st sfx-ongoing-consumption",
+  "holy-nimbus": "sfx-st sfx-ongoing-nimbus",
+  "corona-of-light": "sfx-st sfx-ongoing-corona",
+  bladesong: "sfx-st sfx-ongoing-bladesong",
+  "trance-of-order": "sfx-st sfx-ongoing-order",
+  "symbiotic-entity": "sfx-st sfx-ongoing-spores",
+  "revelation-in-flesh": "sfx-st sfx-ongoing-flesh",
+  "giants-might": "sfx-st sfx-ongoing-giant",
+  "otherworldly-wings": "sfx-st sfx-ongoing-wings sfx-ongoing-wings-feathered",
+  "wings-unfurled": "sfx-st sfx-ongoing-wings sfx-ongoing-wings-wyrm",
+  "gem-flight": "sfx-st sfx-ongoing-wings sfx-ongoing-wings-gem",
+  "elemental-gift-flight": "sfx-st sfx-ongoing-wings sfx-ongoing-wings-elemental",
+  "ghost-walk": "sfx-st sfx-ongoing-ghost",
+  "mantle-of-majesty": "sfx-st sfx-ongoing-majesty",
+  "aspect-of-the-wyrm": "sfx-st sfx-ongoing-wyrm",
+};
+
 export const FORM_FX: Record<string, FormLook> = {
   // Aasimar (Fallen): eyes like pools of darkness, ghostly wings that don't fly.
   "necrotic-shroud": { label: "Necrotic Shroud", start: "fx-form fx-form-shroud", ms: 1100, buzz: [30, 60, 30], ongoing: "sfx-ongoing-shroud" },

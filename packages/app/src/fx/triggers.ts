@@ -2,7 +2,7 @@ import { sentientOf } from "./sentient";
 import type { Character } from "@dnd/schema";
 import { CD_LOOKS, HERITAGE_LEVEL, HERITAGE_LOOKS } from "./divinity";
 import type { RollRecord } from "../rolls";
-import { CHARMED, DAMAGE_FX, FORM_FX, damageKey } from "./looks";
+import { CHARMED, DAMAGE_FX, FORM_FX, STATE_ONGOING, damageKey } from "./looks";
 import { alignmentSide, spellFxOf, type SpellPhase } from "./spells";
 import { genLook, type GenLook, type SpellInfo } from "./generated";
 import { featureLook, type FeatureInfo } from "./features";
@@ -352,7 +352,11 @@ export function ongoingFx(c: Character | undefined): { spell: string; look: stri
 
 /** The transformation loops to show now: one per feature state that's on and has a look. */
 export function formFx(c: Character | undefined): { form: string; look: string }[] {
-  return (c?.toggles ?? []).filter((t) => FORM_FX[t]).map((t) => ({ form: t, look: FORM_FX[t]!.ongoing }));
+  // Floar in its radiant form: the light instead of the fire.
+  const radiant = (c?.effects ?? []).some((e) => e.effect === "other:floar" && /radiant/i.test(e.choice ?? ""));
+  return (c?.toggles ?? [])
+    .filter((t) => FORM_FX[t] || STATE_ONGOING[t])
+    .map((t) => ({ form: t, look: FORM_FX[t]?.ongoing ?? `${STATE_ONGOING[t]!}${t === "floar" && radiant ? " sfx-floar-radiant" : ""}` }));
 }
 
 /**

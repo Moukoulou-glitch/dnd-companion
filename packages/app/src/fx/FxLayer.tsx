@@ -7,7 +7,7 @@ import { formFx, ongoingFx, opFx, rollFx, stateLoops, STATE_LOOP_KEYS, type Feat
 import { GenSpell } from "./GenSpell";
 import type { GenLook } from "./generated";
 import { phaseLook } from "./spells";
-import { DAMAGE_FX, FORM_FX } from "./looks";
+import { DAMAGE_FX, FORM_FX, STATE_ONGOING } from "./looks";
 import { MomentPieces, type Moment } from "./Moments";
 import { FEAT_LOOKS, FEAT_LOOK_MS, featTier } from "./featureLooks";
 
@@ -1080,7 +1080,7 @@ export function FxLayer({ school, spell, feature, character }: { school: (spell:
  * it appears with it, fades out when it ends, pauses while the app is in the
  * background, and stands still under reduced motion.
  */
-const FORM_KEYS = Object.keys(FORM_FX);
+const FORM_KEYS = [...Object.keys(FORM_FX), ...Object.keys(STATE_ONGOING)];
 
 /** Which of the three Spirit Guardians looks a class list asks for. */
 const sideOf = (look: string): "good" | "neutral" | "evil" => (look.includes("sfx-sg-good") ? "good" : look.includes("sfx-sg-evil") ? "evil" : "neutral");
@@ -1204,7 +1204,7 @@ function Ongoing({ look }: { look: string | undefined }) {
   if (shown.look.includes("sfx-ongoing-sg")) return <GuardianOrbit look={shown.look} ending={shown.ending} paused={hidden} />;
   return (
     <div className={`sfx-ongoing ${shown.look}${shown.ending ? " ending" : ""}${hidden ? " paused" : ""}`}>
-      {Array.from({ length: 5 }, (_, i) => (
+      {Array.from({ length: 8 }, (_, i) => (
         <span key={i} style={{ ["--i" as string]: String(i) }} />
       ))}
     </div>

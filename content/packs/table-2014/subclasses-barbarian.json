@@ -1219,7 +1219,19 @@
                 "Tail"
               ]
             },
-            "note": "Pick when you rage; lasts until the rage ends. Only the chosen weapon can be used."
+            "note": "Pick when you rage; lasts until the rage ends. Only the chosen weapon can be used.",
+            "choiceToggles": {
+              "Bite": [
+                "beast-bite"
+              ],
+              "Claws": [
+                "beast-claws"
+              ],
+              "Tail": [
+                "beast-tail"
+              ]
+            },
+            "toggles": []
           },
           {
             "id": "beast-bite-heal",

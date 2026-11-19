@@ -3470,6 +3470,8 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
   }
   // Rage ending: Frenzy's exhaustion; Rage Beyond Death at 0 hit points.
   if (input.toggles.includes("raging") && !c.toggles.includes("raging")) {
+    // Form of the Beast lasts as long as the rage.
+    c.toggles = c.toggles.filter((t) => !["beast-bite", "beast-claws", "beast-tail"].includes(t));
     if (c.toggles.includes("frenzied") || input.toggles.includes("frenzied")) {
       c.toggles = c.toggles.filter((t) => t !== "frenzied");
       const ex = c.effects.find((e) => e.effect === "condition:exhaustion");

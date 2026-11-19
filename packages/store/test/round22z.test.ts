@@ -113,3 +113,19 @@ describe("23e: languages in alphabetical order", () => {
     expect(langs).toEqual([...langs].sort((a, b) => a.localeCompare(b)));
   });
 });
+
+describe("23k: Form of the Beast lasts as long as the rage", () => {
+  it("the pick is a state, and it ends with the rage", () => {
+    const c = newCharacter({ id: "b", name: "B", race: "race:human", class: "class:barbarian", abilities: { str: 16, dex: 12, con: 14, int: 8, wis: 10, cha: 10 } }, reg);
+    c.classes = [{ class: "class:barbarian", level: 3, subclass: "subclass:path-of-the-beast" }];
+    const l = new CharacterLog(c, reg, new HybridClock("t", () => (t += 1000)), "player");
+    l.record("useAction", { action: "rage" });
+    l.record("useAction", { action: "beast-form", choice: "Claws" });
+    expect(l.character.toggles).toContain("beast-claws");
+    l.record("useAction", { action: "beast-form", choice: "Tail" });
+    expect(l.character.toggles).toContain("beast-tail");
+    expect(l.character.toggles).not.toContain("beast-claws");
+    l.record("toggle", { name: "raging", on: false });
+    expect(l.character.toggles.some((x) => x.startsWith("beast-"))).toBe(false);
+  });
+});
