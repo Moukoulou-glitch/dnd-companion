@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { buildItems, derive, newCharacter } from "@dnd/engine";
 import type { Character } from "@dnd/schema";
 import { tableRegistry } from "../../engine/test/helpers.js";
-import { mostlyTwilight, rollFx } from "../src/fx/triggers.js";
+import { formFx, mostlyTwilight, rollFx } from "../src/fx/triggers.js";
 import { swapSkills } from "../src/components/Builder";
 import type { RollRecord } from "../src/rolls.js";
 
@@ -43,5 +43,13 @@ describe("23n: skill choices can take any other skill", () => {
     const after = buildItems(c, reg).find((i) => i.key === item.key)!;
     expect(after.done).toBe(true);
     expect(derive(c, reg).skills.animalHandling.proficiency).toBe(1);
+  });
+});
+
+describe("23o: Giant's Might's loop", () => {
+  it("is its own, and heavier when you're Huge (Runic Juggernaut)", () => {
+    const c = withClasses([{ class: "class:fighter", level: 18, hitDieRolls: [] } as never]);
+    expect(formFx({ ...c, toggles: ["giants-might"] })).toEqual([{ form: "giants-might", look: "sfx-st sfx-ongoing-giant" }]);
+    expect(formFx({ ...c, toggles: ["giants-might", "giants-might-huge"] }).find((f) => f.form === "giants-might")?.look).toBe("sfx-st sfx-ongoing-giant sfx-giant-huge");
   });
 });

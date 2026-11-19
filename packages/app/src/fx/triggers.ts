@@ -369,7 +369,12 @@ export function formFx(c: Character | undefined): { form: string; look: string }
   const radiant = (c?.effects ?? []).some((e) => e.effect === "other:floar" && /radiant/i.test(e.choice ?? ""));
   return (c?.toggles ?? [])
     .filter((t) => FORM_FX[t] || STATE_ONGOING[t])
-    .map((t) => ({ form: t, look: FORM_FX[t]?.ongoing ?? `${STATE_ONGOING[t]!}${t === "floar" && radiant ? " sfx-floar-radiant" : ""}` }));
+    .map((t) => ({
+      form: t,
+      look:
+        FORM_FX[t]?.ongoing ??
+        `${STATE_ONGOING[t]!}${t === "floar" && radiant ? " sfx-floar-radiant" : ""}${t === "giants-might" && c?.toggles?.includes("giants-might-huge") ? " sfx-giant-huge" : ""}`,
+    }));
 }
 
 /**
