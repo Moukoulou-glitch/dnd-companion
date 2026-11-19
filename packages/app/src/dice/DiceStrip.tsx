@@ -42,6 +42,12 @@ export const MAX_PARTICLES = 12;
  * dice settle, or at once when the throw is skipped. It re-renders only when
  * a die settles; the motion is CSS (stopped while the page is hidden).
  */
+/** Whose dice these are: mostly a Twilight cleric's (a natural 20 turns into a starry shadow). Set by the app. */
+let twilightTwenty = false;
+export const setTwilightTwenty = (on: boolean) => {
+  twilightTwenty = on;
+};
+
 export function DiceStrip() {
   const [dice, setDice] = useState<StripDie[] | null>(null);
   const [mode, setMode] = useState<DiceMode>("full");
@@ -72,6 +78,15 @@ export function DiceStrip() {
     // A natural 20 wins the flash over a natural 1 landing in the same frame.
     const nats = landed.map((l) => naturalOf({ sides: 20, value: l.value }) && dice20.current.has(l.index) ? naturalOf({ sides: 20, value: l.value }) : undefined);
     const nat = nats.includes("nat20") ? "nat20" : nats.includes("nat1") ? "nat1" : undefined;
+    if (nat === "nat20" && twilightTwenty) {
+      // The 3D die becomes a starry shadow and fades away.
+      const box = document.getElementById("dice-box-3d");
+      if (box) {
+        box.classList.remove("tw20");
+        void box.offsetWidth;
+        box.classList.add("tw20"); // stays faded until the next throw starts (the box clears itself meanwhile)
+      }
+    }
     if (nat) {
       setFlash(nat);
       if (flashTimer.current) clearTimeout(flashTimer.current);
@@ -87,6 +102,7 @@ export function DiceStrip() {
     const on = (e: Event) => {
       const d = (e as CustomEvent<DiceEvent>).detail;
       if (d.type === "start") {
+        document.getElementById("dice-box-3d")?.classList.remove("tw20");
         if (timer.current) clearTimeout(timer.current);
         setDone(false);
         setMode(d.mode);
@@ -148,7 +164,7 @@ export function DiceStrip() {
           ))}
         </div>
       )}
-      {flash && <div className={`dice-flash ${flash} ${mode}`} aria-hidden="true" />}
+      {flash && <div className={`dice-flash ${flash} ${mode}${flash === "nat20" && twilightTwenty ? " tw20" : ""}`} aria-hidden="true" />}
       <div className={`dice-strip ${mode}${done ? " done" : ""}${dice.length > 12 ? " many" : ""}${strong ? " strong" : ""}`} aria-hidden="true">
         {strong && <span className="dice-strip-crit">Critical hit</span>}
         {groups.map((g, gi) => (
@@ -159,7 +175,7 @@ export function DiceStrip() {
               return (
                 <b
                   key={i}
-                  className={[d.value !== undefined ? "landed" : "", d.value !== undefined && d.impact ? `hit-${d.impact}` : "", nat ?? ""].filter(Boolean).join(" ")}
+                  className={[d.value !== undefined ? "landed" : "", d.value !== undefined && d.impact ? `hit-${d.impact}` : "", nat ?? "", nat === "nat20" && twilightTwenty ? "tw20" : ""].filter(Boolean).join(" ")}
                   style={d.color ? { ["--die" as string]: d.color } : undefined}
                 >
                   {d.value ?? `d${d.sides}`}

@@ -41,6 +41,8 @@ export type FxEvent =
   | { kind: "twenty"; motif: "sharp" | "vicious" | "drain" | "smite" | "edge" | "sever" | "tide"; label: string }
   /** Destructive Wrath: the storm answers (its lightning and thunder dice at their maximum). */
   | { kind: "wrath" }
+  /** A natural 20 for a character who is mostly a Twilight cleric: the die becomes a starry shadow and vanishes. */
+  | { kind: "twilight20" }
   /** Corpse Slayer's critical hit: the grave cracks open; with a Divine Smite on its damage, radiance burns the dead away. */
   | { kind: "corpse"; smite: boolean }
   /** Favored by the Gods: a failed save or a miss, and the gods add 2d4 (the amount). */
@@ -104,13 +106,24 @@ export const MOMENT_ACTIONS: Record<string, MomentMotif> = {
 const CORPSE = /Corpse Slayer/i;
 
 /** A saved roll: crit and natural 1 on attack rolls only; Sneak Attack when its dice are in the damage. */
+/** Most of the character's levels are Twilight cleric levels. */
+export function mostlyTwilight(c: Character | undefined): boolean {
+  if (!c?.classes?.length) return false;
+  const total = c.classes.reduce((t, x) => t + x.level, 0);
+  const tw = c.classes.find((x) => x.class === "class:cleric" && /twilight/.test(x.subclass ?? ""))?.level ?? 0;
+  return tw * 2 > total;
+}
+
 export function rollFx(r: RollRecord, c?: Character, info?: SpellLookup): FxEvent[] {
+  // Any natural 20 of a Twilight cleric: the starry shadow (before the crit's own look).
+  const twilight: FxEvent[] = r.kind === "d20" && r.natural === 20 && mostlyTwilight(c) ? [{ kind: "twilight20" }] : [];
+  if (twilight.length && !r.attack) return twilight;
   if (r.kind === "d20") {
     if (!r.attack) return [];
     const reckless: FxEvent[] = r.options?.includes(RECKLESS) ? [{ kind: "reckless", hit: false }] : [];
     // The roll's own crit flag: a natural 20, or the crit range a feature gives (Champion's 19).
     // Corpse Slayer has its own critical hit.
-    if (r.crit) return [...reckless, CORPSE.test(r.title) ? { kind: "corpse", smite: false } : { kind: "crit" }];
+    if (r.crit) return [...twilight, ...reckless, CORPSE.test(r.title) ? { kind: "corpse", smite: false } : { kind: "crit" }];
     if (r.natural === 1) return [...reckless, { kind: "fumble" }];
     return reckless;
   }

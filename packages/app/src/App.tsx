@@ -25,7 +25,7 @@ import { RelicStrip } from "./components/RelicStrip";
 import { spellInfoOf } from "./fx/generated";
 import { NameFx } from "./fx/NameFx";
 import { featureFor } from "./fx/features";
-import { DiceStrip } from "./dice/DiceStrip";
+import { DiceStrip, setTwilightTwenty } from "./dice/DiceStrip";
 import { DiceSettings } from "./dice/DiceSettings";
 import { freeSpellsOf, ownFeatureOf, ridersOf, rollOptionsOf, usesOf } from "./ownFeature";
 import { flourishAfter } from "./flourish";
@@ -36,7 +36,7 @@ import { ProficienciesPanel } from "./components/Proficiencies";
 import { EconomyMenu } from "./components/EconomyMenu";
 import type { EconomyKind } from "./components/Combat";
 import { HP_TIER_WORDS, hpBlinks, hpTier } from "./hp";
-import { strikeFx } from "./fx/triggers";
+import { mostlyTwilight, strikeFx } from "./fx/triggers";
 import { CustomActionForm, CustomItemForm, CustomSpellForm } from "./components/CustomForms";
 import { CompanionBuilder } from "./components/CompanionBuilder";
 import { RosterList } from "./components/Roster";
@@ -180,6 +180,7 @@ export function App() {
   live.current = s;
   // 3D dice follow the class this character has the most levels in.
   setDiceClasses(s.character?.classes ?? []);
+  setTwilightTwenty(mostlyTwilight(s.character ?? undefined));
   setDiceState({ raging: !!s.character?.toggles.includes("raging") });
   setDiceResources(s.sheet?.resources ?? []);
   const [tab, setTab] = useState<Tab>("play");

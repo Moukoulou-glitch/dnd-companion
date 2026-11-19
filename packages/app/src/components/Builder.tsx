@@ -22,7 +22,7 @@ import {
   type DerivedSheet,
 } from "@dnd/engine";
 import { movedBonuses, RaceBonusMover, type RaceMoves } from "./RaceBonus";
-import { ABILITIES, ABILITY_NAMES, SKILL_NAMES, type Ability, type Character, type ExtraNote, type OperationType, type Skill } from "@dnd/schema";
+import { ABILITIES, ABILITY_NAMES, SKILLS, SKILL_NAMES, type Ability, type Character, type ExtraNote, type OperationType, type Skill } from "@dnd/schema";
 import { RichText } from "./Conditions";
 import { ExtraBox, ExtraNoteForm, KIND_NAMES } from "./Extras";
 import { shortText } from "../text";
@@ -724,6 +724,9 @@ function ChoiceEditor({ item, c, reg, act, back, note }: { item: BuildItem; c: C
   const outside = lim ? picked.filter((id) => !lim.schools.includes(reg.find(id, "spell")?.school.toLowerCase() ?? "")).length : 0;
   const [q, setQ] = useState("");
   const shown = options.filter((o) => optionMatches(reg, q, o));
+  // A skill proficiency from a set list: any other skill you don't have yet may stand in for one of them
+  // (PHB p. 125: the same proficiency twice, pick another), in its own section below. It counts toward the choice.
+  const others = swapSkills(item, options, owned).filter((o) => optionMatches(reg, q, o));
   // Feats (and single picks like a fighting style) keep their numbers; skills, languages, tools and spells can go over.
   // An open list (a ritual book) takes as many as you have; the count is only where it starts.
   const open = !!item.choice?.open;
@@ -769,6 +772,22 @@ function ChoiceEditor({ item, c, reg, act, back, note }: { item: BuildItem; c: C
           );
         }}
       />
+      {others.length > 0 && (
+        <>
+          <h3 className="level-head">Other skills</h3>
+          <p className="note">Instead of one above, with your DM: any skill you aren't proficient in yet. It counts toward this choice.</p>
+          <div className="group">
+            {others.map((o) => (
+              <label className="row check" key={o.value}>
+                <input type="checkbox" checked={picked.includes(o.value)} onChange={() => toggle(o.value)} />
+                <div className="row-main">
+                  <div className="row-title">{o.label}</div>
+                </div>
+              </label>
+            ))}
+          </div>
+        </>
+      )}
       {options.length === 0 && (
         <div className="group">
           <div className="row row-sub">Nothing to pick from here: load your book files for more options.</div>
@@ -801,6 +820,18 @@ function ChoiceEditor({ item, c, reg, act, back, note }: { item: BuildItem; c: C
       )}
     </>
   );
+}
+
+/**
+ * The skills offered below a set skill list: every skill not on the list and
+ * not already yours (a pick here is kept even if it became yours since, so it
+ * can be unticked). Not for expertise lists.
+ */
+export function swapSkills(item: BuildItem, options: { value: string }[], owned: Map<string, string>): { value: string; label: string }[] {
+  const ch = item.choice;
+  if (!ch || ch.kind !== "skill" || !ch.from?.length || /expertise/i.test(item.label)) return [];
+  const listed = new Set(options.map((o) => o.value));
+  return SKILLS.filter((sk) => !listed.has(sk) && (!owned.has(sk) || item.picked.includes(sk))).map((sk) => ({ value: sk, label: SKILL_NAMES[sk] }));
 }
 
 /** "How did you gain access to the extra language?" */

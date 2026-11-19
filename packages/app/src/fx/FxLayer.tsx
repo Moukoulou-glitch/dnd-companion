@@ -214,6 +214,9 @@ export function specOf(e: FxEvent): FxSpec {
     }
     case "wrath":
       return { at: "edge", ms: 1400, buzz: [60, 40, 120], look: "fx-wrath", label: "Destructive Wrath · maximum", shake: 450 };
+    // A Twilight cleric's natural 20: a die-shaped shadow full of stars, which bursts into starlight and is gone.
+    case "twilight20":
+      return { at: "edge", ms: 1900, buzz: [20, 40, 20, 40, 80], look: "fx-tw20", label: "Natural 20", skippable: true };
     // Corpse Slayer: the grave's skull cracks and falls to ash; with a Divine Smite, a pillar of radiance burns it away.
     case "corpse":
       return e.smite
@@ -831,6 +834,38 @@ export function FxLayer({ school, spell, feature, character }: { school: (spell:
                   </>
                 )}
               </>
+            )}
+            {spec.look === "fx-tw20" && (
+              <div className="fx-tw20-at">
+                <svg className="fx-tw20-die" viewBox="0 0 100 100" aria-hidden="true">
+                  <path className="shadow" d="M50 3 L91 26 V74 L50 97 L9 74 V26 Z" />
+                  <path className="edge" d="M50 3 L91 26 V74 L50 97 L9 74 V26 Z M50 3 L50 34 M9 26 L50 34 L91 26 M50 34 L26 66 L74 66 Z M26 66 L9 74 M74 66 L91 74 M26 66 L50 97 L74 66" />
+                  {[
+                    [38, 28],
+                    [62, 44],
+                    [44, 58],
+                    [70, 70],
+                    [30, 76],
+                    [56, 82],
+                    [24, 46],
+                    [50, 16],
+                    [78, 36],
+                    [20, 62],
+                    [66, 58],
+                    [40, 88],
+                    [82, 60],
+                    [34, 40],
+                  ].map(([x, y], i) => (
+                    <circle key={i} className="star" cx={x} cy={y} r={1.6 + (i % 3) * 0.6} style={{ animationDelay: `${i * 90}ms` }} />
+                  ))}
+                  <text className="num" x={50} y={57} textAnchor="middle">
+                    20
+                  </text>
+                </svg>
+                {Array.from({ length: 18 }, (_, i) => (
+                  <span key={i} className="fx-tw20-star" style={{ ["--a" as string]: `${i * 20}deg`, ["--d" as string]: `${70 + (i % 4) * 26}px`, animationDelay: `${700 + (i % 6) * 40}ms` }} />
+                ))}
+              </div>
             )}
             {spec.look.startsWith("fx-cs") && (
               <>
