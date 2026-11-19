@@ -31,7 +31,8 @@ export type Motif =
   | "thorns"
   | "wisps"
   | "frost"
-  | "adama";
+  | "adama"
+  | "greenwood";
 
 export interface CrestSpec {
   motif: Motif;
@@ -64,7 +65,7 @@ export const RACE_CRESTS: Record<string, CrestSpec> = {
   "race:variant-human": W("laurel", "#c9a646", "#7d6a2c", "#fff1b0", "Laurel"),
   "race:half-elf": W("adama", "#8fe0bd", "#ffb877", "#fff6e4", "Two wholes"),
   "race:high-elf": W("stars", "#cfd8ff", "#7d8cd6", "#ffffff", "Moon and stars"),
-  "race:wood-elf": W("vines", "#4f7d3a", "#2f5a2a", "#c8ff9a", "Vines", "leaf"),
+  "race:wood-elf": W("greenwood", "#5f9a3e", "#6b4a2b", "#e6ff8a", "Living bow of the greenwood"),
   "race:sea-elf": W("waves", "#3fa7c9", "#1d5f80", "#c9f4ff", "Sea foam"),
   "race:drow": W("web", "#b9b2d6", "#6a4fa3", "#c58bff", "Spider silk"),
   "race:eladrin": W("stars", "#e6c9ff", "#8d6ad6", "#ffffff", "Feywild stars"),
@@ -947,6 +948,84 @@ export function drawCrest(spec: CrestSpec, g: Geo): { back: ReactNode; front: Re
         ),
       };
     }
+    case "greenwood": {
+      // The wood elf's: a longbow of living yew arched over the box, leaves sprouting along its limbs, an arrow with a
+      // leaf-blade head nocked through its grip and pointing up past the name; fireflies about it, a leaf falling.
+      const tipL: Pt = [L - 5, top + 14];
+      const tipR: Pt = [R + 3, top + 14];
+      const grip: Pt = [mid, top - 42];
+      const limb = (a: Pt, b: Pt) => `M${pt(a)} Q${pt([a[0] + (b[0] - a[0]) * 0.18, b[1] - 6])} ${pt(b)}`;
+      const bow = `${limb(tipL, grip)} ${limb(tipR, grip)}`;
+      // Recurved tips, curling outward like young shoots.
+      const curl = (p: Pt, s: number) => `M${pt(p)} q${f(-6 * s)} -2 ${f(-7 * s)} -8 q0 -4 ${f(3 * s)} -4`;
+      // Leaves in pairs along each limb, smaller towards the tips.
+      const along = (a: Pt, b: Pt, t: number): Pt => {
+        const c: Pt = [a[0] + (b[0] - a[0]) * 0.18, b[1] - 6];
+        return [(1 - t) ** 2 * a[0] + 2 * (1 - t) * t * c[0] + t * t * b[0], (1 - t) ** 2 * a[1] + 2 * (1 - t) * t * c[1] + t * t * b[1]];
+      };
+      const leaves: ReactNode[] = [];
+      [
+        [tipL, 1],
+        [tipR, -1],
+      ].forEach(([tip, s], side) => {
+        [0.18, 0.38, 0.58, 0.78].forEach((t, k) => {
+          const p = along(tip as Pt, grip, t);
+          const size = 7 + t * 6;
+          leaves.push(<path key={`a${side}${k}`} className="cs-leaf" style={{ ...origin(p), ...delay(k * 0.5 + side * 0.25) }} d={blade(p, (s as number) > 0 ? -150 + t * 40 : -30 - t * 40, size, size * 0.55, 8 * (s as number))} fill={k % 2 ? "#7fb24f" : spec.c1} stroke="#3c6a2a" strokeWidth={0.4} />);
+          leaves.push(<path key={`b${side}${k}`} className="cs-leaf" style={{ ...origin(p), ...delay(k * 0.5 + 1.2) }} d={blade(p, (s as number) > 0 ? -70 + t * 20 : -110 - t * 20, size * 0.8, size * 0.45, -6 * (s as number))} fill={k % 2 ? spec.c1 : "#4f8a34"} stroke="#3c6a2a" strokeWidth={0.4} />);
+        });
+      });
+      // The arrow: its nock on the string, its shaft through the grip, a leaf-shaped head of green steel.
+      const nock: Pt = [mid, top + 14];
+      const head: Pt = [mid, top - 56];
+      const fletch = (s: number) => `M${pt([mid, top + 10])} q${f(5 * s)} -3 ${f(6 * s)} -12 l${f(-6 * s)} 6 Z`;
+      const flies: Pt[] = [
+        [L + g.w * 0.16, top - 30],
+        [L + g.w * 0.34, top - 52],
+        [L + g.w * 0.7, top - 48],
+        [L + g.w * 0.86, top - 22],
+        [L - 8, top + 14],
+      ];
+      return {
+        back: (
+          <>
+            {/* The string, silver, from tip to tip. */}
+            <path d={`M${pt(tipL)} L${pt(tipR)}`} stroke="#dfe8e0" strokeWidth={1} opacity={0.85} />
+            {/* The shaft and its fletching (grey-goose and green). */}
+            <path d={`M${pt(nock)} L${pt([mid, top - 47])}`} stroke="#c9a46a" strokeWidth={2} strokeLinecap="round" />
+            <path d={fletch(1)} fill="#d8d2c0" />
+            <path d={fletch(-1)} fill={spec.c1} />
+            {/* The yew limbs: a dark core under a lighter grain. */}
+            <path d={bow} stroke="#3f2a18" strokeWidth={5.5} fill="none" strokeLinecap="round" />
+            <path d={bow} stroke={spec.c2} strokeWidth={3.6} fill="none" strokeLinecap="round" />
+            <path d={bow} stroke="#9a7048" strokeWidth={1} fill="none" strokeDasharray="6 5" opacity={0.7} />
+            <path d={curl(tipL, 1)} stroke={spec.c2} strokeWidth={2.4} fill="none" strokeLinecap="round" />
+            <path d={curl(tipR, -1)} stroke={spec.c2} strokeWidth={2.4} fill="none" strokeLinecap="round" />
+            {leaves}
+            {/* The grip: leather bound, and the arrow's head rising above it. */}
+            <rect x={grip[0] - 4} y={grip[1] - 1} width={8} height={10} rx={2.5} fill="#5a3a22" stroke="#2e1d10" strokeWidth={0.6} />
+            <path d={`M${pt([grip[0] - 4, grip[1] + 2])} h8 M${pt([grip[0] - 4, grip[1] + 5])} h8`} stroke="#8a6440" strokeWidth={0.8} />
+            <path d={blade([mid, top - 46], -90, 12, 7)} fill="#a8e070" stroke="#3c6a2a" strokeWidth={0.6} />
+            <path d={`M${pt([mid, top - 46])} L${pt(head)}`} stroke="#3c6a2a" strokeWidth={0.6} />
+            {/* Fireflies, and a leaf now and then coming down. */}
+            {flies.map((p, i) => (
+              <circle key={`ff${i}`} className="cs-twinkle" style={{ ...origin(p), ...delay(i * 0.7) }} cx={p[0]} cy={p[1]} r={1.7} fill={glow} />
+            ))}
+            {[0, 1].map((i) => {
+              const p: Pt = [L + g.w * (0.22 + i * 0.5), top - 50 + i * 8];
+              return <path key={`fl${i}`} className="cs-fall" style={{ ...origin(p), ...delay(i * 3.4) }} d={blade(p, 70, 9, 5)} fill={i ? "#c9a040" : spec.c1} />;
+            })}
+          </>
+        ),
+        // The bow's tips and string come over the box's top edge.
+        front: (
+          <>
+            <path d={curl(tipL, 1)} stroke={spec.c2} strokeWidth={2.4} fill="none" strokeLinecap="round" />
+            <path d={curl(tipR, -1)} stroke={spec.c2} strokeWidth={2.4} fill="none" strokeLinecap="round" />
+          </>
+        ),
+      };
+    }
     case "adama": {
       // Adama's look: two whole rings, elven green and human amber, linked; a ribbon of each rises from a corner of the box.
       const r = 19;
@@ -1140,6 +1219,16 @@ export function CrestSigil({ spec }: { spec: CrestSpec }) {
       </g>
     ),
     wisps: <path d="M3 3 L15 15 M15 3 L3 15 M9 1 L9 17" stroke={c1} strokeWidth={1.2} strokeLinecap="round" />,
+    // A leaf-headed arrow across a small bow.
+    greenwood: (
+      <g>
+        <path d="M3 15 Q3 4 15 3" stroke={c2} strokeWidth={1.8} fill="none" strokeLinecap="round" />
+        <path d="M3 15 L15 3" stroke="#dfe8e0" strokeWidth={0.6} />
+        <path d="M4 14 L13 5" stroke="#c9a46a" strokeWidth={1.1} />
+        <path d={blade([12, 6], -45, 6, 3.6)} fill={c1} />
+        <circle cx={14} cy={13} r={1.2} fill={glow} />
+      </g>
+    ),
     adama: (
       <g fill="none" strokeWidth={1.8}>
         <circle cx={6.5} cy={9} r={4.6} stroke={c1} />

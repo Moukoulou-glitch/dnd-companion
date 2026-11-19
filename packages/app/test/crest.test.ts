@@ -11,7 +11,7 @@ describe("heritage crest", () => {
   it("fits the race and subrace", () => {
     expect(crestFor(ch("race:tiefling", [10]))?.motif).toBe("horns");
     expect(crestFor(ch("race:drow", [10]))?.motif).toBe("web");
-    expect(crestFor(ch("race:wood-elf", [10]))?.motif).toBe("vines");
+    expect(crestFor(ch("race:wood-elf", [10]))?.motif).toBe("greenwood");
     expect(crestFor(ch("race:high-elf", [10]))?.motif).toBe("stars");
     expect(crestFor(ch("race:rock-gnome", [10]))?.motif).toBe("gears");
     expect(crestFor(ch("race:deep-gnome", [10]))?.motif).toBe("crystals");
