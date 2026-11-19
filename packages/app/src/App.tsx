@@ -281,6 +281,19 @@ export function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Twilight Sanctuary: your turn ends in your own sphere: temporary HP, or end a charm or a fright on you.
+  const twilightTurn = useRef<(() => void) | undefined>(undefined);
+  useEffect(() => {
+    const h = (e: Event) => {
+      const d = (e as CustomEvent<{ type: string; after: Character }>).detail;
+      if (d.type !== "endTurn" || !d.after.toggles.includes("twilight-sanctuary")) return;
+      setTimeout(() => twilightTurn.current?.(), 0);
+    };
+    window.addEventListener("dnd-op", h);
+    return () => window.removeEventListener("dnd-op", h);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // The phone buzzes when the character drops below half, to 0, or dies.
   const hpState = useRef<HpState | undefined>(undefined);
   useEffect(() => {
@@ -655,6 +668,57 @@ export function App() {
       />
     ));
 
+  /** Effects on you that make you charmed or frightened (the condition, or a spell or feature that includes it). */
+  const charmOrFright = () =>
+    (live.current.sheet?.effects ?? []).filter((e) => {
+      if (e.id === "condition:charmed" || e.id === "condition:frightened") return true;
+      const def = registry.find(e.id, "effect") as { includes?: string[] } | undefined;
+      return !!def?.includes?.some((x) => x === "condition:charmed" || x === "condition:frightened");
+    });
+
+  /** Twilight Sanctuary at the end of your turn: 1d6 + cleric level temporary HP, or end one charm or fright on you. */
+  twilightTurn.current = () => openTwilightTurn();
+  function openTwilightTurn() {
+    const a = live.current.sheet?.actions.find((x) => x.id === "twilight-sanctuary-turn");
+    open("Twilight Sanctuary", () => {
+      const ending = charmOrFright();
+      return (
+        <>
+          <p className="note">Your turn ends in your twilight sphere. Choose one benefit for yourself.</p>
+          <div className="group">
+            {a && (
+              <button className="row" onClick={() => openFeature(a)}>
+                <div className="row-main">
+                  <div className="row-title">Temporary hit points</div>
+                  <div className="row-sub">{a.tempHp?.text ?? "1d6 + your cleric level"} (they don't stack: the higher stays)</div>
+                </div>
+              </button>
+            )}
+            {ending.map((e) => (
+              <button
+                key={e.instanceId}
+                className="row"
+                onClick={() => {
+                  live.current.act("removeEffect", { instanceId: e.instanceId }, `Twilight Sanctuary: ${e.name} ends.`);
+                  close();
+                }}
+              >
+                <div className="row-main">
+                  <div className="row-title">End {e.name}</div>
+                  <div className="row-sub">{e.from ? `from ${e.from}` : "the charm or fright on you"}</div>
+                </div>
+              </button>
+            ))}
+          </div>
+          {!ending.length && <p className="note">Nothing charms or frightens you now, so there's no effect to end.</p>}
+          <button className="link" onClick={close}>
+            Nothing this turn
+          </button>
+        </>
+      );
+    });
+  }
+
   /** Damage to the character, then what it leads to: a concentration save, or instant death. */
   const takeDamage = (amount: number, type?: string, magical?: boolean, fromSpell?: boolean, bound?: boolean, ranged?: boolean) => {
     const payload = { amount, ...(type ? { damageType: type } : {}), ...(magical ? { magical: true as const } : {}), ...(fromSpell ? { fromSpell: true as const } : {}), ...(bound ? { bound: true as const } : {}), ...(ranged ? { ranged: true as const } : {}) };
@@ -894,10 +958,14 @@ export function App() {
     for (const e of cur.sheet?.effects ?? []) {
       if (e.usedUp && labels.includes(e.usedUp)) cur.act("removeEffect", { instanceId: e.instanceId }, `${e.name} used: it's gone.`);
     }
+    // Vigilant Blessing on your initiative: used up by the roll (not used again as an action).
+    if (labels.includes("Vigilant Blessing") && cur.character?.toggles.includes("vigilant-blessing")) cur.act("toggle", { name: "vigilant-blessing", on: false }, "Vigilant Blessing: used on this initiative roll.");
     const cb = cur.character?.combat;
     if (!cb) return;
     for (const label of labels) {
       const a = cur.sheet?.actions.find((x) => x.name === label && x.economy !== "free");
+      // A state that's already on (a blessing waiting for this roll) isn't a use of its action.
+      if (a?.toggles?.length && a.toggles.every((t) => cur.character?.toggles.includes(t) || label === "Vigilant Blessing")) continue;
       if (a && !cb.usedThisTurn.includes(a.id)) cur.act("useAction", { action: a.id }, `${a.name} used.`);
     }
   };

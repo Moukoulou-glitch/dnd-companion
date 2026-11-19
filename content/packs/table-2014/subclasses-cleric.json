@@ -3953,7 +3953,8 @@
             "toggles": [
               "vigilant-blessing"
             ],
-            "note": "One creature (or you): advantage on the next initiative roll."
+            "others": true,
+            "note": "Touch one creature (you too): advantage on its next initiative roll. It ends after that roll, or when you use this again."
           }
         ],
         "modifiers": [
@@ -3965,7 +3966,8 @@
             "when": {
               "toggle": "vigilant-blessing",
               "text": "blessed on yourself; ends after this roll"
-            }
+            },
+            "preset": "always"
           }
         ]
       }

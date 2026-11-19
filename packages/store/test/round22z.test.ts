@@ -147,3 +147,18 @@ describe("23l: the whispering wind raises every speed", () => {
     expect(after.speeds.find((s) => s.mode === "fly")?.total.total).toBe(fly0! + 30);
   });
 });
+
+describe("23m: Vigilant Blessing on someone else", () => {
+  it("on an ally: not yours, and yours ends; on you: yours, preselected on the initiative roll", () => {
+    const c = newCharacter({ id: "v", name: "V", race: "race:human", class: "class:cleric", abilities: { str: 10, dex: 12, con: 14, int: 10, wis: 16, cha: 10 } }, reg);
+    c.classes = [{ class: "class:cleric", level: 1, subclass: "subclass:twilight-domain" }];
+    const l = new CharacterLog(c, reg, new HybridClock("t", () => (t += 1000)), "player");
+    expect(derive(l.character, reg).actions.find((a) => a.id === "vigilant-blessing")?.others).toBe(true);
+    l.record("useAction", { action: "vigilant-blessing", onMe: true });
+    expect(l.character.toggles).toContain("vigilant-blessing");
+    const sg = derive(l.character, reg).initiative.suggestions.find((x) => x.label === "Vigilant Blessing");
+    expect(sg?.preset).toBe("always");
+    l.record("useAction", { action: "vigilant-blessing", onMe: false });
+    expect(l.character.toggles).not.toContain("vigilant-blessing");
+  });
+});

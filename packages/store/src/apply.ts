@@ -1534,7 +1534,11 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
           notes.push(`${op.payload.amount} temporary HP.`);
         } else notes.push(`Temporary HP don't stack: keeping ${c.hp.temp}, the higher value.`);
       }
-      if (a.toggles.length) c.toggles = [...new Set([...c.toggles, ...a.toggles])];
+      // On someone else (Vigilant Blessing on an ally): its state isn't yours, and using it again ends yours.
+      if (a.toggles.length && a.others && op.payload.onMe === false) {
+        if (a.toggles.some((t) => c.toggles.includes(t))) notes.push(`${a.name}: yours ends, it's on the creature you touched now.`);
+        c.toggles = c.toggles.filter((t) => !a.toggles.includes(t));
+      } else if (a.toggles.length) c.toggles = [...new Set([...c.toggles, ...a.toggles])];
       // Starry Form's constellation: the pick's switch on, the others off.
       if (a.choiceToggles && op.payload.choice) {
         const all = new Set(Object.values(a.choiceToggles).flat());
