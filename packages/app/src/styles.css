@@ -5243,3 +5243,33 @@ html.fx-shake-strong .app > .strip, html.fx-shake-strong .app > main, html.fx-sh
   86% { opacity: 1; transform: translateY(0); }
   100% { opacity: 0; transform: translateY(6px); }
 }
+
+/* Spell slots: knots in the Weave, one loop for each level; a spent slot is the thread hanging loose. */
+.pip.knot-pip { width: 38px; height: 38px; border: none; background: none; padding: 0; border-radius: 50%; }
+.pip.knot-pip[data-spent="true"] { border: none; opacity: 1; }
+.knot { width: 100%; height: 100%; overflow: visible; --knot-glow: var(--teal); }
+.knot.pact { --knot-glow: #b58cff; }
+.knot-thread { fill: none; stroke: var(--knot-glow); stroke-linejoin: round; stroke-linecap: round; filter: drop-shadow(0 0 2px var(--knot-glow)); }
+.knot-shadow { fill: none; stroke: rgba(8, 12, 20, 0.85); stroke-linejoin: round; }
+.knot-loose { fill: none; stroke: var(--muted); stroke-linecap: round; stroke-dasharray: 6 4; opacity: 0.75; }
+.pip.knot-pip:not([data-spent="true"]) .knot { animation: knot-breathe 4s ease-in-out infinite; }
+@keyframes knot-breathe { 0%, 100% { transform: rotate(0deg) scale(1); } 50% { transform: rotate(8deg) scale(1.04); } }
+@media (prefers-reduced-motion: reduce) { .pip.knot-pip .knot { animation: none !important; } }
+
+/* Feature uses: a token with the feature's sign and colours (a die's outline for die pools). */
+.pip.token-pip { width: 34px; height: 34px; border: none; background: none; padding: 0; border-radius: 50%; }
+.pip.token-pip[data-spent="true"] { border: none; opacity: 1; }
+.token { width: 100%; height: 100%; overflow: visible; }
+.token-face { stroke: var(--c2); stroke-width: 4; }
+.pip:not([data-spent="true"]) .token-face { filter: drop-shadow(0 0 3px var(--c2)); }
+.token-rim { fill: none; stroke: var(--c1); stroke-width: 2; opacity: 0.45; }
+.token-glyph { fill: none; stroke: var(--c1); stroke-width: 7; stroke-linecap: round; stroke-linejoin: round; }
+.token-die { font-size: 30px; font-weight: 800; fill: var(--c1); paint-order: stroke; stroke: rgba(0, 0, 0, 0.45); stroke-width: 3px; }
+.pip[data-spent="true"] .token-face { stroke: var(--muted); stroke-dasharray: 8 6; opacity: 0.7; }
+.pip[data-spent="true"] .token-glyph, .pip[data-spent="true"] .token-die { stroke: var(--muted); fill: none; opacity: 0.45; }
+.pip[data-spent="true"] .token-die { fill: var(--muted); stroke: none; }
+
+/* Spells page: each level's slots, left of total, beside its heading. */
+h2 .slot-count { float: right; display: inline-flex; gap: 10px; font-size: 0.85rem; font-weight: 500; color: var(--muted); font-variant-numeric: tabular-nums; }
+h2 .slot-count b { color: var(--teal); font-weight: 800; }
+h2 .slot-count .pact b { color: #b58cff; }

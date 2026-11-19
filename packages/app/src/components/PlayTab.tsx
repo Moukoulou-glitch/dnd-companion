@@ -1,4 +1,5 @@
 import { HitDiceRow } from "./HitDice";
+import { KnotToken, ResourceToken, tokenLook, type TokenLook } from "./Tokens";
 import { ShapeCard } from "./Shapes";
 import { SummonsCard } from "./Summons";
 import type { ContentRegistry, DerivedSheet, ResourceResult, ShapeKind } from "@dnd/engine";
@@ -106,7 +107,12 @@ export interface PlayPrompts {
   rollPool: (r: ResourceResult) => void;
 }
 
-function Pips({ total, used, onSpend, onRestore, kind, name, die }: {
+function Pips({ total, used, onSpend, onRestore, kind, name, die, level, pact, look }: {
+  /** A spell slot's level: its knot has that many loops. */
+  level?: number;
+  pact?: boolean;
+  /** A feature's token: its sign and colours. */
+  look?: TokenLook;
   /** Each use is a die (Superiority d8, Second Wind d10): shown on the pips. */
   die?: string;
   total: number;
@@ -140,12 +146,12 @@ function Pips({ total, used, onSpend, onRestore, kind, name, die }: {
         return (
           <button
             key={i}
-            className={`pip${kind === "slot" ? " slot" : ""}${die ? " die" : ""}`}
+            className={`pip${kind === "slot" ? (level ? " knot-pip" : " slot") : look ? " token-pip" : die ? " die" : ""}`}
             data-spent={spent}
             aria-label={spent ? `Get back one ${name}` : `Spend one ${name}${die ? ` (${die})` : ""}`}
             onClick={spent ? onRestore : onSpend}
           >
-            {die}
+            {kind === "slot" && level ? <KnotToken level={level} spent={spent} {...(pact ? { pact } : {})} /> : look ? <ResourceToken look={look} spent={spent} {...(die ? { die } : {})} /> : die}
           </button>
         );
       })}
@@ -446,6 +452,7 @@ export function PlayTab({
                 </div>
                 <Pips
                   name={r.name}
+                  look={tokenLook(r, sheet.actions)}
                   {...(r.die && !r.pool ? { die: r.die } : {})}
                   total={r.max}
                   used={r.used}
@@ -472,6 +479,7 @@ export function PlayTab({
                 </div>
                 <Pips
                   kind="slot"
+                  level={s.level}
                   name={`level ${s.level} slot`}
                   total={s.total}
                   used={slotsUsed(s.level)}
@@ -488,6 +496,8 @@ export function PlayTab({
                 </div>
                 <Pips
                   kind="slot"
+                  level={sheet.pactSlots.level}
+                  pact
                   name="Pact Magic slot"
                   total={sheet.pactSlots.count}
                   used={character.pactSlotsUsed}

@@ -226,7 +226,21 @@ export function SpellsTab({
         <section key={lvl}>
           <h2>
             {lvl === STORED_LEVEL ? "Stored in objects" : LEVEL_NAME[lvl]}
-            {lvl > 0 && lvl !== STORED_LEVEL && sheet.spellSlots.some((x) => x.level === lvl) ? `, ${slotsLeft(lvl)} slots left` : ""}
+            {/* The slots of this level: left of total, and Pact Magic's at its level. */}
+            {lvl > 0 && lvl !== STORED_LEVEL && (sheet.spellSlots.some((x) => x.level === lvl) || sheet.pactSlots?.level === lvl) && (
+              <span className="slot-count">
+                {sheet.spellSlots.some((x) => x.level === lvl) && (
+                  <span>
+                    <b>{slotsLeft(lvl)}</b>/{sheet.spellSlots.find((x) => x.level === lvl)!.total} slots
+                  </span>
+                )}
+                {sheet.pactSlots?.level === lvl && (
+                  <span className="pact">
+                    <b>{sheet.pactSlots.count - sheet.pactSlots.used}</b>/{sheet.pactSlots.count} pact
+                  </span>
+                )}
+              </span>
+            )}
           </h2>
           <div className="group">
             {shownRows
