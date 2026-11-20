@@ -183,7 +183,8 @@ export function collectSources(c: Character, baseReg: ContentRegistry, duplicate
 
   for (const inst of c.inventory) {
     const def = reg.get(inst.item, "item");
-    if (!inst.equipped || def.category === "ammunition" || (def.requiresAttunement && !inst.attuned)) continue;
+    // Most items work while equipped (worn, held); some from your pack (a figurine, a horn): `carried`.
+    if (!(inst.equipped || (def.carried && inst.quantity > 0)) || def.category === "ammunition" || (def.requiresAttunement && !inst.attuned)) continue;
     // The parts picked on it (prayer beads): each kind once, its resources counted once per copy picked.
     if (def.picks && inst.picks?.length) {
       const counts = new Map<string, number>();

@@ -310,6 +310,8 @@ export const ItemDef = z
       .strict()
       .optional(),
     requiresAttunement: z.boolean().default(false),
+    /** Its uses work from your pack, without equipping it (a figurine you throw, a horn you blow, a bottle you open). */
+    carried: z.boolean().optional(),
     /** The weapons or armor it can be (Frost Brand: any sword): picked on the item, its stats taken from that one. */
     baseFrom: z.array(DefId).optional(),
     /**

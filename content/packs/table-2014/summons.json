@@ -2252,6 +2252,40 @@
       "countDice": "1d3",
       "initiative": "shared",
       "note": "Friendly and obeying you while you keep playing the pipes each turn (an action)."
+    },
+    {
+      "kind": "summon",
+      "id": "summon:figurine-silver-raven",
+      "name": "Figurine of Wondrous Power, Silver Raven",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "creatures": [
+        "creature:raven"
+      ],
+      "count": {
+        "1": 1
+      },
+      "initiative": "own",
+      "note": "Friendly, obeys your spoken commands (understands your languages). For up to 12 hours, until it drops to 0 hit points, or until you speak the command word again touching it. You can cast Animal Messenger on it at will."
+    },
+    {
+      "kind": "summon",
+      "id": "summon:figurine-ebony-fly",
+      "name": "Figurine of Wondrous Power, Ebony Fly",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "creatures": [
+        "creature:giant-fly"
+      ],
+      "count": {
+        "1": 1
+      },
+      "initiative": "own",
+      "note": "Friendly, obeys your spoken commands (understands your languages). For up to 12 hours, until it drops to 0 hit points, or until you speak the command word again touching it. It can be ridden as a mount."
     }
   ]
 }

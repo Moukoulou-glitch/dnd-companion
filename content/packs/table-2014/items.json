@@ -7782,7 +7782,8 @@
             "reset": "manual"
           }
         ]
-      }
+      },
+      "carried": true
     },
     {
       "kind": "item",
@@ -7823,7 +7824,8 @@
             "reset": "manual"
           }
         ]
-      }
+      },
+      "carried": true
     },
     {
       "kind": "item",
@@ -7864,7 +7866,8 @@
             "reset": "manual"
           }
         ]
-      }
+      },
+      "carried": true
     },
     {
       "kind": "item",
@@ -7905,7 +7908,8 @@
             "reset": "manual"
           }
         ]
-      }
+      },
+      "carried": true
     },
     {
       "kind": "item",
@@ -7946,7 +7950,8 @@
             "reset": "manual"
           }
         ]
-      }
+      },
+      "carried": true
     },
     {
       "kind": "item",
@@ -7987,7 +7992,8 @@
             "reset": "manual"
           }
         ]
-      }
+      },
+      "carried": true
     },
     {
       "kind": "item",
@@ -8010,10 +8016,13 @@
             "name": "Figurine: Ebony Fly",
             "economy": "action",
             "everyDays": 2,
-            "note": "It becomes a giant fly (Large; AC 11, 19 HP, speed 30 ft, fly 60 ft; no attacks) that can be ridden, for up to 12 hours. Then it can't be used for 2 days. Add it as a companion of your own if you want to track it.",
+            "note": "Throw it to a point on the ground within 60 ft: it becomes a giant fly for up to 12 hours, and it can be ridden as a flying mount. Back to a figurine at 0 hit points or when you speak the word again touching it; then it can't be used for 2 days.",
             "cost": {
               "resource": "figurine-ebony-fly",
               "amount": 1
+            },
+            "opensSummon": {
+              "summon": "summon:figurine-ebony-fly"
             }
           }
         ],
@@ -8025,7 +8034,8 @@
             "reset": "manual"
           }
         ]
-      }
+      },
+      "carried": true
     },
     {
       "kind": "item",
@@ -8066,7 +8076,8 @@
             "reset": "manual"
           }
         ]
-      }
+      },
+      "carried": true
     },
     {
       "kind": "item",
@@ -8107,7 +8118,8 @@
             "reset": "manual"
           }
         ]
-      }
+      },
+      "carried": true
     },
     {
       "kind": "item",
@@ -8148,7 +8160,8 @@
             "reset": "manual"
           }
         ]
-      }
+      },
+      "carried": true
     },
     {
       "kind": "item",
@@ -8189,7 +8202,8 @@
             "reset": "manual"
           }
         ]
-      }
+      },
+      "carried": true
     },
     {
       "kind": "item",
@@ -8244,7 +8258,8 @@
           }
         ]
       },
-      "weight": 0.5
+      "weight": 0.5,
+      "carried": true
     },
     {
       "kind": "item",
@@ -8299,7 +8314,8 @@
           }
         ]
       },
-      "weight": 0.5
+      "weight": 0.5,
+      "carried": true
     },
     {
       "kind": "item",
@@ -8354,7 +8370,8 @@
           }
         ]
       },
-      "weight": 0.5
+      "weight": 0.5,
+      "carried": true
     },
     {
       "kind": "item",
@@ -8394,7 +8411,8 @@
             "note": "Only filled with water. A water elemental, as if you'd cast Conjure Elemental: you concentrate on it, up to 1 hour."
           }
         ]
-      }
+      },
+      "carried": true
     },
     {
       "kind": "item",
@@ -8434,7 +8452,8 @@
             "note": "Only with a fire burning in it. A fire elemental, as if you'd cast Conjure Elemental: you concentrate on it, up to 1 hour."
           }
         ]
-      }
+      },
+      "carried": true
     },
     {
       "kind": "item",
@@ -8474,7 +8493,8 @@
             "note": "Only with incense burning in it. A air elemental, as if you'd cast Conjure Elemental: you concentrate on it, up to 1 hour."
           }
         ]
-      }
+      },
+      "carried": true
     },
     {
       "kind": "item",
@@ -8514,7 +8534,8 @@
             "note": "Only touching the ground. A earth elemental, as if you'd cast Conjure Elemental: you concentrate on it, up to 1 hour."
           }
         ]
-      }
+      },
+      "carried": true
     },
     {
       "kind": "item",
@@ -8543,7 +8564,8 @@
             "consumesItem": true
           }
         ]
-      }
+      },
+      "carried": true
     },
     {
       "kind": "item",
@@ -8572,7 +8594,8 @@
             "consumesItem": true
           }
         ]
-      }
+      },
+      "carried": true
     },
     {
       "kind": "item",
@@ -8601,7 +8624,8 @@
             "consumesItem": true
           }
         ]
-      }
+      },
+      "carried": true
     },
     {
       "kind": "item",
@@ -8630,7 +8654,8 @@
             "consumesItem": true
           }
         ]
-      }
+      },
+      "carried": true
     },
     {
       "kind": "item",
@@ -9829,7 +9854,8 @@
             "note": "Remove the stopper: a cloud of smoke pours out and, at the end of your turn, an efreeti appears in an unoccupied space within 30 ft. Roll d100 for what it does: 1–10 hostile, 11–90 it serves you for an hour, 91–100 three wishes. Not again for 24 hours."
           }
         ]
-      }
+      },
+      "carried": true
     },
     {
       "kind": "item",
@@ -9905,7 +9931,8 @@
             "note": "Speak its command word and remove the stopper: the creature inside appears in an unoccupied space within 30 ft of you. It's friendly to you and your companions for 1 hour and obeys your commands, then acts as it normally would. Pick the creature that was inside."
           }
         ]
-      }
+      },
+      "carried": true
     },
     {
       "kind": "item",
@@ -10130,6 +10157,48 @@
         "step": 1
       },
       "summary": "A bag of 20 caltrops: one bag covers a 5-foot square."
+    },
+    {
+      "kind": "item",
+      "id": "item:figurine-of-wondrous-power-silver-raven",
+      "name": "Figurine of Wondrous Power, Silver Raven",
+      "summary": "An action to throw it: it becomes a raven for up to 12 hours; then not again for 2 days. While it's a raven, you can cast Animal Messenger on it at will.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "requiresAttunement": false,
+      "carried": true,
+      "grant": {
+        "actions": [
+          {
+            "id": "figurine-silver-raven",
+            "name": "Figurine: Silver Raven",
+            "economy": "action",
+            "opensSummon": {
+              "summon": "summon:figurine-silver-raven"
+            },
+            "everyDays": 2,
+            "cost": {
+              "resource": "figurine-silver-raven",
+              "amount": 1
+            },
+            "note": "Throw it to a point on the ground within 60 ft: it becomes a raven for up to 12 hours. Back to a figurine at 0 hit points or when you speak the word again touching it; then it can't be used for 2 days. While it's a raven, you can cast Animal Messenger on it at will."
+          }
+        ],
+        "resources": [
+          {
+            "id": "figurine-silver-raven",
+            "name": "Figurine: Silver Raven",
+            "max": 1,
+            "reset": "manual"
+          }
+        ]
+      }
     }
   ]
 }

@@ -54,3 +54,22 @@ describe("23u: items that bring creatures", () => {
     expect(a.roll?.table).toHaveLength(100);
   });
 });
+
+describe("23v: figurines and other carried items", () => {
+  it("work from the pack, without equipping them", () => {
+    const c = pc("class:fighter", 3, {});
+    c.inventory.push({ id: "dog", item: "item:figurine-of-wondrous-power-onyx-dog", quantity: 1, equipped: false, attuned: false });
+    c.inventory.push({ id: "cloak", item: "item:cloak-of-protection", quantity: 1, equipped: false, attuned: false });
+    const s = derive(c, reg);
+    expect(s.actions.some((a) => a.id === "figurine-onyx-dog")).toBe(true);
+    // A worn item still needs to be worn.
+    expect(s.ac.total).toBe(derive(pc("class:fighter", 3, {}), reg).ac.total);
+  });
+  it.each([
+    ["item:figurine-of-wondrous-power-silver-raven", "summon:figurine-silver-raven", "Raven"],
+    ["item:figurine-of-wondrous-power-ebony-fly", "summon:figurine-ebony-fly", "Giant Fly"],
+  ])("%s opens %s", (item, summon, creature) => {
+    expect(reg.find(item, "item")!.grant?.actions?.some((a) => a.opensSummon?.summon === summon)).toBe(true);
+    expect(summonOptions(reg, summon, 1)!.creatures.map((x) => x.name)).toEqual([creature]);
+  });
+});
