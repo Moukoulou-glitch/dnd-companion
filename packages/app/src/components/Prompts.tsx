@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import type { DerivedSheet, ResourceResult, SpellResult } from "@dnd/engine";
 
 import { facesOrRoll } from "../dice/quick";
+import { gainsFromUpcast, slotGroups } from "../slotSpells";
 
 function rollDie(sides: number): number {
   const buf = new Uint32Array(1);
@@ -148,31 +149,53 @@ export function SlotSpendPanel({
   onCast: (sp: SpellResult) => void;
   onJustSpend: () => void;
 }) {
+  const [q, setQ] = useState("");
   const castable = sheet.spells.filter(
     (sp) => sp.level > 0 && sp.level <= level && sp.ready !== "not prepared" && (pact ? !!sp.cast.pact : sp.cast.slotLevels.includes(level)),
   );
+  const groups = slotGroups(castable, level, q);
+  const ord = (n: number) => `${n}${n === 1 ? "st" : n === 2 ? "nd" : n === 3 ? "rd" : "th"}`;
   return (
     <>
       <p className="question">Are you casting a spell?</p>
-      <p className="note">Pick it and it's cast with this level {level} {pact ? "Pact Magic " : ""}slot.</p>
-      <div className="group">
-        {castable.map((sp) => (
-          <button className="row" key={`${sp.list.id}-${sp.id}`} onClick={() => onCast(sp)}>
-            <div className="row-main">
-              <div className="row-title">{sp.name}</div>
-              <div className="row-sub">
-                {sp.level < level ? `level ${sp.level}, upcast to ${level}` : `level ${sp.level}`}, {sp.castingTime}
-                {sp.concentration ? ", concentration" : ""}
-              </div>
-            </div>
-          </button>
-        ))}
-        {castable.length === 0 && (
+      <p className="note">Pick it and it's cast with this level {level} {pact ? "Pact Magic " : ""}slot. Lower-level spells that do more at a higher slot are marked ▲.</p>
+      {castable.length > 4 && (
+        <input className="search" type="search" placeholder="Search by name, level or school" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Search spells for this slot" />
+      )}
+      {groups.map((g) => (
+        <Fragment key={g.level}>
+          <div className="level-head">
+            {ord(g.level)} level {g.level === level ? <span className="level-picked">· this slot's level</span> : <span className="level-picked">· upcast to {ord(level)}</span>}
+          </div>
+          <div className="group">
+            {g.spells.map((sp) => {
+              const up = gainsFromUpcast(sp, level);
+              return (
+                <button className={up ? "row slot-upcast" : "row"} key={`${sp.list.id}-${sp.id}`} onClick={() => onCast(sp)}>
+                  <div className="row-main">
+                    <div className="row-title">
+                      {sp.name}
+                      {up && <span className="tag upcast-tag">▲ stronger at {ord(level)}</span>}
+                    </div>
+                    <div className="row-sub">
+                      {sp.castingTime}
+                      {sp.concentration ? ", concentration" : ""}
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </Fragment>
+      ))}
+      {castable.length === 0 && (
+        <div className="group">
           <div className="row">
             <div className="row-main row-sub">No prepared spells for this slot.</div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
+      {castable.length > 0 && groups.length === 0 && <p className="note">No spell matches "{q}".</p>}
       <button className="link" onClick={onJustSpend}>
         Just spend the slot
       </button>

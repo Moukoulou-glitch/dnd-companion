@@ -5663,3 +5663,7 @@ h2 .slot-count .pact b { color: #b58cff; }
 .time-other { margin-top: 8px; display: grid; gap: 8px; }
 .time-passes .tag[aria-pressed="true"] { background: var(--teal); color: #10201d; border-color: var(--teal); }
 .time-passes { flex-wrap: wrap; }
+
+/* Play → a spell slot: lower-level spells that do more when upcast. */
+.row.slot-upcast { box-shadow: inset 3px 0 0 var(--gold, #d4a640); background: color-mix(in srgb, var(--gold, #d4a640) 9%, transparent); }
+.tag.upcast-tag { margin-left: 8px; font-size: 12px; color: var(--gold, #d4a640); border-color: color-mix(in srgb, var(--gold, #d4a640) 55%, transparent); vertical-align: middle; }
