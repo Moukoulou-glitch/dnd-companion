@@ -713,7 +713,7 @@
           {
             "id": "hound-of-ill-omen",
             "name": "Hound of Ill Omen",
-            "combatNote": "Rolls its own initiative. On its turn it can only move toward its target by the most direct route and use its action to attack it. Starts with temp HP equal to half your sorcerer level. While it's within 5 ft of the target, the target has disadvantage on saves against your spells.",
+            "combatNote": "Rolls its own initiative. Moves only toward its target and attacks only it (opportunity attacks too). Starts with temp HP equal to half your sorcerer level. Within 5 ft of it, the target has disadvantage on saves against your spells. Gone at 0 HP, when the target drops to 0 HP (dismiss it here), or after 5 minutes.",
             "turn": "own",
             "forms": [
               {
@@ -748,6 +748,18 @@
                   {
                     "name": "Pack Tactics",
                     "summary": "Advantage on attacks when an ally is within 5 ft of its target."
+                  },
+                  {
+                    "name": "One Quarry",
+                    "summary": "On its turn it moves only toward its target, by the most direct path, and its action can only be an attack on that target. It makes opportunity attacks, but only against the target."
+                  },
+                  {
+                    "name": "Ill Omen",
+                    "summary": "While it's within 5 ft of its target, the target has disadvantage on saving throws against any spell you cast."
+                  },
+                  {
+                    "name": "Fleeting",
+                    "summary": "It vanishes when it drops to 0 hit points, when its target drops to 0 hit points, or after 5 minutes."
                   }
                 ],
                 "attacks": [

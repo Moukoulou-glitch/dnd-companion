@@ -5599,3 +5599,21 @@ h2 .slot-count .pact b { color: #b58cff; }
 
 /* A resource's count on Play: tap to type how many are left. */
 .count-edit { background: none; border: none; padding: 0; color: inherit; font: inherit; text-decoration: underline dotted; text-underline-offset: 3px; cursor: pointer; }
+
+/* The Hound of Ill Omen (23y): shadow fur lit red from within; its paws smoulder, wisps of shadow rise off it,
+   and now and then it lifts its head and howls, its mouth glowing red. */
+.critter.cr-hound svg { filter: drop-shadow(0 0 1.2px rgba(255, 40, 60, 0.55)); }
+.critter.cr-hound .cr-eyes circle { filter: drop-shadow(0 0 1.6px #ff2a3a); }
+.cr-hound-paw { opacity: 0.75; animation: cr-hound-smoulder 1.8s ease-in-out infinite; }
+@keyframes cr-hound-smoulder { 0%, 100% { opacity: 0.45; } 50% { opacity: 0.95; } }
+.cr-hound-wisp { opacity: 0; animation: cr-hound-wisp 3.2s ease-out infinite; }
+.cr-hound-wisp.n1 { animation-delay: 1.1s; }
+.cr-hound-wisp.n2 { animation-delay: 2.2s; }
+@keyframes cr-hound-wisp { 0% { opacity: 0; transform: translate(0, 0) scale(0.6); } 25% { opacity: 0.7; } 100% { opacity: 0; transform: translate(-4px, -12px) scale(1.6); } }
+.cr-hound-mouth { opacity: 0.25; }
+.tr-howl .cr-head { animation: cr-look 9s ease-in-out infinite, cr-howl 10s ease-in-out infinite; animation-delay: var(--cr-delay); }
+.tr-howl .cr-hound-mouth { animation: cr-howl-mouth 10s ease-in-out infinite; animation-delay: var(--cr-delay); }
+@keyframes cr-howl { 0%, 62%, 92%, 100% { transform: rotate(0deg); } 68%, 86% { transform: rotate(-32deg); } }
+@keyframes cr-howl-mouth { 0%, 64%, 90%, 100% { opacity: 0.25; } 70%, 84% { opacity: 1; filter: drop-shadow(0 0 2px #ff3040); } }
+.critter.down.cr-hound .cr-hound-wisp, .critter.down.cr-hound .cr-hound-paw { animation: none; opacity: 0.2; }
+@media (prefers-reduced-motion: reduce) { .cr-hound-paw, .cr-hound-wisp, .tr-howl .cr-head, .tr-howl .cr-hound-mouth { animation: none !important; } .cr-hound-wisp { opacity: 0; } }

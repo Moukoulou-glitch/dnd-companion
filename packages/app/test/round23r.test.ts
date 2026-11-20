@@ -45,3 +45,16 @@ describe("23s: its critical hit has its own look", () => {
     expect(rollFx({ ...r, crit: false, natural: 12 })).toEqual([]);
   });
 });
+
+describe("23y: the Hound of Ill Omen's critter", () => {
+  it("is a shadow wolf that howls", async () => {
+    const { companionCritter, HOUND_OF_ILL_OMEN } = await import("../src/fx/critters.js");
+    expect(companionCritter({ id: "hound-of-ill-omen", name: "Hound of Ill Omen", form: { id: "hound", name: "Hound of Ill Omen" } }, 0)).toBe(HOUND_OF_ILL_OMEN);
+    expect(HOUND_OF_ILL_OMEN).toMatchObject({ plan: "quad", trick: "howl" });
+  });
+  it("its stat block says how it hunts", () => {
+    const f = reg.find("feature:shadow-magic-hound-of-ill-omen", "feature")!;
+    const names = f.grant!.companions![0]!.forms[0]!.traits!.map((t) => t.name);
+    expect(names).toEqual(expect.arrayContaining(["One Quarry", "Ill Omen", "Fleeting"]));
+  });
+});

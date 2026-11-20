@@ -114,6 +114,8 @@ export const CRITTERS: Record<string, CritterSpec> = {
 };
 
 /** A hidden one: a Primal Companion's Beast of the Land named exactly "Gwestel" is a black panther with blue eyes. */
+/** The Hound of Ill Omen: a shadowy wolf, black fur lit red from within, red eyes, red paws; it howls now and then. */
+export const HOUND_OF_ILL_OMEN: CritterSpec = s("quad", "#141016", "#d0182a", ["ears", "longtail", "hound", "big"], "howl", "#ff2a3a");
 export const GWESTEL: CritterSpec = s("quad", "#15151b", "#2b2b35", ["longtail", "panther", "big"], "lick", "#3fb8ff");
 export function hiddenCompanionCritter(name: string, formName?: string): CritterSpec | undefined {
   return name === "Gwestel" && formName === "Beast of the Land" ? GWESTEL : undefined;
@@ -148,6 +150,7 @@ export function companionCritter(comp: { id: string; name: string; form?: { id: 
   if (hidden) return hidden;
   if (comp.custom?.from === "creature:shield-guardian") return SHIELD_GUARDIAN;
   if (comp.id === "drake" && comp.form) return drakeCritter(comp.form.id, rangerLevel);
+  if (comp.id === "hound-of-ill-omen") return HOUND_OF_ILL_OMEN;
   return undefined;
 }
 
@@ -268,11 +271,30 @@ function body(sp: CritterSpec): ReactNode {
       const by = flat ? 38 : horse ? 30 : 33;
       return (
         <>
+          {has(sp, "hound") ? (
+            // A wolf's bushy tail, raised in a curve.
+            <path className="cr-tail" d={`M13 ${by - 2} Q4 ${by - 6} 3 ${by - 16} Q4 ${by - 22} 9 ${by - 24} Q6 ${by - 18} 9 ${by - 12} Q12 ${by - 7} 16 ${by - 5} Z`} fill={c1} />
+          ) : (
           <path className="cr-tail" d={has(sp, "longtail") ? `M12 ${by} Q2 ${by - 4} 4 ${by - 14} Q6 ${by - 20} 10 ${by - 18}` : horse ? `M12 ${by - 2} Q4 ${by + 2} 6 ${by + 10}` : `M12 ${by} Q6 ${by - 6} 8 ${by - 10}`} stroke={horse && has(sp, "mane") ? c2 : c1} strokeWidth={horse ? 3.4 : 2.6} fill="none" strokeLinecap="round" />
+          )}
           {["cr-leg a", "cr-leg b", "cr-leg c", "cr-leg d"].map((c, i) => (
-            <rect key={c} className={c} x={[15, 21, 34, 40][i]} y={by + (flat ? 2 : 3)} width={flat ? 3 : 3.4} height={48 - by - (flat ? 2 : 3)} rx={1.5} fill={i % 2 ? c1 : c2} />
+            <rect key={c} className={c} x={[15, 21, 34, 40][i]} y={by + (flat ? 2 : 3)} width={flat ? 3 : 3.4} height={48 - by - (flat ? 2 : 3)} rx={1.5} fill={i % 2 || has(sp, "hound") ? c1 : c2} />
           ))}
           <ellipse className="cr-body" cx={28} cy={by} rx={horse ? 17 : has(sp, "panther") ? 18 : 15} ry={flat ? 5 : horse ? 8 : has(sp, "panther") ? 6 : 7} fill={c1} />
+          {has(sp, "hound") && (
+            <>
+              {/* Shadow fur: ragged tufts along the back and chest, red light under it, red-lit paws, wisps rising. */}
+              <path d={`M15 ${by - 3} l2 -6 l2 4 l3 -7 l2 5 l3 -6 l2 5 l3 -5 l2 5 l3 -4 l1 6 Z`} fill={c1} />
+              <path d={`M36 ${by + 2} l3 6 l1 -5 l3 4 l0 -6 Z`} fill={c1} />
+              <path d={`M17 ${by + 2} Q28 ${by + 6} 38 ${by + 1}`} stroke={c2} strokeWidth={1.2} fill="none" opacity={0.55} />
+              {[15, 21, 34, 40].map((x, i) => (
+                <ellipse key={x} className="cr-hound-paw" cx={x + 1.7} cy={46.6} rx={2.4} ry={1.3} fill={c2} style={{ animationDelay: `${-i * 0.4}s` }} />
+              ))}
+              {[0, 1, 2].map((i) => (
+                <circle key={i} className={`cr-hound-wisp n${i}`} cx={18 + i * 9} cy={by - 6} r={1.6} fill={c1} />
+              ))}
+            </>
+          )}
           {has(sp, "panther") && <path d={`M14 ${by - 3} Q28 ${by - 9} 42 ${by - 4}`} stroke="#3a3a48" strokeWidth={0.8} fill="none" opacity={0.7} />}
           {has(sp, "hump") && <ellipse cx={26} cy={by - 8} rx={7} ry={5} fill={c1} />}
           {has(sp, "stripes") && [20, 26, 32].map((x) => <path key={x} d={`M${x} ${by - 6} q2 4 0 9`} stroke={c2} strokeWidth={1.6} fill="none" />)}
@@ -300,10 +322,20 @@ function body(sp: CritterSpec): ReactNode {
                 {has(sp, "antlers") && <path d={`M44 ${by - 11} l-3 -8 m3 8 l3 -9`} stroke="#d8c8a0" strokeWidth={1.4} fill="none" />}
                 {has(sp, "beak") && <path d={`M51 ${by - 7} l6 2 l-6 2 Z`} fill="#f2c03a" />}
                 {has(sp, "fangs") && <path d={`M50 ${by - 2} l1 4 l1 -4 M53 ${by - 2} l1 3 l1 -3`} fill="#fff" stroke="#fff" strokeWidth={0.5} />}
+                {has(sp, "hound") && (
+                  <>
+                    {/* A long wolf's muzzle, a mouth glowing red inside when it howls, a ruff of shadow at the neck. */}
+                    <path d={`M48 ${by - 8} L57 ${by - 6} L56 ${by - 3} L49 ${by - 2} Z`} fill={c1} />
+                    <path className="cr-hound-mouth" d={`M50 ${by - 4} L56.5 ${by - 4.6} L55 ${by - 2.6} L50 ${by - 2.4} Z`} fill={c2} />
+                    <path d={`M40 ${by - 8} l-3 -2 l2 4 l-4 0 l4 3 l-3 2 l5 0`} fill={c1} />
+                  </>
+                )}
                 <Eyes x={46} y={by - 7} gap={4.4} r={1.2} color={eye} />
-                <g className="cr-trick-paw">
-                  <ellipse cx={50} cy={by + 1} rx={2} ry={1.6} fill={c2} />
-                </g>
+                {!has(sp, "hound") && (
+                  <g className="cr-trick-paw">
+                    <ellipse cx={50} cy={by + 1} rx={2} ry={1.6} fill={c2} />
+                  </g>
+                )}
               </>
             )}
           </g>
@@ -716,7 +748,7 @@ export function Critter({ spec, down, label, seed = 0 }: { spec: CritterSpec; do
   const size = has(spec, "huge") ? 1.35 : has(spec, "big") ? 1.15 : has(spec, "tiny") ? 0.75 : has(spec, "small") ? 0.88 : 1;
   return (
     <span
-      className={`critter cr-${spec.plan}${spec.trick ? ` tr-${spec.trick}` : ""}${has(spec, "glow") ? " cr-glow" : ""}${has(spec, "panther") ? " cr-panther" : ""}${down ? " down" : ""}`}
+      className={`critter cr-${spec.plan}${spec.trick ? ` tr-${spec.trick}` : ""}${has(spec, "glow") ? " cr-glow" : ""}${has(spec, "panther") ? " cr-panther" : ""}${has(spec, "hound") ? " cr-hound" : ""}${down ? " down" : ""}`}
       style={{ ["--cr-scale" as string]: String(size), ["--cr-delay" as string]: `${-((seed * 1.7) % 9)}s` }}
       role="img"
       aria-label={down ? `${label}, down` : label}
