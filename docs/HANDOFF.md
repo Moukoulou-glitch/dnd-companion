@@ -545,3 +545,4 @@ Remaining plan (each a sub-phase, stop after each): 2a crits (done) · 2b Relent
 - 24h follow-up: "A new day: add a day to the calendar" starts ticked on the Long rest panel.
 - 24h (with a new day preselected) merged to main with approval (Nov 20; run 44759078794 passed).
 - 24i: Time passes → "Other…" (a chip like the others) opens "Hours that passed" (−/+ or typed, 1–720) and "Let N hours pass" (was a bare text box); the chips wrap on a phone.
+- 24i merged to main with approval (Nov 20; run 44763929951 passed).
