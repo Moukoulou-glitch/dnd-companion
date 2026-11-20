@@ -464,6 +464,8 @@ export const EffectDef = z
     includesByChoice: z.record(z.string(), z.array(DefId)).optional(),
     /** A disease or poison: what cures those ends it (Lay on Hands' cure, Lesser Restoration). */
     disease: z.boolean().optional(),
+    /** Putting it on ends every disease on you (Heroes' Feast). */
+    endsDiseases: z.boolean().optional(),
     /** Reminders for what the app can't apply itself, e.g. "Attacks against you have advantage". */
     reminders: z.array(z.string()).default([]),
     /** Actions you can take while it's on (Haste: the extra action). */

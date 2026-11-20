@@ -206,9 +206,17 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
   };
 
   /** Lesser and Greater Restoration on you: the picked condition ends (or one exhaustion level), no tag stays. */
+  /** A disease on you: a custom effect tagged a disease, or one whose definition is (Contagion). */
+  const isDisease = (e: Character["effects"][number]) => !!e.custom?.disease || !!reg.find(reg.effectId(e.effect), "effect")?.disease;
   const restore = (def: { name: string; ends?: Record<string, string> }, choice?: string) => {
     const target = choice ? def.ends?.[choice] : undefined;
     if (!target) return void notes.push(`${def.name}: pick what it ends.`);
+    if (target === "disease") {
+      const d = c.effects.find(isDisease);
+      if (!d) return void notes.push(`${def.name}: you have no disease the app knows of.`);
+      removeEffects([d]);
+      return void notes.push(`${def.name}: ${effectName(d)} cured.`);
+    }
     if (target === "exhaustion") {
       const ex = c.effects.find((e) => e.effect === "condition:exhaustion");
       if (!ex) return void notes.push(`${def.name}: you aren't exhausted.`);
@@ -1602,7 +1610,14 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         }
       }
       // Stillness of Mind: ends one effect that charms or frightens you (the one picked, or the first there is).
-      if (a.endsConditions?.length) {
+      // Physician's Touch: "A disease" ends the first disease on you.
+      if (a.endsConditions?.includes("disease") && op.payload.choice === "A disease") {
+        const d = c.effects.find(isDisease);
+        if (d) {
+          removeEffects([d]);
+          notes.push(`${a.name}: ${effectName(d)} cured.`);
+        } else notes.push(`${a.name}: you have no disease the app knows of.`);
+      } else if (a.endsConditions?.length) {
         const picked = op.payload.choice ? `condition:${op.payload.choice.toLowerCase()}` : undefined;
         const ends = picked && a.endsConditions.includes(picked) ? [picked] : a.endsConditions;
         const all = a.endsAllConditions ? c.effects.filter((e) => ends.includes(e.effect)) : [];
@@ -2169,6 +2184,14 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       const chargePick = using === "charges" && op.payload.chargeOption !== undefined ? sp.cast.charges?.options[op.payload.chargeOption] : undefined;
       const effectId = chargePick?.effect ?? sp.id.replace(/^spell:/, "effect:");
       const selfDef = reg.find(effectId, "effect");
+      // Heroes' Feast on you: every disease ends.
+      if (selfEffect && selfDef?.endsDiseases) {
+        const ds = c.effects.filter(isDisease);
+        if (ds.length) {
+          removeEffects(ds);
+          notes.push(`${selfDef.name}: ${ds.map(effectName).join(", ")} cured.`);
+        }
+      }
       if (selfEffect && selfDef?.ends) restore(selfDef, op.payload.choice);
       else if (selfEffect && selfDef) {
         const def = selfDef;
@@ -2235,6 +2258,16 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         restore(def, op.payload.choice);
         break;
       }
+      // Heroes' Feast: every disease ends.
+      if (def?.endsDiseases) {
+        const ds = c.effects.filter(isDisease);
+        if (ds.length) {
+          removeEffects(ds);
+          notes.push(`${def.name}: ${ds.map(effectName).join(", ")} cured.`);
+        }
+      }
+      // A disease while you're immune to disease (Divine Health, Purity of Body, Periapt of Health): said, kept.
+      if ((def?.disease || custom?.disease) && sheet.defenses.immune.includes("disease")) notes.push(`You're immune to disease: added anyway, remove it if it doesn't apply.`);
       // Immune to a condition (given by a feature or by hand): say so; the player decides.
       if (def?.category === "condition" && sheet.defenses.immune.some((x) => x.toLowerCase() === def.name.toLowerCase() || x === def.id)) notes.push(`You're immune to being ${def.name.toLowerCase()}: added anyway, remove it if it doesn't apply.`);
       const existing = def ? c.effects.find((e) => e.effect === effect) : undefined;

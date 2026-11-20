@@ -5886,7 +5886,8 @@
       },
       "reminders": [
         "Eating the feast also cured you of all diseases and poison: remove those tags."
-      ]
+      ],
+      "endsDiseases": true
     },
     {
       "kind": "effect",
@@ -5934,14 +5935,16 @@
           "Blinded",
           "Deafened",
           "Paralyzed",
-          "Poisoned"
+          "Poisoned",
+          "A disease"
         ]
       },
       "ends": {
         "Blinded": "condition:blinded",
         "Deafened": "condition:deafened",
         "Paralyzed": "condition:paralyzed",
-        "Poisoned": "condition:poisoned"
+        "Poisoned": "condition:poisoned",
+        "A disease": "disease"
       }
     },
     {

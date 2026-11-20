@@ -130,3 +130,35 @@ describe("24b: Contagion on you", () => {
     expect(hp - l.character.hp.current).toBe(10);
   });
 });
+
+describe("24c: custom effects with conditions, and the disease tag", () => {
+  const mk = (cls = "class:fighter") => {
+    const c = newCharacter({ id: "cd", name: "Cd", race: "race:human", class: cls, abilities: { str: 14, dex: 12, con: 14, int: 10, wis: 16, cha: 10 } }, reg);
+    c.classes = [{ class: cls, level: 9 }];
+    return new CharacterLog(c, reg, new HybridClock("t", () => (t += 1000)), "player");
+  };
+  const addRot = (l: CharacterLog) => l.record("addEffect", { instanceId: "rot", effect: "custom", custom: { name: "Sewer Rot", modifiers: [], includes: ["condition:poisoned"], disease: true } });
+  it("a custom effect's conditions apply and show on its card", () => {
+    const l = mk();
+    addRot(l);
+    const s = derive(l.character, reg);
+    const e = s.effects.find((x) => x.instanceId === "rot")!;
+    expect(e.includes.map((x) => x.id)).toEqual(["condition:poisoned"]);
+    expect(e.disease).toBe(true);
+    // Poisoned: disadvantage on ability checks.
+    expect(s.skills.athletics.disadvantage.length).toBeGreaterThan(0);
+  });
+  it("Lesser Restoration's 'A disease' cures it", () => {
+    const l = mk();
+    addRot(l);
+    l.record("addEffect", { instanceId: "lr", effect: "effect:lesser-restoration", choice: "A disease" });
+    expect(l.character.effects.some((e) => e.id === "rot")).toBe(false);
+  });
+  it("Heroes' Feast on you ends every disease", () => {
+    const l = mk();
+    addRot(l);
+    l.record("addEffect", { instanceId: "cg", effect: "effect:contagion", choice: "Seizure" });
+    l.record("addEffect", { instanceId: "hf", effect: "effect:heroes-feast", choice: "10" });
+    expect(l.character.effects.filter((e) => e.id === "rot" || e.id === "cg")).toHaveLength(0);
+  });
+});

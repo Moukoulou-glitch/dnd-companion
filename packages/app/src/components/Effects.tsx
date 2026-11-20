@@ -89,6 +89,7 @@ export function EffectPanel({ e, act, close, onRelease }: { e: EffectResult; act
           </button>
         </>
       )}
+      {e.disease && <p className="note">A disease: Lay on Hands, Lesser Restoration and other cures end it.</p>}
       {e.untilRest && <p className="note">Ends at your next {e.untilRest === "short" ? "rest (short or long)" : "long rest"}.</p>}
       {e.summary && (
         <p>
@@ -293,19 +294,27 @@ type Duration = "removed" | "rounds" | "minutes" | "hours" | "short" | "long";
  * changes the sheet applies, how long it lasts (rounds, minutes, hours, until a
  * short or long rest, or until removed), and the player's own description.
  */
-function CustomBuilder({ act, close }: { act: Act; close: () => void }) {
+function CustomBuilder({ act, close, registry }: { act: Act; close: () => void; registry: ContentRegistry }) {
   const [name, setName] = useState("");
   const [changes, setChanges] = useState<ChangeDraft[]>([emptyChange()]);
   const [text, setText] = useState("");
   const [duration, setDuration] = useState<Duration>("removed");
   const [amount, setAmount] = useState("");
+  // Conditions it puts on you, and whether it's a disease (cures end it).
+  const [conds, setConds] = useState<string[]>([]);
+  const [disease, setDisease] = useState(false);
+  const conditionDefs = registry.list("effect").filter((d) => d.category === "condition" && d.id !== "condition:exhaustion");
   const mods = changesToModifiers(changes, name.trim() || "Custom");
   const needsAmount = duration === "rounds" || duration === "minutes" || duration === "hours";
   // Something to apply or something to say, and every row either complete or empty-valued.
-  const ready = !!name.trim() && (mods.length > 0 || !!text.trim()) && changes.every((d) => changeValid(d) || (d.kind === "bonus" && !d.value)) && (!needsAmount || Number(amount) > 0);
+  const ready = !!name.trim() && (mods.length > 0 || !!text.trim() || conds.length > 0 || disease) && changes.every((d) => changeValid(d) || (d.kind === "bonus" && !d.value)) && (!needsAmount || Number(amount) > 0);
 
   const create = () => {
-    const payload: Record<string, unknown> = { instanceId: crypto.randomUUID(), effect: "custom", custom: { name: name.trim(), modifiers: mods, ...(text.trim() ? { text: text.trim() } : {}) } };
+    const payload: Record<string, unknown> = {
+      instanceId: crypto.randomUUID(),
+      effect: "custom",
+      custom: { name: name.trim(), modifiers: mods, ...(text.trim() ? { text: text.trim() } : {}), ...(conds.length ? { includes: conds } : {}), ...(disease ? { disease: true } : {}) },
+    };
     const n = Number(amount);
     if (duration === "rounds") payload.rounds = n;
     if (duration === "minutes") payload.minutes = n;
@@ -320,6 +329,21 @@ function CustomBuilder({ act, close }: { act: Act; close: () => void }) {
       <input className="search" placeholder="Name, e.g. High ground" value={name} onChange={(e) => setName(e.target.value)} aria-label="Effect name" />
       <p className="sub-head">Changes</p>
       <ChangesEditor value={changes} onChange={setChanges} />
+      <p className="sub-head">Conditions it puts on you</p>
+      <div className="types wrap" role="group" aria-label="Conditions">
+        {conditionDefs.map((d) => (
+          <button key={d.id} className="switch" aria-pressed={conds.includes(d.id)} aria-checked={conds.includes(d.id)} onClick={() => setConds((c) => (c.includes(d.id) ? c.filter((x) => x !== d.id) : [...c, d.id]))}>
+            {d.name}
+          </button>
+        ))}
+      </div>
+      <label className="row check" style={{ marginTop: 8 }}>
+        <input type="checkbox" checked={disease} onChange={() => setDisease(!disease)} />
+        <div className="row-main">
+          <div className="row-title">It's a disease</div>
+          <div className="row-sub">Lay on Hands, Lesser Restoration, Physician's Touch, Heroes' Feast and the like can cure it.</div>
+        </div>
+      </label>
       <p className="sub-head">How long</p>
       <div className="types wrap" role="radiogroup" aria-label="How long">
         {([
@@ -411,7 +435,7 @@ export function AddEffectPanel({
         ))}
       </div>
       {tab === "custom" ? (
-        <CustomBuilder act={act} close={close} />
+        <CustomBuilder act={act} close={close} registry={registry} />
       ) : (
         <>
           <input className="search" type="search" placeholder={tab === "spell" ? "Search spells" : tab === "condition" ? "Search conditions" : "Search by name or what it does"} value={q} onChange={(e) => setQ(e.target.value)} />

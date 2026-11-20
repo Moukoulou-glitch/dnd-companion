@@ -410,6 +410,8 @@ export interface EffectResult {
   levelNotes?: string[];
   /** Conditions it brings with it (Hold Person: Paralyzed; Invisibility: Invisible). */
   includes: { id: string; name: string }[];
+  /** A disease (a custom one tagged so, or Contagion): what cures diseases ends it. */
+  disease?: boolean;
   /** A custom effect: the changes it makes (shown on its card in plain words). */
   changes?: Modifier[];
   /** Ends when you attack or cast a spell (Invisibility). */
@@ -952,6 +954,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     addCond(e.effect);
     // Blindness/Deafness: the condition picked.
     if (e.choice) for (const inc of reg.find(reg.effectId(e.effect), "effect")?.includesByChoice?.[e.choice] ?? []) addCond(inc);
+    for (const inc of e.custom?.includes ?? []) addCond(inc);
   }
   // Rage Beyond Death: at 0 hit points while raging you keep fighting.
   const beyondDeath = c.toggles.includes("raging") && sources.some((s) => s.id === "feature:path-of-the-zealot-rage-beyond-death");
@@ -2506,11 +2509,20 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       r = { ...base, id: e.effect, name: e.custom?.name ?? e.effect, category: "other" };
       if (e.custom?.text) r.summary = e.custom.text;
       if (e.custom?.modifiers.length) r.changes = e.custom.modifiers;
+      for (const inc of e.custom?.includes ?? []) {
+        const d = reg.find(inc, "effect");
+        if (d && !r.includes.some((x) => x.id === inc)) {
+          r.includes.push({ id: inc, name: d.name });
+          r.reminders.push(...d.reminders);
+        }
+      }
+      if (e.custom?.disease) r.disease = true;
       if (!e.custom) warnings.push(`Effect "${e.effect}" isn't in the content pack.`);
     } else {
       const reminders = def.reminders.map(fillTag);
       for (const inc of [...def.includes, ...((e.choice && def.includesByChoice?.[e.choice]) || [])]) reminders.push(...reg.get(inc, "effect").reminders);
       r = { ...base, id: def.id, name: def.name, category: def.category, concentration: def.concentration, reminders };
+      if (def.disease) r.disease = true;
       if (def.summary) r.summary = def.summary;
       if (def.levels) {
         r.level = e.level ?? 1;

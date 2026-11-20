@@ -12,10 +12,10 @@ describe("14b: monk features", () => {
     expect(pc("class:monk", 11, "subclass:open-hand").afterLongRest).toEqual([{ effect: "effect:sanctuary", dc: 8 + 2 + 4, from: "Tranquility" }]);
     expect(pc("class:monk", 10, "subclass:open-hand").afterLongRest).toEqual([]);
   });
-  it("Physician's Touch ends one of five conditions on you", () => {
+  it("Physician's Touch ends one of five conditions, or a disease, on you", () => {
     const a = pc("class:monk", 6, "subclass:way-of-mercy").actions.find((x) => x.id === "physicians-touch")!;
-    expect(a.endsConditions).toHaveLength(5);
-    expect(a.choose?.options).toContain("Poisoned");
+    expect(a.endsConditions).toHaveLength(6);
+    expect(a.choose?.options).toEqual(expect.arrayContaining(["Poisoned", "A disease"]));
     expect(pc("class:monk", 5, "subclass:way-of-mercy").actions.some((x) => x.id === "physicians-touch")).toBe(false);
   });
 });

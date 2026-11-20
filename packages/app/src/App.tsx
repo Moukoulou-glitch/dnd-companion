@@ -3688,7 +3688,7 @@ export function App() {
     if (!ch) return [];
     if (who === "me")
       return ch.effects
-        .filter((e) => isCurable(e.effect, nameOf(e)))
+        .filter((e) => !!e.custom?.disease || isCurable(e.effect, nameOf(e)))
         .map((e) => ({ key: e.id, name: nameOf(e), end: () => live.current.act("removeEffect", { instanceId: e.id }, `${nameOf(e)} ends.`) }));
     if (who.startsWith("summon:")) {
       const m = ch.summons.find((x) => `summon:${x.id}` === who);

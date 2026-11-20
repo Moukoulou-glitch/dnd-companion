@@ -109,7 +109,15 @@ export const EffectInstance = z
     companion: z.string().optional(),
     custom: z
       /** text: the player's own description, shown on its card (not applied by the rules). */
-      .object({ name: z.string(), modifiers: z.array(Modifier), text: z.string().max(2000).optional() })
+      .object({
+        name: z.string(),
+        modifiers: z.array(Modifier),
+        text: z.string().max(2000).optional(),
+        /** Conditions it puts on you (their rules apply, and they show on its card). */
+        includes: z.array(z.string()).max(16).optional(),
+        /** A disease: what cures diseases ends it (Lay on Hands, Lesser Restoration, Physician's Touch, Heroes' Feast). */
+        disease: z.boolean().optional(),
+      })
       .strict()
       .optional(),
     /** Ends at the next short rest (or any rest) or at the next long rest. */

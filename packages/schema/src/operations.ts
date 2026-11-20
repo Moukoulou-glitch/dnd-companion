@@ -270,7 +270,7 @@ export const OPERATION_PAYLOADS = {
       minutes: z.number().int().min(1).optional(),
       choice: z.string().optional(),
       castLevel: z.number().int().min(1).max(9).optional(),
-      custom: z.object({ name: z.string(), modifiers: z.array(Modifier), text: z.string().max(2000).optional() }).strict().optional(),
+      custom: z.object({ name: z.string(), modifiers: z.array(Modifier), text: z.string().max(2000).optional(), includes: z.array(z.string()).max(16).optional(), disease: z.boolean().optional() }).strict().optional(),
       rounds: z.number().int().min(1).optional(),
       /** Ends at the next short rest (any rest) or long rest. */
       untilRest: z.enum(["short", "long"]).optional(),

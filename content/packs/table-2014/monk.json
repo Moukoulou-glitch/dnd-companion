@@ -211,7 +211,8 @@
               "condition:deafened",
               "condition:paralyzed",
               "condition:poisoned",
-              "condition:stunned"
+              "condition:stunned",
+              "disease"
             ],
             "choose": {
               "label": "End which on you?",
@@ -220,7 +221,8 @@
                 "Deafened",
                 "Paralyzed",
                 "Poisoned",
-                "Stunned"
+                "Stunned",
+                "A disease"
               ]
             },
             "note": "Part of a Hand of Healing: it also ends one disease or one of these conditions. On you, pick it here; on someone else, it's theirs to remove. Hand of Harm can also leave its target poisoned until the end of your next turn."

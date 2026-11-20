@@ -278,6 +278,11 @@ export function collectSources(c: Character, baseReg: ContentRegistry, duplicate
   for (const e of c.effects) {
     if (e.effect === "custom" && e.custom) {
       out.push({ id: `custom:${e.id}`, label: e.custom.name, grant: { modifiers: e.custom.modifiers }, choices: {}, effectInstanceId: e.id });
+      // The conditions it includes, with their rules.
+      for (const inc of e.custom.includes ?? []) {
+        const d = reg.find(inc, "effect");
+        if (d) pushEffect(d, e.id, undefined, e.custom.name);
+      }
     } else {
       const def = reg.find(reg.effectId(e.effect), "effect");
       if (def) pushEffect(def, e.id, e.level, undefined, e);
