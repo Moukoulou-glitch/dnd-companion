@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { NumberStep } from "./Adjust";
 import { HitDiceRow } from "./HitDice";
 import { KnotToken, ResourceToken, tokenLook, type TokenLook } from "./Tokens";
 import { ShapeCard } from "./Shapes";
@@ -599,9 +600,11 @@ export function PlayTab({
 
 /** Time passing outside a rest: timers count down, and the in-world clock moves (when rests move it). Hours typed too. */
 function TimePasses({ act }: { act: Act }) {
-  const [other, setOther] = useState("");
+  // Other: a stepper for the hours (typed or −/+), then one clear button.
+  const [other, setOther] = useState<number | null>(null);
   const pass = (minutes: number, label: string) => act("passTime", { minutes }, `${label} pass${minutes === 60 || minutes === 10 ? "es" : ""}.`);
   return (
+    <>
     <div className="time-passes">
       <span>Time passes</span>
       <button className="tag" onClick={() => pass(10, "10 minutes")}>
@@ -619,21 +622,27 @@ function TimePasses({ act }: { act: Act }) {
       <button className="tag" onClick={() => pass(480, "8 hours")}>
         8 hours
       </button>
-      <span className="time-other">
-        <input inputMode="numeric" aria-label="Hours that passed" placeholder="hours" value={other} onChange={(e) => setOther(e.target.value.replace(/[^0-9]/g, "").slice(0, 3))} />
+      <button className="tag" aria-pressed={other !== null} onClick={() => setOther(other === null ? 1 : null)}>
+        Other…
+      </button>
+    </div>
+    {other !== null && (
+      <div className="time-other">
+        <div className="group">
+          <NumberStep label="Hours that passed" value={other} min={1} max={720} onChange={setOther} />
+        </div>
         <button
-          className="tag"
-          disabled={!Number(other)}
+          className="big primary wide"
           onClick={() => {
-            const h = Number(other);
-            pass(h * 60, `${h} hour${h === 1 ? "" : "s"}`);
-            setOther("");
+            pass(other * 60, `${other} hour${other === 1 ? "" : "s"}`);
+            setOther(null);
           }}
         >
-          Pass
+          Let {other} hour{other === 1 ? "" : "s"} pass
         </button>
-      </span>
-    </div>
+      </div>
+    )}
+    </>
   );
 }
 

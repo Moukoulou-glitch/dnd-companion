@@ -5658,3 +5658,8 @@ h2 .slot-count .pact b { color: #b58cff; }
 .sfx-aler-5 > span:nth-child(6) { display: block; }
 @keyframes aler-milk { 0% { opacity: 0.7; } 100% { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .aler-mark *, .sfx-ongoing-aler::before { animation: none !important; } .sfx-ongoing-aler > span:nth-child(-n+4) { display: none !important; } }
+
+/* Time passes → Other…: a stepper for the hours and one button. */
+.time-other { margin-top: 8px; display: grid; gap: 8px; }
+.time-passes .tag[aria-pressed="true"] { background: var(--teal); color: #10201d; border-color: var(--teal); }
+.time-passes { flex-wrap: wrap; }
