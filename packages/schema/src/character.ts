@@ -117,6 +117,8 @@ export const EffectInstance = z
         includes: z.array(z.string()).max(16).optional(),
         /** A disease: what cures diseases ends it (Lay on Hands, Lesser Restoration, Physician's Touch, Heroes' Feast). */
         disease: z.boolean().optional(),
+        /** Exhaustion levels it gives while it lasts; they add to any exhaustion you already have (six at most). */
+        exhaustion: z.number().int().min(1).max(6).optional(),
       })
       .strict()
       .optional(),

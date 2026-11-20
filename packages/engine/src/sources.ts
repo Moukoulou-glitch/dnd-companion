@@ -275,7 +275,11 @@ export function collectSources(c: Character, baseReg: ContentRegistry, duplicate
     out.push(src);
     for (const inc of [...def.includes, ...((inst?.choice && def.includesByChoice?.[inst.choice]) || [])]) pushEffect(reg.get(inc, "effect"), instanceId, undefined, def.name);
   };
+  // Exhaustion: your own levels and the levels custom effects give add up, applied once (six at most).
+  const exInst = c.effects.find((e) => e.effect === "condition:exhaustion");
+  const exExtra = c.effects.reduce((n, e) => n + (e.effect === "custom" ? e.custom?.exhaustion ?? 0 : 0), 0);
   for (const e of c.effects) {
+    if (e === exInst && exExtra) continue;
     if (e.effect === "custom" && e.custom) {
       out.push({ id: `custom:${e.id}`, label: e.custom.name, grant: { modifiers: e.custom.modifiers }, choices: {}, effectInstanceId: e.id });
       // The conditions it includes, with their rules.
@@ -287,6 +291,12 @@ export function collectSources(c: Character, baseReg: ContentRegistry, duplicate
       const def = reg.find(reg.effectId(e.effect), "effect");
       if (def) pushEffect(def, e.id, e.level, undefined, e);
     }
+  }
+
+  if (exExtra) {
+    const exDef = reg.find("condition:exhaustion", "effect");
+    const holder = exInst ?? c.effects.find((e) => e.effect === "custom" && e.custom?.exhaustion);
+    if (exDef && holder) pushEffect(exDef, holder.id, Math.min(exDef.levels?.length ?? 6, (exInst?.level ?? 0) + exExtra), undefined, exInst);
   }
 
   c.manualGrants.forEach((m, i) => {

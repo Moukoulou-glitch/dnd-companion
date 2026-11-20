@@ -162,3 +162,22 @@ describe("24c: custom effects with conditions, and the disease tag", () => {
     expect(l.character.effects.filter((e) => e.id === "rot" || e.id === "cg")).toHaveLength(0);
   });
 });
+
+describe("24d: exhaustion levels on a custom effect", () => {
+  it("add to your own, apply once, and can be changed", () => {
+    const c = newCharacter({ id: "ex", name: "Ex", race: "race:human", class: "class:fighter", abilities: { str: 14, dex: 12, con: 14, int: 10, wis: 10, cha: 10 } }, reg);
+    const l = new CharacterLog(c, reg, new HybridClock("t", () => (t += 1000)), "player");
+    const walk = derive(l.character, reg).speed.total;
+    l.record("addEffect", { instanceId: "own", effect: "condition:exhaustion" });
+    l.record("addEffect", { instanceId: "fever", effect: "custom", custom: { name: "Marsh Fever", modifiers: [], exhaustion: 1 } });
+    let s = derive(l.character, reg);
+    expect(s.speed.total).toBe(Math.floor(walk / 2)); // exhaustion 2: speed halved, once
+    expect(s.effects.find((e) => e.instanceId === "fever")!.exhaustion).toBe(1);
+    l.record("updateEffect", { instanceId: "fever", exhaustion: 0 });
+    s = derive(l.character, reg);
+    expect(s.speed.total).toBe(walk); // back to exhaustion 1
+    l.record("removeEffect", { instanceId: "own" });
+    l.record("updateEffect", { instanceId: "fever", exhaustion: 2 });
+    expect(derive(l.character, reg).speed.total).toBe(Math.floor(walk / 2));
+  });
+});

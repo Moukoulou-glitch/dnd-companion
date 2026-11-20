@@ -412,6 +412,8 @@ export interface EffectResult {
   includes: { id: string; name: string }[];
   /** A disease (a custom one tagged so, or Contagion): what cures diseases ends it. */
   disease?: boolean;
+  /** A custom effect's exhaustion levels (they add to your own). */
+  exhaustion?: number;
   /** A custom effect: the changes it makes (shown on its card in plain words). */
   changes?: Modifier[];
   /** Ends when you attack or cast a spell (Invisibility). */
@@ -955,6 +957,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     // Blindness/Deafness: the condition picked.
     if (e.choice) for (const inc of reg.find(reg.effectId(e.effect), "effect")?.includesByChoice?.[e.choice] ?? []) addCond(inc);
     for (const inc of e.custom?.includes ?? []) addCond(inc);
+    if (e.custom?.exhaustion) addCond("condition:exhaustion");
   }
   // Rage Beyond Death: at 0 hit points while raging you keep fighting.
   const beyondDeath = c.toggles.includes("raging") && sources.some((s) => s.id === "feature:path-of-the-zealot-rage-beyond-death");
@@ -2517,6 +2520,10 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
         }
       }
       if (e.custom?.disease) r.disease = true;
+      if (e.custom?.exhaustion) {
+        r.exhaustion = e.custom.exhaustion;
+        r.includes.push({ id: "condition:exhaustion", name: `Exhaustion ${e.custom.exhaustion}` });
+      }
       if (!e.custom) warnings.push(`Effect "${e.effect}" isn't in the content pack.`);
     } else {
       const reminders = def.reminders.map(fillTag);

@@ -206,6 +206,8 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
   };
 
   /** Lesser and Greater Restoration on you: the picked condition ends (or one exhaustion level), no tag stays. */
+  /** Your exhaustion in all: your own levels and those custom effects give (six at most counts). */
+  const totalExhaustion = () => (c.effects.find((e) => e.effect === "condition:exhaustion")?.level ?? 0) + c.effects.reduce((n, e) => n + (e.effect === "custom" ? e.custom?.exhaustion ?? 0 : 0), 0);
   /** A disease on you: a custom effect tagged a disease, or one whose definition is (Contagion). */
   const isDisease = (e: Character["effects"][number]) => !!e.custom?.disease || !!reg.find(reg.effectId(e.effect), "effect")?.disease;
   const restore = (def: { name: string; ends?: Record<string, string> }, choice?: string) => {
@@ -2266,6 +2268,11 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
           notes.push(`${def.name}: ${ds.map(effectName).join(", ")} cured.`);
         }
       }
+      if (custom?.exhaustion) {
+        const t = totalExhaustion() + custom.exhaustion;
+        notes.push(`${custom.name}: ${custom.exhaustion} exhaustion level${custom.exhaustion === 1 ? "" : "s"} (exhaustion ${Math.min(6, t)} in all).`);
+        if (t >= 6) notes.push("Exhaustion 6: the character dies.");
+      }
       // A disease while you're immune to disease (Divine Health, Purity of Body, Periapt of Health): said, kept.
       if ((def?.disease || custom?.disease) && sheet.defenses.immune.includes("disease")) notes.push(`You're immune to disease: added anyway, remove it if it doesn't apply.`);
       // Immune to a condition (given by a feature or by hand): say so; the player decides.
@@ -2361,6 +2368,11 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       }
       if (level !== undefined) e.level = level;
       if (choice !== undefined) e.choice = choice;
+      if (op.payload.exhaustion !== undefined && e.custom) {
+        if (op.payload.exhaustion > 0) e.custom.exhaustion = op.payload.exhaustion;
+        else delete e.custom.exhaustion;
+        if (totalExhaustion() >= 6) notes.push("Exhaustion 6: the character dies.");
+      }
       if (castLevel !== undefined) {
         const def = reg.find(reg.effectId(e.effect), "effect");
         const before = e.castLevel ?? def?.upcast?.baseLevel ?? castLevel;

@@ -210,6 +210,16 @@ export function EffectPanel({ e, act, close, onRelease }: { e: EffectResult; act
             </div>
           </div>
         )}
+        {e.id === "custom" && (
+          <NumberStep
+            label="Exhaustion levels"
+            sub="Added to any you already have"
+            value={e.exhaustion ?? 0}
+            min={0}
+            max={6}
+            onChange={(n) => n !== (e.exhaustion ?? 0) && act("updateEffect", { instanceId: e.instanceId, exhaustion: n }, `${e.name}: ${n ? `exhaustion ${n}` : "no exhaustion"}.`)}
+          />
+        )}
         {e.level !== undefined && (
           <div className="row">
             <div className="row-main row-title">Level</div>
@@ -303,17 +313,18 @@ function CustomBuilder({ act, close, registry }: { act: Act; close: () => void; 
   // Conditions it puts on you, and whether it's a disease (cures end it).
   const [conds, setConds] = useState<string[]>([]);
   const [disease, setDisease] = useState(false);
+  const [exhaustion, setExhaustion] = useState(0);
   const conditionDefs = registry.list("effect").filter((d) => d.category === "condition" && d.id !== "condition:exhaustion");
   const mods = changesToModifiers(changes, name.trim() || "Custom");
   const needsAmount = duration === "rounds" || duration === "minutes" || duration === "hours";
   // Something to apply or something to say, and every row either complete or empty-valued.
-  const ready = !!name.trim() && (mods.length > 0 || !!text.trim() || conds.length > 0 || disease) && changes.every((d) => changeValid(d) || (d.kind === "bonus" && !d.value)) && (!needsAmount || Number(amount) > 0);
+  const ready = !!name.trim() && (mods.length > 0 || !!text.trim() || conds.length > 0 || disease || exhaustion > 0) && changes.every((d) => changeValid(d) || (d.kind === "bonus" && !d.value)) && (!needsAmount || Number(amount) > 0);
 
   const create = () => {
     const payload: Record<string, unknown> = {
       instanceId: crypto.randomUUID(),
       effect: "custom",
-      custom: { name: name.trim(), modifiers: mods, ...(text.trim() ? { text: text.trim() } : {}), ...(conds.length ? { includes: conds } : {}), ...(disease ? { disease: true } : {}) },
+      custom: { name: name.trim(), modifiers: mods, ...(text.trim() ? { text: text.trim() } : {}), ...(conds.length ? { includes: conds } : {}), ...(disease ? { disease: true } : {}), ...(exhaustion ? { exhaustion } : {}) },
     };
     const n = Number(amount);
     if (duration === "rounds") payload.rounds = n;
@@ -336,6 +347,9 @@ function CustomBuilder({ act, close, registry }: { act: Act; close: () => void; 
             {d.name}
           </button>
         ))}
+      </div>
+      <div className="group" style={{ marginTop: 8 }}>
+        <NumberStep label="Exhaustion levels" sub="Added to any you already have, while it lasts" value={exhaustion} min={0} max={6} onChange={setExhaustion} />
       </div>
       <label className="row check" style={{ marginTop: 8 }}>
         <input type="checkbox" checked={disease} onChange={() => setDisease(!disease)} />

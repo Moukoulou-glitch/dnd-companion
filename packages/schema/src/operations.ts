@@ -270,7 +270,7 @@ export const OPERATION_PAYLOADS = {
       minutes: z.number().int().min(1).optional(),
       choice: z.string().optional(),
       castLevel: z.number().int().min(1).max(9).optional(),
-      custom: z.object({ name: z.string(), modifiers: z.array(Modifier), text: z.string().max(2000).optional(), includes: z.array(z.string()).max(16).optional(), disease: z.boolean().optional() }).strict().optional(),
+      custom: z.object({ name: z.string(), modifiers: z.array(Modifier), text: z.string().max(2000).optional(), includes: z.array(z.string()).max(16).optional(), disease: z.boolean().optional(), exhaustion: z.number().int().min(1).max(6).optional() }).strict().optional(),
       rounds: z.number().int().min(1).optional(),
       /** Ends at the next short rest (any rest) or long rest. */
       untilRest: z.enum(["short", "long"]).optional(),
@@ -291,6 +291,8 @@ export const OPERATION_PAYLOADS = {
       castLevel: z.number().int().min(1).max(9).optional(),
       /** How many are left of what it counts (Mirror Image's duplicates). */
       count: z.number().int().min(0).optional(),
+      /** A custom effect's exhaustion levels (0 takes them away). */
+      exhaustion: z.number().int().min(0).max(6).optional(),
     })
     .strict(),
   /** Time passes outside combat: long effects and concentration count down. Rests do this too. */
