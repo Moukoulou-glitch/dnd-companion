@@ -34,3 +34,20 @@ describe("23q: Twilight Sanctuary", () => {
     expect(a.anyTimes).toBe(true);
   });
 });
+
+describe("23t: short rests are counted between long rests", () => {
+  it("counts them, warns from the fourth (never refuses), and a long rest starts the count again", () => {
+    const c = newCharacter({ id: "sr", name: "Sr", race: "race:human", class: "class:fighter", abilities: { str: 14, dex: 12, con: 14, int: 10, wis: 10, cha: 10 } }, reg);
+    const l = new CharacterLog(c, reg, new HybridClock("t", () => (t += 1000)), "player");
+    for (let i = 1; i <= 3; i++) {
+      const r = l.record("rest", { kind: "short" });
+      expect(l.character.shortRests).toBe(i);
+      expect(r.some((n) => n.startsWith("⚠ Short rest"))).toBe(false);
+    }
+    const fourth = l.record("rest", { kind: "short" });
+    expect(l.character.shortRests).toBe(4);
+    expect(fourth).toContain("⚠ Short rest 4 since your last long rest: the table allows 3. Done anyway.");
+    l.record("rest", { kind: "long" });
+    expect(l.character.shortRests).toBeUndefined();
+  });
+});

@@ -219,6 +219,10 @@ export function specOf(e: FxEvent): FxSpec {
       return { at: "edge", ms: 1900, buzz: [20, 40, 20, 40, 80], look: "fx-tw20", label: "Natural 20", skippable: true };
     // Corpse Slayer: the grave's skull cracks and falls to ash; with a Divine Smite, a pillar of radiance burns it away.
     // The Battleaxe of Regina Lapsa: the axe swings down, its silvered edge bites, runes flare, black feathers scatter.
+    case "rest":
+      return e.long
+        ? { at: "edge", ms: 3000, look: "fx-rest fx-rest-long", label: "Long rest · a new day", skippable: true }
+        : { at: "edge", ms: 2400, look: "fx-rest fx-rest-short", label: `Short rest · an hour passes${e.count ? ` (${e.count} of 3)` : ""}`, skippable: true };
     case "lapsa":
       return { at: "edge", ms: 2100, buzz: [20, 30, 90, 40, 30], look: "fx-rl", label: "Battleaxe of Regina Lapsa · critical hit", shake: 320, skippable: true };
     case "corpse":
@@ -869,6 +873,47 @@ export function FxLayer({ school, spell, feature, character }: { school: (spell:
                   <span key={i} className="fx-tw20-star" style={{ ["--a" as string]: `${i * 20}deg`, ["--d" as string]: `${70 + (i % 4) * 26}px`, animationDelay: `${700 + (i % 6) * 40}ms` }} />
                 ))}
               </div>
+            )}
+            {spec.look.startsWith("fx-rest") && (
+              <>
+                <span className="fx-rest-veil" />
+                {spec.look.includes("fx-rest-short") ? (
+                  <div className="fx-rest-at">
+                    <span className="fx-rest-glow" />
+                    {[0, 1, 2].map((i) => (
+                      <span key={i} className={`fx-rest-smoke n${i}`} />
+                    ))}
+                    <svg className="fx-rest-fire" viewBox="0 0 120 110" aria-hidden="true">
+                      <path className="log" d="M14 96 L104 78 L108 90 L18 108 Z" />
+                      <path className="log" d="M16 78 L106 98 L102 108 L12 90 Z" />
+                      <path className="flame f1" d="M60 18 C74 40 86 56 80 76 C76 90 44 90 40 76 C34 58 50 44 60 18 Z" />
+                      <path className="flame f2" d="M60 40 C68 54 74 64 70 78 C66 86 54 86 50 78 C46 66 54 56 60 40 Z" />
+                      <path className="flame f3" d="M60 58 C64 66 66 72 63 80 C60 84 56 84 55 80 C54 72 57 66 60 58 Z" />
+                    </svg>
+                    {Array.from({ length: 8 }, (_, i) => (
+                      <span key={i} className="fx-rest-ember" style={{ left: `${-24 + ((i * 13) % 48)}px`, animationDelay: `${200 + i * 170}ms` }} />
+                    ))}
+                    <svg className="fx-rest-glass" viewBox="0 0 40 64" aria-hidden="true">
+                      <path className="frame" d="M6 3 H34 M6 61 H34 M9 4 C9 22 31 26 31 32 C31 38 9 42 9 60 M31 4 C31 22 9 26 9 32 C9 38 31 42 31 60" />
+                      <path className="sand top" d="M12 10 H28 C26 20 22 26 20 30 C18 26 14 20 12 10 Z" />
+                      <path className="sand bottom" d="M11 58 H29 C27 50 23 46 20 44 C17 46 13 50 11 58 Z" />
+                      <path className="stream" d="M20 31 V56" />
+                    </svg>
+                  </div>
+                ) : (
+                  <>
+                    <span className="fx-rest-night" />
+                    {Array.from({ length: 22 }, (_, i) => (
+                      <span key={i} className="fx-rest-star" style={{ left: `${(i * 53 + 17) % 96 + 2}%`, top: `${(i * 29 + i * i * 7) % 50 + 3}%`, animationDelay: `${(i % 7) * 120}ms`, transform: `scale(${0.6 + (i % 4) * 0.25})` }} />
+                    ))}
+                    <svg className="fx-rest-moon" viewBox="0 0 60 60" aria-hidden="true">
+                      <path d="M38 6 C22 8 12 20 12 32 C12 46 24 56 38 54 C28 50 22 42 22 30 C22 18 28 10 38 6 Z" />
+                    </svg>
+                    <span className="fx-rest-dawn" />
+                    <span className="fx-rest-sun" />
+                  </>
+                )}
+              </>
             )}
             {spec.look === "fx-rl" && (
               <>

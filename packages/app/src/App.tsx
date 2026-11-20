@@ -2754,8 +2754,8 @@ export function App() {
           question="Are you still alive after the rest?"
           detail={
             kind === "short"
-              ? "A short rest: short-rest features and Pact slots come back, and an hour passes."
-              : "A long rest: full HP, spell slots, features and half your Hit Dice come back, and 8 hours pass."
+              ? `A short rest: short-rest features and Pact slots come back, and an hour passes. Short rests since your last long rest: ${live.current.character?.shortRests ?? 0} of 3.${(live.current.character?.shortRests ?? 0) >= 3 ? " ⚠ This would be one more than your table allows: fine if your DM agrees." : ""}`
+              : "A long rest: full HP, spell slots, features and half your Hit Dice come back, and 8 hours pass. Your short rests count starts again."
           }
           no="Not yet, cancel"
           yes={kind === "short" ? "Yes, finish the short rest" : "Yes, finish the long rest"}

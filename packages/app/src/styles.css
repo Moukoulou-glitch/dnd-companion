@@ -5532,3 +5532,67 @@ h2 .slot-count .pact b { color: #b58cff; }
 @keyframes fx-rl-feather { 0% { opacity: 0; transform: translate(0, 0) rotate(0deg) scale(0.5); } 10% { opacity: 1; } 35% { transform: translate(var(--x), var(--y)) rotate(var(--r)) scale(1); } 100% { opacity: 0; transform: translate(calc(var(--x) * 1.2), calc(var(--y) + 120px)) rotate(calc(var(--r) + 140deg)) scale(0.9); } }
 @media (prefers-reduced-motion: reduce) { .fx.fx-rl { animation: fx-static 900ms ease-out forwards !important; } .fx-rl > :not(.fx-label):not(.fx-rl-veil) { display: none; } }
 .fx.fx-rl .fx-label-mid { top: 72%; }
+
+/* Rests. Short: dusk, a campfire crackling with smoke and embers, an hourglass running out its hour.
+   Long: night falls, stars come out and the moon crosses the sky, then dawn rises gold from the bottom. */
+.fx.fx-rest { position: absolute; inset: 0; overflow: hidden; pointer-events: none; animation: fx-tw-in var(--fx-ms) ease-out forwards; }
+.fx-rest .fx-label { color: #fff1d6; font-size: 1.2em; text-shadow: 0 0 2px #000, 0 0 14px rgba(255, 170, 80, 0.8); }
+.fx-rest .fx-label-mid { top: 70%; }
+.fx-rest-short .fx-rest-veil { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 52%, rgba(255, 150, 60, 0.18), rgba(20, 16, 30, 0.88) 60%); }
+.fx-rest-at { position: absolute; left: 50%; top: 48%; width: 0; height: 0; }
+.fx-rest-glow { position: absolute; left: -110px; top: -70px; width: 220px; height: 160px; border-radius: 50%; background: radial-gradient(ellipse, rgba(255, 160, 60, 0.45), transparent 65%); animation: rest-flicker 0.9s ease-in-out infinite alternate; }
+.fx-rest-fire { position: absolute; left: -60px; top: -60px; width: 120px; height: 110px; overflow: visible; }
+.fx-rest-fire .log { fill: #4a2f1f; stroke: #2a1a10; stroke-width: 2; }
+.fx-rest-fire .flame { transform-origin: 60px 88px; animation: rest-flame 0.7s ease-in-out infinite alternate; }
+.fx-rest-fire .f1 { fill: #e8641c; }
+.fx-rest-fire .f2 { fill: #ffa733; animation-duration: 0.55s; animation-delay: -0.2s; }
+.fx-rest-fire .f3 { fill: #fff0b0; animation-duration: 0.45s; animation-delay: -0.1s; }
+@keyframes rest-flame { 0% { transform: scale(1, 1) skewX(-3deg); } 100% { transform: scale(0.92, 1.08) skewX(4deg); } }
+@keyframes rest-flicker { 0% { opacity: 0.75; } 100% { opacity: 1; } }
+.fx-rest-smoke { position: absolute; left: -18px; top: -90px; width: 36px; height: 36px; border-radius: 50%; background: radial-gradient(circle, rgba(170, 165, 175, 0.45), transparent 70%); filter: blur(3px); opacity: 0; animation: rest-smoke 2.2s ease-out infinite; }
+.fx-rest-smoke.n1 { animation-delay: 0.7s; }
+.fx-rest-smoke.n2 { animation-delay: 1.4s; }
+@keyframes rest-smoke { 0% { opacity: 0; transform: translate(0, 0) scale(0.6); } 20% { opacity: 0.8; } 100% { opacity: 0; transform: translate(26px, -120px) scale(2.2); } }
+.fx-rest-ember { position: absolute; top: -40px; width: 3px; height: 3px; border-radius: 50%; background: #ffcf6a; box-shadow: 0 0 5px #ff8a1a; opacity: 0; animation: rest-ember 1.4s ease-out forwards; }
+@keyframes rest-ember { 0% { opacity: 0; transform: translateY(0); } 15% { opacity: 1; } 100% { opacity: 0; transform: translate(10px, -110px); } }
+.fx-rest-glass { position: absolute; left: 76px; top: -40px; width: 34px; height: 54px; overflow: visible; }
+.fx-rest-glass .frame { fill: none; stroke: #c9a46a; stroke-width: 2; stroke-linecap: round; }
+.fx-rest-glass .sand { fill: #e8c88a; }
+.fx-rest-glass .top { transform-origin: 20px 30px; animation: rest-sand-top var(--fx-ms) linear forwards; }
+.fx-rest-glass .bottom { transform-origin: 20px 58px; transform: scaleY(0.1); animation: rest-sand-bottom var(--fx-ms) linear forwards; }
+.fx-rest-glass .stream { stroke: #e8c88a; stroke-width: 1.2; stroke-dasharray: 2 2; animation: rest-stream 0.4s linear infinite; }
+@keyframes rest-sand-top { 0% { transform: scaleY(1); } 85%, 100% { transform: scaleY(0.05); } }
+@keyframes rest-sand-bottom { 0% { transform: scaleY(0.1); } 85%, 100% { transform: scaleY(1); } }
+@keyframes rest-stream { to { stroke-dashoffset: -4; } }
+.fx-rest-long .fx-rest-veil { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(6, 10, 30, 0.95), rgba(14, 20, 50, 0.88)); }
+.fx-rest-star { position: absolute; width: 3px; height: 3px; border-radius: 50%; background: #fff; box-shadow: 0 0 4px #cfe0ff; opacity: 0; animation: rest-star var(--fx-ms) ease-in-out forwards; }
+@keyframes rest-star { 0% { opacity: 0; } 20%, 55% { opacity: 1; } 75%, 100% { opacity: 0; } }
+.fx-rest-moon { position: absolute; left: 0; top: 0; width: 58px; height: 58px; filter: drop-shadow(0 0 10px rgba(220, 230, 255, 0.8)); animation: rest-moon var(--fx-ms) ease-in-out forwards; }
+.fx-rest-moon path { fill: #eef2ff; }
+@keyframes rest-moon { 0% { transform: translate(-10vw, 40vh); opacity: 0; } 10% { opacity: 1; } 50% { transform: translate(42vw, 8vh); } 72% { opacity: 1; } 85%, 100% { transform: translate(95vw, 34vh); opacity: 0; } }
+.fx-rest-dawn { position: absolute; left: -20%; right: -20%; bottom: 0; height: 70%; background: radial-gradient(ellipse at 50% 100%, rgba(255, 200, 110, 0.95), rgba(255, 130, 80, 0.55) 35%, rgba(120, 90, 160, 0.25) 60%, transparent 75%); opacity: 0; transform: translateY(30%); animation: rest-dawn var(--fx-ms) ease-out forwards; }
+@keyframes rest-dawn { 0%, 55% { opacity: 0; transform: translateY(30%); } 85%, 100% { opacity: 1; transform: translateY(0); } }
+.fx-rest-sun { position: absolute; left: 50%; bottom: -60px; width: 120px; height: 120px; margin-left: -60px; border-radius: 50%; background: radial-gradient(circle, #fff6d8, #ffd27a 55%, rgba(255, 180, 80, 0) 72%); opacity: 0; animation: rest-sun var(--fx-ms) ease-out forwards; }
+@keyframes rest-sun { 0%, 62% { opacity: 0; transform: translateY(40px); } 90%, 100% { opacity: 1; transform: translateY(-30px); } }
+@media (prefers-reduced-motion: reduce) { .fx.fx-rest { animation: fx-static 900ms ease-out forwards !important; } .fx-rest-ember, .fx-rest-smoke, .fx-rest-star, .fx-rest-moon { display: none; } .fx-rest *, .fx-rest *::before { animation: none !important; } }
+
+/* Death saves as tokens (23t): a heart for each success (it beats once made), a skull for each failure (bone, red-lit eyes). */
+.ds-mark { border: none !important; background: transparent !important; border-radius: 0; width: 32px; height: 32px; display: grid; place-items: center; }
+.ds-mark svg { width: 30px; height: 30px; overflow: visible; }
+.ds-mark .ds-heart { fill: none; stroke: var(--muted); stroke-width: 1.6; stroke-dasharray: 3 2.4; }
+.ds-mark .ds-shine { fill: none; stroke: none; }
+.ds-mark.successes.on .ds-heart { fill: var(--teal); stroke: #bff5ea; stroke-dasharray: none; filter: drop-shadow(0 0 4px rgba(80, 200, 180, 0.7)); }
+.ds-mark.successes.on .ds-shine { stroke: rgba(255, 255, 255, 0.75); stroke-width: 1.4; stroke-linecap: round; }
+.ds-mark.successes.on svg { transform-origin: 50% 55%; animation: ds-beat 1.6s ease-in-out infinite; }
+@keyframes ds-beat { 0%, 60%, 100% { transform: scale(1); } 10% { transform: scale(1.14); } 22% { transform: scale(0.98); } 32% { transform: scale(1.08); } }
+.ds-mark .ds-skull { fill: none; stroke: var(--muted); stroke-width: 1.4; stroke-dasharray: 3 2.4; stroke-linejoin: round; }
+.ds-mark .ds-eye, .ds-mark .ds-nose { fill: none; stroke: var(--muted); stroke-width: 1; opacity: 0.6; }
+.ds-mark.failures.on .ds-skull { fill: #e6dfcc; stroke: #6b6452; stroke-dasharray: none; }
+.ds-mark.failures.on .ds-eye { fill: #b3122a; stroke: none; opacity: 1; filter: drop-shadow(0 0 3px #ff3b52); animation: ds-eyes 2.4s ease-in-out infinite; }
+.ds-mark.failures.on .ds-nose { fill: #2a2520; stroke: none; opacity: 1; }
+@keyframes ds-eyes { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; } }
+.ds-mark.on svg { animation-name: ds-beat; }
+.ds-mark.failures.on svg { animation: ds-mark-in 380ms ease-out; }
+@keyframes ds-mark-in { 0% { transform: scale(0.4) rotate(-12deg); } 70% { transform: scale(1.15) rotate(3deg); } 100% { transform: scale(1) rotate(0); } }
+.big.warn { border-color: var(--gold); }
+@media (prefers-reduced-motion: reduce) { .ds-mark svg, .ds-mark .ds-eye { animation: none !important; } }

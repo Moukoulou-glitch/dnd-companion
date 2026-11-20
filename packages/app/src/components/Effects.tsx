@@ -387,7 +387,7 @@ export function AddEffectPanel({
   const words = q.trim().toLowerCase().split(/\s+/).filter(Boolean);
   const list = all.filter((d: EffectDef) => {
     if (d.category !== tab) return false;
-    const hay = (tab === "other" ? `${d.name} ${d.summary ?? ""}` : d.name).toLowerCase();
+    const hay = (tab === "spell" ? d.name : `${d.name} ${d.summary ?? ""}`).toLowerCase();
     return words.every((w) => hay.includes(w));
   });
 
@@ -414,8 +414,8 @@ export function AddEffectPanel({
         <CustomBuilder act={act} close={close} />
       ) : (
         <>
-          {(tab === "spell" || tab === "other") && <input className="search" type="search" placeholder={tab === "spell" ? "Search spells" : "Search by name or what it does"} value={q} onChange={(e) => setQ(e.target.value)} />}
-          {tab === "other" && words.length > 0 && !list.length && <p className="note">Nothing matches “{q.trim()}”.</p>}
+          <input className="search" type="search" placeholder={tab === "spell" ? "Search spells" : tab === "condition" ? "Search conditions" : "Search by name or what it does"} value={q} onChange={(e) => setQ(e.target.value)} />
+          {words.length > 0 && !list.length && <p className="note">Nothing matches “{q.trim()}”.</p>}
           <div className="group">
             {list.map((d) => {
               // The same spell twice on one creature: the second doesn't add anything, so it isn't offered.

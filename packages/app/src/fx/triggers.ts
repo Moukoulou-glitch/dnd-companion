@@ -47,6 +47,8 @@ export type FxEvent =
   | { kind: "corpse"; smite: boolean }
   /** The Battleaxe of Regina Lapsa's critical hit: the axe falls, its silver edge bites, black feathers burst. */
   | { kind: "lapsa" }
+  /** A rest finished: a campfire and an hour's sand (short); night passing into dawn (long). `count`: short rests since the long one. */
+  | { kind: "rest"; long: boolean; count?: number }
   /** Favored by the Gods: a failed save or a miss, and the gods add 2d4 (the amount). */
   | { kind: "favored"; amount: number }
   /** Floar (Circle of the Heammer): the Methic flame lights; with Zenith, a sun rises in it too. */
@@ -188,6 +190,7 @@ export function opFx(type: string, payload: unknown, before: Character, after: C
   // Zone of Truth: cast by you, or its tag put on you (someone else's).
   if ((type === "castSpell" && p.spell === "spell:zone-of-truth") || (type === "addEffect" && p.effect === "other:zone-of-truth")) out.push({ kind: "truth" });
   if (type === "useAction" && p.action === "preserve-life") out.push({ kind: "preserve-life" });
+  if (type === "rest") out.push(p.kind === "long" ? { kind: "rest", long: true } : { kind: "rest", long: false, count: after.shortRests ?? 1 });
   // Tattoo of Last Hope: its once-a-dawn use spent by damage.
   if (type === "damage" && (after.resourcesUsed?.["tattoo-last-hope"] ?? 0) > (before.resourcesUsed?.["tattoo-last-hope"] ?? 0)) out.push({ kind: "last-hope", hp: after.hp.current });
   // Blackrazor devours a soul.

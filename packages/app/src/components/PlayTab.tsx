@@ -351,7 +351,22 @@ export function PlayTab({
                       className={`ds-mark ${k}${i < n ? " on" : ""}`}
                       aria-label={i < n ? `Clear ${k === "successes" ? "success" : "failure"} ${i + 1}` : `Mark ${k === "successes" ? "success" : "failure"} ${i + 1}`}
                       onClick={() => set(i < n ? i : i + 1)}
-                    />
+                    >
+                      {k === "successes" ? (
+                        // A heart: hollow until the save is made, then it beats.
+                        <svg viewBox="0 0 32 32" aria-hidden="true">
+                          <path className="ds-heart" d="M16 27 C9 21 4 17 4 11.5 C4 7.6 7 5 10.4 5 C12.8 5 14.8 6.4 16 8.4 C17.2 6.4 19.2 5 21.6 5 C25 5 28 7.6 28 11.5 C28 17 23 21 16 27 Z" />
+                          <path className="ds-shine" d="M9 10.5 C9.4 9 10.6 8 12 8" />
+                        </svg>
+                      ) : (
+                        // A skull: a pale outline until the save fails, then bone with red-lit eyes.
+                        <svg viewBox="0 0 32 32" aria-hidden="true">
+                          <path className="ds-skull" d="M16 3.5 C9.6 3.5 5.5 8 5.5 13.6 C5.5 17.2 7.2 19.6 9.6 21 V25.5 H12.6 V23.4 H14.4 V26 H17.6 V23.4 H19.4 V25.5 H22.4 V21 C24.8 19.6 26.5 17.2 26.5 13.6 C26.5 8 22.4 3.5 16 3.5 Z" />
+                          <path className="ds-eye" d="M9.8 13.8 C9.8 11.8 11.6 11 13 11.8 C14.2 12.6 14 14.8 12.6 15.8 C11.2 16.6 9.8 15.6 9.8 13.8 Z M22.2 13.8 C22.2 11.8 20.4 11 19 11.8 C17.8 12.6 18 14.8 19.4 15.8 C20.8 16.6 22.2 15.6 22.2 13.8 Z" />
+                          <path className="ds-nose" d="M16 16.6 L14.8 19.2 H17.2 Z" />
+                        </svg>
+                      )}
+                    </button>
                   ))}
                 </div>
               </div>
@@ -559,8 +574,9 @@ export function PlayTab({
           ))}
         </div>
         <div className="big-actions" style={{ marginTop: 10 }}>
-          <button className="big" onClick={() => prompts.rest("short")}>
+          <button className={`big${(character.shortRests ?? 0) >= 3 ? " warn" : ""}`} onClick={() => prompts.rest("short")}>
             Short rest
+            <span className="sub">{character.shortRests ?? 0} of 3 since your long rest</span>
           </button>
           <button className="big" onClick={() => prompts.rest("long")}>
             Long rest

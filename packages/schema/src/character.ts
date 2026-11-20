@@ -807,6 +807,8 @@ export const Character = z
     creatureType: z.string().max(40).optional(),
     /** Healer feat: creatures patched up with a healer's kit since the last rest (once each per rest). */
     healerUsed: z.array(z.string()).default([]),
+    /** Short rests since the last long rest (the table allows 3: a fourth is warned, never refused). Absent: none. */
+    shortRests: z.number().int().min(0).max(99).optional(),
     pbAdjust: z.object({ bonus: z.number().int().min(0).max(10).default(0), penalty: z.number().int().min(0).max(10).default(0), note: z.string().max(80).optional() }).strict().default({ bonus: 0, penalty: 0 }),
     /** Critical hits on attack rolls from this natural d20 up, set by hand (a homebrew boon); features that widen it more still count. */
     critAdjust: z.object({ at: z.number().int().min(2).max(20), note: z.string().max(80).optional() }).strict().optional(),

@@ -16,6 +16,9 @@ const evalFlatSafe = (v: ValueExpr, ctx: Parameters<typeof evalFlat>[1]): number
   }
 };
 
+/** Short rests allowed between long rests (the table's rule). */
+export const SHORT_RESTS = 3;
+
 /** Something the player should do next, e.g. roll a concentration check. */
 /** A follow-up the app should open: a concentration save (yours, or a summoned creature's when `summon` is set). */
 /** A question for the player: a concentration save, or news of instant death (`reason`). */
@@ -1287,6 +1290,12 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
 
     case "rest": {
       const kind = op.payload.kind;
+      // The table's limit: 3 short rests between long rests. A fourth is warned, never refused.
+      if (kind === "short") {
+        const n = (c.shortRests ?? 0) + 1;
+        if (n > SHORT_RESTS) notes.push(`⚠ Short rest ${n} since your last long rest: the table allows ${SHORT_RESTS}. Done anyway.`);
+        c.shortRests = n;
+      } else delete c.shortRests;
       passMinutes(kind === "short" ? 60 : 480);
       // Penalties that last until a rest (a shadow's Strength drain) end.
       for (const [ab, adj] of Object.entries(c.abilityAdjust)) {
