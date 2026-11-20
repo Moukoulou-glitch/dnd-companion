@@ -73,9 +73,15 @@ export function EffectChips({
 }
 
 /** One active effect: what it does, what to remember, its rounds or level, and Remove. */
-export function EffectPanel({ e, act, close, onRelease }: { e: EffectResult; act: Act; close: () => void; onRelease?: () => void }) {
+export function EffectPanel({ e, act, close, onRelease, onTurn }: { e: EffectResult; act: Act; close: () => void; onRelease?: () => void; onTurn?: () => void }) {
   return (
     <>
+      {e.turn && onTurn && (
+        <button className="big primary wide" style={{ marginBottom: 10 }} onClick={onTurn}>
+          {e.turn.when === "caster" ? `It burns you: ${e.turn.damage?.dice ?? ""} ${e.turn.damage?.type ?? ""}` : e.turn.save ? `Its ${e.turn.when === "start" ? "start" : "end"}-of-turn ${e.turn.save.check ? "check" : "save"} now` : `Its ${e.turn.when === "start" ? "start" : "end"}-of-turn damage now`}
+          <span className="sub">{e.turn.when === "caster" ? "when the caster uses it" : "also asked when your turn " + (e.turn.when === "start" ? "starts" : "ends") + " in combat"}</span>
+        </button>
+      )}
       {e.from && <p className="row-sub">From {e.from}</p>}
       {onRelease && (
         <>

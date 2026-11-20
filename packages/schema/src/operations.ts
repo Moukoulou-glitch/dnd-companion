@@ -297,6 +297,8 @@ export const OPERATION_PAYLOADS = {
       castLevel: z.number().int().min(1).max(9).optional(),
       /** How many are left of what it counts (Mirror Image's duplicates). */
       count: z.number().int().min(0).optional(),
+      /** The caster's save DC for its turn reminder (0 forgets it). */
+      dc: z.number().int().min(0).max(40).optional(),
       /** A custom effect's exhaustion levels, or a disease's own (Aleriasa); 0 takes them away. */
       exhaustion: z.number().int().min(0).max(6).optional(),
     })

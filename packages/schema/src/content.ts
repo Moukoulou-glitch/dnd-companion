@@ -417,6 +417,45 @@ export const EffectDef = z
     ends: z.record(z.string(), z.string()).optional(),
     /** Cast at a higher level: modifiers may use "slotLevel" (Aid: 5*slotLevel - 5). */
     upcast: z.object({ baseLevel: z.number().int().min(1).max(9) }).strict().optional(),
+    /**
+     * What it asks of you on your turn (Hold Person: a Wisdom save at the end of each of your turns ends it; Searing Smite:
+     * a Constitution save at the start, 1d6 fire on a failure; Caustic Brew: 2d4 acid at the start). "caster": when the
+     * caster says so (Heat Metal's bonus action), a button on its card. `choices`: only for those picks (Eyebite: Sickened).
+     * The app reminds, rolls and applies when you tell it; the caster's DC is typed once and kept on the tag.
+     */
+    turn: z
+      .object({
+        when: z.enum(["start", "end", "caster"]),
+        save: z
+          .object({
+            ability: Ability,
+            /** A success ends it (otherwise the note says what follows: Contagion's three successes). */
+            ends: z.boolean().optional(),
+            /** An ability check instead of a save. */
+            check: z.boolean().optional(),
+            note: z.string().optional(),
+          })
+          .strict()
+          .optional(),
+        damage: z
+          .object({
+            dice: z.string(),
+            type: z.string(),
+            /** Only on a failed save (Phantasmal Killer); otherwise every time (half on a success when `half`). */
+            onFail: z.boolean().optional(),
+            half: z.boolean().optional(),
+            /** More dice per spell level above `base` (Caustic Brew: 2d4 more a level). */
+            upcast: z.object({ base: z.number().int().min(1).max(9), add: z.string() }).strict().optional(),
+            note: z.string().optional(),
+          })
+          .strict()
+          .optional(),
+        choices: z.array(z.string()).optional(),
+        /** Only once, then it ends (Melf's Acid Arrow: the end of your next turn). */
+        once: z.boolean().optional(),
+      })
+      .strict()
+      .optional(),
     /** What each level does (Exhaustion), shown on its card. */
     levelNotes: z.array(z.string()).optional(),
     /**

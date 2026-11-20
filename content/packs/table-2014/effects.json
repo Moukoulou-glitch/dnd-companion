@@ -638,7 +638,14 @@
       "reminders": [
         "No reactions. An action or a bonus action on your turn, not both. At most one attack.",
         "Spells with a casting time of 1 action may be delayed (d20 of 11+ to cast now)."
-      ]
+      ],
+      "turn": {
+        "when": "end",
+        "save": {
+          "ability": "wis",
+          "ends": true
+        }
+      }
     },
     {
       "kind": "effect",
@@ -902,7 +909,14 @@
       "concentration": true,
       "reminders": [
         "Wisdom save at the end of each of your turns ends it."
-      ]
+      ],
+      "turn": {
+        "when": "end",
+        "save": {
+          "ability": "wis",
+          "ends": true
+        }
+      }
     },
     {
       "kind": "effect",
@@ -1349,7 +1363,14 @@
       "reminders": [
         "Wisdom save at the end of each of your turns ends it."
       ],
-      "rounds": 10
+      "rounds": 10,
+      "turn": {
+        "when": "end",
+        "save": {
+          "ability": "wis",
+          "ends": true
+        }
+      }
     },
     {
       "kind": "effect",
@@ -1371,7 +1392,15 @@
         "Drop what you're holding. On your turn, Dash away from the caster by the safest route.",
         "Wisdom save at the end of a turn where you end out of the caster's sight ends it."
       ],
-      "rounds": 10
+      "rounds": 10,
+      "turn": {
+        "when": "end",
+        "save": {
+          "ability": "wis",
+          "ends": true,
+          "note": "Only if you end the turn where you can't see the caster."
+        }
+      }
     },
     {
       "kind": "effect",
@@ -1393,7 +1422,15 @@
       "reminders": [
         "Wisdom save at the end of each of your turns (advantage if it was triggered by damage) ends it."
       ],
-      "rounds": 10
+      "rounds": 10,
+      "turn": {
+        "when": "end",
+        "save": {
+          "ability": "wis",
+          "ends": true,
+          "note": "With advantage if damage triggered it."
+        }
+      }
     },
     {
       "kind": "effect",
@@ -1414,7 +1451,14 @@
       "reminders": [
         "Wisdom save at the end of each of your turns ends it."
       ],
-      "rounds": 10
+      "rounds": 10,
+      "turn": {
+        "when": "end",
+        "save": {
+          "ability": "wis",
+          "ends": true
+        }
+      }
     },
     {
       "kind": "effect",
@@ -1539,7 +1583,18 @@
         "At the start of each of your turns you take 1d6 piercing damage.",
         "Use your action for a Strength check against the caster's DC to break free."
       ],
-      "rounds": 10
+      "rounds": 10,
+      "turn": {
+        "when": "start",
+        "damage": {
+          "dice": "1d6",
+          "type": "piercing",
+          "upcast": {
+            "base": 1,
+            "add": "1d6"
+          }
+        }
+      }
     },
     {
       "kind": "effect",
@@ -4224,7 +4279,14 @@
       },
       "reminders": [
         "At the end of each of your turns, a Constitution save: a success ends it."
-      ]
+      ],
+      "turn": {
+        "when": "end",
+        "save": {
+          "ability": "con",
+          "ends": true
+        }
+      }
     },
     {
       "kind": "effect",
@@ -6395,7 +6457,17 @@
         "Seizure: disadvantage on Dexterity checks, saves and attack rolls that use Dexterity.",
         "Slimy Doom: disadvantage on Constitution checks and saves; whenever you take damage, you're stunned until the end of your next turn.",
         "A natural disease: anything that cures disease (Lesser Restoration, Lay on Hands) ends it."
-      ]
+      ],
+      "turn": {
+        "when": "end",
+        "save": {
+          "ability": "con",
+          "note": "Count them: three successes end it; three failures, change its stage to the disease the caster picks."
+        },
+        "choices": [
+          "Poisoned (saving)"
+        ]
+      }
     },
     {
       "kind": "effect",
@@ -6479,6 +6551,518 @@
       },
       "reminders": [
         "Can't be affected by Catnap again until you finish a long rest."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "effect:crown-of-madness",
+      "name": "Crown of Madness",
+      "category": "spell",
+      "summary": "Charmed by the caster, who picks who you attack in melee at the start of your turns (or you act normally if there's no one).",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 229
+      },
+      "modifiers": [],
+      "turn": {
+        "when": "end",
+        "save": {
+          "ability": "wis",
+          "ends": true
+        }
+      },
+      "rounds": 10,
+      "includes": [
+        "condition:charmed"
+      ],
+      "reminders": [
+        "Before moving on your turn: a melee attack against a creature the caster picks, if there is one within reach."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "effect:eyebite",
+      "name": "Eyebite",
+      "category": "spell",
+      "summary": "The caster's gaze: asleep (wakes on damage or being shaken), panicked (frightened, you Dash away), or sickened (disadvantage on attacks and ability checks).",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 238
+      },
+      "modifiers": [
+        {
+          "selector": "roll.attack.*",
+          "op": "disadvantage",
+          "mode": "auto",
+          "label": "Eyebite (sickened)",
+          "when": {
+            "choice": "Sickened"
+          }
+        },
+        {
+          "selector": "roll.check.*",
+          "op": "disadvantage",
+          "mode": "auto",
+          "label": "Eyebite (sickened)",
+          "when": {
+            "choice": "Sickened"
+          }
+        }
+      ],
+      "turn": {
+        "when": "end",
+        "save": {
+          "ability": "wis",
+          "ends": true
+        },
+        "choices": [
+          "Sickened"
+        ]
+      },
+      "rounds": 10,
+      "choice": {
+        "label": "Which?",
+        "options": [
+          "Asleep",
+          "Panicked",
+          "Sickened"
+        ]
+      },
+      "includesByChoice": {
+        "Asleep": [
+          "condition:unconscious"
+        ],
+        "Panicked": [
+          "condition:frightened"
+        ]
+      },
+      "reminders": [
+        "Asleep: damage, or someone using an action to shake you, wakes you.",
+        "Panicked: on each of your turns, Dash away from the caster; a Wisdom save at the end of a turn out of its sight ends it."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "effect:psychic-scream",
+      "name": "Psychic Scream",
+      "category": "spell",
+      "summary": "Stunned by a psychic blast.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 163
+      },
+      "modifiers": [],
+      "turn": {
+        "when": "end",
+        "save": {
+          "ability": "int",
+          "ends": true
+        }
+      },
+      "includes": [
+        "condition:stunned"
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "effect:phantasmal-force",
+      "name": "Phantasmal Force",
+      "category": "spell",
+      "summary": "An illusion only you perceive, real to you.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 264
+      },
+      "modifiers": [],
+      "turn": {
+        "when": "start",
+        "damage": {
+          "dice": "1d6",
+          "type": "psychic",
+          "note": "Only if you're in it or within 5 ft of it, and it could plausibly hurt you."
+        }
+      },
+      "rounds": 10,
+      "reminders": [
+        "An action: an Intelligence (Investigation) check against the caster's DC to see through it and end it."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "effect:phantasmal-killer",
+      "name": "Phantasmal Killer",
+      "category": "spell",
+      "summary": "Your deepest fear made visible to you alone: frightened.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 265
+      },
+      "modifiers": [],
+      "turn": {
+        "when": "end",
+        "save": {
+          "ability": "wis",
+          "ends": true
+        },
+        "damage": {
+          "dice": "4d10",
+          "type": "psychic",
+          "onFail": true,
+          "upcast": {
+            "base": 4,
+            "add": "1d10"
+          }
+        }
+      },
+      "rounds": 10,
+      "includes": [
+        "condition:frightened"
+      ],
+      "upcast": {
+        "baseLevel": 4
+      }
+    },
+    {
+      "kind": "effect",
+      "id": "effect:flesh-to-stone",
+      "name": "Flesh to Stone",
+      "category": "spell",
+      "summary": "Your flesh hardens: restrained, turning to stone.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 243
+      },
+      "modifiers": [],
+      "turn": {
+        "when": "end",
+        "save": {
+          "ability": "con",
+          "note": "Count them: three successes end it; three failures and you're petrified (for good if the caster concentrates the full minute)."
+        }
+      },
+      "rounds": 10,
+      "includes": [
+        "condition:restrained"
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "effect:searing-smite-burning",
+      "name": "Searing Smite (burning)",
+      "category": "spell",
+      "summary": "Burning from a searing smite: at the start of each of your turns a Constitution save, or 1d6 fire; a success ends it. An action to douse the flames ends it too.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 274
+      },
+      "modifiers": [],
+      "turn": {
+        "when": "start",
+        "save": {
+          "ability": "con",
+          "ends": true
+        },
+        "damage": {
+          "dice": "1d6",
+          "type": "fire",
+          "onFail": true
+        }
+      },
+      "rounds": 10
+    },
+    {
+      "kind": "effect",
+      "id": "effect:tashas-caustic-brew",
+      "name": "Tasha's Caustic Brew",
+      "category": "spell",
+      "summary": "Covered in acid: damage at the start of each of your turns until it's scraped off.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 108
+      },
+      "modifiers": [],
+      "turn": {
+        "when": "start",
+        "damage": {
+          "dice": "2d4",
+          "type": "acid",
+          "upcast": {
+            "base": 1,
+            "add": "2d4"
+          }
+        }
+      },
+      "rounds": 10,
+      "upcast": {
+        "baseLevel": 1
+      },
+      "reminders": [
+        "An action (yours, or someone's within 5 ft) scrapes it off and ends it."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "effect:heat-metal",
+      "name": "Heat Metal",
+      "category": "spell",
+      "summary": "A metal object on you glows red-hot.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 250
+      },
+      "modifiers": [],
+      "turn": {
+        "when": "caster",
+        "damage": {
+          "dice": "2d8",
+          "type": "fire",
+          "upcast": {
+            "base": 2,
+            "add": "1d8"
+          },
+          "note": "When the caster uses its bonus action (and when cast)."
+        }
+      },
+      "rounds": 10,
+      "upcast": {
+        "baseLevel": 2
+      },
+      "reminders": [
+        "Each time it burns you: a Constitution save or drop the object if you can. Holding or wearing it, you have disadvantage on attack rolls and ability checks until the start of the caster's next turn."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "effect:immolation",
+      "name": "Immolation",
+      "category": "spell",
+      "summary": "Wreathed in flames: you shed bright light; the fire can't be put out by ordinary means.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 158
+      },
+      "modifiers": [],
+      "turn": {
+        "when": "end",
+        "save": {
+          "ability": "dex",
+          "ends": true
+        },
+        "damage": {
+          "dice": "4d6",
+          "type": "fire",
+          "onFail": true
+        }
+      },
+      "rounds": 10,
+      "reminders": [
+        "If it kills you, you're turned to ash."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "effect:blinding-smite-blinded",
+      "name": "Blinding Smite (blinded)",
+      "category": "spell",
+      "summary": "Blinded by a blinding smite.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 219
+      },
+      "modifiers": [],
+      "turn": {
+        "when": "end",
+        "save": {
+          "ability": "con",
+          "ends": true
+        }
+      },
+      "rounds": 10,
+      "includes": [
+        "condition:blinded"
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "effect:power-word-stun",
+      "name": "Power Word Stun",
+      "category": "spell",
+      "summary": "Stunned by a word of power.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 267
+      },
+      "modifiers": [],
+      "turn": {
+        "when": "end",
+        "save": {
+          "ability": "con",
+          "ends": true
+        }
+      },
+      "includes": [
+        "condition:stunned"
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "effect:confusion",
+      "name": "Confusion",
+      "category": "spell",
+      "summary": "Your mind reels: at the start of each of your turns, roll a d10 for what you do (1: move randomly; 2–6: nothing; 7–8: attack a random creature in reach; 9–10: act normally). No reactions.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 224
+      },
+      "modifiers": [],
+      "turn": {
+        "when": "end",
+        "save": {
+          "ability": "wis",
+          "ends": true
+        }
+      },
+      "rounds": 10,
+      "reminders": [
+        "d10 at the start of your turn: 1 move in a random direction (no action); 2–6 do nothing; 7–8 melee a random creature within reach; 9–10 act and move normally."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "effect:synaptic-static",
+      "name": "Synaptic Static",
+      "category": "spell",
+      "summary": "Muddled thoughts: subtract a d6 from your attack rolls, ability checks and concentration saves.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 167
+      },
+      "modifiers": [
+        {
+          "selector": "roll.attack.*",
+          "op": "add",
+          "value": "-1d6",
+          "mode": "auto",
+          "label": "Synaptic Static"
+        },
+        {
+          "selector": "roll.check.*",
+          "op": "add",
+          "value": "-1d6",
+          "mode": "auto",
+          "label": "Synaptic Static"
+        }
+      ],
+      "turn": {
+        "when": "end",
+        "save": {
+          "ability": "int",
+          "ends": true
+        }
+      },
+      "minutes": 1,
+      "reminders": [
+        "Also subtract a d6 from Constitution saves to keep concentration."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "effect:melfs-acid-arrow",
+      "name": "Acid Arrow",
+      "category": "spell",
+      "summary": "Acid clings to you: more damage at the end of your next turn.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 259
+      },
+      "modifiers": [],
+      "turn": {
+        "when": "end",
+        "damage": {
+          "dice": "2d4",
+          "type": "acid",
+          "upcast": {
+            "base": 2,
+            "add": "1d4"
+          }
+        },
+        "once": true
+      },
+      "rounds": 2,
+      "upcast": {
+        "baseLevel": 2
+      }
+    },
+    {
+      "kind": "effect",
+      "id": "effect:vitriolic-sphere",
+      "name": "Vitriolic Sphere",
+      "category": "spell",
+      "summary": "Acid splashed on you: more damage at the end of your next turn.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 170
+      },
+      "modifiers": [],
+      "turn": {
+        "when": "end",
+        "damage": {
+          "dice": "5d4",
+          "type": "acid",
+          "upcast": {
+            "base": 4,
+            "add": "2d4"
+          }
+        },
+        "once": true
+      },
+      "rounds": 2,
+      "upcast": {
+        "baseLevel": 4
+      }
+    },
+    {
+      "kind": "effect",
+      "id": "effect:hunger-of-hadar",
+      "name": "Hunger of Hadar",
+      "category": "spell",
+      "summary": "Inside a sphere of freezing darkness: blinded while in it.",
+      "source": {
+        "pack": "table-2014",
+        "book": "PHB",
+        "page": 251
+      },
+      "modifiers": [],
+      "turn": {
+        "when": "start",
+        "damage": {
+          "dice": "2d6",
+          "type": "cold",
+          "note": "While you're inside the sphere."
+        }
+      },
+      "rounds": 10,
+      "includes": [
+        "condition:blinded"
+      ],
+      "reminders": [
+        "Ending your turn inside: a Dexterity save or 2d6 acid damage."
       ]
     }
   ]

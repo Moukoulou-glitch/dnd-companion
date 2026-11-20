@@ -285,6 +285,20 @@ export function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Effects that ask something on your turn (Hold Person's save at its end, Caustic Brew's acid at its start): a reminder.
+  const turnEffects = useRef<((when: "start" | "end") => void) | undefined>(undefined);
+  useEffect(() => {
+    const h = (e: Event) => {
+      const d = (e as CustomEvent<{ type: string }>).detail;
+      if (d.type !== "endTurn" && d.type !== "startTurn") return;
+      const when = d.type === "endTurn" ? "end" : "start";
+      setTimeout(() => turnEffects.current?.(when), 30);
+    };
+    window.addEventListener("dnd-op", h);
+    return () => window.removeEventListener("dnd-op", h);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Twilight Sanctuary: your turn ends in your own sphere: temporary HP, or end a charm or a fright on you.
   const twilightTurn = useRef<(() => void) | undefined>(undefined);
   useEffect(() => {
@@ -765,6 +779,141 @@ export function App() {
 
   /** Twilight Sanctuary at the end of your turn: 1d6 + cleric level temporary HP, or end one charm or fright on you. */
   twilightTurn.current = () => openTwilightTurn();
+  turnEffects.current = (when) => {
+    const due = (live.current.sheet?.effects ?? []).filter((x) => x.turn && x.turn.when === when);
+    if (due.length) openTurnEffects(when, due.map((x) => x.instanceId), true);
+  };
+
+  /** Roll an effect's damage to you (yours or the app's dice), then take it. `half`: halved (a save made). */
+  const effectDamage = (name: string, dice: string, type: string, half: boolean, then: () => void) => {
+    const take = (n: number) => {
+      const amount = half ? Math.floor(n / 2) : n;
+      takeDamage(amount, type, true, true);
+      live.current.setToast({ id: Date.now(), text: `${name}: ${amount} ${type} damage${half ? ` (half of ${n})` : ""}.`, canUndo: false });
+      then();
+    };
+    if (live.current.character?.settings.physicalDice ?? true)
+      return push(`${name}: ${dice} ${type}`, () => (
+        <>
+          <p className="note">Roll {dice} and enter the total{half ? " (it's halved)" : ""}.</p>
+          <TotalPad onDone={(n) => {
+            close();
+            take(n);
+          }} />
+        </>
+      ));
+    void rollOrThrow(dice, true, `${name}: ${type}`).then((r) => take(r.total));
+  };
+
+  /**
+   * What effects on you ask on your turn: a save (with the caster's DC, typed once and kept) that ends them or decides
+   * their damage, damage to take, or both. Each is rolled, skipped, or ended by hand; done ones drop off the list.
+   */
+  function openTurnEffects(when: "start" | "end" | "caster", ids: string[], stack = false) {
+    const show = stack ? push : open;
+    show(when === "start" ? "Start of your turn" : when === "end" ? "End of your turn" : "Effect", () => {
+      const list = (live.current.sheet?.effects ?? []).filter((x) => ids.includes(x.instanceId) && x.turn);
+      if (!list.length) return <p className="note">Nothing more to do.</p>;
+      const left = (id: string) => ids.filter((x) => x !== id);
+      const reopen = (id: string) => {
+        close();
+        const rest = left(id).filter((x) => live.current.sheet?.effects.some((y) => y.instanceId === x));
+        if (rest.length) openTurnEffects(when, rest, true);
+      };
+      return (
+        <>
+          {list.map((x) => {
+            const t = x.turn!;
+            const ab = t.save?.ability;
+            const ended = () => {
+              live.current.act("removeEffect", { instanceId: x.instanceId }, `${x.name} ends.`);
+            };
+            const afterDamage = () => {
+              if (t.once) ended();
+              reopen(x.instanceId);
+            };
+            const decide = (saved: boolean) => {
+              if (saved && t.save?.ends) ended();
+              else if (t.save && !t.damage) live.current.setToast({ id: Date.now(), text: `${x.name}: ${saved ? "it succeeded" : "it failed"}${t.save.ends ? ", it goes on" : ""}.`, canUndo: false });
+              if (t.damage && (!saved || (!t.damage.onFail && !t.save?.ends) || t.damage.half)) {
+                if (saved && t.damage.onFail) return reopen(x.instanceId);
+                return effectDamage(x.name, t.damage.dice, t.damage.type, saved && !!t.damage.half, () => reopen(x.instanceId));
+              }
+              reopen(x.instanceId);
+            };
+            const rollSave = () => {
+              if (!ab) return;
+              const base = t.save?.check ? live.current.sheet!.abilityChecks?.[ab] : live.current.sheet!.saves[ab];
+              if (!base) return;
+              openRoll(`${x.name}: ${ABILITY_NAMES[ab]} ${t.save?.check ? "check" : "save"}`, base, undefined, {
+                ...(x.turn?.dc ? { dc: x.turn.dc } : {}),
+                onTotal: (n) => {
+                  const dc = live.current.sheet?.effects.find((y) => y.instanceId === x.instanceId)?.turn?.dc;
+                  // With the DC known the app decides; without it, the player says.
+                  setTimeout(() => {
+                    if (dc) decide(n >= dc);
+                    else
+                      push(x.name, () => (
+                        <Choose
+                          question={`${n}: did it succeed?`}
+                          options={[
+                            { label: "Yes, it succeeded", onPick: () => (close(), decide(true)) },
+                            { label: "No, it failed", onPick: () => (close(), decide(false)) },
+                          ]}
+                        />
+                      ));
+                  }, 1200);
+                },
+              });
+            };
+            return (
+              <div className="group turn-effect" key={x.instanceId}>
+                <div className="row">
+                  <div className="row-main">
+                    <div className="row-title">{x.name}</div>
+                    <div className="row-sub">
+                      {[
+                        t.save ? `${ABILITY_NAMES[t.save.ability]} ${t.save.check ? "check" : "save"}${t.save.ends ? ": a success ends it" : ""}` : "",
+                        t.damage ? `${t.damage.dice} ${t.damage.type}${t.damage.onFail ? " on a failure" : t.damage.half ? ", half on a success" : ""}` : "",
+                        t.save?.note ?? "",
+                        t.damage?.note ?? "",
+                      ]
+                        .filter(Boolean)
+                        .join(". ")}
+                    </div>
+                  </div>
+                </div>
+                {t.save && (
+                  <NumberStep
+                    label="The caster's DC"
+                    sub={x.turn?.dc ? "kept on the tag" : "type it once; it's kept"}
+                    value={x.turn?.dc ?? 0}
+                    min={0}
+                    max={40}
+                    onChange={(n) => live.current.act("updateEffect", { instanceId: x.instanceId, dc: n }, n ? `${x.name}: DC ${n}.` : `${x.name}: DC forgotten.`)}
+                  />
+                )}
+                <div className="confirm" style={{ padding: 8 }}>
+                  {t.save ? (
+                    <button className="big primary" onClick={rollSave}>
+                      Roll the {t.save.check ? "check" : "save"}
+                    </button>
+                  ) : t.damage ? (
+                    <button className="big primary" onClick={() => effectDamage(x.name, t.damage!.dice, t.damage!.type, false, afterDamage)}>
+                      Take {t.damage.dice} {t.damage.type}
+                    </button>
+                  ) : null}
+                  <button className="big" onClick={() => reopen(x.instanceId)}>
+                    Not this time
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </>
+      );
+    });
+  }
   function openTwilightTurn() {
     const a = live.current.sheet?.actions.find((x) => x.id === "twilight-sanctuary-turn");
     open("Twilight Sanctuary", () => {
@@ -3506,7 +3655,7 @@ export function App() {
               <span className="sub">{attackAction.economy === "bonus" ? "your bonus action" : attackAction.economy}: roll the attack and damage</span>
             </button>
           )}
-          <EffectPanel e={current} act={live.current.act} close={close} {...(release ? { onRelease: release } : {})} />
+          <EffectPanel e={current} act={live.current.act} close={close} {...(release ? { onRelease: release } : {})} {...(current.turn ? { onTurn: () => openTurnEffects(current.turn!.when, [current.instanceId]) } : {})} />
         </>
       );
     });

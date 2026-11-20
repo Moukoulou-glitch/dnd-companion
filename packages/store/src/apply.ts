@@ -2384,6 +2384,10 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       }
       if (level !== undefined) e.level = level;
       if (choice !== undefined) e.choice = choice;
+      if (op.payload.dc !== undefined) {
+        if (op.payload.dc > 0) e.dc = op.payload.dc;
+        else delete e.dc;
+      }
       if (op.payload.exhaustion !== undefined && e.custom) {
         if (op.payload.exhaustion > 0) e.custom.exhaustion = op.payload.exhaustion;
         else delete e.custom.exhaustion;

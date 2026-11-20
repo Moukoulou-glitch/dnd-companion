@@ -412,6 +412,14 @@ export interface EffectResult {
   includes: { id: string; name: string }[];
   /** A disease (a custom one tagged so, or Contagion): what cures diseases ends it. */
   disease?: boolean;
+  /** What it asks on your turn (a save, damage), its dice worked out at the cast level, and the caster's DC if typed. */
+  turn?: {
+    when: "start" | "end" | "caster";
+    save?: { ability: Ability; ends?: boolean; check?: boolean; note?: string };
+    damage?: { dice: string; type: string; onFail?: boolean; half?: boolean; note?: string };
+    dc?: number;
+    once?: boolean;
+  };
   /** A button that gives a rest when its time is up (Catnap). */
   restAfter?: { kind: "short" | "long"; minutes: number; label: string };
   /** A custom effect's exhaustion levels, or a disease's own (they add to your own). */
@@ -2544,6 +2552,22 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       r = { ...base, id: def.id, name: def.name, category: def.category, concentration: def.concentration, reminders };
       if (def.disease) r.disease = true;
       if (def.restAfter) r.restAfter = def.restAfter;
+      // Its turn reminder: only for the picks it's for (Eyebite: Sickened), dice at the cast level (Caustic Brew at 3rd: 6d4).
+      if (def.turn && (!def.turn.choices || (e.choice && def.turn.choices.includes(e.choice)))) {
+        const t = def.turn;
+        r.turn = { when: t.when, ...(t.save ? { save: t.save } : {}), ...(e.dc ? { dc: e.dc } : {}), ...(t.once ? { once: true } : {}) };
+        if (t.damage) {
+          let dice = t.damage.dice;
+          const up = t.damage.upcast;
+          const lvl = e.castLevel ?? def.upcast?.baseLevel;
+          if (up && lvl && lvl > up.base) {
+            const m = /^(\d+)d(\d+)$/.exec(dice);
+            const a = /^(\d+)d(\d+)$/.exec(up.add);
+            if (m && a && m[2] === a[2]) dice = `${Number(m[1]) + Number(a[1]) * (lvl - up.base)}d${m[2]}`;
+          }
+          r.turn.damage = { dice, type: t.damage.type, ...(t.damage.onFail ? { onFail: true } : {}), ...(t.damage.half ? { half: true } : {}), ...(t.damage.note ? { note: t.damage.note } : {}) };
+        }
+      }
       const quiet = !!def.resistsCures && !sources.some((s) => s.effectInstanceId === e.id);
       if (def.givesExhaustion) {
         r.exhaustion = e.exhaustion ?? 0;
