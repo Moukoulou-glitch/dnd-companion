@@ -5005,6 +5005,17 @@ function LeftEntry({ name, left, max, onSave }: { name: string; left: number; ma
       <div className="group">
         <NumberStep label={`${name} left`} sub={`of ${max}`} value={n} min={0} max={max} onChange={setN} />
       </div>
+      {/* Bigger pools (Lay on Hands, Sorcery Points, Ki): five at a time too. */}
+      {max >= 10 && (
+        <div className="big-actions step5" style={{ marginTop: 8 }}>
+          <button className="big" disabled={n <= 0} onClick={() => setN(Math.max(0, n - 5))}>
+            −5
+          </button>
+          <button className="big" disabled={n >= max} onClick={() => setN(Math.min(max, n + 5))}>
+            +5
+          </button>
+        </div>
+      )}
       <button className="big primary wide" style={{ marginTop: 10 }} disabled={n === left} onClick={() => onSave(n)}>
         {n === left ? `${left} of ${max} left` : `Set to ${n} of ${max}`}
       </button>
