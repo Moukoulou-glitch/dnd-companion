@@ -5149,7 +5149,7 @@ function FlaskTrap({ reg, holding, onPick }: { reg: typeof registry; holding?: s
 function LongRestPanel({ hours, why, tooSoon, onCancel, onRest }: { hours: number; why?: string; tooSoon: boolean; onCancel: () => void; onRest: (minutes: number, addDay: boolean) => void }) {
   const [h, setH] = useState<number | "other">(hours);
   const [other, setOther] = useState("");
-  const [addDay, setAddDay] = useState(false);
+  const [addDay, setAddDay] = useState(true);
   const chosen = h === "other" ? Number(other) : h;
   return (
     <>
