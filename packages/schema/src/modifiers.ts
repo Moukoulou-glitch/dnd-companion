@@ -510,7 +510,8 @@ export const ActionDef = z
      * Spends as many points of its cost's resource as the player says (Lay on
      * Hands), healing that much when `heals`; the panel asks for the number.
      */
-    spendAmount: z.object({ label: z.string(), heals: z.boolean().optional(), tempHp: z.boolean().optional() }).strict().optional(),
+    /** `cures`: instead of healing, points per poison or disease ended on the target (Lay on Hands: 5 each). */
+    spendAmount: z.object({ label: z.string(), heals: z.boolean().optional(), tempHp: z.boolean().optional(), cures: z.object({ each: z.number().int().min(1), label: z.string() }).strict().optional() }).strict().optional(),
     /** Its toggles last only while you have temporary hit points (Blackrazor's devoured soul): they switch off when those run out. */
     whileTempHp: z.boolean().optional(),
     /** Spends this many of its item's charges (Ring of the Great Pine Cone's Whisperer of the Elements: 5). */

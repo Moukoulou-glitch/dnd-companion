@@ -91,3 +91,16 @@ describe("23x: several Hit Dice at once, and uses set by hand", () => {
     expect(derive(l.character, reg).resources.find((r) => r.id === "lay-on-hands")!.remaining).toBe(13);
   });
 });
+
+describe("24a: Lay on Hands' cure", () => {
+  it("spends 5 points a poison or disease and heals nothing", () => {
+    const c = newCharacter({ id: "lc", name: "Lc", race: "race:human", class: "class:paladin", abilities: { str: 14, dex: 12, con: 14, int: 10, wis: 10, cha: 14 } }, reg);
+    c.classes = [{ class: "class:paladin", level: 3 }];
+    c.hp.current = 10;
+    const l = new CharacterLog(c, reg, new HybridClock("t", () => (t += 1000)), "player");
+    expect(derive(l.character, reg).actions.find((a) => a.id === "lay-on-hands")!.spendAmount?.cures).toEqual({ each: 5, label: "Cure a disease or neutralize a poison" });
+    l.record("useAction", { action: "lay-on-hands", amount: 10, healSelf: false, onMe: true });
+    expect(l.character.hp.current).toBe(10);
+    expect(derive(l.character, reg).resources.find((r) => r.id === "lay-on-hands")!.remaining).toBe(5);
+  });
+});

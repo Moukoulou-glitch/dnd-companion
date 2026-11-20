@@ -292,7 +292,7 @@ export interface ActionResult {
   extraAction?: boolean;
   /** Its own extra action once per turn (Haste), not your action. */
   limited?: boolean;
-  spendAmount?: { label: string; heals?: boolean; tempHp?: boolean };
+  spendAmount?: { label: string; heals?: boolean; tempHp?: boolean; cures?: { each: number; label: string } };
   /** Its toggles last only while you have temporary hit points (Blackrazor's devoured soul). */
   whileTempHp?: boolean;
   /** The item it comes from (its instance), when an item gives it. */

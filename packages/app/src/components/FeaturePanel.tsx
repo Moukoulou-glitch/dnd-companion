@@ -6,6 +6,7 @@ import type { ActionResult } from "@dnd/engine";
 import { facesOrRoll } from "../dice/quick";
 import { WhoRolls } from "./WhoRolls";
 import { skipThrow } from "../diceBox";
+import { NumberStep } from "./Adjust";
 
 const ECONOMY: Record<ActionResult["economy"], string> = {
   action: "Action",
@@ -35,7 +36,13 @@ export function FeaturePanel({
   onJustSpend,
   onMaxWith,
   defaultTarget,
+  curable,
+  onCure,
 }: {
+  /** What a cure could end on each target ("me", a companion's id, "summon:<id>"): its poisons and diseases. */
+  curable?: (target: string) => { key: string; name: string }[];
+  /** Cure instead of heal (Lay on Hands): the effects picked on the target, and how many more the app doesn't track. */
+  onCure?: (target: string, keys: string[], others: number) => void;
   /** Who it's for at first ("me", "other", a companion's id): the end of your own turn in Twilight Sanctuary is you. */
   defaultTarget?: string;
   /** Its damage at the maximum by an option (Destructive Wrath on Wrath of the Storm): spend what the option costs. */
@@ -69,6 +76,9 @@ export function FeaturePanel({
   const [physical, setPhysical] = useState(mine);
   const [entry, setEntry] = useState("");
   const [points, setPoints] = useState("");
+  // Lay on Hands' other use: poisons and diseases ended, 5 points each.
+  const [cureKeys, setCureKeys] = useState<string[]>([]);
+  const [cureOthers, setCureOthers] = useState(0);
   // Healing Hands and the like: on someone else unless ticked.
   const [onMe, setOnMe] = useState(defaultTarget === "me");
   // Who it goes to, when the app knows the candidates: you, a companion, a summoned creature, or someone else.
@@ -324,7 +334,47 @@ export function FeaturePanel({
             <button className="big primary wide" disabled={!Number(points)} onClick={() => useWith(undefined, false, undefined, undefined, { amount: Number(points), healSelf: target === "me" })}>
               Heal {target === "me" ? "me" : targetName} {points || ""}
             </button>
-          ) : (
+          ) : null}
+          {a.spendAmount.cures && onCure && (() => {
+            const each = a.spendAmount.cures.each;
+            const who = pickable ? target : "me";
+            const list = curable?.(who) ?? [];
+            const keys = cureKeys.filter((k) => list.some((x) => x.key === k));
+            const n = keys.length + cureOthers;
+            return (
+              <div className="cure-box">
+                <p className="sub-head">
+                  Or: {a.spendAmount.cures.label} ({each} points each)
+                </p>
+                {list.length > 0 && (
+                  <div className="group">
+                    {list.map((x) => (
+                      <label className="row check" key={x.key}>
+                        <input type="checkbox" checked={keys.includes(x.key)} onChange={() => setCureKeys((k) => (k.includes(x.key) ? k.filter((y) => y !== x.key) : [...k, x.key]))} />
+                        <div className="row-main">
+                          <div className="row-title">End {x.name}</div>
+                        </div>
+                      </label>
+                    ))}
+                  </div>
+                )}
+                <div className="group">
+                  <NumberStep
+                    label={list.length ? "Others the app doesn't track" : "Poisons or diseases to end"}
+                    sub={who === "me" ? "on you" : `on ${targetName}`}
+                    value={cureOthers}
+                    min={0}
+                    max={20}
+                    onChange={setCureOthers}
+                  />
+                </div>
+                <button className="big wide" style={{ marginTop: 8 }} disabled={!n} onClick={() => onCure(who, keys, cureOthers)}>
+                  {n ? `Cure ${n}: ${n * each} points` : "Pick what to cure"}
+                </button>
+              </div>
+            );
+          })()}
+          {pickable && a.spendAmount.heals ? null : (
           <div className="big-actions">
             {a.spendAmount.heals && (
               <button className="big primary" disabled={!Number(points)} onClick={() => useWith(undefined, false, undefined, undefined, { amount: Number(points), healSelf: true })}>

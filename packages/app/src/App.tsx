@@ -2020,6 +2020,24 @@ export function App() {
               }
             : {})}
           {...(current.others || current.gives || current.spendAmount?.heals ? { targets: featureTargets(current) } : {})}
+          {...(current.spendAmount?.cures
+            ? {
+                curable: (who: string) => curableOn(who),
+                onCure: (who: string, keys: string[], others: number) => {
+                  const n = keys.length + others;
+                  const amount = n * current.spendAmount!.cures!.each;
+                  const list = curableOn(who);
+                  const names = keys.map((k) => list.find((x) => x.key === k)?.name ?? k);
+                  guard({ name: current.name, economy: current.economy, actionId: current.id }, () => {
+                    const whoName = who === "me" ? "you" : who === "other" ? "the creature you touched" : friendlyTargets(live.current.character!, live.current.sheet!, registry).find((t) => t.id === who)?.name ?? "it";
+                    live.current.act("useAction", { action: current.id, amount, healSelf: false, onMe: who === "me" }, `${current.name}: ${amount} points to end ${[...names, ...(others ? [`${others} more`] : [])].join(", ")} on ${whoName}.`);
+                    for (const k of keys) list.find((x) => x.key === k)?.end();
+                    flashForFeature(current.id, { zenith: hasZenith(live.current.character) });
+                    close();
+                  });
+                },
+              }
+            : {})}
           {...(current.recoversSlots || current.slotHeal
             ? {
                 slots: live.current.sheet?.spellSlots ?? [],
@@ -3658,6 +3676,31 @@ export function App() {
   };
 
   /** Who a feature can go to: you, companions, summoned creatures, or someone the app doesn't track. */
+  /** What Lay on Hands' cure can end on a target: poisons (the condition, or an effect that includes it) and anything named a poison or disease. */
+  const curableOn = (who: string): { key: string; name: string; end: () => void }[] => {
+    const isCurable = (effect: string, name: string) => {
+      if (effect === "condition:poisoned") return true;
+      const def = registry.find(effect, "effect") as { includes?: string[] } | undefined;
+      return !!def?.includes?.includes("condition:poisoned") || /poison|disease|plague|fever|sickness|\brot\b|venom/i.test(name);
+    };
+    const nameOf = (e: { effect: string; custom?: { name: string } | undefined }) => e.custom?.name ?? registry.find(e.effect, "effect")?.name ?? e.effect;
+    const ch = live.current.character;
+    if (!ch) return [];
+    if (who === "me")
+      return ch.effects
+        .filter((e) => isCurable(e.effect, nameOf(e)))
+        .map((e) => ({ key: e.id, name: nameOf(e), end: () => live.current.act("removeEffect", { instanceId: e.id }, `${nameOf(e)} ends.`) }));
+    if (who.startsWith("summon:")) {
+      const m = ch.summons.find((x) => `summon:${x.id}` === who);
+      return (m?.effects ?? [])
+        .filter((e) => isCurable(e.effect, nameOf(e)))
+        .map((e) => ({ key: e.id, name: nameOf(e), end: () => live.current.act("summonEffect", { id: m!.id, effect: e.effect, instance: e.id, add: false }, `${nameOf(e)} ends.`) }));
+    }
+    const comp = ch.companions[who];
+    return (comp?.effects ?? [])
+      .filter((e) => isCurable(e.effect, nameOf(e)))
+      .map((e) => ({ key: e.id, name: nameOf(e), end: () => live.current.act("companionEffect", { companion: who, effect: e.effect, instance: e.id, add: false }, `${nameOf(e)} ends.`) }));
+  };
   const featureTargets = (a: ActionResult) => {
     const rule = ACTION_TARGETS[a.id];
     const all = friendlyTargets(live.current.character!, live.current.sheet!, registry);

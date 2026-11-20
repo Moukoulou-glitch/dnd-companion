@@ -3157,7 +3157,11 @@
             },
             "spendAmount": {
               "label": "Hit points to restore",
-              "heals": true
+              "heals": true,
+              "cures": {
+                "each": 5,
+                "label": "Cure a disease or neutralize a poison"
+              }
             },
             "note": "Touch a creature and restore hit points from your pool; 5 points cure one disease or neutralize one poison instead. Not undead or constructs."
           }
