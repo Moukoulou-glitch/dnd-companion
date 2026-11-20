@@ -7064,6 +7064,34 @@
       "reminders": [
         "Ending your turn inside: a Dexterity save or 2d6 acid damage."
       ]
+    },
+    {
+      "kind": "effect",
+      "id": "effect:blade-of-disaster",
+      "name": "Blade of Disaster",
+      "category": "spell",
+      "summary": "A rift shaped like a blade, for up to a minute. As a bonus action on each of your turns, move it up to 30 ft and make up to two melee spell attacks with it (4d12 force; a critical hit on 18–20, 12d12 in all).",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 115
+      },
+      "selfOnly": true,
+      "rounds": 10,
+      "concentration": true,
+      "modifiers": [],
+      "actions": [
+        {
+          "id": "blade-of-disaster-attack",
+          "name": "Blade of Disaster: attack",
+          "economy": "bonus",
+          "rollsSpell": "spell:blade-of-disaster",
+          "note": "Move it up to 30 ft, then up to two melee spell attacks against targets within 5 ft of it."
+        }
+      ],
+      "reminders": [
+        "Bonus action on your turn: move it up to 30 ft and attack twice again. It passes through any barrier, even a wall of force."
+      ]
     }
   ]
 }

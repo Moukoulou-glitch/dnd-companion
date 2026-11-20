@@ -772,6 +772,42 @@
         "ability": "wis",
         "onSuccess": "none"
       }
+    },
+    {
+      "kind": "spell",
+      "id": "spell:blade-of-disaster",
+      "name": "Blade of Disaster",
+      "summary": "A rift shaped like a blade appears within 60 ft for up to a minute. On casting, up to two melee spell attacks with it against targets within 5 ft of it: 4d12 force each, a critical hit on 18 or higher (12d12 in all). As a bonus action on later turns, move it up to 30 ft and attack twice again. Placeholder: your book file gives the full text.",
+      "source": {
+        "pack": "table-2014",
+        "book": "TCoE",
+        "page": 115
+      },
+      "level": 9,
+      "school": "Conjuration",
+      "castingTime": "1 bonus action",
+      "range": "60 feet",
+      "components": [
+        "V",
+        "S"
+      ],
+      "duration": "Concentration, up to 1 minute",
+      "concentration": true,
+      "ritual": false,
+      "classes": [
+        "sorcerer",
+        "warlock",
+        "wizard"
+      ],
+      "text": [],
+      "higherLevels": [],
+      "attack": "melee",
+      "damage": {
+        "type": "force",
+        "atSlot": {
+          "9": "4d12"
+        }
+      }
     }
   ]
 }

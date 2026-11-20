@@ -49,7 +49,7 @@ export function spellAsAttack(sp: SpellResult, level: number, alt = false): Weap
     ability: "int",
     proficient: true,
     attack: sp.attack ?? emptyRoll,
-    damage: { dice, type: sp.damage?.type ?? (sp.heal ? "healing" : ""), bonus: withHealBonus(sp, key, withParts(sp, key, bySlot(sp.damageBonus ?? emptyRoll, key))), onCrit: [], critExtraDice: [] },
+    damage: { dice, type: sp.damage?.type ?? (sp.heal ? "healing" : ""), bonus: withHealBonus(sp, key, withParts(sp, key, bySlot(sp.damageBonus ?? emptyRoll, key))), onCrit: [], critExtraDice: sp.crit?.extraDice ? [{ label: sp.crit.label, value: sp.crit.extraDice }] : [] },
     properties: [],
   };
   if (sp.save) {
@@ -385,13 +385,16 @@ export function SpellPanel({
     ...(sp.beams
       ? [
           [
-            sp.beams.what === "beams" ? "Beams" : "Rays",
+            sp.beams.what === "beams" ? "Beams" : sp.beams.what === "rays" ? "Rays" : "Attacks",
             sp.level === 0
               ? `${sp.beams.byLevel[0]} at your level, each its own attack roll`
-              : `${sp.beams.byLevel[sp.level]} at level ${sp.level}, +1 per slot level above`,
+              : sp.level < 9 && sp.beams.byLevel[sp.level + 1] !== sp.beams.byLevel[sp.level]
+                ? `${sp.beams.byLevel[sp.level]} at level ${sp.level}, +1 per slot level above`
+                : `${sp.beams.byLevel[sp.level]}, each its own attack roll`,
           ] as [string, string],
         ]
       : []),
+    ...(sp.crit ? [["Critical hit", `${sp.crit.at}–20 on the d20; ${sp.crit.extraDice} more dice besides the doubled ones`] as [string, string]] : []),
   ];
 
   const doCast = (level: number, using: "slot" | "pact" | "free" | "ritual" | "fast-ritual" | "none" | "extra" | "scroll" | "points" | "charges", chargeOption?: number) => {

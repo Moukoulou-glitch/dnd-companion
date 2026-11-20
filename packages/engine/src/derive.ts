@@ -180,6 +180,8 @@ export interface SpellResult {
   typeChoices?: { kind: "spell" | "transmuted" | "awakened"; label: string; options: string[]; byLevel?: Record<number, string[]>; cost?: { resource: string; amount: number } }[];
   /** Separate attacks per cast (Eldritch Blast beams by character level, Scorching Ray rays by slot). */
   beams?: { byLevel: Record<number, number>; what: string };
+  /** Its own critical range and extra dice on a critical hit, besides doubling (Blade of Disaster: 18–20, +4d12 → 12d12). */
+  crit?: { at: number; extraDice: number; label: string };
   /** Cast only to store it in an object (Thinking Stone): nothing happens now, the object holds the spell. */
   stores?: boolean;
   /** One damage roll that every dart deals (Magic Missile, as the table rules it): one dart's dice, and the darts per slot level. */
@@ -2056,6 +2058,10 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       else for (let l = def.level; l <= 9; l++) byLevel[l] = beams.bySlot!(l);
       r.beams = { byLevel, what: beams.what };
     }
+    const sc0 = SPELL_CRITS[def.id];
+    if (sc0) {
+      r.crit = { at: sc0.at, extraDice: sc0.extraDice, label: sc0.label };
+    }
     const darts = DARTS[def.id];
     if (darts) {
       const byLevel: Record<number, number> = {};
@@ -2067,6 +2073,8 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     if (sc && def.attack) {
       r.attack = roll([`roll.attack.spell.${def.attack}`, `roll.attack.spell.${def.id.replace(/^spell:/, "")}`], [pbPart(), castingPart(sc), ...statAdds(["stat.spell.attack", `stat.spell.attack.${sc.id}`]), ...(granted?.dcBonus ? [{ label: granted.dcBonus.label, value: granted.dcBonus.value }] : [])]);
       if (elvenAccuracy && sc.ability !== "str") r.attack.tripleAdvantage = "Elven Accuracy";
+      const ownCrit = SPELL_CRITS[def.id];
+      if (ownCrit) r.attack.critAt = Math.min(r.attack.critAt ?? 20, ownCrit.at);
     }
     if (sc && def.save) r.save = { ability: def.save.ability, dc: (granted?.dc ?? sc.saveDc.total) + (granted?.dcBonus?.value ?? 0), onSuccess: def.save.onSuccess };
     // Untamed Flame: the Circle spells of 1 action can be cast as a bonus action, up to a slot level.
@@ -3175,6 +3183,12 @@ const DARTS: Record<string, { dice: string; what: string; bySlot: (slot: number)
 const BEAMS: Record<string, { what: string; byCharacterLevel?: (lvl: number) => number; bySlot?: (slot: number) => number }> = {
   "spell:eldritch-blast": { what: "beams", byCharacterLevel: (l) => 1 + (l >= 5 ? 1 : 0) + (l >= 11 ? 1 : 0) + (l >= 17 ? 1 : 0) },
   "spell:scorching-ray": { what: "rays", bySlot: (s) => 3 + (s - 2) },
+  "spell:blade-of-disaster": { what: "attacks", bySlot: () => 2 },
+};
+
+/** Spells with their own critical range and extra dice on a critical hit (Blade of Disaster: 18–20, 12d12 in all). */
+const SPELL_CRITS: Record<string, { at: number; extraDice: number; label: string }> = {
+  "spell:blade-of-disaster": { at: 18, extraDice: 4, label: "Blade of Disaster" },
 };
 
 /** "Concentration, up to 1 minute" → 10 rounds; "8 hours" → 480 minutes; "Instantaneous" → nothing. */

@@ -1043,7 +1043,7 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
         {stage.crit && (
           <p className="note">
             Critical hit: every damage die is rolled twice
-            {attack!.damage.critExtraDice.length ? `, plus ${attack!.damage.critExtraDice.map((p) => `${p.value} more weapon ${p.value === 1 ? "die" : "dice"} (${p.label})`).join(", ")}` : ""}
+            {attack!.damage.critExtraDice.length ? `, plus ${attack!.damage.critExtraDice.map((p) => `${p.value} more ${attack!.properties.length ? "weapon " : ""}${p.value === 1 ? "die" : "dice"} (${p.label})`).join(", ")}` : ""}
             {stage.twenty && attack!.damage.onCrit.length ? `; ${attack!.damage.onCrit.map((p) => `${p.label} +${p.value}${p.damageType ? ` ${p.damageType}` : ""}`).join(", ")}` : ""}.
             {stage.twenty && attack!.damage.critRiders?.some((r) => r.d20) ? ` Then ${attack!.damage.critRiders.filter((r) => r.d20).map((r) => r.label).join(", ")}: another d20, after the damage.` : ""}
           </p>
