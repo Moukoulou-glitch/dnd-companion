@@ -6222,6 +6222,177 @@
         "book": "SRD 5.1"
       },
       "modifiers": []
+    },
+    {
+      "kind": "effect",
+      "id": "effect:contagion",
+      "name": "Contagion",
+      "category": "spell",
+      "disease": true,
+      "summary": "A touch of disease. First you're poisoned and make a Constitution save at the end of each of your turns: three successes end it; three failures and you have the disease the caster picks for the rest of the 7 days. Pick the stage or the disease on the tag.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "minutes": 10080,
+      "choice": {
+        "label": "Stage",
+        "options": [
+          "Poisoned (saving)",
+          "Blinding Sickness",
+          "Filth Fever",
+          "Flesh Rot",
+          "Mindfire",
+          "Seizure",
+          "Slimy Doom"
+        ]
+      },
+      "includesByChoice": {
+        "Poisoned (saving)": [
+          "condition:poisoned"
+        ],
+        "Blinding Sickness": [
+          "condition:blinded"
+        ]
+      },
+      "modifiers": [
+        {
+          "selector": "roll.check.wis",
+          "op": "disadvantage",
+          "mode": "auto",
+          "label": "Contagion (Blinding Sickness)",
+          "when": {
+            "choice": "Blinding Sickness"
+          }
+        },
+        {
+          "selector": "roll.save.wis",
+          "op": "disadvantage",
+          "mode": "auto",
+          "label": "Contagion (Blinding Sickness)",
+          "when": {
+            "choice": "Blinding Sickness"
+          }
+        },
+        {
+          "selector": "roll.check.str",
+          "op": "disadvantage",
+          "mode": "auto",
+          "label": "Contagion (Filth Fever)",
+          "when": {
+            "choice": "Filth Fever"
+          }
+        },
+        {
+          "selector": "roll.save.str",
+          "op": "disadvantage",
+          "mode": "auto",
+          "label": "Contagion (Filth Fever)",
+          "when": {
+            "choice": "Filth Fever"
+          }
+        },
+        {
+          "selector": "roll.check.int",
+          "op": "disadvantage",
+          "mode": "auto",
+          "label": "Contagion (Mindfire)",
+          "when": {
+            "choice": "Mindfire"
+          }
+        },
+        {
+          "selector": "roll.save.int",
+          "op": "disadvantage",
+          "mode": "auto",
+          "label": "Contagion (Mindfire)",
+          "when": {
+            "choice": "Mindfire"
+          }
+        },
+        {
+          "selector": "roll.check.dex",
+          "op": "disadvantage",
+          "mode": "auto",
+          "label": "Contagion (Seizure)",
+          "when": {
+            "choice": "Seizure"
+          }
+        },
+        {
+          "selector": "roll.save.dex",
+          "op": "disadvantage",
+          "mode": "auto",
+          "label": "Contagion (Seizure)",
+          "when": {
+            "choice": "Seizure"
+          }
+        },
+        {
+          "selector": "roll.check.con",
+          "op": "disadvantage",
+          "mode": "auto",
+          "label": "Contagion (Slimy Doom)",
+          "when": {
+            "choice": "Slimy Doom"
+          }
+        },
+        {
+          "selector": "roll.save.con",
+          "op": "disadvantage",
+          "mode": "auto",
+          "label": "Contagion (Slimy Doom)",
+          "when": {
+            "choice": "Slimy Doom"
+          }
+        },
+        {
+          "selector": "roll.attack.ability.str",
+          "op": "disadvantage",
+          "mode": "auto",
+          "label": "Contagion (Filth Fever)",
+          "when": {
+            "choice": "Filth Fever"
+          }
+        },
+        {
+          "selector": "roll.attack.ability.dex",
+          "op": "disadvantage",
+          "mode": "auto",
+          "label": "Contagion (Seizure)",
+          "when": {
+            "choice": "Seizure"
+          }
+        },
+        {
+          "selector": "roll.check.cha",
+          "op": "disadvantage",
+          "mode": "auto",
+          "label": "Contagion (Flesh Rot)",
+          "when": {
+            "choice": "Flesh Rot"
+          }
+        },
+        {
+          "selector": "defense.vulnerable.all",
+          "op": "vulnerable",
+          "mode": "auto",
+          "label": "Contagion (Flesh Rot)",
+          "when": {
+            "choice": "Flesh Rot"
+          }
+        }
+      ],
+      "reminders": [
+        "Poisoned (saving): a Constitution save at the end of each of your turns. Three successes end it; three failures: change the stage to the disease the caster picks.",
+        "Blinding Sickness: blinded; disadvantage on Wisdom checks and saves.",
+        "Filth Fever: disadvantage on Strength checks, saves and attack rolls that use Strength.",
+        "Flesh Rot: disadvantage on Charisma checks; vulnerable to all damage.",
+        "Mindfire: disadvantage on Intelligence checks and saves; in combat you act as if under Confusion.",
+        "Seizure: disadvantage on Dexterity checks, saves and attack rolls that use Dexterity.",
+        "Slimy Doom: disadvantage on Constitution checks and saves; whenever you take damage, you're stunned until the end of your next turn.",
+        "A natural disease: anything that cures disease (Lesser Restoration, Lay on Hands) ends it."
+      ]
     }
   ]
 }

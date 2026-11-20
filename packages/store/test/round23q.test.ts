@@ -104,3 +104,29 @@ describe("24a: Lay on Hands' cure", () => {
     expect(derive(l.character, reg).resources.find((r) => r.id === "lay-on-hands")!.remaining).toBe(5);
   });
 });
+
+describe("24b: Contagion on you", () => {
+  const mk = () => {
+    const c = newCharacter({ id: "ct", name: "Ct", race: "race:human", class: "class:fighter", abilities: { str: 16, dex: 12, con: 14, int: 10, wis: 10, cha: 10 } }, reg);
+    c.classes = [{ class: "class:fighter", level: 5 }];
+    c.inventory.push({ id: "ls", item: "item:longsword", quantity: 1, equipped: true, attuned: false });
+    return new CharacterLog(c, reg, new HybridClock("t", () => (t += 1000)), "player");
+  };
+  it("poisoned while saving; the picked disease gives its own penalties", () => {
+    const l = mk();
+    l.record("addEffect", { instanceId: "cg", effect: "effect:contagion", choice: "Poisoned (saving)" });
+    expect(derive(l.character, reg).effects.find((e) => e.id === "effect:contagion")!.includes.map((x) => x.id)).toContain("condition:poisoned");
+    l.record("updateEffect", { instanceId: "cg", choice: "Filth Fever" });
+    const s = derive(l.character, reg);
+    expect(s.saves.str.disadvantage.join(" ")).toMatch(/Filth Fever/);
+    expect(s.saves.dex.disadvantage.join(" ")).not.toMatch(/Contagion/);
+    expect(s.attacks.find((a) => a.name === "Longsword")!.attack.disadvantage.join(" ")).toMatch(/Filth Fever/);
+  });
+  it("Flesh Rot: vulnerable to all damage", () => {
+    const l = mk();
+    l.record("addEffect", { instanceId: "cg", effect: "effect:contagion", choice: "Flesh Rot" });
+    const hp = l.character.hp.current;
+    l.record("damage", { amount: 5, damageType: "fire" });
+    expect(hp - l.character.hp.current).toBe(10);
+  });
+});

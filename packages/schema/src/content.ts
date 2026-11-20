@@ -462,6 +462,8 @@ export const EffectDef = z
     includes: z.array(DefId).default([]),
     /** Conditions it includes by its choice (Blindness/Deafness: "Blinded" → blinded). */
     includesByChoice: z.record(z.string(), z.array(DefId)).optional(),
+    /** A disease or poison: what cures those ends it (Lay on Hands' cure, Lesser Restoration). */
+    disease: z.boolean().optional(),
     /** Reminders for what the app can't apply itself, e.g. "Attacks against you have advantage". */
     reminders: z.array(z.string()).default([]),
     /** Actions you can take while it's on (Haste: the extra action). */

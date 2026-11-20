@@ -1507,7 +1507,8 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
 
     for (const mode of modes) {
       const thrown = mode === "thrown";
-      const attackKeys = [`roll.attack.weapon.${mode}`, "item.attack", `attack.${o.attackId}`];
+      // By the ability it uses too: "roll.attack.ability.str" (Contagion's Filth Fever: attacks that use Strength).
+      const attackKeys = [`roll.attack.weapon.${mode}`, "item.attack", `attack.${o.attackId}`, `roll.attack.ability.${shillelagh?.ability ?? ability}`];
       // By damage type too: "roll.damage.weapon.type.piercing" (Piercer).
       const damageKeys = [`roll.damage.weapon.${mode}`, "item.damage", `damage.${o.attackId}`, ...(w.damageType ? [`roll.damage.weapon.type.${w.damageType}`] : [])];
       if (o.offHand) {

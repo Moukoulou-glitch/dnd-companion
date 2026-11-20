@@ -3680,10 +3680,10 @@ export function App() {
   const curableOn = (who: string): { key: string; name: string; end: () => void }[] => {
     const isCurable = (effect: string, name: string) => {
       if (effect === "condition:poisoned") return true;
-      const def = registry.find(effect, "effect") as { includes?: string[] } | undefined;
-      return !!def?.includes?.includes("condition:poisoned") || /poison|disease|plague|fever|sickness|\brot\b|venom/i.test(name);
+      const def = registry.find(effect, "effect") as { includes?: string[]; disease?: boolean } | undefined;
+      return !!def?.disease || !!def?.includes?.includes("condition:poisoned") || /poison|disease|plague|fever|sickness|\brot\b|venom/i.test(name);
     };
-    const nameOf = (e: { effect: string; custom?: { name: string } | undefined }) => e.custom?.name ?? registry.find(e.effect, "effect")?.name ?? e.effect;
+    const nameOf = (e: { effect: string; custom?: { name: string } | undefined; choice?: string | undefined }) => `${e.custom?.name ?? registry.find(e.effect, "effect")?.name ?? e.effect}${e.choice ? ` (${e.choice})` : ""}`;
     const ch = live.current.character;
     if (!ch) return [];
     if (who === "me")

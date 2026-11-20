@@ -462,6 +462,12 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
           }
         }
       }
+      // Vulnerable to all damage (Contagion's Flesh Rot): doubled, unless already doubled for its type.
+      if (sheet.defenses.vulnerable.includes("all") && dmg > 0 && !(damageType && sheet.defenses.vulnerable.includes(damageType))) {
+        const was = dmg;
+        dmg *= 2;
+        notes.push(`Vulnerable to all damage: ${was} doubled to ${dmg}.`);
+      }
       // Resistance to all damage, of any type or none entered (Protective Bond's, from Expansive Bond).
       if (sheet.defenses.resist.includes("all") && dmg > 0 && !(damageType && sheet.defenses.resist.includes(damageType))) {
         const was = dmg;
