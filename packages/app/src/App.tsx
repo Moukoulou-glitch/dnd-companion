@@ -4505,7 +4505,7 @@ export function App() {
     <ConditionLinks.Provider value={showCondition}>
     <div className="app">
       <RageVeins show={rageAt} />
-      <FxLayer school={spellSchool} spell={spellLook} feature={featureUsed} character={c} />
+      <FxLayer school={spellSchool} spell={spellLook} feature={featureUsed} character={c} effects={sheet.effects} />
       <DiceStrip />
       {s.account.kind === "cloud" && s.account.signedOut && (
         <button className="signin-banner" onClick={signInAgain}>

@@ -402,7 +402,7 @@ export function playFx(e: FxEvent) {
   window.dispatchEvent(new CustomEvent("dnd-fx", { detail: e }));
 }
 
-export function FxLayer({ school, spell, feature, character }: { school: (spell: string) => string | undefined; spell?: SpellLookup; feature?: FeatureLookup; character?: Character | undefined }) {
+export function FxLayer({ school, spell, feature, character, effects }: { school: (spell: string) => string | undefined; spell?: SpellLookup; feature?: FeatureLookup; character?: Character | undefined; effects?: { id: string; suppressed?: boolean; exhaustion?: number }[] }) {
   const [shown, setShown] = useState<Shown[]>([]);
   const shownRef = useRef<Shown[]>([]);
   shownRef.current = shown;
@@ -475,7 +475,7 @@ export function FxLayer({ school, spell, feature, character }: { school: (spell:
     <div className="fx-layer" aria-hidden="true">
       <Ongoing look={ongoingFx(character)?.look} />
       {STATE_LOOP_KEYS.map((k) => (
-        <Ongoing key={`state-${k}`} look={stateLoops(character)[k]} />
+        <Ongoing key={`state-${k}`} look={stateLoops(character, effects)[k]} />
       ))}
       {FORM_KEYS.map((f) => (
         <Ongoing key={f} look={formFx(character).find((x) => x.form === f)?.look} />

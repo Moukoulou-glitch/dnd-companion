@@ -387,13 +387,19 @@ export function formFx(c: Character | undefined): { form: string; look: string }
  * Loops while a state lasts (22k), by slot: Twilight Sanctuary's sphere (with the shroud from 17th level),
  * Steps of Night's flight, and exhaustion (heavier with each level).
  */
-export const STATE_LOOP_KEYS = ["twilight", "steps", "exhaustion", "invisible", "gale"] as const;
+export const STATE_LOOP_KEYS = ["twilight", "steps", "exhaustion", "invisible", "gale", "aleriasa"] as const;
+
+/** Aleriasa while it's active (not suppressed): its own exhaustion level, from the sheet's effects. */
+export function aleriasaLevel(effects: { id: string; suppressed?: boolean; exhaustion?: number }[] | undefined): number | undefined {
+  const e = effects?.find((x) => x.id === "other:aleriasa" && !x.suppressed);
+  return e ? Math.min(5, e.exhaustion ?? 0) : undefined;
+}
 
 /** Effects that make you invisible (they include the condition), and the switches that do (Hidden Step). */
 const INVISIBLE_EFFECTS = new Set(["condition:invisible", "effect:invisibility", "effect:greater-invisibility", "other:potion-invisibility", "effect:mislead", "other:spirit-tale-phantom"]);
 export const isInvisible = (c: Character | undefined) =>
   !!c && ((c.effects ?? []).some((e) => INVISIBLE_EFFECTS.has(e.effect) || /invisib/.test(e.effect)) || (c.toggles ?? []).some((t) => t === "hidden-step" || /invisib/.test(t)));
-export function stateLoops(c: Character | undefined): Partial<Record<(typeof STATE_LOOP_KEYS)[number], string>> {
+export function stateLoops(c: Character | undefined, effects?: { id: string; suppressed?: boolean; exhaustion?: number }[]): Partial<Record<(typeof STATE_LOOP_KEYS)[number], string>> {
   if (!c) return {};
   const out: Partial<Record<(typeof STATE_LOOP_KEYS)[number], string>> = {};
   if (c.toggles?.includes("twilight-sanctuary")) {
@@ -406,6 +412,9 @@ export function stateLoops(c: Character | undefined): Partial<Record<(typeof STA
   if (isInvisible(c)) out.invisible = "sfx-ongoing-invis";
   // The Whistle of the Ashen Gale's whispering wind.
   if (c.effects?.some((e) => e.effect === "effect:whistle-ashen-gale")) out.gale = "sfx-st sfx-ongoing-gale";
+  // Aleriasa: a bleeding heart that weakens, and worse with each of its exhaustion levels; blindness at 5.
+  const al = aleriasaLevel(effects);
+  if (al !== undefined) out.aleriasa = `sfx-st sfx-ongoing-aler sfx-aler-${al}`;
   return out;
 }
 

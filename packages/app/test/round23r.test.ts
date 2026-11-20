@@ -58,3 +58,14 @@ describe("23y: the Hound of Ill Omen's critter", () => {
     expect(names).toEqual(expect.arrayContaining(["One Quarry", "Ill Omen", "Fleeting"]));
   });
 });
+
+describe("24g: Aleriasa's loop and mark", () => {
+  it("follows its own exhaustion level while it's active, nothing while it's held back", async () => {
+    const { stateLoops, aleriasaLevel } = await import("../src/fx/triggers.js");
+    const c = fighter(false);
+    expect(stateLoops(c, [{ id: "other:aleriasa", exhaustion: 3 }]).aleriasa).toBe("sfx-st sfx-ongoing-aler sfx-aler-3");
+    expect(stateLoops(c, [{ id: "other:aleriasa", exhaustion: 6 }]).aleriasa).toBe("sfx-st sfx-ongoing-aler sfx-aler-5");
+    expect(stateLoops(c, [{ id: "other:aleriasa", exhaustion: 3, suppressed: true }]).aleriasa).toBeUndefined();
+    expect(aleriasaLevel([])).toBeUndefined();
+  });
+});
