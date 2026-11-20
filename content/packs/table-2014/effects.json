@@ -6462,7 +6462,18 @@
         "when": "end",
         "save": {
           "ability": "con",
-          "note": "Count them: three successes end it; three failures, change its stage to the disease the caster picks."
+          "tally": {
+            "need": 3,
+            "failPick": [
+              "Blinding Sickness",
+              "Filth Fever",
+              "Flesh Rot",
+              "Mindfire",
+              "Seizure",
+              "Slimy Doom"
+            ],
+            "failText": "Three failures: the disease the caster chose takes hold for the rest of the 7 days."
+          }
         },
         "choices": [
           "Poisoned (saving)"
@@ -6732,7 +6743,7 @@
       "id": "effect:flesh-to-stone",
       "name": "Flesh to Stone",
       "category": "spell",
-      "summary": "Your flesh hardens: restrained, turning to stone.",
+      "summary": "Your flesh hardens: restrained, turning to stone. A Constitution save at the end of each of your turns, counted: three successes end it; three failures and you're petrified.",
       "source": {
         "pack": "table-2014",
         "book": "PHB",
@@ -6743,13 +6754,32 @@
         "when": "end",
         "save": {
           "ability": "con",
-          "note": "Count them: three successes end it; three failures and you're petrified (for good if the caster concentrates the full minute)."
-        }
+          "tally": {
+            "need": 3,
+            "failChoice": "Petrified",
+            "failText": "Three failures: you're petrified, for good if the caster keeps concentrating for the whole minute."
+          }
+        },
+        "choices": [
+          "Turning to stone"
+        ]
       },
       "rounds": 10,
       "includes": [
         "condition:restrained"
-      ]
+      ],
+      "choice": {
+        "label": "Stage",
+        "options": [
+          "Turning to stone",
+          "Petrified"
+        ]
+      },
+      "includesByChoice": {
+        "Petrified": [
+          "condition:petrified"
+        ]
+      }
     },
     {
       "kind": "effect",
@@ -7092,6 +7122,47 @@
       "reminders": [
         "Bonus action on your turn: move it up to 30 ft and attack twice again. It passes through any barrier, even a wall of force."
       ]
+    },
+    {
+      "kind": "effect",
+      "id": "effect:prismatic-indigo",
+      "name": "Prismatic indigo",
+      "category": "spell",
+      "summary": "Struck by a prismatic spray's or wall's indigo light: restrained. A Constitution save at the end of each of your turns, counted: three successes end it; three failures and you turn to stone for good (petrified).",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "modifiers": [],
+      "includes": [
+        "condition:restrained"
+      ],
+      "choice": {
+        "label": "Stage",
+        "options": [
+          "Restrained (saving)",
+          "Petrified"
+        ]
+      },
+      "includesByChoice": {
+        "Petrified": [
+          "condition:petrified"
+        ]
+      },
+      "turn": {
+        "when": "end",
+        "save": {
+          "ability": "con",
+          "tally": {
+            "need": 3,
+            "failChoice": "Petrified",
+            "failText": "Three failures: you're petrified for good (only greater restoration or similar magic ends it)."
+          }
+        },
+        "choices": [
+          "Restrained (saving)"
+        ]
+      }
     }
   ]
 }

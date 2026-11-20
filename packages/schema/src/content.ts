@@ -434,6 +434,15 @@ export const EffectDef = z
             /** An ability check instead of a save. */
             check: z.boolean().optional(),
             note: z.string().optional(),
+            /**
+             * Successes and failures counted until one reaches `need` (Contagion, Flesh to Stone):
+             * `need` successes end it; `need` failures set the choice `failChoice`, or ask for one of
+             * `failPick` (Contagion's disease).
+             */
+            tally: z
+              .object({ need: z.number().int().min(1).max(10), failChoice: z.string().optional(), failPick: z.array(z.string()).optional(), failText: z.string().optional() })
+              .strict()
+              .optional(),
           })
           .strict()
           .optional(),

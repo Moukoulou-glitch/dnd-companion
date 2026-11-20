@@ -13,7 +13,7 @@ import { CompanionPanel, MovePanel } from "./components/Combat";
 import { SwipeAway } from "./components/Swipe";
 import { ConditionLinks, RichText } from "./components/Conditions";
 import { Composer, ResultView, type AfterRollOption, type OptionInfo } from "./components/Composer";
-import { AddEffectPanel, EffectChips, EffectPanel } from "./components/Effects";
+import { AddEffectPanel, EffectChips, EffectPanel, tallySave } from "./components/Effects";
 import { FeaturePanel } from "./components/FeaturePanel";
 import { DcBig, Reminders } from "./components/DcBig";
 import { DistributePanel } from "./components/Distribute";
@@ -833,6 +833,18 @@ export function App() {
               reopen(x.instanceId);
             };
             const decide = (saved: boolean) => {
+              // Counted saves (Contagion, Flesh to Stone): three of a kind decides.
+              if (t.save?.tally) {
+                const r = tallySave(live.current.act, x, saved);
+                if (r.pick?.length)
+                  return push(x.name, () => (
+                    <Choose
+                      question={`${t.save!.tally!.failText ?? "Three failures."} Which one?`}
+                      options={r.pick!.map((p) => ({ label: p, onPick: () => (live.current.act("updateEffect", { instanceId: x.instanceId, choice: p, saves: null }, `${x.name}: ${p}.`), close(), reopen(x.instanceId)) }))}
+                    />
+                  ));
+                return reopen(x.instanceId);
+              }
               if (saved && t.save?.ends) ended();
               else if (t.save && !t.damage) live.current.setToast({ id: Date.now(), text: `${x.name}: ${saved ? "it succeeded" : "it failed"}${t.save.ends ? ", it goes on" : ""}.`, canUndo: false });
               if (t.damage && (!saved || (!t.damage.onFail && !t.save?.ends) || t.damage.half)) {
@@ -876,6 +888,7 @@ export function App() {
                         t.save ? `${ABILITY_NAMES[t.save.ability]} ${t.save.check ? "check" : "save"}${t.save.ends ? ": a success ends it" : ""}` : "",
                         t.damage ? `${t.damage.dice} ${t.damage.type}${t.damage.onFail ? " on a failure" : t.damage.half ? ", half on a success" : ""}` : "",
                         t.save?.note ?? "",
+                        t.save?.tally ? `Counted: ${t.saves?.ok ?? 0} of ${t.save.tally.need} successes, ${t.saves?.fail ?? 0} of ${t.save.tally.need} failures` : "",
                         t.damage?.note ?? "",
                       ]
                         .filter(Boolean)

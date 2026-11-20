@@ -148,6 +148,8 @@ export const EffectInstance = z
     count: z.number().int().min(0).optional(),
     /** The caster's save DC, typed once on its turn reminder (Hold Person's). */
     dc: z.number().int().min(1).max(40).optional(),
+    /** Its saves counted so far (Contagion: three of a kind). */
+    saves: z.object({ ok: z.number().int().min(0).max(10), fail: z.number().int().min(0).max(10) }).strict().optional(),
     /** Exhaustion levels it gives (a disease's own: Aleriasa), added to yours while it's active. */
     exhaustion: z.number().int().min(0).max(6).optional(),
     /** Who or what applied it, e.g. "Cleric's Bless". */

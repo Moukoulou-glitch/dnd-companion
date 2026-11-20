@@ -46,3 +46,30 @@ describe("24j: turn reminders for saves and ongoing damage", () => {
     }
   });
 });
+
+describe("24m: counted saves (three of a kind)", () => {
+  it("Contagion counts successes and failures; the count clears", () => {
+    const l = pc();
+    l.record("addEffect", { instanceId: "ct", effect: "effect:contagion", choice: "Poisoned (saving)" });
+    expect(fx(l, "ct").turn?.save?.tally?.need).toBe(3);
+    expect(fx(l, "ct").turn?.saves).toEqual({ ok: 0, fail: 0 });
+    l.record("updateEffect", { instanceId: "ct", saves: { ok: 1, fail: 2 } });
+    expect(fx(l, "ct").turn?.saves).toEqual({ ok: 1, fail: 2 });
+    l.record("updateEffect", { instanceId: "ct", choice: "Filth Fever", saves: null });
+    expect(fx(l, "ct").turn).toBeUndefined();
+    expect(l.character.effects.find((e) => e.id === "ct")?.saves).toBeUndefined();
+  });
+  it("Flesh to Stone: an older tag with no stage still asks; Petrified puts the condition on", () => {
+    const l = pc();
+    l.record("addEffect", { instanceId: "fs", effect: "effect:flesh-to-stone" });
+    expect(fx(l, "fs").turn?.save?.tally?.failChoice).toBe("Petrified");
+    l.record("updateEffect", { instanceId: "fs", choice: "Petrified", saves: null });
+    expect(fx(l, "fs").turn).toBeUndefined();
+    expect(fx(l, "fs").includes.map((x) => x.id)).toContain("condition:petrified");
+  });
+  it("Prismatic indigo counts too", () => {
+    const l = pc();
+    l.record("addEffect", { instanceId: "pi", effect: "effect:prismatic-indigo" });
+    expect(fx(l, "pi").turn?.save?.tally?.need).toBe(3);
+  });
+});

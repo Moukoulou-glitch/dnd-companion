@@ -10,6 +10,91 @@ import { formatMinutes } from "../time";
 
 type Act = (type: OperationType, payload: unknown, label: string) => void;
 
+const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
+
+/**
+ * One counted save (Contagion, Flesh to Stone: three of a kind decides). Records it; three
+ * successes end the effect, three failures set its next stage, or return the stages to pick from.
+ */
+export function tallySave(act: Act, e: EffectResult, saved: boolean, by = "save"): { outcome: "counted" | "ends" | "fails"; pick?: string[] } {
+  const t = e.turn?.save?.tally;
+  if (!t) return { outcome: "counted" };
+  const ok = (e.turn?.saves?.ok ?? 0) + (saved ? 1 : 0);
+  const fail = (e.turn?.saves?.fail ?? 0) + (saved ? 0 : 1);
+  if (ok >= t.need) {
+    act("removeEffect", { instanceId: e.instanceId }, `${e.name}: ${plural(ok, "success", "successes")}, it ends.`);
+    return { outcome: "ends" };
+  }
+  if (fail >= t.need) {
+    if (t.failChoice) {
+      act("updateEffect", { instanceId: e.instanceId, choice: t.failChoice, saves: null }, `${e.name}: ${t.failText ?? `${plural(fail, "failure", "failures")}. Now ${t.failChoice}.`}`);
+      return { outcome: "fails" };
+    }
+    act("updateEffect", { instanceId: e.instanceId, saves: { ok, fail } }, `${e.name}: ${t.failText ?? plural(fail, "failure", "failures")}`);
+    return { outcome: "fails", pick: t.failPick ?? [] };
+  }
+  act("updateEffect", { instanceId: e.instanceId, saves: { ok, fail } }, `${e.name}: the ${by} ${saved ? "succeeded" : "failed"}. ${plural(ok, "success", "successes")}, ${plural(fail, "failure", "failures")} (${t.need} of either decides).`);
+  return { outcome: "counted" };
+}
+
+/** The counted saves on an effect's card: pips, a success or failure by hand, and the stage to pick after the failures. */
+function TallySection({ e, act, close }: { e: EffectResult; act: Act; close: () => void }) {
+  const t = e.turn!.save!.tally!;
+  const ok = e.turn?.saves?.ok ?? 0;
+  const fail = e.turn?.saves?.fail ?? 0;
+  const [pick, setPick] = useState<string[] | null>(fail >= t.need && t.failPick ? t.failPick : null);
+  const mark = (saved: boolean) => {
+    const r = tallySave(act, e, saved, "save (by hand)");
+    if (r.outcome === "ends") close();
+    else if (r.pick?.length) setPick(r.pick);
+  };
+  const pips = (n: number, kind: "ok" | "fail") =>
+    Array.from({ length: t.need }, (_, i) => (
+      <span key={i} className={`tally-pip ${kind}${i < n ? " on" : ""}`} aria-hidden="true">
+        {kind === "ok" ? "✓" : "✗"}
+      </span>
+    ));
+  return (
+    <div className="tally">
+      <p className="sub-head small">Saves counted ({t.need} of either decides)</p>
+      <div className="tally-row" aria-label={`${ok} of ${t.need} successes`}>
+        <span className="tally-label">Successes</span>
+        {pips(ok, "ok")}
+      </div>
+      <div className="tally-row" aria-label={`${fail} of ${t.need} failures`}>
+        <span className="tally-label">Failures</span>
+        {pips(fail, "fail")}
+      </div>
+      {pick ? (
+        <>
+          <p className="note">{t.failText ?? "Three failures."} Which one?</p>
+          <div className="chips">
+            {pick.map((p) => (
+              <button key={p} className="chip" onClick={() => (act("updateEffect", { instanceId: e.instanceId, choice: p, saves: null }, `${e.name}: ${p}.`), setPick(null))}>
+                {p}
+              </button>
+            ))}
+          </div>
+        </>
+      ) : (
+        <div className="confirm" style={{ padding: 0 }}>
+          <button className="big" onClick={() => mark(true)}>
+            + A success
+          </button>
+          <button className="big" onClick={() => mark(false)}>
+            + A failure
+          </button>
+          {(ok > 0 || fail > 0) && (
+            <button className="link" onClick={() => act("updateEffect", { instanceId: e.instanceId, saves: null }, `${e.name}: the count starts again.`)}>
+              Start the count again
+            </button>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function effectChipLabel(e: EffectResult, hideTime = false): string {
   let s = e.name;
   if (e.level !== undefined) s += ` ${e.level}`;
@@ -172,6 +257,7 @@ export function EffectPanel({ e, act, close, onRelease, onTurn }: { e: EffectRes
       )}
       {e.concentration && <p className="note">Needs the caster's concentration. Remove it if they lose concentration.</p>}
       {e.counter && <CounterSection e={e} counter={e.counter} act={act} close={close} />}
+      {e.turn?.save?.tally && <TallySection e={e} act={act} close={close} />}
       {e.choice && (
         <>
           <p className="sub-head">{e.choice.label}{e.choice.value ? "" : ": choose one"}</p>

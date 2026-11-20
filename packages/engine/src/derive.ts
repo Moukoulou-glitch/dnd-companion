@@ -417,9 +417,11 @@ export interface EffectResult {
   /** What it asks on your turn (a save, damage), its dice worked out at the cast level, and the caster's DC if typed. */
   turn?: {
     when: "start" | "end" | "caster";
-    save?: { ability: Ability; ends?: boolean; check?: boolean; note?: string };
+    save?: { ability: Ability; ends?: boolean; check?: boolean; note?: string; tally?: { need: number; failChoice?: string; failPick?: string[]; failText?: string } };
     damage?: { dice: string; type: string; onFail?: boolean; half?: boolean; note?: string };
     dc?: number;
+    /** Its saves counted so far (Contagion, Flesh to Stone). */
+    saves?: { ok: number; fail: number };
     once?: boolean;
   };
   /** A button that gives a rest when its time is up (Catnap). */
@@ -2561,9 +2563,12 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       if (def.disease) r.disease = true;
       if (def.restAfter) r.restAfter = def.restAfter;
       // Its turn reminder: only for the picks it's for (Eyebite: Sickened), dice at the cast level (Caustic Brew at 3rd: 6d4).
-      if (def.turn && (!def.turn.choices || (e.choice && def.turn.choices.includes(e.choice)))) {
+      // An instance with no pick yet counts as the first option (Flesh to Stone added before it had stages).
+      const turnPick = e.choice ?? def.choice?.options?.[0];
+      if (def.turn && (!def.turn.choices || (turnPick && def.turn.choices.includes(turnPick)))) {
         const t = def.turn;
         r.turn = { when: t.when, ...(t.save ? { save: t.save } : {}), ...(e.dc ? { dc: e.dc } : {}), ...(t.once ? { once: true } : {}) };
+        if (t.save?.tally) r.turn.saves = { ok: e.saves?.ok ?? 0, fail: e.saves?.fail ?? 0 };
         if (t.damage) {
           let dice = t.damage.dice;
           const up = t.damage.upcast;

@@ -299,6 +299,8 @@ export const OPERATION_PAYLOADS = {
       count: z.number().int().min(0).optional(),
       /** The caster's save DC for its turn reminder (0 forgets it). */
       dc: z.number().int().min(0).max(40).optional(),
+      /** Its saves counted so far (null clears them). */
+      saves: z.object({ ok: z.number().int().min(0).max(10), fail: z.number().int().min(0).max(10) }).strict().nullable().optional(),
       /** A custom effect's exhaustion levels, or a disease's own (Aleriasa); 0 takes them away. */
       exhaustion: z.number().int().min(0).max(6).optional(),
     })

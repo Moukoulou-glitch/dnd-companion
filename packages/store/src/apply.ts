@@ -2384,6 +2384,10 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       }
       if (level !== undefined) e.level = level;
       if (choice !== undefined) e.choice = choice;
+      if (op.payload.saves !== undefined) {
+        if (op.payload.saves && (op.payload.saves.ok > 0 || op.payload.saves.fail > 0)) e.saves = { ok: op.payload.saves.ok, fail: op.payload.saves.fail };
+        else delete e.saves;
+      }
       if (op.payload.dc !== undefined) {
         if (op.payload.dc > 0) e.dc = op.payload.dc;
         else delete e.dc;
