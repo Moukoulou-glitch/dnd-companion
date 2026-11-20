@@ -9682,6 +9682,454 @@
           }
         ]
       }
+    },
+    {
+      "kind": "item",
+      "id": "item:efreeti-bottle",
+      "name": "Efreeti Bottle",
+      "summary": "An action to unstopper it: an efreeti appears in smoke (roll d100: hostile, serves you for an hour, or three wishes). Not again for 24 hours.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "weight": 1,
+      "magic": {
+        "rarity": "very rare"
+      },
+      "requiresAttunement": false,
+      "grant": {
+        "resources": [
+          {
+            "id": "efreeti-bottle",
+            "name": "Efreeti Bottle",
+            "max": 1,
+            "reset": "manual"
+          }
+        ],
+        "actions": [
+          {
+            "id": "efreeti-bottle",
+            "name": "Efreeti Bottle: open it",
+            "economy": "action",
+            "cost": {
+              "resource": "efreeti-bottle",
+              "amount": 1
+            },
+            "everyDays": 1,
+            "roll": {
+              "dice": "1d100",
+              "label": "What the efreeti does",
+              "table": [
+                "1 · Hostile: the efreeti attacks you. After 5 rounds of fighting it vanishes, and the bottle loses its magic.",
+                "2 · Hostile: the efreeti attacks you. After 5 rounds of fighting it vanishes, and the bottle loses its magic.",
+                "3 · Hostile: the efreeti attacks you. After 5 rounds of fighting it vanishes, and the bottle loses its magic.",
+                "4 · Hostile: the efreeti attacks you. After 5 rounds of fighting it vanishes, and the bottle loses its magic.",
+                "5 · Hostile: the efreeti attacks you. After 5 rounds of fighting it vanishes, and the bottle loses its magic.",
+                "6 · Hostile: the efreeti attacks you. After 5 rounds of fighting it vanishes, and the bottle loses its magic.",
+                "7 · Hostile: the efreeti attacks you. After 5 rounds of fighting it vanishes, and the bottle loses its magic.",
+                "8 · Hostile: the efreeti attacks you. After 5 rounds of fighting it vanishes, and the bottle loses its magic.",
+                "9 · Hostile: the efreeti attacks you. After 5 rounds of fighting it vanishes, and the bottle loses its magic.",
+                "10 · Hostile: the efreeti attacks you. After 5 rounds of fighting it vanishes, and the bottle loses its magic.",
+                "11 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "12 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "13 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "14 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "15 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "16 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "17 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "18 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "19 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "20 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "21 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "22 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "23 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "24 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "25 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "26 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "27 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "28 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "29 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "30 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "31 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "32 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "33 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "34 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "35 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "36 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "37 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "38 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "39 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "40 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "41 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "42 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "43 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "44 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "45 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "46 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "47 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "48 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "49 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "50 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "51 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "52 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "53 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "54 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "55 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "56 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "57 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "58 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "59 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "60 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "61 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "62 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "63 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "64 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "65 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "66 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "67 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "68 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "69 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "70 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "71 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "72 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "73 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "74 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "75 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "76 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "77 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "78 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "79 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "80 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "81 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "82 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "83 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "84 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "85 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "86 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "87 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "88 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "89 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "90 · It serves you for 1 hour, doing as you command, then returns to the bottle and a new stopper holds it. The bottle can't be opened again for 24 hours; the next two openings go the same way, and on the fourth the efreeti escapes and the bottle loses its magic.",
+                "91 · It grants you three wishes (each as the Wish spell), then vanishes after an hour, and the bottle loses its magic.",
+                "92 · It grants you three wishes (each as the Wish spell), then vanishes after an hour, and the bottle loses its magic.",
+                "93 · It grants you three wishes (each as the Wish spell), then vanishes after an hour, and the bottle loses its magic.",
+                "94 · It grants you three wishes (each as the Wish spell), then vanishes after an hour, and the bottle loses its magic.",
+                "95 · It grants you three wishes (each as the Wish spell), then vanishes after an hour, and the bottle loses its magic.",
+                "96 · It grants you three wishes (each as the Wish spell), then vanishes after an hour, and the bottle loses its magic.",
+                "97 · It grants you three wishes (each as the Wish spell), then vanishes after an hour, and the bottle loses its magic.",
+                "98 · It grants you three wishes (each as the Wish spell), then vanishes after an hour, and the bottle loses its magic.",
+                "99 · It grants you three wishes (each as the Wish spell), then vanishes after an hour, and the bottle loses its magic.",
+                "100 · It grants you three wishes (each as the Wish spell), then vanishes after an hour, and the bottle loses its magic."
+              ]
+            },
+            "opensSummon": {
+              "summon": "summon:efreeti-bottle"
+            },
+            "note": "Remove the stopper: a cloud of smoke pours out and, at the end of your turn, an efreeti appears in an unoccupied space within 30 ft. Roll d100 for what it does: 1–10 hostile, 11–90 it serves you for an hour, 91–100 three wishes. Not again for 24 hours."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:ring-of-djinni-summoning",
+      "name": "Ring of Djinni Summoning",
+      "summary": "Attuned, an action and its command word: a djinni from the Elemental Plane of Air, friendly and obeying you for up to 1 hour while you concentrate. Not again for 24 hours.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "magic": {
+        "rarity": "legendary"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "resources": [
+          {
+            "id": "ring-of-djinni-summoning",
+            "name": "Ring of Djinni Summoning",
+            "max": 1,
+            "reset": "manual"
+          }
+        ],
+        "actions": [
+          {
+            "id": "ring-of-djinni-summoning",
+            "name": "Ring of Djinni Summoning",
+            "economy": "action",
+            "cost": {
+              "resource": "ring-of-djinni-summoning",
+              "amount": 1
+            },
+            "everyDays": 1,
+            "opensSummon": {
+              "summon": "summon:ring-of-djinni-summoning"
+            },
+            "note": "Speak its command word: a djinni appears in an unoccupied space within 120 ft. It stays as long as you concentrate (as on a spell), up to 1 hour, or until it drops to 0 hit points; friendly, it obeys your commands. Not again for 24 hours. If the djinni dies, the ring loses its magic."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:iron-flask",
+      "name": "Iron Flask",
+      "summary": "Trap a creature from another plane in it (DC 17 Wisdom save), and release it with an action: it obeys you for 1 hour.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "weight": 1,
+      "magic": {
+        "rarity": "legendary"
+      },
+      "requiresAttunement": false,
+      "grant": {
+        "actions": [
+          {
+            "id": "iron-flask-trap",
+            "name": "Iron Flask: trap a creature",
+            "economy": "action",
+            "note": "Speak its command word and remove the stopper, aiming it at a creature you can see within 60 ft that isn't native to your plane: it makes a DC 17 Wisdom save or is trapped in the flask (one creature at a time; it can't be trapped again if it already escaped once). Write which creature is inside in the flask's notes."
+          },
+          {
+            "id": "iron-flask-release",
+            "name": "Iron Flask: release it",
+            "economy": "action",
+            "opensSummon": {
+              "summon": "summon:iron-flask"
+            },
+            "note": "Speak its command word and remove the stopper: the creature inside appears in an unoccupied space within 30 ft of you. It's friendly to you and your companions for 1 hour and obeys your commands, then acts as it normally would. Pick the creature that was inside."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:staff-of-the-python",
+      "name": "Staff of the Python",
+      "summary": "Attuned (cleric, druid or warlock), an action and its command word: the staff becomes a giant constrictor snake under your control; again to turn it back. If the snake drops to 0 hit points, the staff is destroyed.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "weight": 4,
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "requiresAttunement": true,
+      "grant": {
+        "actions": [
+          {
+            "id": "staff-of-the-python",
+            "name": "Staff of the Python",
+            "economy": "action",
+            "opensSummon": {
+              "summon": "summon:staff-of-the-python"
+            },
+            "note": "Throw the staff to the ground within 10 ft and speak its command word: it becomes a giant constrictor snake under your control, acting on its own initiative. A bonus action and the word again: back to a staff where it is. Command it mentally while it's within 60 ft. Healed snake = healed staff; if the snake drops to 0 hit points it dies, the staff is destroyed."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:pipes-of-the-sewers",
+      "name": "Pipes of the Sewers",
+      "summary": "Attuned, 3 charges (1d3 at dawn): an action and a charge to call 1d3 swarms of rats within half a mile; they come to you and, while you keep playing, are friendly and obey.",
+      "source": {
+        "pack": "table-2014",
+        "book": "SRD 5.1"
+      },
+      "category": "wondrous",
+      "weight": 2,
+      "magic": {
+        "rarity": "uncommon"
+      },
+      "requiresAttunement": true,
+      "charges": {
+        "max": 3,
+        "regain": "1d3"
+      },
+      "grant": {
+        "actions": [
+          {
+            "id": "pipes-of-the-sewers",
+            "name": "Pipes of the Sewers",
+            "economy": "action",
+            "charges": 1,
+            "opensSummon": {
+              "summon": "summon:pipes-of-the-sewers"
+            },
+            "note": "Play them (an action, 1 charge): 1d3 swarms of rats come if there are enough rats within half a mile, arriving after travelling to you. While you play them each turn as an action, the swarms are friendly and obey you; stop and they go hostile unless you make a DC 15 Charisma check (or they leave)."
+          }
+        ]
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:rope-hempen-50-feet",
+      "name": "Rope, hempen (50 feet)",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 10,
+      "cost": {
+        "amount": 1,
+        "unit": "gp"
+      },
+      "tags": [
+        "standard-gear"
+      ],
+      "text": [
+        "Rope, whether made of hemp or silk, has 2 hit points and can be burst with a DC 17 Strength check."
+      ],
+      "measure": {
+        "unit": "ft",
+        "per": 50,
+        "step": 5
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:rope-silk-50-feet",
+      "name": "Rope, silk (50 feet)",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 5,
+      "cost": {
+        "amount": 10,
+        "unit": "gp"
+      },
+      "tags": [
+        "standard-gear"
+      ],
+      "text": [
+        "Rope, whether made of hemp or silk, has 2 hit points and can be burst with a DC 17 Strength check."
+      ],
+      "measure": {
+        "unit": "ft",
+        "per": 50,
+        "step": 5
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:chain-10-feet",
+      "name": "Chain (10 feet)",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 10,
+      "cost": {
+        "amount": 5,
+        "unit": "gp"
+      },
+      "tags": [
+        "standard-gear"
+      ],
+      "text": [
+        "A chain has 10 hit points. It can be burst with a successful DC 20 Strength check."
+      ],
+      "measure": {
+        "unit": "ft",
+        "per": 10,
+        "step": 1
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:string-10-feet",
+      "name": "String (10 feet)",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "cost": {
+        "amount": 0,
+        "unit": "cp"
+      },
+      "tags": [
+        "standard-gear"
+      ],
+      "text": [
+        "A 10-foot length of string, typically found in a burglar's pack."
+      ],
+      "measure": {
+        "unit": "ft",
+        "per": 10,
+        "step": 1
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:ball-bearings-bag-of-1-000",
+      "name": "Ball bearings (bag of 1,000)",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 2,
+      "cost": {
+        "amount": 1,
+        "unit": "gp"
+      },
+      "tags": [
+        "standard-gear"
+      ],
+      "text": [
+        "As an action, you can spill these tiny metal balls from their pouch to cover a level, square area that is 10 feet on a side.",
+        "A creature moving across the covered area must succeed on a DC 10 Dexterity saving throw or fall prone.",
+        "A creature moving through the area at half speed doesn't need to make the save."
+      ],
+      "measure": {
+        "unit": "ball bearings",
+        "per": 1000,
+        "step": 10
+      }
+    },
+    {
+      "kind": "item",
+      "id": "item:caltrops",
+      "name": "Caltrops",
+      "source": {
+        "pack": "srd-5.1",
+        "book": "SRD 5.1"
+      },
+      "category": "gear",
+      "weight": 2,
+      "cost": {
+        "amount": 5,
+        "unit": "cp"
+      },
+      "tags": [
+        "standard-gear"
+      ],
+      "text": [
+        "As an action, you can spread a bag of caltrops to cover a square area that is 5 feet on a side.",
+        "Any creature that enters the area must succeed on a DC 15 Dexterity saving throw or stop moving this turn and take 1 piercing damage.",
+        "Taking this damage reduces the creature's walking speed by 10 feet until the creature regains at least 1 hit point.",
+        "A creature moving through the area at half speed doesn't need to make the save."
+      ],
+      "measure": {
+        "unit": "caltrops",
+        "per": 20,
+        "step": 1
+      },
+      "summary": "A bag of 20 caltrops: one bag covers a 5-foot square."
     }
   ]
 }

@@ -288,6 +288,11 @@ export const ItemDef = z
      * `onEmpty` is what happens when the last one is used.
      */
     charges: z.object({ max: z.number().int().min(1), regain: z.string().optional(), onEmpty: z.string().optional() }).strict().optional(),
+    /**
+     * Sold by length or count, which each piece keeps on its own (Rope: 50 feet, cut to 30): `per` is how much one
+     * comes with, at the listed weight; `step` how much − and + change it. Weight follows what's left.
+     */
+    measure: z.object({ unit: z.string(), per: z.number().positive(), step: z.number().positive().optional() }).strict().optional(),
     /** A curse (Demon Armor): what it does, our own words; it holds while you're attuned (or have it, for an item without attunement). */
     curse: z.object({ text: z.string(), name: z.string().optional() }).strict().optional(),
     /** Once, when you attune to it (an artifact's 4d10 psychic damage): damage to roll and take, or a note. */

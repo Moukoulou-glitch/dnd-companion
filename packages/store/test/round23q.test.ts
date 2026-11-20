@@ -51,3 +51,16 @@ describe("23t: short rests are counted between long rests", () => {
     expect(l.character.shortRests).toBeUndefined();
   });
 });
+
+describe("23u: a rope's length", () => {
+  it("is kept on the item, and null brings it back to as it comes", () => {
+    const c = newCharacter({ id: "rp", name: "Rp", race: "race:human", class: "class:fighter", abilities: { str: 14, dex: 12, con: 14, int: 10, wis: 10, cha: 10 } }, reg);
+    c.inventory.push({ id: "rope", item: "item:rope-hempen-50-feet", quantity: 1, equipped: false, attuned: false });
+    const l = new CharacterLog(c, reg, new HybridClock("t", () => (t += 1000)), "player");
+    l.record("setItem", { instanceId: "rope", amount: 30 });
+    expect(l.character.inventory.find((i) => i.id === "rope")!.amount).toBe(30);
+    expect(derive(l.character, reg).encumbrance.carried).toBeLessThan(derive(c, reg).encumbrance.carried);
+    l.record("setItem", { instanceId: "rope", amount: null });
+    expect(l.character.inventory.find((i) => i.id === "rope")!.amount).toBeUndefined();
+  });
+});

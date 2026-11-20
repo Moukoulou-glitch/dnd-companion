@@ -2,7 +2,7 @@ import { NumberStep } from "./Adjust";
 import { RichText, TextBlocks } from "./Conditions";
 import { useEffect, useMemo, useState } from "react";
 import { rollOrThrow } from "../dice/quick";
-import { isCustomItemId, type ContentRegistry, type DerivedSheet } from "@dnd/engine";
+import { isCustomItemId, itemWeight, type ContentRegistry, type DerivedSheet } from "@dnd/engine";
 import type { Character, CustomItem, ItemDef, OperationType } from "@dnd/schema";
 import { describeChanges } from "./ChangesEditor";
 import { ITEM_TYPES } from "./CustomForms";
@@ -58,6 +58,8 @@ function itemTags(inst: Inst, def: ItemDef): string[] {
   if (isCustomItemId(def.id)) tags.push("your own");
   if (def.requiresAttunement) tags.push(inst.attuned ? "attuned" : "needs attunement");
   if (def.magic?.rarity) tags.push(def.magic.rarity);
+  // Sold by length or count: what's left of each (a rope cut to 30 feet).
+  if (def.measure && inst.amount !== undefined && inst.amount !== def.measure.per) tags.push(`${inst.amount} ${def.measure.unit}${inst.quantity > 1 ? " each" : ""}`);
   return tags;
 }
 
@@ -564,6 +566,18 @@ export function ItemPanel({
       <div className="group">
         {/* − and +, or type the number. */}
         <NumberStep label="Quantity" value={inst.quantity} min={0} max={99999} onChange={(n) => n !== inst.quantity && act("setItem", { instanceId: inst.id, quantity: n }, `${name}: ${n}.`)} />
+        {def.measure && (
+          // Its length or count, each piece on its own (a rope cut to 30 feet); the weight follows.
+          <NumberStep
+            label={def.measure.unit === "ft" ? "Length (feet)" : `How many ${def.measure.unit}`}
+            sub={`${def.measure.per} ${def.measure.unit} as it comes${inst.quantity > 1 ? ", each" : ""}${def.weight ? ` · ${Math.round(itemWeight(def, inst) * 100) / 100} lb. now` : ""}`}
+            value={inst.amount ?? def.measure.per}
+            min={0}
+            max={100000}
+            step={def.measure.step ?? 1}
+            onChange={(n) => n !== (inst.amount ?? def.measure!.per) && act("setItem", { instanceId: inst.id, amount: n === def.measure!.per ? null : n }, `${name}: ${n} ${def.measure!.unit}.`)}
+          />
+        )}
         {canEquip && (
           <label className="row check">
             <input type="checkbox" checked={inst.equipped} onChange={() => act("setItem", { instanceId: inst.id, equipped: !inst.equipped }, `${name} ${inst.equipped ? "unequipped" : "equipped"}.`)} />
@@ -721,7 +735,7 @@ export function InventoryTab({
 }) {
   const items = character.inventory.map((inst) => ({ inst, def: itemDef(registry, inst.item) }));
   const attuned = character.inventory.filter((i) => i.attuned).length;
-  const weight = items.reduce((w, i) => w + (i.def.weight ?? 0) * i.inst.quantity, 0);
+  const weight = items.reduce((w, i) => w + itemWeight(i.def, i.inst), 0);
 
   // Items by type, searchable, with a filter (equipped, carried, attuned, magic).
   const [q, setQ] = useState("");

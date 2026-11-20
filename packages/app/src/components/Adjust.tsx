@@ -7,7 +7,7 @@ import { RaceBonusMover } from "./RaceBonus";
 type Act = (type: OperationType, payload: unknown, label: string) => unknown;
 
 /** A number with − and + and a box to type into. */
-export function NumberStep({ label, sub, value, onChange, min = 0, max = 999 }: { label: string; sub?: string; value: number; onChange: (n: number) => void; min?: number; max?: number }) {
+export function NumberStep({ label, sub, value, onChange, min = 0, max = 999, step = 1 }: { label: string; sub?: string; value: number; onChange: (n: number) => void; min?: number; max?: number; step?: number }) {
   const [text, setText] = useState(String(value));
   const [last, setLast] = useState(value);
   if (last !== value) {
@@ -22,7 +22,7 @@ export function NumberStep({ label, sub, value, onChange, min = 0, max = 999 }: 
         {sub && <div className="row-sub">{sub}</div>}
       </div>
       <div className="stepper">
-        <button aria-label={`${label}: one less`} disabled={value <= min} onClick={() => commit(value - 1)}>
+        <button aria-label={`${label}: one less`} disabled={value <= min} onClick={() => commit(value - step)}>
           −
         </button>
         <input
@@ -34,7 +34,7 @@ export function NumberStep({ label, sub, value, onChange, min = 0, max = 999 }: 
           onBlur={() => text !== String(value) && commit(Number(text || 0))}
           onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
         />
-        <button aria-label={`${label}: one more`} disabled={value >= max} onClick={() => commit(value + 1)}>
+        <button aria-label={`${label}: one more`} disabled={value >= max} onClick={() => commit(value + step)}>
           +
         </button>
       </div>

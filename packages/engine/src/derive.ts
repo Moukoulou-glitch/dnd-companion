@@ -619,6 +619,12 @@ export function selectorMatches(selector: string, key: string): boolean {
  * Computes the full derived sheet. Pure: the same character and content
  * always give the same result, and nothing is stored back on the character.
  */
+/** An inventory line's weight: the item's weight times how many, scaled by what's left of each when it's sold by length or count (a rope cut to 30 of its 50 feet). */
+export function itemWeight(def: { weight?: number | undefined; measure?: { per: number } | undefined } | undefined, inst: { quantity: number; amount?: number | undefined }): number {
+  const w = (def?.weight ?? 0) * inst.quantity;
+  return def?.measure && inst.amount !== undefined ? (w * inst.amount) / def.measure.per : w;
+}
+
 export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
   // The character's own actions and spells join the content for this character.
   const reg = withCustom(baseReg, c);
@@ -876,7 +882,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
 
   // Carried weight: items (equipped or not) and coins (50 to the pound). Encumbrance, by the rule the player picked.
   const strScore = abilities.str.score.total;
-  const itemsWeight = c.inventory.reduce((w, i) => w + (reg.find(i.item, "item")?.weight ?? 0) * i.quantity, 0);
+  const itemsWeight = c.inventory.reduce((w, i) => w + itemWeight(reg.find(i.item, "item"), i), 0);
   const coins = Object.values(c.currency ?? {}).reduce((n: number, v) => n + (v ?? 0), 0);
   const carried = Math.round((itemsWeight + coins / 50) * 10) / 10;
   // Carrying capacity by size (PHB p. 176): Tiny ×½, Small and Medium ×1, then ×2 for each size above Medium.
@@ -2234,7 +2240,10 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     if (!preparedLists.has(sc.id)) continue;
     const cl = c.classes.find((x) => reg.get(x.class, "class").spellcasting?.id === sc.id)!;
     const count = spells.filter((x) => x.list.id === sc.id && x.ready === "prepared").length;
-    sc.prepared = { count, max: Math.max(1, mods[sc.ability] + cl.level) };
+    // Ability modifier + class level; a half caster (paladin) adds half its level, rounded down (PHB p. 84).
+    const prog = reg.get(cl.class, "class").spellcasting?.progression;
+    const levels = prog === "half" ? Math.floor(cl.level / 2) : prog === "third" ? Math.floor(cl.level / 3) : cl.level;
+    sc.prepared = { count, max: Math.max(1, mods[sc.ability] + levels) };
   }
 
   // Usable features, with their cost resolved against the resources above.

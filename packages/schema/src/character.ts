@@ -57,6 +57,8 @@ export const ItemInstance = z
     notes: z.string().optional(),
     /** Charges used (a wand, a chime). */
     chargesUsed: z.number().int().min(0).optional(),
+    /** How much of each piece is left, for an item sold by length or count (a rope cut to 30 feet); absent: as it comes. */
+    amount: z.number().min(0).max(100000).optional(),
     /** Its curse was lifted (Remove Curse): the curse no longer holds for this one. */
     curseLifted: z.boolean().optional(),
     /** Which weapon or armor it is, for an item that can be several (Frost Brand: a greatsword). */
