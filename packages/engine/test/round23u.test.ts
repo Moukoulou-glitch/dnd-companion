@@ -73,3 +73,14 @@ describe("23v: figurines and other carried items", () => {
     expect(summonOptions(reg, summon, 1)!.creatures.map((x) => x.name)).toEqual([creature]);
   });
 });
+
+describe("23w: dao and marid", () => {
+  it("are in the Iron Flask's choices, with their attacks", () => {
+    const names = summonOptions(reg, "summon:iron-flask", 1)!.creatures.map((x) => x.name);
+    expect(names).toEqual(expect.arrayContaining(["Dao", "Marid", "Djinni", "Efreeti"]));
+    const marid = reg.find("creature:marid", "creature")!;
+    expect(marid.hp).toBe(229);
+    expect(marid.actions.find((a) => a.name === "Trident")?.attack?.toHit).toBe(10);
+    expect(reg.find("creature:dao", "creature")!.conditionImmune).toEqual(["petrified"]);
+  });
+});

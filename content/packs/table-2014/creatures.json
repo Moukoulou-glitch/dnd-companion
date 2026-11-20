@@ -1009,6 +1009,179 @@
       },
       "traits": [],
       "actions": []
+    },
+    {
+      "kind": "creature",
+      "id": "creature:dao",
+      "name": "Dao",
+      "source": {
+        "pack": "table-2014",
+        "book": "MM"
+      },
+      "size": "Large",
+      "type": "elemental",
+      "alignment": "neutral evil",
+      "ac": 18,
+      "acNote": "natural armor",
+      "hp": 187,
+      "hitDice": "15d10+105",
+      "speed": {
+        "walk": 30,
+        "burrow": 30,
+        "fly": 30
+      },
+      "abilities": {
+        "str": 23,
+        "dex": 12,
+        "con": 24,
+        "int": 12,
+        "wis": 13,
+        "cha": 14
+      },
+      "saves": {
+        "int": 5,
+        "wis": 5,
+        "cha": 6
+      },
+      "senses": {
+        "darkvision": 120,
+        "passive_perception": 11
+      },
+      "languages": "Terran",
+      "cr": 11,
+      "conditionImmune": [
+        "petrified"
+      ],
+      "traits": [
+        {
+          "name": "Earth Glide",
+          "text": "It burrows through nonmagical, unworked earth and stone without disturbing them."
+        },
+        {
+          "name": "Elemental Demise",
+          "text": "When it dies, its body crumbles to crystalline powder; only what it wore or carried is left."
+        },
+        {
+          "name": "Innate Spellcasting",
+          "text": "Charisma (spell save DC 14, +6 to hit with spell attacks); no material components.\nAt will: detect evil and good, detect magic, stone shape\n3/day each: move earth, passwall, tongues\n1/day each: conjure elemental (earth elemental only), gaseous form, invisibility, phantasmal killer, plane shift, wall of stone"
+        },
+        {
+          "name": "Sure-Footed",
+          "text": "Advantage on Strength and Dexterity saves against effects that would knock it prone."
+        }
+      ],
+      "actions": [
+        {
+          "name": "Multiattack",
+          "text": "Two fist attacks or two maul attacks."
+        },
+        {
+          "name": "Fist",
+          "text": "Melee Weapon Attack: +10 to hit, reach 5 ft., one target. Hit: 15 (2d8 + 6) bludgeoning damage.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 10,
+            "reach": "5 ft.",
+            "damage": "2d8",
+            "damageBonus": 6,
+            "damageType": "bludgeoning"
+          }
+        },
+        {
+          "name": "Maul",
+          "text": "Melee Weapon Attack: +10 to hit, reach 5 ft., one target. Hit: 20 (4d6 + 6) bludgeoning damage. A Huge or smaller target makes a DC 18 Strength check or falls prone.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 10,
+            "reach": "5 ft.",
+            "damage": "4d6",
+            "damageBonus": 6,
+            "damageType": "bludgeoning"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "creature",
+      "id": "creature:marid",
+      "name": "Marid",
+      "source": {
+        "pack": "table-2014",
+        "book": "MM"
+      },
+      "size": "Large",
+      "type": "elemental",
+      "alignment": "chaotic neutral",
+      "ac": 17,
+      "acNote": "natural armor",
+      "hp": 229,
+      "hitDice": "17d10+136",
+      "speed": {
+        "walk": 30,
+        "fly": 60,
+        "swim": 90
+      },
+      "abilities": {
+        "str": 22,
+        "dex": 12,
+        "con": 26,
+        "int": 18,
+        "wis": 17,
+        "cha": 18
+      },
+      "saves": {
+        "dex": 5,
+        "wis": 7,
+        "cha": 8
+      },
+      "senses": {
+        "blindsight": 30,
+        "darkvision": 120,
+        "passive_perception": 13
+      },
+      "languages": "Aquan",
+      "cr": 11,
+      "resist": [
+        "acid",
+        "cold",
+        "lightning"
+      ],
+      "traits": [
+        {
+          "name": "Amphibious",
+          "text": "It breathes air and water."
+        },
+        {
+          "name": "Elemental Demise",
+          "text": "When it dies, its body bursts into water and foam; only what it wore or carried is left."
+        },
+        {
+          "name": "Innate Spellcasting",
+          "text": "Charisma (spell save DC 16, +8 to hit with spell attacks); no material components.\nAt will: create or destroy water, detect evil and good, detect magic, fog cloud, purify food and drink\n3/day each: tongues, water breathing, water walk\n1/day each: conjure elemental (water elemental only), control water, gaseous form, invisibility, plane shift"
+        }
+      ],
+      "actions": [
+        {
+          "name": "Multiattack",
+          "text": "Two trident attacks."
+        },
+        {
+          "name": "Trident",
+          "text": "Melee or Ranged Weapon Attack: +10 to hit, reach 5 ft. or range 20/60 ft., one target. Hit: 13 (2d6 + 6) piercing damage, or 15 (2d8 + 6) piercing damage with both hands in melee.",
+          "attack": {
+            "kind": "melee",
+            "toHit": 10,
+            "reach": "5 ft.",
+            "damage": "2d6",
+            "damageBonus": 6,
+            "damageType": "piercing"
+          }
+        },
+        {
+          "name": "Water Jet",
+          "text": "A 60-foot line, 5 feet wide, of water: each creature in it makes a DC 16 Dexterity saving throw, taking 21 (6d6) bludgeoning damage on a failed save, or half as much on a success. On a failure, a Huge or smaller one is also pushed up to 20 feet away and knocked prone."
+        }
+      ]
     }
   ]
 }
