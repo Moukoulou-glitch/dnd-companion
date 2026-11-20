@@ -181,3 +181,21 @@ describe("24d: exhaustion levels on a custom effect", () => {
     expect(derive(l.character, reg).speed.total).toBe(Math.floor(walk / 2));
   });
 });
+
+describe("24e: the Iron Flask holds one creature", () => {
+  it("keeps it, warns when a second replaces it, and releases it as a summoned creature", () => {
+    const c = newCharacter({ id: "if", name: "If", race: "race:human", class: "class:wizard", abilities: { str: 10, dex: 12, con: 14, int: 16, wis: 10, cha: 10 } }, reg);
+    c.inventory.push({ id: "fl", item: "item:iron-flask", quantity: 1, equipped: false, attuned: false });
+    const l = new CharacterLog(c, reg, new HybridClock("t", () => (t += 1000)), "player");
+    l.record("setItem", { instanceId: "fl", holds: { creature: "creature:djinni", name: "Djinni" } });
+    expect(l.character.inventory[0]!.holds).toEqual({ creature: "creature:djinni", name: "Djinni" });
+    const notes = l.record("setItem", { instanceId: "fl", holds: { name: "Glimmerfiend" } });
+    expect(notes.some((n) => /already held Djinni/.test(n))).toBe(true);
+    expect(l.character.inventory[0]!.holds).toEqual({ name: "Glimmerfiend" });
+    l.record("setItem", { instanceId: "fl", holds: { creature: "creature:dao", name: "Dao" } });
+    l.record("summon", { spell: "summon:iron-flask", group: "g", creatures: [{ creature: "creature:dao", count: 1 }] });
+    l.record("setItem", { instanceId: "fl", holds: null });
+    expect(l.character.summons.map((m) => m.creature)).toEqual(["creature:dao"]);
+    expect(l.character.inventory[0]!.holds).toBeUndefined();
+  });
+});

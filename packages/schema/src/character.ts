@@ -57,6 +57,8 @@ export const ItemInstance = z
     notes: z.string().optional(),
     /** Charges used (a wand, a chime). */
     chargesUsed: z.number().int().min(0).optional(),
+    /** The creature it holds (Iron Flask: one at a time): one from the app's list, or only a name for one that isn't. */
+    holds: z.object({ creature: DefId.optional(), name: z.string().max(80) }).strict().optional(),
     /** How much of each piece is left, for an item sold by length or count (a rope cut to 30 feet); absent: as it comes. */
     amount: z.number().min(0).max(100000).optional(),
     /** Its curse was lifted (Remove Curse): the curse no longer holds for this one. */

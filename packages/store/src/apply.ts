@@ -1921,7 +1921,7 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
     }
 
     case "setItem": {
-      const { instanceId, quantity, equipped, attuned, name, scroll, base, picks, storedSpells, amount } = op.payload;
+      const { instanceId, quantity, equipped, attuned, name, scroll, base, picks, storedSpells, amount, holds } = op.payload;
       const inst = c.inventory.find((i) => i.id === instanceId);
       if (!inst) {
         notes.push("That item is no longer in the inventory.");
@@ -1940,6 +1940,12 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
           if (other !== inst && other.equipped && cursed(other) && reg.get(other.item, "item").category === def.category)
             notes.push(`${other.name ?? reg.get(other.item, "item").name} is cursed: you can't take it off until the curse is lifted. Done anyway, beyond the rules.`);
       if (quantity !== undefined) inst.quantity = quantity;
+      // One creature at a time (Iron Flask): a second replaces the first, with a warning.
+      if (holds === null) delete inst.holds;
+      else if (holds) {
+        if (inst.holds) notes.push(`⚠ ${def.name} already held ${inst.holds.name}: it holds only one creature at a time. Replaced by ${holds.name}.`);
+        inst.holds = { ...(holds.creature ? { creature: holds.creature } : {}), name: holds.name };
+      }
       if (amount === null) delete inst.amount;
       else if (amount !== undefined) inst.amount = amount;
       if (name !== undefined) inst.name = name || undefined;

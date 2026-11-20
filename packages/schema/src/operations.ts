@@ -236,6 +236,8 @@ export const OPERATION_PAYLOADS = {
       equipped: z.boolean().optional(),
       attuned: z.boolean().optional(),
       name: z.string().optional(),
+      /** The creature it holds (Iron Flask); null empties it. */
+      holds: z.object({ creature: z.string().optional(), name: z.string().max(80) }).strict().nullable().optional(),
       /** How much of each piece is left (a rope's feet); null: as it comes. */
       amount: z.number().min(0).max(100000).nullable().optional(),
       /** The spell written on a spell scroll; null clears it. */

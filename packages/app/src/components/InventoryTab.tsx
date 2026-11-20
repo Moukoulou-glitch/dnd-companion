@@ -58,6 +58,7 @@ function itemTags(inst: Inst, def: ItemDef): string[] {
   if (isCustomItemId(def.id)) tags.push("your own");
   if (def.requiresAttunement) tags.push(inst.attuned ? "attuned" : "needs attunement");
   if (def.magic?.rarity) tags.push(def.magic.rarity);
+  if (inst.holds) tags.push(`holds ${inst.holds.name}`);
   // Sold by length or count: what's left of each (a rope cut to 30 feet).
   if (def.measure && inst.amount !== undefined && inst.amount !== def.measure.per) tags.push(`${inst.amount} ${def.measure.unit}${inst.quantity > 1 ? " each" : ""}`);
   return tags;

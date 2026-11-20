@@ -1958,6 +1958,7 @@ export function App() {
   const openFeature = (a: ActionResult, fromResource?: { resource: string; name: string }, onUseOverride?: (rolled?: number) => void, forWhom?: string) => {
     if (a.rollsSpell) return rollEffectSpell(a);
     if (a.id === "tales-from-beyond-bestow") return openTaleBestow(a);
+    if (a.id === "iron-flask-trap" || a.id === "iron-flask-release") return openIronFlask(a);
     if (a.id === "wild-shape") return openTransform("wildshape");
     if (a.id === "deflect-missiles" || a.id === "slow-fall") return openReduce(a);
     if (a.fall) return openFall();
@@ -3676,6 +3677,44 @@ export function App() {
   };
 
   /** Who a feature can go to: you, companions, summoned creatures, or someone the app doesn't track. */
+  /**
+   * The Iron Flask: trap a creature (picked from the app's creatures, or named when it isn't there: a homebrew one),
+   * kept on the flask; release it later as a summoned creature (a named one is only said). One at a time.
+   */
+  function openIronFlask(a: ActionResult) {
+    const inst = live.current.character?.inventory.find((i) => i.id === a.itemInstanceId) ?? live.current.character?.inventory.find((i) => i.item === "item:iron-flask");
+    if (!inst) return;
+    const label = a.name;
+    if (a.id === "iron-flask-release") {
+      const held = inst.holds;
+      if (!held) return open(label, () => <p className="note">The flask is empty. Trap a creature in it first.</p>);
+      return open(label, () => (
+        <Confirm
+          question={`Release ${held.name}?`}
+          detail={`It appears within 30 ft of you, friendly to you and your companions for 1 hour, obeying your commands; then it acts as it normally would.${held.creature ? "" : " It isn't on the app's list: track it by hand (or make it a companion of your own)."}`}
+          no="Not now"
+          yes="Release it (an action)"
+          onNo={close}
+          onYes={() =>
+            guard({ name: label, economy: "action", actionId: a.id }, () => {
+              live.current.act("useAction", { action: a.id }, `${label}: ${held.name} is out.`);
+              if (held.creature) live.current.act("summon", { spell: "summon:iron-flask", group: crypto.randomUUID(), creatures: [{ creature: held.creature, count: 1 }] }, `${held.name}, released from the Iron Flask.`);
+              live.current.act("setItem", { instanceId: inst.id, holds: null }, "The Iron Flask is empty.");
+              close();
+            })
+          }
+        />
+      ));
+    }
+    open(label, () => <FlaskTrap reg={registry} holding={inst.holds?.name} onPick={(holds) =>
+      guard({ name: label, economy: "action", actionId: a.id }, () => {
+        live.current.act("useAction", { action: a.id }, `${label}: DC 17 Wisdom save.`);
+        live.current.act("setItem", { instanceId: inst.id, holds }, `${holds.name} is trapped in the Iron Flask.`);
+        close();
+      })
+    } />);
+  }
+
   /** What Lay on Hands' cure can end on a target: poisons (the condition, or an effect that includes it) and anything named a poison or disease. */
   const curableOn = (who: string): { key: string; name: string; end: () => void }[] => {
     const isCurable = (effect: string, name: string) => {
@@ -5036,6 +5075,44 @@ function HitDieEntry({ sides, con, songSides, beacon, times, left = 1, onSpend, 
       <button className="big" style={{ width: "100%", marginTop: 10 }} onClick={() => onRoll(song, count)}>
         {count > 1 ? `Roll ${count}d${sides} for me` : "Roll for me"}
       </button>
+    </>
+  );
+}
+
+/** Pick the creature trapped in the Iron Flask: search the app's creatures, or type one that isn't there. */
+function FlaskTrap({ reg, holding, onPick }: { reg: typeof registry; holding?: string | undefined; onPick: (holds: { creature?: string; name: string }) => void }) {
+  const [q, setQ] = useState("");
+  const [own, setOwn] = useState("");
+  const words = q.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  const all = reg.list("creature");
+  const shown = words.length ? all.filter((d) => words.every((w) => `${d.name} ${d.type}`.toLowerCase().includes(w))).slice(0, 40) : [];
+  return (
+    <>
+      <p className="note">Aim it at a creature within 60 ft that isn't from this plane: it makes a DC 17 Wisdom save. On a failure, it's trapped. Pick which.</p>
+      {holding && <p className="note warn">It already holds {holding}: it holds one creature at a time, so trapping another replaces it.</p>}
+      <input className="search" type="search" placeholder="Search creatures (name or type)" value={q} onChange={(e) => setQ(e.target.value)} />
+      {shown.length > 0 && (
+        <div className="group">
+          {shown.map((d) => (
+            <button key={d.id} className="row" onClick={() => onPick({ creature: d.id, name: d.name })}>
+              <div className="row-main">
+                <div className="row-title">{d.name}</div>
+                <div className="row-sub">
+                  {d.size} {d.type} · CR {d.cr < 1 && d.cr > 0 ? `1/${Math.round(1 / d.cr)}` : d.cr}
+                </div>
+              </div>
+            </button>
+          ))}
+        </div>
+      )}
+      {words.length > 0 && !shown.length && <p className="note">No creature in the app matches “{q.trim()}”.</p>}
+      <p className="sub-head">Not on the list (a homebrew creature)</p>
+      <div className="entry">
+        <input className="search" placeholder="Its name" value={own} maxLength={80} onChange={(e) => setOwn(e.target.value)} />
+        <button className="big" disabled={!own.trim()} onClick={() => onPick({ name: own.trim() })}>
+          Trap it
+        </button>
+      </div>
     </>
   );
 }
