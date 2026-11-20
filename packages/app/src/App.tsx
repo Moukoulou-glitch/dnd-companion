@@ -29,7 +29,7 @@ import { DiceStrip, setTwilightTwenty } from "./dice/DiceStrip";
 import { DiceSettings } from "./dice/DiceSettings";
 import { freeSpellsOf, ownFeatureOf, ridersOf, rollOptionsOf, usesOf } from "./ownFeature";
 import { flourishAfter } from "./flourish";
-import { d20s, rollOrThrow } from "./dice/quick";
+import { d20s, facesOrRoll, rollOrThrow } from "./dice/quick";
 import { useDiceMode } from "./dice3dSetting";
 import { useFeedback } from "./dice/feedback";
 import { ProficienciesPanel } from "./components/Proficiencies";
@@ -957,9 +957,9 @@ export function App() {
     const songSides = song ? Number(/d(\d+)/.exec(song.text)?.[1] ?? 6) : 0;
     // Beacon of Hope, or Gift of the Ever-Living Ones: healing you is the maximum (a Hit Die, Song of Rest's die).
     const beacon = live.current.character?.effects.some((e) => e.effect === BEACON_EFFECT) ? "Beacon of Hope" : live.current.sheet?.selfMaxHealing;
-    const spend = (rolled: number, withSong: boolean) => {
-      const roll = beacon ? sides : rolled;
-      s.act("spendHitDie", { die, roll }, `Spent a ${die}${beacon ? ` (${beacon}: ${sides})` : ""}.`);
+    const spend = (rolledAll: number[], withSong: boolean) => {
+      const [roll, ...more] = rolledAll.map((r) => (beacon ? sides : r));
+      s.act("spendHitDie", { die, roll: roll!, ...(more.length ? { more } : {}) }, `Spent ${more.length ? `${more.length + 1} ${die} Hit Dice` : `a ${die}`}${beacon ? ` (${beacon}: ${sides} each)` : ""}.`);
       if (withSong && songSides && beacon) {
         s.act("heal", { amount: songSides }, `Song of Rest: ${songSides} more hit points (${beacon}: the maximum).`);
         return close();
@@ -994,7 +994,8 @@ export function App() {
         beacon={beacon}
         {...(sheet.hitDieMultiplier ? { times: sheet.hitDieMultiplier } : {})}
         onSpend={spend}
-        onRoll={(withSong) => void rollOrThrow(`1d${sides}`, true, undefined, { source: beacon === "Beacon of Hope" ? "Beacon of Hope" : "Hit Die", ...(beacon ? { max: true } : {}) }).then((r) => spend(r.total, withSong))}
+        left={(sheet.hitDice.find((h) => h.die === die)?.total ?? 1) - (sheet.hitDice.find((h) => h.die === die)?.used ?? 0)}
+        onRoll={(withSong, count) => void facesOrRoll(count, sides, true, { source: beacon === "Beacon of Hope" ? "Beacon of Hope" : "Hit Die", ...(beacon ? { max: true } : {}) }).then((f) => spend(f, withSong))}
       />
     ));
   };
@@ -2762,6 +2763,20 @@ export function App() {
           onNo={close}
           onYes={() => {
             live.current.act("rest", { kind }, kind === "short" ? "Short rest." : "Long rest.");
+            close();
+          }}
+        />
+      )),
+    setLeft: (r) =>
+      open(r.name, () => (
+        <LeftEntry
+          name={r.name}
+          left={r.remaining}
+          max={r.max}
+          onSave={(n) => {
+            const diff = n - r.remaining;
+            if (diff < 0) live.current.act("spendResource", { resource: r.id, amount: -diff }, `${r.name}: ${n} of ${r.max} left (set by hand).`);
+            else if (diff > 0) live.current.act("restoreResource", { resource: r.id, amount: diff }, `${r.name}: ${n} of ${r.max} left (set by hand).`);
             close();
           }}
         />
@@ -4920,11 +4935,38 @@ function Welcome({
 }
 
 /** A Hit Die: tap the face, or let the app roll. With Song of Rest, a tick-box for the bard's extra die. */
-function HitDieEntry({ sides, con, songSides, beacon, times, onSpend, onRoll }: { sides: number; con: string; songSides: number; beacon?: string; times?: { value: number; label: string }; onSpend: (roll: number, withSong: boolean) => void; onRoll: (withSong: boolean) => void }) {
+function HitDieEntry({ sides, con, songSides, beacon, times, left = 1, onSpend, onRoll }: { sides: number; con: string; songSides: number; beacon?: string; times?: { value: number; label: string }; left?: number; onSpend: (rolls: number[], withSong: boolean) => void; onRoll: (withSong: boolean, count: number) => void }) {
   const [song, setSong] = useState(false);
+  // Several at once (a short rest): how many, then each die's face (or the app rolls them all).
+  const [count, setCount] = useState(1);
+  const [faces, setFaces] = useState<number[]>([]);
+  const tap = (n: number) => {
+    const next = [...faces, n];
+    if (next.length >= count) {
+      setFaces([]);
+      onSpend(next, song);
+    } else setFaces(next);
+  };
   return (
     <>
-      <p className="note">Tap what you rolled, or let the app roll. Constitution {con} is added.</p>
+      {left > 1 && (
+        <div className="group">
+          <NumberStep
+            label="How many Hit Dice"
+            sub={`${left} d${sides} left`}
+            value={count}
+            min={1}
+            max={left}
+            onChange={(n) => {
+              setCount(n);
+              setFaces((f) => f.slice(0, Math.max(0, n - 1)));
+            }}
+          />
+        </div>
+      )}
+      <p className="note">
+        {count > 1 ? `Tap each die you rolled (${faces.length} of ${count}${faces.length ? `: ${faces.join(", ")}` : ""}), or let the app roll them.` : "Tap what you rolled, or let the app roll."} Constitution {con} is added to each.
+      </p>
       {beacon && <p className="note beacon-text">{beacon}: the die counts as {sides}, whatever it shows.</p>}
       {times && <p className="note">{times.label}: the hit points it gives are ×{times.value}.</p>}
       {songSides > 0 && (
@@ -4938,13 +4980,33 @@ function HitDieEntry({ sides, con, songSides, beacon, times, onSpend, onRoll }: 
       )}
       <div className="keys" style={{ gridTemplateColumns: "repeat(4, 1fr)", marginTop: 10 }}>
         {Array.from({ length: sides }, (_, i) => (
-          <button key={i} className="key" onClick={() => onSpend(i + 1, song)}>
+          <button key={i} className="key" onClick={() => tap(i + 1)}>
             {i + 1}
           </button>
         ))}
       </div>
-      <button className="big" style={{ width: "100%", marginTop: 10 }} onClick={() => onRoll(song)}>
-        Roll for me
+      {faces.length > 0 && (
+        <button className="link" onClick={() => setFaces(faces.slice(0, -1))}>
+          Undo the last die
+        </button>
+      )}
+      <button className="big" style={{ width: "100%", marginTop: 10 }} onClick={() => onRoll(song, count)}>
+        {count > 1 ? `Roll ${count}d${sides} for me` : "Roll for me"}
+      </button>
+    </>
+  );
+}
+
+/** How many uses or points are left, typed or stepped, then saved (Lay on Hands' pool, Ki, Sorcery Points). */
+function LeftEntry({ name, left, max, onSave }: { name: string; left: number; max: number; onSave: (n: number) => void }) {
+  const [n, setN] = useState(left);
+  return (
+    <>
+      <div className="group">
+        <NumberStep label={`${name} left`} sub={`of ${max}`} value={n} min={0} max={max} onChange={setN} />
+      </div>
+      <button className="big primary wide" style={{ marginTop: 10 }} disabled={n === left} onClick={() => onSave(n)}>
+        {n === left ? `${left} of ${max} left` : `Set to ${n} of ${max}`}
       </button>
     </>
   );

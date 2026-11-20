@@ -1278,13 +1278,25 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       }
       // Durable: a Hit Die heals at least twice your Constitution modifier (minimum 2).
       const floor = sheet.rules.durable ? Math.max(2, 2 * con) : 0;
-      const base = Math.max(0, roll + con, floor);
       // Periapt of Wound Closure: twice the hit points.
       const mult = sheet.hitDieMultiplier;
-      const healed = mult ? base * mult.value : base;
-      const before = c.hp.current;
-      c.hp.current = Math.min(maxHp, before + healed);
-      notes.push(`Hit Die ${die}: ${roll} + Constitution ${con} = ${roll + con}${base > roll + con ? `, Durable makes it ${base}` : ""}${mult ? `, ×${mult.value} (${mult.label}) = ${healed}` : ""} HP.`);
+      // Several at once (a short rest): each die on its own, as long as there are dice left.
+      const rolls = [roll, ...(op.payload.more ?? [])];
+      let spent = 0;
+      for (const [i, r] of rolls.entries()) {
+        if (i > 0) {
+          if ((c.hitDiceUsed[die] ?? 0) >= pool.total) {
+            notes.push(`No ${die} Hit Dice left after ${spent}: the other ${rolls.length - i} weren't spent.`);
+            break;
+          }
+          c.hitDiceUsed[die] = (c.hitDiceUsed[die] ?? 0) + 1;
+        }
+        spent++;
+        const base = Math.max(0, r + con, floor);
+        const healed = mult ? base * mult.value : base;
+        c.hp.current = Math.min(maxHp, c.hp.current + healed);
+        notes.push(`Hit Die ${die}: ${r} + Constitution ${con} = ${r + con}${base > r + con ? `, Durable makes it ${base}` : ""}${mult ? `, ×${mult.value} (${mult.label}) = ${healed}` : ""} HP.`);
+      }
       break;
     }
 

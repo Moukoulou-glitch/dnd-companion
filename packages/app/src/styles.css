@@ -5596,3 +5596,6 @@ h2 .slot-count .pact b { color: #b58cff; }
 @keyframes ds-mark-in { 0% { transform: scale(0.4) rotate(-12deg); } 70% { transform: scale(1.15) rotate(3deg); } 100% { transform: scale(1) rotate(0); } }
 .big.warn { border-color: var(--gold); }
 @media (prefers-reduced-motion: reduce) { .ds-mark svg, .ds-mark .ds-eye { animation: none !important; } }
+
+/* A resource's count on Play: tap to type how many are left. */
+.count-edit { background: none; border: none; padding: 0; color: inherit; font: inherit; text-decoration: underline dotted; text-underline-offset: 3px; cursor: pointer; }

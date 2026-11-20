@@ -59,7 +59,8 @@ export const OPERATION_PAYLOADS = {
   restoreSlot: z.object({ level: z.number().int().min(1).max(9), pact: z.boolean().default(false) }).strict(),
   /** Spend one Hit Die during a short rest; `roll` is the die result (digital or typed from a real die). */
   /** `reduce`: spent to soak damage (Durable's reaction) instead of healing. */
-  spendHitDie: z.object({ die: z.string(), roll: z.number().int().min(1), reduce: z.boolean().optional() }).strict(),
+  /** `more`: further dice of the same size spent at once, each with its own roll (a short rest's several Hit Dice). */
+  spendHitDie: z.object({ die: z.string(), roll: z.number().int().min(1), reduce: z.boolean().optional(), more: z.array(z.number().int().min(1)).max(40).optional() }).strict(),
   /** A spent Hit Die back by hand (the app asks first). No HP change. */
   restoreHitDie: z.object({ die: z.string() }).strict(),
   /** Wild Shape (spends uses: 2 for an elemental) or Polymorph into a creature. */

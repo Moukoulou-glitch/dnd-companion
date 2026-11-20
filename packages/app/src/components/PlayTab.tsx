@@ -105,6 +105,8 @@ export interface PlayPrompts {
   restore: (what: string, run: () => void) => void;
   rest: (kind: "short" | "long") => void;
   rollPool: (r: ResourceResult) => void;
+  /** Type how many are left (Lay on Hands' points, Ki): set by hand. */
+  setLeft: (r: ResourceResult) => void;
 }
 
 function Pips({ total, used, onSpend, onRestore, kind, name, die, level, pact, look, origin }: {
@@ -447,7 +449,13 @@ export function PlayTab({
                 <div className="row-main">
                   <div className="row-title">{r.name}</div>
                   <div className="row-sub">
-                    {r.remaining} of {r.max}
+                    {r.unlimited ? (
+                      `${r.remaining} of ${r.max}`
+                    ) : (
+                      <button className="count-edit" onClick={() => prompts.setLeft(r)} aria-label={`${r.name}: type how many are left`}>
+                        {r.remaining} of {r.max} ✎
+                      </button>
+                    )}
                     {r.die ? ` ${r.die}` : ""}
                     {r.effect ? ` · ${r.effect}` : ""} · {r.unlimited ? `unlimited (${r.unlimited})` : resetLabel(r.reset)}
                   </div>

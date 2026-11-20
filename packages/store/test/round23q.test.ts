@@ -64,3 +64,30 @@ describe("23u: a rope's length", () => {
     expect(l.character.inventory.find((i) => i.id === "rope")!.amount).toBeUndefined();
   });
 });
+
+describe("23x: several Hit Dice at once, and uses set by hand", () => {
+  const fighter = () => {
+    const c = newCharacter({ id: "hd", name: "Hd", race: "race:human", class: "class:fighter", abilities: { str: 14, dex: 12, con: 14, int: 10, wis: 10, cha: 10 } }, reg);
+    c.classes = [{ class: "class:fighter", level: 5 }];
+    c.hp.current = 1;
+    return new CharacterLog(c, reg, new HybridClock("t", () => (t += 1000)), "player");
+  };
+  it("spends each die with its own roll, and stops when none are left", () => {
+    const l = fighter();
+    l.record("spendHitDie", { die: "d10", roll: 4, more: [6, 1] });
+    expect(l.character.hitDiceUsed.d10).toBe(3);
+    expect(l.character.hp.current).toBe(1 + (4 + 2) + (6 + 2) + (1 + 2));
+    const notes = l.record("spendHitDie", { die: "d10", roll: 2, more: [2, 2] });
+    expect(l.character.hitDiceUsed.d10).toBe(5);
+    expect(notes.some((n) => /No d10 Hit Dice left after 2/.test(n))).toBe(true);
+  });
+  it("a pool's points can go down or up by any amount (Lay on Hands)", () => {
+    const c = newCharacter({ id: "lo", name: "Lo", race: "race:human", class: "class:paladin", abilities: { str: 14, dex: 12, con: 14, int: 10, wis: 10, cha: 14 } }, reg);
+    c.classes = [{ class: "class:paladin", level: 5 }];
+    const l = new CharacterLog(c, reg, new HybridClock("t", () => (t += 1000)), "player");
+    l.record("spendResource", { resource: "lay-on-hands", amount: 17 });
+    expect(derive(l.character, reg).resources.find((r) => r.id === "lay-on-hands")!.remaining).toBe(8);
+    l.record("restoreResource", { resource: "lay-on-hands", amount: 5 });
+    expect(derive(l.character, reg).resources.find((r) => r.id === "lay-on-hands")!.remaining).toBe(13);
+  });
+});
