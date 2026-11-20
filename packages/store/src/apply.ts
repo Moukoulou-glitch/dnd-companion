@@ -1332,13 +1332,23 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
 
     case "rest": {
       const kind = op.payload.kind;
+      // Only one long rest in 24 hours benefits you (PHB p. 186): a second is warned, never refused.
+      if (kind === "long" && c.lastLongRestAt !== undefined && c.story.calendar.minutes - c.lastLongRestAt < 1440)
+        notes.push("⚠ Another long rest within 24 hours of the last one: a character can benefit from only one long rest in 24 hours. Done anyway.");
+      if (op.payload.by) notes.push(`${op.payload.by}: the benefits of a ${kind} rest.`);
       // The table's limit: 3 short rests between long rests. A fourth is warned, never refused.
       if (kind === "short") {
         const n = (c.shortRests ?? 0) + 1;
         if (n > SHORT_RESTS) notes.push(`⚠ Short rest ${n} since your last long rest: the table allows ${SHORT_RESTS}. Done anyway.`);
         c.shortRests = n;
       } else delete c.shortRests;
-      passMinutes(kind === "short" ? 60 : 480);
+      passMinutes(op.payload.minutes ?? (kind === "short" ? 60 : 480));
+      if (kind === "long") {
+        c.lastLongRestAt = c.story.calendar.minutes;
+        // A new day too, when the player says so (the calendar only; nothing else counts down). The day that passed counts
+        // toward the next long rest's 24 hours.
+        if (op.payload.addDay) c.story.calendar.minutes += 1440;
+      }
       // Penalties that last until a rest (a shadow's Strength drain) end.
       for (const [ab, adj] of Object.entries(c.abilityAdjust)) {
         if (!adj?.penalty || !adj.penaltyEndsOnRest) continue;

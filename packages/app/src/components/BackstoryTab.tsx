@@ -440,6 +440,9 @@ function WorldTime({ c, act }: { c: Character; act: Act }) {
         <div className="row-sub">{calendarName(cal.kind, cal.custom)}</div>
       </div>
       <div className="time-buttons">
+        <button className="chip" onClick={() => add(-perDay, "A day back")}>
+          −1 day
+        </button>
         <button className="chip" onClick={() => add(-60, "An hour back")}>
           −1 h
         </button>

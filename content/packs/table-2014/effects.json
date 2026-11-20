@@ -6451,6 +6451,35 @@
       },
       "modifiers": [],
       "minutes": 7200
+    },
+    {
+      "kind": "effect",
+      "id": "effect:catnap",
+      "name": "Catnap",
+      "category": "spell",
+      "summary": "A magical sleep for up to 10 minutes: you're unconscious. It ends early if you take damage or someone uses an action to shake you awake. Asleep the whole 10 minutes: the benefits of a short rest, and Catnap can't affect you again until you finish a long rest.",
+      "source": {
+        "pack": "table-2014",
+        "book": "XGtE",
+        "page": 151
+      },
+      "modifiers": [],
+      "minutes": 10,
+      "includes": [
+        "condition:unconscious"
+      ],
+      "onDamage": {
+        "text": "Catnap: the damage wakes you, and the spell ends on you.",
+        "endsAfter": true
+      },
+      "restAfter": {
+        "kind": "short",
+        "minutes": 10,
+        "label": "10 minutes have passed"
+      },
+      "reminders": [
+        "Can't be affected by Catnap again until you finish a long rest."
+      ]
     }
   ]
 }

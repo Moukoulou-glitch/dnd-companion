@@ -237,3 +237,36 @@ describe("24f: Aleriasa (homebrew disease)", () => {
     expect(derive(l.character, reg).effects.find((e) => e.instanceId === "al")!.suppressed).toBe(true);
   });
 });
+
+describe("24h: long rests and Catnap", () => {
+  const mk = (race = "race:human") => {
+    const c = newCharacter({ id: "lr", name: "Lr", race, class: "class:fighter", abilities: { str: 14, dex: 12, con: 14, int: 10, wis: 10, cha: 10 } }, reg);
+    return new CharacterLog(c, reg, new HybridClock("t", () => (t += 1000)), "player");
+  };
+  it("an elf's long rest is 4 hours; a human's 8", () => {
+    expect(derive(mk("race:high-elf").character, reg).longRest).toEqual({ hours: 4, why: expect.any(String) });
+    expect(derive(mk().character, reg).longRest).toEqual({ hours: 8 });
+  });
+  it("takes the hours given, can add a day, and warns about a second long rest within 24 hours", () => {
+    const l = mk();
+    const start = l.character.story.calendar.minutes;
+    l.record("rest", { kind: "long", minutes: 240 });
+    expect(l.character.story.calendar.minutes - start).toBe(240);
+    const notes = l.record("rest", { kind: "long", minutes: 480, addDay: true });
+    expect(notes.some((n) => /within 24 hours/.test(n))).toBe(true);
+    expect(l.character.story.calendar.minutes - start).toBe(240 + 480 + 1440);
+    expect(l.record("rest", { kind: "long" }).some((n) => /within 24 hours/.test(n))).toBe(false);
+  });
+  it("Catnap: unconscious; damage ends it; its 10 minutes give a short rest", () => {
+    const l = mk();
+    l.record("addEffect", { instanceId: "cn", effect: "effect:catnap" });
+    expect(derive(l.character, reg).effects.find((e) => e.instanceId === "cn")!.includes.map((x) => x.id)).toContain("condition:unconscious");
+    l.record("damage", { amount: 1 });
+    expect(l.character.effects.some((e) => e.id === "cn")).toBe(false);
+    l.record("addEffect", { instanceId: "cn2", effect: "effect:catnap" });
+    expect(derive(l.character, reg).effects.find((e) => e.instanceId === "cn2")!.restAfter).toEqual({ kind: "short", minutes: 10, label: "10 minutes have passed" });
+    l.record("removeEffect", { instanceId: "cn2" });
+    l.record("rest", { kind: "short", minutes: 10, by: "Catnap" });
+    expect(l.character.shortRests).toBe(1);
+  });
+});

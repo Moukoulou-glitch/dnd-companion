@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { HitDiceRow } from "./HitDice";
 import { KnotToken, ResourceToken, tokenLook, type TokenLook } from "./Tokens";
 import { ShapeCard } from "./Shapes";
@@ -590,19 +591,49 @@ export function PlayTab({
             Long rest
           </button>
         </div>
-        {(sheet.effects.some((e) => e.minutes !== undefined) || character.concentration?.minutes !== undefined) && (
-          <div className="time-passes">
-            <span>Time passes</span>
-            <button className="tag" onClick={() => act("passTime", { minutes: 10 }, "10 minutes pass.")}>
-              10 min
-            </button>
-            <button className="tag" onClick={() => act("passTime", { minutes: 60 }, "An hour passes.")}>
-              1 hour
-            </button>
-          </div>
-        )}
+        <TimePasses act={act} />
       </section>
     </main>
+  );
+}
+
+/** Time passing outside a rest: timers count down, and the in-world clock moves (when rests move it). Hours typed too. */
+function TimePasses({ act }: { act: Act }) {
+  const [other, setOther] = useState("");
+  const pass = (minutes: number, label: string) => act("passTime", { minutes }, `${label} pass${minutes === 60 || minutes === 10 ? "es" : ""}.`);
+  return (
+    <div className="time-passes">
+      <span>Time passes</span>
+      <button className="tag" onClick={() => pass(10, "10 minutes")}>
+        10 min
+      </button>
+      <button className="tag" onClick={() => pass(60, "An hour")}>
+        1 hour
+      </button>
+      <button className="tag" onClick={() => pass(120, "2 hours")}>
+        2 hours
+      </button>
+      <button className="tag" onClick={() => pass(240, "4 hours")}>
+        4 hours
+      </button>
+      <button className="tag" onClick={() => pass(480, "8 hours")}>
+        8 hours
+      </button>
+      <span className="time-other">
+        <input inputMode="numeric" aria-label="Hours that passed" placeholder="hours" value={other} onChange={(e) => setOther(e.target.value.replace(/[^0-9]/g, "").slice(0, 3))} />
+        <button
+          className="tag"
+          disabled={!Number(other)}
+          onClick={() => {
+            const h = Number(other);
+            pass(h * 60, `${h} hour${h === 1 ? "" : "s"}`);
+            setOther("");
+          }}
+        >
+          Pass
+        </button>
+      </span>
+    </div>
   );
 }
 

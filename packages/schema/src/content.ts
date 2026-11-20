@@ -473,6 +473,8 @@ export const EffectDef = z
      * on, or while you're immune to disease (Divine Health, Purity of Body), it does nothing (Aleriasa: 5 days).
      */
     resistsCures: z.object({ suppression: DefId }).strict().optional(),
+    /** A button on its card that gives a rest when its time is up (Catnap: "10 minutes have passed", a short rest), then ends it. */
+    restAfter: z.object({ kind: z.enum(["short", "long"]), minutes: z.number().int().min(1), label: z.string() }).strict().optional(),
     /** Putting it on ends every disease on you (Heroes' Feast). */
     endsDiseases: z.boolean().optional(),
     /** Reminders for what the app can't apply itself, e.g. "Attacks against you have advantage". */

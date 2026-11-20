@@ -412,6 +412,8 @@ export interface EffectResult {
   includes: { id: string; name: string }[];
   /** A disease (a custom one tagged so, or Contagion): what cures diseases ends it. */
   disease?: boolean;
+  /** A button that gives a rest when its time is up (Catnap). */
+  restAfter?: { kind: "short" | "long"; minutes: number; label: string };
   /** A custom effect's exhaustion levels, or a disease's own (they add to your own). */
   exhaustion?: number;
   /** Ordinary cures only suppress it (Aleriasa); `suppressed`: it's held back now (a cure's days, or immunity to disease). */
@@ -585,6 +587,8 @@ export interface DerivedSheet {
   notSurprised?: string;
   /** A Hit Die heals this many times what it would (Periapt of Wound Closure: twice). */
   hitDieMultiplier?: { value: number; label: string };
+  /** How long a long rest takes for you: 4 hours for a trance (elves) or a Reborn's deathless rest, else 8; and why. */
+  longRest: { hours: number; why?: string };
   /** Healing dice you roll for yourself count as their maximum, and why (Gift of the Ever-Living Ones, with the familiar near). */
   selfMaxHealing?: string;
   /** Rule permissions: two-weapon fighting with non-light weapons (Dual Wielder), ability modifier on off-hand damage (the style). */
@@ -2539,6 +2543,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       for (const inc of [...def.includes, ...((e.choice && def.includesByChoice?.[e.choice]) || [])]) reminders.push(...reg.get(inc, "effect").reminders);
       r = { ...base, id: def.id, name: def.name, category: def.category, concentration: def.concentration, reminders };
       if (def.disease) r.disease = true;
+      if (def.restAfter) r.restAfter = def.restAfter;
       const quiet = !!def.resistsCures && !sources.some((s) => s.effectInstanceId === e.id);
       if (def.givesExhaustion) {
         r.exhaustion = e.exhaustion ?? 0;
@@ -2931,6 +2936,10 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       return out;
     })(),
     suffocationRounds: Math.max(1, mods.con),
+    longRest: (() => {
+      const four = sources.find((s) => ["feature:trance", "feature:trait-trance", "feature:reborn-deathless-nature"].includes(s.id));
+      return four ? { hours: 4, why: four.label } : { hours: 8 };
+    })(),
     ...(allowed("rule.notSurprised") ? { notSurprised: modsFor(["rule.notSurprised"]).find((a) => a.mod.op === "allow")?.mod.label ?? "You can't be surprised" } : {}),
     ...(() => {
       const m = modsFor(["roll.hitdie"]).find((a) => a.mod.op === "multiply" && conditionState(a.mod.when) === "pass");

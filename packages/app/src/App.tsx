@@ -2769,7 +2769,20 @@ export function App() {
         />
       )),
     rest: (kind) =>
-      open(kind === "short" ? "Short rest" : "Long rest", () => (
+      kind === "long"
+        ? open("Long rest", () => (
+            <LongRestPanel
+              hours={live.current.sheet?.longRest.hours ?? 8}
+              {...(live.current.sheet?.longRest.why ? { why: live.current.sheet.longRest.why } : {})}
+              tooSoon={live.current.character?.lastLongRestAt !== undefined && (live.current.character?.story.calendar.minutes ?? 0) - live.current.character!.lastLongRestAt! < 1440}
+              onCancel={close}
+              onRest={(minutes, addDay) => {
+                live.current.act("rest", { kind: "long", minutes, ...(addDay ? { addDay: true } : {}) }, `Long rest (${minutes / 60} hours${addDay ? ", and a new day" : ""}).`);
+                close();
+              }}
+            />
+          ))
+        : open(kind === "short" ? "Short rest" : "Long rest", () => (
         <Confirm
           question="Are you still alive after the rest?"
           detail={
@@ -5123,6 +5136,50 @@ function FlaskTrap({ reg, holding, onPick }: { reg: typeof registry; holding?: s
         <input className="search" placeholder="Its name" value={own} maxLength={80} onChange={(e) => setOwn(e.target.value)} />
         <button className="big" disabled={!own.trim()} onClick={() => onPick({ name: own.trim() })}>
           Trap it
+        </button>
+      </div>
+    </>
+  );
+}
+
+/**
+ * A long rest: how long it took (4 hours for a trance or a Reborn's rest, 8 otherwise, or what you type), and whether the
+ * calendar also moves on a day. A second long rest within 24 hours is warned, never refused.
+ */
+function LongRestPanel({ hours, why, tooSoon, onCancel, onRest }: { hours: number; why?: string; tooSoon: boolean; onCancel: () => void; onRest: (minutes: number, addDay: boolean) => void }) {
+  const [h, setH] = useState<number | "other">(hours);
+  const [other, setOther] = useState("");
+  const [addDay, setAddDay] = useState(false);
+  const chosen = h === "other" ? Number(other) : h;
+  return (
+    <>
+      <p className="note">Full HP, spell slots, features and half your Hit Dice come back. Are you still alive after the rest?</p>
+      {tooSoon && <p className="over-banner" role="alert">Your last long rest ended less than 24 hours ago: a character benefits from only one long rest in 24 hours. Fine if your DM agrees.</p>}
+      <p className="sub-head">How long did it take?</p>
+      <div className="types wrap" role="radiogroup" aria-label="Hours">
+        {[4, 8].map((n) => (
+          <button key={n} className="switch" role="radio" aria-checked={h === n} aria-pressed={h === n} onClick={() => setH(n)}>
+            {n} hours{n === hours && why ? ` (${why})` : ""}
+          </button>
+        ))}
+        <button className="switch" role="radio" aria-checked={h === "other"} aria-pressed={h === "other"} onClick={() => setH("other")}>
+          Other
+        </button>
+      </div>
+      {h === "other" && <input className="search" inputMode="numeric" placeholder="Hours" value={other} onChange={(e) => setOther(e.target.value.replace(/[^0-9]/g, "").slice(0, 3))} aria-label="Hours the rest took" />}
+      <label className="row check" style={{ marginTop: 8 }}>
+        <input type="checkbox" checked={addDay} onChange={() => setAddDay(!addDay)} />
+        <div className="row-main">
+          <div className="row-title">A new day: add a day to the calendar</div>
+          <div className="row-sub">On top of the hours of the rest (the date moves on by one)</div>
+        </div>
+      </label>
+      <div className="confirm">
+        <button className="big" onClick={onCancel}>
+          Not yet, cancel
+        </button>
+        <button className="big primary" disabled={!chosen} onClick={() => onRest(chosen * 60, addDay)}>
+          Finish the long rest
         </button>
       </div>
     </>

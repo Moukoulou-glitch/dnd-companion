@@ -197,7 +197,11 @@ export const OPERATION_PAYLOADS = {
   setComponent: z.object({ spell: DefId, have: z.boolean().optional(), count: z.number().int().min(0).max(999).optional() }).strict(),
   /** Wizard: gold set aside for copying spells into the spellbook. */
   setSpellbookFunds: z.object({ gp: z.number().min(0) }).strict(),
-  rest: z.object({ kind: z.enum(["short", "long"]) }).strict(),
+  /**
+   * A rest. `minutes`: how long it took (a long rest of 4 hours for an elf; Catnap's 10 minutes); `addDay`: also move the
+   * calendar on a day; `by`: what gave it (Catnap). All optional: older logs rest an hour or 8 hours.
+   */
+  rest: z.object({ kind: z.enum(["short", "long"]), minutes: z.number().int().min(1).max(10080).optional(), addDay: z.boolean().optional(), by: z.string().max(60).optional() }).strict(),
   /** Use a feature: spends its cost, switches on its states, applies recorded dice results. */
   useAction: z
     .object({

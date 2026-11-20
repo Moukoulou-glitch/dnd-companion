@@ -89,6 +89,20 @@ export function EffectPanel({ e, act, close, onRelease }: { e: EffectResult; act
           </button>
         </>
       )}
+      {e.restAfter && (
+        <button
+          className="big primary wide"
+          style={{ marginBottom: 10 }}
+          onClick={() => {
+            act("removeEffect", { instanceId: e.instanceId }, `${e.name} ends.`);
+            act("rest", { kind: e.restAfter!.kind, minutes: e.restAfter!.minutes, by: e.name }, `${e.restAfter!.label}: ${e.name} gives a ${e.restAfter!.kind} rest.`);
+            close();
+          }}
+        >
+          {e.restAfter.label}
+          <span className="sub">the benefits of a {e.restAfter.kind} rest</span>
+        </button>
+      )}
       {e.disease && !e.resistsCures && <p className="note">A disease: Lay on Hands, Lesser Restoration and other cures end it.</p>}
       {e.resistsCures && (
         <div className="confirm" style={{ marginBottom: 10 }}>
