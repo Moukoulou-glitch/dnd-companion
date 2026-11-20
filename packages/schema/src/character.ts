@@ -146,6 +146,8 @@ export const EffectInstance = z
     level: z.number().int().min(1).optional(),
     /** How many are left of what it counts (Mirror Image: duplicates). */
     count: z.number().int().min(0).optional(),
+    /** Exhaustion levels it gives (a disease's own: Aleriasa), added to yours while it's active. */
+    exhaustion: z.number().int().min(0).max(6).optional(),
     /** Who or what applied it, e.g. "Cleric's Bless". */
     from: z.string().optional(),
     /** Ends when this character's own concentration ends (a spell they cast on themselves). */

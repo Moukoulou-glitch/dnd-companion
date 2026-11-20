@@ -277,7 +277,18 @@ export function collectSources(c: Character, baseReg: ContentRegistry, duplicate
   };
   // Exhaustion: your own levels and the levels custom effects give add up, applied once (six at most).
   const exInst = c.effects.find((e) => e.effect === "condition:exhaustion");
-  const exExtra = c.effects.reduce((n, e) => n + (e.effect === "custom" ? e.custom?.exhaustion ?? 0 : 0), 0);
+  // A disease that only ordinary cures hold back (Aleriasa): quiet while suppressed or while you're immune to disease.
+  const immuneDisease = out.some((s) => (s.grant.modifiers ?? []).some((m) => m.selector === "defense.immune.disease"));
+  const dormant = (e: Character["effects"][number]) => {
+    const d = e.effect === "custom" ? undefined : reg.find(reg.effectId(e.effect), "effect");
+    return !!d?.resistsCures && (immuneDisease || c.effects.some((x) => x.effect === d.resistsCures!.suppression));
+  };
+  const ownExhaustion = (e: Character["effects"][number]) => {
+    if (e.effect === "custom") return e.custom?.exhaustion ?? 0;
+    const d = reg.find(reg.effectId(e.effect), "effect");
+    return d?.givesExhaustion && !dormant(e) ? e.exhaustion ?? 0 : 0;
+  };
+  const exExtra = c.effects.reduce((n, e) => n + ownExhaustion(e), 0);
   for (const e of c.effects) {
     if (e === exInst && exExtra) continue;
     if (e.effect === "custom" && e.custom) {
@@ -289,13 +300,21 @@ export function collectSources(c: Character, baseReg: ContentRegistry, duplicate
       }
     } else {
       const def = reg.find(reg.effectId(e.effect), "effect");
+      // Suppressed (Aleriasa): there, but doing nothing.
+      if (def && dormant(e)) continue;
       if (def) pushEffect(def, e.id, e.level, undefined, e);
+      // Conditions it brings at enough of its own exhaustion (Aleriasa at 5: blinded).
+      if (def?.includesAtExhaustion && (e.exhaustion ?? 0) >= def.includesAtExhaustion.at)
+        for (const inc of def.includesAtExhaustion.includes) {
+          const d = reg.find(inc, "effect");
+          if (d) pushEffect(d, e.id, undefined, def.name);
+        }
     }
   }
 
   if (exExtra) {
     const exDef = reg.find("condition:exhaustion", "effect");
-    const holder = exInst ?? c.effects.find((e) => e.effect === "custom" && e.custom?.exhaustion);
+    const holder = exInst ?? c.effects.find((e) => ownExhaustion(e) > 0);
     if (exDef && holder) pushEffect(exDef, holder.id, Math.min(exDef.levels?.length ?? 6, (exInst?.level ?? 0) + exExtra), undefined, exInst);
   }
 

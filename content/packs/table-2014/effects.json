@@ -6396,6 +6396,61 @@
         "Slimy Doom: disadvantage on Constitution checks and saves; whenever you take damage, you're stunned until the end of your next turn.",
         "A natural disease: anything that cures disease (Lesser Restoration, Lay on Hands) ends it."
       ]
+    },
+    {
+      "kind": "effect",
+      "id": "other:aleriasa",
+      "name": "Aleriasa",
+      "category": "other",
+      "disease": true,
+      "givesExhaustion": true,
+      "includesAtExhaustion": {
+        "at": 5,
+        "includes": [
+          "condition:blinded"
+        ]
+      },
+      "resistsCures": {
+        "suppression": "other:aleriasa-suppressed"
+      },
+      "summary": "A blood disease that preys on elves and the fey. A bleeding wound at the sternum after the first full moon; one exhaustion level a day (set on its card), blinded at 5, dead at 6. Ordinary cures only suppress it for 5 days; Divine Health and Purity of Body suppress it too.",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (Giorgos)"
+      },
+      "modifiers": [],
+      "reminders": [
+        "Each day it's active: one more exhaustion level from it (raise it on its card). Those levels go away while it's suppressed or once it's cured.",
+        "An elf, a fey or a creature with Fey Ancestry coming within 30 ft of you for the first time while it's active: 20% chance to catch it (only once from you).",
+        "More than a year afflicted, at a full moon with no treatment: instant death. Only a 9th-level spell (True Resurrection, Wish) brings you back.",
+        "Cured for good by a disease cure from a 6th-level slot (Heal, Lesser Restoration at 6th), or by a celestial of CR 9+, a Life cleric with Wisdom 20+, an heir of Elpidora Atharsus with Wisdom 20, or another creature of CR or level 11+."
+      ],
+      "text": [
+        "This disease cannot be easily cured through conventional means. A simple spell or magical effect that cures diseases only suppresses Aleriasa and its symptoms for 5 days.",
+        "An Elven, Fey-type creature, or any creature with the Fey Ancestry trait that comes within 30 feet of a creature afflicted with the disease for the first time, provided the disease is not currently suppressed by any means, has a 20% chance of contracting it. If the creature does not contract the disease on this first encounter, it can never contract it from that particular source.",
+        "The first signs of Aleriasa appear after the first Full Moon, manifesting as a small wound at the center of the sternum that begins to bleed.",
+        "If the creature does not find a way to fight the disease, it gains one level of Exhaustion from the disease for every day that passes. These specific levels of Exhaustion cannot be removed while the disease remains active. If the disease is suppressed or cured, all levels of Exhaustion caused by it are automatically removed as well.",
+        "At the 5th level of Exhaustion, in addition to having its hit point maximum reduced by half, the creature also becomes blinded. This blindness persists for as long as the 5th level of Aleriasa-induced Exhaustion remains.",
+        "At the 6th level, the creature dies, and its body is drained of all blood.",
+        "If a creature has been afflicted with Aleriasa for more than one year and, during a Full Moon, is not under the effect of any treatment, it dies instantly, gaining all the levels of Exhaustion described above.",
+        "The only way to resurrect a victim of Aleriasa is through a 9th-level spell, such as True Resurrection or Wish.",
+        "A spell or magical effect capable of curing a disease and originating from certain creatures will also work against Aleriasa. Examples include: Celestial creatures with a Challenge Rating of 9 or higher; Life Domain Clerics with a Wisdom score of 20 or higher; a descendant of Elpidora Atharsus with a Wisdom score of 20; non-Celestial creatures with a Challenge Rating or character level of 11 or higher.",
+        "Otherwise, to effectively cure Aleriasa, a spell slot must be expended to cast a spell that cures a disease of at least 6th level, such as Heal or even a 6th level Lesser Restoration.",
+        "Features like Divine Health and Purity of Body also suppress Aleriasa and its symptoms."
+      ]
+    },
+    {
+      "kind": "effect",
+      "id": "other:aleriasa-suppressed",
+      "name": "Aleriasa suppressed",
+      "category": "other",
+      "summary": "An ordinary cure holds Aleriasa back: no symptoms and no exhaustion from it for 5 days, and it doesn't spread. Then it's active again.",
+      "source": {
+        "pack": "table-2014",
+        "book": "Homebrew (Giorgos)"
+      },
+      "modifiers": [],
+      "minutes": 7200
     }
   ]
 }

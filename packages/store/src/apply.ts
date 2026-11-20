@@ -207,7 +207,22 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
 
   /** Lesser and Greater Restoration on you: the picked condition ends (or one exhaustion level), no tag stays. */
   /** Your exhaustion in all: your own levels and those custom effects give (six at most counts). */
-  const totalExhaustion = () => (c.effects.find((e) => e.effect === "condition:exhaustion")?.level ?? 0) + c.effects.reduce((n, e) => n + (e.effect === "custom" ? e.custom?.exhaustion ?? 0 : 0), 0);
+  const totalExhaustion = () => (c.effects.find((e) => e.effect === "condition:exhaustion")?.level ?? 0) + c.effects.reduce((n, e) => n + (e.effect === "custom" ? e.custom?.exhaustion ?? 0 : e.exhaustion ?? 0), 0);
+  /**
+   * A cure on a disease: it ends, unless ordinary cures only hold it back (Aleriasa): then its suppression goes
+   * on instead (with its own timer), and its exhaustion is quiet meanwhile.
+   */
+  const cureDisease = (e: Character["effects"][number], by: string) => {
+    const d = e.effect === "custom" ? undefined : reg.find(reg.effectId(e.effect), "effect");
+    if (d?.resistsCures) {
+      const sup = reg.find(d.resistsCures.suppression, "effect");
+      c.effects = c.effects.filter((x) => x.effect !== d.resistsCures!.suppression);
+      c.effects.push({ id: `${op.id}-sup-${e.id}`, effect: d.resistsCures.suppression, ...(sup?.minutes ? { minutes: sup.minutes } : {}), from: by });
+      return void notes.push(`${by}: ${d.name} is only suppressed${sup?.minutes ? ` for ${Math.round(sup.minutes / 1440)} days` : ""}; its exhaustion is gone meanwhile. Only a stronger cure ends it (see its card).`);
+    }
+    removeEffects([e]);
+    notes.push(`${by}: ${effectName(e)} cured.`);
+  };
   /** A disease on you: a custom effect tagged a disease, or one whose definition is (Contagion). */
   const isDisease = (e: Character["effects"][number]) => !!e.custom?.disease || !!reg.find(reg.effectId(e.effect), "effect")?.disease;
   const restore = (def: { name: string; ends?: Record<string, string> }, choice?: string) => {
@@ -216,8 +231,7 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
     if (target === "disease") {
       const d = c.effects.find(isDisease);
       if (!d) return void notes.push(`${def.name}: you have no disease the app knows of.`);
-      removeEffects([d]);
-      return void notes.push(`${def.name}: ${effectName(d)} cured.`);
+      return void cureDisease(d, def.name);
     }
     if (target === "exhaustion") {
       const ex = c.effects.find((e) => e.effect === "condition:exhaustion");
@@ -1615,10 +1629,8 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       // Physician's Touch: "A disease" ends the first disease on you.
       if (a.endsConditions?.includes("disease") && op.payload.choice === "A disease") {
         const d = c.effects.find(isDisease);
-        if (d) {
-          removeEffects([d]);
-          notes.push(`${a.name}: ${effectName(d)} cured.`);
-        } else notes.push(`${a.name}: you have no disease the app knows of.`);
+        if (d) cureDisease(d, a.name);
+        else notes.push(`${a.name}: you have no disease the app knows of.`);
       } else if (a.endsConditions?.length) {
         const picked = op.payload.choice ? `condition:${op.payload.choice.toLowerCase()}` : undefined;
         const ends = picked && a.endsConditions.includes(picked) ? [picked] : a.endsConditions;
@@ -2193,13 +2205,7 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       const effectId = chargePick?.effect ?? sp.id.replace(/^spell:/, "effect:");
       const selfDef = reg.find(effectId, "effect");
       // Heroes' Feast on you: every disease ends.
-      if (selfEffect && selfDef?.endsDiseases) {
-        const ds = c.effects.filter(isDisease);
-        if (ds.length) {
-          removeEffects(ds);
-          notes.push(`${selfDef.name}: ${ds.map(effectName).join(", ")} cured.`);
-        }
-      }
+      if (selfEffect && selfDef?.endsDiseases) for (const d of c.effects.filter(isDisease)) cureDisease(d, selfDef.name);
       if (selfEffect && selfDef?.ends) restore(selfDef, op.payload.choice);
       else if (selfEffect && selfDef) {
         const def = selfDef;
@@ -2266,14 +2272,8 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         restore(def, op.payload.choice);
         break;
       }
-      // Heroes' Feast: every disease ends.
-      if (def?.endsDiseases) {
-        const ds = c.effects.filter(isDisease);
-        if (ds.length) {
-          removeEffects(ds);
-          notes.push(`${def.name}: ${ds.map(effectName).join(", ")} cured.`);
-        }
-      }
+      // Heroes' Feast: every disease ends (or is suppressed, for one that resists cures).
+      if (def?.endsDiseases) for (const d of c.effects.filter(isDisease)) cureDisease(d, def.name);
       if (custom?.exhaustion) {
         const t = totalExhaustion() + custom.exhaustion;
         notes.push(`${custom.name}: ${custom.exhaustion} exhaustion level${custom.exhaustion === 1 ? "" : "s"} (exhaustion ${Math.min(6, t)} in all).`);
@@ -2377,6 +2377,10 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
       if (op.payload.exhaustion !== undefined && e.custom) {
         if (op.payload.exhaustion > 0) e.custom.exhaustion = op.payload.exhaustion;
         else delete e.custom.exhaustion;
+        if (totalExhaustion() >= 6) notes.push("Exhaustion 6: the character dies.");
+      } else if (op.payload.exhaustion !== undefined && reg.find(reg.effectId(e.effect), "effect")?.givesExhaustion) {
+        if (op.payload.exhaustion > 0) e.exhaustion = op.payload.exhaustion;
+        else delete e.exhaustion;
         if (totalExhaustion() >= 6) notes.push("Exhaustion 6: the character dies.");
       }
       if (castLevel !== undefined) {

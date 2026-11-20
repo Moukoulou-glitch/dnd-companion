@@ -3728,7 +3728,19 @@ export function App() {
     if (who === "me")
       return ch.effects
         .filter((e) => !!e.custom?.disease || isCurable(e.effect, nameOf(e)))
-        .map((e) => ({ key: e.id, name: nameOf(e), end: () => live.current.act("removeEffect", { instanceId: e.id }, `${nameOf(e)} ends.`) }));
+        .map((e) => {
+          // A disease ordinary cures only hold back (Aleriasa): its suppression goes on instead.
+          const sup = (registry.find(e.effect, "effect") as { resistsCures?: { suppression: string } } | undefined)?.resistsCures?.suppression;
+          const supDef = sup ? registry.find(sup, "effect") : undefined;
+          return {
+            key: e.id,
+            name: nameOf(e),
+            end: () =>
+              sup
+                ? live.current.act("addEffect", { instanceId: crypto.randomUUID(), effect: sup, ...(supDef?.minutes ? { minutes: supDef.minutes } : {}) }, `${nameOf(e)} suppressed${supDef?.minutes ? ` for ${Math.round(supDef.minutes / 1440)} days` : ""}: only a stronger cure ends it.`)
+                : live.current.act("removeEffect", { instanceId: e.id }, `${nameOf(e)} ends.`),
+          };
+        });
     if (who.startsWith("summon:")) {
       const m = ch.summons.find((x) => `summon:${x.id}` === who);
       return (m?.effects ?? [])

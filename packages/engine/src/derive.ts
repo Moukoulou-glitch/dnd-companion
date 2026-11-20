@@ -412,8 +412,11 @@ export interface EffectResult {
   includes: { id: string; name: string }[];
   /** A disease (a custom one tagged so, or Contagion): what cures diseases ends it. */
   disease?: boolean;
-  /** A custom effect's exhaustion levels (they add to your own). */
+  /** A custom effect's exhaustion levels, or a disease's own (they add to your own). */
   exhaustion?: number;
+  /** Ordinary cures only suppress it (Aleriasa); `suppressed`: it's held back now (a cure's days, or immunity to disease). */
+  resistsCures?: boolean;
+  suppressed?: boolean;
   /** A custom effect: the changes it makes (shown on its card in plain words). */
   changes?: Modifier[];
   /** Ends when you attack or cast a spell (Invisibility). */
@@ -958,6 +961,12 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     if (e.choice) for (const inc of reg.find(reg.effectId(e.effect), "effect")?.includesByChoice?.[e.choice] ?? []) addCond(inc);
     for (const inc of e.custom?.includes ?? []) addCond(inc);
     if (e.custom?.exhaustion) addCond("condition:exhaustion");
+    // A disease's own exhaustion and what it brings at a level (Aleriasa), unless it's suppressed (no source then).
+    const ed = e.effect === "custom" ? undefined : reg.find(reg.effectId(e.effect), "effect");
+    if (ed?.givesExhaustion && (e.exhaustion ?? 0) > 0 && sources.some((s) => s.effectInstanceId === e.id)) {
+      addCond("condition:exhaustion");
+      if (ed.includesAtExhaustion && (e.exhaustion ?? 0) >= ed.includesAtExhaustion.at) for (const inc of ed.includesAtExhaustion.includes) addCond(inc);
+    }
   }
   // Rage Beyond Death: at 0 hit points while raging you keep fighting.
   const beyondDeath = c.toggles.includes("raging") && sources.some((s) => s.id === "feature:path-of-the-zealot-rage-beyond-death");
@@ -2530,6 +2539,16 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
       for (const inc of [...def.includes, ...((e.choice && def.includesByChoice?.[e.choice]) || [])]) reminders.push(...reg.get(inc, "effect").reminders);
       r = { ...base, id: def.id, name: def.name, category: def.category, concentration: def.concentration, reminders };
       if (def.disease) r.disease = true;
+      const quiet = !!def.resistsCures && !sources.some((s) => s.effectInstanceId === e.id);
+      if (def.givesExhaustion) {
+        r.exhaustion = e.exhaustion ?? 0;
+        if (r.exhaustion && !quiet) r.includes.push({ id: "condition:exhaustion", name: `Exhaustion ${r.exhaustion}` });
+        if (!quiet && def.includesAtExhaustion && r.exhaustion >= def.includesAtExhaustion.at) for (const inc of def.includesAtExhaustion.includes) r.includes.push({ id: inc, name: reg.find(inc, "effect")?.name ?? inc });
+      }
+      if (def.resistsCures) {
+        r.resistsCures = true;
+        if (!sources.some((s) => s.effectInstanceId === e.id)) r.suppressed = true;
+      }
       if (def.summary) r.summary = def.summary;
       if (def.levels) {
         r.level = e.level ?? 1;

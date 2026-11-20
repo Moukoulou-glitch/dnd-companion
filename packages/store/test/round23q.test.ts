@@ -199,3 +199,41 @@ describe("24e: the Iron Flask holds one creature", () => {
     expect(l.character.inventory[0]!.holds).toBeUndefined();
   });
 });
+
+describe("24f: Aleriasa (homebrew disease)", () => {
+  const mk = (cls = "class:wizard", level = 5) => {
+    const c = newCharacter({ id: "al", name: "Al", race: "race:high-elf", class: cls, abilities: { str: 10, dex: 14, con: 14, int: 16, wis: 10, cha: 10 } }, reg);
+    c.classes = [{ class: cls, level }];
+    return new CharacterLog(c, reg, new HybridClock("t", () => (t += 1000)), "player");
+  };
+  it("its own exhaustion adds to yours; blinded at 5", () => {
+    const l = mk();
+    const walk = derive(l.character, reg).speed.total;
+    l.record("addEffect", { instanceId: "al", effect: "other:aleriasa" });
+    l.record("updateEffect", { instanceId: "al", exhaustion: 2 });
+    let s = derive(l.character, reg);
+    expect(s.speed.total).toBe(Math.floor(walk / 2));
+    l.record("updateEffect", { instanceId: "al", exhaustion: 5 });
+    s = derive(l.character, reg);
+    expect(s.effects.find((e) => e.instanceId === "al")!.includes.map((x) => x.id)).toContain("condition:blinded");
+  });
+  it("an ordinary cure only suppresses it: its exhaustion goes quiet for 5 days", () => {
+    const l = mk();
+    const walk = derive(l.character, reg).speed.total;
+    l.record("addEffect", { instanceId: "al", effect: "other:aleriasa" });
+    l.record("updateEffect", { instanceId: "al", exhaustion: 3 });
+    l.record("addEffect", { instanceId: "lr", effect: "effect:lesser-restoration", choice: "A disease" });
+    expect(l.character.effects.some((e) => e.id === "al")).toBe(true);
+    const s = derive(l.character, reg);
+    expect(s.effects.find((e) => e.instanceId === "al")!.suppressed).toBe(true);
+    expect(s.speed.total).toBe(walk);
+    l.record("passTime", { minutes: 7200 });
+    expect(derive(l.character, reg).speed.total).toBe(Math.floor(walk / 2));
+  });
+  it("Divine Health holds it back", () => {
+    const l = mk("class:paladin", 3);
+    l.record("addEffect", { instanceId: "al", effect: "other:aleriasa" });
+    l.record("updateEffect", { instanceId: "al", exhaustion: 2 });
+    expect(derive(l.character, reg).effects.find((e) => e.instanceId === "al")!.suppressed).toBe(true);
+  });
+});

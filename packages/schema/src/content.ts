@@ -464,6 +464,15 @@ export const EffectDef = z
     includesByChoice: z.record(z.string(), z.array(DefId)).optional(),
     /** A disease or poison: what cures those ends it (Lay on Hands' cure, Lesser Restoration). */
     disease: z.boolean().optional(),
+    /** Its own exhaustion levels, set on its card, added to yours while it's active (Aleriasa: one a day). */
+    givesExhaustion: z.boolean().optional(),
+    /** Conditions it brings once its exhaustion reaches a level (Aleriasa: blinded at 5). */
+    includesAtExhaustion: z.object({ at: z.number().int().min(1).max(6), includes: z.array(DefId) }).strict().optional(),
+    /**
+     * Ordinary cures only hold it back: they put on `suppression` (its own timer) instead of ending it. While that's
+     * on, or while you're immune to disease (Divine Health, Purity of Body), it does nothing (Aleriasa: 5 days).
+     */
+    resistsCures: z.object({ suppression: DefId }).strict().optional(),
     /** Putting it on ends every disease on you (Heroes' Feast). */
     endsDiseases: z.boolean().optional(),
     /** Reminders for what the app can't apply itself, e.g. "Attacks against you have advantage". */

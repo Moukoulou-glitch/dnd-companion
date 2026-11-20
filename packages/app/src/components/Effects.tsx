@@ -89,7 +89,25 @@ export function EffectPanel({ e, act, close, onRelease }: { e: EffectResult; act
           </button>
         </>
       )}
-      {e.disease && <p className="note">A disease: Lay on Hands, Lesser Restoration and other cures end it.</p>}
+      {e.disease && !e.resistsCures && <p className="note">A disease: Lay on Hands, Lesser Restoration and other cures end it.</p>}
+      {e.resistsCures && (
+        <div className="confirm" style={{ marginBottom: 10 }}>
+          <button className="big" onClick={() => act("addEffect", { instanceId: crypto.randomUUID(), effect: "other:aleriasa-suppressed", minutes: 7200 }, `${e.name} suppressed for 5 days.`)}>
+            An ordinary cure
+            <span className="sub">suppressed for 5 days, its exhaustion gone meanwhile</span>
+          </button>
+          <button
+            className="big primary"
+            onClick={() => {
+              act("removeEffect", { instanceId: e.instanceId }, `${e.name} cured for good.`);
+              close();
+            }}
+          >
+            Cured for good
+            <span className="sub">a 6th-level cure, or a healer powerful enough</span>
+          </button>
+        </div>
+      )}
       {e.untilRest && <p className="note">Ends at your next {e.untilRest === "short" ? "rest (short or long)" : "long rest"}.</p>}
       {e.summary && (
         <p>
@@ -210,7 +228,15 @@ export function EffectPanel({ e, act, close, onRelease }: { e: EffectResult; act
             </div>
           </div>
         )}
-        {e.id === "custom" && (
+        {e.resistsCures && (
+          <div className="row">
+            <div className="row-main">
+              <div className="row-title">{e.suppressed ? "Suppressed now" : "Active"}</div>
+              <div className="row-sub">Ordinary cures only suppress it. A stronger cure ends it for good.</div>
+            </div>
+          </div>
+        )}
+        {(e.id === "custom" || e.exhaustion !== undefined) && (
           <NumberStep
             label="Exhaustion levels"
             sub="Added to any you already have"
