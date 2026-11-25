@@ -93,7 +93,6 @@ import { DiePick } from "./components/DiePick";
 
 /** The table's homebrew axe whose d4 is rolled before an attack (asked in openAttack). */
 const LAPSA_ITEM = "item:battleaxe-of-regina-lapsa";
-import { DeathSavePanel } from "./components/DeathSave";
 import { vibrateFor, type HpState } from "./vibrate";
 
 type Tab = "play" | "actions" | "spells" | "sheet" | "inventory" | "story";
@@ -1061,55 +1060,34 @@ export function App() {
     else close();
   };
 
-  /** A death saving throw: what the d20 shows decides it (with Adama, two d20s: a 20 on either, or a total of exactly 20, is a natural 20; otherwise added). */
+  /**
+   * A death saving throw in the roll screen: advantage or disadvantage, dice added or taken away, your own dice or
+   * the app's or the 3D dice, and what applies to all your saves (Bless, Aura of Protection). Against 10: a natural
+   * 20 brings you back with 1 HP, a natural 1 is two failures. After the roll, what changes a failed save
+   * (Favored by the Gods, Lucky, Inspiration) is offered before it counts; Adama (two d20s added) is an option on it.
+   */
   const openDeathSave = () => {
-    const decide = (n: number, sum?: [number, number], favored?: number) => {
-      // Favored by the Gods: a failed death save (not a natural 1) can take 2d4 more before it counts.
-      const failed = sum ? !sum.includes(20) && n < 10 : n >= 2 && n < 10;
-      if (failed && favored === undefined && live.current.sheet?.actions.some((a) => a.id === "favored-by-the-gods")) {
-        const left = live.current.sheet.resources.find((r) => r.id === "favored-by-the-gods")?.remaining ?? 0;
-        return open("Death saving throw", () => (
-          <Choose
-            question={`${n}: a failed death save. Favored by the Gods?`}
-            detail={`Add 2d4 to it, possibly turning it into a success (10 or more).${left > 0 ? "" : " No use left until a rest: used anyway if you go on."}`}
-            options={[
-              {
-                label: "Favored by the Gods: roll 2d4",
-                onPick: () =>
-                  void rollOrThrow("2d4", true, undefined, { source: "Favored by the Gods" }).then((r) => {
-                    live.current.act("useAction", { action: "favored-by-the-gods", rolled: r.total }, `Favored by the Gods: +${r.total}.`);
-                    playFx({ kind: "favored", amount: r.total });
-                    decide(n, sum, r.total);
-                  }),
-              },
-              { label: "Accept the failure", onPick: () => decide(n, sum, 0) },
-            ]}
-          />
-        ));
-      }
-      const plus = favored ? ` + ${favored} (Favored by the Gods) = ${n + favored}` : "";
-      if (favored) n += favored;
-      let prompts: unknown;
-      if (sum) {
-        live.current.act("spendResource", { resource: "adama", amount: 1 }, "Adama used.");
-        const said = `Death save (Adama): ${sum[0]} + ${sum[1]}${plus ? `${plus}` : ` = ${n}`}`;
-        if (sum.includes(20)) prompts = s.act("deathSave", { result: "critSuccess" }, `Death save (Adama): ${sum[0]} and ${sum[1]}, a natural 20.`);
-        else if (n === 20) prompts = s.act("deathSave", { result: "critSuccess" }, `${said}, counts as a natural 20.`);
-        else if (n >= 10) prompts = s.act("deathSave", { result: "success" }, `${said}, a success.`);
+    const sh = live.current.sheet;
+    if (!sh) return;
+    let done = false;
+    openRoll("Death saving throw", sh.deathSaveRoll, undefined, {
+      dc: 10,
+      mySave: true,
+      onDecided: (passed, r) => {
+        if (done) return;
+        done = true;
+        const nat = r.natural;
+        const adama = r.lines.some((l) => l.source.startsWith("2d20 added"));
+        const said = adama ? `Death save (Adama): ${r.total}` : `Death save: ${r.total}${nat !== undefined && nat !== r.total ? ` (d20 ${nat})` : ""}`;
+        let prompts: unknown;
+        if (nat === 20) prompts = s.act("deathSave", { result: "critSuccess" }, adama ? `${said}, counts as a natural 20.` : "Death save: natural 20.");
+        else if (nat === 1 && !adama) prompts = s.act("deathSave", { result: "critFailure" }, "Death save: natural 1, two failures.");
+        else if (passed) prompts = s.act("deathSave", { result: "success" }, `${said}, a success.`);
         else prompts = s.act("deathSave", { result: "failure" }, `${said}, a failure.`);
-        return afterDeathSave(prompts);
-      }
-      if (n === 20) prompts = s.act("deathSave", { result: "critSuccess" }, "Death save: natural 20.");
-      else if (n === 1) prompts = s.act("deathSave", { result: "critFailure" }, "Death save: natural 1, two failures.");
-      else if (n >= 10) prompts = s.act("deathSave", { result: "success" }, `Death save: ${favored ? `${n - favored}${plus}` : n}, a success.`);
-      else prompts = s.act("deathSave", { result: "failure" }, `Death save: ${favored ? `${n - favored}${plus}` : n}, a failure.`);
-      afterDeathSave(prompts);
-    };
-    const adama = live.current.sheet?.resources.find((r) => r.id === "adama");
-    open(
-      "Death saving throw",
-      <DeathSavePanel advantage={live.current.sheet?.deathSave.advantage ?? []} disadvantage={live.current.sheet?.deathSave.disadvantage ?? []} {...(adama ? { adama: adama.remaining } : {})} onDecide={decide} />,
-    );
+        // A moment to see the roll, then on (back to 1 HP, stable, or dead).
+        setTimeout(() => afterDeathSave(prompts), 1200);
+      },
+    });
   };
 
   const openHitDie = (die: string) => {
@@ -1246,6 +1224,10 @@ export function App() {
       notMine?: boolean;
       /** An ability check of yours (a tool's), for after-roll options on checks (Magical Guidance). */
       check?: boolean;
+      /** A save of yours that isn't one of the six (a death saving throw), for after-roll options on saves. */
+      mySave?: boolean;
+      /** Against `dc`: decided (after any after-roll change, or "Accept the failure"); the roll as it stands then. */
+      onDecided?: (passed: boolean, r: RollRecord) => void;
     } = {},
   ) => {
     // Each roll is a fresh composer: the next one (a strike after Hand of Healing) never inherits the last one's dice.
@@ -1255,7 +1237,14 @@ export function App() {
     const keepers = opts.notMine ? [] : (live.current.sheet?.effects ?? []).filter((e) => e.keepIfFails && e.usedUp);
     // A saving throw of yours, decided once when the roll opens: the sheet is drawn again after the roll (a new
     // object), and an identity check made then would lose the after-roll options (Favored by the Gods, Diamond Soul).
-    const isMySave = !attack && !opts.notMine && !!live.current.sheet && Object.values(live.current.sheet.saves).includes(base as never);
+    const isMySave = !attack && !opts.notMine && !!live.current.sheet && (!!opts.mySave || Object.values(live.current.sheet.saves).includes(base as never));
+    // The roll as it stands (after Lucky, Inspiration, Favored by the Gods), for onDecided.
+    let lastRoll: RollRecord | undefined;
+    const onRollUpdate = (e: Event) => {
+      const r = (e as CustomEvent<RollRecord>).detail;
+      if (lastRoll && r.id === lastRoll.id) lastRoll = r;
+    };
+    if (opts.onDecided) window.addEventListener("dnd-roll-update", onRollUpdate);
     // An ability check of yours: an ability, a skill, or a tool (said by the caller).
     const isMyCheck = !attack && !opts.notMine && !!live.current.sheet && !isMySave && (!!opts.check || Object.values(live.current.sheet.skills).includes(base as never));
     return open(title, () => {
@@ -1342,7 +1331,16 @@ export function App() {
         }}
         physical={live.current.character?.settings.physicalDice ?? true}
         onPhysicalChange={setPhysicalDice}
+        {...(opts.onDecided
+          ? {
+              onCheck: (passed: boolean) => {
+                window.removeEventListener("dnd-roll-update", onRollUpdate);
+                if (lastRoll) opts.onDecided!(passed, lastRoll);
+              },
+            }
+          : {})}
         onRolled={(r) => {
+          lastRoll = r;
           live.current.addRoll(r);
           opts.onTotal?.(r.total);
           // Blade Flourish: its AC, its second creature or its push.

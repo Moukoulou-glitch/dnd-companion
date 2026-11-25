@@ -480,6 +480,8 @@ export interface DerivedSheet {
   saves: Record<Ability, SaveResult>;
   /** Death saving throws: what gives them advantage or disadvantage (names). */
   deathSave: { advantage: string[]; disadvantage: string[] };
+  /** The death saving throw as a roll: a d20, with what applies to all your saves (Bless, Aura of Protection) and advantage (Beacon of Hope). */
+  deathSaveRoll: RollBreakdown;
   skills: Record<Skill, SkillResult>;
   /** Tools and instruments you're proficient with, and `anyTool` for one you aren't (no proficiency bonus). */
   tools: ToolResult[];
@@ -1069,7 +1071,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     return abs.length ? `DC ${8 + pb + Math.max(...abs.map((a) => mods[a]))}` : "your spell save DC";
   })();
   /** Builds a d20-roll (or damage) breakdown from base parts plus every matching modifier. */
-  const roll = (keys: string[], base: Part[], itemInstanceId?: string): RollBreakdown => {
+  const roll = (keys: string[], base: Part[], itemInstanceId?: string, noWhenText = false): RollBreakdown => {
     const parts = [...base];
     const dice: DicePart[] = [];
     const advantage: string[] = [];
@@ -1085,6 +1087,8 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     let rerollOne: RollBreakdown["rerollOne"];
     for (const a of modsFor(keys, itemInstanceId)) {
       const { mod } = a;
+      // A death save is against nothing: an option for saves "against being charmed" or "against poison" isn't one.
+      if (noWhenText && mod.when?.text && mod.op !== "sumD20") continue;
       // Piercer: after the damage roll, one die rolled again.
       if (mod.op === "rerollOneDie") {
         if (conditionState(mod.when) !== "fail") {
@@ -1294,7 +1298,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     saves[ab] = { ...roll([`roll.save.${ab}`], base), proficient };
   }
   // Death saves: advantage or disadvantage from what covers them (Beacon of Hope; Holy Aura's "all saving throws").
-  const deathRoll = roll(["roll.save.death"], []);
+  const deathRoll = roll(["roll.save.death"], [], undefined, true);
   const deathSave = { advantage: deathRoll.advantage, disadvantage: deathRoll.disadvantage };
 
   // Jack of All Trades (bard 2nd): half the proficiency bonus, rounded down, on ability checks without proficiency.
@@ -2828,6 +2832,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     abilities,
     saves,
     deathSave,
+    deathSaveRoll: deathRoll,
     skills,
     tools,
     anyTool,
