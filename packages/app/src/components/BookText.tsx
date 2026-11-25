@@ -31,21 +31,46 @@ export function BookText({ text, summary, source }: { text?: string[] | undefine
   );
 }
 
+/** A file's text: Blob.text where there is one, a FileReader on older iPhones. */
+function readText(f: File): Promise<string> {
+  if (typeof f.text === "function") return f.text();
+  return new Promise((ok, fail) => {
+    const r = new FileReader();
+    r.onload = () => ok(String(r.result ?? ""));
+    r.onerror = () => fail(r.error ?? new Error("the file couldn't be read"));
+    r.readAsText(f);
+  });
+}
+
 const KIND_NAMES: Record<string, string> = { spell: "spells", feat: "feats", background: "backgrounds", item: "items" };
 
 /** Load, see and remove the book files kept on this device. */
 export function BooksPanel({ report }: { report: BookReport | undefined }) {
   const [busy, setBusy] = useState<string | null>(null);
 
-  const load = async (list: FileList | null) => {
-    if (!list?.length) return;
+  const load = async (list: File[]) => {
+    if (!list.length) return;
     setBusy("Reading the files…");
     try {
-      for (const f of Array.from(list)) await db.putBook({ name: f.name, text: await f.text() });
-      setBusy("Loaded. Restarting…");
-      location.reload();
+      const files = list;
+      // Any file can be picked (an iPhone greys out .md files when the picker is limited to them); only text files are kept.
+      const ok = files.filter((f) => /\.(md|markdown|txt)$/i.test(f.name) || /^text\//.test(f.type));
+      const skipped = files.filter((f) => !ok.includes(f)).map((f) => f.name);
+      let loaded = 0;
+      for (const f of ok) {
+        const text = await readText(f);
+        if (!text.trim()) {
+          skipped.push(`${f.name} (empty)`);
+          continue;
+        }
+        await db.putBook({ name: f.name, text });
+        loaded++;
+      }
+      if (!loaded) return setBusy(`Nothing loaded: book files are .md or .txt files${skipped.length ? ` (skipped: ${skipped.join(", ")})` : ""}.`);
+      setBusy(`Loaded ${loaded} file${loaded === 1 ? "" : "s"}${skipped.length ? ` (skipped: ${skipped.join(", ")})` : ""}. Restarting…`);
+      setTimeout(() => location.reload(), skipped.length ? 2500 : 300);
     } catch (e) {
-      setBusy(`Couldn't load: ${(e as Error).message}`);
+      setBusy(`Couldn't load: ${(e as Error).message || String(e)}`);
     }
   };
 
@@ -130,7 +155,11 @@ export function BooksPanel({ report }: { report: BookReport | undefined }) {
 
       <label className="big primary wide file-button">
         {report ? "Load more files" : "Load book files"}
-        <input type="file" multiple accept=".md,.txt,text/plain,text/markdown" onChange={(e) => void load(e.target.files)} />
+        <input type="file" multiple onChange={(e) => {
+            const picked = e.target.files ? Array.from(e.target.files) : [];
+            e.target.value = "";
+            void load(picked);
+          }} />
       </label>
       {busy && <p className="note">{busy}</p>}
       {report && report.files.length > 1 && (
