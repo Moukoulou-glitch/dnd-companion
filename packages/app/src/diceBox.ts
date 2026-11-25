@@ -83,7 +83,7 @@ function withTimeout<T>(p: Promise<T>, ms: number, what: string): Promise<T> {
  * the queue, the batches, the events and skipping. `container` is the element
  * shown while the dice roll (none in tests).
  */
-export function createThrower(getBox: () => Promise<Box>, opts: { container?: () => HTMLElement | null; modeOf?: () => DiceMode; hideAfterMs?: number; onStuck?: () => void } = {}) {
+export function createThrower(getBox: () => Promise<Box>, opts: { container?: () => HTMLElement | null; modeOf?: () => DiceMode; hideAfterMs?: number; onStuck?: () => void; keepShown?: () => boolean } = {}) {
   let queue: Promise<unknown> = Promise.resolve();
   let skipNow: (() => void) | undefined;
   let hideTimer: ReturnType<typeof setTimeout> | undefined;
@@ -148,8 +148,9 @@ export function createThrower(getBox: () => Promise<Box>, opts: { container?: ()
         opts.container?.()?.classList.remove("on");
         if (typeof document !== "undefined") document.documentElement.classList.remove("dice-air");
         box.clear();
-        // Hidden between throws: nothing is drawn while no dice are out.
-        box.hide();
+        // Hidden between throws: nothing is drawn while no dice are out. Not on iPhones and iPads: a WebGL canvas
+        // set to display:none there can come back blank (the dice roll unseen); the container's opacity hides it.
+        if (!opts.keepShown?.()) box.hide();
       };
       if (skipped) clear();
       else hideTimer = setTimeout(clear, hideAfter);
@@ -275,6 +276,16 @@ export function loadDiceBox(): Promise<Box> {
   if (loading && !stale) {
     const c = document.getElementById(ID)?.querySelector("canvas");
     if (c && !onscreenCanvasOk(c)) stale = true;
+    // iPhones and iPads: a fresh drawing buffer before each throw (setting the width, even to the same value,
+    // gives the canvas a new one), so a buffer Safari let go of while other effects ran is never the one shown.
+    else if (c && isAppleTouch()) {
+      try {
+        const w = c.width;
+        c.width = w;
+      } catch {
+        /* handed to a worker: nothing to do here */
+      }
+    }
   }
   if (stale && loading) teardown();
   loading ??= withWatchedWorkers(async () => {
@@ -315,7 +326,7 @@ export function loadDiceBox(): Promise<Box> {
 /** Whether the library has already been loaded this session (nothing is fetched to answer). */
 export const diceBoxLoaded = () => loading !== undefined;
 
-const real = createThrower(loadDiceBox, { container: () => document.getElementById(ID), onStuck: () => resetDiceBox("stuck throw") });
+const real = createThrower(loadDiceBox, { container: () => document.getElementById(ID), onStuck: () => resetDiceBox("stuck throw"), keepShown: isAppleTouch });
 
 /** Throws these dice and returns each one's face, in the order asked. */
 export const throwDice: Thrower = real.throwDice;

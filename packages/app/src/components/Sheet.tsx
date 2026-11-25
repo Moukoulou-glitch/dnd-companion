@@ -2,9 +2,20 @@ import { useEffect, useRef, type ReactNode } from "react";
 import { useDrag } from "./Swipe";
 import { signed, signedDice, type Breakdown, type RollBreakdown } from "@dnd/engine";
 
+/** Open bottom sheets: html.sheet-open while any is (toasts move up). A class, not `.app:has(.scrim)`, which Safari re-checks on every change. */
+let openSheets = 0;
+
 /** A bottom sheet over the current screen. Closes on the scrim, Escape, or `onClose`. */
 export function BottomSheet({ title, onClose, onBack, children }: { title: string; onClose: () => void; onBack?: () => void; children: ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    openSheets++;
+    document.documentElement.classList.add("sheet-open");
+    return () => {
+      openSheets--;
+      if (openSheets <= 0) document.documentElement.classList.remove("sheet-open");
+    };
+  }, []);
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
     window.addEventListener("keydown", onKey);

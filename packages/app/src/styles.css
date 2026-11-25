@@ -836,7 +836,7 @@ h2 {
 }
 
 /* While a bottom sheet is open, toasts move to the top so they never cover its buttons. */
-.app:has(.scrim) .toast {
+html.sheet-open .toast {
   bottom: auto;
   top: calc(12px + env(safe-area-inset-top));
 }
@@ -3274,9 +3274,12 @@ button.mpip {
 @keyframes sfx-glint { 0%, 70%, 100% { opacity: 0; transform: scale(0.4) rotate(0deg); } 78% { opacity: 0.9; transform: scale(1.1) rotate(20deg); } 86% { opacity: 0; transform: scale(0.6) rotate(40deg); } }
 .sfx-ongoing-invis > span:nth-child(4) { display: block; top: -20%; bottom: -20%; left: -40%; width: 30%; background: linear-gradient(90deg, transparent, rgba(220, 235, 255, 0.07) 40%, rgba(255, 255, 255, 0.12) 50%, rgba(220, 235, 255, 0.07) 60%, transparent); backdrop-filter: blur(0.8px); -webkit-backdrop-filter: blur(0.8px); transform: skewX(-14deg); animation: sfx-refract 11s ease-in-out infinite; }
 @keyframes sfx-refract { 0%, 55% { left: -40%; } 85%, 100% { left: 120%; } }
-.app:has(.sfx-ongoing-invis) .who, .app:has(.sfx-ongoing-invis) .vitals { animation: sfx-unseen 4.5s ease-in-out infinite; }
+html.fx-unseen .app .who, html.fx-unseen .app .vitals { animation: sfx-unseen 4.5s ease-in-out infinite; }
+/* Lighter effects: you're just fainter, no pulsing (a pulsing opacity on the name and HP box keeps Safari repainting). */
+html.light-fx.fx-unseen .app .who, html.light-fx.fx-unseen .app .vitals, html.light-fx.fx-ghost .app .who, html.light-fx.fx-ghost .app .vitals { animation: none; opacity: 0.72; }
+html.light-fx .sfx-ongoing-invis > span:nth-child(4) { display: none; }
 @keyframes sfx-unseen { 0%, 100% { opacity: 0.5; filter: blur(0.2px); } 50% { opacity: 0.78; filter: none; } }
-@media (prefers-reduced-motion: reduce) { .sfx-ongoing-invis::before, .sfx-ongoing-invis > span { animation: none !important; } .sfx-ongoing-invis > span { display: none !important; } .app:has(.sfx-ongoing-invis) .who, .app:has(.sfx-ongoing-invis) .vitals { animation: none; opacity: 0.65; } }
+@media (prefers-reduced-motion: reduce) { .sfx-ongoing-invis::before, .sfx-ongoing-invis > span { animation: none !important; } .sfx-ongoing-invis > span { display: none !important; } html.fx-unseen .app .who, html.fx-unseen .app .vitals { animation: none; opacity: 0.65; } }
 
 @media (prefers-reduced-motion: reduce) {
   .fx-charmed, .fx-form, .fx-wings path, .fx-tatter, .fx-charm-swirl path { animation: fx-static 450ms ease-out forwards !important; translate: 0 0 !important; stroke-dashoffset: 0 !important; }
@@ -5395,7 +5398,7 @@ h2 .slot-count .pact b { color: #b58cff; }
 .sfx-ongoing-wings-elemental { --wing: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 200'%3E%3Cg fill='%23cfe8ff' stroke='%236fa0d0' stroke-width='1.2'%3E%3Cpath d='M0 30 C40 20 80 30 96 60 C70 56 52 60 40 66 C66 70 82 84 88 104 C64 96 46 98 34 104 C56 114 68 132 70 152 C50 138 32 136 20 140 C34 156 38 172 34 192 C20 176 8 170 0 168 Z'/%3E%3C/g%3E%3Cpath d='M0 34 C30 40 50 60 56 90 M0 60 C22 76 32 110 30 150' stroke='%236fa0d0' stroke-width='1' fill='none' opacity='0.6'/%3E%3C/svg%3E"); }
 .sfx-ongoing-ghost::before { inset: 0; background: radial-gradient(ellipse at 50% 50%, transparent 50%, rgba(160, 200, 220, 0.18) 90%); box-shadow: inset 0 0 70px 10px rgba(180, 220, 240, 0.25); animation: st-pulse 4s ease-in-out infinite; }
 .sfx-ongoing-ghost > span:nth-child(-n + 6) { display: block; bottom: 60px; left: calc(6% + var(--i) * 15%); width: 6px; height: 6px; border-radius: 50%; background: rgba(220, 240, 255, 0.8); box-shadow: 0 0 12px #9fd0ff; opacity: 0; animation: st-rise 10s ease-out infinite; animation-delay: calc(var(--i) * -1.67s); }
-.app:has(.sfx-ongoing-ghost) .who, .app:has(.sfx-ongoing-ghost) .vitals { animation: sfx-unseen 5s ease-in-out infinite; }
+html.fx-ghost .app .who, html.fx-ghost .app .vitals { animation: sfx-unseen 5s ease-in-out infinite; }
 .sfx-ongoing-majesty::before { right: 3vw; top: 28vh; width: 110px; height: 66px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 60'%3E%3Cpath d='M10 50 L6 14 L30 32 L50 4 L70 32 L94 14 L90 50 Z' fill='none' stroke='%23ffd76a' stroke-width='3' stroke-linejoin='round'/%3E%3Cg fill='%23ffd76a'%3E%3Ccircle cx='6' cy='12' r='4'/%3E%3Ccircle cx='50' cy='4' r='4'/%3E%3Ccircle cx='94' cy='12' r='4'/%3E%3C/g%3E%3C/svg%3E") center / contain no-repeat; filter: drop-shadow(0 0 8px #ffd76a); opacity: 0.7; animation: st-pulse 3.4s ease-in-out infinite; }
 .sfx-ongoing-majesty::after { inset: 0; box-shadow: inset 0 0 60px 8px rgba(255, 200, 240, 0.22); }
 .sfx-ongoing-majesty > span:nth-child(-n + 6) { display: block; top: calc(14% + var(--i) * 12%); left: calc(3% + var(--i) * 15%); width: 6px; height: 6px; background: radial-gradient(circle, #fff 0 1px, transparent 2px), linear-gradient(0deg, transparent 45%, rgba(255, 210, 240, 0.9) 50%, transparent 55%), linear-gradient(90deg, transparent 45%, rgba(255, 210, 240, 0.9) 50%, transparent 55%); animation: st-twinkle 2.4s ease-in-out infinite; animation-delay: calc(var(--i) * -0.4s); }

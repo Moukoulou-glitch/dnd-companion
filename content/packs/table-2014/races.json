@@ -1328,12 +1328,10 @@
             }
           },
           {
-            "selector": "roll.save.*",
+            "selector": "roll.save.death",
             "op": "advantage",
-            "label": "Deathless Nature (death saves)",
-            "when": {
-              "text": "death saving throw"
-            }
+            "mode": "auto",
+            "label": "Deathless Nature"
           }
         ]
       }

@@ -4,7 +4,8 @@ import { CD_LOOKS, GLYPHS, type CdLook } from "./divinity";
 import type { Character } from "@dnd/schema";
 import type { RollRecord } from "../rolls";
 import { formFx, ongoingFx, opFx, rollFx, stateLoops, STATE_LOOP_KEYS, type FeatureLookup, type FxEvent, type SpellLookup } from "./triggers";
-import { useLightFx } from "../platform";
+import { isAppleTouch, useLightFx } from "../platform";
+import { resetDiceBox } from "../diceBox";
 import { GenSpell } from "./GenSpell";
 import type { GenLook } from "./generated";
 import { phaseLook } from "./spells";
@@ -1334,11 +1335,21 @@ function Ongoing({ look }: { look: string | undefined }) {
     return () => document.removeEventListener("visibilitychange", v);
   }, []);
   useEffect(() => {
+    // iPhones and iPads: an ongoing loop starting or ending is when Safari tends to drop the dice's canvas; the next
+    // throw builds them afresh (once, not on every throw).
+    if (isAppleTouch()) resetDiceBox("effects changed");
     if (look) return setShown({ look, ending: false });
     setShown((s) => (s ? { ...s, ending: true } : s));
     const t = setTimeout(() => setShown(undefined), 450);
     return () => clearTimeout(t);
   }, [look]);
+  // You fade while invisible or a ghost: a class on the page, not `.app:has(...)`, which Safari re-checks on every change.
+  const fade = shown && !shown.ending ? (shown.look.includes("sfx-ongoing-invis") ? "fx-unseen" : shown.look.includes("sfx-ongoing-ghost") ? "fx-ghost" : undefined) : undefined;
+  useEffect(() => {
+    if (!fade) return;
+    document.documentElement.classList.add(fade);
+    return () => document.documentElement.classList.remove(fade);
+  }, [fade]);
   if (!shown) return null;
   if (shown.look.includes("sfx-ongoing-sg")) return <GuardianOrbit look={shown.look} ending={shown.ending} paused={hidden} />;
   return (
