@@ -32,6 +32,8 @@ export function mergeClass(base: ClassDef, over: ClassDef): ClassDef {
 export class ContentRegistry {
   private readonly defs = new Map<string, Definition>();
   private readonly packs: ContentPack[] = [];
+  /** `list` by kind, worked out once (it sorts thousands of definitions; derive asks on every change). */
+  private listCache = new Map<string, Definition[]>();
 
   constructor(packs: unknown[] = []) {
     for (const p of packs) this.add(p);
@@ -53,6 +55,7 @@ export class ContentRegistry {
   }
 
   private addParsed(parsed: ContentPack): void {
+    this.listCache.clear();
     this.packs.push(parsed);
     for (const d of parsed.definitions) {
       const old = this.defs.get(d.id);
@@ -116,9 +119,13 @@ export class ContentRegistry {
 
   /** Every definition of one kind, sorted by name. */
   list<K extends Definition["kind"]>(kind: K): ByKind<K>[] {
-    return [...this.defs.values()]
-      .filter((d): d is ByKind<K> => d.kind === kind)
-      .sort((a, b) => a.name.localeCompare(b.name));
+    let hit = this.listCache.get(kind) as ByKind<K>[] | undefined;
+    if (!hit) {
+      hit = [...this.defs.values()].filter((d): d is ByKind<K> => d.kind === kind).sort((a, b) => a.name.localeCompare(b.name));
+      this.listCache.set(kind, hit);
+    }
+    // A copy: callers may sort or change the array they get.
+    return hit.slice();
   }
 
   listPacks(): readonly ContentPack[] {
@@ -133,6 +140,7 @@ export class ContentRegistry {
     const out = new ContentRegistry();
     for (const [k, v] of (this.base ?? this).defs) out.defs.set(k, v);
     for (const d of defs) out.defs.set(d.id, d);
+    out.listCache.clear();
     out.packs.push(...this.packs);
     out.base = this.base ?? this;
     return out;

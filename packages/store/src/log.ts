@@ -14,10 +14,17 @@ export interface HistoryEntry {
  * undo is just "replay without the last operation". Undone operations stay
  * available for redo until a new operation is recorded.
  */
+const CHECKPOINT = 25;
+
 export class CharacterLog {
   private ops: Operation[] = [];
   private redoStack: Operation[] = [];
   private cache?: { character: Character; history: HistoryEntry[] };
+  /**
+   * The state after every CHECKPOINT operations (index k: after k × CHECKPOINT; 0 is the snapshot), so an
+   * undo replays a few operations, not the whole log (each one derives the sheet; a session has hundreds).
+   */
+  private checkpoints: Character[] = [];
   /** Follow-ups the last recorded operation asks for (a concentration check). */
   lastPrompts: Prompt[] = [];
 
@@ -70,20 +77,34 @@ export class CharacterLog {
       payload,
     });
     // Validate against the current state first, so a bad edit never enters the log.
-    const result = applyOperation(this.character, op, this.reg);
+    const before = this.replay();
+    const result = applyOperation(before.character, op, this.reg);
     this.ops.push(op);
     this.redoStack = [];
-    this.invalidate();
+    // The new operation is the latest by clock, so the state is the one just worked out: no replay of the whole
+    // log on the next read (a long session's log made every tap replay hundreds of operations).
+    this.cache = { character: result.character, history: [...before.history, { op, notes: result.notes }] };
+    this.keep(this.ops.length, result.character);
     this.lastPrompts = result.prompts;
     return result.notes;
   }
 
   /** Removes the last operation. Returns it, or undefined when there is nothing to undo. */
   undo(): Operation | undefined {
+    const before = this.cache;
     const op = this.ops.pop();
     if (op) {
       this.redoStack.push(op);
-      this.invalidate();
+      const n = this.ops.length;
+      // Checkpoints past the new end no longer hold.
+      this.checkpoints.length = Math.min(this.checkpoints.length, Math.floor(n / CHECKPOINT) + 1);
+      const k = this.checkpoints.length - 1;
+      if (before && k >= 0) {
+        // From the nearest checkpoint: at most CHECKPOINT - 1 operations again.
+        let character = this.checkpoints[k]!;
+        for (let i = k * CHECKPOINT; i < n; i++) character = applyOperation(character, this.ops[i]!, this.reg).character;
+        this.cache = { character, history: before.history.slice(0, n) };
+      } else this.invalidate();
     }
     return op;
   }
@@ -92,8 +113,14 @@ export class CharacterLog {
   redo(): Operation | undefined {
     const op = this.redoStack.pop();
     if (op) {
+      const before = this.cache;
       this.ops.push(op);
-      this.invalidate();
+      // It was the latest when it was undone, and nothing was recorded since (recording clears redo).
+      if (before) {
+        const r = applyOperation(before.character, op, this.reg);
+        this.cache = { character: r.character, history: [...before.history, { op, notes: r.notes }] };
+        this.keep(this.ops.length, r.character);
+      } else this.invalidate();
     }
     return op;
   }
@@ -113,16 +140,24 @@ export class CharacterLog {
 
   private invalidate() {
     this.cache = undefined;
+    this.checkpoints = [];
+  }
+
+  /** Keeps the state after `n` operations when n is a checkpoint. */
+  private keep(n: number, character: Character) {
+    if (n % CHECKPOINT === 0 && this.checkpoints.length === n / CHECKPOINT) this.checkpoints.push(character);
   }
 
   private replay() {
     if (this.cache) return this.cache;
     let character = this.snapshot;
     const history: HistoryEntry[] = [];
+    this.checkpoints = [character];
     for (const op of this.ops) {
       const result = applyOperation(character, op, this.reg);
       character = result.character;
       history.push({ op, notes: result.notes });
+      this.keep(history.length, character);
     }
     this.cache = { character, history };
     return this.cache;
