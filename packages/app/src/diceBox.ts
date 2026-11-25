@@ -2,6 +2,7 @@ import type { Thrower, ThrowOptions } from "./dice3d";
 import type { DieLook } from "./dice/themes";
 import { batches } from "./dice/plan";
 import { diceMode, type DiceMode } from "./dice3dSetting";
+import { isAppleTouch } from "./platform";
 
 /**
  * The 3D dice themselves: @3d-dice/dice-box (MIT, packages/app/public/dice-box,
@@ -111,6 +112,8 @@ export function createThrower(getBox: () => Promise<Box>, opts: { container?: ()
     const strong = !!options?.strong;
     if (hideTimer) clearTimeout(hideTimer);
     opts.container?.()?.classList.add("on");
+    // While dice are in the air, lighter effects hide the ongoing loops (less for the GPU next to the dice's WebGL).
+    if (typeof document !== "undefined") document.documentElement.classList.add("dice-air");
     box.show();
     const dice = sides.map((s, i) => ({ sides: s, i, look: looks?.[i] }));
     emit({ type: "start", dice: dice.map((d) => ({ sides: d.sides, ...(d.look ? { look: d.look } : {}) })), strong, ...(options?.crit ? { crit: true } : {}), mode });
@@ -143,6 +146,7 @@ export function createThrower(getBox: () => Promise<Box>, opts: { container?: ()
       skipNow = undefined;
       const clear = () => {
         opts.container?.()?.classList.remove("on");
+        if (typeof document !== "undefined") document.documentElement.classList.remove("dice-air");
         box.clear();
         // Hidden between throws: nothing is drawn while no dice are out.
         box.hide();
@@ -219,6 +223,18 @@ if (typeof document !== "undefined") {
   });
 }
 
+/** A canvas drawn on the page whose WebGL is still there (a worker's canvas can't be asked: true). */
+function onscreenCanvasOk(c: HTMLCanvasElement): boolean {
+  try {
+    // The box's own context comes back for its own type; the other type gives null.
+    const gl = (c.getContext("webgl2") ?? c.getContext("webgl")) as WebGLRenderingContext | null;
+    return !gl || !gl.isContextLost();
+  } catch {
+    // Handed to a worker (OffscreenCanvas): nothing to ask here.
+    return true;
+  }
+}
+
 /** Starts the box with `Worker` watched, so its workers can be ended later and the world's lost context heard. */
 async function withWatchedWorkers<T>(start: () => Promise<T>): Promise<T> {
   const Original = window.Worker;
@@ -255,6 +271,11 @@ export function webglAvailable(): boolean {
 /** Loads the library the first time (only then); later calls get the same box. */
 export function loadDiceBox(): Promise<Box> {
   if (!webglAvailable()) return Promise.reject(new NoWebGLError());
+  // Drawing on the page (iPhones and iPads): a context lost since the last throw is seen here, before throwing unseen dice.
+  if (loading && !stale) {
+    const c = document.getElementById(ID)?.querySelector("canvas");
+    if (c && !onscreenCanvasOk(c)) stale = true;
+  }
   if (stale && loading) teardown();
   loading ??= withWatchedWorkers(async () => {
     const base = import.meta.env.BASE_URL;
@@ -273,6 +294,9 @@ export function loadDiceBox(): Promise<Box> {
       theme: "default",
       themeColor: "#c8902e",
       scale: 6,
+      // iPhones and iPads draw the dice on the page, not in a worker: Safari's offscreen WebGL is the one dropped
+      // under memory pressure without a word, while a page canvas reports it (and can be checked before a throw).
+      offscreen: !isAppleTouch(),
       settleTimeout: 6000,
       onDieComplete: (d: DieRoll) => real.dieDone(d),
     });

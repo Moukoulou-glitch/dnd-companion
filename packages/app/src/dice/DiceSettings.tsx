@@ -2,6 +2,7 @@ import { useState } from "react";
 import { CLASS_DICE_COLOURS, classDiceColour, mainClass, usePickedDiceColour } from "../diceColours";
 import { useDice3d, useDiceMode } from "../dice3dSetting";
 import { resetDiceBox, throwDice } from "../diceBox";
+import { isAppleTouch, setLightFx, useLightFx } from "../platform";
 import { useFeedback } from "./feedback";
 import { myDieLook } from "./mine";
 import { OWN_MATERIALS, setOwnMaterial, setThemesOn, useDicePrefs } from "./prefs";
@@ -21,6 +22,7 @@ export function DiceSettings({ classes }: { classes: { class: string; level: num
   const [vibrate, setVibrate] = useFeedback("vibrate");
   const prefs = useDicePrefs();
   const [testing, setTesting] = useState<string | null>(null);
+  const light = useLightFx();
   const main = mainClass(classes);
   const cls = main ? CLASS_DICE_COLOURS[main] : undefined;
   const followColour = classDiceColour(classes);
@@ -115,6 +117,16 @@ export function DiceSettings({ classes }: { classes: { class: string; level: num
         <div className="row-main">
           <div className="row-title">Dice sounds</div>
           <div className="row-sub">A short knock as each die lands. Off unless you turn it on.</div>
+        </div>
+      </label>
+      <label className="row check">
+        <input type="checkbox" checked={light} onChange={() => setLightFx(!light)} />
+        <div className="row-main">
+          <div className="row-title">Lighter effects</div>
+          <div className="row-sub">
+            No blur or glow, one ongoing animation at a time, and none while dice are in the air. Faster on phones and tablets, and the 3D dice stay.
+            {isAppleTouch() ? " On by default on iPhones and iPads." : ""}
+          </div>
         </div>
       </label>
       <label className="row check">

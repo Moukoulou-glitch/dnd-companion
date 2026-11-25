@@ -4,6 +4,7 @@ import { CD_LOOKS, GLYPHS, type CdLook } from "./divinity";
 import type { Character } from "@dnd/schema";
 import type { RollRecord } from "../rolls";
 import { formFx, ongoingFx, opFx, rollFx, stateLoops, STATE_LOOP_KEYS, type FeatureLookup, type FxEvent, type SpellLookup } from "./triggers";
+import { useLightFx } from "../platform";
 import { GenSpell } from "./GenSpell";
 import type { GenLook } from "./generated";
 import { phaseLook } from "./spells";
@@ -471,14 +472,23 @@ export function FxLayer({ school, spell, feature, character, effects }: { school
     };
   }, []);
 
+  // Lighter effects: one ongoing loop at a time (a form first, then a state, then concentration).
+  const light = useLightFx();
+  const loops: [string, string | undefined][] = [
+    ...FORM_KEYS.map((f) => [f, formFx(character).find((x) => x.form === f)?.look] as [string, string | undefined]),
+    ...STATE_LOOP_KEYS.map((k) => [`state-${k}`, stateLoops(character, effects)[k]] as [string, string | undefined]),
+    ["conc", ongoingFx(character)?.look],
+  ];
+  const firstLoop = loops.find(([, l]) => l)?.[0];
+  const lightOnly = (look: string | undefined, key: string) => (light && key !== firstLoop ? undefined : look);
   return (
     <div className="fx-layer" aria-hidden="true">
-      <Ongoing look={ongoingFx(character)?.look} />
+      <Ongoing look={lightOnly(ongoingFx(character)?.look, "conc")} />
       {STATE_LOOP_KEYS.map((k) => (
-        <Ongoing key={`state-${k}`} look={stateLoops(character, effects)[k]} />
+        <Ongoing key={`state-${k}`} look={lightOnly(stateLoops(character, effects)[k], `state-${k}`)} />
       ))}
       {FORM_KEYS.map((f) => (
-        <Ongoing key={f} look={formFx(character).find((x) => x.form === f)?.look} />
+        <Ongoing key={f} look={lightOnly(formFx(character).find((x) => x.form === f)?.look, f)} />
       ))}
       {shown.map(({ id, spec, x, y, skip }) =>
         spec.gen ? (

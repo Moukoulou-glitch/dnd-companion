@@ -5675,3 +5675,19 @@ h2 .slot-count .pact b { color: #b58cff; }
 .tally-pip { width: 26px; height: 26px; border-radius: 50%; display: inline-grid; place-items: center; font-size: 14px; font-weight: 800; border: 2px dashed var(--line, #3a4658); color: transparent; }
 .tally-pip.ok.on { border: 2px solid var(--teal); background: color-mix(in srgb, var(--teal) 25%, transparent); color: var(--teal); }
 .tally-pip.fail.on { border: 2px solid #d0605a; background: color-mix(in srgb, #d0605a 25%, transparent); color: #e07a72; }
+
+/* ── Lighter effects (25b; html.light-fx, on by default on iPhones and iPads) ──
+   Blur, glow and blend filters are what slow Safari most and push the 3D dice's WebGL out:
+   none at all, except the grey veil (Exhaustion, death), which carries meaning.
+   Ongoing loops: one at a time (FxLayer), three pieces each, hidden while dice are in the air. */
+html.light-fx *:not(.grey-veil),
+html.light-fx *::before,
+html.light-fx *::after {
+  filter: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  mix-blend-mode: normal !important;
+  will-change: auto !important;
+}
+html.light-fx .sfx-ongoing > span:nth-child(n + 4) { display: none; }
+html.light-fx.dice-air .sfx-ongoing { visibility: hidden; }
