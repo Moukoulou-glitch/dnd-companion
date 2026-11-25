@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { Ability, DamageType, DefId, Ruleset } from "./core.js";
+import { Ability, DamageType, DefId, Ruleset, Skill } from "./core.js";
 import { Grant, Modifier } from "./modifiers.js";
 
 export const SCHEMA_VERSION = 1;
@@ -807,6 +807,8 @@ export const Character = z
         trackAmmo: z.boolean().optional(),
         /** Encumbrance rule the player picked: the standard carrying capacity, the variant, or none (not tracked). */
         encumbrance: z.enum(["standard", "variant"]).optional(),
+        /** The skills shown on Play (up to 3) when the player picked them; otherwise the three rolled most. */
+        playSkills: z.array(Skill).max(3).optional(),
       })
       .strict()
       .default({}),

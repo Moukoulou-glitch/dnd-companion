@@ -484,8 +484,18 @@ export interface AfterRollOption {
   group?: string;
   /** "any": attacks and saves (Favored by the Gods); "check": ability checks only (Magical Guidance). */
   on?: "attack" | "save" | "check" | "any";
-  /** What it adds to the total (a reroll: the new d20 less the old one); `r` is the roll it's applied to. */
-  run: (r?: RollRecord) => { value: number; detail: string } | undefined | Promise<{ value: number; detail: string } | undefined>;
+  /**
+   * What it adds to the total (a reroll: the new d20 less the old one); `r` is the roll it's applied to.
+   * `natural`: the d20 that counts now (a 20 is a critical hit on an attack). `pick`: the player chooses which d20
+   * counts (Lucky): each face, and the d20 that counted until now.
+   */
+  run: (r?: RollRecord) => AfterRollResult | undefined | Promise<AfterRollResult | undefined>;
+}
+export interface AfterRollResult {
+  value: number;
+  detail: string;
+  natural?: number;
+  pick?: { question: string; faces: { label: string; value: number }[]; kept: number; detail: (chosen: number) => string };
 }
 
 export function Composer({ title, base: baseIn, attack, physical, onPhysicalChange, onRolled, onResolved, damageOnly, healing, onHealSelf, healTargets, dc, dcLabel, reaction, onSpend, onCheck, notes, header, typeChoices, portent, onOptionsUsed, optionInfo, onCommit, repeat, darts, onDamageOptions, afterRoll, onDone, diceSource, afterD20, onTempHp, weaponDice, saveRoll, checkRoll }: Props) {
@@ -497,8 +507,19 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
     if (done) return;
     const res = await o.run(r);
     if (!res) return;
+    if (res.pick) return setD20Pick({ o, r, used, pick: res.pick });
+    finishAfter(o, r, used, res);
+  };
+  /** Lucky: which d20 counts, the player's pick among all of them. */
+  const [d20Pick, setD20Pick] = useState<{ o: AfterRollOption; r: RollRecord; used: string[]; pick: NonNullable<AfterRollResult["pick"]> } | null>(null);
+  const finishAfter = (o: AfterRollOption, r: RollRecord, used: string[], res: AfterRollResult) => {
     const total = r.total + res.value;
-    setStage({ step: "d20-result", record: { ...r, total, lines: [...r.lines, { source: o.label, detail: res.detail, total: res.value }] }, used: [...used, o.group ?? o.label] });
+    const nat = res.natural;
+    const changed: Partial<RollRecord> =
+      nat !== undefined ? { natural: nat, ...(r.attack ? { crit: nat >= (r.critAt ?? 20), fumble: nat === 1 } : {}) } : {};
+    const next = { ...r, ...changed, total, lines: [...r.lines, { source: o.label, detail: res.detail, total: res.value }] };
+    setStage({ step: "d20-result", record: next, used: [...used, o.group ?? o.label] });
+    window.dispatchEvent(new CustomEvent("dnd-roll-update", { detail: next }));
     if (checkHeld && dc !== undefined) {
       setCheckHeld(false);
       onCheck?.(total >= dc);
@@ -925,6 +946,30 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
 
   if (stage.step === "d20-result") {
     const r = stage.record;
+    if (d20Pick) {
+      const p = d20Pick.pick;
+      return (
+        <>
+          <ResultView r={r} />
+          <p className="question">{p.question}</p>
+          <div className="choose-list">
+            {p.faces.map((f, i) => (
+              <button
+                key={i}
+                className={`big wide${f.value === Math.max(...p.faces.map((x) => x.value)) ? " primary" : ""}`}
+                onClick={() => {
+                  const { o, r: r0, used } = d20Pick;
+                  setD20Pick(null);
+                  finishAfter(o, r0, used, { value: f.value - p.kept, detail: p.detail(f.value), natural: f.value });
+                }}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
+        </>
+      );
+    }
     return (
       <>
         <ResultView r={r} />

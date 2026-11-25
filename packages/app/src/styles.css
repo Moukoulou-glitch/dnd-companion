@@ -5694,3 +5694,21 @@ html.light-fx *::after {
 }
 html.light-fx .sfx-ongoing > span:nth-child(n + 4) { display: none; }
 html.light-fx.dice-air .sfx-ongoing { visibility: hidden; }
+
+/* Play → who you are, at a glance: classes, DCs, passives, saves and three skills to roll. */
+.glance { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 8px; margin-top: 4px; padding-top: 8px; border-top: 1px dashed var(--line); }
+.glance-row { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.glance-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.glance-chip { font-size: 0.85rem; padding: 3px 8px; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); }
+.glance-chip b { color: var(--text); font-weight: 700; }
+.glance-passives { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.glance-passive { display: flex; flex-direction: column; align-items: center; padding: 4px 2px; border: 1px solid var(--line); border-radius: var(--radius-s, 8px); font-size: 0.78rem; color: var(--muted); }
+.glance-passive b { font-size: 1.15rem; color: var(--text); }
+.glance-buttons { display: flex; flex-wrap: wrap; gap: 6px; }
+.glance-roll { flex: 1 1 0; min-width: 48px; display: flex; flex-direction: column; align-items: center; gap: 0; padding: 5px 4px; border: 1px solid var(--line); border-radius: var(--radius-s, 8px); background: none; color: var(--text); cursor: pointer; }
+.glance-roll.wide { min-width: 90px; }
+.glance-roll small { font-size: 0.72rem; color: var(--muted); }
+.glance-roll b { font-size: 1.05rem; }
+.glance-roll.prof { border-color: var(--teal); }
+.glance-roll.prof small { color: var(--teal); }
+.identity-label .glance-pick { display: inline; width: auto; min-height: 0; margin: 0 0 0 4px; padding: 0 4px; font-size: 0.8rem; text-transform: none; vertical-align: baseline; }

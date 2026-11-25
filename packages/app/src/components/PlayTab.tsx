@@ -1,14 +1,15 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { NumberStep } from "./Adjust";
 import { HitDiceRow } from "./HitDice";
 import { KnotToken, ResourceToken, tokenLook, type TokenLook } from "./Tokens";
 import { ShapeCard } from "./Shapes";
 import { SummonsCard } from "./Summons";
 import type { ContentRegistry, DerivedSheet, ResourceResult, ShapeKind } from "@dnd/engine";
-import type { Character, OperationType } from "@dnd/schema";
+import { ABILITIES, ABILITY_NAMES, SKILLS, SKILL_NAMES, type Ability, type Character, type OperationType, type Skill } from "@dnd/schema";
 import type { RollRecord } from "../rolls";
 import { CombatCard, type EconomyKind, CompanionCard } from "./Combat";
 import { registry } from "../content";
+import { topSkills } from "../glance";
 
 const ALIGNMENTS: Record<string, string> = {
   LG: "Lawful good",
@@ -24,7 +25,7 @@ const ALIGNMENTS: Record<string, string> = {
 };
 
 /** Race, background, alignment, and size and creature type, in one line; background, alignment and creature can be changed. */
-function Identity({ c, size: now, onBackground, onIdentity }: { c: Character; size?: DerivedSheet["size"]; onBackground: () => void; onIdentity: () => void }) {
+function Identity({ c, size: now, onBackground, onIdentity, children }: { c: Character; size?: DerivedSheet["size"]; onBackground: () => void; onIdentity: () => void; children?: ReactNode }) {
   const race = registry.find(c.race, "race");
   const bg = c.background ? registry.find(c.background, "background") : undefined;
   const cap = (s: string) => s.replace(/^./, (x) => x.toUpperCase());
@@ -52,7 +53,121 @@ function Identity({ c, size: now, onBackground, onIdentity }: { c: Character; si
           </div>
         ),
       )}
+      {children}
     </section>
+  );
+}
+
+const sign = (n: number) => (n >= 0 ? `+${n}` : `−${Math.abs(n)}`);
+const SHORT: Record<Ability, string> = { str: "Str", dex: "Dex", con: "Con", int: "Int", wis: "Wis", cha: "Cha" };
+
+/**
+ * At a glance on Play, under who you are: classes and levels, your DCs, the three passive senses, the six saves
+ * and three skills to roll (the ones you picked, or the ones you roll most).
+ */
+function Glance({ c, sheet, rolls, act, onSave, onSkill }: { c: Character; sheet: DerivedSheet; rolls: RollRecord[]; act: Act; onSave: (ab: Ability) => void; onSkill: (sk: Skill) => void }) {
+  const [picking, setPicking] = useState(false);
+  const classes = c.classes
+    .map((cl) => {
+      const name = registry.find(cl.class, "class")?.name ?? cl.class;
+      const sub = cl.subclass ? registry.find(cl.subclass, "subclass")?.name : undefined;
+      return `${name} ${cl.level}${sub ? ` (${sub})` : ""}`;
+    })
+    .join(" · ");
+  const dcs = [
+    ...sheet.spellcasting.map((sc) => ({ key: `sc-${sc.id}`, name: sc.label, text: `DC ${sc.saveDc.total} · attack ${sign(sc.attack.total)}` })),
+    ...[...new Map(sheet.actions.filter((a) => a.dc).map((a) => [`${a.dc!.name}|${a.dc!.value}|${a.dc!.save}`, a] as const)).values()].map((a) => ({
+      key: `a-${a.id}`,
+      name: a.dc!.name || a.name,
+      text: `DC ${a.dc!.value} ${a.dc!.save.slice(0, 3).replace(/^./, (x) => x.toUpperCase())}`,
+    })),
+  ];
+  const picked = c.settings.playSkills;
+  const skills = picked?.length ? picked : topSkills(sheet, rolls);
+  const toggle = (sk: Skill) => {
+    const now = picked?.length ? picked : [];
+    const next = now.includes(sk) ? now.filter((x) => x !== sk) : now.length >= 3 ? now : [...now, sk];
+    act("setField", { path: ["settings", "playSkills"], value: next }, next.length ? `Skills on Play: ${next.map((x) => SKILL_NAMES[x]).join(", ")}.` : "Skills on Play: the ones you roll most.");
+  };
+  return (
+    <div className="glance" aria-label="At a glance" role="group">
+      {classes && (
+        <div className="glance-row">
+          <span className="identity-label">Classes</span>
+          <span className="identity-value">{classes}</span>
+        </div>
+      )}
+      {dcs.length > 0 && (
+        <div className="glance-row">
+          <span className="identity-label">DCs</span>
+          <div className="glance-chips">
+            {dcs.map((d) => (
+              <span key={d.key} className="glance-chip">
+                <b>{d.text}</b> {d.name}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+      <div className="glance-row">
+        <span className="identity-label">Passive</span>
+        <div className="glance-passives">
+          {(["perception", "investigation", "insight"] as const).map((k) => (
+            <span key={k} className="glance-passive">
+              <b>{sheet.passives[k].total}</b>
+              {SKILL_NAMES[k]}
+            </span>
+          ))}
+        </div>
+      </div>
+      <div className="glance-row">
+        <span className="identity-label">Saving throws</span>
+        <div className="glance-buttons">
+          {ABILITIES.map((ab) => (
+            <button key={ab} className={`glance-roll${sheet.saves[ab].proficient ? " prof" : ""}`} onClick={() => onSave(ab)} aria-label={`Roll a ${ABILITY_NAMES[ab]} saving throw, ${sign(sheet.saves[ab].total)}`}>
+              <small>{SHORT[ab]}</small>
+              <b>{sign(sheet.saves[ab].total)}</b>
+            </button>
+          ))}
+        </div>
+      </div>
+      <div className="glance-row">
+        <span className="identity-label">
+          Skills{" "}
+          <button className="link glance-pick" onClick={() => setPicking(!picking)} aria-label="Choose the skills shown here">
+            {picking ? "done" : "✎"}
+          </button>
+        </span>
+        {picking ? (
+          <div className="glance-chips">
+            <p className="note" style={{ margin: "0 0 6px", width: "100%" }}>
+              Pick up to 3.{" "}
+              {picked?.length ? (
+                <button className="link" onClick={() => act("setField", { path: ["settings", "playSkills"], value: [] }, "Skills on Play: the ones you roll most.")}>
+                  Show the ones I roll most
+                </button>
+              ) : (
+                "Until you pick, the ones you roll most are shown."
+              )}
+            </p>
+            {SKILLS.map((sk) => (
+              <button key={sk} className="chip" aria-pressed={!!picked?.includes(sk)} onClick={() => toggle(sk)}>
+                {SKILL_NAMES[sk]} {sign(sheet.skills[sk].total)}
+              </button>
+            ))}
+          </div>
+        ) : (
+          <div className="glance-buttons">
+            {skills.map((sk) => (
+              <button key={sk} className={`glance-roll wide${sheet.skills[sk].proficiency ? " prof" : ""}`} onClick={() => onSkill(sk)} aria-label={`Roll ${SKILL_NAMES[sk]}, ${sign(sheet.skills[sk].total)}`}>
+                <small>{SKILL_NAMES[sk]}</small>
+                <b>{sign(sheet.skills[sk].total)}</b>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
 
@@ -195,7 +310,12 @@ export function PlayTab({
   spendReaction,
   openSummonGroup,
   reg,
+  openSave,
+  openSkill,
 }: {
+  /** Roll a saving throw or a skill check (the Composer). */
+  openSave: (ab: Ability) => void;
+  openSkill: (sk: Skill) => void;
   openShape: () => void;
   openLimited: (actionId: string) => void;
   onEconomyMenu: (kind: EconomyKind) => void;
@@ -242,7 +362,9 @@ export function PlayTab({
 
   return (
     <main>
-      <Identity c={character} size={sheet.size} onBackground={openBackground} onIdentity={openIdentity} />
+      <Identity c={character} size={sheet.size} onBackground={openBackground} onIdentity={openIdentity}>
+        <Glance c={character} sheet={sheet} rolls={rolls} act={act} onSave={openSave} onSkill={openSkill} />
+      </Identity>
 
       {backup && !character.combat && (
         <section className="timed-card backup-card">

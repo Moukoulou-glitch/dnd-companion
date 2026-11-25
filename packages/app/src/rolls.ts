@@ -17,6 +17,9 @@ export interface RollRecord {
   options?: string[];
   total: number;
   natural?: number;
+  /** Every d20 of the roll's d20 (both with advantage or disadvantage), as they count; the critical range. */
+  d20s?: number[];
+  critAt?: number;
   crit: boolean;
   fumble: boolean;
   physical: boolean;
@@ -84,6 +87,11 @@ export function recordOf(title: string, kind: RollRecord["kind"], r: ComposedRol
   const floorUp = r.result.floored !== undefined ? r.result.total - r.result.terms.reduce((n, t) => n + t.total, 0) : 0;
   if (floorUp > 0) rec.lines.push({ source: r.composed.minTotalLabel ? `${r.composed.minTotalLabel}: counts as ${r.result.floored}` : `At least ${r.result.floored} damage`, detail: "", total: floorUp });
   if (kind === "d20" && r.result.natural !== undefined) rec.natural = r.result.natural;
+  if (kind === "d20") {
+    const t = r.result.terms.find((x) => x.term.kind === "dice" && x.term.sides === 20);
+    if (t && t.dice.length) rec.d20s = t.dice.map((d) => d.value);
+    if (t && t.term.kind === "dice" && t.term.critAtOrAbove) rec.critAt = t.term.critAtOrAbove;
+  }
   if (kind === "damage") {
     const first = r.result.terms[0]?.term.label;
     if (first) rec.mainType = first;

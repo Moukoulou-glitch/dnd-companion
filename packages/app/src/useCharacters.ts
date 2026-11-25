@@ -419,6 +419,22 @@ export function useCharacters() {
     [log, selectedId, persist],
   );
 
+  // A roll changed after it was saved (Lucky, Inspiration, Favored by the Gods: Composer's "dnd-roll-update"): the
+  // saved one is replaced, so the history shows what counted.
+  useEffect(() => {
+    const h = (e: Event) => {
+      const r = (e as CustomEvent<RollRecord>).detail;
+      if (!log || !selectedId) return;
+      const list = rolls.current.get(selectedId) ?? [];
+      if (!list.some((x) => x.id === r.id)) return;
+      rolls.current.set(selectedId, list.map((x) => (x.id === r.id ? r : x)));
+      setVersion((v) => v + 1);
+      void persist(log, selectedId);
+    };
+    window.addEventListener("dnd-roll-update", h);
+    return () => window.removeEventListener("dnd-roll-update", h);
+  }, [log, selectedId, persist]);
+
   const select = useCallback((id: string) => {
     setSelectedId(id);
     try {

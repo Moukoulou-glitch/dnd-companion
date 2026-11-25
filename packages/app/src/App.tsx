@@ -1426,25 +1426,55 @@ export function App() {
         },
       });
     }
-    // Lucky (the feat): a luck point for another d20 on your attack, check or save; the higher counts here (by hand
-    // with −1/+1 if you'd keep the lower).
+    // Lucky (the feat): a luck point for another d20 on your attack, check or save; you choose which of all the d20s
+    // counts (with advantage or disadvantage, any of the three).
     if (sh.actions.some((a) => a.id === "lucky")) {
       const pts = sh.resources.find((r) => r.id === "luck-points")?.remaining ?? 0;
       const lucky = (on: "any" | "check"): AfterRollOption => ({
         label: "Lucky: another d20 (1 luck point)",
         group: "Lucky",
         on,
-        sub: pts > 0 ? `${pts} luck point${pts === 1 ? "" : "s"} left · the higher d20 counts` : "no luck points left until a long rest",
+        sub: pts > 0 ? `${pts} luck point${pts === 1 ? "" : "s"} left · you choose which d20 counts` : "no luck points left until a long rest",
         warn: pts <= 0,
         run: async (r) => {
-          const old = r?.natural;
-          if (old === undefined) return undefined;
+          const kept = r?.natural;
+          if (kept === undefined) return undefined;
+          const rolled = r?.d20s?.length ? r.d20s : [kept];
           const n = (await rollOrThrow("1d20", true, undefined, { source: "Lucky" })).total;
-          live.current.act("useAction", { action: "lucky" }, `Lucky: ${old} and ${n}; ${Math.max(old, n)} counts.`);
-          return { value: Math.max(0, n - old), detail: `d20 ${old} and ${n}: ${Math.max(old, n)} kept` };
+          live.current.act("useAction", { action: "lucky" }, `Lucky: ${[...rolled, n].join(", ")}; you choose which counts.`);
+          const ord = ["first", "second", "third", "fourth"];
+          return {
+            value: 0,
+            detail: "",
+            pick: {
+              question: `Lucky rolled ${n}. Which d20 counts?`,
+              faces: [...rolled.map((v, i) => ({ label: `${v} (the ${rolled.length > 1 ? `${ord[i]} ` : ""}d20${v === kept ? ", counted" : ""})`, value: v })), { label: `${n} (Lucky's d20)`, value: n }],
+              kept,
+              detail: (v) => `d20s ${[...rolled, n].join(", ")}: ${v} counts`,
+            },
+          };
         },
       });
       out.push(lucky("any"), lucky("check"));
+    }
+    // Inspiration after the roll (table ruling, Nov 25): spend one for another d20; the higher of it and the d20 that
+    // counted is kept.
+    if ((ch.inspirations ?? 0) > 0) {
+      const insp = (on: "any" | "check"): AfterRollOption => ({
+        label: "Inspiration: another d20",
+        group: "Inspiration after the roll",
+        on,
+        sub: `${ch.inspirations} on hand · the higher d20 counts`,
+        run: async (r) => {
+          const kept = r?.natural;
+          if (kept === undefined) return undefined;
+          const n = (await rollOrThrow("1d20", true, undefined, { source: "Inspiration" })).total;
+          const left = Math.max(0, (live.current.character?.inspirations ?? 1) - 1);
+          live.current.act("setInspiration", { count: left }, `Inspiration spent after the roll: ${kept} and ${n}; ${Math.max(kept, n)} counts.`);
+          return { value: Math.max(0, n - kept), detail: `d20 ${kept} and ${n}: ${Math.max(kept, n)} counts`, natural: Math.max(kept, n) };
+        },
+      });
+      out.push(insp("any"), insp("check"));
     }
     // Pact of the Talisman: the wearer adds a d4 to a failed ability check; Protection of the Talisman: to a failed
     // save (proficiency bonus times per long rest each). Offered to the warlock, as the usual wearer.
@@ -4822,6 +4852,8 @@ export function App() {
           openHitDie={openHitDie}
           rolls={s.rolls}
           openRollHistory={openRollHistory}
+          openSave={(ab) => openRoll(`${ABILITY_NAMES[ab]} saving throw`, sheet.saves[ab])}
+          openSkill={openSkill}
           onStartCombat={startCombat}
           prompts={prompts}
           onInitiative={rollInitiative}
