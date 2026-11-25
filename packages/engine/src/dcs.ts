@@ -36,7 +36,6 @@ export const FEATURE_DCS: Record<string, DcSpec> = {
   "feature:knowledge-domain-channel-divinity-read-thoughts": SPELL("cleric", "Wisdom"),
   "feature:order-domain-channel-divinity-orders-demand": SPELL("cleric", "Wisdom"),
   "feature:tempest-domain-wrath-of-the-storm": SPELL("cleric", "Dexterity"),
-  "feature:tempest-domain-thunderbolt-strike": SPELL("cleric", "none (pushes Large or smaller)"),
   // Sorcerer
   "feature:draconic-presence": SPELL("sorcerer", "Wisdom"),
   // Paladin
@@ -46,7 +45,6 @@ export const FEATURE_DCS: Record<string, DcSpec> = {
   "feature:oath-of-the-watchers-abjure-the-extraplanar": SPELL("paladin", "Wisdom"),
   "feature:oath-of-conquest-conquering-presence": SPELL("paladin", "Wisdom"),
   "feature:oath-of-redemption-rebuke-the-violent": SPELL("paladin", "Wisdom"),
-  "feature:oath-of-redemption-emissary-of-peace": SPELL("paladin", "none (+5 Persuasion)"),
   "feature:oath-of-the-ancients-elder-champion": SPELL("paladin", "against your spells and Channel Divinity, at disadvantage"),
   // Druid, bard, sorcerer, warlock, wizard, ranger
   "feature:circle-of-spores-halo-of-spores": SPELL("druid", "Constitution"),

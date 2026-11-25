@@ -76,11 +76,22 @@ function Glance({ c, sheet, rolls, act, onSave, onSkill }: { c: Character; sheet
     .join(" · ");
   const dcs = [
     ...sheet.spellcasting.map((sc) => ({ key: `sc-${sc.id}`, name: sc.label, text: `DC ${sc.saveDc.total} · attack ${sign(sc.attack.total)}` })),
-    ...[...new Map(sheet.actions.filter((a) => a.dc).map((a) => [`${a.dc!.name}|${a.dc!.value}|${a.dc!.save}`, a] as const)).values()].map((a) => ({
-      key: `a-${a.id}`,
-      name: a.dc!.name || a.name,
-      text: `DC ${a.dc!.value} ${a.dc!.save.slice(0, 3).replace(/^./, (x) => x.toUpperCase())}`,
-    })),
+    // Features' DCs, one chip per DC and save, named by the features that use it ("DC 16 Wis: Rebuke the Violent").
+    // A feature whose DC is just your spell save DC is named by itself, not "Spell save DC".
+    ...[
+      ...sheet.actions
+        .filter((a) => a.dc && !/^none\b/i.test(a.dc.save))
+        .reduce((m, a) => {
+          const ab = /^(strength|dexterity|constitution|intelligence|wisdom|charisma)\b/i.exec(a.dc!.save)?.[1];
+          const save = ab ? `${ab.slice(0, 1).toUpperCase()}${ab.slice(1, 3).toLowerCase()}` : "";
+          const name = /^spell save dc$/i.test(a.dc!.name) || !a.dc!.name ? a.name.replace(/^Channel Divinity: /, "") : a.dc!.name;
+          const k = `${a.dc!.value}|${save}`;
+          const cur = m.get(k) ?? { key: `a-${k}`, text: `DC ${a.dc!.value}${save ? ` ${save}` : ""}`, names: [] as string[] };
+          if (!cur.names.includes(name)) cur.names.push(name);
+          return m.set(k, cur);
+        }, new Map<string, { key: string; text: string; names: string[] }>())
+        .values(),
+    ].map((d) => ({ key: d.key, text: d.text, name: d.names.join(", ") })),
   ];
   const picked = c.settings.playSkills;
   const skills = picked?.length ? picked : topSkills(sheet, rolls);
@@ -135,7 +146,7 @@ function Glance({ c, sheet, rolls, act, onSave, onSkill }: { c: Character; sheet
         <span className="identity-label">
           Skills{" "}
           <button className="link glance-pick" onClick={() => setPicking(!picking)} aria-label="Choose the skills shown here">
-            {picking ? "done" : "✎"}
+            {picking ? "Done" : "✎ Edit"}
           </button>
         </span>
         {picking ? (
