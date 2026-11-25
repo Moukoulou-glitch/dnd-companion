@@ -1314,6 +1314,15 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     return best ? [best] : [];
   };
 
+  // Reliable Talent (Rogue 11th): on an ability check that adds your proficiency bonus (a proficient skill or tool),
+  // a d20 of 9 or lower counts as a 10. Automatic, not an option.
+  const reliable = sources.find((s) => s.id === "feature:reliable-talent");
+  const reliableOn = (r: RollBreakdown) => {
+    if (!reliable) return;
+    r.minD20 = Math.max(r.minD20 ?? 0, 10);
+    (r.notes ??= []).push("Reliable Talent: a d20 of 9 or lower counts as a 10.");
+  };
+
   // Skills.
   const skills = {} as Record<Skill, SkillResult>;
   for (const sk of SKILLS) {
@@ -1324,6 +1333,7 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
     }
     const base = [abilityPart(ab), ...(proficiency > 0 ? [pbPart(proficiency)] : jackPart(ab)), ...handParts("skill.all", "all skills"), ...handParts(`skill.${sk}`, "this skill")];
     skills[sk] = { ...roll([`roll.check.skill.${sk}`, `roll.check.${ab}`], base), ability: ab, proficiency };
+    if (proficiency > 0) reliableOn(skills[sk]);
   }
 
   // Armor that hampers stealth (Medium Armor Master: not medium armor).
@@ -1348,10 +1358,11 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
   const toolDoubler = modsFor(["rule.toolExpertise"]).find((m) => m.mod.op === "allow" && conditionState(m.mod.when) === "pass");
   const toolChecks = (name: string | undefined, proficiency: 0 | 1 | 2) =>
     Object.fromEntries(
-      ABILITIES.map((ab) => [
-        ab,
-        roll([`roll.check.${ab}`, "roll.check.tool", ...(name ? [`roll.check.tool.${toolSlug(name)}`] : [])], [abilityPart(ab), ...(proficiency > 0 ? [pbPart(proficiency)] : jackPart(ab))]),
-      ]),
+      ABILITIES.map((ab) => {
+        const r = roll([`roll.check.${ab}`, "roll.check.tool", ...(name ? [`roll.check.tool.${toolSlug(name)}`] : [])], [abilityPart(ab), ...(proficiency > 0 ? [pbPart(proficiency)] : jackPart(ab))]);
+        if (proficiency > 0) reliableOn(r);
+        return [ab, r];
+      }),
     ) as Record<Ability, RollBreakdown>;
   const tools: ToolResult[] = [...profs.tool].sort((a, b) => a.localeCompare(b)).map((name) => {
     const expert = [...profs.expertise].some((e) => toolSlug(e) === toolSlug(name));

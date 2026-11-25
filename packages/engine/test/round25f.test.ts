@@ -36,3 +36,18 @@ describe("25f: Thief and Sharpshooter", () => {
     expect(sharp.attack.cancelled).toEqual([expect.objectContaining({ label: "Long range", by: "Sharpshooter" })]);
   });
 });
+
+describe("25k: Reliable Talent", () => {
+  it("on proficient skills and tools a d20 of 9 or lower counts as 10, on its own; not on other checks", () => {
+    const s = pc({ background: "background:acolyte" }, 11);
+    const prof = Object.values(s.skills).find((x) => x.proficiency > 0)!;
+    const not = Object.values(s.skills).find((x) => x.proficiency === 0)!;
+    expect(prof.minD20).toBe(10);
+    expect(prof.suggestions.some((x) => x.label === "Reliable Talent")).toBe(false);
+    expect(not.minD20).toBeUndefined();
+    const tool = s.tools.find((t) => /thieves/i.test(t.name))!;
+    expect(tool.checks.dex.minD20).toBe(10);
+    expect(s.abilityChecks.str.minD20).toBeUndefined();
+    expect(pc({ background: "background:acolyte" }, 10).tools.find((t) => /thieves/i.test(t.name))!.checks.dex.minD20).toBeUndefined();
+  });
+});
