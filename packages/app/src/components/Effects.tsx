@@ -342,7 +342,7 @@ export function EffectPanel({ e, act, close, onRelease, onTurn }: { e: EffectRes
             </div>
           </div>
         )}
-        {(e.id === "custom" || e.exhaustion !== undefined) && (
+        {((e.id === "custom" && !/^Your spell/.test(e.from ?? "")) || e.exhaustion !== undefined) && (
           <NumberStep
             label="Exhaustion levels"
             sub="Added to any you already have"

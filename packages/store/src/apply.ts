@@ -2230,7 +2230,8 @@ export function applyOperation(input: Character, op: Operation, baseReg: Content
         if (sp.concentration) entry.concentration = true;
         if (op.payload.choice) entry.choice = op.payload.choice;
         c.effects.push(entry);
-      } else if (!sp.concentration && !op.payload.readied && (sp.timer || /until dispelled/i.test(sp.duration))) {
+      } else if (!sp.concentration && !op.payload.readied && ((sp.timer && !(sp.timer.rounds !== undefined && sp.timer.rounds <= 1)) || /until dispelled/i.test(sp.duration))) {
+        // (Not for a spell of a single round, Sending's or Command's: it's over before a tag would help.)
         // A spell that lasts (Alarm, 8 hours; Sanctuary on a friend; Arcane Lock until dispelled) with nothing else to show it:
         // a timer tag, one per casting (concentration spells show in the concentration tag).
         const name = selfDef ? `${sp.name} (on another creature)` : sp.name;

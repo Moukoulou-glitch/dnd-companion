@@ -1289,10 +1289,14 @@ export function App() {
         {...(() => {
           // After the d20: count the ammunition, and keep a die that didn't help (Unfailing Inspiration).
           const ammo = atk?.ammo && live.current.character?.settings.trackAmmo && !opts.notMine;
-          if (!ammo && !keepers.length) return {};
+          // Whistle of the Ashen Gale (attuned, its use left): after one of your saves, asked whether it succeeded against magic.
+          const whistle = isMySave && live.current.sheet?.actions.find((a) => a.id === "whistle-ashen-gale");
+          const whistleLeft = whistle ? (live.current.sheet?.resources.find((r) => r.id === "whistle-ashen-gale")?.remaining ?? 0) > 0 : false;
+          if (!ammo && !keepers.length && !whistleLeft) return {};
           return {
             afterD20: (enabled: string[]) => (
               <>
+                {whistleLeft && whistle && <WhistleAsk act={live.current.act} action={whistle} />}
                 {ammo && atk && <AmmoAsk attack={atk} enabled={enabled} act={live.current.act} />}
                 {keepers
                   .filter((e) => enabled.includes(e.usedUp!))
@@ -5440,6 +5444,32 @@ function TotalPad({ onDone }: { onDone: (n: number) => void }) {
  * After an attack with a weapon that shoots ammunition (when it's tracked): count one shot? Always asked, never assumed.
  * With several kinds, the one ticked on the roll; with none, a warning.
  */
+/** Whistle of the Ashen Gale: after a save, did it succeed against a spell or magical effect? Yes: the whispering wind. */
+function WhistleAsk({ act, action }: { act: (type: OperationType, payload: unknown, label: string) => unknown; action: ActionResult }) {
+  const [answer, setAnswer] = useState<"yes" | "no" | null>(null);
+  if (answer === "yes") return <p className="note">The whispering wind: every speed +{"10 × proficiency bonus"} until the end of your next turn.</p>;
+  if (answer === "no") return null;
+  return (
+    <div className="ammo-ask">
+      <p className="sub-head small">Whistle of the Ashen Gale: did you succeed on this save, and was it against a spell or a magical effect?</p>
+      <div className="big-actions">
+        <button
+          className="big primary"
+          onClick={() => {
+            act("useAction", { action: action.id }, "Whistle of the Ashen Gale: the whispering wind rises. Every speed +10 × your proficiency bonus until the end of your next turn.");
+            setAnswer("yes");
+          }}
+        >
+          Yes: the whispering wind
+        </button>
+        <button className="big" onClick={() => setAnswer("no")}>
+          No
+        </button>
+      </div>
+    </div>
+  );
+}
+
 /** A die used on a roll that still failed comes back (Unfailing Inspiration): asked after the d20. */
 function KeepAsk({ e, act }: { e: EffectResult; act: (type: OperationType, payload: unknown, label: string) => unknown }) {
   const [kept, setKept] = useState(false);

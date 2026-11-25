@@ -87,3 +87,13 @@ describe("11e-1 fix: Guardian of Faith", () => {
     expect(l.character.effects.some((x) => x.effect === "effect:guardian-of-faith")).toBe(false);
   });
 });
+
+describe("25g: no tag for a spell of a single round", () => {
+  it("Sending (1 round) leaves no timer tag; Feather Fall (1 minute) still does", () => {
+    const l = make("class:wizard", 9, (c) => {
+      c.spells.push({ spell: "spell:sending", list: "wizard", prepared: true });
+    });
+    l.record("castSpell", { spell: "spell:sending", list: "wizard", level: 3, using: "slot" });
+    expect(l.character.effects.some((e) => e.custom?.name?.startsWith("Sending"))).toBe(false);
+  });
+});
