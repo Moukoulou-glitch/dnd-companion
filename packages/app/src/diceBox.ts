@@ -82,7 +82,7 @@ function withTimeout<T>(p: Promise<T>, ms: number, what: string): Promise<T> {
  * the queue, the batches, the events and skipping. `container` is the element
  * shown while the dice roll (none in tests).
  */
-export function createThrower(getBox: () => Promise<Box>, opts: { container?: () => HTMLElement | null; modeOf?: () => DiceMode; hideAfterMs?: number } = {}) {
+export function createThrower(getBox: () => Promise<Box>, opts: { container?: () => HTMLElement | null; modeOf?: () => DiceMode; hideAfterMs?: number; onStuck?: () => void } = {}) {
   let queue: Promise<unknown> = Promise.resolve();
   let skipNow: (() => void) | undefined;
   let hideTimer: ReturnType<typeof setTimeout> | undefined;
@@ -135,6 +135,8 @@ export function createThrower(getBox: () => Promise<Box>, opts: { container?: ()
       return faces;
     } catch (e) {
       if (skipped) emit({ type: "skip" });
+      // A throw that never finished: the box may be broken (a lost context), so the next one starts afresh.
+      else opts.onStuck?.();
       throw e;
     } finally {
       onDie = undefined;
@@ -171,6 +173,73 @@ const ID = "dice-box-3d";
 let loading: Promise<Box> | undefined;
 let webgl: boolean | undefined;
 
+/**
+ * iPhones and iPads take a page's WebGL away when memory runs low or the app has
+ * been in the background; the dice then roll unseen until a reload. The box is
+ * marked stale when that happens (the patched world worker reports a lost
+ * context; an onscreen canvas fires it itself; a long time in the background or
+ * a throw that never finished count too) and is built afresh on the next throw:
+ * its workers ended and its canvas removed, so nothing piles up.
+ */
+let stale = false;
+/** The workers the box started (physics, and the world when it draws offscreen): ended when it's rebuilt. */
+let workers: Worker[] = [];
+/** How many times the box was rebuilt this session (for the settings line and tests). */
+export let diceRebuilds = 0;
+const BACKGROUND_MS = 60_000;
+
+/** The dice are drawn afresh on the next throw. */
+export function resetDiceBox(why = "by hand"): void {
+  if (!loading) return;
+  stale = true;
+  if (typeof window !== "undefined") (window as unknown as { __dndDiceStale?: string }).__dndDiceStale = why;
+}
+
+function teardown(): void {
+  for (const w of workers) {
+    try {
+      w.terminate();
+    } catch {
+      /* already gone */
+    }
+  }
+  workers = [];
+  document.getElementById(ID)?.querySelectorAll("canvas").forEach((c) => c.remove());
+  loading = undefined;
+  stale = false;
+  diceRebuilds++;
+  (window as unknown as { __dndDiceRebuilds?: number }).__dndDiceRebuilds = diceRebuilds;
+}
+
+if (typeof document !== "undefined") {
+  let hiddenAt = 0;
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) hiddenAt = Date.now();
+    else if (hiddenAt && Date.now() - hiddenAt >= BACKGROUND_MS) resetDiceBox("background");
+  });
+}
+
+/** Starts the box with `Worker` watched, so its workers can be ended later and the world's lost context heard. */
+async function withWatchedWorkers<T>(start: () => Promise<T>): Promise<T> {
+  const Original = window.Worker;
+  const Watched = function (this: unknown, url: string | URL, options?: WorkerOptions) {
+    const w = new Original(url, options);
+    workers.push(w);
+    w.addEventListener("message", (e: MessageEvent) => {
+      const action = (e.data as { action?: string } | undefined)?.action;
+      if (action === "dnd-context-lost") resetDiceBox("context lost");
+    });
+    return w;
+  } as unknown as typeof Worker;
+  Watched.prototype = Original.prototype;
+  window.Worker = Watched;
+  try {
+    return await start();
+  } finally {
+    window.Worker = Original;
+  }
+}
+
 /** Whether this device can draw WebGL at all (asked once). */
 export function webglAvailable(): boolean {
   if (webgl !== undefined) return webgl;
@@ -186,7 +255,8 @@ export function webglAvailable(): boolean {
 /** Loads the library the first time (only then); later calls get the same box. */
 export function loadDiceBox(): Promise<Box> {
   if (!webglAvailable()) return Promise.reject(new NoWebGLError());
-  loading ??= (async () => {
+  if (stale && loading) teardown();
+  loading ??= withWatchedWorkers(async () => {
     const base = import.meta.env.BASE_URL;
     // A plain URL, not bundled: the library stays out of the app until it's asked for.
     const mod = (await import(/* @vite-ignore */ `${base}dice-box/dice-box.es.min.js`)) as { default: new (config: object) => Box };
@@ -207,8 +277,10 @@ export function loadDiceBox(): Promise<Box> {
       onDieComplete: (d: DieRoll) => real.dieDone(d),
     });
     await box.init();
+    // Drawing on the page itself (no OffscreenCanvas): the canvas says when its context is lost.
+    el.querySelector("canvas")?.addEventListener("webglcontextlost", () => resetDiceBox("context lost"));
     return box;
-  })().catch((e: unknown) => {
+  }).catch((e: unknown) => {
     // A failed load can be tried again next time.
     loading = undefined;
     throw e;
@@ -219,7 +291,7 @@ export function loadDiceBox(): Promise<Box> {
 /** Whether the library has already been loaded this session (nothing is fetched to answer). */
 export const diceBoxLoaded = () => loading !== undefined;
 
-const real = createThrower(loadDiceBox, { container: () => document.getElementById(ID) });
+const real = createThrower(loadDiceBox, { container: () => document.getElementById(ID), onStuck: () => resetDiceBox("stuck throw") });
 
 /** Throws these dice and returns each one's face, in the order asked. */
 export const throwDice: Thrower = real.throwDice;

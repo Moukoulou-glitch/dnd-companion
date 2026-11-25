@@ -68,14 +68,14 @@ export default defineConfig({
       },
       // The content packs make the app bundle large; it still has to work offline.
       // 3D dice (public/dice-box) aren't precached: they load only when switched on, then stay cached for offline use.
-      // The cache name changes when the dice files do (dice-box-2: the patched world that can turn a die to a face).
+      // The cache name changes when the dice files do (dice-box-3: the patched world that can turn a die to a face and reports a lost WebGL context).
       workbox: {
         globPatterns: ["**/*.{js,css,html,svg,png,woff,woff2}"],
         globIgnores: ["dice-box/**"],
         // The account's server and Cloudflare's sign-in pages are never answered from the offline copy.
         navigateFallbackDenylist: [/^\/api\//, /^\/cdn-cgi\//],
         maximumFileSizeToCacheInBytes: 6 * 1024 * 1024,
-        runtimeCaching: [{ urlPattern: ({ url }) => url.pathname.includes("/dice-box/"), handler: "CacheFirst", options: { cacheName: "dice-box-2" } }],
+        runtimeCaching: [{ urlPattern: ({ url }) => url.pathname.includes("/dice-box/"), handler: "CacheFirst", options: { cacheName: "dice-box-3" } }],
       },
     }),
   ],

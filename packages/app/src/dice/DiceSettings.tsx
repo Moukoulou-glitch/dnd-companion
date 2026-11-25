@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { CLASS_DICE_COLOURS, classDiceColour, mainClass, usePickedDiceColour } from "../diceColours";
 import { useDice3d, useDiceMode } from "../dice3dSetting";
-import { throwDice } from "../diceBox";
+import { resetDiceBox, throwDice } from "../diceBox";
 import { useFeedback } from "./feedback";
 import { myDieLook } from "./mine";
 import { OWN_MATERIALS, setOwnMaterial, setThemesOn, useDicePrefs } from "./prefs";
@@ -138,6 +138,18 @@ export function DiceSettings({ classes }: { classes: { class: string; level: num
         </div>
       )}
       {testing && <p className="note" style={{ padding: "0 12px" }}>{testing}</p>}
+      {on && (
+        <button
+          className="link"
+          style={{ margin: "0 12px 12px" }}
+          onClick={() => {
+            resetDiceBox();
+            setTesting("The dice will be drawn afresh on the next throw.");
+          }}
+        >
+          Dice not showing? Draw them afresh
+        </button>
+      )}
     </div>
   );
 }

@@ -122,4 +122,19 @@ describe("The 3D thrower: what's asked is what's read, in order", () => {
     expect(f.calls[0]!.config).toMatchObject({ throwForce: 8, gravity: 1 });
     expect(f.calls[1]!.config).toMatchObject({ gravity: 3, enableShadows: true });
   });
+
+  it("25a: a throw that fails (not skipped) marks the box for a rebuild; a skip doesn't", async () => {
+    let stuck = 0;
+    const broken: Box = { init: async () => undefined, roll: () => Promise.reject(new Error("lost")), clear: () => undefined, show: () => undefined, hide: () => undefined };
+    const t = createThrower(async () => broken, { modeOf: () => "full", hideAfterMs: 0, onStuck: () => stuck++ });
+    await expect(t.throwDice([20])).rejects.toThrow("lost");
+    expect(stuck).toBe(1);
+    const never = new Promise<Box>(() => undefined);
+    const t2 = createThrower(() => never, { modeOf: () => "full", hideAfterMs: 0, onStuck: () => stuck++ });
+    const p = t2.throwDice([20]);
+    await new Promise((r) => setTimeout(r, 0));
+    t2.skip();
+    await expect(p).rejects.toBeInstanceOf(SkipError);
+    expect(stuck).toBe(1);
+  });
 });
