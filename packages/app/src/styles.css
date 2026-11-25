@@ -5712,3 +5712,9 @@ html.light-fx.dice-air .sfx-ongoing { visibility: hidden; }
 .glance-roll.prof { border-color: var(--teal); }
 .glance-roll.prof small { color: var(--teal); }
 .identity-label .glance-pick { display: inline; width: auto; min-height: 0; margin: 0 0 0 4px; padding: 0 4px; font-size: 0.8rem; text-transform: none; vertical-align: baseline; }
+
+/* An option a feature takes away (Sharpshooter: long range), struck through like an achievement unlocked. */
+.row.cancelled-option { opacity: 0.9; }
+.row.cancelled-option s { text-decoration-thickness: 2px; text-decoration-color: var(--gold); color: var(--muted); }
+.cancelled-mark { width: 22px; text-align: center; color: var(--gold); font-size: 16px; }
+.cancelled-by { margin-left: 6px; padding: 1px 7px; border-radius: 999px; font-size: 0.72rem; font-weight: 700; color: var(--gold); border: 1px solid color-mix(in srgb, var(--gold) 55%, transparent); background: var(--gold-soft); vertical-align: middle; }

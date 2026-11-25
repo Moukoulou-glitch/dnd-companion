@@ -181,12 +181,28 @@ function Options({
     });
   };
 
+  // Options a feature takes away (Sharpshooter: long range), struck through, never tickable.
+  const cancelled = (base as { cancelled?: { label: string; effect: string; reason?: string; by: string }[] }).cancelled ?? [];
   return (
     <>
-      {base.suggestions.length > 0 && (
+      {(base.suggestions.length > 0 || cancelled.length > 0) && (
         <>
           <p className="sub-head">Can apply, your call</p>
           <div className="group">
+            {cancelled.map((s) => (
+              <div className="row cancelled-option" key={`x-${s.label}`} aria-label={`${s.label}: no ${s.effect}, thanks to ${s.by}`}>
+                <span className="cancelled-mark" aria-hidden="true">✦</span>
+                <div className="row-main">
+                  <div className="row-title">
+                    <s>{s.label}</s> <span className="cancelled-by">{s.by}</span>
+                  </div>
+                  {s.reason && <div className="row-sub">{s.reason}: no {s.effect}</div>}
+                </div>
+                <b>
+                  <s>{s.effect}</s>
+                </b>
+              </div>
+            ))}
             {base.suggestions.map((s) => (
               <label className="row check" key={s.label}>
                 <input type="checkbox" checked={choices.enabled.includes(s.label)} onChange={() => toggle(s.label)} />

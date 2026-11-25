@@ -1410,6 +1410,22 @@ export function App() {
         },
       });
     }
+    // Knowledge from a Past Life (Reborn): after seeing the d20 of a check that uses a skill, +1d6 (proficiency bonus times per long rest).
+    if (sh.actions.some((a) => a.id === "past-life")) {
+      const left = sh.resources.find((r) => r.id === "past-life")?.remaining ?? 0;
+      out.push({
+        label: "Knowledge from a Past Life +1d6",
+        group: "Knowledge from a Past Life",
+        on: "check",
+        sub: left > 0 ? `a check that uses a skill · ${left} left` : "no use left until a long rest",
+        warn: left <= 0,
+        run: async () => {
+          const r = await rollOrThrow("1d6", true, undefined, { source: "Knowledge from a Past Life" });
+          live.current.act("spendResource", { resource: "past-life", amount: 1 }, `Knowledge from a Past Life: +${r.total}.`);
+          return { value: r.total, detail: `1d6 [${r.total}]` };
+        },
+      });
+    }
     const knack = sh.actions.find((a) => a.id === "psi-bolstered-knack");
     if (knack?.roll) {
       const left = sh.resources.find((r) => r.id === "psionic-energy")?.remaining ?? 0;

@@ -76,6 +76,8 @@ export interface RollBreakdown extends Breakdown {
   rerollOne?: { label: string; oncePerTurn?: boolean; count?: number; spends?: { resource: string; amount: number } };
   /** With advantage, three d20s instead of two (Elven Accuracy: attacks with Dexterity, Intelligence, Wisdom or Charisma). */
   tripleAdvantage?: string;
+  /** Options a feature takes away, shown struck through (Sharpshooter: no disadvantage at long range). */
+  cancelled?: { label: string; effect: string; reason?: string; by: string }[];
   dice: DicePart[];
   advantage: string[];
   disadvantage: string[];

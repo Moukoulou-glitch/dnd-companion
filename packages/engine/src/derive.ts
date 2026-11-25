@@ -1440,6 +1440,17 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
   if (encumbrance.state === "encumbered") speedBase.push({ label: `Encumbered (over ${encumbrance.encumberedAt} lb.)`, value: -10 });
   if (encumbrance.state === "heavy" || (encRule === "variant" && encumbrance.state === "over")) speedBase.push({ label: `Heavily encumbered (over ${encumbrance.heavyAt} lb.)`, value: -20 });
   const speed = statWith("stat.speed.walk", speedBase);
+  // Supreme Sneak (Thief 9th): advantage on Stealth if you've moved no more than half your speed this turn.
+  // In combat on your turn the app knows how far you've moved: ticked when it holds, a warning when it doesn't.
+  const sneak = skills.stealth.suggestions.find((x) => x.label === "Supreme Sneak");
+  if (sneak && c.combat?.myTurn) {
+    const half = Math.floor(speed.total / 2);
+    const moved = c.combat.moved ?? 0;
+    if (moved <= half) {
+      sneak.preset = "always";
+      sneak.reason = `you've moved ${moved} ft this turn, no more than half your speed (${half} ft)`;
+    } else sneak.reason = `⚠ you've moved ${moved} ft this turn, more than half your speed (${half} ft): no advantage`;
+  }
   /** Swim, fly and climb speeds from features and effects: the best of each kind, then the same changes as walking (Grappled: 0). */
   const otherSpeeds = (walk: Breakdown): SpeedResult[] => {
     const out: SpeedResult[] = [];
@@ -1604,8 +1615,12 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
           (entry.attack.notes ??= []).push("Underwater: a target beyond the normal range is missed automatically.");
         }
       }
-      if (entry.range && entry.range[1] > entry.range[0])
-        entry.attack.suggestions.push({ label: "Long range", effect: "disadvantage", reason: `beyond ${entry.range[0]} ft, up to ${entry.range[1]} ft`, apply: { flat: 0, dice: [], mode: "disadvantage" } });
+      if (entry.range && entry.range[1] > entry.range[0]) {
+        // Sharpshooter: long range imposes no disadvantage on ranged weapon attacks (shown struck through, not an option).
+        const sharp = mode !== "melee" && sources.find((s) => s.id === "feat:sharpshooter");
+        if (sharp) (entry.attack.cancelled ??= []).push({ label: "Long range", effect: "disadvantage", reason: `beyond ${entry.range[0]} ft, up to ${entry.range[1]} ft`, by: sharp.label });
+        else entry.attack.suggestions.push({ label: "Long range", effect: "disadvantage", reason: `beyond ${entry.range[0]} ft, up to ${entry.range[1]} ft`, apply: { flat: 0, dice: [], mode: "disadvantage" } });
+      }
       const notes: string[] = [];
       if (w.properties.includes("loading") && !sources.some((s) => s.id === "feat:crossbow-expert")) notes.push("Loading: one shot per action, bonus action or reaction");
       // Reach: 10 ft with the reach property, plus "stat.reach" bonuses that apply now (Runic Juggernaut while Huge).
