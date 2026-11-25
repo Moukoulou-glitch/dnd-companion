@@ -1007,7 +1007,7 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
                 return (
                   <button key={o.label} className={`tag use${o.warn ? " danger-text" : ""}`} disabled={done} onClick={() => void applyAfter(o, r, used, done)}>
                     {o.label}
-                    {o.sub ? <small> · {o.sub}</small> : null}
+                    {o.sub ? <small>{o.sub}</small> : null}
                   </button>
                 );
               })}
@@ -1046,7 +1046,7 @@ export function Composer({ title, base: baseIn, attack, physical, onPhysicalChan
                       onClick={() => void applyAfter(o, r, used, done)}
                     >
                       {o.label}
-                      {o.sub ? <small> · {o.sub}</small> : null}
+                      {o.sub ? <small>{o.sub}</small> : null}
                     </button>
                   );
                 })}

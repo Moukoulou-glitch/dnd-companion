@@ -2230,6 +2230,32 @@ button.mpip {
 }
 .after-roll .choice-grid {
   margin-top: 4px;
+  /* One below the other (Lucky, Inspiration, Favored by the Gods…), each on its own full-width line; −1/+1 share a line. */
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.after-roll .choice-grid .tag {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 44px;
+  padding: 8px 14px;
+  white-space: normal;
+  font-size: 15px;
+}
+.after-roll .choice-grid .tag.use {
+  flex: 1 1 100%;
+  text-align: left;
+  border-radius: 16px;
+  line-height: 1.3;
+  color: var(--text);
+}
+.after-roll .choice-grid .tag.use.danger-text { color: var(--danger, #e07a72); }
+.after-roll .choice-grid .tag.use small {
+  display: block;
+  margin-top: 2px;
+  font-size: 12.5px;
+  color: var(--muted);
 }
 .big.miss {
   border-color: var(--hp);
