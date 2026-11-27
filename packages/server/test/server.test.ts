@@ -147,3 +147,25 @@ describe("21a: characters and the limit", () => {
     expect((await call("GET", "/api/admin/players", ADMIN)).data.removed).toEqual([{ email: "kostas@gmail.com", count: 1 }]);
   });
 });
+
+describe("25n: moving a character to another account", () => {
+  it("the admin moves one of theirs to a player on the list; it leaves their list and joins the player's; never past the limit, never to someone off the list", async () => {
+    await call("PUT", "/api/admin/players/eleni@gmail.com", ADMIN, { limit: 1 });
+    await save(ADMIN, "c1");
+    await save(ADMIN, "c2");
+    expect((await call("POST", "/api/admin/characters/c1", ADMIN, { to: "nobody@gmail.com" })).status).toBe(400);
+    expect((await call("POST", "/api/admin/characters/c1", ADMIN, { to: ADMIN })).status).toBe(400);
+    const moved = await call("POST", "/api/admin/characters/c1", ADMIN, { to: "Eleni@Gmail.com" });
+    expect(moved.data).toMatchObject({ id: "c1", owner: "eleni@gmail.com", from: ADMIN });
+    expect((await call("GET", "/api/characters", ADMIN)).data.characters.map((c: { id: string }) => c.id)).toEqual(["c2"]);
+    const hers = (await call("GET", "/api/characters", "eleni@gmail.com")).data.characters;
+    expect(hers.map((c: { id: string }) => c.id)).toEqual(["c1"]);
+    // At her limit (1): the next one isn't moved.
+    const full = await call("POST", "/api/admin/characters/c2", ADMIN, { to: "eleni@gmail.com" });
+    expect([full.status, full.data.code]).toEqual([409, "limit"]);
+    // And back to the admin (no limit).
+    expect((await call("POST", "/api/admin/characters/c1", ADMIN, { to: ADMIN })).data.owner).toBe(ADMIN);
+    // Only the admin can move characters.
+    expect((await call("POST", "/api/admin/characters/c1", "eleni@gmail.com", { to: "eleni@gmail.com" })).status).toBe(403);
+  });
+});

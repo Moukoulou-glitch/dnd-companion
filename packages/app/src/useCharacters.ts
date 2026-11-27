@@ -650,7 +650,7 @@ export function useCharacters() {
     [ready, version],
   );
 
-  return { ready, error, character, sheet, roster, selectedId, select, act, undo, canUndo: !!log?.canUndo, toast, setToast, history: log?.history ?? [], exportSelected, exportAll, oldestUnsaved, addRoll, rolls: (selectedId && rolls.current.get(selectedId)) || [], create, readImport, remove, restore, purge, deleted: account.kind === "cloud" ? [] : deletedList, account, moveOver, doMoveOver, retrySync: () => void syncAll() };
+  return { ready, error, character, sheet, roster, selectedId, select, act, undo, canUndo: !!log?.canUndo, toast, setToast, history: log?.history ?? [], exportSelected, exportAll, oldestUnsaved, addRoll, rolls: (selectedId && rolls.current.get(selectedId)) || [], create, readImport, remove, restore, purge, deleted: account.kind === "cloud" ? [] : deletedList, account, moveOver, doMoveOver, retrySync: () => void syncAll(), syncNow: syncAll };
 }
 
 export function download(name: string, data: unknown) {

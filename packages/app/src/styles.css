@@ -5749,3 +5749,7 @@ html.light-fx.dice-air .sfx-ongoing { visibility: hidden; }
 .name-field { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
 .name-field .big:disabled { opacity: 0.45; }
 .identity > :first-child { grid-column: 1 / -1; }
+
+/* Admin → a character moved to another account: the destination and a word on what happens. */
+.admin-move { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; padding: 8px 10px; border: 1px dashed var(--line); border-radius: 10px; }
+.admin-move select { width: 100%; }

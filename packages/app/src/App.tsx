@@ -342,7 +342,7 @@ export function App() {
   if (s.account.kind === "no-access") return <AccountGate title="No access yet" text={`${s.account.message} Then come back here.`} action="Use another account" onAction={signOut} />;
   if (s.moveOver && s.account.kind === "cloud") return <MoveOverScreen move={s.moveOver} online={s.account.online} email={s.account.me.email} onMove={s.doMoveOver} />;
   if (s.error && !s.character) return <p style={{ padding: 16 }}>{s.error}</p>;
-  if (!s.character || !s.sheet) return <Welcome create={s.create} readImport={s.readImport} deleted={s.deleted} restore={s.restore} purge={s.purge} account={s.account} />;
+  if (!s.character || !s.sheet) return <Welcome create={s.create} readImport={s.readImport} deleted={s.deleted} restore={s.restore} purge={s.purge} account={s.account} sync={s.syncNow} />;
 
   const { character: c, sheet } = s;
 
@@ -4688,7 +4688,7 @@ export function App() {
         />
         {s.account.kind === "cloud" && <AccountLine account={s.account} onRetry={s.retrySync} />}
         {s.account.kind === "cloud" && s.account.me.admin && (
-          <button className="big" style={{ width: "100%", marginTop: 8 }} onClick={() => open("Players and characters", () => <AdminPanel />)}>
+          <button className="big" style={{ width: "100%", marginTop: 8 }} onClick={() => open("Players and characters", () => <AdminPanel sync={s.syncNow} />)}>
             Admin: players and characters
           </button>
         )}
@@ -5191,7 +5191,9 @@ function Welcome({
   restore,
   purge,
   account,
+  sync,
 }: {
+  sync: () => Promise<void>;
   account: Account;
   create: (c: Character, label?: string) => Promise<boolean>;
   readImport: (text: string) => { character?: Character; error?: string };
@@ -5213,7 +5215,7 @@ function Welcome({
           {account.kind === "cloud" && account.me.admin && (
             <details style={{ marginTop: 8 }}>
               <summary className="big">Admin: players and characters</summary>
-              <AdminPanel />
+              <AdminPanel sync={sync} />
             </details>
           )}
           <div className="big-actions">

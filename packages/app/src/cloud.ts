@@ -233,6 +233,8 @@ export class AdminApi {
   characters = () => this.call<{ characters: AdminCharacter[] }>("/api/admin/characters");
   character = (id: string) => this.call<AdminCharacter & { data: CloudData }>(`/api/admin/characters/${encodeURIComponent(id)}`);
   deleteCharacter = (id: string) => this.call<{ deleted: boolean }>(`/api/admin/characters/${encodeURIComponent(id)}`, { method: "DELETE" });
+  /** To another account on the list (or the admin's); refused past their limit. */
+  moveCharacter = (id: string, to: string) => this.call<{ id: string; owner: string; from: string }>(`/api/admin/characters/${encodeURIComponent(id)}`, { method: "POST", body: JSON.stringify({ to }) });
 }
 
 /**

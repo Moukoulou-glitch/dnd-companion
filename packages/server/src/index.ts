@@ -226,6 +226,22 @@ export async function handle(req: Request, env: Env, fetcher?: (u: string) => Pr
         await env.DB.prepare("DELETE FROM characters WHERE id = ?").bind(row.id).run();
         return json({ id: row.id, deleted: true });
       }
+      // Moved to another account (the admin's or a player's on the list): it leaves the old owner's devices on their
+      // next sync and appears on the new owner's. Not past the new owner's limit (raise it first).
+      if (req.method === "POST") {
+        const body = await readBody(req);
+        if (!body.ok) return body.res;
+        const to = String(body.value.to ?? "").trim().toLowerCase();
+        if (!EMAIL.test(to)) return fail(400, "That isn't an email address.");
+        if (to === row.owner) return fail(400, "It's already theirs.");
+        const target: Who | undefined = isAdmin(env, to) ? { email: to, admin: true } : (await env.DB.prepare("SELECT email FROM players WHERE email = ?").bind(to).first()) ? { email: to, admin: false } : undefined;
+        if (!target) return fail(400, `${to} isn't on the list: add them first.`);
+        const limit = await limitOf(env, target);
+        const count = await countOf(env, to);
+        if (limit !== null && count >= limit) return fail(409, `${to} has ${count} of ${limit} characters: raise their limit first.`, { code: "limit" });
+        await env.DB.prepare("UPDATE characters SET owner = ?, version = version + 1, updated_at = ? WHERE id = ?").bind(to, now, row.id).run();
+        return json({ id: row.id, owner: to, from: row.owner, version: row.version + 1 });
+      }
       return fail(405, "Not allowed.");
     }
   }

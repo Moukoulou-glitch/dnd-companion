@@ -9,7 +9,7 @@ const when = (ms: number) => new Date(ms).toLocaleDateString();
  * The admin's page (only the admin's account can use it; the server checks): who may sign in, how many
  * characters each may keep, and everyone's characters (download a file of one, or delete it).
  */
-export function AdminPanel() {
+export function AdminPanel({ sync }: { sync?: () => Promise<void> } = {}) {
   const [list, setList] = useState<AdminList | null>(null);
   const [chars, setChars] = useState<AdminCharacter[]>([]);
   const [msg, setMsg] = useState("");
@@ -23,6 +23,8 @@ export function AdminPanel() {
   const [limit, setLimit] = useState(6);
   const [busy, setBusy] = useState(false);
   const [confirm, setConfirm] = useState<string | null>(null);
+  /** Moving a character: which one, and to whom. */
+  const [moving, setMoving] = useState<{ id: string; to: string } | null>(null);
 
   const load = async () => {
     const [l, c] = await Promise.all([api.players(), api.characters()]);
@@ -140,10 +142,58 @@ export function AdminPanel() {
                   <div className="row-main">
                     <div className="row-title">{c.name || "(no name)"}</div>
                     <div className="row-sub">changed {when(c.updatedAt)}</div>
+                    {moving?.id === c.id && (
+                      <div className="admin-move">
+                        <label className="row-sub" htmlFor={`move-${c.id}`}>
+                          Move {c.name || "it"} to
+                        </label>
+                        <select id={`move-${c.id}`} className="text" value={moving.to} onChange={(e) => setMoving({ id: c.id, to: e.target.value })}>
+                          {owners
+                            .filter((x) => x !== c.owner && !list.removed.some((r) => r.email === x))
+                            .map((x) => {
+                              const p = list.players.find((y) => y.email === x);
+                              return (
+                                <option key={x} value={x}>
+                                  {x === list.admin.email ? `${x} (you)` : `${x} (${p?.count ?? 0} of ${p?.limit ?? "?"})`}
+                                </option>
+                              );
+                            })}
+                        </select>
+                        <p className="note">It leaves {c.owner === list.admin.email ? "your" : `${c.owner}'s`} account (and their devices, the next time they open the app) and appears on the new owner's. Its file isn't downloaded: nothing is lost.</p>
+                        <div className="admin-row">
+                          <button
+                            className="chip"
+                            disabled={busy || !moving.to}
+                            onClick={async () => {
+                              // Your own: anything not yet on the account goes up first, so nothing is left behind.
+                              if (c.owner === list.admin.email) await sync?.();
+                              const to = moving.to;
+                              await run(
+                                () => api.moveCharacter(c.id, to),
+                                (r: { owner: string }) => `${c.name || "The character"} moved to ${r.owner === list.admin.email ? "you" : r.owner}.`,
+                              );
+                              setMoving(null);
+                              // Gone from this device too when it was yours (or here when it's now yours).
+                              await sync?.();
+                            }}
+                          >
+                            Move
+                          </button>
+                          <button className="chip" onClick={() => setMoving(null)}>
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    )}
                     <div className="admin-row">
                       <button className="chip" onClick={() => void fileOfOne(c)}>
                         Download file
                       </button>
+                      {owners.filter((x) => x !== c.owner && !list.removed.some((r) => r.email === x)).length > 0 && moving?.id !== c.id && (
+                        <button className="chip" onClick={() => setMoving({ id: c.id, to: owners.find((x) => x !== c.owner && !list.removed.some((r) => r.email === x)) ?? "" })}>
+                          Move to…
+                        </button>
+                      )}
                       {confirm === c.id ? (
                         <>
                           <button
