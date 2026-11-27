@@ -169,3 +169,29 @@ describe("25n: moving a character to another account", () => {
     expect((await call("POST", "/api/admin/characters/c1", "eleni@gmail.com", { to: "eleni@gmail.com" })).status).toBe(403);
   });
 });
+
+describe("25o: copies and the admin's tags", () => {
+  it("a copy to another account (or to the admin) gets its own id; the original stays; tags are the admin's only", async () => {
+    await call("PUT", "/api/admin/players/eleni@gmail.com", ADMIN, { limit: 3 });
+    await save("eleni@gmail.com", "e1");
+    // A copy of Eleni's character into the admin's account.
+    const c = await call("POST", "/api/admin/characters/e1", ADMIN, { to: ADMIN, copy: true });
+    expect(c.data).toMatchObject({ owner: ADMIN, from: "eleni@gmail.com", copyOf: "e1" });
+    expect(c.data.id).not.toBe("e1");
+    const mine = (await call("GET", `/api/characters/${c.data.id}`, ADMIN)).data;
+    expect(mine.data.snapshot.id).toBe(c.data.id);
+    expect((await call("GET", "/api/characters", "eleni@gmail.com")).data.characters.map((x: { id: string }) => x.id)).toEqual(["e1"]);
+    // A copy to her own account too (a second one).
+    expect((await call("POST", "/api/admin/characters/e1", ADMIN, { to: "eleni@gmail.com", copy: true })).data.owner).toBe("eleni@gmail.com");
+    // Tags: typed by the admin; the list carries them and the level.
+    expect((await call("PUT", "/api/admin/characters/e1/tags", ADMIN, { campaign: " Ξέφωτο της Φωτιάς ", general: "", player: "Eleni" })).data.tags).toEqual({ campaign: "Ξέφωτο της Φωτιάς", player: "Eleni" });
+    const list = (await call("GET", "/api/admin/characters", ADMIN)).data.characters;
+    expect(list.find((x: { id: string }) => x.id === "e1").tags).toEqual({ campaign: "Ξέφωτο της Φωτιάς", player: "Eleni" });
+    expect((await call("PUT", "/api/admin/characters/e1/tags", "eleni@gmail.com", { campaign: "x" })).status).toBe(403);
+    // A copy made after the tags carries them.
+    const c2 = await call("POST", "/api/admin/characters/e1", ADMIN, { to: ADMIN, copy: true });
+    expect((await call("GET", "/api/admin/characters", ADMIN)).data.characters.find((x: { id: string }) => x.id === c2.data.id).tags.campaign).toBe("Ξέφωτο της Φωτιάς");
+    // Back to the default: all empty.
+    expect((await call("PUT", "/api/admin/characters/e1/tags", ADMIN, {})).data.tags).toEqual({});
+  });
+});

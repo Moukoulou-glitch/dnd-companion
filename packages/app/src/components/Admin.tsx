@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { AdminApi, type AdminCharacter, type AdminList } from "../cloud";
+import { AdminApi, TAG_KINDS, type AdminCharacter, type AdminList, type TagKind } from "../cloud";
 import { download, fileOf } from "../useCharacters";
 
 const api = new AdminApi();
 const when = (ms: number) => new Date(ms).toLocaleDateString();
+const TAG_LABEL: Record<TagKind, string> = { player: "Player", character: "Character", level: "Level", campaign: "Campaign", general: "General" };
 
 /**
  * The admin's page (only the admin's account can use it; the server checks): who may sign in, how many
@@ -24,7 +25,10 @@ export function AdminPanel({ sync }: { sync?: () => Promise<void> } = {}) {
   const [busy, setBusy] = useState(false);
   const [confirm, setConfirm] = useState<string | null>(null);
   /** Moving a character: which one, and to whom. */
-  const [moving, setMoving] = useState<{ id: string; to: string } | null>(null);
+  const [moving, setMoving] = useState<{ id: string; to: string; copy: boolean } | null>(null);
+  /** The tags being edited (one character at a time). */
+  const [tagging, setTagging] = useState<{ id: string; tags: Partial<Record<TagKind, string>> } | null>(null);
+  const [q, setQ] = useState("");
 
   const load = async () => {
     const [l, c] = await Promise.all([api.players(), api.characters()]);
@@ -60,6 +64,18 @@ export function AdminPanel({ sync }: { sync?: () => Promise<void> } = {}) {
   if (!list) return <p className="note">{msg || "Loading…"}</p>;
   const owners = [list.admin.email, ...list.players.map((p) => p.email), ...list.removed.map((r) => r.email)];
   const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+  /** Where a character can go: another account on the list or yours; a copy can stay with its owner too. */
+  const targets = (c: AdminCharacter, copy: boolean) => owners.filter((x) => (copy || x !== c.owner) && !list.removed.some((r) => r.email === x));
+  /** A tag: typed by you, or filled in (Player: the account, Character: the name, Level: its level). */
+  const autoTag = (c: AdminCharacter, k: TagKind) => (k === "player" ? (c.owner === list.admin.email ? "you" : c.owner) : k === "character" ? c.name : k === "level" ? (c.level ? String(c.level) : "") : "");
+  const tagsOf = (c: AdminCharacter) =>
+    Object.fromEntries(TAG_KINDS.map((k) => [k, c.tags?.[k] ? { value: c.tags[k]!, typed: true } : { value: autoTag(c, k), typed: false }])) as Record<TagKind, { value: string; typed: boolean }>;
+  const matches = (c: AdminCharacter) => {
+    const words = q.toLowerCase().split(/\s+/).filter(Boolean);
+    if (!words.length) return true;
+    const hay = [c.name, c.owner, ...TAG_KINDS.map((k) => tagsOf(c)[k].value)].join(" ").toLowerCase();
+    return words.every((w) => hay.includes(w));
+  };
 
   return (
     <div className="admin">
@@ -126,8 +142,9 @@ export function AdminPanel({ sync }: { sync?: () => Promise<void> } = {}) {
       <p className="sub-head" style={{ marginTop: 20 }}>
         Everyone's characters ({chars.length})
       </p>
+      <input className="search" type="search" placeholder="Search: name, player, campaign, level, any tag" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Search characters" />
       {owners.map((o) => {
-        const mine = chars.filter((c) => c.owner === o);
+        const mine = chars.filter((c) => c.owner === o && matches(c));
         if (!mine.length) return null;
         const removed = list.removed.some((r) => r.email === o);
         return (
@@ -137,20 +154,61 @@ export function AdminPanel({ sync }: { sync?: () => Promise<void> } = {}) {
               {o === list.admin.email ? " (you)" : removed ? " (no longer on the list)" : ""}
             </div>
             <div className="group">
-              {mine.map((c) => (
-                <div key={c.id} className="row">
-                  <div className="row-main">
-                    <div className="row-title">{c.name || "(no name)"}</div>
-                    <div className="row-sub">changed {when(c.updatedAt)}</div>
-                    {moving?.id === c.id && (
-                      <div className="admin-move">
-                        <label className="row-sub" htmlFor={`move-${c.id}`}>
-                          Move {c.name || "it"} to
-                        </label>
-                        <select id={`move-${c.id}`} className="text" value={moving.to} onChange={(e) => setMoving({ id: c.id, to: e.target.value })}>
-                          {owners
-                            .filter((x) => x !== c.owner && !list.removed.some((r) => r.email === x))
-                            .map((x) => {
+              {mine.map((c) => {
+                const tags = tagsOf(c);
+                return (
+                  <div key={c.id} className="row">
+                    <div className="row-main">
+                      <div className="row-title">{c.name || "(no name)"}</div>
+                      <div className="row-sub">changed {when(c.updatedAt)}</div>
+                      <div className="admin-tags" aria-label="Tags">
+                        {TAG_KINDS.map((k) =>
+                          tags[k].value ? (
+                            <span key={k} className={`admin-tag${tags[k].typed ? "" : " auto"}`} title={tags[k].typed ? "typed by you" : "filled in by the app"}>
+                              <b>{TAG_LABEL[k]}</b> {tags[k].value}
+                            </span>
+                          ) : null,
+                        )}
+                      </div>
+                      {tagging?.id === c.id && (
+                        <div className="admin-move">
+                          {TAG_KINDS.map((k) => (
+                            <label key={k} className="admin-tag-field">
+                              <span className="row-sub">{TAG_LABEL[k]}</span>
+                              <input
+                                className="text"
+                                value={tagging.tags[k] ?? ""}
+                                placeholder={autoTag(c, k) || (k === "general" ? "anything (comma-separated)" : "")}
+                                onChange={(e) => setTagging({ id: c.id, tags: { ...tagging.tags, [k]: e.target.value } })}
+                              />
+                            </label>
+                          ))}
+                          <p className="note">Empty: Player, Character and Level fill themselves in (the account, the name, the level). Several values: separate them with commas. Only you see these.</p>
+                          <div className="admin-row">
+                            <button className="chip" disabled={busy} onClick={() => void run(() => api.setTags(c.id, tagging.tags), () => `Tags saved for ${c.name || "the character"}.`).then(() => setTagging(null))}>
+                              Save tags
+                            </button>
+                            <button className="chip" onClick={() => setTagging(null)}>
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                      {moving?.id === c.id && (
+                        <div className="admin-move">
+                          <div className="segmented" role="radiogroup" aria-label="Move or copy">
+                            <button role="radio" aria-checked={!moving.copy} onClick={() => setMoving({ ...moving, copy: false, to: moving.to === c.owner ? (targets(c, false)[0] ?? "") : moving.to })}>
+                              Move
+                            </button>
+                            <button role="radio" aria-checked={moving.copy} onClick={() => setMoving({ ...moving, copy: true })}>
+                              Copy
+                            </button>
+                          </div>
+                          <label className="row-sub" htmlFor={`move-${c.id}`}>
+                            {moving.copy ? "A copy of" : "Move"} {c.name || "it"} to
+                          </label>
+                          <select id={`move-${c.id}`} className="text" value={moving.to} onChange={(e) => setMoving({ ...moving, to: e.target.value })}>
+                            {targets(c, moving.copy).map((x) => {
                               const p = list.players.find((y) => y.email === x);
                               return (
                                 <option key={x} value={x}>
@@ -158,71 +216,82 @@ export function AdminPanel({ sync }: { sync?: () => Promise<void> } = {}) {
                                 </option>
                               );
                             })}
-                        </select>
-                        <p className="note">It leaves {c.owner === list.admin.email ? "your" : `${c.owner}'s`} account (and their devices, the next time they open the app) and appears on the new owner's. Its file isn't downloaded: nothing is lost.</p>
-                        <div className="admin-row">
-                          <button
-                            className="chip"
-                            disabled={busy || !moving.to}
-                            onClick={async () => {
-                              // Your own: anything not yet on the account goes up first, so nothing is left behind.
-                              if (c.owner === list.admin.email) await sync?.();
-                              const to = moving.to;
-                              await run(
-                                () => api.moveCharacter(c.id, to),
-                                (r: { owner: string }) => `${c.name || "The character"} moved to ${r.owner === list.admin.email ? "you" : r.owner}.`,
-                              );
-                              setMoving(null);
-                              // Gone from this device too when it was yours (or here when it's now yours).
-                              await sync?.();
-                            }}
-                          >
-                            Move
-                          </button>
-                          <button className="chip" onClick={() => setMoving(null)}>
-                            Cancel
-                          </button>
+                          </select>
+                          <p className="note">
+                            {moving.copy
+                              ? "A new character with everything this one has (and your tags); the original stays where it is."
+                              : `It leaves ${c.owner === list.admin.email ? "your" : `${c.owner}'s`} account (and their devices, the next time they open the app) and appears on the new owner's. Nothing is lost.`}
+                          </p>
+                          <div className="admin-row">
+                            <button
+                              className="chip"
+                              disabled={busy || !moving.to}
+                              onClick={async () => {
+                                // Your own: anything not yet on the account goes up first, so nothing is left behind.
+                                if (c.owner === list.admin.email) await sync?.();
+                                const { to, copy } = moving;
+                                await run(
+                                  () => api.moveCharacter(c.id, to, copy),
+                                  (r: { owner: string }) => `${c.name || "The character"} ${copy ? "copied" : "moved"} to ${r.owner === list.admin.email ? "you" : r.owner}.`,
+                                );
+                                setMoving(null);
+                                // Gone from this device when it was yours, here when it's now yours.
+                                await sync?.();
+                              }}
+                            >
+                              {moving.copy ? "Make the copy" : "Move"}
+                            </button>
+                            <button className="chip" onClick={() => setMoving(null)}>
+                              Cancel
+                            </button>
+                          </div>
                         </div>
+                      )}
+                      <div className="admin-row">
+                        <button className="chip" onClick={() => void fileOfOne(c)}>
+                          Download file
+                        </button>
+                        {moving?.id !== c.id && (
+                          <button className="chip" onClick={() => setMoving({ id: c.id, to: targets(c, false)[0] ?? list.admin.email, copy: false })}>
+                            Move or copy…
+                          </button>
+                        )}
+                        {tagging?.id !== c.id && (
+                          <button className="chip" onClick={() => setTagging({ id: c.id, tags: { ...(c.tags ?? {}) } })}>
+                            Tags
+                          </button>
+                        )}
+                        {confirm === c.id ? (
+                          <>
+                            <button
+                              className="chip danger-text"
+                              disabled={busy}
+                              onClick={async () => {
+                                // Its file first, then gone for good (like a player's own delete).
+                                if (await fileOfOne(c)) await run(() => api.deleteCharacter(c.id), () => `${c.name} deleted for good; their file was downloaded.`);
+                              }}
+                            >
+                              Yes, delete
+                            </button>
+                            <button className="chip" onClick={() => setConfirm(null)}>
+                              Keep
+                            </button>
+                          </>
+                        ) : (
+                          <button className="chip danger-text" onClick={() => setConfirm(c.id)}>
+                            Delete
+                          </button>
+                        )}
                       </div>
-                    )}
-                    <div className="admin-row">
-                      <button className="chip" onClick={() => void fileOfOne(c)}>
-                        Download file
-                      </button>
-                      {owners.filter((x) => x !== c.owner && !list.removed.some((r) => r.email === x)).length > 0 && moving?.id !== c.id && (
-                        <button className="chip" onClick={() => setMoving({ id: c.id, to: owners.find((x) => x !== c.owner && !list.removed.some((r) => r.email === x)) ?? "" })}>
-                          Move to…
-                        </button>
-                      )}
-                      {confirm === c.id ? (
-                        <>
-                          <button
-                            className="chip danger-text"
-                            disabled={busy}
-                            onClick={async () => {
-                              // Its file first, then gone for good (like a player's own delete).
-                              if (await fileOfOne(c)) await run(() => api.deleteCharacter(c.id), () => `${c.name} deleted for good; their file was downloaded.`);
-                            }}
-                          >
-                            Yes, delete
-                          </button>
-                          <button className="chip" onClick={() => setConfirm(null)}>
-                            Keep
-                          </button>
-                        </>
-                      ) : (
-                        <button className="chip danger-text" onClick={() => setConfirm(c.id)}>
-                          Delete
-                        </button>
-                      )}
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         );
       })}
+      {q && !chars.some(matches) && <p className="note">No character matches "{q}".</p>}
       <p className="note">You ({list.admin.email}) can always sign in and have no limit. The default for new players is {list.defaultLimit}.</p>
     </div>
   );

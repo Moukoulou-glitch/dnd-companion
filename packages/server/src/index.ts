@@ -82,6 +82,25 @@ async function readBody(req: Request): Promise<{ ok: true; value: Record<string,
 
 const summary = (r: Omit<Row, "data">) => ({ id: r.id, owner: r.owner, name: r.name, version: r.version, updatedAt: r.updated_at });
 
+/** The admin's own tags on a character (Player, Character, Level, Campaign, General): only on the admin page. */
+const TAG_KINDS = ["player", "character", "level", "campaign", "general"] as const;
+type Tags = Partial<Record<(typeof TAG_KINDS)[number], string>>;
+/** The tags' table, made the first time it's needed (no step in Cloudflare's console). */
+async function tagsTable(env: Env): Promise<void> {
+  await env.DB.prepare("CREATE TABLE IF NOT EXISTS character_tags (id TEXT PRIMARY KEY, tags TEXT NOT NULL)").run();
+}
+/** A character's level from its saved data: the starting classes plus levels gained, less levels taken back. */
+function levelOf(data: string): number | undefined {
+  try {
+    const d = JSON.parse(data) as { snapshot?: { classes?: { level?: number }[] }; ops?: { type?: string }[] };
+    const base = (d.snapshot?.classes ?? []).reduce((t, c) => t + (c.level ?? 0), 0);
+    const ups = (d.ops ?? []).filter((o) => o.type === "levelUp").length - (d.ops ?? []).filter((o) => o.type === "levelDown").length;
+    return base + ups || undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 export async function handle(req: Request, env: Env, fetcher?: (u: string) => Promise<Response>, now = Date.now(), ctx?: AccessContext): Promise<Response> {
   const url = new URL(req.url);
   const path = url.pathname.replace(/\/+$/, "") || "/";
@@ -213,8 +232,32 @@ export async function handle(req: Request, env: Env, fetcher?: (u: string) => Pr
     }
 
     if (path === "/api/admin/characters" && req.method === "GET") {
-      const rows = await env.DB.prepare("SELECT id, owner, name, version, updated_at FROM characters ORDER BY owner, updated_at DESC").all<Omit<Row, "data">>();
-      return json({ characters: (rows.results ?? []).map(summary) });
+      await tagsTable(env);
+      const rows = await env.DB.prepare("SELECT c.id, c.owner, c.name, c.data, c.version, c.updated_at, t.tags FROM characters c LEFT JOIN character_tags t ON t.id = c.id ORDER BY c.owner, c.updated_at DESC").all<Row & { tags: string | null }>();
+      return json({
+        characters: (rows.results ?? []).map((r) => {
+          const level = levelOf(r.data);
+          return { ...summary(r), ...(level ? { level } : {}), tags: r.tags ? (JSON.parse(r.tags) as Tags) : {} };
+        }),
+      });
+    }
+
+    // The admin's tags on a character: each a typed text (several values comma-separated); empty: back to the default.
+    const tg = /^\/api\/admin\/characters\/([A-Za-z0-9_-]{1,100})\/tags$/.exec(path);
+    if (tg && req.method === "PUT") {
+      const row = await env.DB.prepare("SELECT id FROM characters WHERE id = ?").bind(tg[1]!).first<{ id: string }>();
+      if (!row) return fail(404, "No such character.");
+      const body = await readBody(req);
+      if (!body.ok) return body.res;
+      const tags: Tags = {};
+      for (const k of TAG_KINDS) {
+        const v = body.value[k];
+        if (typeof v === "string" && v.trim()) tags[k] = v.trim().slice(0, 200);
+      }
+      await tagsTable(env);
+      if (Object.keys(tags).length) await env.DB.prepare("INSERT INTO character_tags (id, tags) VALUES (?, ?) ON CONFLICT(id) DO UPDATE SET tags = excluded.tags").bind(row.id, JSON.stringify(tags)).run();
+      else await env.DB.prepare("DELETE FROM character_tags WHERE id = ?").bind(row.id).run();
+      return json({ id: row.id, tags });
     }
 
     const c = /^\/api\/admin\/characters\/([A-Za-z0-9_-]{1,100})$/.exec(path);
@@ -224,6 +267,8 @@ export async function handle(req: Request, env: Env, fetcher?: (u: string) => Pr
       if (req.method === "GET") return json({ ...summary(row), data: JSON.parse(row.data) as unknown });
       if (req.method === "DELETE") {
         await env.DB.prepare("DELETE FROM characters WHERE id = ?").bind(row.id).run();
+        await tagsTable(env);
+        await env.DB.prepare("DELETE FROM character_tags WHERE id = ?").bind(row.id).run();
         return json({ id: row.id, deleted: true });
       }
       // Moved to another account (the admin's or a player's on the list): it leaves the old owner's devices on their
@@ -233,12 +278,24 @@ export async function handle(req: Request, env: Env, fetcher?: (u: string) => Pr
         if (!body.ok) return body.res;
         const to = String(body.value.to ?? "").trim().toLowerCase();
         if (!EMAIL.test(to)) return fail(400, "That isn't an email address.");
-        if (to === row.owner) return fail(400, "It's already theirs.");
+        const copy = body.value.copy === true;
+        if (to === row.owner && !copy) return fail(400, "It's already theirs.");
         const target: Who | undefined = isAdmin(env, to) ? { email: to, admin: true } : (await env.DB.prepare("SELECT email FROM players WHERE email = ?").bind(to).first()) ? { email: to, admin: false } : undefined;
         if (!target) return fail(400, `${to} isn't on the list: add them first.`);
         const limit = await limitOf(env, target);
         const count = await countOf(env, to);
         if (limit !== null && count >= limit) return fail(409, `${to} has ${count} of ${limit} characters: raise their limit first.`, { code: "limit" });
+        if (copy) {
+          // A copy: a new character with its own id (the original stays where it is), and the same tags.
+          const id = crypto.randomUUID();
+          const data = JSON.parse(row.data) as { id?: string; snapshot?: { id?: string } };
+          const copied = { ...data, id, ...(data.snapshot ? { snapshot: { ...data.snapshot, id } } : {}) };
+          await env.DB.prepare("INSERT INTO characters (id, owner, name, data, version, updated_at) VALUES (?, ?, ?, ?, 1, ?)").bind(id, to, row.name, JSON.stringify(copied), now).run();
+          await tagsTable(env);
+          const t = await env.DB.prepare("SELECT tags FROM character_tags WHERE id = ?").bind(row.id).first<{ tags: string }>();
+          if (t) await env.DB.prepare("INSERT INTO character_tags (id, tags) VALUES (?, ?)").bind(id, t.tags).run();
+          return json({ id, owner: to, from: row.owner, copyOf: row.id, version: 1 });
+        }
         await env.DB.prepare("UPDATE characters SET owner = ?, version = version + 1, updated_at = ? WHERE id = ?").bind(to, now, row.id).run();
         return json({ id: row.id, owner: to, from: row.owner, version: row.version + 1 });
       }

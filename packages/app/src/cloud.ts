@@ -201,12 +201,18 @@ export interface AdminList {
   /** Accounts taken off the list whose characters are still kept. */
   removed: { email: string; count: number }[];
 }
+export const TAG_KINDS = ["player", "character", "level", "campaign", "general"] as const;
+export type TagKind = (typeof TAG_KINDS)[number];
 export interface AdminCharacter {
   id: string;
   owner: string;
   name: string;
   version: number;
   updatedAt: number;
+  /** Its level, from its saved data. */
+  level?: number;
+  /** The admin's own tags (typed; empty ones fall back to the owner, the name and the level). */
+  tags?: Partial<Record<TagKind, string>>;
 }
 
 /** The admin's calls; anything but a JSON answer comes back as an error message. */
@@ -234,7 +240,8 @@ export class AdminApi {
   character = (id: string) => this.call<AdminCharacter & { data: CloudData }>(`/api/admin/characters/${encodeURIComponent(id)}`);
   deleteCharacter = (id: string) => this.call<{ deleted: boolean }>(`/api/admin/characters/${encodeURIComponent(id)}`, { method: "DELETE" });
   /** To another account on the list (or the admin's); refused past their limit. */
-  moveCharacter = (id: string, to: string) => this.call<{ id: string; owner: string; from: string }>(`/api/admin/characters/${encodeURIComponent(id)}`, { method: "POST", body: JSON.stringify({ to }) });
+  moveCharacter = (id: string, to: string, copy = false) => this.call<{ id: string; owner: string; from: string; copyOf?: string }>(`/api/admin/characters/${encodeURIComponent(id)}`, { method: "POST", body: JSON.stringify({ to, ...(copy ? { copy: true } : {}) }) });
+  setTags = (id: string, tags: Partial<Record<TagKind, string>>) => this.call<{ id: string; tags: Partial<Record<TagKind, string>> }>(`/api/admin/characters/${encodeURIComponent(id)}/tags`, { method: "PUT", body: JSON.stringify(tags) });
 }
 
 /**
