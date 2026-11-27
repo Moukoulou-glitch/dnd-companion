@@ -832,6 +832,11 @@ export function derive(c: Character, baseReg: ContentRegistry): DerivedSheet {
   const resolveTargets = (p: Proficiency, s: Source): string[] => {
     if (typeof p.target === "string") return [p.target];
     const chosen = s.choices[p.target.choice];
+    // A custom background with both picks as languages has no tools to choose (or none as languages): nothing missing.
+    if (s.id === "background:custom" && !chosen?.length) {
+      const langs = c.customBackground?.languages ?? 1;
+      if ((p.target.choice === "tools" && langs === 2) || (p.target.choice === "languages" && langs === 0)) return [];
+    }
     if (!chosen || chosen.length === 0) {
       warnings.push(`${s.label}: choice "${p.target.choice}" has not been made.`);
       return [];

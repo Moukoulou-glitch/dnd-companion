@@ -51,3 +51,11 @@ describe("25k: Reliable Talent", () => {
     expect(pc({ background: "background:acolyte" }, 10).tools.find((t) => /thieves/i.test(t.name))!.checks.dex.minD20).toBeUndefined();
   });
 });
+
+describe("25l: a custom background with two languages", () => {
+  it("asks for no tools (no warning that the tools choice is missing)", () => {
+    const s = pc({ background: "background:custom", customBackground: { name: "Confessor", languages: 2, featureName: "Divine Shelter" }, choices: { "background:custom": { skills: ["insight", "religion"], languages: ["Orc", "Giant"] } } }, 3);
+    expect(s.warnings.filter((w) => /tools/.test(w))).toEqual([]);
+    expect(s.proficiencies.languages).toEqual(expect.arrayContaining(["Orc", "Giant"]));
+  });
+});
