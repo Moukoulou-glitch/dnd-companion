@@ -32,6 +32,7 @@ function Identity({ c, size: now, onBackground, onIdentity, children }: { c: Cha
   const size = c.size ?? race?.size ?? "medium";
   const type = c.creatureType ?? race?.creatureType ?? "humanoid";
   const parts: [string, string, (() => void) | undefined][] = [
+    ["Name", c.name, onIdentity],
     ["Race", race?.name ?? c.race, undefined],
     ["Background", c.background === "background:custom" ? `${c.customBackground?.name || "You don't know me!"} (custom)` : bg?.name ?? "none", onBackground],
     ["Alignment", c.alignment ? ALIGNMENTS[c.alignment.toUpperCase()] ?? c.alignment : "not set", onIdentity],
@@ -186,11 +187,36 @@ const SIZES = ["tiny", "small", "medium", "large", "huge", "gargantuan"] as cons
 const TYPES = ["aberration", "beast", "celestial", "construct", "dragon", "elemental", "fey", "fiend", "giant", "humanoid", "monstrosity", "ooze", "plant", "undead"];
 
 /** Alignment, size and creature type: the race's unless changed here. */
+/** The character's name, changed by typing it and Save (kept in the operation log like every change). */
+function NameField({ c, act }: { c: Character; act: (type: OperationType, payload: unknown, label: string) => unknown }) {
+  const [name, setName] = useState(c.name);
+  const clean = name.trim().replace(/\s+/g, " ");
+  const changed = clean.length > 0 && clean !== c.name;
+  return (
+    <>
+      <h2 className="sub-head">Name</h2>
+      <form
+        className="name-field"
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (changed) act("setDetails", { name: clean }, `Name: ${clean}.`);
+        }}
+      >
+        <input className="search" value={name} maxLength={120} onChange={(e) => setName(e.target.value)} aria-label="Character name" autoComplete="off" />
+        <button className="big primary" type="submit" disabled={!changed}>
+          Save the name
+        </button>
+      </form>
+    </>
+  );
+}
+
 export function IdentityPanel({ c, act }: { c: Character; act: (type: OperationType, payload: unknown, label: string) => unknown }) {
   const race = registry.find(c.race, "race");
   const cap = (s: string) => s.replace(/^./, (x) => x.toUpperCase());
   return (
     <>
+      <NameField c={c} act={act} />
       <h2 className="sub-head">Alignment</h2>
       <div className="types wrap" role="radiogroup" aria-label="Alignment">
         {Object.entries(ALIGNMENTS).filter(([k]) => k !== "TN").map(([k, v]) => (
